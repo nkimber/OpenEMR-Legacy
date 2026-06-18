@@ -26,7 +26,7 @@ The smoke test currently verifies:
 - The login page is reachable.
 - The local demo admin login reaches the main OpenEMR shell.
 
-The baseline has not yet been seeded with project-specific demo data.
+The baseline has not yet been seeded with project-specific demo data. OpenEMR includes small bundled example patient SQL files and developer demo-data tooling, but the project will use a layered, deterministic synthetic seed-data strategy documented in `TEST_DATA_STRATEGY.md`.
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, and smoke-test the legacy OpenEMR baseline through local-only, allowlisted orchestration commands.
 

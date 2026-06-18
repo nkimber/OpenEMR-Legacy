@@ -18,7 +18,9 @@ Key files and folders:
 - `legacy-openemr/.env` - local ignored environment file copied from the template.
 - `legacy-openemr/source/` - local upstream OpenEMR source checkout for inspection and modernization analysis.
 - `legacy-openemr/scripts/Test-LegacyBaseline.ps1` - baseline smoke test.
+- `legacy-openemr/scripts/Seed-LegacyExampleData.ps1` - imports the bundled OpenEMR example users and patient demographics into an empty baseline.
 - `legacy-openemr/artifacts/latest-smoke-test.json` - latest smoke-test result, generated locally and ignored by the parent project.
+- `legacy-openemr/artifacts/latest-seed-result.json` - latest seed result, generated locally and ignored by the parent project.
 
 ## Pinned Versions
 
@@ -70,6 +72,12 @@ Run the smoke test:
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
 ```
 
+Seed the bundled OpenEMR example patient data:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyExampleData.ps1
+```
+
 Stop containers while keeping data:
 
 ```powershell
@@ -97,9 +105,16 @@ The smoke test passed with these checks:
 - Login page was reachable and contained the expected login form.
 - Posting the local demo admin credentials reached the main OpenEMR shell.
 
+The bundled OpenEMR example seed has been imported with these checks:
+
+- `patient_data` contains 14 rows.
+- `users` contains 6 rows, including the baseline users and the two bundled example provider users.
+- Bundled sample provider references are remapped so the imported patients point to `davis` and `hamming` rather than the local system-operation account.
+
 ## Current Gaps
 
 - No project-specific synthetic seed dataset has been created yet.
+- Only the bundled OpenEMR example patient data has been imported; this is not yet enough for appointments, messages, encounters, billing, or clinical-note parity tests.
 - No Playwright UI test suite has been added yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
 - The first Modernization Workbench version has been implemented and can manage this baseline locally.

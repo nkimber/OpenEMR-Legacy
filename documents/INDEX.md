@@ -28,6 +28,12 @@ Read this when working on the installed original OpenEMR baseline, Docker Compos
 
 It explains where the legacy application lives, which versions are pinned, how to start it, and what has been verified.
 
+### `TEST_DATA_STRATEGY.md`
+
+Read this when deciding how to seed the legacy baseline, designing synthetic patients and workflow fixtures, or writing tests that depend on known data.
+
+It explains which upstream OpenEMR demo-data options exist, why the project needs its own deterministic seed data, and how seed levels should evolve.
+
 ### `GITHUB_CONNECTION.md`
 
 Read this when connecting the parent modernization workspace to GitHub or verifying remote repository state.
@@ -65,3 +71,4 @@ The document set is expected to grow in these areas:
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
 | `MODERNIZATION_WORKBENCH.md` | Defines the implemented third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Running, planning, or extending the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |
+| `TEST_DATA_STRATEGY.md` | Defines the seed-data strategy, upstream sample/demo-data findings, seed levels, and rules for deterministic synthetic test data. | Seeding the baseline, creating test fixtures, validating expected data counts, or planning workflow parity tests. |

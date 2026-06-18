@@ -38,6 +38,14 @@ Run the baseline smoke test:
 
 The smoke test checks the health endpoint, login page, and local demo admin login. It writes the latest structured result to `artifacts/latest-smoke-test.json`.
 
+Seed the bundled OpenEMR example patient data:
+
+```powershell
+.\scripts\Seed-LegacyExampleData.ps1
+```
+
+The seed script imports the OpenEMR `example_patient_users.sql` and `example_patient_data.sql` files from the local source checkout. It also remaps the bundled sample provider references to the provider user IDs created in this local baseline. It writes the latest structured result to `artifacts/latest-seed-result.json`.
+
 OpenEMR should be available at:
 
 - HTTP: `http://localhost:8080`
