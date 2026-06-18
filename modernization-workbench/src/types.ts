@@ -85,6 +85,35 @@ export type ParityRunResult = {
   stderrPreview: string;
 };
 
+export type NativeRunResult = {
+  name: string;
+  passed: boolean;
+  mode: "stable" | "full";
+  sourcePath: string;
+  image: string;
+  startedAt: string;
+  finishedAt: string;
+  durationSeconds: number;
+  exitCode: number;
+  excludedGroups: string[];
+  stats: {
+    tests: number;
+    assertions: number;
+    errors: number;
+    failures: number;
+    phpunitWarnings: number;
+    warnings: number;
+    notices: number;
+    skipped: number;
+    incomplete: number;
+  };
+  checks: SmokeCheck[];
+  command: string[];
+  logPath: string;
+  stdoutPreview: string;
+  notes: string[];
+};
+
 export type SeedRecordTarget = {
   name: string;
   target: number;
@@ -162,7 +191,7 @@ export type AppSnapshot = {
   tests: ManagedTest[];
   latestSeed: SeedResult | null;
   latestTest: SmokeResult | null;
-  latestTests: Record<string, SmokeResult | ParityRunResult | null>;
+  latestTests: Record<string, SmokeResult | ParityRunResult | NativeRunResult | null>;
   demoLogin: {
     available: boolean;
     username?: string;

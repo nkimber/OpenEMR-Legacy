@@ -100,10 +100,18 @@ Current local status:
 
 - Host PHP is not installed.
 - Host Composer is not installed.
-- The OpenEMR container includes PHP and the upstream `tests/` folder.
-- The OpenEMR container does not currently include `vendor/bin/phpunit`.
+- The pinned OpenEMR container includes PHP and Composer.
+- Upstream Composer dependencies have been installed into the ignored local source checkout.
+- `legacy-openemr/scripts/Test-LegacyNative.ps1` runs OpenEMR's `phpunit-isolated.xml` suite inside the pinned OpenEMR container.
 
-Therefore the current verified test solution focuses on the reusable parity harness. A future legacy-native lane can be added once PHP/Composer/PHPUnit dependencies are installed locally or made available in a dedicated test container.
+The default native mode is `stable`. It excludes upstream PHPUnit groups `twig` and `large` because the complete upstream isolated suite currently has Windows bind-mount-sensitive failures:
+
+- Twig render fixtures compare with CRLF line endings from the Windows checkout while rendered output uses LF.
+- One built-in PHP server routing test in the `large` group can time out under the local bind mount.
+
+The stable native lane is verified with 2,344 PHPUnit tests and 6,188 assertions. It is a useful legacy implementation-confidence layer, while the parity harness remains the modernization contract that will run against both legacy and modernized targets.
+
+The native runner also supports `-Mode full` as a diagnostic path for the complete upstream isolated suite. Full mode is expected to remain environment-sensitive until the source checkout or test container is made fully Linux-native.
 
 ## Runner
 
@@ -137,6 +145,20 @@ The root script used by the Workbench is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite all -Reset run
+```
+
+The legacy-native PHPUnit runner is:
+
+```powershell
+cd legacy-openemr
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1
+```
+
+If the ignored upstream Composer dependencies are missing, restore them through the same containerized runner:
+
+```powershell
+cd legacy-openemr
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1 -InstallDependencies
 ```
 
 The runner accepts:
@@ -226,6 +248,7 @@ The Modernization Workbench reads test definitions from `modernization-workbench
 The legacy app currently exposes these test actions:
 
 - Baseline smoke test.
+- Native PHPUnit isolated suite.
 - Gold database contract.
 - HTTP functional contract.
 - Playwright UI contract.
@@ -234,8 +257,6 @@ The legacy app currently exposes these test actions:
 - Isolated mutation plan.
 - Full parity plan.
 - Full legacy parity suite.
-
-OpenEMR-native PHPUnit execution is not exposed as a Workbench action yet because the local/container dependency checks above do not currently provide a runnable PHPUnit binary.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 

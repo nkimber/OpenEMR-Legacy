@@ -12,9 +12,10 @@ The first version manages the legacy OpenEMR baseline:
 - Starts, stops, and restarts the legacy OpenEMR Docker Compose stack.
 - Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
+- Runs the OpenEMR-native isolated PHPUnit stable suite.
 - Runs the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands.
 - Displays recent logs and action history.
-- Displays latest smoke-test and parity-test evidence.
+- Displays latest smoke-test, native-test, and parity-test evidence.
 - Renders the project changelog as a designed build timeline.
 - Shows architecture and modernization progress views.
 - Shows the local demo OpenEMR login from `../legacy-openemr/.env`.
@@ -61,6 +62,8 @@ http://127.0.0.1:5174
 ```
 
 It is intentionally local-only. Lifecycle actions are implemented through manifest-defined commands in `config/apps.json`.
+
+Native OpenEMR PHPUnit tests are launched through `../legacy-openemr/scripts/Test-LegacyNative.ps1`. Latest native summaries are read from `../legacy-openemr/artifacts/`.
 
 Parity tests are implemented in `../parity-tests` and launched through `../scripts/Run-OpenEmrParityTests.ps1`. Latest suite summaries are read from `../parity-tests/artifacts/`.
 

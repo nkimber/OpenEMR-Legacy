@@ -25,7 +25,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { api } from "./api";
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, NativeRunResult, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
 
 type BusyState = {
   appId: string;
@@ -753,9 +753,36 @@ function TestsPage({ app, busy, onRunTest }: { app?: AppSnapshot; busy: BusyStat
   );
 }
 
-function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | null }) {
+function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | NativeRunResult | null }) {
   if (!result) {
     return <div className="test-evidence empty">No run recorded.</div>;
+  }
+
+  if (isNativeRunResult(result)) {
+    return (
+      <div className="test-evidence">
+        <div className="test-result-header">
+          {result.passed ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+          <strong>{result.passed ? "Passed" : "Failed"}</strong>
+          <span>{formatDate(result.finishedAt)}</span>
+        </div>
+        <div className="evidence-selection">
+          <span>{result.mode} mode</span>
+          {result.excludedGroups.length ? <code>excluding {result.excludedGroups.join(", ")}</code> : null}
+        </div>
+        <div className="evidence-metrics">
+          <span>{result.stats.tests.toLocaleString()} tests</span>
+          <span>{result.stats.assertions.toLocaleString()} assertions</span>
+          <span>{formatDuration(result.durationSeconds * 1000)}</span>
+        </div>
+        <div className="evidence-metrics">
+          <span>{result.stats.failures + result.stats.errors} failed/error</span>
+          <span>{result.stats.warnings} warnings</span>
+          <span>{result.stats.skipped + result.stats.incomplete} skipped/incomplete</span>
+        </div>
+        <code>{result.logPath}</code>
+      </div>
+    );
   }
 
   if (isParityRunResult(result)) {
@@ -796,8 +823,12 @@ function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | n
   );
 }
 
-function isParityRunResult(result: SmokeResult | ParityRunResult): result is ParityRunResult {
+function isParityRunResult(result: SmokeResult | ParityRunResult | NativeRunResult): result is ParityRunResult {
   return "stats" in result && "artifactDirectory" in result;
+}
+
+function isNativeRunResult(result: SmokeResult | ParityRunResult | NativeRunResult): result is NativeRunResult {
+  return "mode" in result && "logPath" in result;
 }
 
 function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapshot; busy: BusyState; seedDatasets: SeedDataset[]; onRunSeed: (seedId: string) => void }) {

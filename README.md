@@ -18,6 +18,8 @@ The first Modernization Workbench version is implemented under `modernization-wo
 
 The reusable parity test harness is implemented under `parity-tests/`. It currently runs database, HTTP, Playwright UI, and workflow mutation suites against the legacy OpenEMR baseline and is structured so the same test contracts can later target the modernized OpenEMR implementation.
 
+The legacy-native OpenEMR PHPUnit stable lane is implemented under `legacy-openemr/scripts/Test-LegacyNative.ps1`. It runs OpenEMR's upstream isolated PHPUnit suite inside the pinned OpenEMR container.
+
 Pinned baseline:
 
 - OpenEMR Docker image: `openemr/openemr:8.1.0-2026-06-18`
@@ -37,6 +39,12 @@ Run the baseline smoke test:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
+```
+
+Run the legacy-native isolated PHPUnit stable suite:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1
 ```
 
 Run the full legacy parity suite:

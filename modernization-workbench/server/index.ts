@@ -744,8 +744,15 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
       response.status(404).json({ error: `Unknown test: ${request.params.testId}` });
       return;
     }
-    const longRunningTestIds = new Set(["parity-all", "parity-workflow", "parity-plan-readiness", "parity-plan-mutation", "parity-plan-full"]);
-    const result = await runCommand(managedApp, test.commandName, longRunningTestIds.has(test.id) ? 600000 : 300000);
+    const longRunningTestIds = new Set([
+      "native-phpunit",
+      "parity-all",
+      "parity-workflow",
+      "parity-plan-readiness",
+      "parity-plan-mutation",
+      "parity-plan-full"
+    ]);
+    const result = await runCommand(managedApp, test.commandName, longRunningTestIds.has(test.id) ? 900000 : 300000);
     const event = eventFromCommand(managedApp.id, `test:${test.id}`, result);
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(test.resultPath));
@@ -791,6 +798,7 @@ app.get("/api/architecture", async (_request, response) => {
         businessLogic: "Existing OpenEMR PHP application and database access layer",
         tests: [
           "Smoke test implemented",
+          "Native OpenEMR isolated PHPUnit stable suite implemented",
           "Gold seed-data validation implemented",
           "Parity database/http/ui/workflow suites and named run plans implemented",
           "Playwright UI suite implemented for login, chart, encounter, scheduling, billing, and lab-result screens",
@@ -826,6 +834,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, and procedure-result rendering." },
+      { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
       { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
