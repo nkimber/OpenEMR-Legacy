@@ -360,6 +360,7 @@ Key outcomes:
 - Extended the Modernization Workbench app manifest and Test Runs page with selectable smoke, database, HTTP, UI, and full-suite test actions.
 - Updated Workbench progress and architecture metadata to reflect implemented parity and Playwright coverage.
 - Documented the test architecture, reset strategy, artifacts, and future modernized target extension path.
+- Documented the legacy-native PHPUnit lane as optional pending host or container PHPUnit dependencies.
 
 Verified test runs:
 

@@ -68,6 +68,19 @@ Current legacy coverage:
 
 The current UI suite is intentionally read-only. Mutation workflows should be added workflow by workflow with pre/post database probes.
 
+### Legacy-Native Internal Tests
+
+OpenEMR upstream includes PHPUnit, Jest, and Panther-oriented tests in `legacy-openemr/source/tests/`. These tests are useful as implementation confidence for the legacy PHP application, but they are not the primary modernization parity contract because the modernized target will not run the same PHP internals.
+
+Current local status:
+
+- Host PHP is not installed.
+- Host Composer is not installed.
+- The OpenEMR container includes PHP and the upstream `tests/` folder.
+- The OpenEMR container does not currently include `vendor/bin/phpunit`.
+
+Therefore the current verified test solution focuses on the reusable parity harness. A future legacy-native lane can be added once PHP/Composer/PHPUnit dependencies are installed locally or made available in a dedicated test container.
+
 ## Runner
 
 The main runner is:
@@ -148,6 +161,8 @@ The legacy app currently exposes these test actions:
 - HTTP functional contract.
 - Playwright UI contract.
 - Full legacy parity suite.
+
+OpenEMR-native PHPUnit execution is not exposed as a Workbench action yet because the local/container dependency checks above do not currently provide a runnable PHPUnit binary.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
