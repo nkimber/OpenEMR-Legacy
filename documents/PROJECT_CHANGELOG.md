@@ -257,6 +257,31 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 
+### 011. Project Changelog Rendered In The Workbench
+
+Commit: `537d2e5`
+
+Added a Workbench-facing changelog experience so the project build history is visible as a designed timeline instead of only as a markdown document.
+
+Key outcomes:
+
+- Added a local Workbench API endpoint that parses `documents/PROJECT_CHANGELOG.md` into structured timeline data.
+- Added typed frontend API access for the changelog.
+- Added a Project Build Timeline panel to the Workbench dashboard.
+- Rendered each changelog step with its date, step number, title, commit reference, summary, key outcomes, evidence files, and selected metrics.
+- Kept `documents/PROJECT_CHANGELOG.md` as the source of truth so documentation and the Workbench stay synchronized.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/PROJECT_CHANGELOG.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `modernization-workbench/README.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
