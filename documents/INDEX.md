@@ -16,6 +16,12 @@ Read this before making project changes that affect code, configuration, archite
 
 It explains how project documents must stay synchronized with the actual state of the repository.
 
+### `PROJECT_CHANGELOG.md`
+
+Read this when you need the chronological record of concrete implementation steps, enhancements, verification milestones, and release-note-style project progress.
+
+It explains what has changed so far, why each step mattered, where the related files live, and which commit captured the work when available.
+
 ### `MODERNIZATION_WORKBENCH.md`
 
 Read this when working on the third application: the oversight, orchestration, comparison, and progress-tracking website for the modernization effort.
@@ -51,6 +57,7 @@ The document set is expected to grow in these areas:
 - **Migration planning** - workflow-by-workflow modernization plans, data mapping, business-rule extraction.
 - **Operations** - Docker setup, local development, reproducible environments, CI notes.
 - **Decisions** - architecture decision records and tradeoffs.
+- **Project history** - chronological implementation steps, verification milestones, and release-note-style progress tracking.
 
 ## Maintenance Rules
 
@@ -60,6 +67,7 @@ The document set is expected to grow in these areas:
 - Link related documents when a topic crosses boundaries.
 - Update relevant documents in the same change as code, configuration, tests, setup, or architectural decisions.
 - If a decision is made during project execution, record it in the appropriate durable document.
+- Update `PROJECT_CHANGELOG.md` when implementation steps, enhancements, verification milestones, or release-note-worthy project behavior changes.
 - Keep historical decisions rather than silently rewriting them; add dated updates when direction changes.
 
 ## Current Documents
@@ -70,5 +78,6 @@ The document set is expected to grow in these areas:
 | `GITHUB_CONNECTION.md` | Tracks local Git and GitHub remote connection state, including what should be pushed and what should remain ignored. | Connecting the project to GitHub, checking remotes, pushing the initial branch, or troubleshooting repository tracking. |
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
 | `MODERNIZATION_WORKBENCH.md` | Defines the implemented third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Running, planning, or extending the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
+| `PROJECT_CHANGELOG.md` | Tracks the chronological implementation steps, enhancements, verification milestones, and release-note-style progress for the project. | Understanding what has already been built, adding a new improvement entry, preparing summaries, or checking the sequence of project evolution. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |
 | `TEST_DATA_STRATEGY.md` | Defines the gold seed-data strategy, upstream sample/demo-data findings, verified counts, and rules for deterministic synthetic test data. | Seeding the baseline, creating test fixtures, validating expected data counts, or planning workflow parity tests. |

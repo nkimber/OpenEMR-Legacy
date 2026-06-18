@@ -24,6 +24,7 @@ This applies to:
 - Workflow-scope decisions.
 - Operational instructions.
 - Known limitations, risks, or deferred work.
+- Project changelog entries for concrete implementation steps, enhancements, and verification milestones.
 
 ## What To Update
 
@@ -36,6 +37,7 @@ Common update patterns:
 - Update testing documents when test layers, fixtures, seed data, Playwright coverage, or parity checks change.
 - Update migration documents when a legacy workflow, table, API, or business rule is mapped into the modernized system.
 - Update decision records when a durable decision is made or reversed.
+- Update `documents/PROJECT_CHANGELOG.md` when a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed.
 - Update `documents/INDEX.md` whenever a new document is added or the purpose of an existing document changes.
 
 ## Decision Handling
@@ -60,6 +62,7 @@ Before finishing a change, check:
 - Did the change alter the expected workflow, architecture, or migration strategy?
 - Did the change introduce a new command, dependency, port, service, data fixture, or test assumption?
 - Was a decision made that future contributors need to know?
+- Did the completed work deserve a new project changelog entry?
 - Does `documents/INDEX.md` still route readers to the right place?
 
 If the answer to any of these is yes, update the documents before closing the work.

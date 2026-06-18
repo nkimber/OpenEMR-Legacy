@@ -13,6 +13,7 @@ Current entry points:
 - `documents/INDEX.md` - document catalog and reading guide.
 - `documents/PROJECT_CONTEXT.md` - initial project context, goals, modernization strategy, and validation approach.
 - `documents/DOCUMENTATION_GOVERNANCE.md` - rules for keeping documents synchronized with project decisions and code changes.
+- `documents/PROJECT_CHANGELOG.md` - chronological implementation steps, enhancements, verification milestones, and release-note-style project progress.
 - `documents/MODERNIZATION_WORKBENCH.md` - purpose, scope, and planned capabilities for the oversight and orchestration website.
 - `documents/LEGACY_OPENEMR_BASELINE.md` - installed legacy OpenEMR baseline, pinned versions, commands, and verification state.
 - `documents/TEST_DATA_STRATEGY.md` - gold synthetic dataset strategy, expected counts, canonical ID rules, and seed-data operating model.
@@ -28,6 +29,7 @@ The modernization target is a modern SPA-style UI, a public backend API, a servi
 
 - Read `documents/INDEX.md` first when a task involves project direction, architecture, test strategy, modernization scope, or documentation.
 - Treat documentation as part of the implementation. When code, configuration, architecture, test strategy, setup steps, or project decisions change, update the relevant documents in the same work item.
+- Update `documents/PROJECT_CHANGELOG.md` whenever a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed.
 - Keep project documents concise, explicit, and cross-linked.
 - Prefer small vertical slices over broad rewrites.
 - Preserve the legacy OpenEMR baseline as a reference system.

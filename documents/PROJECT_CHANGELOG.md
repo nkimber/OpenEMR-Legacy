@@ -1,0 +1,268 @@
+# Project Changelog
+
+Created: 2026-06-18
+
+## Purpose
+
+This document tracks the concrete implementation steps, improvements, and enhancements made during the OpenEMR modernization project.
+
+Use it as the project-level changelog: when code, configuration, test coverage, seed data, orchestration, documentation structure, or durable project behavior changes, add a new entry here in the same work item.
+
+## Maintenance Rules
+
+- Add entries in chronological order.
+- Keep each entry concrete: describe what changed, why it matters, and where the evidence or source files live.
+- Reference the relevant commit when available.
+- Do not replace the detailed project documents. Link to them or name them when the change belongs to a specific area.
+- If a later change supersedes an earlier entry, add a new entry that says so rather than silently rewriting history.
+
+## 2026-06-18
+
+### 001. Project Documentation Foundation
+
+Commit: `5fb6200` and follow-on documentation commits
+
+Established the project documentation model in `documents/` and created `AGENTS.md` so future Codex sessions know to treat the document set as durable project memory.
+
+Key outcomes:
+
+- Created the initial project context and modernization vision.
+- Added `documents/INDEX.md` as the routing map for the document library.
+- Added `documents/DOCUMENTATION_GOVERNANCE.md` to require documentation updates alongside code, configuration, architecture, test, setup, and decision changes.
+- Added the first baseline and GitHub connection documents.
+
+Primary documents:
+
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/DOCUMENTATION_GOVERNANCE.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/GITHUB_CONNECTION.md`
+- `AGENTS.md`
+
+### 002. Legacy OpenEMR Baseline Installed And Verified
+
+Commit: `5fb6200`
+
+Created the reproducible legacy OpenEMR baseline under `legacy-openemr/`.
+
+Key outcomes:
+
+- Added Docker Compose runtime for OpenEMR and MariaDB.
+- Pinned OpenEMR image `openemr/openemr:8.1.0-2026-06-18`.
+- Pinned upstream source tag `v8_1_0` and source commit `28dc4f9ba3f3d4de8324980699a072cdaf098927`.
+- Pinned MariaDB image `mariadb:11.8.8`.
+- Added local environment template and local-only demo credential handling.
+- Added the baseline smoke test script.
+- Verified the health endpoint, login page, and local admin login.
+
+Primary files:
+
+- `legacy-openemr/docker-compose.yml`
+- `legacy-openemr/.env.example`
+- `legacy-openemr/scripts/Test-LegacyBaseline.ps1`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
+### 003. Git Repository And GitHub Remote Established
+
+Commits: `717ad30`, `fb10369`, `1338873`, `89491d5`, `89c3178`, `6b806cc`, `4fc6a82`, `0f80b14`
+
+Initialized the parent modernization workspace as a Git repository and connected it to GitHub.
+
+Key outcomes:
+
+- Established the `main` branch.
+- Added ignore rules for local environment files, runtime artifacts, node modules, built frontend output, Playwright local files, and the local OpenEMR source checkout.
+- Added helper scripting and documentation for connecting the GitHub remote.
+- Connected and pushed to `https://github.com/nkimber/OpenEMR-Legacy.git`.
+
+Primary files:
+
+- `.gitignore`
+- `scripts/Connect-GitHubRemote.ps1`
+- `documents/GITHUB_CONNECTION.md`
+- `README.md`
+
+### 004. Modernization Workbench Concept Documented
+
+Commit: `8dd640a`
+
+Documented the Modernization Workbench as the third application in the project: an oversight and orchestration website for the legacy baseline, future modernized target, tests, status, progress, and architecture comparison.
+
+Key outcomes:
+
+- Defined the Workbench as a local-first control surface and evidence viewer.
+- Captured lifecycle control expectations for managed project applications.
+- Established that Workbench actions must map to repeatable scripts or commands rather than a general-purpose shell.
+- Defined future comparison responsibilities for side-by-side modernization parity.
+
+Primary document:
+
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+### 005. Modernization Workbench V1 Implemented
+
+Commit: `65a291e`
+
+Built the first working version of the Modernization Workbench under `modernization-workbench/`.
+
+Key outcomes:
+
+- Added a React, TypeScript, Vite, Node.js, and Express application.
+- Added local-only Workbench API on `http://127.0.0.1:5174`.
+- Added Workbench UI on `http://127.0.0.1:5173`.
+- Added managed application configuration for the legacy OpenEMR baseline.
+- Added status, health, start, stop, restart, logs, smoke-test, architecture, progress, and action-history capabilities.
+- Added `scripts/Start-ModernizationWorkbench.ps1` to start the Workbench.
+- Verified production build and UI rendering.
+
+Primary files:
+
+- `modernization-workbench/`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `scripts/Start-ModernizationWorkbench.ps1`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+### 006. Browser-Friendly Legacy OpenEMR Launch URL
+
+Commit: `4decff1`
+
+Updated the Workbench legacy OpenEMR launch link to use `http://localhost:8080`.
+
+Key outcomes:
+
+- Avoided the browser privacy warning caused by the self-signed local HTTPS certificate at `https://localhost:9443`.
+- Kept the HTTPS health endpoint in place for backend health checks.
+- Documented the difference between the browser-friendly app URL and the HTTPS health endpoint.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+### 007. Local Demo Login Displayed In Workbench
+
+Commit: `1ff7112`
+
+Updated the Workbench to read and display the actual local demo OpenEMR login from `legacy-openemr/.env`.
+
+Key outcomes:
+
+- Confirmed the local demo username/password are `admin` / `pass`.
+- Added a Managed Application panel credential strip so the operator does not rely on browser autofill.
+- Documented that the Workbench credential display is local-only and sourced from the ignored environment file.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+### 008. Test Data Strategy Created
+
+Commit: `c3cd8dd`
+
+Researched OpenEMR seed/demo-data options and documented the project seed-data direction.
+
+Key outcomes:
+
+- Confirmed the installed local baseline initially had no patient or workflow data.
+- Identified upstream starter sample files and demo-data tooling as useful but insufficient for the modernization parity baseline.
+- Decided that the project needs deterministic, non-PHI, source-controlled synthetic seed data.
+- Added a starter legacy seed using OpenEMR bundled example patient/provider SQL.
+- Established that the shared seed-data contract should become part of the modernization test contract.
+
+Primary files:
+
+- `documents/TEST_DATA_STRATEGY.md`
+- `legacy-openemr/scripts/Seed-LegacyExampleData.ps1`
+
+### 009. Shared Seed Dataset Contract Moved Into Workbench
+
+Commit: `252ec4e`
+
+Moved ownership of the shared synthetic seed-data contract into the Modernization Workbench.
+
+Key outcomes:
+
+- Added `modernization-workbench/seed-data/manifest.json`.
+- Added the `openemr-shared-synthetic-v1` dataset folder.
+- Defined the intended 1,000-patient dataset shape and target record counts.
+- Added Workbench visibility for seed-data status.
+- Added Workbench seed orchestration for the starter legacy seed.
+- Established that future legacy and modernized database adapters should consume the same canonical dataset.
+
+Primary files:
+
+- `modernization-workbench/seed-data/manifest.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/personas/golden-patients.json`
+- `modernization-workbench/config/apps.json`
+- `documents/TEST_DATA_STRATEGY.md`
+
+### 010. Gold Synthetic Dataset Implemented And Verified
+
+Commit: `ae4f0f8`
+
+Built the project gold test dataset and verified it against the legacy OpenEMR MariaDB baseline.
+
+Key outcomes:
+
+- Added a deterministic generator for `openemr-shared-synthetic-v1`.
+- Generated and source-controlled the canonical gold dataset.
+- Generated and source-controlled the legacy MariaDB SQL seed adapter.
+- Added `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- Added Workbench orchestration for `Gold test dataset v1`.
+- Updated Workbench progress, data profile, architecture, and seed-status reporting.
+- Verified the standalone seed script.
+- Verified the Workbench seed API action.
+- Verified the Workbench smoke-test API action after reseeding.
+- Verified the Workbench dashboard through a Playwright snapshot.
+- Verified the Workbench production build.
+
+Verified gold dataset counts:
+
+- Patients: 1,000
+- Providers and staff: 20
+- Facilities: 3
+- Insurance records: 1,400
+- Appointments: 2,800
+- Encounters: 2,100
+- Vitals: 2,100
+- Clinical notes: 2,100
+- Problems: 1,500
+- Allergies: 900
+- Medication list entries: 2,200
+- Prescriptions: 2,200
+- Lab orders: 700
+- Lab reports: 700
+- Lab results: 2,400
+- Messages: 1,200
+- Billing line items: 3,000
+- Portal-enabled patients: 200
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+## Next Expected Entries
+
+Likely upcoming changelog entries should cover:
+
+- First Playwright login/navigation test against the seeded legacy baseline.
+- Seed-aware patient search and appointment/encounter tests using canonical gold dataset IDs.
+- Selection of the first modernization workflow slice.
+- Modernized target project bootstrap.
+- PostgreSQL seed adapter for the modernized target.
