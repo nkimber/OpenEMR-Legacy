@@ -77,7 +77,7 @@
         {
           "id": "parity-ui",
           "name": "Playwright UI contract",
-          "description": "Runs browser login and gold-patient chart navigation checks against the legacy UI.",
+          "description": "Runs browser login, chart, encounter, appointment, billing, and lab-result checks against the legacy UI.",
           "layer": "ui",
           "commandName": "parityUiTests",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-ui.json"

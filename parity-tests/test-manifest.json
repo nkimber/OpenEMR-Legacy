@@ -75,7 +75,7 @@
     {
       "id": "ui",
       "name": "Playwright UI Contract",
-      "description": "Exercises the browser-visible login and gold-patient navigation workflows.",
+      "description": "Exercises browser-visible login, chart, encounter, scheduling, billing, and lab result workflows.",
       "layer": "ui",
       "path": "tests/ui",
       "tags": ["ui", "playwright", "read-only"],

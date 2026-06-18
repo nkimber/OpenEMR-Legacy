@@ -68,6 +68,10 @@ Current legacy coverage:
 
 - Login with configured local demo credentials.
 - Open a known gold patient chart and verify canonical patient details.
+- Render a seeded encounter and verify SOAP and vitals detail content across OpenEMR's frame-based encounter UI.
+- Render a future seeded appointment in the legacy scheduler edit screen and verify title, patient, date, time, and status form values.
+- Render a seeded fee sheet and verify encounter billing codes and descriptions.
+- Render completed procedure results for a gold lab patient.
 
 The focused UI suite is intentionally read-only. Mutation workflows live in the Workflow Mutation Contract suite, where they can combine database pre/post probes with browser-visible evidence when useful.
 

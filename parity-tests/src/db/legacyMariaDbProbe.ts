@@ -23,6 +23,41 @@ export type PatientRecord = {
   allowPatientPortal: string;
 };
 
+export type AppointmentSummary = {
+  id: number;
+  patientId: number;
+  title: string;
+  eventDate: string;
+  startTime: string;
+  status: string;
+};
+
+export type EncounterSummary = {
+  id: number;
+  encounter: number;
+  patientId: number;
+  date: string;
+  reason: string;
+};
+
+export type BillingLineSummary = {
+  id: number;
+  encounter: number;
+  codeType: string;
+  code: string;
+  codeText: string;
+};
+
+export type ProcedureOrderSummary = {
+  id: number;
+  patientId: number;
+  encounterId: number;
+  dateOrdered: string;
+  orderStatus: string;
+  procedureCode: string;
+  procedureName: string;
+};
+
 export class LegacyMariaDbProbe {
   constructor(private readonly target: RuntimeTarget) {}
 
@@ -187,6 +222,92 @@ UNION ALL SELECT 'procedureOrders', COUNT(*) FROM procedure_order WHERE patient_
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid};
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
+  }
+
+  async getFutureAppointmentForPatient(pid: number, afterDate: string): Promise<AppointmentSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pc_eid AS id, pc_pid AS patientId, pc_title AS title, DATE(pc_eventDate) AS eventDate,
+  pc_startTime AS startTime, pc_apptstatus AS status
+FROM openemr_postcalendar_events
+WHERE pc_pid = ${pid} AND pc_eventDate > '${escapeSql(afterDate)}'
+ORDER BY pc_eventDate, pc_startTime
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      title: row.title,
+      eventDate: row.eventDate,
+      startTime: row.startTime,
+      status: row.status
+    };
+  }
+
+  async getLatestEncounterForPatient(pid: number): Promise<EncounterSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT id, encounter, pid AS patientId, DATE(date) AS date, reason
+FROM form_encounter
+WHERE pid = ${pid}
+ORDER BY date DESC, id DESC
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      encounter: Number(row.encounter),
+      patientId: Number(row.patientId),
+      date: row.date,
+      reason: row.reason
+    };
+  }
+
+  async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT id, encounter, code_type AS codeType, code, code_text AS codeText
+FROM billing
+WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
+ORDER BY id;
+`);
+    return rows.map((row) => ({
+      id: Number(row.id),
+      encounter: Number(row.encounter),
+      codeType: row.codeType,
+      code: row.code,
+      codeText: row.codeText
+    }));
+  }
+
+  async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
+  DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+FROM procedure_order po
+LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
+WHERE po.patient_id = ${pid}
+ORDER BY po.date_ordered DESC, po.procedure_order_id DESC
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
+      orderStatus: row.orderStatus,
+      procedureCode: row.procedureCode,
+      procedureName: row.procedureName
+    };
   }
 }
 

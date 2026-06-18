@@ -140,7 +140,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 
 - Database contract suite passed.
 - HTTP functional suite passed.
-- Playwright UI suite passed.
+- Playwright UI suite passed, including login, patient chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering.
 - Workflow mutation suite passed with per-test gold-data resets, including demographics, appointments, clinical lists, messages, prescriptions, encounters with vitals/SOAP details, billing, and lab procedure workflows.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.

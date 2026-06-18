@@ -8,7 +8,7 @@ The first implemented target is `legacy-openemr`. The `modernized-openemr` targe
 
 - `database` - normalized database probes against the seeded target.
 - `http` - health and server-rendered functional checks.
-- `ui` - Playwright browser workflows.
+- `ui` - Playwright browser workflows for login, chart, encounter, scheduling, billing, and lab result screens.
 - `workflow` - deterministic CRUD-style workflows with pre/post probes, cleanup, and UI evidence where useful.
 
 ## Run Plans

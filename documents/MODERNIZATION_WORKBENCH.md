@@ -168,7 +168,7 @@ Preferred pattern:
 
 The first available baseline test command is `legacy-openemr/scripts/Test-LegacyBaseline.ps1`, which writes `legacy-openemr/artifacts/latest-smoke-test.json`.
 
-The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, and full-suite legacy runs. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
+The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, and full-suite legacy runs. The UI suite covers login, chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
 
 The workflow mutation run covers deterministic demographics, appointment, encounter-detail, clinical-list, patient-message, prescription, billing, and lab procedure lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
 
