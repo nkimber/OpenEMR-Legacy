@@ -533,11 +533,45 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 019. Legacy Native PHPUnit Test Lane
+
+Commit: `07b4d31`
+
+Added a Workbench-managed OpenEMR-native test lane so the legacy PHP application now has upstream implementation-confidence tests alongside the reusable modernization parity suite.
+
+Key outcomes:
+
+- Added `legacy-openemr/scripts/Test-LegacyNative.ps1` to run OpenEMR's upstream `phpunit-isolated.xml` suite inside the pinned OpenEMR Docker image.
+- Implemented a stable native mode that excludes upstream `twig` and `large` groups because the complete upstream suite currently has Windows bind-mount-sensitive CRLF fixture and built-in-server routing failures.
+- Added optional `-Mode full` for diagnostic complete-suite runs and `-InstallDependencies` to restore ignored Composer dependencies through Docker.
+- Wrote native test evidence to `legacy-openemr/artifacts/latest-native-test.json` plus a companion log file.
+- Added a Workbench Test Runs card for the native PHPUnit suite and typed frontend rendering for native test stats.
+- Marked the native lane as long-running in the Workbench API so the command has enough time to complete.
+- Updated baseline, test architecture, Workbench, README, and document index guidance to include the native lane and remaining native gaps.
+
+Verified test runs:
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1` from `legacy-openemr/` with 2,344 tests, 6,188 assertions, exit code 0.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+- `git -C legacy-openemr/source status --short` returned clean after the dependency and test attempts.
+
+Primary files:
+
+- `legacy-openemr/scripts/Test-LegacyNative.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- Legacy-native PHPUnit/Jest/Panther test-container enablement if practical.
+- Legacy-native Jest/Panther test-container enablement if practical.
 - Selection of the first modernization workflow slice.
 - Modernized workflow action adapters for the parity suite.
 - Modernized target project bootstrap.
