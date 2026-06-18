@@ -33,7 +33,19 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline. It can show status, check health, start, stop, restart, run the smoke test, run the gold seed action, run the starter seed action, display latest smoke-test and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run the gold seed action, run the starter seed action, display latest smoke-test and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+
+Current pages:
+
+- Dashboard.
+- Applications.
+- Project Timeline.
+- Progress.
+- Architecture.
+- Test Runs.
+- Seed Data.
+
+The navigation model supports nested child items so the Workbench can grow into two-level navigation later without reworking the shell.
 
 The legacy app launch link opens `http://localhost:8080` because that is the browser-friendly local URL. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but it uses a self-signed local certificate and browsers will show a privacy warning unless the certificate is trusted or manually bypassed. The Workbench backend still uses `https://localhost:9443/meta/health/readyz` for health checks and is configured to tolerate the self-signed certificate for that internal check.
 
@@ -45,6 +57,7 @@ Verified behavior:
 
 - Production build passes with `npm run build`.
 - The UI renders in desktop and mobile viewports.
+- The UI includes a left navigation shell with separate pages for dashboard, applications, timeline, progress, architecture, tests, and seed data.
 - The API can read legacy OpenEMR status.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
@@ -96,7 +109,8 @@ Implemented capabilities:
 - Trigger baseline smoke tests through `legacy-openemr/scripts/Test-LegacyBaseline.ps1`.
 - Display latest baseline test results.
 - Display recent lifecycle action results, including command status, duration, and logs.
-- Display the project changelog as a designed build timeline sourced from `documents/PROJECT_CHANGELOG.md`.
+- Display the project changelog as a designed build timeline sourced from `documents/PROJECT_CHANGELOG.md` on its own page.
+- Display architecture, progress, test runs, seed data, and managed applications on dedicated pages.
 - Display links or paths to logs, screenshots, and reports.
 - Show placeholder sections for the modernized target, marked as not started until that system exists.
 - Show a project progress view with the three major systems and their current stage.

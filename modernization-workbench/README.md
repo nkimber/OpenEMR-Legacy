@@ -4,6 +4,7 @@ The Modernization Workbench is a local-first oversight application for the OpenE
 
 The first version manages the legacy OpenEMR baseline:
 
+- Provides a left-side navigation shell with hash-routed pages.
 - Shows Docker Compose service status.
 - Checks the OpenEMR health endpoint.
 - Shows the pinned source tag and commit.
@@ -15,6 +16,16 @@ The first version manages the legacy OpenEMR baseline:
 - Renders the project changelog as a designed build timeline.
 - Shows architecture and modernization progress views.
 - Shows the local demo OpenEMR login from `../legacy-openemr/.env`.
+
+Current pages:
+
+- Dashboard
+- Applications
+- Project Timeline
+- Progress
+- Architecture
+- Test Runs
+- Seed Data
 
 The managed app link opens the legacy site at `http://localhost:8080`. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but browsers will warn about its self-signed local certificate unless it is trusted or bypassed manually.
 

@@ -27,8 +27,131 @@ textarea {
   font: inherit;
 }
 
+.workbench-app-shell {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.workbench-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid #d9e2e8;
+  background: #ffffff;
+  padding: 20px 14px;
+  box-shadow: 8px 0 24px rgba(20, 31, 43, 0.04);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  margin-bottom: 22px;
+  padding: 0 8px;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #246b73;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 820;
+}
+
+.sidebar-brand strong,
+.sidebar-brand span {
+  display: block;
+}
+
+.sidebar-brand strong {
+  color: #12202f;
+  font-size: 1rem;
+}
+
+.sidebar-brand span {
+  color: #647386;
+  font-size: 0.82rem;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 4px;
+}
+
+.nav-group {
+  display: grid;
+  gap: 3px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #435367;
+  padding: 8px 10px;
+  font-weight: 720;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  border-color: #dbe4ea;
+  background: #f6f9fb;
+  color: #1f3346;
+}
+
+.nav-item.active {
+  border-color: #c0d8dc;
+  background: #edf8f7;
+  color: #155b63;
+}
+
+.nav-item svg {
+  flex: 0 0 auto;
+}
+
+.nav-children {
+  display: grid;
+  gap: 3px;
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1px solid #dfe7ec;
+}
+
+.nav-child {
+  min-height: 34px;
+  font-size: 0.9rem;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  border-top: 1px solid #e6edf2;
+  color: #687789;
+  padding: 14px 8px 2px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .workbench-shell {
-  width: min(1480px, calc(100vw - 48px));
+  width: min(1480px, calc(100vw - 320px));
+  min-width: 0;
   margin: 0 auto;
   padding: 28px 0 48px;
 }
@@ -61,6 +184,11 @@ h1 {
   color: #12202f;
   font-size: clamp(2rem, 3vw, 3.25rem);
   font-weight: 760;
+}
+
+.app-header p {
+  margin-top: 5px;
+  max-width: 760px;
 }
 
 h2 {
@@ -513,6 +641,61 @@ p {
   margin-bottom: 0;
 }
 
+.page-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.test-run-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.55fr);
+  gap: 16px;
+}
+
+.test-run-card,
+.action-card,
+.seed-dataset-card {
+  border: 1px solid #dce4eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 14px;
+}
+
+.test-run-card,
+.action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.test-run-card strong,
+.action-card strong,
+.seed-dataset-card strong {
+  display: block;
+  color: #172534;
+}
+
+.test-run-card p,
+.action-card p,
+.seed-dataset-card p {
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+.seed-dataset-list,
+.action-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+.seed-target-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .log-view {
   min-height: 180px;
   max-height: 320px;
@@ -816,6 +999,30 @@ dd {
 }
 
 @media (max-width: 980px) {
+  .workbench-app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .workbench-sidebar {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #d9e2e8;
+    padding: 14px;
+  }
+
+  .sidebar-brand {
+    margin-bottom: 12px;
+  }
+
+  .sidebar-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
   .workbench-shell {
     width: min(100vw - 28px, 1480px);
   }
@@ -833,6 +1040,8 @@ dd {
   .metric-grid,
   .data-profile,
   .changelog-stats,
+  .test-run-grid,
+  .seed-target-grid,
   .architecture-grid {
     grid-template-columns: 1fr;
   }
