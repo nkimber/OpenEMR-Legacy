@@ -14,6 +14,8 @@ There is no GitHub remote attached yet.
 
 The helper script `scripts/Connect-GitHubRemote.ps1` has been validated in `-ValidateOnly` mode against a placeholder GitHub URL. It passed local safety checks without adding a remote or pushing.
 
+The connected GitHub app can list repositories for user `nkimber`, but no existing repository was found that clearly matches this OpenEMR modernization workspace. The available GitHub connector tools do not expose repository creation, and the GitHub CLI (`gh`) is not installed on the local PATH.
+
 The local repository intentionally tracks the modernization workspace, orchestration files, scripts, and documents. It intentionally does not track:
 
 - `legacy-openemr/.env`
