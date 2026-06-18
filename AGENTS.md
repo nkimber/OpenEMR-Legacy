@@ -15,6 +15,7 @@ Current entry points:
 - `documents/DOCUMENTATION_GOVERNANCE.md` - rules for keeping documents synchronized with project decisions and code changes.
 - `documents/MODERNIZATION_WORKBENCH.md` - purpose, scope, and planned capabilities for the oversight and orchestration website.
 - `documents/LEGACY_OPENEMR_BASELINE.md` - installed legacy OpenEMR baseline, pinned versions, commands, and verification state.
+- `documents/GITHUB_CONNECTION.md` - local Git and future GitHub remote connection state.
 
 ## Project Direction
 

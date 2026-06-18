@@ -1,0 +1,43 @@
+# GitHub Connection
+
+Created: 2026-06-18
+
+## Purpose
+
+This document tracks the state of connecting the local OpenEMR modernization workspace to GitHub.
+
+## Current State
+
+The parent project is initialized as a local Git repository on branch `main`.
+
+There is no GitHub remote attached yet.
+
+The local repository intentionally tracks the modernization workspace, orchestration files, scripts, and documents. It intentionally does not track:
+
+- `legacy-openemr/.env`
+- `legacy-openemr/source/`
+- `legacy-openemr/artifacts/`
+
+The ignored `legacy-openemr/source/` folder is a local checkout of the upstream OpenEMR source for inspection and analysis. It should not be vendored into this parent repository by accident.
+
+## Required Remote Step
+
+To complete the GitHub connection, choose or create a GitHub repository and attach it as `origin`.
+
+Expected commands once the remote repository exists:
+
+```powershell
+git remote add origin https://github.com/<owner>/<repo>.git
+git push -u origin main
+```
+
+If the remote already has files, inspect and reconcile it before pushing.
+
+## Verification
+
+After pushing, verify:
+
+- `git remote -v` shows the expected GitHub repository.
+- `git status --short` is clean except expected ignored runtime files.
+- `git ls-remote --heads origin main` returns the pushed branch.
+- The GitHub repository shows the root `README.md`, `AGENTS.md`, `documents/`, and `legacy-openemr/` orchestration files.

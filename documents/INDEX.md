@@ -28,6 +28,12 @@ Read this when working on the installed original OpenEMR baseline, Docker Compos
 
 It explains where the legacy application lives, which versions are pinned, how to start it, and what has been verified.
 
+### `GITHUB_CONNECTION.md`
+
+Read this when connecting the parent modernization workspace to GitHub or verifying remote repository state.
+
+It explains what should be tracked, what should remain local-only, and which commands complete the remote connection.
+
 ## Document Categories
 
 The document set is expected to grow in these areas:
@@ -55,6 +61,7 @@ The document set is expected to grow in these areas:
 | Document | Purpose | Read This When |
 | --- | --- | --- |
 | `DOCUMENTATION_GOVERNANCE.md` | Defines the rule that project documents must stay synchronized with project state, code, tests, setup, and decisions. | Before making changes that affect implementation, architecture, setup, test strategy, or durable project direction. |
+| `GITHUB_CONNECTION.md` | Tracks local Git and GitHub remote connection state, including what should be pushed and what should remain ignored. | Connecting the project to GitHub, checking remotes, pushing the initial branch, or troubleshooting repository tracking. |
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
 | `MODERNIZATION_WORKBENCH.md` | Defines the third website that oversees the legacy baseline, modernized target, test orchestration, comparison results, and technical architecture differences. | Planning or implementing the workbench, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |

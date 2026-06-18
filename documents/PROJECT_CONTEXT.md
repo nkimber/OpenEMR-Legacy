@@ -18,7 +18,7 @@ The first objective is to create a fully reproducible local OpenEMR baseline tha
 
 As of 2026-06-18, the legacy OpenEMR baseline is installed under `legacy-openemr/`, running through Docker Compose, and verified by a smoke test. The baseline uses OpenEMR Docker image `openemr/openemr:8.1.0-2026-06-18`, upstream source tag `v8_1_0`, and `mariadb:11.8.8`.
 
-The parent project has been initialized as a local Git repository. It does not yet have a GitHub remote.
+The parent project has been initialized as a local Git repository on branch `main`. It does not yet have a GitHub remote.
 
 The smoke test currently verifies:
 
@@ -141,7 +141,7 @@ Each slice should include:
 
 1. Establish baseline seed/demo data.
 2. Add the first Playwright login/navigation test.
-3. Connect the project to GitHub once the local baseline setup is accepted.
+3. Connect the project to GitHub once a target repository exists.
 4. Build the first version of the Modernization Workbench around baseline status and test execution.
 5. Select the first modernization workflow slice.
 6. Build the modernized target implementation for that slice.
