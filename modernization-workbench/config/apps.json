@@ -85,7 +85,7 @@
         {
           "id": "parity-workflow",
           "name": "Workflow mutation contract",
-          "description": "Runs deterministic demographics, scheduling, clinical-list, message, and prescription mutation workflows with pre/post probes.",
+          "description": "Runs deterministic demographics, scheduling, encounter-detail, clinical-list, message, prescription, billing, and lab mutation workflows with pre/post probes.",
           "layer": "workflow",
           "commandName": "parityWorkflowTests",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-workflow.json"

@@ -82,6 +82,9 @@ Current legacy coverage:
 - Clinical allergy list create, deactivate, and delete lifecycle with patient allergy count probes.
 - Patient message create, close, soft-delete, and hard-cleanup lifecycle with message count probes.
 - Prescription create, deactivate, and delete lifecycle with patient prescription count probes.
+- Encounter create, update, and delete lifecycle with vitals and SOAP detail form links.
+- CPT billing line create, bill-status update, deactivate, and delete lifecycle.
+- Lab procedure order create, complete, report, result, and cascade-delete lifecycle.
 
 The current legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The tests are still written as workflow intent, so a future modernized target can implement equivalent actions behind the same behavioral contract.
 

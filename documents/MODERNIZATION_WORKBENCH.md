@@ -170,7 +170,7 @@ The first available baseline test command is `legacy-openemr/scripts/Test-Legacy
 
 The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, and full-suite legacy runs. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
 
-The workflow mutation run covers deterministic demographics, appointment, clinical-list, patient-message, and prescription lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
+The workflow mutation run covers deterministic demographics, appointment, encounter-detail, clinical-list, patient-message, prescription, billing, and lab procedure lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
 
 The Workbench now exposes curated plan actions for legacy readiness, isolated mutations, and the full parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 

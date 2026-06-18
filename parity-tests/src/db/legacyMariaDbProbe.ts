@@ -176,6 +176,8 @@ LIMIT 1;
     const rows = await this.queryRows<{ name: string; value: string }>(`
 SELECT 'appointments' AS name, COUNT(*) AS value FROM openemr_postcalendar_events WHERE pc_pid = ${pid}
 UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter WHERE pid = ${pid}
+UNION ALL SELECT 'vitals', COUNT(*) FROM form_vitals WHERE pid = ${pid}
+UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM form_soap WHERE pid = ${pid}
 UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medical_problem'
 UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'allergy'
 UNION ALL SELECT 'medications', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medication'

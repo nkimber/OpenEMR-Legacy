@@ -826,7 +826,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
       { id: "playwright-login", name: "Playwright baseline login test", status: "verified", detail: "Implemented through the parity-tests UI suite for legacy login and gold-patient chart navigation." },
-      { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, clinical-list, patient-message, and prescription lifecycle coverage with pre/post database probes." },
+      { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
       { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]
