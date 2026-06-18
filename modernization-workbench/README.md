@@ -13,6 +13,7 @@ The first version manages the legacy OpenEMR baseline:
 - Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
 - Runs the OpenEMR-native isolated PHPUnit stable suite.
+- Runs the OpenEMR-native JavaScript Jest suite.
 - Runs the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands.
 - Displays recent logs and action history.
 - Displays latest smoke-test, native-test, and parity-test evidence.
@@ -63,7 +64,7 @@ http://127.0.0.1:5174
 
 It is intentionally local-only. Lifecycle actions are implemented through manifest-defined commands in `config/apps.json`.
 
-Native OpenEMR PHPUnit tests are launched through `../legacy-openemr/scripts/Test-LegacyNative.ps1`. Latest native summaries are read from `../legacy-openemr/artifacts/`.
+Native OpenEMR PHPUnit tests are launched through `../legacy-openemr/scripts/Test-LegacyNative.ps1`. Native OpenEMR Jest tests are launched through `../legacy-openemr/scripts/Test-LegacyNativeJs.ps1`. Latest native summaries are read from `../legacy-openemr/artifacts/`.
 
 Parity tests are implemented in `../parity-tests` and launched through `../scripts/Run-OpenEmrParityTests.ps1`. Latest suite summaries are read from `../parity-tests/artifacts/`.
 

@@ -25,7 +25,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { api } from "./api";
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, NativeRunResult, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, NativeJestRunResult, NativeRunResult, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
 
 type BusyState = {
   appId: string;
@@ -753,9 +753,38 @@ function TestsPage({ app, busy, onRunTest }: { app?: AppSnapshot; busy: BusyStat
   );
 }
 
-function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | NativeRunResult | null }) {
+function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult | null }) {
   if (!result) {
     return <div className="test-evidence empty">No run recorded.</div>;
+  }
+
+  if (isNativeJestRunResult(result)) {
+    return (
+      <div className="test-evidence">
+        <div className="test-result-header">
+          {result.passed ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+          <strong>{result.passed ? "Passed" : "Failed"}</strong>
+          <span>{formatDate(result.finishedAt)}</span>
+        </div>
+        <div className="evidence-selection">
+          <span>Jest</span>
+          <code>
+            Node {result.nodeVersion} / npm {result.npmVersion}
+          </code>
+        </div>
+        <div className="evidence-metrics">
+          <span>{result.stats.testSuites.passed.toLocaleString()} suites passed</span>
+          <span>{result.stats.tests.passed.toLocaleString()} tests passed</span>
+          <span>{formatDuration(result.durationSeconds * 1000)}</span>
+        </div>
+        <div className="evidence-metrics">
+          <span>{result.stats.testSuites.failed + result.stats.testSuites.runtimeErrors} suite failures</span>
+          <span>{result.stats.tests.failed} test failures</span>
+          <span>{result.stats.tests.pending + result.stats.tests.todo} pending/todo</span>
+        </div>
+        <code>{result.reportPath}</code>
+      </div>
+    );
   }
 
   if (isNativeRunResult(result)) {
@@ -823,12 +852,16 @@ function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | N
   );
 }
 
-function isParityRunResult(result: SmokeResult | ParityRunResult | NativeRunResult): result is ParityRunResult {
+function isParityRunResult(result: SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult): result is ParityRunResult {
   return "stats" in result && "artifactDirectory" in result;
 }
 
-function isNativeRunResult(result: SmokeResult | ParityRunResult | NativeRunResult): result is NativeRunResult {
+function isNativeRunResult(result: SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult): result is NativeRunResult {
   return "mode" in result && "logPath" in result;
+}
+
+function isNativeJestRunResult(result: SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult): result is NativeJestRunResult {
+  return "runner" in result && result.runner === "jest";
 }
 
 function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapshot; busy: BusyState; seedDatasets: SeedDataset[]; onRunSeed: (seedId: string) => void }) {

@@ -20,6 +20,8 @@ The reusable parity test harness is implemented under `parity-tests/`. It curren
 
 The legacy-native OpenEMR PHPUnit stable lane is implemented under `legacy-openemr/scripts/Test-LegacyNative.ps1`. It runs OpenEMR's upstream isolated PHPUnit suite inside the pinned OpenEMR container.
 
+The legacy-native OpenEMR Jest lane is implemented under `legacy-openemr/scripts/Test-LegacyNativeJs.ps1`. It runs OpenEMR's upstream JavaScript tests for CCDA utility and jsPDF compatibility coverage.
+
 Pinned baseline:
 
 - OpenEMR Docker image: `openemr/openemr:8.1.0-2026-06-18`
@@ -45,6 +47,12 @@ Run the legacy-native isolated PHPUnit stable suite:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1
+```
+
+Run the legacy-native JavaScript Jest suite:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -InstallDependencies
 ```
 
 Run the full legacy parity suite:

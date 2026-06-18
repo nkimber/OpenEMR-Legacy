@@ -22,6 +22,7 @@
         "seedExampleData": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyExampleData.ps1"],
         "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"],
         "nativePhpUnitTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyNative.ps1"],
+        "nativeJestTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyNativeJs.ps1", "-InstallDependencies"],
         "parityDatabaseTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "database", "-Reset", "run"],
         "parityHttpTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "http", "-Reset", "none"],
         "parityUiTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "ui", "-Reset", "run"],
@@ -66,6 +67,14 @@
           "layer": "native",
           "commandName": "nativePhpUnitTests",
           "resultPath": "../legacy-openemr/artifacts/latest-native-test.json"
+        },
+        {
+          "id": "native-jest",
+          "name": "Native Jest JavaScript suite",
+          "description": "Runs OpenEMR's upstream JavaScript Jest suite for CCDA utilities and jsPDF compatibility.",
+          "layer": "native",
+          "commandName": "nativeJestTests",
+          "resultPath": "../legacy-openemr/artifacts/latest-native-jest-test.json"
         },
         {
           "id": "parity-database",

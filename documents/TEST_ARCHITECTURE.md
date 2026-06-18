@@ -94,7 +94,7 @@ The current legacy implementation is `parity-tests/src/workflows/legacyWorkflowA
 
 ### Legacy-Native Internal Tests
 
-OpenEMR upstream includes PHPUnit, Jest, and Panther-oriented tests in `legacy-openemr/source/tests/`. These tests are useful as implementation confidence for the legacy PHP application, but they are not the primary modernization parity contract because the modernized target will not run the same PHP internals.
+OpenEMR upstream includes PHPUnit, Jest, and Panther-oriented tests in `legacy-openemr/source/tests/`. These tests are useful as implementation confidence for the legacy PHP and JavaScript application, but they are not the primary modernization parity contract because the modernized target will not run the same PHP internals.
 
 Current local status:
 
@@ -103,6 +103,8 @@ Current local status:
 - The pinned OpenEMR container includes PHP and Composer.
 - Upstream Composer dependencies have been installed into the ignored local source checkout.
 - `legacy-openemr/scripts/Test-LegacyNative.ps1` runs OpenEMR's `phpunit-isolated.xml` suite inside the pinned OpenEMR container.
+- `legacy-openemr/scripts/Test-LegacyNativeJs.ps1` runs OpenEMR's upstream JavaScript Jest suite from the ignored local source checkout.
+- The Node dependency restore for the Jest lane uses `npm ci --ignore-scripts` so it does not run OpenEMR's heavier asset postinstall.
 
 The default native mode is `stable`. It excludes upstream PHPUnit groups `twig` and `large` because the complete upstream isolated suite currently has Windows bind-mount-sensitive failures:
 
@@ -112,6 +114,8 @@ The default native mode is `stable`. It excludes upstream PHPUnit groups `twig` 
 The stable native lane is verified with 2,344 PHPUnit tests and 6,188 assertions. It is a useful legacy implementation-confidence layer, while the parity harness remains the modernization contract that will run against both legacy and modernized targets.
 
 The native runner also supports `-Mode full` as a diagnostic path for the complete upstream isolated suite. Full mode is expected to remain environment-sensitive until the source checkout or test container is made fully Linux-native.
+
+The native JavaScript lane is verified with 12 Jest suites and 105 tests. Current coverage includes CCDA service utilities and jsPDF compatibility used by the Fax/SMS TIFF-to-PDF workflow.
 
 ## Runner
 
@@ -159,6 +163,13 @@ If the ignored upstream Composer dependencies are missing, restore them through 
 ```powershell
 cd legacy-openemr
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1 -InstallDependencies
+```
+
+The legacy-native Jest runner is:
+
+```powershell
+cd legacy-openemr
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -InstallDependencies
 ```
 
 The runner accepts:
@@ -249,6 +260,7 @@ The legacy app currently exposes these test actions:
 
 - Baseline smoke test.
 - Native PHPUnit isolated suite.
+- Native Jest JavaScript suite.
 - Gold database contract.
 - HTTP functional contract.
 - Playwright UI contract.

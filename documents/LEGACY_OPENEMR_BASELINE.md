@@ -19,6 +19,7 @@ Key files and folders:
 - `legacy-openemr/source/` - local upstream OpenEMR source checkout for inspection and modernization analysis.
 - `legacy-openemr/scripts/Test-LegacyBaseline.ps1` - baseline smoke test.
 - `legacy-openemr/scripts/Test-LegacyNative.ps1` - containerized OpenEMR upstream isolated PHPUnit runner.
+- `legacy-openemr/scripts/Test-LegacyNativeJs.ps1` - OpenEMR upstream JavaScript Jest runner.
 - `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1` - resets and imports the shared 1,000-patient gold dataset into the legacy MariaDB schema.
 - `legacy-openemr/scripts/Seed-LegacyExampleData.ps1` - imports the bundled OpenEMR example users and patient demographics into an empty baseline.
 - `legacy-openemr/artifacts/latest-smoke-test.json` - latest smoke-test result, generated locally and ignored by the parent project.
@@ -87,6 +88,12 @@ If the ignored upstream Composer dependencies are missing, restore them through 
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNative.ps1 -InstallDependencies
 ```
 
+Run the OpenEMR-native JavaScript Jest suite:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -InstallDependencies
+```
+
 Run the full parity test suite from the repository root:
 
 ```powershell
@@ -152,6 +159,7 @@ The smoke test passed with these checks:
 The parity test harness under `parity-tests/` has been implemented and verified against the legacy baseline:
 
 - Native OpenEMR isolated PHPUnit stable suite passed inside the pinned OpenEMR container with 2,344 tests and 6,188 assertions. Stable mode excludes the upstream `twig` and `large` groups because the complete upstream suite currently has Windows bind-mount-sensitive CRLF fixture and built-in-server routing failures.
+- Native OpenEMR JavaScript Jest suite passed with 12 suites and 105 tests covering CCDA service utilities and jsPDF compatibility.
 - Database contract suite passed.
 - HTTP functional suite passed.
 - Playwright UI suite passed, including login, patient chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering.
@@ -201,6 +209,6 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 - The future modernized PostgreSQL seed adapter has not been created yet.
 - The future modernized parity adapters for PostgreSQL, APIs, and UI workflows have not been created yet.
 - The OpenEMR-native PHPUnit stable lane is runnable and verified, but the full upstream isolated suite remains environment-sensitive on the Windows bind-mounted checkout.
-- OpenEMR-native Jest and Panther lanes have not been wired into the Workbench yet.
+- OpenEMR-native Panther browser tests have not been wired into the Workbench yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
 - The first Modernization Workbench version has been implemented and can manage this baseline locally.

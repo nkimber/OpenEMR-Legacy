@@ -114,6 +114,46 @@ export type NativeRunResult = {
   notes: string[];
 };
 
+export type NativeJestRunResult = {
+  name: string;
+  runner: "jest";
+  passed: boolean;
+  sourcePath: string;
+  nodeVersion: string;
+  npmVersion: string;
+  startedAt: string;
+  finishedAt: string;
+  durationSeconds: number;
+  exitCode: number;
+  stats: {
+    testSuites: {
+      total: number;
+      passed: number;
+      failed: number;
+      runtimeErrors: number;
+      pending: number;
+    };
+    tests: {
+      total: number;
+      passed: number;
+      failed: number;
+      pending: number;
+      todo: number;
+    };
+    snapshots: {
+      total: number;
+      matched: number;
+      unmatched: number;
+    };
+  };
+  checks: SmokeCheck[];
+  command: string[];
+  reportPath: string;
+  logPath: string;
+  stdoutPreview: string;
+  notes: string[];
+};
+
 export type SeedRecordTarget = {
   name: string;
   target: number;
@@ -191,7 +231,7 @@ export type AppSnapshot = {
   tests: ManagedTest[];
   latestSeed: SeedResult | null;
   latestTest: SmokeResult | null;
-  latestTests: Record<string, SmokeResult | ParityRunResult | NativeRunResult | null>;
+  latestTests: Record<string, SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult | null>;
   demoLogin: {
     available: boolean;
     username?: string;

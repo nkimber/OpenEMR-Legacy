@@ -799,6 +799,7 @@ app.get("/api/architecture", async (_request, response) => {
         tests: [
           "Smoke test implemented",
           "Native OpenEMR isolated PHPUnit stable suite implemented",
+          "Native OpenEMR Jest JavaScript suite implemented",
           "Gold seed-data validation implemented",
           "Parity database/http/ui/workflow suites and named run plans implemented",
           "Playwright UI suite implemented for login, chart, encounter, scheduling, billing, and lab-result screens",
@@ -835,6 +836,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, and procedure-result rendering." },
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
+      { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
       { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
