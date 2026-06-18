@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-type CommandName = "status" | "start" | "stop" | "restart" | "logs" | "smokeTest";
+type CommandName = "status" | "start" | "stop" | "restart" | "logs" | "seedExampleData" | "smokeTest";
 
 type CommandResult = {
   command: string[];
@@ -27,6 +27,15 @@ type ManagedTest = {
   resultPath: string;
 };
 
+type ManagedSeed = {
+  id: string;
+  datasetId: string;
+  name: string;
+  description: string;
+  commandName: CommandName;
+  resultPath: string;
+};
+
 type ManagedApp = {
   id: string;
   name: string;
@@ -41,6 +50,7 @@ type ManagedApp = {
   expectedSourceTag: string;
   commands: Record<CommandName, string[]>;
   services: string[];
+  seeds: ManagedSeed[];
   tests: ManagedTest[];
 };
 
@@ -79,12 +89,17 @@ type AppConfig = {
   apps: ManagedApp[];
 };
 
+type SeedDataManifest = {
+  datasets: unknown[];
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
   ? path.resolve(process.env.WORKBENCH_REPO_ROOT)
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
+const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
@@ -107,6 +122,11 @@ function resolveProjectPath(projectPath: string) {
 async function readConfig(): Promise<AppConfig> {
   const text = await fs.readFile(configPath, "utf8");
   return JSON.parse(text) as AppConfig;
+}
+
+async function readSeedDataManifest(): Promise<SeedDataManifest> {
+  const text = await fs.readFile(seedDataManifestPath, "utf8");
+  return JSON.parse(text) as SeedDataManifest;
 }
 
 async function getManagedApp(appId: string) {
@@ -426,6 +446,10 @@ async function getAppSnapshot(managedApp: ManagedApp) {
   const latestTest = managedApp.tests[0]
     ? await readJsonIfExists(resolveProjectPath(managedApp.tests[0].resultPath))
     : null;
+  const managedSeeds = managedApp.seeds ?? [];
+  const latestSeed = managedSeeds[0]
+    ? await readJsonIfExists(resolveProjectPath(managedSeeds[0].resultPath))
+    : null;
   const dataProfile = await getDataProfile(managedApp);
   const demoLogin = await getDemoLogin(managedApp);
 
@@ -442,7 +466,9 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     health,
     source,
     containers,
+    seeds: managedSeeds,
     tests: managedApp.tests,
+    latestSeed,
     latestTest,
     demoLogin,
     dataProfile,
@@ -517,6 +543,24 @@ app.get("/api/apps/:appId/logs", async (request, response, next) => {
   }
 });
 
+app.post("/api/apps/:appId/seeds/:seedId/run", async (request, response, next) => {
+  try {
+    const managedApp = await getManagedApp(request.params.appId);
+    const seed = managedApp.seeds.find((candidate) => candidate.id === request.params.seedId);
+    if (!seed) {
+      response.status(404).json({ error: `Unknown seed: ${request.params.seedId}` });
+      return;
+    }
+    const result = await runCommand(managedApp, seed.commandName, 300000);
+    const event = eventFromCommand(managedApp.id, `seed:${seed.id}`, result);
+    await saveEvent(event);
+    const latestSeed = await readJsonIfExists(resolveProjectPath(seed.resultPath));
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestSeed, snapshot: await getAppSnapshot(managedApp) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/apps/:appId/actions/:action", async (request, response, next) => {
   try {
     const action = request.params.action as CommandName;
@@ -555,6 +599,14 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
 app.get("/api/events", async (_request, response, next) => {
   try {
     response.json({ events: await loadEvents() });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/seed-datasets", async (_request, response, next) => {
+  try {
+    response.json(await readSeedDataManifest());
   } catch (error) {
     next(error);
   }
@@ -599,7 +651,7 @@ app.get("/api/progress", async (_request, response) => {
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
-      { id: "seed-data", name: "Synthetic seed data", status: "not-started", detail: "No project-specific patient/workflow data exists yet." },
+      { id: "seed-data", name: "Synthetic seed data", status: "in-progress", detail: "Workbench owns the shared seed-data manifest; starter legacy seed is implemented and the 1,000-patient dataset is planned." },
       { id: "playwright-login", name: "Playwright baseline login test", status: "not-started", detail: "Pending UI automation suite." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]

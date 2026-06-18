@@ -22,6 +22,15 @@ export type ManagedTest = {
   resultPath: string;
 };
 
+export type ManagedSeed = {
+  id: string;
+  datasetId: string;
+  name: string;
+  description: string;
+  commandName: string;
+  resultPath: string;
+};
+
 export type SmokeCheck = {
   name: string;
   passed: boolean;
@@ -36,6 +45,52 @@ export type SmokeResult = {
   finishedAt: string;
   durationSeconds: number;
   checks: SmokeCheck[];
+};
+
+export type SeedRecordTarget = {
+  name: string;
+  target: number;
+  currentLegacy: number;
+};
+
+export type SeedTargetSystem = {
+  id: string;
+  database: string;
+  status: string;
+};
+
+export type SeedPhase = {
+  id: string;
+  name: string;
+  status: string;
+  patientTarget: number;
+};
+
+export type SeedDataset = {
+  id: string;
+  name: string;
+  version: string;
+  status: string;
+  description: string;
+  canonicalPath: string;
+  currentSeedLevel: string;
+  targetPatientCount: number;
+  sourcePlan: string[];
+  targetSystems: SeedTargetSystem[];
+  recordTargets: SeedRecordTarget[];
+  phases: SeedPhase[];
+};
+
+export type SeedResult = {
+  name: string;
+  passed: boolean;
+  source: string;
+  mode?: string;
+  startedAt: string;
+  finishedAt: string;
+  durationSeconds: number;
+  expectedPatients: number;
+  tableCounts: DataProfileRow[];
 };
 
 export type AppSnapshot = {
@@ -65,7 +120,9 @@ export type AppSnapshot = {
     error?: string;
   };
   containers: ContainerStatus[];
+  seeds: ManagedSeed[];
   tests: ManagedTest[];
+  latestSeed: SeedResult | null;
   latestTest: SmokeResult | null;
   demoLogin: {
     available: boolean;

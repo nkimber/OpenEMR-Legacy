@@ -18,9 +18,20 @@
         "stop": ["docker", "compose", "down"],
         "restart": ["docker", "compose", "restart"],
         "logs": ["docker", "compose", "logs", "--tail", "160"],
+        "seedExampleData": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyExampleData.ps1"],
         "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"]
       },
       "services": ["mysql", "openemr"],
+      "seeds": [
+        {
+          "id": "starter-example-patients",
+          "datasetId": "openemr-shared-synthetic-v1",
+          "name": "Starter example patients",
+          "description": "Imports the bundled OpenEMR example provider users and 14 patient demographics as the first visible seed.",
+          "commandName": "seedExampleData",
+          "resultPath": "../legacy-openemr/artifacts/latest-seed-result.json"
+        }
+      ],
       "tests": [
         {
           "id": "smoke",

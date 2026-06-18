@@ -347,6 +347,55 @@ p {
   font-weight: 760;
 }
 
+.seed-contract-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  border-top: 1px solid #e2e9ee;
+  border-bottom: 1px solid #e2e9ee;
+  padding: 13px 0;
+}
+
+.seed-contract-strip strong {
+  display: block;
+  margin-top: 3px;
+  color: #1d2f3f;
+}
+
+.seed-contract-strip p {
+  margin-top: 3px;
+  font-size: 0.88rem;
+}
+
+.seed-contract-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.seed-contract-metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #506173;
+  font-size: 0.86rem;
+  font-weight: 690;
+}
+
+.seed-contract-metrics code {
+  border: 1px solid #d1dbe2;
+  border-radius: 6px;
+  background: #fbfcfd;
+  color: #132230;
+  padding: 3px 7px;
+  font-size: 0.86rem;
+  font-weight: 760;
+}
+
 .metric-grid,
 .data-profile {
   display: grid;
@@ -592,7 +641,8 @@ dd {
   }
 
   .panel-status,
-  .header-actions {
+  .header-actions,
+  .seed-contract-metrics {
     justify-content: flex-start;
   }
 }

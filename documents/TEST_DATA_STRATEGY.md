@@ -47,9 +47,9 @@ Relevant upstream references:
 Use a layered seed-data strategy.
 
 1. Use the bundled OpenEMR example patient SQL as the first small seed so the legacy app has visible patients quickly.
-2. Create a project-owned synthetic seed dataset for modernization testing instead of relying only on public demo data or ad hoc manual entries.
+2. Store the project-owned synthetic seed dataset with the Modernization Workbench instead of tying it to only the legacy or modernized implementation.
 3. Keep all seed data non-PHI, deterministic, resettable, and versioned.
-4. Prefer seeding through repeatable scripts and documented import flows.
+4. Prefer seeding through repeatable scripts and documented import flows exposed through Workbench-managed actions.
 5. Extend the dataset workflow by workflow as modernization slices are selected.
 
 The project-owned seed data becomes part of the test contract. The same initial dataset should be usable by:
@@ -58,6 +58,13 @@ The project-owned seed data becomes part of the test contract. The same initial 
 - Modernized OpenEMR tests.
 - Workbench status and comparison views.
 - Future CI automation.
+
+The canonical dataset folder is `modernization-workbench/seed-data/`. Target-specific seeders should adapt that canonical dataset into each database:
+
+- Legacy OpenEMR MariaDB through scripts under `legacy-openemr/scripts/`.
+- Future modernized OpenEMR PostgreSQL through scripts or services owned by the modernized target.
+
+The Workbench should manage both paths from the same seed manifest so the operator can apply the same dataset to both systems before parity tests.
 
 ## Recommended Seed Levels
 
@@ -134,4 +141,4 @@ This level should be introduced only after the deterministic Level 2 workflow da
 
 ## Near-Term Next Step
 
-Use `legacy-openemr/scripts/Seed-LegacyExampleData.ps1` to import the bundled OpenEMR example users and patients into the local MariaDB database, then extend tests around the patient search/navigation workflow.
+Use the Workbench seed action to run `legacy-openemr/scripts/Seed-LegacyExampleData.ps1`, then build the `openemr-shared-synthetic-v1` generator and database adapters under `modernization-workbench/seed-data/`.

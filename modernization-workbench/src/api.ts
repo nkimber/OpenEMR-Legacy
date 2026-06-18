@@ -1,4 +1,4 @@
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, SeedDataset } from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -29,6 +29,11 @@ export const api = {
       method: "POST"
     });
   },
+  async runSeed(appId: string, seedId: string) {
+    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/seeds/${seedId}/run`, {
+      method: "POST"
+    });
+  },
   async getLogs(appId: string) {
     return requestJson<{ result: { stdout: string; stderr: string; exitCode: number | null } }>(`/api/apps/${appId}/logs`);
   },
@@ -40,5 +45,8 @@ export const api = {
   },
   async getProgress() {
     return requestJson<{ slices: ProgressSlice[] }>("/api/progress");
+  },
+  async getSeedDatasets() {
+    return requestJson<{ datasets: SeedDataset[] }>("/api/seed-datasets");
   }
 };

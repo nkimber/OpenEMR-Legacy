@@ -120,19 +120,24 @@ if (-not $script:dbPassword) {
     throw "MYSQL_PASSWORD is not set in $envPath."
 }
 
-$existingPatients = [int] (Get-SqlScalar -Sql "SELECT COUNT(*) FROM patient_data;")
-if ($existingPatients -gt 0) {
-    throw "Refusing to seed because patient_data already contains $existingPatients row(s). Reset the baseline data first if you need a clean seed."
-}
-
 $sampleUserCount = [int] (Get-SqlScalar -Sql "SELECT COUNT(*) FROM users WHERE username IN ('davis', 'hamming');")
-if ($sampleUserCount -eq 0) {
-    Invoke-OpenEmrSqlFile -Path $patientUsersSqlPath
-} elseif ($sampleUserCount -ne 2) {
-    throw "Expected either 0 or 2 bundled sample provider users, but found $sampleUserCount."
-}
+$existingPatients = [int] (Get-SqlScalar -Sql "SELECT COUNT(*) FROM patient_data;")
+$seedMode = "imported"
 
-Invoke-OpenEmrSqlFile -Path $patientDataSqlPath
+if ($existingPatients -gt 0) {
+    if ($existingPatients -ne 14 -or $sampleUserCount -ne 2) {
+        throw "Refusing to seed because the database already contains $existingPatients patient row(s) and $sampleUserCount bundled sample provider user(s). Reset the baseline data first if you need a clean seed."
+    }
+    $seedMode = "already-seeded"
+} else {
+    if ($sampleUserCount -eq 0) {
+        Invoke-OpenEmrSqlFile -Path $patientUsersSqlPath
+    } elseif ($sampleUserCount -ne 2) {
+        throw "Expected either 0 or 2 bundled sample provider users, but found $sampleUserCount."
+    }
+
+    Invoke-OpenEmrSqlFile -Path $patientDataSqlPath
+}
 
 $providerFixSql = @"
 SET @davis_id = (SELECT id FROM users WHERE username = 'davis' ORDER BY id LIMIT 1);
@@ -144,6 +149,8 @@ SET providerID = CASE providerID
     ELSE providerID
 END
 WHERE providerID IN (4, 5);
+UPDATE patient_data SET providerID = @davis_id WHERE pid IN (4, 18, 22, 30, 35, 40);
+UPDATE patient_data SET providerID = @hamming_id WHERE pid IN (8, 25, 34, 41);
 "@
 Invoke-OpenEmrSql -Sql $providerFixSql | Out-Null
 
@@ -155,6 +162,7 @@ $result = [pscustomobject]@{
     name = "legacy-openemr-example-seed"
     passed = $seededPatients -eq 14
     source = "OpenEMR bundled example patient SQL"
+    mode = $seedMode
     startedAt = $startedAt.ToString("o")
     finishedAt = $finishedAt.ToString("o")
     durationSeconds = [Math]::Round(($finishedAt - $startedAt).TotalSeconds, 3)

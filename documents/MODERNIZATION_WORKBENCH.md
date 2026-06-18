@@ -33,11 +33,13 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline. It can show status, check health, start, stop, restart, run the smoke test, display latest smoke-test results, show Docker Compose logs, display a small database profile, list action history, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline. It can show status, check health, start, stop, restart, run the smoke test, run the starter seed action, display latest smoke-test results, show Docker Compose logs, display a small database profile, list action history, and show architecture/progress views.
 
 The legacy app launch link opens `http://localhost:8080` because that is the browser-friendly local URL. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but it uses a self-signed local certificate and browsers will show a privacy warning unless the certificate is trusted or manually bypassed. The Workbench backend still uses `https://localhost:9443/meta/health/readyz` for health checks and is configured to tolerate the self-signed certificate for that internal check.
 
 The Managed Application panel also displays the local demo OpenEMR login read from `legacy-openemr/.env`. This is intentionally local-only and helps distinguish the actual baseline credential from any browser autofill suggestion on the OpenEMR login page.
+
+The Workbench owns the shared seed-data contract under `modernization-workbench/seed-data/`. The current manifest defines `openemr-shared-synthetic-v1`, a planned 1,000-patient deterministic synthetic dataset that will seed both the legacy MariaDB database and the future modernized PostgreSQL database through target-specific adapters. The current implemented seed action applies the bundled OpenEMR starter patient data to the legacy baseline.
 
 Verified behavior:
 
@@ -87,6 +89,7 @@ Implemented capabilities:
 - Show the configured baseline browser URL, database status, and seed-data status when available.
 - Show the current local demo login from `legacy-openemr/.env`.
 - Start, stop, and restart the legacy OpenEMR Docker Compose environment through controlled local commands.
+- Trigger the starter legacy seed through `legacy-openemr/scripts/Seed-LegacyExampleData.ps1`.
 - Trigger baseline smoke tests through `legacy-openemr/scripts/Test-LegacyBaseline.ps1`.
 - Display latest baseline test results.
 - Display recent lifecycle action results, including command status, duration, and logs.
@@ -146,6 +149,18 @@ Preferred pattern:
 The first available baseline test command is `legacy-openemr/scripts/Test-LegacyBaseline.ps1`, which writes `legacy-openemr/artifacts/latest-smoke-test.json`.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
+
+## Seed Data Orchestration
+
+The Workbench owns seed-data visibility and orchestration.
+
+Current seed-data files:
+
+- `modernization-workbench/seed-data/manifest.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/personas/golden-patients.json`
+
+The seed manifest is the shared contract. Application-specific seeders should consume that contract and apply it to their own database. The legacy app currently has a starter seed action that imports OpenEMR's bundled example patients. The modernized app will later get a PostgreSQL seeder that consumes the same canonical dataset.
 
 ## Comparison Capabilities
 

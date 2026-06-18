@@ -1,0 +1,75 @@
+{
+  "datasets": [
+    {
+      "id": "openemr-shared-synthetic-v1",
+      "name": "OpenEMR Shared Synthetic Dataset",
+      "version": "v1",
+      "status": "designing",
+      "description": "Project-owned deterministic synthetic data contract for seeding both the legacy OpenEMR database and the future modernized PostgreSQL database.",
+      "canonicalPath": "modernization-workbench/seed-data/openemr-shared-synthetic-v1",
+      "currentSeedLevel": "Level 1 starter patients imported into legacy baseline",
+      "targetPatientCount": 1000,
+      "sourcePlan": [
+        "Use curated golden personas for deterministic workflow tests.",
+        "Use Synthea-generated clinical history as the broad synthetic population input.",
+        "Use project-owned adapters to map the canonical dataset into legacy MariaDB and future PostgreSQL schemas."
+      ],
+      "targetSystems": [
+        {
+          "id": "legacy-openemr",
+          "database": "MariaDB",
+          "status": "starter-seed-supported"
+        },
+        {
+          "id": "modernized-openemr",
+          "database": "PostgreSQL",
+          "status": "planned"
+        }
+      ],
+      "recordTargets": [
+        { "name": "patients", "target": 1000, "currentLegacy": 14 },
+        { "name": "providersAndStaff", "target": 20, "currentLegacy": 6 },
+        { "name": "facilities", "target": 3, "currentLegacy": 1 },
+        { "name": "insuranceRecords", "target": 1400, "currentLegacy": 0 },
+        { "name": "appointments", "target": 2800, "currentLegacy": 0 },
+        { "name": "encounters", "target": 2100, "currentLegacy": 0 },
+        { "name": "vitals", "target": 2100, "currentLegacy": 0 },
+        { "name": "clinicalNotes", "target": 2100, "currentLegacy": 0 },
+        { "name": "problems", "target": 1500, "currentLegacy": 0 },
+        { "name": "allergies", "target": 900, "currentLegacy": 0 },
+        { "name": "medicationsAndPrescriptions", "target": 2200, "currentLegacy": 0 },
+        { "name": "labOrders", "target": 700, "currentLegacy": 0 },
+        { "name": "labResults", "target": 2400, "currentLegacy": 0 },
+        { "name": "messages", "target": 1200, "currentLegacy": 0 },
+        { "name": "portalPatients", "target": 200, "currentLegacy": 0 },
+        { "name": "billingLineItems", "target": 3000, "currentLegacy": 0 }
+      ],
+      "phases": [
+        {
+          "id": "starter-example",
+          "name": "Starter example seed",
+          "status": "implemented",
+          "patientTarget": 14
+        },
+        {
+          "id": "golden-personas",
+          "name": "Curated golden personas",
+          "status": "planned",
+          "patientTarget": 50
+        },
+        {
+          "id": "synthea-population",
+          "name": "Synthea-backed 1,000 patient population",
+          "status": "planned",
+          "patientTarget": 1000
+        },
+        {
+          "id": "dual-database-adapters",
+          "name": "Legacy and modernized database seed adapters",
+          "status": "planned",
+          "patientTarget": 1000
+        }
+      ]
+    }
+  ]
+}

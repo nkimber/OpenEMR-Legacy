@@ -78,6 +78,8 @@ Seed the bundled OpenEMR example patient data:
 powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyExampleData.ps1
 ```
 
+The same seed action is exposed through the Modernization Workbench. Longer term, this script is the legacy MariaDB adapter for the shared Workbench-owned seed-data contract under `modernization-workbench/seed-data/`.
+
 Stop containers while keeping data:
 
 ```powershell

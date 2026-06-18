@@ -15,6 +15,7 @@ import {
   RefreshCw,
   RotateCw,
   Server,
+  Sprout,
   Square,
   Terminal,
   TestTube2,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "./api";
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, RuntimeState } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, RuntimeState, SeedDataset } from "./types";
 
 type BusyState = {
   appId: string;
@@ -121,20 +122,30 @@ function LegacyAppPanel({
   busy,
   onAction,
   onRunTest,
+  onRunSeed,
   onLoadLogs,
+  seedDatasets,
   logs
 }: {
   app: AppSnapshot;
   busy: BusyState;
   onAction: (action: "start" | "stop" | "restart") => void;
   onRunTest: (testId: string) => void;
+  onRunSeed: (seedId: string) => void;
   onLoadLogs: () => void;
+  seedDatasets: SeedDataset[];
   logs: string;
 }) {
   const busyForApp = busy?.appId === app.id;
   const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data")?.rowCount ?? 0;
   const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter")?.rowCount ?? 0;
   const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events")?.rowCount ?? 0;
+  const managedSeed = app.seeds[0];
+  const seedDataset = seedDatasets.find((dataset) => dataset.id === managedSeed?.datasetId);
+  const patientTarget = seedDataset?.recordTargets.find((target) => target.name === "patients")?.target ?? seedDataset?.targetPatientCount;
+  const latestSeedDetail = app.latestSeed
+    ? `${app.latestSeed.mode ?? "seeded"} ${app.latestSeed.expectedPatients} starter patients`
+    : seedDataset?.currentSeedLevel ?? "Synthetic seed data pending";
 
   return (
     <section className="panel primary-panel">
@@ -169,6 +180,13 @@ function LegacyAppPanel({
         >
           <Play size={18} />
         </IconButton>
+        <IconButton
+          title={managedSeed ? `Seed ${managedSeed.name}` : "Seed data unavailable"}
+          onClick={() => onRunSeed(managedSeed?.id ?? "")}
+          disabled={busyForApp || !managedSeed}
+        >
+          <Sprout size={18} />
+        </IconButton>
         <IconButton title="Load recent logs" onClick={onLoadLogs} disabled={busyForApp}>
           <Terminal size={18} />
         </IconButton>
@@ -194,10 +212,31 @@ function LegacyAppPanel({
         )}
       </div>
 
+      {seedDataset ? (
+        <div className="seed-contract-strip">
+          <div>
+            <div className="section-kicker">Shared seed dataset</div>
+            <strong>{seedDataset.name}</strong>
+            <p>{seedDataset.currentSeedLevel}</p>
+          </div>
+          <div className="seed-contract-metrics">
+            <span>
+              Version <code>{seedDataset.version}</code>
+            </span>
+            <span>
+              Target patients <code>{patientTarget}</code>
+            </span>
+            <span>
+              Systems <code>{seedDataset.targetSystems.length}</code>
+            </span>
+          </div>
+        </div>
+      ) : null}
+
       <div className="metric-grid">
         <Metric label="Health endpoint" value={app.health.ok ? "OK" : "Issue"} detail={`HTTP ${app.health.statusCode ?? "-"} in ${formatDuration(app.health.durationMs)}`} />
         <Metric label="Source tag" value={app.source.tag} detail={app.source.matchesExpectedTag ? "Pinned tag verified" : "Check source tag"} />
-        <Metric label="Patients" value={patientCount} detail="Synthetic seed data pending" />
+        <Metric label="Patients" value={patientCount} detail={latestSeedDetail} />
         <Metric label="Encounters" value={encounterCount} detail={`${appointmentCount} appointments`} />
       </div>
 
@@ -375,6 +414,7 @@ export function App() {
   const [apps, setApps] = useState<AppSnapshot[]>([]);
   const [architecture, setArchitecture] = useState<ArchitectureSystem[]>([]);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
+  const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<BusyState>(null);
@@ -384,16 +424,18 @@ export function App() {
 
   const loadDashboard = useCallback(async () => {
     setError(null);
-    const [appData, architectureData, progressData, eventData] = await Promise.all([
+    const [appData, architectureData, progressData, eventData, seedData] = await Promise.all([
       api.getApps(),
       api.getArchitecture(),
       api.getProgress(),
-      api.getEvents()
+      api.getEvents(),
+      api.getSeedDatasets()
     ]);
     setApps(appData.apps);
     setArchitecture(architectureData.systems);
     setProgress(progressData.slices);
     setEvents(eventData.events);
+    setSeedDatasets(seedData.datasets);
   }, []);
 
   useEffect(() => {
@@ -430,6 +472,13 @@ export function App() {
   const handleRunTest = (appId: string, testId: string) => {
     void runWithBusy(appId, `running ${testId}`, async () => {
       const response = await api.runTest(appId, testId);
+      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+    });
+  };
+
+  const handleRunSeed = (appId: string, seedId: string) => {
+    void runWithBusy(appId, `seeding ${seedId}`, async () => {
+      const response = await api.runSeed(appId, seedId);
       setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
     });
   };
@@ -489,7 +538,9 @@ export function App() {
           busy={busy}
           onAction={(action) => handleAction(legacyApp.id, action)}
           onRunTest={(testId) => handleRunTest(legacyApp.id, testId)}
+          onRunSeed={(seedId) => handleRunSeed(legacyApp.id, seedId)}
           onLoadLogs={() => handleLoadLogs(legacyApp.id)}
+          seedDatasets={seedDatasets}
           logs={logs[legacyApp.id] ?? ""}
         />
       ) : (
