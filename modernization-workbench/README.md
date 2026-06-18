@@ -12,6 +12,7 @@ The first version manages the legacy OpenEMR baseline:
 - Runs the baseline smoke test.
 - Displays recent logs and action history.
 - Shows architecture and modernization progress views.
+- Shows the local demo OpenEMR login from `../legacy-openemr/.env`.
 
 The managed app link opens the legacy site at `http://localhost:8080`. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but browsers will warn about its self-signed local certificate unless it is trusted or bypassed manually.
 

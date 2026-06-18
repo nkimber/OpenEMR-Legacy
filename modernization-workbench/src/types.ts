@@ -67,6 +67,13 @@ export type AppSnapshot = {
   containers: ContainerStatus[];
   tests: ManagedTest[];
   latestTest: SmokeResult | null;
+  demoLogin: {
+    available: boolean;
+    username?: string;
+    password?: string;
+    source: string;
+    error?: string;
+  };
   dataProfile: {
     available: boolean;
     rows: DataProfileRow[];

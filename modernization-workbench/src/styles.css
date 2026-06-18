@@ -288,6 +288,65 @@ p {
   margin-bottom: 18px;
 }
 
+.credential-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  border: 1px solid #cfe2e2;
+  border-radius: 8px;
+  background: #f3faf9;
+  padding: 12px 13px;
+}
+
+.credential-strip.warning {
+  border-color: #f2d3a2;
+  background: #fff8e8;
+}
+
+.credential-heading,
+.credential-values {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.credential-heading {
+  color: #243747;
+}
+
+.credential-heading svg {
+  color: #246b73;
+}
+
+.credential-heading span,
+.credential-error {
+  color: #69778a;
+  font-size: 0.82rem;
+}
+
+.credential-values span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #506173;
+  font-size: 0.88rem;
+  font-weight: 690;
+}
+
+.credential-values code {
+  border: 1px solid #cbd8df;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #132230;
+  padding: 3px 7px;
+  font-size: 0.88rem;
+  font-weight: 760;
+}
+
 .metric-grid,
 .data-profile {
   display: grid;

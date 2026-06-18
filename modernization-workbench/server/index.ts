@@ -54,6 +54,14 @@ type ContainerStatus = {
   ports: string;
 };
 
+type DemoLogin = {
+  available: boolean;
+  username?: string;
+  password?: string;
+  source: string;
+  error?: string;
+};
+
 type LifecycleEvent = {
   id: string;
   appId: string;
@@ -356,6 +364,35 @@ async function getDataProfile(managedApp: ManagedApp) {
   }
 }
 
+async function getDemoLogin(managedApp: ManagedApp): Promise<DemoLogin> {
+  const cwd = resolveProjectPath(managedApp.workingDirectory);
+  const source = path.join(managedApp.workingDirectory, ".env").replaceAll("\\", "/");
+  try {
+    const env = await readEnvFile(cwd);
+    const username = env.OPENEMR_ADMIN_USER || "admin";
+    const password = env.OPENEMR_ADMIN_PASSWORD || "";
+    if (!password) {
+      return {
+        available: false,
+        source,
+        error: "OPENEMR_ADMIN_PASSWORD is not set."
+      };
+    }
+    return {
+      available: true,
+      username,
+      password,
+      source
+    };
+  } catch (error) {
+    return {
+      available: false,
+      source,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
 async function getSourceInfo(managedApp: ManagedApp) {
   const cwd = resolveProjectPath(managedApp.sourcePath);
   const tagResult = await new Promise<{ tag: string; commit: string }>((resolve) => {
@@ -390,6 +427,7 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     ? await readJsonIfExists(resolveProjectPath(managedApp.tests[0].resultPath))
     : null;
   const dataProfile = await getDataProfile(managedApp);
+  const demoLogin = await getDemoLogin(managedApp);
 
   return {
     id: managedApp.id,
@@ -406,6 +444,7 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     containers,
     tests: managedApp.tests,
     latestTest,
+    demoLogin,
     dataProfile,
     refreshedAt: new Date().toISOString()
   };

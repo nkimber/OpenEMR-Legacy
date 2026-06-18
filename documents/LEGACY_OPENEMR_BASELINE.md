@@ -46,6 +46,8 @@ The local demo admin login is configured through `legacy-openemr/.env`.
 
 These are local-only demo credentials. Do not use real patient data or production secrets in this environment.
 
+The Modernization Workbench reads these values from `legacy-openemr/.env` and displays them in the Managed Application panel. If a browser pre-fills different values on the OpenEMR login page, use the Workbench values as the source of truth for the local baseline.
+
 ## Commands
 
 Run commands from `legacy-openemr/`.

@@ -8,6 +8,7 @@ import {
   FileText,
   GitBranch,
   History,
+  KeyRound,
   Layers,
   Play,
   Power,
@@ -171,6 +172,26 @@ function LegacyAppPanel({
         <IconButton title="Load recent logs" onClick={onLoadLogs} disabled={busyForApp}>
           <Terminal size={18} />
         </IconButton>
+      </div>
+
+      <div className={`credential-strip${app.demoLogin.available ? "" : " warning"}`}>
+        <div className="credential-heading">
+          <KeyRound size={17} />
+          <strong>Local demo login</strong>
+          <span>{app.demoLogin.source}</span>
+        </div>
+        {app.demoLogin.available ? (
+          <div className="credential-values">
+            <span>
+              Username <code>{app.demoLogin.username}</code>
+            </span>
+            <span>
+              Password <code>{app.demoLogin.password}</code>
+            </span>
+          </div>
+        ) : (
+          <span className="credential-error">{app.demoLogin.error ?? "Credential unavailable."}</span>
+        )}
       </div>
 
       <div className="metric-grid">
