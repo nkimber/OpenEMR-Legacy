@@ -5,6 +5,8 @@ param(
     [ValidateSet("all", "database", "http", "ui", "workflow")]
     [string] $Suite = "all",
 
+    [string] $Plan = "",
+
     [ValidateSet("none", "run", "suite", "test")]
     [string] $Reset = "run",
 
@@ -27,10 +29,18 @@ try {
     $arguments = @(
         "tsx",
         "src/cli/run-tests.ts",
-        "--target", $Target,
-        "--suite", $Suite,
-        "--reset", $Reset
+        "--target", $Target
     )
+
+    if ($Plan) {
+        $arguments += @("--plan", $Plan)
+    } else {
+        $arguments += @("--suite", $Suite)
+    }
+
+    if ($Reset) {
+        $arguments += @("--reset", $Reset)
+    }
 
     if ($Headed) {
         $arguments += "--headed"

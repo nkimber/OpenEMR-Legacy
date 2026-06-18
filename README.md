@@ -52,6 +52,18 @@ Run the isolated legacy workflow mutation suite:
 npm run test:legacy:workflow -- --reset test
 ```
 
+List the available suites, run plans, reset modes, and targets:
+
+```powershell
+npm run list
+```
+
+Run the target-neutral full parity plan:
+
+```powershell
+npm run test:legacy:plan:full
+```
+
 Seed the shared gold test dataset:
 
 ```powershell

@@ -25,6 +25,9 @@
         "parityHttpTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "http", "-Reset", "none"],
         "parityUiTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "ui", "-Reset", "run"],
         "parityWorkflowTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "workflow", "-Reset", "test"],
+        "parityReadinessPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "legacy-readiness", "-Reset", "run"],
+        "parityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "mutation-isolated", "-Reset", "test"],
+        "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
       "services": ["mysql", "openemr"],
@@ -86,6 +89,30 @@
           "layer": "workflow",
           "commandName": "parityWorkflowTests",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-workflow.json"
+        },
+        {
+          "id": "parity-plan-readiness",
+          "name": "Legacy readiness plan",
+          "description": "Runs the read-only database, HTTP, and UI suites as a curated baseline readiness plan.",
+          "layer": "plan",
+          "commandName": "parityReadinessPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-legacy-readiness.json"
+        },
+        {
+          "id": "parity-plan-mutation",
+          "name": "Isolated mutation plan",
+          "description": "Runs the workflow mutation suite with per-test gold-data reseeding for strongest isolation.",
+          "layer": "plan",
+          "commandName": "parityMutationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-mutation-isolated.json"
+        },
+        {
+          "id": "parity-plan-full",
+          "name": "Full parity plan",
+          "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
+          "layer": "plan",
+          "commandName": "parityFullPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-full-parity.json"
         },
         {
           "id": "parity-all",

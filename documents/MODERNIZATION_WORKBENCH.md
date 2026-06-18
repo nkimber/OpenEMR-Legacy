@@ -61,7 +61,7 @@ Verified behavior:
 - The API can read legacy OpenEMR status.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
-- The API can run the legacy parity database, HTTP, UI, workflow mutation, and full-suite test commands through allowlisted manifests.
+- The API can run the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands through allowlisted manifests.
 - The API can run and validate the legacy gold seed action.
 - The API can parse `documents/PROJECT_CHANGELOG.md` and expose it as structured timeline data.
 - The API can stop and restart the legacy OpenEMR Docker Compose stack.
@@ -168,9 +168,11 @@ Preferred pattern:
 
 The first available baseline test command is `legacy-openemr/scripts/Test-LegacyBaseline.ps1`, which writes `legacy-openemr/artifacts/latest-smoke-test.json`.
 
-The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, and full-suite legacy runs. Latest suite summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
+The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, and full-suite legacy runs. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
 
 The workflow mutation run covers deterministic demographics, appointment, clinical-list, patient-message, and prescription lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
+
+The Workbench now exposes curated plan actions for legacy readiness, isolated mutations, and the full parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
 

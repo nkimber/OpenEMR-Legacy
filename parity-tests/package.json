@@ -11,6 +11,11 @@
     "test:legacy:ui": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui",
     "test:legacy:ui:headed": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui --headed",
     "test:legacy:workflow": "tsx src/cli/run-tests.ts --target legacy-openemr --suite workflow",
+    "test:legacy:plan:readiness": "tsx src/cli/run-tests.ts --target legacy-openemr --plan legacy-readiness",
+    "test:legacy:plan:mutation": "tsx src/cli/run-tests.ts --target legacy-openemr --plan mutation-isolated",
+    "test:legacy:plan:full": "tsx src/cli/run-tests.ts --target legacy-openemr --plan full-parity",
+    "list": "tsx src/cli/run-tests.ts --list",
+    "compare": "tsx src/cli/compare-runs.ts",
     "typecheck": "tsc --noEmit",
     "playwright": "playwright"
   },

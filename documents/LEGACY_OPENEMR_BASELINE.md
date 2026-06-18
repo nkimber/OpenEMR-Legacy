@@ -80,6 +80,12 @@ Run the full parity test suite from the repository root:
 powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite all -Reset run
 ```
 
+Run the full named parity plan from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan full-parity -Reset run
+```
+
 Run individual parity suites from `parity-tests/`:
 
 ```powershell
@@ -136,6 +142,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - HTTP functional suite passed.
 - Playwright UI suite passed.
 - Workflow mutation suite passed with per-test gold-data resets.
+- Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 
 The bundled OpenEMR example seed has been imported with these checks:

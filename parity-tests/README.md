@@ -11,6 +11,14 @@ The first implemented target is `legacy-openemr`. The `modernized-openemr` targe
 - `ui` - Playwright browser workflows.
 - `workflow` - deterministic CRUD-style workflows with pre/post probes, cleanup, and UI evidence where useful.
 
+## Run Plans
+
+Named plans live in `test-manifest.json` and are the operator-facing test manager layer:
+
+- `legacy-readiness` - read-only database, HTTP, and UI suites for baseline confidence.
+- `mutation-isolated` - workflow mutation suite with per-test reseeding.
+- `full-parity` - database, HTTP, UI, and workflow suites for the future side-by-side parity contract.
+
 ## Commands
 
 Run all implemented legacy suites:
@@ -26,6 +34,9 @@ npm run test:legacy:database
 npm run test:legacy:http
 npm run test:legacy:ui
 npm run test:legacy:workflow
+npm run test:legacy:plan:readiness
+npm run test:legacy:plan:mutation
+npm run test:legacy:plan:full
 ```
 
 Run the UI suite headed:
@@ -41,6 +52,14 @@ npm run test:legacy -- --reset none
 npm run test:legacy -- --suite database --reset run
 npm run test:legacy -- --suite all --reset suite
 npm run test:legacy -- --suite workflow --reset test
+npm run test:legacy -- --plan full-parity --reset run
+npm run list
+```
+
+Compare two run summaries:
+
+```powershell
+npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-legacy-openemr-plan-full-parity.json --left-target legacy-openemr --right-target legacy-openemr --plan full-parity
 ```
 
 Reset modes:
@@ -65,5 +84,11 @@ The runner also writes a latest summary per target and suite, for example:
 - `parity-tests/artifacts/latest-legacy-openemr-all.json`
 - `parity-tests/artifacts/latest-legacy-openemr-database.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-full-parity.json`
+
+Comparison runs write:
+
+- `parity-tests/artifacts/latest-comparison-<left>-<right>-<selection-kind>-<selection-id>.json`
+- `parity-tests/artifacts/comparisons/<comparison-id>/comparison.json`
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.

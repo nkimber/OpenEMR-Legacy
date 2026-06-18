@@ -19,6 +19,8 @@ Technology stack:
 - Node.js command orchestration.
 - Legacy MariaDB probes through Docker Compose and the MariaDB CLI.
 - Legacy workflow mutation actions through an adapter layer.
+- Manifest-defined suites and run plans.
+- A run-summary comparator for future side-by-side parity evidence.
 - JSON, JUnit, HTML, screenshots, videos, and Playwright traces as test evidence.
 
 The legacy baseline is the first implemented target:
@@ -113,6 +115,15 @@ npm run test:legacy:http
 npm run test:legacy:ui
 npm run test:legacy:ui:headed
 npm run test:legacy:workflow
+npm run test:legacy:plan:readiness
+npm run test:legacy:plan:mutation
+npm run test:legacy:plan:full
+```
+
+Inventory command:
+
+```powershell
+npm run list
 ```
 
 The root script used by the Workbench is:
@@ -125,10 +136,27 @@ The runner accepts:
 
 - `--target legacy-openemr`
 - `--suite all|database|http|ui|workflow`
+- `--plan legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
 - `--workers <n>`
+- `--list`
+
+## Test Management
+
+The test manifest now has two selection layers:
+
+- Suites: layer-level groups such as database, HTTP, UI, and workflow.
+- Plans: operator-facing run plans that select suites, reset behavior, target support, and intent.
+
+Current plans:
+
+- `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
+- `mutation-isolated` runs workflow mutations with per-test resets for strongest mutation isolation.
+- `full-parity` runs database, HTTP, UI, and workflow as the target-neutral contract intended for future side-by-side legacy and modernized runs.
+
+Every plan run records `selectionKind`, `selectionId`, `selectedSuites`, and plan metadata in `run.json`. This makes result files self-describing and lets the Workbench show whether evidence came from a suite or a named plan.
 
 ## Reset Strategy
 
@@ -166,6 +194,21 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
 - `parity-tests/artifacts/latest-legacy-openemr-all.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-full-parity.json`
+
+Comparison artifacts are written under:
+
+```text
+parity-tests/artifacts/comparisons/
+```
+
+The comparison runner can compare two `run.json` or latest-summary files:
+
+```powershell
+npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-modernized-openemr-plan-full-parity.json --plan full-parity
+```
+
+Until the modernized target exists, the comparator can still be verified with two legacy run files. Once both targets exist, it should become the Workbench and CI input for side-by-side parity status.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
 
@@ -180,6 +223,9 @@ The legacy app currently exposes these test actions:
 - HTTP functional contract.
 - Playwright UI contract.
 - Workflow mutation contract.
+- Legacy readiness plan.
+- Isolated mutation plan.
+- Full parity plan.
 - Full legacy parity suite.
 
 OpenEMR-native PHPUnit execution is not exposed as a Workbench action yet because the local/container dependency checks above do not currently provide a runnable PHPUnit binary.

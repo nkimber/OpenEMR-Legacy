@@ -728,6 +728,18 @@ p {
   white-space: nowrap;
 }
 
+.evidence-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.evidence-selection span {
+  font-weight: 700;
+  color: #25313d;
+}
+
 .evidence-metrics {
   display: flex;
   flex-wrap: wrap;

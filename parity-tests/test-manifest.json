@@ -4,6 +4,35 @@
   "description": "Target-neutral test manifest for legacy OpenEMR now and modernized OpenEMR later.",
   "defaultTarget": "legacy-openemr",
   "defaultResetMode": "run",
+  "plans": [
+    {
+      "id": "legacy-readiness",
+      "name": "Legacy Readiness",
+      "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
+      "suites": ["database", "http", "ui"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "legacy"],
+      "targets": ["legacy-openemr"]
+    },
+    {
+      "id": "mutation-isolated",
+      "name": "Isolated Workflow Mutations",
+      "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
+      "suites": ["workflow"],
+      "resetMode": "test",
+      "tags": ["workflow", "mutation", "isolated"],
+      "targets": ["legacy-openemr"]
+    },
+    {
+      "id": "full-parity",
+      "name": "Full Parity Contract",
+      "description": "Complete target-neutral parity plan intended to run against legacy now and both targets later.",
+      "suites": ["database", "http", "ui", "workflow"],
+      "resetMode": "run",
+      "tags": ["parity", "full", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    }
+  ],
   "resetModes": [
     {
       "id": "none",

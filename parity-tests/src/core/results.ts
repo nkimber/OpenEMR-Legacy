@@ -16,6 +16,13 @@ export type ParityRunSummary = {
   runId: string;
   target: string;
   suite: string;
+  selectionKind: "suite" | "plan";
+  selectionId: string;
+  selectedSuites: string[];
+  plan?: {
+    id: string;
+    name: string;
+  };
   resetMode: string;
   headed: boolean;
   passed: boolean;

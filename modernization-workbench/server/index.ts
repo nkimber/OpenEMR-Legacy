@@ -744,7 +744,7 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
       response.status(404).json({ error: `Unknown test: ${request.params.testId}` });
       return;
     }
-    const longRunningTestIds = new Set(["parity-all", "parity-workflow"]);
+    const longRunningTestIds = new Set(["parity-all", "parity-workflow", "parity-plan-readiness", "parity-plan-mutation", "parity-plan-full"]);
     const result = await runCommand(managedApp, test.commandName, longRunningTestIds.has(test.id) ? 600000 : 300000);
     const event = eventFromCommand(managedApp.id, `test:${test.id}`, result);
     await saveEvent(event);
@@ -792,7 +792,7 @@ app.get("/api/architecture", async (_request, response) => {
         tests: [
           "Smoke test implemented",
           "Gold seed-data validation implemented",
-          "Parity database/http/ui/workflow suites implemented",
+          "Parity database/http/ui/workflow suites and named run plans implemented",
           "Playwright UI suite implemented",
           "Mutation workflow suite implemented"
         ]
@@ -827,6 +827,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
       { id: "playwright-login", name: "Playwright baseline login test", status: "verified", detail: "Implemented through the parity-tests UI suite for legacy login and gold-patient chart navigation." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, clinical-list, patient-message, and prescription lifecycle coverage with pre/post database probes." },
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]
   });

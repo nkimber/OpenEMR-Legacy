@@ -766,6 +766,10 @@ function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | n
           <strong>{result.passed ? "Passed" : "Failed"}</strong>
           <span>{formatDate(result.finishedAt)}</span>
         </div>
+        <div className="evidence-selection">
+          <span>{result.plan?.name ?? result.selectionId ?? result.suite}</span>
+          {result.selectedSuites?.length ? <code>{result.selectedSuites.join(", ")}</code> : null}
+        </div>
         <div className="evidence-metrics">
           <span>{result.stats.expected} passed</span>
           <span>{result.stats.unexpected} failed</span>
