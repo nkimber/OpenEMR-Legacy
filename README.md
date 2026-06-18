@@ -14,6 +14,8 @@ The project has three major systems:
 
 The legacy OpenEMR baseline is installed under `legacy-openemr/` and verified locally.
 
+The first Modernization Workbench version is implemented under `modernization-workbench/`.
+
 Pinned baseline:
 
 - OpenEMR Docker image: `openemr/openemr:8.1.0-2026-06-18`
@@ -32,6 +34,15 @@ Run the baseline smoke test:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
 ```
+
+Run the Modernization Workbench:
+
+```powershell
+cd ..
+.\scripts\Start-ModernizationWorkbench.ps1
+```
+
+Open `http://127.0.0.1:5173`.
 
 ## Documentation
 

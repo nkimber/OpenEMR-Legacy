@@ -1,0 +1,34 @@
+{
+  "apps": [
+    {
+      "id": "legacy-openemr",
+      "name": "Legacy OpenEMR",
+      "stage": "Baseline reference",
+      "description": "Pinned original OpenEMR application running through Docker Compose.",
+      "kind": "docker-compose",
+      "workingDirectory": "../legacy-openemr",
+      "publicUrl": "https://localhost:9443",
+      "healthUrl": "https://localhost:9443/meta/health/readyz",
+      "documentationPath": "../documents/LEGACY_OPENEMR_BASELINE.md",
+      "sourcePath": "../legacy-openemr/source",
+      "expectedSourceTag": "v8_1_0",
+      "commands": {
+        "status": ["docker", "compose", "ps", "--format", "json"],
+        "start": ["docker", "compose", "up", "-d"],
+        "stop": ["docker", "compose", "down"],
+        "restart": ["docker", "compose", "restart"],
+        "logs": ["docker", "compose", "logs", "--tail", "160"],
+        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"]
+      },
+      "services": ["mysql", "openemr"],
+      "tests": [
+        {
+          "id": "smoke",
+          "name": "Baseline smoke test",
+          "description": "Checks health endpoint, login page, and local admin login.",
+          "resultPath": "../legacy-openemr/artifacts/latest-smoke-test.json"
+        }
+      ]
+    }
+  ]
+}

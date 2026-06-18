@@ -1,12 +1,49 @@
 # Modernization Workbench
 
 Created: 2026-06-18
+First implemented: 2026-06-18
 
 ## Purpose
 
 The Modernization Workbench is the third application in this project. It is an oversight and orchestration website for managing the modernization of OpenEMR from the legacy baseline into the modernized target solution.
 
 The workbench should make the modernization effort observable. A user should be able to open it and understand what exists, what is running, what has been tested, which workflows have been modernized, how the two systems compare, and what evidence supports the current state.
+
+## Current Implementation
+
+The first version is implemented in `modernization-workbench/`.
+
+Technology stack:
+
+- React.
+- TypeScript.
+- Vite.
+- Node.js.
+- Express.
+- Docker Compose command orchestration.
+
+Run it from the repository root:
+
+```powershell
+.\scripts\Start-ModernizationWorkbench.ps1
+```
+
+Workbench URLs:
+
+- UI: `http://127.0.0.1:5173`
+- API: `http://127.0.0.1:5174`
+
+The Workbench currently manages the legacy OpenEMR baseline. It can show status, check health, start, stop, restart, run the smoke test, display latest smoke-test results, show Docker Compose logs, display a small database profile, list action history, and show architecture/progress views.
+
+Verified behavior:
+
+- Production build passes with `npm run build`.
+- The UI renders in desktop and mobile viewports.
+- The API can read legacy OpenEMR status.
+- The API can load recent Docker Compose logs.
+- The API can run the baseline smoke test.
+- The API can stop and restart the legacy OpenEMR Docker Compose stack.
+- After Workbench restart control, legacy OpenEMR returns to healthy state and the smoke test passes.
 
 ## Relationship To The Other Systems
 
@@ -16,7 +53,7 @@ The project has three major systems:
 - **Modernization Workbench** - the oversight website that tracks status, progress, tests, comparisons, and technical differences.
 - **Modernized OpenEMR target** - the new implementation built in vertical slices using a modern UI, API, business tier, and PostgreSQL.
 
-The workbench should be built after the baseline can run at least a minimal meaningful test set. It can then become the primary visual control surface for the rest of the modernization effort.
+The workbench was built after the baseline could run a minimal meaningful smoke test. It is now the primary visual control surface for the rest of the modernization effort.
 
 The intended operator workflow is that a user runs one local script to start the Modernization Workbench, then uses the Workbench to inspect, start, stop, restart, and test the other project applications such as the legacy OpenEMR site.
 
@@ -38,9 +75,9 @@ The workbench should help answer:
 
 ## Initial Version
 
-The first workbench version should be intentionally small and useful.
+The first workbench version is intentionally small and useful.
 
-Initial capabilities:
+Implemented capabilities:
 
 - Show legacy OpenEMR environment status.
 - Show configured baseline URL, database status, and seed-data status when available.
@@ -49,10 +86,10 @@ Initial capabilities:
 - Display latest baseline test results.
 - Display recent lifecycle action results, including command status, duration, and logs.
 - Display links or paths to logs, screenshots, and reports.
-- Show placeholder sections for the modernized target and side-by-side comparison, marked as not started until those systems exist.
+- Show placeholder sections for the modernized target, marked as not started until that system exists.
 - Show a project progress view with the three major systems and their current stage.
 
-The first version should not require the modernized target to exist.
+The first version does not require the modernized target to exist.
 
 ## Application Lifecycle Control
 

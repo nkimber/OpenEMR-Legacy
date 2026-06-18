@@ -5,6 +5,10 @@
 # Local OpenEMR upstream checkout and generated runtime output
 legacy-openemr/source/
 legacy-openemr/artifacts/
+modernization-workbench/artifacts/
+modernization-workbench/dist/
+modernization-workbench/node_modules/
+.playwright-cli/
 
 # OS/editor noise
 .DS_Store

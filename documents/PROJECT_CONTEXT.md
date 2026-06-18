@@ -28,6 +28,8 @@ The smoke test currently verifies:
 
 The baseline has not yet been seeded with project-specific demo data.
 
+The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, and smoke-test the legacy OpenEMR baseline through local-only, allowlisted orchestration commands.
+
 ## Why OpenEMR
 
 OpenEMR is a mature, open source electronic health records and medical practice management application. It is large enough to contain real modernization challenges: legacy UI patterns, server-side business behavior, database coupling, authentication and authorization concerns, reporting, healthcare workflows, and integration surfaces.
@@ -142,7 +144,7 @@ Each slice should include:
 
 1. Establish baseline seed/demo data.
 2. Add the first Playwright login/navigation test.
-3. Build the first version of the Modernization Workbench around baseline status, lifecycle control, and test execution.
+3. Establish the first project-specific Playwright login/navigation test.
 4. Select the first modernization workflow slice.
 5. Build the modernized target implementation for that slice.
 6. Run side-by-side parity tests and publish the results through the workbench.

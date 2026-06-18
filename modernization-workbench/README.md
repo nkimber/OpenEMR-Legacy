@@ -1,0 +1,49 @@
+# Modernization Workbench
+
+The Modernization Workbench is a local-first oversight application for the OpenEMR modernization project.
+
+The first version manages the legacy OpenEMR baseline:
+
+- Shows Docker Compose service status.
+- Checks the OpenEMR health endpoint.
+- Shows the pinned source tag and commit.
+- Displays a small database profile.
+- Starts, stops, and restarts the legacy OpenEMR Docker Compose stack.
+- Runs the baseline smoke test.
+- Displays recent logs and action history.
+- Shows architecture and modernization progress views.
+
+## Run
+
+From the repository root:
+
+```powershell
+.\scripts\Start-ModernizationWorkbench.ps1
+```
+
+Or from this folder:
+
+```powershell
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173
+```
+
+## Local API
+
+The backend listens on:
+
+```text
+http://127.0.0.1:5174
+```
+
+It is intentionally local-only. Lifecycle actions are implemented through manifest-defined commands in `config/apps.json`.
+
+## Safety
+
+The Workbench does not expose a general shell. It can run only the operations defined in the managed-app manifest.
