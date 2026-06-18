@@ -460,11 +460,48 @@ Primary files:
 - `documents/TEST_ARCHITECTURE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 
+### 017. Expanded Legacy Workflow Mutation Coverage
+
+Commit: `0a62a65`
+
+Broadened the legacy workflow mutation suite so it covers additional high-value OpenEMR clinical and revenue workflows.
+
+Key outcomes:
+
+- Added normalized patient workflow counts for vitals and SOAP clinical notes.
+- Extended the legacy workflow adapter with encounter, vitals, SOAP note, billing line, procedure order, procedure report, and procedure result operations.
+- Added an encounter lifecycle test that creates an encounter, links vitals and SOAP details through the legacy `forms` table, updates the encounter reason, and cleans up.
+- Added a billing lifecycle test that creates an encounter-scoped CPT line, marks it billed/inactive, and verifies cleanup.
+- Added a lab procedure lifecycle test that creates an encounter-scoped order, completes it, adds a report and result, and verifies cascade cleanup.
+- Updated Workbench and project documentation so the workflow mutation lane reflects demographics, scheduling, encounters, clinical lists, messages, prescriptions, billing, and labs.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `npm run test:legacy:workflow -- --reset none` with 8 passing workflow tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite workflow -Reset test` with 8 passing workflow tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan full-parity -Reset run` with 17 passing tests.
+- `npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-legacy-openemr-plan-full-parity.json --left-target legacy-openemr --right-target legacy-openemr --plan full-parity`.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+
+Primary files:
+
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/tests/workflow/legacy-workflow-mutations.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- Expansion of workflow parity tests into encounter, billing, procedure, and richer UI mutation coverage.
+- Expansion of richer browser-driven UI workflow coverage.
+- Legacy-native PHPUnit/Jest/Panther test-container enablement if practical.
 - Selection of the first modernization workflow slice.
 - Modernized workflow action adapters for the parity suite.
 - Modernized target project bootstrap.
