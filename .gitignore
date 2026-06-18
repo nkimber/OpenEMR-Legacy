@@ -1,0 +1,13 @@
+# Local environment files
+.env
+*.env.local
+
+# Local OpenEMR upstream checkout and generated runtime output
+legacy-openemr/source/
+legacy-openemr/artifacts/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
