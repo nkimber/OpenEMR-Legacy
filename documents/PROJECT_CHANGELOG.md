@@ -385,11 +385,49 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 015. Legacy Workflow Mutation Parity Suite
+
+Commit: `2b8fc4c`
+
+Expanded the legacy parity test solution beyond read-only checks by adding deterministic workflow mutation coverage with pre/post probes, cleanup, and Workbench orchestration.
+
+Key outcomes:
+
+- Added a legacy workflow action adapter that performs controlled CRUD-style mutations against the OpenEMR MariaDB schema.
+- Added a workflow mutation test suite for patient demographics contact updates, future appointments, clinical allergy list entries, patient messages, and prescriptions.
+- Added browser-visible evidence to the demographics workflow by verifying the changed patient contact value in the legacy chart.
+- Added workflow suite registration to the parity manifest, npm scripts, root PowerShell runner, and Workbench Test Runs page.
+- Configured the Workbench workflow command to use per-test gold-data resets for strong mutation isolation.
+- Kept the workflow tests cleanup-aware so they can also run inside the full parity suite with a single run reset.
+- Updated Workbench architecture/progress metadata and project documentation to include the workflow mutation lane.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `npm run test:legacy:workflow -- --reset none`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite workflow -Reset test`.
+- `npm run test:legacy -- --reset run` with 14 passing tests.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+
+Primary files:
+
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/tests/workflow/legacy-workflow-mutations.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- Seed-aware appointment, encounter, medication, message, and billing mutation tests using canonical gold dataset IDs.
+- Expansion of workflow parity tests into encounter, billing, procedure, and richer UI mutation coverage.
 - Selection of the first modernization workflow slice.
+- Modernized workflow action adapters for the parity suite.
 - Modernized target project bootstrap.
 - PostgreSQL seed adapter for the modernized target.
