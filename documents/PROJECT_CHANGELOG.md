@@ -308,7 +308,7 @@ Primary files:
 
 ### 013. Gold Dataset 2026 Temporal Coverage Enhanced
 
-Commit: `pending`
+Commit: `d0f907c`
 
 Reviewed the live legacy MariaDB seed coverage for 2026 and enhanced the gold dataset so it exercises current-year and future-year workflows more completely.
 
