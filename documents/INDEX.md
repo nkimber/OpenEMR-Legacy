@@ -40,7 +40,7 @@ The document set is expected to grow in these areas:
 
 - **Context and goals** - project background, success criteria, guiding assumptions.
 - **Architecture** - legacy OpenEMR baseline, modern target architecture, API boundaries, database migration approach.
-- **Workbench** - modernization oversight, test orchestration, technical comparison, progress tracking, and evidence reports.
+- **Workbench** - modernization oversight, application lifecycle control, test orchestration, technical comparison, progress tracking, and evidence reports.
 - **Testing and validation** - unit, functional, API, and Playwright UI tests; seed data; side-by-side comparison strategy.
 - **Migration planning** - workflow-by-workflow modernization plans, data mapping, business-rule extraction.
 - **Operations** - Docker setup, local development, reproducible environments, CI notes.
@@ -63,5 +63,5 @@ The document set is expected to grow in these areas:
 | `DOCUMENTATION_GOVERNANCE.md` | Defines the rule that project documents must stay synchronized with project state, code, tests, setup, and decisions. | Before making changes that affect implementation, architecture, setup, test strategy, or durable project direction. |
 | `GITHUB_CONNECTION.md` | Tracks local Git and GitHub remote connection state, including what should be pushed and what should remain ignored. | Connecting the project to GitHub, checking remotes, pushing the initial branch, or troubleshooting repository tracking. |
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
-| `MODERNIZATION_WORKBENCH.md` | Defines the third website that oversees the legacy baseline, modernized target, test orchestration, comparison results, and technical architecture differences. | Planning or implementing the workbench, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
+| `MODERNIZATION_WORKBENCH.md` | Defines the third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Planning or implementing the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |

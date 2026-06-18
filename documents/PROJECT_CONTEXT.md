@@ -58,6 +58,7 @@ It should show the state of the legacy OpenEMR baseline, the state of the modern
 Expected workbench capabilities:
 
 - Display environment status for the legacy baseline and modernized target.
+- Start, stop, and restart project applications through controlled local orchestration.
 - Show test results for unit, functional/API, and Playwright UI test runs.
 - Trigger selected test runs through controlled scripts or APIs.
 - Run parity checks across both systems when both implementations exist.
@@ -66,7 +67,7 @@ Expected workbench capabilities:
 - Highlight technical differences between the legacy and modernized architectures.
 - Preserve evidence from test runs, comparisons, logs, screenshots, and reports.
 
-The workbench should orchestrate and visualize repeatable commands rather than becoming the only way to run tests. The underlying tests and scripts should remain usable from the command line and from future CI workflows.
+The workbench should orchestrate and visualize repeatable commands rather than becoming the only way to run tests or manage app lifecycle. The underlying start, stop, health-check, and test commands should remain usable from the command line and from future CI workflows where appropriate.
 
 ## Modernized Target System
 
@@ -141,7 +142,7 @@ Each slice should include:
 
 1. Establish baseline seed/demo data.
 2. Add the first Playwright login/navigation test.
-3. Build the first version of the Modernization Workbench around baseline status and test execution.
+3. Build the first version of the Modernization Workbench around baseline status, lifecycle control, and test execution.
 4. Select the first modernization workflow slice.
 5. Build the modernized target implementation for that slice.
 6. Run side-by-side parity tests and publish the results through the workbench.

@@ -18,6 +18,8 @@ The project has three major systems:
 
 The workbench should be built after the baseline can run at least a minimal meaningful test set. It can then become the primary visual control surface for the rest of the modernization effort.
 
+The intended operator workflow is that a user runs one local script to start the Modernization Workbench, then uses the Workbench to inspect, start, stop, restart, and test the other project applications such as the legacy OpenEMR site.
+
 ## Core Responsibilities
 
 The workbench should help answer:
@@ -27,6 +29,8 @@ The workbench should help answer:
 - Which tests can be run against the baseline?
 - What were the latest test results?
 - Is the modernized target running?
+- Which applications are stopped, starting, healthy, unhealthy, or stopped with errors?
+- Can an operator start, stop, or restart a project application from one controlled interface?
 - Which workflow slices have been discovered, implemented, and parity tested?
 - How do the legacy and modernized systems compare for a given workflow?
 - What are the technical architecture differences between the two systems?
@@ -40,13 +44,50 @@ Initial capabilities:
 
 - Show legacy OpenEMR environment status.
 - Show configured baseline URL, database status, and seed-data status when available.
+- Start, stop, and restart the legacy OpenEMR Docker Compose environment through controlled local commands.
 - Trigger baseline smoke tests through `legacy-openemr/scripts/Test-LegacyBaseline.ps1`.
 - Display latest baseline test results.
+- Display recent lifecycle action results, including command status, duration, and logs.
 - Display links or paths to logs, screenshots, and reports.
 - Show placeholder sections for the modernized target and side-by-side comparison, marked as not started until those systems exist.
 - Show a project progress view with the three major systems and their current stage.
 
 The first version should not require the modernized target to exist.
+
+## Application Lifecycle Control
+
+The workbench should be able to control the running state of project applications, but only through explicit, allowlisted operations.
+
+Expected lifecycle actions:
+
+- Check status.
+- Start.
+- Stop.
+- Restart.
+- Run health check.
+- Open application URL.
+- View recent logs.
+
+Initial target:
+
+- Legacy OpenEMR baseline in `legacy-openemr/`, controlled through Docker Compose.
+
+Future targets:
+
+- Modernized OpenEMR API.
+- Modernized OpenEMR UI.
+- Databases and supporting services used by the modernized target.
+- Test runners and comparison services.
+
+Preferred implementation:
+
+- A Workbench startup script starts the Workbench backend and frontend.
+- The Workbench backend exposes local-only orchestration APIs.
+- Each managed application has a manifest that defines its working directory, start command, stop command, status command, health endpoint, public URL, and log locations.
+- The frontend calls the backend for lifecycle actions.
+- The backend executes only predefined commands from manifests.
+
+The Workbench should not provide a general-purpose shell. Lifecycle control is powerful enough that it must remain local, explicit, logged, and constrained to known project commands.
 
 ## Test Orchestration
 
