@@ -344,7 +344,7 @@ Primary files:
 
 ### 014. Legacy Parity Test Harness And Workbench Test Manager
 
-Commit: `db912b1`
+Commits: `db912b1`, `6423108`
 
 Implemented the reusable parity test architecture and a complete first legacy test solution for the current baseline.
 
