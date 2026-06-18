@@ -32,5 +32,6 @@ The modernization target is a modern SPA-style UI, a public backend API, a servi
 - Preserve the legacy OpenEMR baseline as a reference system.
 - Treat tests as executable specifications for behavior parity.
 - Record durable decisions in the document set instead of leaving them only in chat history.
+- Use `scripts/Connect-GitHubRemote.ps1` when attaching the parent project to a GitHub remote after the target repository exists.
 - When adding a new document, include its purpose, when to read it, and how it relates to existing documents in `documents/INDEX.md`.
 - Avoid storing secrets, real patient data, credentials, or PHI in this repository.

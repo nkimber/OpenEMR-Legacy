@@ -33,6 +33,20 @@ git push -u origin main
 
 If the remote already has files, inspect and reconcile it before pushing.
 
+The repository also includes a helper script that performs safety checks before adding the remote and pushing:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Connect-GitHubRemote.ps1 -RemoteUrl https://github.com/<owner>/<repo>.git
+```
+
+The helper checks that the current branch is `main`, that tracked files are clean, and that the only ignored local paths are the expected OpenEMR runtime/source folders.
+
+To run only the local validation checks without adding a remote or pushing:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Connect-GitHubRemote.ps1 -RemoteUrl https://github.com/<owner>/<repo>.git -ValidateOnly
+```
+
 ## Verification
 
 After pushing, verify:

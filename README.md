@@ -41,6 +41,7 @@ Important documents:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/DOCUMENTATION_GOVERNANCE.md`
+- `documents/GITHUB_CONNECTION.md`
 
 ## Safety
 
