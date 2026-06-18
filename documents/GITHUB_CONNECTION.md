@@ -10,11 +10,17 @@ This document tracks the state of connecting the local OpenEMR modernization wor
 
 The parent project is initialized as a local Git repository on branch `main`.
 
-There is no GitHub remote attached yet.
+The GitHub remote is attached and `main` has been pushed.
+
+- Repository: `nkimber/OpenEMR-Legacy`
+- URL: `https://github.com/nkimber/OpenEMR-Legacy.git`
+- Remote name: `origin`
+- Default branch: `main`
+- Visibility: public
 
 The helper script `scripts/Connect-GitHubRemote.ps1` has been validated in `-ValidateOnly` mode against a placeholder GitHub URL. It passed local safety checks without adding a remote or pushing.
 
-The connected GitHub app can list repositories for user `nkimber`, but no existing repository was found that clearly matches this OpenEMR modernization workspace. The available GitHub connector tools do not expose repository creation, and the GitHub CLI (`gh`) is not installed on the local PATH.
+Git Credential Manager is configured as the local Git credential helper and the `nkimber` GitHub account is available for future pushes.
 
 The local repository intentionally tracks the modernization workspace, orchestration files, scripts, and documents. It intentionally does not track:
 
@@ -24,18 +30,13 @@ The local repository intentionally tracks the modernization workspace, orchestra
 
 The ignored `legacy-openemr/source/` folder is a local checkout of the upstream OpenEMR source for inspection and analysis. It should not be vendored into this parent repository by accident.
 
-## Required Remote Step
+## Remote Connection Command
 
-To complete the GitHub connection, choose or create a GitHub repository and attach it as `origin`.
-
-Expected commands once the remote repository exists:
+The remote was connected with:
 
 ```powershell
-git remote add origin https://github.com/<owner>/<repo>.git
-git push -u origin main
+powershell -ExecutionPolicy Bypass -File .\scripts\Connect-GitHubRemote.ps1 -RemoteUrl https://github.com/nkimber/OpenEMR-Legacy.git
 ```
-
-If the remote already has files, inspect and reconcile it before pushing.
 
 The repository also includes a helper script that performs safety checks before adding the remote and pushing:
 
@@ -53,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Connect-GitHubRemote.ps1 -Rem
 
 ## Verification
 
-After pushing, verify:
+Connection verification:
 
 - `git remote -v` shows the expected GitHub repository.
 - `git status --short` is clean except expected ignored runtime files.

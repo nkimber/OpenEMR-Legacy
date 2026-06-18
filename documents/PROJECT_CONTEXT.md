@@ -18,7 +18,7 @@ The first objective is to create a fully reproducible local OpenEMR baseline tha
 
 As of 2026-06-18, the legacy OpenEMR baseline is installed under `legacy-openemr/`, running through Docker Compose, and verified by a smoke test. The baseline uses OpenEMR Docker image `openemr/openemr:8.1.0-2026-06-18`, upstream source tag `v8_1_0`, and `mariadb:11.8.8`.
 
-The parent project has been initialized as a local Git repository on branch `main`. It does not yet have a GitHub remote.
+The parent project has been initialized as a local Git repository on branch `main`, connected to GitHub remote `origin`, and pushed to `https://github.com/nkimber/OpenEMR-Legacy.git`.
 
 The smoke test currently verifies:
 
@@ -26,7 +26,7 @@ The smoke test currently verifies:
 - The login page is reachable.
 - The local demo admin login reaches the main OpenEMR shell.
 
-The baseline has not yet been seeded with project-specific demo data and the parent project has not yet been connected to GitHub.
+The baseline has not yet been seeded with project-specific demo data.
 
 ## Why OpenEMR
 
@@ -141,8 +141,7 @@ Each slice should include:
 
 1. Establish baseline seed/demo data.
 2. Add the first Playwright login/navigation test.
-3. Connect the project to GitHub once a target repository exists.
-4. Build the first version of the Modernization Workbench around baseline status and test execution.
-5. Select the first modernization workflow slice.
-6. Build the modernized target implementation for that slice.
-7. Run side-by-side parity tests and publish the results through the workbench.
+3. Build the first version of the Modernization Workbench around baseline status and test execution.
+4. Select the first modernization workflow slice.
+5. Build the modernized target implementation for that slice.
+6. Run side-by-side parity tests and publish the results through the workbench.

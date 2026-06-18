@@ -99,5 +99,5 @@ The smoke test passed with these checks:
 
 - No project-specific synthetic seed dataset has been created yet.
 - No Playwright UI test suite has been added yet.
-- The parent project is a local Git repository on branch `main`, but it has not yet been connected to GitHub.
+- The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
 - The Modernization Workbench has not yet been implemented.

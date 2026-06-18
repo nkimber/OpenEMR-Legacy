@@ -2,6 +2,8 @@
 
 This repository is a modernization workspace built around OpenEMR.
 
+GitHub repository: `https://github.com/nkimber/OpenEMR-Legacy`
+
 The project has three major systems:
 
 - **Legacy OpenEMR baseline** - the original OpenEMR application running locally in Docker.
