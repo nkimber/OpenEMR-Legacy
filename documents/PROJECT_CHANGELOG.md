@@ -567,11 +567,44 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 020. Legacy Native Jest Test Lane
+
+Commit: `a2e22a5`
+
+Added a Workbench-managed native JavaScript test lane so OpenEMR's upstream Jest tests are part of the local legacy test solution.
+
+Key outcomes:
+
+- Added `legacy-openemr/scripts/Test-LegacyNativeJs.ps1` to run OpenEMR's upstream `npm run test:js` suite.
+- Added on-demand dependency restore through `npm ci --ignore-scripts` so the lane can recover missing ignored `node_modules` without running OpenEMR's heavier asset postinstall.
+- Wrote a compact Workbench summary to `legacy-openemr/artifacts/latest-native-jest-test.json`.
+- Wrote the full Jest JSON report to `legacy-openemr/artifacts/latest-native-jest-report.json` and a companion log file for detailed evidence.
+- Added a Workbench Test Runs card for the native Jest suite.
+- Added typed frontend rendering for Jest suite/test counts, Node/npm versions, and result report paths.
+- Updated architecture/progress metadata and project docs to include the native JavaScript lane.
+
+Verified test runs:
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -InstallDependencies` from `legacy-openemr/` with 12 suites and 105 tests passing.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+- `git -C legacy-openemr/source status --short` returned clean after the Node dependency and Jest runs.
+
+Primary files:
+
+- `legacy-openemr/scripts/Test-LegacyNativeJs.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- Legacy-native Jest/Panther test-container enablement if practical.
+- Legacy-native Panther test-container enablement if practical.
 - Selection of the first modernization workflow slice.
 - Modernized workflow action adapters for the parity suite.
 - Modernized target project bootstrap.
