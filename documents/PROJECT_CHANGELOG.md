@@ -600,6 +600,39 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 021. Workbench Custom Parity Run Builder
+
+Commit: `7c1c424`
+
+Added a manifest-backed custom parity run builder to the Workbench Test Runs page so operators can choose what to include in a parity run and which database reset strategy to use.
+
+Key outcomes:
+
+- Added a Workbench API endpoint that exposes `parity-tests/test-manifest.json`.
+- Added a validated custom parity run endpoint for suite or plan selection.
+- Allowed operator-selected reset modes: `none`, `run`, `suite`, and `test`.
+- Added optional headed browser mode and Playwright grep filtering.
+- Kept execution constrained to the existing `scripts/Run-OpenEmrParityTests.ps1` runner after validating suite, plan, reset, headed, and grep inputs.
+- Added a Test Runs page run-builder form that reads the manifest and triggers the custom run endpoint.
+- Preserved existing fixed test cards while adding targeted run management for ad hoc suites, plans, and reset-strategy experiments.
+
+Verified test runs:
+
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+- Temporary Workbench API runtime check of `/api/parity-manifest`.
+- Temporary Workbench API custom run of the `http` suite with `reset=none`, producing 3 passing checks in `parity-tests/artifacts/latest-legacy-openemr-http.json`.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
