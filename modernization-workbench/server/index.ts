@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-type CommandName = "status" | "start" | "stop" | "restart" | "logs" | "seedGoldDataset" | "seedExampleData" | "smokeTest";
+type CommandName = string;
 
 type CommandResult = {
   command: string[];
@@ -24,6 +24,8 @@ type ManagedTest = {
   id: string;
   name: string;
   description: string;
+  layer: string;
+  commandName: CommandName;
   resultPath: string;
 };
 
@@ -48,7 +50,7 @@ type ManagedApp = {
   documentationPath: string;
   sourcePath: string;
   expectedSourceTag: string;
-  commands: Record<CommandName, string[]>;
+  commands: Record<string, string[]>;
   services: string[];
   seeds: ManagedSeed[];
   tests: ManagedTest[];
@@ -596,6 +598,11 @@ async function getAppSnapshot(managedApp: ManagedApp) {
   const latestTest = managedApp.tests[0]
     ? await readJsonIfExists(resolveProjectPath(managedApp.tests[0].resultPath))
     : null;
+  const latestTests = Object.fromEntries(
+    await Promise.all(
+      managedApp.tests.map(async (test) => [test.id, await readJsonIfExists(resolveProjectPath(test.resultPath))])
+    )
+  );
   const managedSeeds = managedApp.seeds ?? [];
   const latestSeed = managedSeeds[0]
     ? await readJsonIfExists(resolveProjectPath(managedSeeds[0].resultPath))
@@ -620,6 +627,7 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     tests: managedApp.tests,
     latestSeed,
     latestTest,
+    latestTests,
     demoLogin,
     dataProfile,
     refreshedAt: new Date().toISOString()
@@ -736,7 +744,7 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
       response.status(404).json({ error: `Unknown test: ${request.params.testId}` });
       return;
     }
-    const result = await runCommand(managedApp, "smokeTest", 120000);
+    const result = await runCommand(managedApp, test.commandName, test.id === "parity-all" ? 600000 : 300000);
     const event = eventFromCommand(managedApp.id, `test:${test.id}`, result);
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(test.resultPath));
@@ -780,7 +788,7 @@ app.get("/api/architecture", async (_request, response) => {
         stack: ["OpenEMR 8.1.0", "PHP/Apache container", "MariaDB 11.8.8", "Docker Compose"],
         database: "MariaDB",
         businessLogic: "Existing OpenEMR PHP application and database access layer",
-        tests: ["Smoke test implemented", "Gold seed-data validation implemented", "Playwright pending"]
+        tests: ["Smoke test implemented", "Gold seed-data validation implemented", "Parity database/http/ui suites implemented", "Playwright UI suite implemented"]
       },
       {
         id: "modernization-workbench",
@@ -798,7 +806,7 @@ app.get("/api/architecture", async (_request, response) => {
         stack: ["React SPA", "Modern API", "PostgreSQL"],
         database: "PostgreSQL",
         businessLogic: "Future server-side business tier",
-        tests: ["Parity suite pending"]
+        tests: ["Parity suite target profile planned"]
       }
     ]
   });
@@ -809,8 +817,8 @@ app.get("/api/progress", async (_request, response) => {
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
-      { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count-verified." },
-      { id: "playwright-login", name: "Playwright baseline login test", status: "not-started", detail: "Pending UI automation suite." },
+      { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
+      { id: "playwright-login", name: "Playwright baseline login test", status: "verified", detail: "Implemented through the parity-tests UI suite for legacy login and gold-patient chart navigation." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]
   });

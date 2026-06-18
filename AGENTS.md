@@ -17,6 +17,7 @@ Current entry points:
 - `documents/MODERNIZATION_WORKBENCH.md` - purpose, scope, and planned capabilities for the oversight and orchestration website.
 - `documents/LEGACY_OPENEMR_BASELINE.md` - installed legacy OpenEMR baseline, pinned versions, commands, and verification state.
 - `documents/TEST_DATA_STRATEGY.md` - gold synthetic dataset strategy, expected counts, canonical ID rules, and seed-data operating model.
+- `documents/TEST_ARCHITECTURE.md` - parity test harness, database/HTTP/UI test layers, reset modes, artifacts, and Workbench test orchestration.
 - `documents/GITHUB_CONNECTION.md` - local Git and future GitHub remote connection state.
 
 ## Project Direction

@@ -33,7 +33,7 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run the gold seed action, run the starter seed action, display latest smoke-test and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run parity test suites, run the gold seed action, run the starter seed action, display latest smoke-test, parity-test, and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
 
 Current pages:
 
@@ -61,6 +61,7 @@ Verified behavior:
 - The API can read legacy OpenEMR status.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
+- The API can run the legacy parity database, HTTP, UI, and full-suite test commands through allowlisted manifests.
 - The API can run and validate the legacy gold seed action.
 - The API can parse `documents/PROJECT_CHANGELOG.md` and expose it as structured timeline data.
 - The API can stop and restart the legacy OpenEMR Docker Compose stack.
@@ -107,7 +108,8 @@ Implemented capabilities:
 - Trigger the gold legacy seed through `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
 - Trigger the starter legacy seed through `legacy-openemr/scripts/Seed-LegacyExampleData.ps1`.
 - Trigger baseline smoke tests through `legacy-openemr/scripts/Test-LegacyBaseline.ps1`.
-- Display latest baseline test results.
+- Trigger parity test suites through `scripts/Run-OpenEmrParityTests.ps1`.
+- Display latest baseline smoke and parity test results.
 - Display recent lifecycle action results, including command status, duration, and logs.
 - Display the project changelog as a designed build timeline sourced from `documents/PROJECT_CHANGELOG.md` on its own page.
 - Display architecture, progress, test runs, seed data, and managed applications on dedicated pages.
@@ -165,6 +167,8 @@ Preferred pattern:
 - The same commands can later run in CI.
 
 The first available baseline test command is `legacy-openemr/scripts/Test-LegacyBaseline.ps1`, which writes `legacy-openemr/artifacts/latest-smoke-test.json`.
+
+The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, and full-suite legacy runs. Latest suite summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
 

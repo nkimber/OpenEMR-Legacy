@@ -8,6 +8,10 @@ legacy-openemr/artifacts/
 modernization-workbench/artifacts/
 modernization-workbench/dist/
 modernization-workbench/node_modules/
+parity-tests/artifacts/
+parity-tests/node_modules/
+parity-tests/playwright-report/
+parity-tests/test-results/
 .playwright-cli/
 
 # OS/editor noise

@@ -16,6 +16,8 @@ The legacy OpenEMR baseline is installed under `legacy-openemr/`, seeded with th
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`.
 
+The reusable parity test harness is implemented under `parity-tests/`. It currently runs database, HTTP, and Playwright UI suites against the legacy OpenEMR baseline and is structured so the same test contracts can later target the modernized OpenEMR implementation.
+
 Pinned baseline:
 
 - OpenEMR Docker image: `openemr/openemr:8.1.0-2026-06-18`
@@ -35,6 +37,13 @@ Run the baseline smoke test:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
+```
+
+Run the full legacy parity suite:
+
+```powershell
+cd ..\parity-tests
+npm run test:legacy
 ```
 
 Seed the shared gold test dataset:
@@ -61,6 +70,7 @@ Important documents:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/DOCUMENTATION_GOVERNANCE.md`
 - `documents/GITHUB_CONNECTION.md`

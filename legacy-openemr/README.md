@@ -38,6 +38,22 @@ Run the baseline smoke test:
 
 The smoke test checks the health endpoint, login page, and local demo admin login. It writes the latest structured result to `artifacts/latest-smoke-test.json`.
 
+Seed the shared gold dataset:
+
+```powershell
+.\scripts\Seed-LegacyGoldDataset.ps1
+```
+
+The gold seed script resets the legacy test data tables, applies the shared 1,000-patient synthetic dataset, and validates row counts and temporal coverage.
+
+Run the full parity test suite from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite all -Reset run
+```
+
+The parity suite lives in `..\parity-tests` and writes durable run evidence under `..\parity-tests\artifacts`.
+
 Seed the bundled OpenEMR example patient data:
 
 ```powershell

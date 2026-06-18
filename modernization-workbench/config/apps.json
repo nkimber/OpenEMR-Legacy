@@ -20,7 +20,11 @@
         "logs": ["docker", "compose", "logs", "--tail", "160"],
         "seedGoldDataset": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyGoldDataset.ps1"],
         "seedExampleData": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyExampleData.ps1"],
-        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"]
+        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"],
+        "parityDatabaseTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "database", "-Reset", "run"],
+        "parityHttpTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "http", "-Reset", "none"],
+        "parityUiTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "ui", "-Reset", "run"],
+        "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -46,7 +50,41 @@
           "id": "smoke",
           "name": "Baseline smoke test",
           "description": "Checks health endpoint, login page, and local admin login.",
+          "layer": "smoke",
+          "commandName": "smokeTest",
           "resultPath": "../legacy-openemr/artifacts/latest-smoke-test.json"
+        },
+        {
+          "id": "parity-database",
+          "name": "Gold database contract",
+          "description": "Runs normalized database probes against the seeded legacy MariaDB baseline.",
+          "layer": "database",
+          "commandName": "parityDatabaseTests",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-database.json"
+        },
+        {
+          "id": "parity-http",
+          "name": "HTTP functional contract",
+          "description": "Runs health, login form, and application shell checks against the legacy baseline.",
+          "layer": "http",
+          "commandName": "parityHttpTests",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-http.json"
+        },
+        {
+          "id": "parity-ui",
+          "name": "Playwright UI contract",
+          "description": "Runs browser login and gold-patient chart navigation checks against the legacy UI.",
+          "layer": "ui",
+          "commandName": "parityUiTests",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-ui.json"
+        },
+        {
+          "id": "parity-all",
+          "name": "Full legacy parity suite",
+          "description": "Runs database, HTTP, and Playwright UI suites against the seeded legacy baseline.",
+          "layer": "all",
+          "commandName": "parityAllTests",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-all.json"
         }
       ]
     }

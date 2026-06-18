@@ -661,12 +661,36 @@ p {
   padding: 14px;
 }
 
-.test-run-card,
 .action-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+}
+
+.test-run-card {
+  display: grid;
+  gap: 12px;
+}
+
+.test-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.layer-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eef5f5;
+  color: #246b73;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .test-run-card strong,
@@ -681,6 +705,40 @@ p {
 .seed-dataset-card p {
   margin-top: 4px;
   font-size: 0.9rem;
+}
+
+.test-evidence {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid #dce4eb;
+  padding-top: 10px;
+  font-size: 0.84rem;
+  color: #516171;
+}
+
+.test-evidence.empty {
+  color: #71808f;
+}
+
+.test-evidence code {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evidence-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.evidence-metrics span {
+  border: 1px solid #dce4eb;
+  border-radius: 6px;
+  padding: 3px 7px;
+  background: #ffffff;
 }
 
 .seed-dataset-list,

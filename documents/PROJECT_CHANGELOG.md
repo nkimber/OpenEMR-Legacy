@@ -342,12 +342,53 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 014. Legacy Parity Test Harness And Workbench Test Manager
+
+Commit: `pending`
+
+Implemented the reusable parity test architecture and a complete first legacy test solution for the current baseline.
+
+Key outcomes:
+
+- Added `parity-tests/` as a TypeScript and Playwright Test project.
+- Added target configuration for implemented `legacy-openemr` and planned `modernized-openemr`.
+- Added a manifest-driven runner with suite selection, reset modes, headed mode, grep filtering, durable run folders, latest summaries, JSON reports, JUnit reports, HTML reports, traces, screenshots, and videos.
+- Added legacy database contract tests for gold seed counts, temporal coverage, stable patient anchors, and workflow-related data.
+- Added HTTP functional tests for health, login form, and login-to-application-shell behavior.
+- Added Playwright UI tests for legacy login and gold-patient chart navigation.
+- Added `scripts/Run-OpenEmrParityTests.ps1` as the Workbench-friendly command entry point.
+- Extended the Modernization Workbench app manifest and Test Runs page with selectable smoke, database, HTTP, UI, and full-suite test actions.
+- Updated Workbench progress and architecture metadata to reflect implemented parity and Playwright coverage.
+- Documented the test architecture, reset strategy, artifacts, and future modernized target extension path.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `npm run test:legacy:database -- --reset none`.
+- `npm run test:legacy:http -- --reset none`.
+- `npm run test:legacy:ui -- --reset none`.
+- `npm run test:legacy -- --reset run`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite database -Reset none`.
+- `npm run build` in `modernization-workbench/`.
+
+Primary files:
+
+- `parity-tests/`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- First Playwright login/navigation test against the seeded legacy baseline.
-- Seed-aware patient search and appointment/encounter tests using canonical gold dataset IDs.
+- Seed-aware appointment, encounter, medication, message, and billing mutation tests using canonical gold dataset IDs.
 - Selection of the first modernization workflow slice.
 - Modernized target project bootstrap.
 - PostgreSQL seed adapter for the modernized target.

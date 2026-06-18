@@ -74,6 +74,20 @@ Run the smoke test:
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
 ```
 
+Run the full parity test suite from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite all -Reset run
+```
+
+Run individual parity suites from `parity-tests/`:
+
+```powershell
+npm run test:legacy:database
+npm run test:legacy:http
+npm run test:legacy:ui
+```
+
 Seed the shared gold test dataset:
 
 ```powershell
@@ -114,6 +128,13 @@ The smoke test passed with these checks:
 - Health endpoint returned HTTP 200.
 - Login page was reachable and contained the expected login form.
 - Posting the local demo admin credentials reached the main OpenEMR shell.
+
+The parity test harness under `parity-tests/` has been implemented and verified against the legacy baseline:
+
+- Database contract suite passed.
+- HTTP functional suite passed.
+- Playwright UI suite passed.
+- Full legacy parity suite passed after a gold-data run reset.
 
 The bundled OpenEMR example seed has been imported with these checks:
 

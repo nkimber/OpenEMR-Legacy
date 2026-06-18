@@ -1,0 +1,57 @@
+{
+  "id": "openemr-parity-test-manifest",
+  "version": "0.1.0",
+  "description": "Target-neutral test manifest for legacy OpenEMR now and modernized OpenEMR later.",
+  "defaultTarget": "legacy-openemr",
+  "defaultResetMode": "run",
+  "resetModes": [
+    {
+      "id": "none",
+      "description": "Do not reset the target database before running tests."
+    },
+    {
+      "id": "run",
+      "description": "Reset once before the selected test run."
+    },
+    {
+      "id": "suite",
+      "description": "Reset before each selected suite."
+    },
+    {
+      "id": "test",
+      "description": "Reset before each individual test. Slowest, but strongest isolation for mutation tests."
+    }
+  ],
+  "suites": [
+    {
+      "id": "database",
+      "name": "Gold Database Contract",
+      "description": "Validates the seeded legacy database through normalized probes.",
+      "layer": "database",
+      "path": "tests/database",
+      "tags": ["gold", "database", "read-only"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "http",
+      "name": "HTTP Functional Contract",
+      "description": "Validates health, login form, and server-rendered app shell behavior.",
+      "layer": "http",
+      "path": "tests/http",
+      "tags": ["http", "functional", "read-only"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "none"
+    },
+    {
+      "id": "ui",
+      "name": "Playwright UI Contract",
+      "description": "Exercises the browser-visible login and gold-patient navigation workflows.",
+      "layer": "ui",
+      "path": "tests/ui",
+      "tags": ["ui", "playwright", "read-only"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    }
+  ]
+}

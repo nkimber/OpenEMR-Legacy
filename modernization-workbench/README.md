@@ -12,7 +12,9 @@ The first version manages the legacy OpenEMR baseline:
 - Starts, stops, and restarts the legacy OpenEMR Docker Compose stack.
 - Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
+- Runs the legacy parity database, HTTP, UI, and full-suite test commands.
 - Displays recent logs and action history.
+- Displays latest smoke-test and parity-test evidence.
 - Renders the project changelog as a designed build timeline.
 - Shows architecture and modernization progress views.
 - Shows the local demo OpenEMR login from `../legacy-openemr/.env`.
@@ -60,6 +62,8 @@ http://127.0.0.1:5174
 
 It is intentionally local-only. Lifecycle actions are implemented through manifest-defined commands in `config/apps.json`.
 
+Parity tests are implemented in `../parity-tests` and launched through `../scripts/Run-OpenEmrParityTests.ps1`. Latest suite summaries are read from `../parity-tests/artifacts/`.
+
 The Workbench also exposes structured project history at:
 
 ```text
@@ -76,7 +80,7 @@ The shared seed-data contract lives under:
 seed-data/
 ```
 
-The current manifest defines `openemr-shared-synthetic-v1`, the generated 1,000-patient deterministic gold dataset for both the legacy MariaDB baseline and the future PostgreSQL modernized target. The implemented gold seed action applies the legacy MariaDB adapter and validates expected counts. The starter example seed remains available for quick small-data checks.
+The current manifest defines `openemr-shared-synthetic-v1`, the generated 1,000-patient deterministic gold dataset for both the legacy MariaDB baseline and the future PostgreSQL modernized target. The implemented gold seed action applies the legacy MariaDB adapter and validates expected counts and temporal coverage. The starter example seed remains available for quick small-data checks.
 
 ## Safety
 

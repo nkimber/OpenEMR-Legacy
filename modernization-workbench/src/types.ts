@@ -19,6 +19,8 @@ export type ManagedTest = {
   id: string;
   name: string;
   description: string;
+  layer: string;
+  commandName: string;
   resultPath: string;
 };
 
@@ -45,6 +47,35 @@ export type SmokeResult = {
   finishedAt: string;
   durationSeconds: number;
   checks: SmokeCheck[];
+};
+
+export type ParityRunResult = {
+  runId: string;
+  target: string;
+  suite: string;
+  resetMode: string;
+  headed: boolean;
+  passed: boolean;
+  exitCode: number | null;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  stats: {
+    expected: number;
+    skipped: number;
+    unexpected: number;
+    flaky: number;
+    duration: number;
+  };
+  artifactDirectory: string;
+  reports: {
+    runJson: string;
+    playwrightJson: string;
+    junit: string;
+    html: string;
+  };
+  stdoutPreview: string;
+  stderrPreview: string;
 };
 
 export type SeedRecordTarget = {
@@ -124,6 +155,7 @@ export type AppSnapshot = {
   tests: ManagedTest[];
   latestSeed: SeedResult | null;
   latestTest: SmokeResult | null;
+  latestTests: Record<string, SmokeResult | ParityRunResult | null>;
   demoLogin: {
     available: boolean;
     username?: string;

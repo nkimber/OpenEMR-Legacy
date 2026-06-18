@@ -1,0 +1,22 @@
+{
+  "name": "openemr-parity-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "tsx src/cli/run-tests.ts --target legacy-openemr --suite all",
+    "test:legacy": "tsx src/cli/run-tests.ts --target legacy-openemr --suite all",
+    "test:legacy:database": "tsx src/cli/run-tests.ts --target legacy-openemr --suite database",
+    "test:legacy:http": "tsx src/cli/run-tests.ts --target legacy-openemr --suite http",
+    "test:legacy:ui": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui",
+    "test:legacy:ui:headed": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui --headed",
+    "typecheck": "tsc --noEmit",
+    "playwright": "playwright"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

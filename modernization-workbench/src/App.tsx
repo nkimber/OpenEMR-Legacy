@@ -25,7 +25,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { api } from "./api";
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
 
 type BusyState = {
   appId: string;
@@ -724,17 +724,26 @@ function TestsPage({ app, busy, onRunTest }: { app?: AppSnapshot; busy: BusyStat
       </div>
       {app ? (
         <div className="test-run-grid">
-          {app.tests.map((test) => (
-            <div className="test-run-card" key={test.id}>
-              <div>
-                <strong>{test.name}</strong>
-                <p>{test.description}</p>
+          {app.tests.map((test) => {
+            const latest = app.latestTests[test.id] ?? null;
+            return (
+              <div className="test-run-card" key={test.id}>
+                <div className="test-card-main">
+                  <div>
+                    <div className="architecture-title">
+                      <strong>{test.name}</strong>
+                      <span className="layer-pill">{test.layer}</span>
+                    </div>
+                    <p>{test.description}</p>
+                  </div>
+                  <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(test.id)} disabled={busyForApp}>
+                    <Play size={18} />
+                  </IconButton>
+                </div>
+                <TestRunEvidence result={latest} />
               </div>
-              <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(test.id)} disabled={busyForApp}>
-                <Play size={18} />
-              </IconButton>
-            </div>
-          ))}
+            );
+          })}
           <LatestSmokePanel app={app} />
         </div>
       ) : (
@@ -742,6 +751,49 @@ function TestsPage({ app, busy, onRunTest }: { app?: AppSnapshot; busy: BusyStat
       )}
     </section>
   );
+}
+
+function TestRunEvidence({ result }: { result: SmokeResult | ParityRunResult | null }) {
+  if (!result) {
+    return <div className="test-evidence empty">No run recorded.</div>;
+  }
+
+  if (isParityRunResult(result)) {
+    return (
+      <div className="test-evidence">
+        <div className="test-result-header">
+          {result.passed ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+          <strong>{result.passed ? "Passed" : "Failed"}</strong>
+          <span>{formatDate(result.finishedAt)}</span>
+        </div>
+        <div className="evidence-metrics">
+          <span>{result.stats.expected} passed</span>
+          <span>{result.stats.unexpected} failed</span>
+          <span>{formatDuration(result.durationMs)}</span>
+        </div>
+        <code>{result.artifactDirectory}</code>
+      </div>
+    );
+  }
+
+  return (
+    <div className="test-evidence">
+      <div className="test-result-header">
+        {result.passed ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+        <strong>{result.passed ? "Passed" : "Failed"}</strong>
+        <span>{formatDate(result.finishedAt)}</span>
+      </div>
+      <div className="evidence-metrics">
+        <span>{result.checks.filter((check) => check.passed).length} passed</span>
+        <span>{result.checks.filter((check) => !check.passed).length} failed</span>
+        <span>{formatDuration(result.durationSeconds * 1000)}</span>
+      </div>
+    </div>
+  );
+}
+
+function isParityRunResult(result: SmokeResult | ParityRunResult): result is ParityRunResult {
+  return "stats" in result && "artifactDirectory" in result;
 }
 
 function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapshot; busy: BusyState; seedDatasets: SeedDataset[]; onRunSeed: (seedId: string) => void }) {
