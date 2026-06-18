@@ -12,6 +12,8 @@ The parent project is initialized as a local Git repository on branch `main`.
 
 There is no GitHub remote attached yet.
 
+The helper script `scripts/Connect-GitHubRemote.ps1` has been validated in `-ValidateOnly` mode against a placeholder GitHub URL. It passed local safety checks without adding a remote or pushing.
+
 The local repository intentionally tracks the modernization workspace, orchestration files, scripts, and documents. It intentionally does not track:
 
 - `legacy-openemr/.env`
