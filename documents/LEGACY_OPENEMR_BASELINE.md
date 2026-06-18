@@ -18,8 +18,10 @@ Key files and folders:
 - `legacy-openemr/.env` - local ignored environment file copied from the template.
 - `legacy-openemr/source/` - local upstream OpenEMR source checkout for inspection and modernization analysis.
 - `legacy-openemr/scripts/Test-LegacyBaseline.ps1` - baseline smoke test.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1` - resets and imports the shared 1,000-patient gold dataset into the legacy MariaDB schema.
 - `legacy-openemr/scripts/Seed-LegacyExampleData.ps1` - imports the bundled OpenEMR example users and patient demographics into an empty baseline.
 - `legacy-openemr/artifacts/latest-smoke-test.json` - latest smoke-test result, generated locally and ignored by the parent project.
+- `legacy-openemr/artifacts/latest-gold-seed-result.json` - latest gold seed result, generated locally and ignored by the parent project.
 - `legacy-openemr/artifacts/latest-seed-result.json` - latest seed result, generated locally and ignored by the parent project.
 
 ## Pinned Versions
@@ -72,13 +74,19 @@ Run the smoke test:
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
 ```
 
+Seed the shared gold test dataset:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1
+```
+
 Seed the bundled OpenEMR example patient data:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyExampleData.ps1
 ```
 
-The same seed action is exposed through the Modernization Workbench. Longer term, this script is the legacy MariaDB adapter for the shared Workbench-owned seed-data contract under `modernization-workbench/seed-data/`.
+The gold seed action is exposed through the Modernization Workbench. `Seed-LegacyGoldDataset.ps1` is the current legacy MariaDB adapter for the shared Workbench-owned seed-data contract under `modernization-workbench/seed-data/`.
 
 Stop containers while keeping data:
 
@@ -113,10 +121,31 @@ The bundled OpenEMR example seed has been imported with these checks:
 - `users` contains 6 rows, including the baseline users and the two bundled example provider users.
 - Bundled sample provider references are remapped so the imported patients point to `davis` and `hamming` rather than the local system-operation account.
 
+The shared gold dataset has been imported and verified with these checks:
+
+- Patients: 1,000
+- Providers and staff: 20
+- Facilities: 3
+- Insurance records: 1,400
+- Appointments: 2,800
+- Encounters: 2,100
+- Vitals: 2,100
+- Clinical notes: 2,100
+- Problems: 1,500
+- Allergies: 900
+- Medication list entries: 2,200
+- Prescriptions: 2,200
+- Lab orders: 700
+- Lab reports: 700
+- Lab results: 2,400
+- Messages: 1,200
+- Billing line items: 3,000
+- Portal-enabled patients: 200
+
 ## Current Gaps
 
-- No project-specific synthetic seed dataset has been created yet.
-- Only the bundled OpenEMR example patient data has been imported; this is not yet enough for appointments, messages, encounters, billing, or clinical-note parity tests.
 - No Playwright UI test suite has been added yet.
+- No workflow-specific API/UI parity suites have been added yet.
+- The future modernized PostgreSQL seed adapter has not been created yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
 - The first Modernization Workbench version has been implemented and can manage this baseline locally.

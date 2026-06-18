@@ -12,7 +12,7 @@ The project has three major systems:
 
 ## Current State
 
-The legacy OpenEMR baseline is installed under `legacy-openemr/` and verified locally.
+The legacy OpenEMR baseline is installed under `legacy-openemr/`, seeded with the shared gold test dataset, and verified locally.
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`.
 
@@ -37,6 +37,12 @@ Run the baseline smoke test:
 powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyBaseline.ps1
 ```
 
+Seed the shared gold test dataset:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1
+```
+
 Run the Modernization Workbench:
 
 ```powershell
@@ -55,6 +61,7 @@ Important documents:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_DATA_STRATEGY.md`
 - `documents/DOCUMENTATION_GOVERNANCE.md`
 - `documents/GITHUB_CONNECTION.md`
 

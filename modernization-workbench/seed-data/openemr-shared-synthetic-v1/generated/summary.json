@@ -1,0 +1,199 @@
+{
+  "datasetId": "openemr-shared-synthetic-v1",
+  "version": "v1",
+  "baseDate": "2026-06-18",
+  "targetSystems": [
+    "legacy-openemr",
+    "modernized-openemr"
+  ],
+  "counts": {
+    "patients": 1000,
+    "providersAndStaff": 20,
+    "facilities": 3,
+    "insuranceRecords": 1400,
+    "appointments": 2800,
+    "encounters": 2100,
+    "vitals": 2100,
+    "clinicalNotes": 2100,
+    "problems": 1500,
+    "allergies": 900,
+    "medicationsAndPrescriptions": 2200,
+    "medicationListEntries": 2200,
+    "labOrders": 700,
+    "labReports": 700,
+    "labResults": 2400,
+    "messages": 1200,
+    "billingLineItems": 3000,
+    "portalPatients": 200
+  },
+  "cohorts": {
+    "patient-search": 1,
+    "chronic-care": 251,
+    "scheduling": 1,
+    "portal-messaging": 1,
+    "billing": 1,
+    "allergies": 1,
+    "pediatrics": 1,
+    "medications": 1,
+    "labs": 1,
+    "encounters": 1,
+    "golden-persona": 40,
+    "routine-primary-care": 400,
+    "pediatric": 100,
+    "scheduling-heavy": 100,
+    "billing-insurance": 75,
+    "demographic-edge-case": 25
+  },
+  "testAnchors": [
+    {
+      "canonicalId": "MOD-PAT-0001",
+      "name": "Avery Stone",
+      "cohort": "patient-search",
+      "purpose": "Stable search and demographics navigation"
+    },
+    {
+      "canonicalId": "MOD-PAT-0002",
+      "name": "Marisol Vega",
+      "cohort": "chronic-care",
+      "purpose": "Diabetes and hypertension recurring care"
+    },
+    {
+      "canonicalId": "MOD-PAT-0003",
+      "name": "Theo Bennett",
+      "cohort": "scheduling",
+      "purpose": "Future, cancelled, and no-show appointments"
+    },
+    {
+      "canonicalId": "MOD-PAT-0004",
+      "name": "Nora Kim",
+      "cohort": "portal-messaging",
+      "purpose": "Portal-enabled patient with messages"
+    },
+    {
+      "canonicalId": "MOD-PAT-0005",
+      "name": "Elias Morgan",
+      "cohort": "billing",
+      "purpose": "Insurance and billing workflow"
+    },
+    {
+      "canonicalId": "MOD-PAT-0006",
+      "name": "Priya Patel",
+      "cohort": "allergies",
+      "purpose": "Multiple allergy checks"
+    },
+    {
+      "canonicalId": "MOD-PAT-0007",
+      "name": "Mateo Rivera",
+      "cohort": "pediatrics",
+      "purpose": "Pediatric preventive visit"
+    },
+    {
+      "canonicalId": "MOD-PAT-0008",
+      "name": "Hazel Carter",
+      "cohort": "medications",
+      "purpose": "Active medication reconciliation"
+    },
+    {
+      "canonicalId": "MOD-PAT-0009",
+      "name": "Jonah Nguyen",
+      "cohort": "labs",
+      "purpose": "Completed lab results review"
+    },
+    {
+      "canonicalId": "MOD-PAT-0010",
+      "name": "Camila Brooks",
+      "cohort": "encounters",
+      "purpose": "Multiple encounter history"
+    },
+    {
+      "canonicalId": "MOD-PAT-0011",
+      "name": "Lena Carter",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0012",
+      "name": "Arjun Patel",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0013",
+      "name": "Riley Bell",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0014",
+      "name": "Wyatt Okafor",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0015",
+      "name": "Grace Nguyen",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0016",
+      "name": "Isaac Miller",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0017",
+      "name": "Nora Cole",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0018",
+      "name": "Hugo Hughes",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0019",
+      "name": "Lena Patel",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0020",
+      "name": "Owen Bell",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0021",
+      "name": "Priya Patel",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0022",
+      "name": "Theo Stone",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0023",
+      "name": "Amara Hughes",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0024",
+      "name": "Theo Okafor",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    },
+    {
+      "canonicalId": "MOD-PAT-0025",
+      "name": "Camila Sullivan",
+      "cohort": "golden-persona",
+      "purpose": "Synthetic population record"
+    }
+  ]
+}

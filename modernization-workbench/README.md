@@ -9,7 +9,7 @@ The first version manages the legacy OpenEMR baseline:
 - Shows the pinned source tag and commit.
 - Displays a small database profile.
 - Starts, stops, and restarts the legacy OpenEMR Docker Compose stack.
-- Runs the starter legacy seed action.
+- Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
 - Displays recent logs and action history.
 - Shows architecture and modernization progress views.
@@ -56,7 +56,7 @@ The shared seed-data contract lives under:
 seed-data/
 ```
 
-The current manifest defines `openemr-shared-synthetic-v1`, a planned 1,000-patient deterministic dataset for both the legacy MariaDB baseline and the future PostgreSQL modernized target. The implemented seed action currently applies the bundled OpenEMR starter example patients to the legacy database.
+The current manifest defines `openemr-shared-synthetic-v1`, the generated 1,000-patient deterministic gold dataset for both the legacy MariaDB baseline and the future PostgreSQL modernized target. The implemented gold seed action applies the legacy MariaDB adapter and validates expected counts. The starter example seed remains available for quick small-data checks.
 
 ## Safety
 

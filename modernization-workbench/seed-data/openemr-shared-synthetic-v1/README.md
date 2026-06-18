@@ -28,12 +28,41 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 ## Source Layers
 
 1. Curated golden personas for deterministic workflow tests.
-2. Synthea-generated synthetic clinical history for broad population realism.
+2. Project-owned deterministic synthetic population generation for broad coverage and repeatability.
 3. Project-owned mapping adapters for each target database.
 
 ## Current State
 
-The legacy baseline currently supports the starter seed action, which imports OpenEMR's bundled example provider users and 14 patient demographics. The full 1,000-patient V1 dataset is planned but not generated yet.
+The V1 gold dataset is generated and checked into this folder as an intentional test fixture. It has also been applied to the legacy OpenEMR MariaDB baseline and count-verified on 2026-06-18.
+
+Generated artifacts:
+
+- `generated/canonical/gold-dataset.json` - canonical project-owned dataset consumed by database adapters and future tests.
+- `generated/summary.json` - version, counts, cohorts, and named test anchors.
+- `generated/legacy-mariadb/seed-gold.sql` - reset-and-seed SQL for the legacy OpenEMR MariaDB schema.
+
+Supporting files:
+
+- `scripts/generate-gold-dataset.mjs` - deterministic generator for the canonical dataset and target seed artifacts.
+- `personas/golden-patients.json` - curated workflow anchors for stable end-to-end tests.
+
+Run the generator from `modernization-workbench/`:
+
+```powershell
+npm run generate:seed-data
+```
+
+Apply the legacy seed from `legacy-openemr/`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1
+```
+
+The legacy seed is also exposed through the Modernization Workbench as `Gold test dataset v1`.
+
+## Test Anchors
+
+Tests should prefer canonical IDs from `generated/summary.json` and `generated/canonical/gold-dataset.json`, not OpenEMR auto-increment IDs. The first anchor records cover patient search, chronic care, scheduling, portal messaging, billing, allergies, pediatrics, medications, labs, and encounter-history workflows.
 
 ## Rules
 

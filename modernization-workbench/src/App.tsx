@@ -140,11 +140,11 @@ function LegacyAppPanel({
   const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data")?.rowCount ?? 0;
   const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter")?.rowCount ?? 0;
   const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events")?.rowCount ?? 0;
-  const managedSeed = app.seeds[0];
+  const managedSeed = app.seeds.find((seed) => seed.id === "gold-test-dataset-v1") ?? app.seeds[0];
   const seedDataset = seedDatasets.find((dataset) => dataset.id === managedSeed?.datasetId);
   const patientTarget = seedDataset?.recordTargets.find((target) => target.name === "patients")?.target ?? seedDataset?.targetPatientCount;
   const latestSeedDetail = app.latestSeed
-    ? `${app.latestSeed.mode ?? "seeded"} ${app.latestSeed.expectedPatients} starter patients`
+    ? `${app.latestSeed.mode ?? "seeded"} ${app.latestSeed.expectedPatients} gold patients`
     : seedDataset?.currentSeedLevel ?? "Synthetic seed data pending";
 
   return (

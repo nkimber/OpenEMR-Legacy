@@ -8,9 +8,9 @@ This document records how the project will seed OpenEMR with test data for legac
 
 ## Current State
 
-The local legacy baseline is working, but it currently has no patient or workflow data.
+The local legacy baseline is working and has a project-owned synthetic gold dataset applied.
 
-Original local database profile before the first seed:
+Original local database profile before any seed:
 
 - `patient_data`: 0 rows
 - `form_encounter`: 0 rows
@@ -19,7 +19,28 @@ Original local database profile before the first seed:
 - `pnotes`: 0 rows
 - `users`: 4 rows
 
-This means the baseline can prove installation, health, and login, but it cannot yet demonstrate realistic OpenEMR workflows.
+Current verified gold seed profile as of 2026-06-18:
+
+- Patients: 1,000
+- Providers and staff: 20
+- Facilities: 3
+- Insurance records: 1,400
+- Appointments: 2,800
+- Encounters: 2,100
+- Vitals: 2,100
+- Clinical notes: 2,100
+- Problems: 1,500
+- Allergies: 900
+- Medication list entries: 2,200
+- Prescriptions: 2,200
+- Lab orders: 700
+- Lab reports: 700
+- Lab results: 2,400
+- Messages: 1,200
+- Billing line items: 3,000
+- Portal-enabled patients: 200
+
+The generated canonical dataset, summary, and legacy MariaDB seed SQL live under `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/`.
 
 ## Findings
 
@@ -46,8 +67,8 @@ Relevant upstream references:
 
 Use a layered seed-data strategy.
 
-1. Use the bundled OpenEMR example patient SQL as the first small seed so the legacy app has visible patients quickly.
-2. Store the project-owned synthetic seed dataset with the Modernization Workbench instead of tying it to only the legacy or modernized implementation.
+1. Keep the bundled OpenEMR example patient SQL as the small starter seed for quick baseline checks.
+2. Treat `openemr-shared-synthetic-v1` as the project gold test dataset for meaningful workflow and parity tests.
 3. Keep all seed data non-PHI, deterministic, resettable, and versioned.
 4. Prefer seeding through repeatable scripts and documented import flows exposed through Workbench-managed actions.
 5. Extend the dataset workflow by workflow as modernization slices are selected.
@@ -72,7 +93,7 @@ The Workbench should manage both paths from the same seed manifest so the operat
 
 Purpose: prove the app is installed, healthy, and login works.
 
-Current status: implemented through the baseline smoke test, but no patient data exists.
+Current status: implemented through the baseline smoke test.
 
 ### Level 1: Starter Patient Data
 
@@ -94,11 +115,13 @@ Limitations:
 - Mostly demographics only.
 - Not enough for appointment, encounter, billing, message, portal, or clinical-note parity tests.
 
-### Level 2: Project Synthetic Workflow Data
+### Level 2: Gold Synthetic Workflow Data
 
 Purpose: support real modernization parity tests.
 
-This dataset should include named synthetic personas and expected workflows, such as:
+Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline.
+
+This dataset includes named synthetic personas and workflow data for:
 
 - Patient search and patient chart navigation.
 - Patient creation and demographic editing.
@@ -108,7 +131,9 @@ This dataset should include named synthetic personas and expected workflows, suc
 - Notes.
 - Messages.
 - Problems, allergies, medications, and prescriptions where appropriate.
-- Billing and claims later, once the project selects that workflow.
+- Billing line-item coverage.
+- Deeper claims behavior later, once the project selects that workflow.
+- Portal-enabled patient coverage.
 
 Each workflow slice should define:
 
@@ -118,17 +143,21 @@ Each workflow slice should define:
 - Legacy UI/API tests.
 - Expected normalized output for modernized parity tests.
 
-### Level 3: Larger Synthetic Population
+Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
+
+### Level 3: Extended Synthetic Population
 
 Purpose: scale testing, search performance, reporting, and realistic clinical histories.
 
-Potential sources:
+Current status: optional future extension. The V1 gold dataset already contains 1,000 patients. Future expansions may add richer Synthea-derived clinical history, additional billing/claims depth, documents, immunizations, or reporting-specific fixtures.
+
+Potential future sources:
 
 - OpenEMR development `import-random-patients` flow with Synthea.
 - A project-owned Synthea-based generation process.
 - The OpenEMR `demo-data-generator` if it proves compatible with the pinned version.
 
-This level should be introduced only after the deterministic Level 2 workflow data is stable.
+This level should be introduced only after the deterministic V1 gold workflow data is covered by baseline tests.
 
 ## Operating Rules
 
@@ -141,4 +170,9 @@ This level should be introduced only after the deterministic Level 2 workflow da
 
 ## Near-Term Next Step
 
-Use the Workbench seed action to run `legacy-openemr/scripts/Seed-LegacyExampleData.ps1`, then build the `openemr-shared-synthetic-v1` generator and database adapters under `modernization-workbench/seed-data/`.
+Build the first tests that consume the gold dataset:
+
+- Seed verification test that asserts the counts above.
+- Playwright patient-search/navigation test using `MOD-PAT-0001`.
+- Appointment and encounter navigation tests using the scheduling and encounter anchors.
+- Portal/message, labs, medications, allergies, and billing tests as the next workflow slices are selected.

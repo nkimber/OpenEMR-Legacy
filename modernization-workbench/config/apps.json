@@ -18,11 +18,20 @@
         "stop": ["docker", "compose", "down"],
         "restart": ["docker", "compose", "restart"],
         "logs": ["docker", "compose", "logs", "--tail", "160"],
+        "seedGoldDataset": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyGoldDataset.ps1"],
         "seedExampleData": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-LegacyExampleData.ps1"],
         "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-LegacyBaseline.ps1"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
+        {
+          "id": "gold-test-dataset-v1",
+          "datasetId": "openemr-shared-synthetic-v1",
+          "name": "Gold test dataset v1",
+          "description": "Resets the legacy data tables and applies the 1,000-patient shared synthetic gold dataset.",
+          "commandName": "seedGoldDataset",
+          "resultPath": "../legacy-openemr/artifacts/latest-gold-seed-result.json"
+        },
         {
           "id": "starter-example-patients",
           "datasetId": "openemr-shared-synthetic-v1",

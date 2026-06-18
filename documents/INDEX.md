@@ -30,9 +30,9 @@ It explains where the legacy application lives, which versions are pinned, how t
 
 ### `TEST_DATA_STRATEGY.md`
 
-Read this when deciding how to seed the legacy baseline, designing synthetic patients and workflow fixtures, or writing tests that depend on known data.
+Read this when deciding how to seed the legacy baseline, designing synthetic patients and workflow fixtures, or writing tests that depend on the gold dataset.
 
-It explains which upstream OpenEMR demo-data options exist, why the project needs its own deterministic seed data, and how seed levels should evolve.
+It explains which upstream OpenEMR demo-data options exist, why the project uses its own deterministic gold dataset, the verified record counts, and how tests should reference canonical patient IDs.
 
 ### `GITHUB_CONNECTION.md`
 
@@ -71,4 +71,4 @@ The document set is expected to grow in these areas:
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
 | `MODERNIZATION_WORKBENCH.md` | Defines the implemented third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Running, planning, or extending the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |
-| `TEST_DATA_STRATEGY.md` | Defines the seed-data strategy, upstream sample/demo-data findings, seed levels, and rules for deterministic synthetic test data. | Seeding the baseline, creating test fixtures, validating expected data counts, or planning workflow parity tests. |
+| `TEST_DATA_STRATEGY.md` | Defines the gold seed-data strategy, upstream sample/demo-data findings, verified counts, and rules for deterministic synthetic test data. | Seeding the baseline, creating test fixtures, validating expected data counts, or planning workflow parity tests. |

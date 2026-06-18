@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-type CommandName = "status" | "start" | "stop" | "restart" | "logs" | "seedExampleData" | "smokeTest";
+type CommandName = "status" | "start" | "stop" | "restart" | "logs" | "seedGoldDataset" | "seedExampleData" | "smokeTest";
 
 type CommandResult = {
   command: string[];
@@ -328,9 +328,16 @@ async function getDataProfile(managedApp: ManagedApp) {
       "SELECT 'patient_data' AS table_name, COUNT(*) AS row_count FROM patient_data UNION ALL " +
       "SELECT 'form_encounter', COUNT(*) FROM form_encounter UNION ALL " +
       "SELECT 'openemr_postcalendar_events', COUNT(*) FROM openemr_postcalendar_events UNION ALL " +
+      "SELECT 'form_vitals', COUNT(*) FROM form_vitals UNION ALL " +
+      "SELECT 'form_soap', COUNT(*) FROM form_soap UNION ALL " +
       "SELECT 'users', COUNT(*) FROM users UNION ALL " +
+      "SELECT 'insurance_data', COUNT(*) FROM insurance_data UNION ALL " +
       "SELECT 'lists', COUNT(*) FROM lists UNION ALL " +
-      "SELECT 'prescriptions', COUNT(*) FROM prescriptions;";
+      "SELECT 'pnotes', COUNT(*) FROM pnotes UNION ALL " +
+      "SELECT 'prescriptions', COUNT(*) FROM prescriptions UNION ALL " +
+      "SELECT 'billing', COUNT(*) FROM billing UNION ALL " +
+      "SELECT 'procedure_order', COUNT(*) FROM procedure_order UNION ALL " +
+      "SELECT 'procedure_result', COUNT(*) FROM procedure_result;";
     const result = await new Promise<CommandResult>((resolve) => {
       const startedAt = new Date();
       const command = [
@@ -622,7 +629,7 @@ app.get("/api/architecture", async (_request, response) => {
         stack: ["OpenEMR 8.1.0", "PHP/Apache container", "MariaDB 11.8.8", "Docker Compose"],
         database: "MariaDB",
         businessLogic: "Existing OpenEMR PHP application and database access layer",
-        tests: ["Smoke test implemented", "Playwright pending", "Seed-data tests pending"]
+        tests: ["Smoke test implemented", "Gold seed-data validation implemented", "Playwright pending"]
       },
       {
         id: "modernization-workbench",
@@ -651,7 +658,7 @@ app.get("/api/progress", async (_request, response) => {
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
-      { id: "seed-data", name: "Synthetic seed data", status: "in-progress", detail: "Workbench owns the shared seed-data manifest; starter legacy seed is implemented and the 1,000-patient dataset is planned." },
+      { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count-verified." },
       { id: "playwright-login", name: "Playwright baseline login test", status: "not-started", detail: "Pending UI automation suite." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]
