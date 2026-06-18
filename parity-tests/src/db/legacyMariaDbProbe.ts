@@ -26,7 +26,15 @@ export type PatientRecord = {
 export class LegacyMariaDbProbe {
   constructor(private readonly target: RuntimeTarget) {}
 
+  async execute(sql: string): Promise<void> {
+    await this.runSql(sql);
+  }
+
   async queryRows<T extends Record<string, string>>(sql: string): Promise<T[]> {
+    return parseTabRows<T>(await this.runSql(sql));
+  }
+
+  private async runSql(sql: string): Promise<string> {
     const dbUser = this.target.env.MYSQL_USER || this.target.database.defaultUser;
     const dbPassword = this.target.env.MYSQL_PASSWORD || "";
     const dbName = this.target.env.MYSQL_DATABASE || this.target.database.defaultDatabase;
@@ -49,7 +57,7 @@ export class LegacyMariaDbProbe {
     if (result.exitCode !== 0) {
       throw new Error(`MariaDB query failed.\n${result.stderr || result.stdout}`);
     }
-    return parseTabRows<T>(result.stdout);
+    return result.stdout;
   }
 
   async getGoldCounts(): Promise<GoldCountMap> {
@@ -199,6 +207,6 @@ function nullIfDbNull(value: string | undefined) {
   return value;
 }
 
-function escapeSql(value: string) {
+export function escapeSql(value: string) {
   return value.replaceAll("\\", "\\\\").replaceAll("'", "''");
 }

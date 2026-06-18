@@ -42,7 +42,7 @@ It explains which upstream OpenEMR demo-data options exist, why the project uses
 
 ### `TEST_ARCHITECTURE.md`
 
-Read this when working on the parity test harness, database/API/UI test layers, reset strategy, test-run artifacts, Workbench test orchestration, or future side-by-side modernized target testing.
+Read this when working on the parity test harness, database/API/UI/workflow test layers, reset strategy, test-run artifacts, Workbench test orchestration, or future side-by-side modernized target testing.
 
 It explains how `parity-tests/` is structured and how tests should remain reusable across the legacy and modernized targets.
 
@@ -86,5 +86,5 @@ The document set is expected to grow in these areas:
 | `MODERNIZATION_WORKBENCH.md` | Defines the implemented third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Running, planning, or extending the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CHANGELOG.md` | Tracks the chronological implementation steps, enhancements, verification milestones, and release-note-style progress for the project. | Understanding what has already been built, adding a new improvement entry, preparing summaries, or checking the sequence of project evolution. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |
-| `TEST_ARCHITECTURE.md` | Defines the TypeScript/Playwright parity test harness, test layers, reset modes, artifact model, Workbench orchestration, and future modernized target strategy. | Writing or running parity tests, adding test suites, changing reset behavior, integrating tests with the Workbench, or preparing side-by-side comparison. |
+| `TEST_ARCHITECTURE.md` | Defines the TypeScript/Playwright parity test harness, database/HTTP/UI/workflow layers, reset modes, artifact model, Workbench orchestration, and future modernized target strategy. | Writing or running parity tests, adding test suites, changing reset behavior, integrating tests with the Workbench, or preparing side-by-side comparison. |
 | `TEST_DATA_STRATEGY.md` | Defines the gold seed-data strategy, upstream sample/demo-data findings, verified counts, and rules for deterministic synthetic test data. | Seeding the baseline, creating test fixtures, validating expected data counts, or planning workflow parity tests. |

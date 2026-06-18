@@ -9,6 +9,7 @@ The first implemented target is `legacy-openemr`. The `modernized-openemr` targe
 - `database` - normalized database probes against the seeded target.
 - `http` - health and server-rendered functional checks.
 - `ui` - Playwright browser workflows.
+- `workflow` - deterministic CRUD-style workflows with pre/post probes, cleanup, and UI evidence where useful.
 
 ## Commands
 
@@ -24,6 +25,7 @@ Run individual suites:
 npm run test:legacy:database
 npm run test:legacy:http
 npm run test:legacy:ui
+npm run test:legacy:workflow
 ```
 
 Run the UI suite headed:
@@ -38,6 +40,7 @@ The runner also accepts explicit options:
 npm run test:legacy -- --reset none
 npm run test:legacy -- --suite database --reset run
 npm run test:legacy -- --suite all --reset suite
+npm run test:legacy -- --suite workflow --reset test
 ```
 
 Reset modes:
@@ -61,5 +64,6 @@ The runner also writes a latest summary per target and suite, for example:
 
 - `parity-tests/artifacts/latest-legacy-openemr-all.json`
 - `parity-tests/artifacts/latest-legacy-openemr-database.json`
+- `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.

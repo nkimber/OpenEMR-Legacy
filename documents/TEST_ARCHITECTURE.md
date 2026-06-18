@@ -18,6 +18,7 @@ Technology stack:
 - Playwright Test.
 - Node.js command orchestration.
 - Legacy MariaDB probes through Docker Compose and the MariaDB CLI.
+- Legacy workflow mutation actions through an adapter layer.
 - JSON, JUnit, HTML, screenshots, videos, and Playwright traces as test evidence.
 
 The legacy baseline is the first implemented target:
@@ -66,7 +67,21 @@ Current legacy coverage:
 - Login with configured local demo credentials.
 - Open a known gold patient chart and verify canonical patient details.
 
-The current UI suite is intentionally read-only. Mutation workflows should be added workflow by workflow with pre/post database probes.
+The focused UI suite is intentionally read-only. Mutation workflows live in the Workflow Mutation Contract suite, where they can combine database pre/post probes with browser-visible evidence when useful.
+
+### Workflow Mutation Contract
+
+Workflow tests validate CRUD-style domain behavior with explicit setup, mutation, assertion, and cleanup steps.
+
+Current legacy coverage:
+
+- Patient demographics contact update with pre/post database probes and browser verification in the patient chart.
+- Future appointment create, cancel, and delete lifecycle with patient appointment count probes.
+- Clinical allergy list create, deactivate, and delete lifecycle with patient allergy count probes.
+- Patient message create, close, soft-delete, and hard-cleanup lifecycle with message count probes.
+- Prescription create, deactivate, and delete lifecycle with patient prescription count probes.
+
+The current legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The tests are still written as workflow intent, so a future modernized target can implement equivalent actions behind the same behavioral contract.
 
 ### Legacy-Native Internal Tests
 
@@ -97,6 +112,7 @@ npm run test:legacy:database
 npm run test:legacy:http
 npm run test:legacy:ui
 npm run test:legacy:ui:headed
+npm run test:legacy:workflow
 ```
 
 The root script used by the Workbench is:
@@ -108,7 +124,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -T
 The runner accepts:
 
 - `--target legacy-openemr`
-- `--suite all|database|http|ui`
+- `--suite all|database|http|ui|workflow`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -124,6 +140,8 @@ Supported reset modes:
 - `test` - reset before each individual test.
 
 Default legacy parity runs should use `run`. This balances repeatability with speed. Mutation-heavy workflow tests can opt into `suite` or `test` where stronger isolation is worth the cost.
+
+The Workbench workflow command uses `test` reset mode so each mutation test starts from a fresh gold seed. The suite also performs its own cleanup so it can run as part of the full `all` suite with a single run reset.
 
 ## Artifacts
 
@@ -146,6 +164,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-database.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
+- `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
 - `parity-tests/artifacts/latest-legacy-openemr-all.json`
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
@@ -160,6 +179,7 @@ The legacy app currently exposes these test actions:
 - Gold database contract.
 - HTTP functional contract.
 - Playwright UI contract.
+- Workflow mutation contract.
 - Full legacy parity suite.
 
 OpenEMR-native PHPUnit execution is not exposed as a Workbench action yet because the local/container dependency checks above do not currently provide a runnable PHPUnit binary.
@@ -172,8 +192,9 @@ When the modernized target exists:
 
 1. Add its actual runtime config to `parity-tests/config/targets.json`.
 2. Add its database probe adapter.
-3. Add modernized UI helpers behind the same workflow intent.
-4. Run the same suites against both targets.
-5. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
+3. Add modernized workflow actions behind the same mutation-test intent.
+4. Add modernized UI helpers behind the same browser workflow intent.
+5. Run the same suites against both targets.
+6. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
 
 The test code should continue to assert observable behavior and normalized domain state, not identical implementation details.

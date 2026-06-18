@@ -16,7 +16,7 @@ The legacy OpenEMR baseline is installed under `legacy-openemr/`, seeded with th
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`.
 
-The reusable parity test harness is implemented under `parity-tests/`. It currently runs database, HTTP, and Playwright UI suites against the legacy OpenEMR baseline and is structured so the same test contracts can later target the modernized OpenEMR implementation.
+The reusable parity test harness is implemented under `parity-tests/`. It currently runs database, HTTP, Playwright UI, and workflow mutation suites against the legacy OpenEMR baseline and is structured so the same test contracts can later target the modernized OpenEMR implementation.
 
 Pinned baseline:
 
@@ -44,6 +44,12 @@ Run the full legacy parity suite:
 ```powershell
 cd ..\parity-tests
 npm run test:legacy
+```
+
+Run the isolated legacy workflow mutation suite:
+
+```powershell
+npm run test:legacy:workflow -- --reset test
 ```
 
 Seed the shared gold test dataset:

@@ -1,10 +1,12 @@
 import { test as base } from "@playwright/test";
 import { LegacyMariaDbProbe } from "../db/legacyMariaDbProbe.js";
 import { loadTarget, resetTarget, type RuntimeTarget } from "../config/targets.js";
+import { LegacyWorkflowActions } from "../workflows/legacyWorkflowActions.js";
 
 type ParityFixtures = {
   target: RuntimeTarget;
   legacyDb: LegacyMariaDbProbe;
+  legacyWorkflow: LegacyWorkflowActions;
   resetPerTest: void;
 };
 
@@ -17,6 +19,9 @@ export const test = base.extend<ParityFixtures>({
       throw new Error(`Legacy MariaDB probe cannot run against ${target.type}.`);
     }
     await use(new LegacyMariaDbProbe(target));
+  },
+  legacyWorkflow: async ({ legacyDb }, use) => {
+    await use(new LegacyWorkflowActions(legacyDb));
   },
   resetPerTest: [
     async ({ target }, use, testInfo) => {

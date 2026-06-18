@@ -86,6 +86,7 @@ Run individual parity suites from `parity-tests/`:
 npm run test:legacy:database
 npm run test:legacy:http
 npm run test:legacy:ui
+npm run test:legacy:workflow
 ```
 
 Seed the shared gold test dataset:
@@ -134,6 +135,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Database contract suite passed.
 - HTTP functional suite passed.
 - Playwright UI suite passed.
+- Workflow mutation suite passed with per-test gold-data resets.
 - Full legacy parity suite passed after a gold-data run reset.
 
 The bundled OpenEMR example seed has been imported with these checks:
@@ -175,8 +177,8 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 
 ## Current Gaps
 
-- No Playwright UI test suite has been added yet.
-- No workflow-specific API/UI parity suites have been added yet.
 - The future modernized PostgreSQL seed adapter has not been created yet.
+- The future modernized parity adapters for PostgreSQL, APIs, and UI workflows have not been created yet.
+- OpenEMR-native PHPUnit/Jest/Panther tests are present in the upstream source checkout, but the local/container dependency set does not yet provide a runnable PHPUnit lane.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
 - The first Modernization Workbench version has been implemented and can manage this baseline locally.

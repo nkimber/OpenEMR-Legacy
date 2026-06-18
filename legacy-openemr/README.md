@@ -54,6 +54,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -T
 
 The parity suite lives in `..\parity-tests` and writes durable run evidence under `..\parity-tests\artifacts`.
 
+Run the isolated workflow mutation suite from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite workflow -Reset test
+```
+
 Seed the bundled OpenEMR example patient data:
 
 ```powershell

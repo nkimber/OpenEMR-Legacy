@@ -24,6 +24,7 @@
         "parityDatabaseTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "database", "-Reset", "run"],
         "parityHttpTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "http", "-Reset", "none"],
         "parityUiTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "ui", "-Reset", "run"],
+        "parityWorkflowTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "workflow", "-Reset", "test"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
       "services": ["mysql", "openemr"],
@@ -79,9 +80,17 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-ui.json"
         },
         {
+          "id": "parity-workflow",
+          "name": "Workflow mutation contract",
+          "description": "Runs deterministic demographics, scheduling, clinical-list, message, and prescription mutation workflows with pre/post probes.",
+          "layer": "workflow",
+          "commandName": "parityWorkflowTests",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-workflow.json"
+        },
+        {
           "id": "parity-all",
           "name": "Full legacy parity suite",
-          "description": "Runs database, HTTP, and Playwright UI suites against the seeded legacy baseline.",
+          "description": "Runs database, HTTP, Playwright UI, and workflow mutation suites against the seeded legacy baseline.",
           "layer": "all",
           "commandName": "parityAllTests",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-all.json"

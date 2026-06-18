@@ -10,6 +10,7 @@
     "test:legacy:http": "tsx src/cli/run-tests.ts --target legacy-openemr --suite http",
     "test:legacy:ui": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui",
     "test:legacy:ui:headed": "tsx src/cli/run-tests.ts --target legacy-openemr --suite ui --headed",
+    "test:legacy:workflow": "tsx src/cli/run-tests.ts --target legacy-openemr --suite workflow",
     "typecheck": "tsc --noEmit",
     "playwright": "playwright"
   },

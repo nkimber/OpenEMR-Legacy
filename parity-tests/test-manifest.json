@@ -52,6 +52,16 @@
       "tags": ["ui", "playwright", "read-only"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow",
+      "name": "Workflow Mutation Contract",
+      "description": "Exercises deterministic CRUD-style workflows with pre/post probes and cleanup.",
+      "layer": "workflow",
+      "path": "tests/workflow",
+      "tags": ["workflow", "mutation", "crud", "database", "ui"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
     }
   ]
 }

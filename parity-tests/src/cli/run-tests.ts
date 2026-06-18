@@ -170,7 +170,7 @@ Usage:
 
 Options:
   --target <id>       Target id. Default: legacy-openemr
-  --suite <id|all>   Suite id or all. Default: all
+  --suite <id|all>   Suite id (database, http, ui, workflow) or all. Default: all
   --reset <mode>     none, run, suite, or test. Default: run
   --headed           Run browser tests headed
   --workers <n>      Playwright worker count. Default: 1

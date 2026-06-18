@@ -2,7 +2,7 @@ param(
     [ValidateSet("legacy-openemr", "modernized-openemr")]
     [string] $Target = "legacy-openemr",
 
-    [ValidateSet("all", "database", "http", "ui")]
+    [ValidateSet("all", "database", "http", "ui", "workflow")]
     [string] $Suite = "all",
 
     [ValidateSet("none", "run", "suite", "test")]

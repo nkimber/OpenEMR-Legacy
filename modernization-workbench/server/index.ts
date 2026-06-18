@@ -744,7 +744,8 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
       response.status(404).json({ error: `Unknown test: ${request.params.testId}` });
       return;
     }
-    const result = await runCommand(managedApp, test.commandName, test.id === "parity-all" ? 600000 : 300000);
+    const longRunningTestIds = new Set(["parity-all", "parity-workflow"]);
+    const result = await runCommand(managedApp, test.commandName, longRunningTestIds.has(test.id) ? 600000 : 300000);
     const event = eventFromCommand(managedApp.id, `test:${test.id}`, result);
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(test.resultPath));
@@ -788,7 +789,13 @@ app.get("/api/architecture", async (_request, response) => {
         stack: ["OpenEMR 8.1.0", "PHP/Apache container", "MariaDB 11.8.8", "Docker Compose"],
         database: "MariaDB",
         businessLogic: "Existing OpenEMR PHP application and database access layer",
-        tests: ["Smoke test implemented", "Gold seed-data validation implemented", "Parity database/http/ui suites implemented", "Playwright UI suite implemented"]
+        tests: [
+          "Smoke test implemented",
+          "Gold seed-data validation implemented",
+          "Parity database/http/ui/workflow suites implemented",
+          "Playwright UI suite implemented",
+          "Mutation workflow suite implemented"
+        ]
       },
       {
         id: "modernization-workbench",
@@ -819,6 +826,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, and architecture overview." },
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed is generated and count/temporal-coverage verified." },
       { id: "playwright-login", name: "Playwright baseline login test", status: "verified", detail: "Implemented through the parity-tests UI suite for legacy login and gold-patient chart navigation." },
+      { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, clinical-list, patient-message, and prescription lifecycle coverage with pre/post database probes." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
     ]
   });

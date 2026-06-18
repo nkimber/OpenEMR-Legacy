@@ -12,7 +12,7 @@ The first version manages the legacy OpenEMR baseline:
 - Starts, stops, and restarts the legacy OpenEMR Docker Compose stack.
 - Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
-- Runs the legacy parity database, HTTP, UI, and full-suite test commands.
+- Runs the legacy parity database, HTTP, UI, workflow mutation, and full-suite test commands.
 - Displays recent logs and action history.
 - Displays latest smoke-test and parity-test evidence.
 - Renders the project changelog as a designed build timeline.
