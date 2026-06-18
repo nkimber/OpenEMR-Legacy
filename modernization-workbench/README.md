@@ -15,6 +15,7 @@ The first version manages the legacy OpenEMR baseline:
 - Runs the OpenEMR-native isolated PHPUnit stable suite.
 - Runs the OpenEMR-native JavaScript Jest suite.
 - Runs the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands.
+- Runs custom parity selections with suite/plan, reset mode, headed mode, and optional grep choices.
 - Displays recent logs and action history.
 - Displays latest smoke-test, native-test, and parity-test evidence.
 - Renders the project changelog as a designed build timeline.
@@ -67,6 +68,8 @@ It is intentionally local-only. Lifecycle actions are implemented through manife
 Native OpenEMR PHPUnit tests are launched through `../legacy-openemr/scripts/Test-LegacyNative.ps1`. Native OpenEMR Jest tests are launched through `../legacy-openemr/scripts/Test-LegacyNativeJs.ps1`. Latest native summaries are read from `../legacy-openemr/artifacts/`.
 
 Parity tests are implemented in `../parity-tests` and launched through `../scripts/Run-OpenEmrParityTests.ps1`. Latest suite summaries are read from `../parity-tests/artifacts/`.
+
+The Test Runs page also has a custom parity run builder backed by `../parity-tests/test-manifest.json`.
 
 The Workbench also exposes structured project history at:
 

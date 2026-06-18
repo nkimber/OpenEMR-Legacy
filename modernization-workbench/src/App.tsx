@@ -25,7 +25,22 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { api } from "./api";
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, NativeJestRunResult, NativeRunResult, ParityRunResult, ProgressSlice, ProjectChangelog, RuntimeState, SeedDataset, SmokeResult } from "./types";
+import type {
+  AppSnapshot,
+  ArchitectureSystem,
+  CustomParityRunRequest,
+  LifecycleEvent,
+  NativeJestRunResult,
+  NativeRunResult,
+  ParityManifest,
+  ParityResetMode,
+  ParityRunResult,
+  ProgressSlice,
+  ProjectChangelog,
+  RuntimeState,
+  SeedDataset,
+  SmokeResult
+} from "./types";
 
 type BusyState = {
   appId: string;
@@ -708,46 +723,185 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
   );
 }
 
-function TestsPage({ app, busy, onRunTest }: { app?: AppSnapshot; busy: BusyState; onRunTest: (testId: string) => void }) {
+function TestsPage({
+  app,
+  busy,
+  parityManifest,
+  onRunTest,
+  onRunCustomParity
+}: {
+  app?: AppSnapshot;
+  busy: BusyState;
+  parityManifest: ParityManifest | null;
+  onRunTest: (testId: string) => void;
+  onRunCustomParity: (request: CustomParityRunRequest) => void;
+}) {
   const busyForApp = busy?.appId === app?.id;
 
   return (
-    <section className="panel">
+    <div className="page-stack">
+      <CustomParityRunPanel app={app} busy={busy} parityManifest={parityManifest} onRunCustomParity={onRunCustomParity} />
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Executable evidence</div>
+            <h2>
+              <TestTube2 size={20} />
+              Test Runs
+            </h2>
+          </div>
+        </div>
+        {app ? (
+          <div className="test-run-grid">
+            {app.tests.map((test) => {
+              const latest = app.latestTests[test.id] ?? null;
+              return (
+                <div className="test-run-card" key={test.id}>
+                  <div className="test-card-main">
+                    <div>
+                      <div className="architecture-title">
+                        <strong>{test.name}</strong>
+                        <span className="layer-pill">{test.layer}</span>
+                      </div>
+                      <p>{test.description}</p>
+                    </div>
+                    <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(test.id)} disabled={busyForApp}>
+                      <Play size={18} />
+                    </IconButton>
+                  </div>
+                  <TestRunEvidence result={latest} />
+                </div>
+              );
+            })}
+            <LatestSmokePanel app={app} />
+          </div>
+        ) : (
+          <EmptyState text="Managed application data is loading." />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function CustomParityRunPanel({
+  app,
+  busy,
+  parityManifest,
+  onRunCustomParity
+}: {
+  app?: AppSnapshot;
+  busy: BusyState;
+  parityManifest: ParityManifest | null;
+  onRunCustomParity: (request: CustomParityRunRequest) => void;
+}) {
+  const [selectionKind, setSelectionKind] = useState<"suite" | "plan">("suite");
+  const [suite, setSuite] = useState("all");
+  const [plan, setPlan] = useState("full-parity");
+  const [reset, setReset] = useState<ParityResetMode>("run");
+  const [headed, setHeaded] = useState(false);
+  const [grep, setGrep] = useState("");
+  const busyForApp = busy?.appId === app?.id;
+  const supportedSuites = parityManifest?.suites.filter((candidate) => !app || candidate.targets.includes(app.id)) ?? [];
+  const supportedPlans = parityManifest?.plans.filter((candidate) => !app || candidate.targets.includes(app.id)) ?? [];
+  const selectedPlan = supportedPlans.find((candidate) => candidate.id === plan);
+  const selectedSuite = supportedSuites.find((candidate) => candidate.id === suite);
+
+  useEffect(() => {
+    if (!parityManifest) {
+      return;
+    }
+    setReset(selectionKind === "plan" ? selectedPlan?.resetMode ?? parityManifest.defaultResetMode : suite === "all" ? parityManifest.defaultResetMode : selectedSuite?.defaultResetMode ?? parityManifest.defaultResetMode);
+  }, [parityManifest, selectedPlan?.resetMode, selectedSuite?.defaultResetMode, selectionKind, suite]);
+
+  const runLabel = selectionKind === "plan" ? selectedPlan?.name ?? plan : suite === "all" ? "All Suites" : selectedSuite?.name ?? suite;
+  const runDescription = selectionKind === "plan" ? selectedPlan?.description : suite === "all" ? "All suites supported by the selected target." : selectedSuite?.description;
+
+  return (
+    <section className="panel custom-run-panel">
       <div className="panel-header">
         <div>
-          <div className="section-kicker">Executable evidence</div>
+          <div className="section-kicker">Run builder</div>
           <h2>
-            <TestTube2 size={20} />
-            Test Runs
+            <Play size={20} />
+            Custom Parity Run
           </h2>
+          <p>{runDescription ?? "Choose a suite or plan, then run it against the managed baseline with the selected reset mode."}</p>
         </div>
+        <IconButton
+          title={`Run ${runLabel}`}
+          variant="primary"
+          disabled={!app || !parityManifest || busyForApp}
+          onClick={() =>
+            onRunCustomParity({
+              selectionKind,
+              suite: selectionKind === "suite" ? suite : undefined,
+              plan: selectionKind === "plan" ? plan : undefined,
+              reset,
+              headed,
+              grep: grep.trim() || undefined
+            })
+          }
+        >
+          <Play size={18} />
+        </IconButton>
       </div>
-      {app ? (
-        <div className="test-run-grid">
-          {app.tests.map((test) => {
-            const latest = app.latestTests[test.id] ?? null;
-            return (
-              <div className="test-run-card" key={test.id}>
-                <div className="test-card-main">
-                  <div>
-                    <div className="architecture-title">
-                      <strong>{test.name}</strong>
-                      <span className="layer-pill">{test.layer}</span>
-                    </div>
-                    <p>{test.description}</p>
-                  </div>
-                  <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(test.id)} disabled={busyForApp}>
-                    <Play size={18} />
-                  </IconButton>
-                </div>
-                <TestRunEvidence result={latest} />
-              </div>
-            );
-          })}
-          <LatestSmokePanel app={app} />
+      {app && parityManifest ? (
+        <div className="custom-run-form">
+          <label>
+            <span>Selection</span>
+            <select value={selectionKind} onChange={(event) => setSelectionKind(event.target.value as "suite" | "plan")} disabled={busyForApp}>
+              <option value="suite">Suite</option>
+              <option value="plan">Plan</option>
+            </select>
+          </label>
+          {selectionKind === "suite" ? (
+            <label>
+              <span>Suite</span>
+              <select value={suite} onChange={(event) => setSuite(event.target.value)} disabled={busyForApp}>
+                <option value="all">All Suites</option>
+                {supportedSuites.map((candidate) => (
+                  <option value={candidate.id} key={candidate.id}>
+                    {candidate.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label>
+              <span>Plan</span>
+              <select value={plan} onChange={(event) => setPlan(event.target.value)} disabled={busyForApp}>
+                {supportedPlans.map((candidate) => (
+                  <option value={candidate.id} key={candidate.id}>
+                    {candidate.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <label>
+            <span>Reset</span>
+            <select value={reset} onChange={(event) => setReset(event.target.value as ParityResetMode)} disabled={busyForApp}>
+              {parityManifest.resetModes.map((mode) => (
+                <option value={mode.id} key={mode.id}>
+                  {mode.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Filter</span>
+            <input value={grep} maxLength={120} onChange={(event) => setGrep(event.target.value)} placeholder="optional grep" disabled={busyForApp} />
+          </label>
+          <label className="toggle-label">
+            <input type="checkbox" checked={headed} onChange={(event) => setHeaded(event.target.checked)} disabled={busyForApp} />
+            <span>Headed</span>
+          </label>
+          <div className="reset-mode-help">
+            {parityManifest.resetModes.find((mode) => mode.id === reset)?.description}
+          </div>
         </div>
       ) : (
-        <EmptyState text="Managed application data is loading." />
+        <EmptyState text="Parity manifest or managed application data is loading." />
       )}
     </section>
   );
@@ -997,7 +1151,9 @@ function PageBody({
   progress,
   events,
   architecture,
-  changelog
+  changelog,
+  parityManifest,
+  onRunCustomParity
 }: {
   page: PageId;
   legacyApp?: AppSnapshot;
@@ -1012,6 +1168,8 @@ function PageBody({
   events: LifecycleEvent[];
   architecture: ArchitectureSystem[];
   changelog: ProjectChangelog | null;
+  parityManifest: ParityManifest | null;
+  onRunCustomParity: (request: CustomParityRunRequest) => void;
 }) {
   if (page === "timeline") {
     return <ChangelogPanel changelog={changelog} />;
@@ -1023,7 +1181,7 @@ function PageBody({
     return <ArchitecturePanel systems={architecture} />;
   }
   if (page === "tests") {
-    return <TestsPage app={legacyApp} busy={busy} onRunTest={onRunTest} />;
+    return <TestsPage app={legacyApp} busy={busy} parityManifest={parityManifest} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
   }
   if (page === "seed-data") {
     return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={onRunSeed} />;
@@ -1059,6 +1217,7 @@ export function App() {
   const [architecture, setArchitecture] = useState<ArchitectureSystem[]>([]);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
+  const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
@@ -1071,12 +1230,13 @@ export function App() {
 
   const loadDashboard = useCallback(async () => {
     setError(null);
-    const [appData, architectureData, progressData, eventData, seedData, changelogData] = await Promise.all([
+    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, changelogData] = await Promise.all([
       api.getApps(),
       api.getArchitecture(),
       api.getProgress(),
       api.getEvents(),
       api.getSeedDatasets(),
+      api.getParityManifest(),
       api.getChangelog()
     ]);
     setApps(appData.apps);
@@ -1084,6 +1244,7 @@ export function App() {
     setProgress(progressData.slices);
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);
+    setParityManifest(parityManifestData);
     setChangelog(changelogData);
   }, []);
 
@@ -1139,6 +1300,14 @@ export function App() {
     });
   };
 
+  const handleRunCustomParity = (appId: string, request: CustomParityRunRequest) => {
+    const label = request.selectionKind === "plan" ? `running ${request.plan}` : `running ${request.suite}`;
+    void runWithBusy(appId, label, async () => {
+      const response = await api.runCustomParity(appId, request);
+      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+    });
+  };
+
   const handleRunSeed = (appId: string, seedId: string) => {
     void runWithBusy(appId, `seeding ${seedId}`, async () => {
       const response = await api.runSeed(appId, seedId);
@@ -1189,6 +1358,8 @@ export function App() {
           events={events}
           architecture={architecture}
           changelog={changelog}
+          parityManifest={parityManifest}
+          onRunCustomParity={(request) => legacyApp && handleRunCustomParity(legacyApp.id, request)}
         />
       </main>
     </div>

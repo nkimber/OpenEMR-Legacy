@@ -652,6 +652,65 @@ p {
   gap: 16px;
 }
 
+.custom-run-form {
+  display: grid;
+  grid-template-columns: 0.85fr minmax(180px, 1.3fr) 0.7fr minmax(180px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.custom-run-form label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.custom-run-form label span {
+  color: #687789;
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.custom-run-form select,
+.custom-run-form input[type="text"],
+.custom-run-form input:not([type]) {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #ccd7df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2f3f;
+  padding: 8px 10px;
+}
+
+.custom-run-form select:disabled,
+.custom-run-form input:disabled {
+  opacity: 0.6;
+}
+
+.toggle-label {
+  display: flex !important;
+  align-items: center;
+  min-height: 40px;
+  border: 1px solid #dce4eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 8px 10px;
+}
+
+.toggle-label input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.reset-mode-help {
+  grid-column: 1 / -1;
+  color: #627184;
+  font-size: 0.86rem;
+}
+
 .test-run-card,
 .action-card,
 .seed-dataset-card {
@@ -1110,6 +1169,7 @@ dd {
   .metric-grid,
   .data-profile,
   .changelog-stats,
+  .custom-run-form,
   .test-run-grid,
   .seed-target-grid,
   .architecture-grid {

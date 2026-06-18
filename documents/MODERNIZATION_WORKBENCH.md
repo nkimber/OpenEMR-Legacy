@@ -33,7 +33,7 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run OpenEMR-native PHPUnit and Jest tests, run parity test suites, run the gold seed action, run the starter seed action, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run OpenEMR-native PHPUnit and Jest tests, run parity test suites, run custom parity runs with selected reset strategy, run the gold seed action, run the starter seed action, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
 
 Current pages:
 
@@ -64,6 +64,7 @@ Verified behavior:
 - The API can run the containerized OpenEMR-native isolated PHPUnit stable suite.
 - The API can run the OpenEMR-native JavaScript Jest suite.
 - The API can run the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands through allowlisted manifests.
+- The API can run validated custom parity selections from the manifest with operator-selected reset mode, headed mode, and optional grep filter.
 - The API can run and validate the legacy gold seed action.
 - The API can parse `documents/PROJECT_CHANGELOG.md` and expose it as structured timeline data.
 - The API can stop and restart the legacy OpenEMR Docker Compose stack.
@@ -113,6 +114,7 @@ Implemented capabilities:
 - Trigger OpenEMR-native isolated PHPUnit tests through `legacy-openemr/scripts/Test-LegacyNative.ps1`.
 - Trigger OpenEMR-native JavaScript Jest tests through `legacy-openemr/scripts/Test-LegacyNativeJs.ps1`.
 - Trigger parity test suites through `scripts/Run-OpenEmrParityTests.ps1`.
+- Trigger custom parity runs through a manifest-backed run builder that validates suite, plan, reset, headed, and grep options.
 - Display latest baseline smoke and parity test results.
 - Display recent lifecycle action results, including command status, duration, and logs.
 - Display the project changelog as a designed build timeline sourced from `documents/PROJECT_CHANGELOG.md` on its own page.
@@ -181,6 +183,8 @@ The reusable parity test harness lives in `parity-tests/` and is launched by `sc
 The workflow mutation run covers deterministic demographics, appointment, encounter-detail, clinical-list, patient-message, prescription, billing, and lab procedure lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
 
 The Workbench now exposes curated plan actions for legacy readiness, isolated mutations, and the full parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+
+The Workbench also exposes a custom parity run builder on the Test Runs page. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
 

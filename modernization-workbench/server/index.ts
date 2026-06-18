@@ -113,6 +113,49 @@ type ProjectChangelog = {
   entries: ChangelogEntry[];
 };
 
+type ParityResetMode = "none" | "run" | "suite" | "test";
+
+type ParitySuite = {
+  id: string;
+  name: string;
+  description: string;
+  layer: string;
+  path: string;
+  tags: string[];
+  targets: string[];
+  defaultResetMode: ParityResetMode;
+};
+
+type ParityPlan = {
+  id: string;
+  name: string;
+  description: string;
+  suites: string[];
+  resetMode: ParityResetMode;
+  tags: string[];
+  targets: string[];
+};
+
+type ParityManifest = {
+  id: string;
+  version: string;
+  description: string;
+  defaultTarget: string;
+  defaultResetMode: ParityResetMode;
+  resetModes: Array<{ id: ParityResetMode; description: string }>;
+  plans: ParityPlan[];
+  suites: ParitySuite[];
+};
+
+type CustomParityRunRequest = {
+  selectionKind?: "suite" | "plan";
+  suite?: string;
+  plan?: string;
+  reset?: ParityResetMode;
+  headed?: boolean;
+  grep?: string;
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
@@ -121,6 +164,7 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
+const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
@@ -148,6 +192,11 @@ async function readConfig(): Promise<AppConfig> {
 async function readSeedDataManifest(): Promise<SeedDataManifest> {
   const text = await fs.readFile(seedDataManifestPath, "utf8");
   return JSON.parse(text) as SeedDataManifest;
+}
+
+async function readParityManifest(): Promise<ParityManifest> {
+  const text = await fs.readFile(parityManifestPath, "utf8");
+  return JSON.parse(text) as ParityManifest;
 }
 
 function cleanMarkdownText(text: string) {
@@ -274,6 +323,68 @@ async function readProjectChangelog(): Promise<ProjectChangelog> {
   };
 }
 
+function assertSimpleId(value: string, label: string) {
+  if (!/^[a-z0-9-]+$/i.test(value)) {
+    throw new Error(`${label} contains unsupported characters.`);
+  }
+}
+
+function resolveCustomParityRun(manifest: ParityManifest, targetId: string, request: CustomParityRunRequest) {
+  const selectionKind = request.selectionKind ?? "suite";
+  const reset = request.reset ?? manifest.defaultResetMode;
+  if (!manifest.resetModes.some((candidate) => candidate.id === reset)) {
+    throw new Error(`Unknown reset mode: ${reset}`);
+  }
+
+  const grep = request.grep?.trim() ?? "";
+  if (grep.length > 120 || /[\r\n]/.test(grep)) {
+    throw new Error("Grep filter must be a single line up to 120 characters.");
+  }
+
+  if (selectionKind === "plan") {
+    const planId = request.plan ?? "";
+    assertSimpleId(planId, "Plan id");
+    const plan = manifest.plans.find((candidate) => candidate.id === planId);
+    if (!plan) {
+      throw new Error(`Unknown parity plan: ${planId}`);
+    }
+    if (!plan.targets.includes(targetId)) {
+      throw new Error(`Parity plan ${plan.id} does not support target ${targetId}.`);
+    }
+    return {
+      selectionKind,
+      selectionId: plan.id,
+      commandArgs: ["-Plan", plan.id],
+      reset,
+      headed: Boolean(request.headed),
+      grep,
+      latestPath: `../parity-tests/artifacts/latest-${targetId}-plan-${plan.id}.json`
+    };
+  }
+
+  const suiteId = request.suite ?? "all";
+  assertSimpleId(suiteId, "Suite id");
+  if (suiteId !== "all") {
+    const suite = manifest.suites.find((candidate) => candidate.id === suiteId);
+    if (!suite) {
+      throw new Error(`Unknown parity suite: ${suiteId}`);
+    }
+    if (!suite.targets.includes(targetId)) {
+      throw new Error(`Parity suite ${suite.id} does not support target ${targetId}.`);
+    }
+  }
+
+  return {
+    selectionKind,
+    selectionId: suiteId,
+    commandArgs: ["-Suite", suiteId],
+    reset,
+    headed: Boolean(request.headed),
+    grep,
+    latestPath: `../parity-tests/artifacts/latest-${targetId}-${suiteId}.json`
+  };
+}
+
 async function getManagedApp(appId: string) {
   const config = await readConfig();
   const managedApp = config.apps.find((candidate) => candidate.id === appId);
@@ -299,8 +410,8 @@ function safeCommand(command: string[]) {
   return command;
 }
 
-async function runCommand(managedApp: ManagedApp, commandName: CommandName, timeoutMs = 120000): Promise<CommandResult> {
-  const command = safeCommand(managedApp.commands[commandName]);
+async function runCommandDefinition(managedApp: ManagedApp, command: string[], timeoutMs = 120000): Promise<CommandResult> {
+  command = safeCommand(command);
   const cwd = resolveProjectPath(managedApp.workingDirectory);
   const startedAt = new Date();
 
@@ -346,6 +457,10 @@ async function runCommand(managedApp: ManagedApp, commandName: CommandName, time
       });
     });
   });
+}
+
+async function runCommand(managedApp: ManagedApp, commandName: CommandName, timeoutMs = 120000): Promise<CommandResult> {
+  return await runCommandDefinition(managedApp, managedApp.commands[commandName], timeoutMs);
 }
 
 function parseComposeStatus(stdout: string): ContainerStatus[] {
@@ -773,6 +888,48 @@ app.get("/api/events", async (_request, response, next) => {
 app.get("/api/seed-datasets", async (_request, response, next) => {
   try {
     response.json(await readSeedDataManifest());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/parity-manifest", async (_request, response, next) => {
+  try {
+    response.json(await readParityManifest());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => {
+  try {
+    const managedApp = await getManagedApp(request.params.appId);
+    const manifest = await readParityManifest();
+    const selection = resolveCustomParityRun(manifest, managedApp.id, request.body as CustomParityRunRequest);
+    const command = [
+      "powershell",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "..\\scripts\\Run-OpenEmrParityTests.ps1",
+      "-Target",
+      managedApp.id,
+      ...selection.commandArgs,
+      "-Reset",
+      selection.reset
+    ];
+    if (selection.headed) {
+      command.push("-Headed");
+    }
+    if (selection.grep) {
+      command.push("-Grep", selection.grep);
+    }
+
+    const result = await runCommandDefinition(managedApp, command, 900000);
+    const event = eventFromCommand(managedApp.id, `parity:${selection.selectionKind}:${selection.selectionId}`, result);
+    await saveEvent(event);
+    const latestTest = await readJsonIfExists(resolveProjectPath(selection.latestPath));
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp) });
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,4 @@
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, ProjectChangelog, SeedDataset } from "./types";
+import type { AppSnapshot, ArchitectureSystem, CustomParityRunRequest, LifecycleEvent, ParityManifest, ParityRunResult, ProgressSlice, ProjectChangelog, SeedDataset } from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -29,6 +29,12 @@ export const api = {
       method: "POST"
     });
   },
+  async runCustomParity(appId: string, request: CustomParityRunRequest) {
+    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent; latestTest: ParityRunResult | null }>(`/api/apps/${appId}/parity-runs/run`, {
+      method: "POST",
+      body: JSON.stringify(request)
+    });
+  },
   async runSeed(appId: string, seedId: string) {
     return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/seeds/${seedId}/run`, {
       method: "POST"
@@ -48,6 +54,9 @@ export const api = {
   },
   async getSeedDatasets() {
     return requestJson<{ datasets: SeedDataset[] }>("/api/seed-datasets");
+  },
+  async getParityManifest() {
+    return requestJson<ParityManifest>("/api/parity-manifest");
   },
   async getChangelog() {
     return requestJson<ProjectChangelog>("/api/changelog");

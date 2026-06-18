@@ -294,3 +294,46 @@ export type ProjectChangelog = {
   totalEntries: number;
   entries: ChangelogEntry[];
 };
+
+export type ParityResetMode = "none" | "run" | "suite" | "test";
+
+export type ParitySuite = {
+  id: string;
+  name: string;
+  description: string;
+  layer: string;
+  path: string;
+  tags: string[];
+  targets: string[];
+  defaultResetMode: ParityResetMode;
+};
+
+export type ParityPlan = {
+  id: string;
+  name: string;
+  description: string;
+  suites: string[];
+  resetMode: ParityResetMode;
+  tags: string[];
+  targets: string[];
+};
+
+export type ParityManifest = {
+  id: string;
+  version: string;
+  description: string;
+  defaultTarget: string;
+  defaultResetMode: ParityResetMode;
+  resetModes: Array<{ id: ParityResetMode; description: string }>;
+  plans: ParityPlan[];
+  suites: ParitySuite[];
+};
+
+export type CustomParityRunRequest = {
+  selectionKind: "suite" | "plan";
+  suite?: string;
+  plan?: string;
+  reset: ParityResetMode;
+  headed: boolean;
+  grep?: string;
+};
