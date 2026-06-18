@@ -99,5 +99,5 @@ The smoke test passed with these checks:
 
 - No project-specific synthetic seed dataset has been created yet.
 - No Playwright UI test suite has been added yet.
-- The parent project is a local Git repository with initial commit `5fb6200`, but it has not yet been connected to GitHub.
+- The parent project is a local Git repository, but it has not yet been connected to GitHub.
 - The Modernization Workbench has not yet been implemented.
