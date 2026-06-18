@@ -31,11 +31,11 @@ The Docker image is used to run the baseline application. The source checkout is
 
 ## Local URLs
 
-- HTTP: `http://localhost:8080`
+- Browser-friendly app URL: `http://localhost:8080`
 - HTTPS: `https://localhost:9443`
 - Health endpoint: `https://localhost:9443/meta/health/readyz`
 
-The HTTPS endpoint uses a self-signed local certificate.
+The HTTPS endpoint uses a self-signed local certificate. Browsers such as Chrome will show a privacy warning for `https://localhost:9443` unless that local certificate is trusted or the warning is bypassed manually. Use `http://localhost:8080` when opening the app in a browser during local development. The Workbench can still use the HTTPS health endpoint internally because its backend health check is configured to tolerate the self-signed local certificate.
 
 ## Local Demo Login
 
@@ -100,4 +100,4 @@ The smoke test passed with these checks:
 - No project-specific synthetic seed dataset has been created yet.
 - No Playwright UI test suite has been added yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
-- The Modernization Workbench has not yet been implemented.
+- The first Modernization Workbench version has been implemented and can manage this baseline locally.

@@ -13,6 +13,8 @@ The first version manages the legacy OpenEMR baseline:
 - Displays recent logs and action history.
 - Shows architecture and modernization progress views.
 
+The managed app link opens the legacy site at `http://localhost:8080`. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but browsers will warn about its self-signed local certificate unless it is trusted or bypassed manually.
+
 ## Run
 
 From the repository root:

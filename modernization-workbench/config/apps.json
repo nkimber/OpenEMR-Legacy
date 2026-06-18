@@ -7,7 +7,7 @@
       "description": "Pinned original OpenEMR application running through Docker Compose.",
       "kind": "docker-compose",
       "workingDirectory": "../legacy-openemr",
-      "publicUrl": "https://localhost:9443",
+      "publicUrl": "http://localhost:8080",
       "healthUrl": "https://localhost:9443/meta/health/readyz",
       "documentationPath": "../documents/LEGACY_OPENEMR_BASELINE.md",
       "sourcePath": "../legacy-openemr/source",

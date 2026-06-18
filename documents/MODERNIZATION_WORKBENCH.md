@@ -35,6 +35,8 @@ Workbench URLs:
 
 The Workbench currently manages the legacy OpenEMR baseline. It can show status, check health, start, stop, restart, run the smoke test, display latest smoke-test results, show Docker Compose logs, display a small database profile, list action history, and show architecture/progress views.
 
+The legacy app launch link opens `http://localhost:8080` because that is the browser-friendly local URL. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but it uses a self-signed local certificate and browsers will show a privacy warning unless the certificate is trusted or manually bypassed. The Workbench backend still uses `https://localhost:9443/meta/health/readyz` for health checks and is configured to tolerate the self-signed certificate for that internal check.
+
 Verified behavior:
 
 - Production build passes with `npm run build`.
@@ -80,7 +82,7 @@ The first workbench version is intentionally small and useful.
 Implemented capabilities:
 
 - Show legacy OpenEMR environment status.
-- Show configured baseline URL, database status, and seed-data status when available.
+- Show the configured baseline browser URL, database status, and seed-data status when available.
 - Start, stop, and restart the legacy OpenEMR Docker Compose environment through controlled local commands.
 - Trigger baseline smoke tests through `legacy-openemr/scripts/Test-LegacyBaseline.ps1`.
 - Display latest baseline test results.

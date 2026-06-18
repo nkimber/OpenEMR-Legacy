@@ -7,7 +7,7 @@ GitHub repository: `https://github.com/nkimber/OpenEMR-Legacy`
 The project has three major systems:
 
 - **Legacy OpenEMR baseline** - the original OpenEMR application running locally in Docker.
-- **Modernization Workbench** - a planned oversight website for status, test orchestration, parity reports, and architecture comparison.
+- **Modernization Workbench** - an oversight website for status, test orchestration, parity reports, and architecture comparison.
 - **Modernized OpenEMR target** - a future modern implementation built in vertical slices.
 
 ## Current State
@@ -28,6 +28,8 @@ Start the baseline:
 cd legacy-openemr
 docker compose up -d
 ```
+
+Open the legacy app in a browser at `http://localhost:8080`. The HTTPS endpoint `https://localhost:9443` is also exposed, but it uses a self-signed local certificate and will show a browser privacy warning unless trusted locally.
 
 Run the baseline smoke test:
 
