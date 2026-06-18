@@ -24,6 +24,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, RuntimeState, SeedDataset } from "./types";
+import type { ProjectChangelog } from "./types";
 
 type BusyState = {
   appId: string;
@@ -41,6 +42,17 @@ function formatDate(value?: string) {
     minute: "2-digit",
     second: "2-digit"
   }).format(new Date(value));
+}
+
+function formatDateOnly(value?: string) {
+  if (!value) {
+    return "Undated";
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  }).format(new Date(`${value}T12:00:00`));
 }
 
 function formatDuration(ms?: number) {
@@ -410,11 +422,118 @@ function EventsPanel({ events }: { events: LifecycleEvent[] }) {
   );
 }
 
+function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
+  const entries = changelog ? [...changelog.entries].reverse() : [];
+  const latestEntry = entries[0];
+
+  return (
+    <section className="panel changelog-panel">
+      <div className="panel-header">
+        <div>
+          <div className="section-kicker">Project history</div>
+          <h2>
+            <FileText size={20} />
+            Project Build Timeline
+          </h2>
+          <p>The maintained record of modernization steps, verification milestones, and implementation evidence.</p>
+        </div>
+        {changelog ? <StatusPill state="verified" label={`${changelog.totalEntries} steps`} /> : <StatusPill state="partial" label="Loading" />}
+      </div>
+
+      {changelog ? (
+        <>
+          <div className="changelog-stats">
+            <div>
+              <span>Total steps</span>
+              <strong>{changelog.totalEntries}</strong>
+            </div>
+            <div>
+              <span>Latest step</span>
+              <strong>{latestEntry ? `${latestEntry.id}. ${latestEntry.title}` : "None"}</strong>
+            </div>
+            <div>
+              <span>Source</span>
+              <strong>{changelog.sourcePath}</strong>
+            </div>
+          </div>
+
+          <div className="changelog-timeline">
+            {entries.map((entry) => {
+              const hiddenOutcomeCount = Math.max(0, entry.keyOutcomes.length - 5);
+              const hiddenFileCount = Math.max(0, entry.primaryFiles.length - 3);
+              const visibleMetrics = entry.metrics.slice(0, 4);
+
+              return (
+                <article className="changelog-entry" key={`${entry.date}-${entry.id}`}>
+                  <div className="changelog-marker">
+                    <span>{entry.id}</span>
+                  </div>
+                  <div className="changelog-content">
+                    <div className="changelog-entry-header">
+                      <div>
+                        <span className="changelog-date">{formatDateOnly(entry.date)}</span>
+                        <h3>{entry.title}</h3>
+                      </div>
+                      {entry.commit ? <code className="commit-chip">{entry.commit}</code> : null}
+                    </div>
+
+                    {entry.summary ? <p>{entry.summary}</p> : null}
+
+                    {visibleMetrics.length ? (
+                      <div className="changelog-metrics">
+                        {visibleMetrics.map((metric) => (
+                          <span key={`${entry.id}-${metric.label}`}>
+                            {metric.label} <strong>{metric.value}</strong>
+                          </span>
+                        ))}
+                        {entry.metrics.length > visibleMetrics.length ? <span>+{entry.metrics.length - visibleMetrics.length} more counts</span> : null}
+                      </div>
+                    ) : null}
+
+                    {entry.keyOutcomes.length ? (
+                      <ul className="changelog-outcomes">
+                        {entry.keyOutcomes.slice(0, 5).map((outcome) => (
+                          <li key={`${entry.id}-${outcome}`}>
+                            <CheckCircle2 size={15} />
+                            <span>{outcome}</span>
+                          </li>
+                        ))}
+                        {hiddenOutcomeCount ? (
+                          <li>
+                            <CheckCircle2 size={15} />
+                            <span>{hiddenOutcomeCount} more outcome{hiddenOutcomeCount === 1 ? "" : "s"} recorded</span>
+                          </li>
+                        ) : null}
+                      </ul>
+                    ) : null}
+
+                    {entry.primaryFiles.length ? (
+                      <div className="changelog-files">
+                        {entry.primaryFiles.slice(0, 3).map((file) => (
+                          <code key={`${entry.id}-${file}`}>{file}</code>
+                        ))}
+                        {hiddenFileCount ? <span>+{hiddenFileCount} more</span> : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <EmptyState text="Project changelog is loading." />
+      )}
+    </section>
+  );
+}
+
 export function App() {
   const [apps, setApps] = useState<AppSnapshot[]>([]);
   const [architecture, setArchitecture] = useState<ArchitectureSystem[]>([]);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
+  const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<BusyState>(null);
@@ -424,18 +543,20 @@ export function App() {
 
   const loadDashboard = useCallback(async () => {
     setError(null);
-    const [appData, architectureData, progressData, eventData, seedData] = await Promise.all([
+    const [appData, architectureData, progressData, eventData, seedData, changelogData] = await Promise.all([
       api.getApps(),
       api.getArchitecture(),
       api.getProgress(),
       api.getEvents(),
-      api.getSeedDatasets()
+      api.getSeedDatasets(),
+      api.getChangelog()
     ]);
     setApps(appData.apps);
     setArchitecture(architectureData.systems);
     setProgress(progressData.slices);
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);
+    setChangelog(changelogData);
   }, []);
 
   useEffect(() => {
@@ -553,6 +674,8 @@ export function App() {
         <ProgressPanel slices={progress} />
         <EventsPanel events={events} />
       </div>
+
+      <ChangelogPanel changelog={changelog} />
 
       <ArchitecturePanel systems={architecture} />
     </main>

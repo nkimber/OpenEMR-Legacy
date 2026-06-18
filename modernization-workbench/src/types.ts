@@ -168,3 +168,21 @@ export type ProgressSlice = {
   status: string;
   detail: string;
 };
+
+export type ChangelogEntry = {
+  id: string;
+  title: string;
+  date: string;
+  commit: string;
+  summary: string;
+  keyOutcomes: string[];
+  primaryFiles: string[];
+  metrics: { label: string; value: string }[];
+};
+
+export type ProjectChangelog = {
+  sourcePath: string;
+  updatedAt: string;
+  totalEntries: number;
+  entries: ChangelogEntry[];
+};

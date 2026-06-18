@@ -1,4 +1,4 @@
-import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, SeedDataset } from "./types";
+import type { AppSnapshot, ArchitectureSystem, LifecycleEvent, ProgressSlice, ProjectChangelog, SeedDataset } from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -48,5 +48,8 @@ export const api = {
   },
   async getSeedDatasets() {
     return requestJson<{ datasets: SeedDataset[] }>("/api/seed-datasets");
+  },
+  async getChangelog() {
+    return requestJson<ProjectChangelog>("/api/changelog");
   }
 };

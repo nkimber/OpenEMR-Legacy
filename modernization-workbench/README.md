@@ -12,6 +12,7 @@ The first version manages the legacy OpenEMR baseline:
 - Runs the gold legacy seed action and keeps the starter seed available.
 - Runs the baseline smoke test.
 - Displays recent logs and action history.
+- Renders the project changelog as a designed build timeline.
 - Shows architecture and modernization progress views.
 - Shows the local demo OpenEMR login from `../legacy-openemr/.env`.
 
@@ -47,6 +48,14 @@ http://127.0.0.1:5174
 ```
 
 It is intentionally local-only. Lifecycle actions are implemented through manifest-defined commands in `config/apps.json`.
+
+The Workbench also exposes structured project history at:
+
+```text
+http://127.0.0.1:5174/api/changelog
+```
+
+That endpoint parses `../documents/PROJECT_CHANGELOG.md`, which remains the changelog source of truth.
 
 ## Seed Data
 

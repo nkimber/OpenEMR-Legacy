@@ -93,6 +93,24 @@ type SeedDataManifest = {
   datasets: unknown[];
 };
 
+type ChangelogEntry = {
+  id: string;
+  title: string;
+  date: string;
+  commit: string;
+  summary: string;
+  keyOutcomes: string[];
+  primaryFiles: string[];
+  metrics: { label: string; value: string }[];
+};
+
+type ProjectChangelog = {
+  sourcePath: string;
+  updatedAt: string;
+  totalEntries: number;
+  entries: ChangelogEntry[];
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
@@ -100,6 +118,7 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
+const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
@@ -127,6 +146,130 @@ async function readConfig(): Promise<AppConfig> {
 async function readSeedDataManifest(): Promise<SeedDataManifest> {
   const text = await fs.readFile(seedDataManifestPath, "utf8");
   return JSON.parse(text) as SeedDataManifest;
+}
+
+function cleanMarkdownText(text: string) {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
+function parseChangelogEntry(date: string, id: string, title: string, lines: string[]): ChangelogEntry {
+  const sections = new Map<string, string[]>();
+  const summaryLines: string[] = [];
+  let currentSection = "";
+  let commit = "";
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      continue;
+    }
+
+    const commitMatch = line.match(/^Commits?:\s+(.+)$/);
+    if (commitMatch) {
+      commit = cleanMarkdownText(commitMatch[1]);
+      continue;
+    }
+
+    if (!line.startsWith("- ") && line.endsWith(":")) {
+      currentSection = cleanMarkdownText(line.slice(0, -1));
+      sections.set(currentSection, []);
+      continue;
+    }
+
+    if (line.startsWith("- ") && currentSection) {
+      sections.get(currentSection)?.push(cleanMarkdownText(line.slice(2)));
+      continue;
+    }
+
+    if (!currentSection) {
+      summaryLines.push(cleanMarkdownText(line));
+    }
+  }
+
+  const primaryFiles =
+    sections.get("Primary files") ??
+    sections.get("Primary file") ??
+    sections.get("Primary documents") ??
+    sections.get("Primary document") ??
+    [];
+  const metrics = (sections.get("Verified gold dataset counts") ?? []).flatMap((item) => {
+    const [label, ...valueParts] = item.split(":");
+    const value = valueParts.join(":").trim();
+    return label && value ? [{ label: label.trim(), value }] : [];
+  });
+
+  return {
+    id,
+    title: cleanMarkdownText(title),
+    date,
+    commit,
+    summary: summaryLines.join(" "),
+    keyOutcomes: sections.get("Key outcomes") ?? [],
+    primaryFiles,
+    metrics
+  };
+}
+
+function parseProjectChangelog(text: string): ChangelogEntry[] {
+  const entries: ChangelogEntry[] = [];
+  let currentDate = "";
+  let currentEntry: { id: string; title: string; date: string; lines: string[] } | null = null;
+
+  const flushEntry = () => {
+    if (currentEntry) {
+      entries.push(parseChangelogEntry(currentEntry.date, currentEntry.id, currentEntry.title, currentEntry.lines));
+      currentEntry = null;
+    }
+  };
+
+  for (const line of text.split(/\r?\n/)) {
+    const dateMatch = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\s*$/);
+    if (dateMatch) {
+      flushEntry();
+      currentDate = dateMatch[1];
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      flushEntry();
+      currentDate = "";
+      continue;
+    }
+
+    const entryMatch = line.match(/^###\s+(\d+)\.\s+(.+)$/);
+    if (entryMatch && currentDate) {
+      flushEntry();
+      currentEntry = {
+        id: entryMatch[1],
+        title: entryMatch[2],
+        date: currentDate,
+        lines: []
+      };
+      continue;
+    }
+
+    if (currentEntry) {
+      currentEntry.lines.push(line);
+    }
+  }
+
+  flushEntry();
+  return entries;
+}
+
+async function readProjectChangelog(): Promise<ProjectChangelog> {
+  const text = await fs.readFile(changelogPath, "utf8");
+  const stats = await fs.stat(changelogPath);
+  const entries = parseProjectChangelog(text);
+  return {
+    sourcePath: path.relative(repoRoot, changelogPath).replaceAll("\\", "/"),
+    updatedAt: stats.mtime.toISOString(),
+    totalEntries: entries.length,
+    entries
+  };
 }
 
 async function getManagedApp(appId: string) {
@@ -614,6 +757,14 @@ app.get("/api/events", async (_request, response, next) => {
 app.get("/api/seed-datasets", async (_request, response, next) => {
   try {
     response.json(await readSeedDataManifest());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/changelog", async (_request, response, next) => {
+  try {
+    response.json(await readProjectChangelog());
   } catch (error) {
     next(error);
   }
