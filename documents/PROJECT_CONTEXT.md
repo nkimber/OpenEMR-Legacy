@@ -18,13 +18,15 @@ The first objective is to create a fully reproducible local OpenEMR baseline tha
 
 As of 2026-06-18, the legacy OpenEMR baseline is installed under `legacy-openemr/`, running through Docker Compose, and verified by a smoke test. The baseline uses OpenEMR Docker image `openemr/openemr:8.1.0-2026-06-18`, upstream source tag `v8_1_0`, and `mariadb:11.8.8`.
 
+The parent project has been initialized as a local Git repository with initial commit `5fb6200`. It does not yet have a GitHub remote.
+
 The smoke test currently verifies:
 
 - OpenEMR health endpoint returns HTTP 200.
 - The login page is reachable.
 - The local demo admin login reaches the main OpenEMR shell.
 
-The baseline has not yet been seeded with project-specific demo data and has not yet been connected to GitHub.
+The baseline has not yet been seeded with project-specific demo data and the parent project has not yet been connected to GitHub.
 
 ## Why OpenEMR
 
