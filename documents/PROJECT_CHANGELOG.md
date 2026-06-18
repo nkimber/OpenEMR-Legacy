@@ -422,6 +422,44 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 016. Parity Test Run Plans And Comparison Tooling
+
+Commit: `c297d10`
+
+Added the test-management layer needed to run curated parity plans and compare run evidence when the future modernized target exists.
+
+Key outcomes:
+
+- Added manifest-defined run plans for legacy readiness, isolated workflow mutations, and the full target-neutral parity contract.
+- Extended the parity runner with `--plan` and `--list` so operators can run named plans or inspect suites, plans, reset modes, and targets.
+- Added plan metadata to run summaries, including selection kind, selection id, selected suites, and plan name.
+- Added `parity-tests/src/cli/compare-runs.ts` to compare two run summaries and write durable comparison artifacts.
+- Added npm scripts for plan runs, manifest listing, and comparisons.
+- Extended `scripts/Run-OpenEmrParityTests.ps1` with `-Plan`.
+- Added Workbench Test Runs cards for the legacy readiness plan, isolated mutation plan, and full parity plan.
+- Updated Workbench test evidence display so plan runs show the plan name and selected suites.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run list` in `parity-tests/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan full-parity -Reset run` with 14 passing tests.
+- `npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-legacy-openemr-plan-full-parity.json --left-target legacy-openemr --right-target legacy-openemr --plan full-parity`.
+- `git diff --check`.
+
+Primary files:
+
+- `parity-tests/test-manifest.json`
+- `parity-tests/src/cli/run-tests.ts`
+- `parity-tests/src/cli/compare-runs.ts`
+- `parity-tests/src/core/results.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/App.tsx`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
