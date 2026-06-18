@@ -496,11 +496,47 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 018. Expanded Legacy Playwright UI Coverage
+
+Commit: `7aeca6a`
+
+Expanded the legacy browser-level parity suite beyond login and patient chart rendering into clinical, scheduling, billing, and lab-result screens.
+
+Key outcomes:
+
+- Added normalized UI anchor probes for future appointments, latest encounters, encounter billing lines, and procedure orders.
+- Added frame-aware Playwright text collection for OpenEMR's frame-based encounter UI.
+- Added browser checks for seeded encounter SOAP and vitals detail rendering.
+- Added browser checks for the legacy scheduler appointment edit screen using actual form values for title, patient, date, time, and status.
+- Added browser checks for encounter fee sheet billing codes and descriptions.
+- Added browser checks for procedure result rendering for a gold lab patient.
+- Updated Workbench metadata, the parity manifest, and documentation to reflect the richer UI contract.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `npm run test:legacy:ui -- --reset none` with 6 passing UI tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan full-parity -Reset run` with 21 passing tests.
+- `npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-legacy-openemr-plan-full-parity.json --left-target legacy-openemr --right-target legacy-openemr --plan full-parity`.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+
+Primary files:
+
+- `parity-tests/tests/ui/legacy-login-and-chart.spec.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
-- Expansion of richer browser-driven UI workflow coverage.
 - Legacy-native PHPUnit/Jest/Panther test-container enablement if practical.
 - Selection of the first modernization workflow slice.
 - Modernized workflow action adapters for the parity suite.
