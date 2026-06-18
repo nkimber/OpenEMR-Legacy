@@ -33,7 +33,7 @@ Current verified gold seed profile as of 2026-06-18:
 - Allergies: 900
 - Medication list entries: 2,200
 - Prescriptions: 2,200
-- Lab orders: 700
+- Lab/procedure orders: 1,000
 - Lab reports: 700
 - Lab results: 2,400
 - Messages: 1,200
@@ -41,6 +41,18 @@ Current verified gold seed profile as of 2026-06-18:
 - Portal-enabled patients: 200
 
 The generated canonical dataset, summary, and legacy MariaDB seed SQL live under `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/`.
+
+Current-year temporal coverage verified in the legacy MariaDB baseline on 2026-06-18:
+
+- Appointments: 2,800 in 2026; 1,261 future-dated after 2026-06-18; latest date 2026-12-31.
+- Prescriptions: 2,200 in 2026; 1,175 future-starting after 2026-06-18; date range 2026-01-01 to 2026-12-31.
+- Medication list entries: 2,200 in 2026; 1,175 future-starting after 2026-06-18; date range 2026-01-01 to 2026-12-31.
+- Procedure orders: 1,000 in 2026; 300 future scheduled orders after 2026-06-18; latest date 2026-12-31.
+- Procedure results: 2,400 completed results in 2026; date range 2026-02-20 to 2026-05-20.
+- Messages: 1,200 in 2026.
+- Billing line items: 1,650 in 2026.
+
+Future scheduled procedure orders intentionally do not have final result rows. This gives tests a clean distinction between completed-results workflows and pending/scheduled procedure-order workflows. `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1` verifies both row counts and the generated `temporalCoverage` contract after each legacy reseed.
 
 ## Findings
 
@@ -131,7 +143,9 @@ This dataset includes named synthetic personas and workflow data for:
 - Notes.
 - Messages.
 - Problems, allergies, medications, and prescriptions where appropriate.
+- 2026 current-year and future-dated prescription coverage.
 - Billing line-item coverage.
+- 2026 current-year and future scheduled procedure-order coverage.
 - Deeper claims behavior later, once the project selects that workflow.
 - Portal-enabled patient coverage.
 

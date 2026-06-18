@@ -44,6 +44,27 @@ function at(dateText, hour, minute = 0) {
   return `${dateText} ${pad(hour, 2)}:${pad(minute, 2)}:00`;
 }
 
+function dateOnly(value) {
+  return String(value).slice(0, 10);
+}
+
+function coverageFor(items, dateSelector) {
+  const dates = items.map(dateSelector).filter(Boolean).map(dateOnly).sort();
+  const currentYear = baseDate.slice(0, 4);
+  const currentYearStart = `${currentYear}-01-01`;
+  const currentYearEnd = `${currentYear}-12-31`;
+  const currentYearDates = dates.filter((date) => date >= currentYearStart && date <= currentYearEnd);
+  const futureCurrentYearDates = currentYearDates.filter((date) => date > baseDate);
+
+  return {
+    total: dates.length,
+    currentYear: currentYearDates.length,
+    futureCurrentYear: futureCurrentYearDates.length,
+    minDate: dates.length ? dates[0] : null,
+    maxDate: dates.length ? dates[dates.length - 1] : null
+  };
+}
+
 function timePlusMinutes(dateTimeText, minutesToAdd) {
   const date = new Date(`${dateTimeText.replace(" ", "T")}Z`);
   date.setUTCMinutes(date.getUTCMinutes() + minutesToAdd);
@@ -283,7 +304,7 @@ const appointments = [];
 patients.forEach((patient, index) => {
   const count = index < 800 ? 3 : 2;
   for (let sequence = 1; sequence <= count; sequence += 1) {
-    const dateOffset = sequence === 1 ? -120 + (index % 90) : sequence === 2 ? -15 + (index % 30) : 7 + (index % 60);
+    const dateOffset = sequence === 1 ? -120 + (index % 90) : sequence === 2 ? -15 + (index % 30) : 7 + ((index * 11) % 190);
     const date = index === 0 && sequence === 3 ? baseDate : addDays(baseDate, dateOffset);
     const hour = 8 + ((index + sequence) % 8);
     appointments.push({
@@ -384,7 +405,7 @@ patients.forEach((patient, index) => {
   const count = index < 200 ? 3 : 2;
   for (let sequence = 1; sequence <= count; sequence += 1) {
     const [drug, dosage, route, diagnosis] = medicationCatalog[(index + sequence) % medicationCatalog.length];
-    const startDate = addDays(baseDate, -400 + ((index + sequence) % 220));
+    const startDate = addDays(baseDate, -168 + ((index * 13 + sequence * 29) % 365));
     medicationLists.push({ id: `MED-${patient.canonicalId}-${sequence}`, patientId: patient.canonicalId, pid: patient.pid, type: "medication", title: `${drug} ${dosage}`, diagnosis: `ICD10:${diagnosis}`, date: startDate, comments: "Active synthetic medication list entry." });
     prescriptions.push({ id: `RX-${patient.canonicalId}-${sequence}`, patientId: patient.canonicalId, pid: patient.pid, providerId: patient.providerId, encounter: patient.pid * 10 + 1, startDate, drug, dosage, route, diagnosis: `ICD10:${diagnosis}` });
   }
@@ -423,11 +444,31 @@ patients.slice(0, 700).forEach((patient, index) => {
   const orderId = 5000000 + index + 1;
   const reportId = 6000000 + index + 1;
   const orderedDate = addDays(baseDate, -120 + (index % 90));
-  labOrders.push({ id: orderId, patientId: patient.canonicalId, pid: patient.pid, encounter: encounter.encounter, providerId: patient.providerId, date: at(orderedDate, 11), code: panel[0], name: panel[1], diagnosis: encounter.diagnosisCode });
+  labOrders.push({ id: orderId, patientId: patient.canonicalId, pid: patient.pid, encounter: encounter.encounter, providerId: patient.providerId, date: at(orderedDate, 11), code: panel[0], name: panel[1], diagnosis: encounter.diagnosisCode, orderStatus: "complete" });
   labReports.push({ id: reportId, orderId, date: at(addDays(orderedDate, 2), 14), status: "complete" });
   const resultCount = index < 300 ? 4 : 3;
   panel[2].slice(0, resultCount).forEach((result, resultIndex) => {
-    labResults.push({ id: 7000000 + labResults.length + 1, reportId, code: result[0], text: result[1], units: result[2], result: result[3], range: result[4], abnormal: resultIndex === 0 && patient.cohort === "chronic-care" ? "high" : "no", date: at(addDays(orderedDate, 2), 14) });
+    labResults.push({ id: 7000000 + labResults.length + 1, reportId, code: result[0], text: result[1], units: result[2], result: result[3], range: result[4], abnormal: resultIndex === 0 && patient.cohort === "chronic-care" ? "high" : "no", date: at(addDays(orderedDate, 2), 14), resultStatus: "final" });
+  });
+});
+
+patients.slice(700, 1000).forEach((patient, futureIndex) => {
+  const patientIndex = 700 + futureIndex;
+  const encounter = encounters.find((candidate) => candidate.pid === patient.pid);
+  const panel = labPanels[(patientIndex + 1) % labPanels.length];
+  const orderId = 5001000 + futureIndex + 1;
+  const orderedDate = addDays(baseDate, 7 + ((futureIndex * 11) % 190));
+  labOrders.push({
+    id: orderId,
+    patientId: patient.canonicalId,
+    pid: patient.pid,
+    encounter: encounter.encounter,
+    providerId: patient.providerId,
+    date: at(orderedDate, 11),
+    code: panel[0],
+    name: panel[1],
+    diagnosis: encounter.diagnosisCode,
+    orderStatus: "scheduled"
   });
 });
 
@@ -479,6 +520,19 @@ const dataset = {
   labOrders,
   labReports,
   labResults,
+  temporalCoverage: {
+    asOfDate: baseDate,
+    currentYear: baseDate.slice(0, 4),
+    appointments: coverageFor(appointments, (appointment) => appointment.date),
+    encounters: coverageFor(encounters, (encounter) => encounter.date),
+    medicationListEntries: coverageFor(medicationLists, (medication) => medication.date),
+    prescriptions: coverageFor(prescriptions, (prescription) => prescription.startDate),
+    procedureOrders: coverageFor(labOrders, (order) => order.date),
+    procedureReports: coverageFor(labReports, (report) => report.date),
+    procedureResults: coverageFor(labResults, (result) => result.date),
+    messages: coverageFor(messages, (message) => message.date),
+    billingLineItems: coverageFor(billing, (line) => line.date)
+  },
   testAnchors: patients.slice(0, 25).map((patient) => ({ canonicalId: patient.canonicalId, name: `${patient.fname} ${patient.lname}`, cohort: patient.cohort, purpose: patient.purpose }))
 };
 
@@ -507,6 +561,7 @@ const summary = {
     billingLineItems: billing.length,
     portalPatients: patients.filter((patient) => patient.portalEnabled).length
   },
+  temporalCoverage: dataset.temporalCoverage,
   cohorts: patients.reduce((counts, patient) => ({ ...counts, [patient.cohort]: (counts[patient.cohort] ?? 0) + 1 }), {}),
   testAnchors: dataset.testAnchors
 };
@@ -802,7 +857,7 @@ function buildLegacySql() {
     date_collected: order.date,
     date_ordered: order.date,
     order_priority: "routine",
-    order_status: "complete",
+    order_status: order.orderStatus,
     patient_instructions: "Gold dataset lab order",
     activity: 1,
     control_id: `CTRL-${order.id}`,
@@ -835,7 +890,7 @@ function buildLegacySql() {
     source: 1,
     specimen_num: `SP-${report.id}`,
     report_status: report.status,
-    review_status: "reviewed",
+    review_status: report.status === "complete" ? "reviewed" : "pending",
     report_notes: "Gold dataset result"
   })), 200));
 
@@ -853,7 +908,7 @@ function buildLegacySql() {
     range: result.range,
     abnormal: result.abnormal,
     comments: "Synthetic lab result",
-    result_status: "final"
+    result_status: result.resultStatus ?? "final"
   })), 200));
 
   return statements.filter(Boolean).join("\n\n") + "\n";

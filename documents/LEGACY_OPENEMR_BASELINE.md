@@ -135,12 +135,22 @@ The shared gold dataset has been imported and verified with these checks:
 - Allergies: 900
 - Medication list entries: 2,200
 - Prescriptions: 2,200
-- Lab orders: 700
+- Lab/procedure orders: 1,000
 - Lab reports: 700
 - Lab results: 2,400
 - Messages: 1,200
 - Billing line items: 3,000
 - Portal-enabled patients: 200
+
+The shared gold dataset temporal coverage has also been verified in the legacy MariaDB baseline:
+
+- Appointments: 2,800 in 2026, including 1,261 future appointments after 2026-06-18 and through 2026-12-31.
+- Prescriptions: 2,200 in 2026, including 1,175 future-starting prescriptions after 2026-06-18 and through 2026-12-31.
+- Medication list entries: 2,200 in 2026, including 1,175 future-starting entries after 2026-06-18 and through 2026-12-31.
+- Procedure orders: 1,000 in 2026, including 300 future scheduled orders after 2026-06-18 and through 2026-12-31.
+- Procedure results: 2,400 completed results in 2026. Future scheduled procedure orders intentionally do not have final result rows.
+
+`Seed-LegacyGoldDataset.ps1` now validates the generated temporal coverage contract after applying the seed, so count and date-coverage regressions are both caught by the same legacy seed action.
 
 ## Current Gaps
 

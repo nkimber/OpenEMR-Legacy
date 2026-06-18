@@ -19,7 +19,7 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 - 1,500 problems.
 - 900 allergies.
 - 2,200 medications or prescriptions.
-- 700 lab or procedure orders.
+- 1,000 lab or procedure orders: 700 completed historical orders with reports/results and 300 future scheduled orders.
 - 2,400 lab results or observations.
 - 1,200 messages.
 - 200 portal-enabled patients.
@@ -34,6 +34,15 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 ## Current State
 
 The V1 gold dataset is generated and checked into this folder as an intentional test fixture. It has also been applied to the legacy OpenEMR MariaDB baseline and count-verified on 2026-06-18.
+
+The current V1 temporal contract is anchored to `2026-06-18` and includes:
+
+- 2,800 appointments in 2026, including 1,261 future appointments through 2026-12-31.
+- 2,200 prescriptions and 2,200 medication list entries in 2026, including 1,175 future-starting records through 2026-12-31.
+- 1,000 procedure orders in 2026, including 300 future scheduled orders through 2026-12-31.
+- 2,400 completed procedure results in 2026. Future scheduled procedure orders intentionally do not have final result rows.
+
+The generated summary includes a `temporalCoverage` section so tests and future Workbench views can assert date coverage as well as row counts. The legacy seed script validates this temporal contract after applying the SQL seed.
 
 Generated artifacts:
 

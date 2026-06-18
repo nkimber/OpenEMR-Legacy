@@ -90,6 +90,94 @@ UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patien
     return $map
 }
 
+function Convert-DbNull {
+    param(
+        [AllowNull()]
+        [string] $Value
+    )
+
+    if ($null -eq $Value -or $Value -eq "NULL" -or $Value -eq "\N") {
+        return $null
+    }
+
+    return $Value
+}
+
+function Get-TemporalCoverageMap {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AsOfDate,
+
+        [Parameter(Mandatory = $true)]
+        [string] $CurrentYear
+    )
+
+    $yearStart = "$CurrentYear-01-01"
+    $nextYear = ([int] $CurrentYear) + 1
+    $yearEndExclusive = "$nextYear-01-01"
+
+    $temporalSql = @"
+SELECT 'appointments', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(pc_eventDate) >= '$yearStart' AND DATE(pc_eventDate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(pc_eventDate) > '$AsOfDate' AND DATE(pc_eventDate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(pc_eventDate)), DATE(MAX(pc_eventDate))
+FROM openemr_postcalendar_events
+UNION ALL SELECT 'encounters', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date)), DATE(MAX(date))
+FROM form_encounter
+UNION ALL SELECT 'medicationListEntries', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date)), DATE(MAX(date))
+FROM lists WHERE type = 'medication'
+UNION ALL SELECT 'prescriptions', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(start_date) >= '$yearStart' AND DATE(start_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(start_date) > '$AsOfDate' AND DATE(start_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(start_date)), DATE(MAX(start_date))
+FROM prescriptions
+UNION ALL SELECT 'procedureOrders', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date_ordered) >= '$yearStart' AND DATE(date_ordered) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date_ordered) > '$AsOfDate' AND DATE(date_ordered) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date_ordered)), DATE(MAX(date_ordered))
+FROM procedure_order
+UNION ALL SELECT 'procedureReports', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date_report) >= '$yearStart' AND DATE(date_report) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date_report) > '$AsOfDate' AND DATE(date_report) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date_report)), DATE(MAX(date_report))
+FROM procedure_report
+UNION ALL SELECT 'procedureResults', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date)), DATE(MAX(date))
+FROM procedure_result
+UNION ALL SELECT 'messages', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date)), DATE(MAX(date))
+FROM pnotes
+UNION ALL SELECT 'billingLineItems', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(date)), DATE(MAX(date))
+FROM billing;
+"@
+
+    $map = [ordered]@{}
+    Invoke-OpenEmrSql -Sql $temporalSql | ForEach-Object {
+        $parts = $_ -split "`t"
+        $map[$parts[0]] = [pscustomobject]@{
+            total = [int] $parts[1]
+            currentYear = [int] $parts[2]
+            futureCurrentYear = [int] $parts[3]
+            minDate = Convert-DbNull -Value $parts[4]
+            maxDate = Convert-DbNull -Value $parts[5]
+        }
+    }
+    return $map
+}
+
 $startedAt = Get-Date
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $baselineDirectory = Resolve-Path (Join-Path $scriptDirectory "..")
@@ -118,6 +206,7 @@ if (-not $script:dbPassword) {
 $summary = Get-Content -Path $summaryPath -Raw | ConvertFrom-Json
 Invoke-OpenEmrSqlFile -Path $sqlPath
 $actualCounts = Get-CountMap
+$actualTemporalCoverage = Get-TemporalCoverageMap -AsOfDate $summary.temporalCoverage.asOfDate -CurrentYear $summary.temporalCoverage.currentYear
 
 $expectedCounts = [ordered]@{}
 $summary.counts.PSObject.Properties | ForEach-Object {
@@ -134,6 +223,32 @@ foreach ($key in $expectedCounts.Keys) {
         passed = $actual -eq $expectedCounts[$key]
     }
 }
+
+$temporalFields = @("total", "currentYear", "futureCurrentYear", "minDate", "maxDate")
+$summary.temporalCoverage.PSObject.Properties |
+    Where-Object { $_.Name -notin @("asOfDate", "currentYear") } |
+    ForEach-Object {
+        $key = $_.Name
+        $expectedCoverage = $_.Value
+        $actualCoverage = if ($actualTemporalCoverage.Contains($key)) { $actualTemporalCoverage[$key] } else { $null }
+
+        foreach ($field in $temporalFields) {
+            $expected = $expectedCoverage.$field
+            $actual = if ($null -ne $actualCoverage) { $actualCoverage.$field } else { $null }
+            $passedField = if ($field -in @("total", "currentYear", "futureCurrentYear")) {
+                [int] $actual -eq [int] $expected
+            } else {
+                [string] $actual -eq [string] $expected
+            }
+
+            $checks += [pscustomobject]@{
+                name = "temporal.$key.$field"
+                expected = $expected
+                actual = $actual
+                passed = $passedField
+            }
+        }
+    }
 
 $finishedAt = Get-Date
 $passed = -not ($checks | Where-Object { -not $_.passed })
@@ -152,6 +267,16 @@ $result = [pscustomobject]@{
         [pscustomobject]@{
             tableName = $_.Key
             rowCount = $_.Value
+        }
+    })
+    temporalCoverage = @($actualTemporalCoverage.GetEnumerator() | ForEach-Object {
+        [pscustomobject]@{
+            name = $_.Key
+            total = $_.Value.total
+            currentYear = $_.Value.currentYear
+            futureCurrentYear = $_.Value.futureCurrentYear
+            minDate = $_.Value.minDate
+            maxDate = $_.Value.maxDate
         }
     })
     checks = $checks

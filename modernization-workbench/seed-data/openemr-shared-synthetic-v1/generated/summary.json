@@ -19,12 +19,79 @@
     "allergies": 900,
     "medicationsAndPrescriptions": 2200,
     "medicationListEntries": 2200,
-    "labOrders": 700,
+    "labOrders": 1000,
     "labReports": 700,
     "labResults": 2400,
     "messages": 1200,
     "billingLineItems": 3000,
     "portalPatients": 200
+  },
+  "temporalCoverage": {
+    "asOfDate": "2026-06-18",
+    "currentYear": "2026",
+    "appointments": {
+      "total": 2800,
+      "currentYear": 2800,
+      "futureCurrentYear": 1261,
+      "minDate": "2026-02-18",
+      "maxDate": "2026-12-31"
+    },
+    "encounters": {
+      "total": 2100,
+      "currentYear": 1100,
+      "futureCurrentYear": 16,
+      "minDate": "2025-06-18",
+      "maxDate": "2026-06-19"
+    },
+    "medicationListEntries": {
+      "total": 2200,
+      "currentYear": 2200,
+      "futureCurrentYear": 1175,
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31"
+    },
+    "prescriptions": {
+      "total": 2200,
+      "currentYear": 2200,
+      "futureCurrentYear": 1175,
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31"
+    },
+    "procedureOrders": {
+      "total": 1000,
+      "currentYear": 1000,
+      "futureCurrentYear": 300,
+      "minDate": "2026-02-18",
+      "maxDate": "2026-12-31"
+    },
+    "procedureReports": {
+      "total": 700,
+      "currentYear": 700,
+      "futureCurrentYear": 0,
+      "minDate": "2026-02-20",
+      "maxDate": "2026-05-20"
+    },
+    "procedureResults": {
+      "total": 2400,
+      "currentYear": 2400,
+      "futureCurrentYear": 0,
+      "minDate": "2026-02-20",
+      "maxDate": "2026-05-20"
+    },
+    "messages": {
+      "total": 1200,
+      "currentYear": 1200,
+      "futureCurrentYear": 0,
+      "minDate": "2026-05-04",
+      "maxDate": "2026-06-12"
+    },
+    "billingLineItems": {
+      "total": 3000,
+      "currentYear": 1650,
+      "futureCurrentYear": 32,
+      "minDate": "2025-06-18",
+      "maxDate": "2026-06-19"
+    }
   },
   "cohorts": {
     "patient-search": 1,

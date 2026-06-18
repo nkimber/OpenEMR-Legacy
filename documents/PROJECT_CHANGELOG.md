@@ -306,6 +306,42 @@ Primary files:
 - `modernization-workbench/README.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 013. Gold Dataset 2026 Temporal Coverage Enhanced
+
+Commit: `pending`
+
+Reviewed the live legacy MariaDB seed coverage for 2026 and enhanced the gold dataset so it exercises current-year and future-year workflows more completely.
+
+Key outcomes:
+
+- Moved prescriptions and medication list entries into 2026.
+- Added 1,175 future-starting prescriptions and medication list entries after 2026-06-18.
+- Extended future appointments through 2026-12-31 while preserving the 2,800 appointment count.
+- Increased lab/procedure orders from 700 to 1,000 by adding 300 future scheduled procedure orders.
+- Preserved 700 completed procedure orders with 700 reports and 2,400 completed result rows.
+- Added generated `temporalCoverage` metadata to the canonical dataset and summary.
+- Extended the legacy gold seed script so it verifies `temporalCoverage` as well as row counts.
+- Re-applied the enhanced seed to the legacy MariaDB baseline and verified the live temporal counts.
+
+Verified temporal coverage:
+
+- Appointments: 2,800 in 2026; 1,261 future; latest 2026-12-31.
+- Prescriptions: 2,200 in 2026; 1,175 future; date range 2026-01-01 to 2026-12-31.
+- Medication list entries: 2,200 in 2026; 1,175 future; date range 2026-01-01 to 2026-12-31.
+- Procedure orders: 1,000 in 2026; 300 future scheduled; latest 2026-12-31.
+- Procedure results: 2,400 completed results in 2026.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernization-workbench/seed-data/manifest.json`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
