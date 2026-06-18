@@ -47,8 +47,13 @@ if ($unexpectedUntracked) {
     throw "Unexpected untracked or ignored paths detected:`n$($unexpectedUntracked -join [Environment]::NewLine)"
 }
 
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 $existingRemote = & git remote get-url $RemoteName 2>$null
-if ($LASTEXITCODE -eq 0) {
+$remoteExitCode = $LASTEXITCODE
+$ErrorActionPreference = $previousErrorActionPreference
+
+if ($remoteExitCode -eq 0) {
     if ($existingRemote -ne $RemoteUrl) {
         throw "Remote '$RemoteName' already points to '$existingRemote', not '$RemoteUrl'."
     }
