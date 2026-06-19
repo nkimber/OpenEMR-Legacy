@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, and the slice-20 access-control read model plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, the slice-20 access-control read model plan, and the slice-21 access-permission mutation plan.
 
 ## Test Layers
 
@@ -91,6 +91,8 @@ Current legacy coverage:
 - Encounter create, update, and delete lifecycle with vitals and SOAP detail form links.
 - CPT billing line create, bill-status update, deactivate, and delete lifecycle.
 - Lab procedure order create, complete, report, result, and cascade-delete lifecycle.
+- Administration facility and user lifecycle mutation.
+- Focused access-control permission assignment revoke/restore lifecycle.
 
 The legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The modernized implementation is `parity-tests/src/workflows/modernizedWorkflowActions.ts`, which mutates implemented workflows through the modernized ASP.NET Core API and reads post-state through normalized PostgreSQL probes. The tests are written as workflow intent so each new modernized mutation slice can implement equivalent actions behind the same behavioral contract.
 
@@ -165,6 +167,8 @@ npm run test:legacy:plan:prescription-mutation
 npm run test:modernized:plan:prescription-mutation
 npm run test:legacy:plan:billing-mutation
 npm run test:modernized:plan:billing-mutation
+npm run test:legacy:plan:access-permission-mutation
+npm run test:modernized:plan:access-permission-mutation
 ```
 
 Inventory command:
@@ -203,8 +207,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr|modernized-openemr`
-- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-prescriptions|workflow-billing|workflow-procedures|workflow-admin|workflow-admin-users|admin-access-control|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
-- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|slice-16-billing-mutation-readiness|slice-17-procedure-mutation-readiness|slice-18-admin-facility-mutation-readiness|slice-19-admin-user-mutation-readiness|slice-20-access-control-readiness|legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-prescriptions|workflow-billing|workflow-procedures|workflow-admin|workflow-admin-users|workflow-admin-access|admin-access-control|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|slice-16-billing-mutation-readiness|slice-17-procedure-mutation-readiness|slice-18-admin-facility-mutation-readiness|slice-19-admin-user-mutation-readiness|slice-20-access-control-readiness|slice-21-access-permission-mutation-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -240,9 +244,10 @@ Current plans:
 - `slice-18-admin-facility-mutation-readiness` runs the administration facility mutation suite with a per-test reset for both legacy and modernized targets.
 - `slice-19-admin-user-mutation-readiness` runs the administration user mutation suite with a per-test reset for both legacy and modernized targets.
 - `slice-20-access-control-readiness` runs the administration access-control suite with a run-level reset for both legacy and modernized targets.
+- `slice-21-access-permission-mutation-readiness` runs the administration access-permission mutation suite with a per-test reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
-- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/prescription/billing/procedure/admin-facility/admin-user mutation suites with per-test resets for strongest mutation isolation.
-- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, and access-control read-model coverage as the target-neutral contract intended for future side-by-side legacy and modernized runs.
+- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/prescription/billing/procedure/admin-facility/admin-user/access-permission mutation suites with per-test resets for strongest mutation isolation.
+- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, access-permission mutation, and access-control read-model coverage as the target-neutral contract intended for future side-by-side legacy and modernized runs.
 
 Every plan run records `selectionKind`, `selectionId`, `selectedSuites`, and plan metadata in `run.json`. This makes result files self-describing and lets the Workbench show whether evidence came from a suite or a named plan.
 

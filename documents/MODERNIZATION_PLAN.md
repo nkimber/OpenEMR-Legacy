@@ -331,7 +331,7 @@ Current limitations:
 
 - This slice is read-only.
 - Focused facility create, update, inactive status, and delete workflows are covered by Slice 18.
-- First-party modernized login, ASP.NET Core Identity, authorization policies, permission editing, user account mutation workflows, role/permission administration, and audit-event logging remain deferred to later administration/security mutation slices.
+- First-party modernized login, ASP.NET Core Identity, authorization policies, broad role/permission administration, user account mutation workflows, and audit-event logging remain deferred to later administration/security mutation slices.
 - The Admin screen clearly labels authentication, authorization, and audit logging as deferred or planned so this directory slice is not mistaken for full security modernization.
 
 ### Slice 9: Reports, Documents, And Integrations
@@ -630,7 +630,8 @@ Current limitations:
 
 - This slice covers a focused user-directory lifecycle only.
 - Default ACL group and permission matrix visibility is covered by Slice 20.
-- Real login/password creation, ASP.NET Core Identity, permission editing, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and group/ACL membership mutation workflows remain deferred to later administration/security slices.
+- Focused ACL permission assignment grant/revoke behavior is covered by Slice 21.
+- Real login/password creation, ASP.NET Core Identity, broad role/permission administration, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and user/group membership mutation workflows remain deferred to later administration/security slices.
 
 ### Slice 20: Administration Access-Control Read Model
 
@@ -658,7 +659,36 @@ Current limitations:
 
 - This slice is read-only.
 - It mirrors the default ACL topology as application data but does not enforce authorization policies at runtime.
-- Permission editing, user/group membership mutation, ASP.NET Core Identity, login/password creation, MFA, audit history, and user-facility restriction matrices remain deferred to later administration/security slices.
+- Focused ACL permission assignment grant/revoke behavior is covered by Slice 21.
+- Broad permission editing, user/group membership mutation, ASP.NET Core Identity, login/password creation, MFA, audit history, and user-facility restriction matrices remain deferred to later administration/security slices.
+
+### Slice 21: Administration Access Permission Mutation
+
+Status:
+
+- Implemented as the eleventh mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-21-access-permission-mutation-readiness` plan, which revokes, renders, restores, and verifies a focused ACL group-permission assignment on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core administration API endpoints for granting and revoking an access-control group permission assignment.
+- React Admin permission-assignment control with group, permission, return-value, Grant, and Revoke inputs.
+- Modernized smoke coverage for Front Office `patients:demo` revoke/restore behavior.
+- Legacy and modernized workflow action adapters for normalized ACL assignment mutation.
+- Workbench-managed slice-21 access-permission mutation plan for both legacy and modernized targets.
+- Side-by-side parity coverage that verifies the Front Office demographics write grant drops from 203 to 202 group-permission assignments on revoke and returns to 203 on restore.
+
+Acceptance:
+
+- The modernized Admin module can revoke and restore the Front Office `patients:demo` write assignment through the backend API.
+- The mutation path goes through the modernized server tier, not direct browser-to-database access.
+- The `slice-21-access-permission-mutation-readiness` plan verifies direct row state, browser-visible matrix state, restoration to the seeded baseline, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers one focused ACL group-permission assignment lifecycle only.
+- It mutates ACL data but does not yet enforce authorization policies at runtime.
+- Full role/permission administration, user/group membership editing, ASP.NET Core Identity, login/password creation, MFA, audit history, user-facility restriction matrices, and policy enforcement remain deferred to later administration/security slices.
 
 ## Test Strategy
 
@@ -741,3 +771,4 @@ As of 2026-06-19:
 - The eighteenth modernized vertical slice implements administration facility mutation with React Admin facility create/inactivate/delete controls, ASP.NET Core administration facility lifecycle endpoints, PostgreSQL facility inactive state, modernized workflow action adapter methods, Workbench admin facility mutation plan action, smoke coverage, and side-by-side slice-18 parity evidence.
 - The nineteenth modernized vertical slice implements administration user mutation with React Admin user create/inactivate/delete controls, ASP.NET Core administration user lifecycle endpoints, PostgreSQL staff active/email/NPI fields, modernized workflow action adapter methods, Workbench admin user mutation plan action, smoke coverage, and side-by-side slice-19 parity evidence.
 - The twentieth modernized vertical slice implements a read-only administration access-control matrix with React Admin visibility, ASP.NET Core administration access-control response fields, PostgreSQL access group/permission/assignment tables, normalized parity probes, Workbench access-control plan action, smoke coverage, and side-by-side slice-20 parity evidence.
+- The twenty-first modernized vertical slice implements focused administration access-permission assignment mutation with React Admin grant/revoke controls, ASP.NET Core administration ACL assignment endpoints, modernized workflow action adapter methods, Workbench access-permission mutation plan action, smoke coverage, and side-by-side slice-21 parity evidence.

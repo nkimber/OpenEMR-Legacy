@@ -1,6 +1,8 @@
 import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import type {
+  AccessPermissionAssignment,
+  AccessPermissionMutation,
   AppointmentRecord,
   BillingLineRecord,
   ClinicalListRecord,
@@ -164,6 +166,51 @@ LIMIT 1;
 
     if (!response.ok && response.status !== 404) {
       throw new Error(`Modernized facility delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getAccessPermissionAssignment(input: AccessPermissionMutation): Promise<AccessPermissionAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT group_value AS "groupValue", section_value AS "sectionValue", permission_value AS "permissionValue",
+  permission_name AS "permissionName", return_value AS "returnValue"
+FROM access_group_permissions
+WHERE group_value = ${sqlString(input.groupValue)}
+  AND section_value = ${sqlString(input.sectionValue)}
+  AND permission_value = ${sqlString(input.permissionValue)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      groupValue: row.groupValue,
+      sectionValue: row.sectionValue,
+      permissionValue: row.permissionValue,
+      permissionName: row.permissionName,
+      returnValue: row.returnValue
+    } : null;
+  }
+
+  async grantAccessPermission(input: AccessPermissionMutation): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/access-control/group-permissions`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized access permission grant failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async revokeAccessPermission(input: Pick<AccessPermissionMutation, "groupValue" | "sectionValue" | "permissionValue">): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/administration/access-control/group-permissions/${encodeURIComponent(input.groupValue)}/${encodeURIComponent(input.sectionValue)}/${encodeURIComponent(input.permissionValue)}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized access permission revoke failed with ${response.status}: ${await response.text()}`);
     }
   }
 

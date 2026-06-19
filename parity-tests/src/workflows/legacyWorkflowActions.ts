@@ -163,6 +163,21 @@ export type UserRecord = {
   npi: string;
 };
 
+export type AccessPermissionAssignment = {
+  groupValue: string;
+  sectionValue: string;
+  permissionValue: string;
+  permissionName: string;
+  returnValue: string;
+};
+
+export type AccessPermissionMutation = {
+  groupValue: string;
+  sectionValue: string;
+  permissionValue: string;
+  returnValue: string;
+};
+
 export type NewAppointment = {
   patientId: number;
   providerId: number;
@@ -450,6 +465,108 @@ WHERE id = ${integer(id)};
     await this.db.execute(`
 DELETE FROM facility
 WHERE id = ${integer(id)};
+`);
+  }
+
+  async getAccessPermissionAssignment(input: AccessPermissionMutation): Promise<AccessPermissionAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT ag.value AS groupValue, am.section_value AS sectionValue, am.value AS permissionValue,
+  aco.name AS permissionName, acl.return_value AS returnValue
+FROM gacl_aro_groups ag
+INNER JOIN gacl_aro_groups_map gm ON gm.group_id = ag.id
+INNER JOIN gacl_acl acl ON acl.id = gm.acl_id
+INNER JOIN gacl_aco_map am ON am.acl_id = acl.id
+INNER JOIN gacl_aco aco ON aco.section_value = am.section_value AND aco.value = am.value
+WHERE ag.value = ${sqlString(input.groupValue)}
+  AND am.section_value = ${sqlString(input.sectionValue)}
+  AND am.value = ${sqlString(input.permissionValue)}
+  AND acl.enabled = 1
+  AND acl.allow = 1
+  AND aco.hidden = 0
+ORDER BY acl.id
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      groupValue: row.groupValue,
+      sectionValue: row.sectionValue,
+      permissionValue: row.permissionValue,
+      permissionName: row.permissionName,
+      returnValue: row.returnValue
+    } : null;
+  }
+
+  async grantAccessPermission(input: AccessPermissionMutation): Promise<void> {
+    await this.revokeAccessPermission(input);
+
+    const groupRows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM gacl_aro_groups
+WHERE value = ${sqlString(input.groupValue)}
+LIMIT 1;
+`);
+    const groupId = Number(groupRows[0]?.id);
+    if (!Number.isInteger(groupId)) {
+      throw new Error(`Legacy ACL group not found: ${input.groupValue}`);
+    }
+
+    const permissionRows = await this.db.queryRows<{ name: string }>(`
+SELECT name
+FROM gacl_aco
+WHERE section_value = ${sqlString(input.sectionValue)}
+  AND value = ${sqlString(input.permissionValue)}
+  AND hidden = 0
+LIMIT 1;
+`);
+    if (!permissionRows[0]) {
+      throw new Error(`Legacy ACL permission not found: ${input.sectionValue}:${input.permissionValue}`);
+    }
+
+    const existingAclRows = await this.db.queryRows<{ id: string }>(`
+SELECT acl.id
+FROM gacl_acl acl
+INNER JOIN gacl_aro_groups_map gm ON gm.acl_id = acl.id
+WHERE gm.group_id = ${integer(groupId)}
+  AND acl.enabled = 1
+  AND acl.allow = 1
+  AND acl.return_value = ${sqlString(input.returnValue)}
+ORDER BY acl.id
+LIMIT 1;
+`);
+
+    let aclId = Number(existingAclRows[0]?.id);
+    if (!Number.isInteger(aclId)) {
+      const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT COALESCE(MAX(id), 0) + 1 AS id
+FROM gacl_acl;
+`);
+      aclId = Number(nextRows[0]?.id);
+      await this.db.execute(`
+INSERT INTO gacl_acl (id, section_value, allow, enabled, return_value, note, updated_date)
+VALUES (${integer(aclId)}, 'system', 1, 1, ${sqlString(input.returnValue)}, 'Parity access permission mutation', UNIX_TIMESTAMP());
+INSERT INTO gacl_aro_groups_map (acl_id, group_id)
+VALUES (${integer(aclId)}, ${integer(groupId)});
+`);
+    }
+
+    await this.db.execute(`
+INSERT IGNORE INTO gacl_aco_map (acl_id, section_value, value)
+VALUES (${integer(aclId)}, ${sqlString(input.sectionValue)}, ${sqlString(input.permissionValue)});
+`);
+  }
+
+  async revokeAccessPermission(input: Pick<AccessPermissionMutation, "groupValue" | "sectionValue" | "permissionValue">): Promise<void> {
+    await this.db.execute(`
+DELETE am
+FROM gacl_aco_map am
+INNER JOIN gacl_acl acl ON acl.id = am.acl_id
+INNER JOIN gacl_aro_groups_map gm ON gm.acl_id = acl.id
+INNER JOIN gacl_aro_groups ag ON ag.id = gm.group_id
+WHERE ag.value = ${sqlString(input.groupValue)}
+  AND am.section_value = ${sqlString(input.sectionValue)}
+  AND am.value = ${sqlString(input.permissionValue)}
+  AND acl.enabled = 1
+  AND acl.allow = 1;
 `);
   }
 
