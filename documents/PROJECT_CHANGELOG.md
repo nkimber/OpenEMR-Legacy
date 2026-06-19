@@ -900,7 +900,7 @@ Primary files:
 
 ### 027. Modernized Messaging Slice 5
 
-Commit: `TBD`
+Commit: `bbc082c`
 
 Implemented the fifth modernized OpenEMR vertical slice: read-only patient messages and portal-facing status with a Messages module, patient-message API, Workbench orchestration, and matched side-by-side parity against the legacy patient-notes screen.
 
