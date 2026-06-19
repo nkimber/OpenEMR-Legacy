@@ -82,6 +82,8 @@ UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
+UNION ALL SELECT 'paymentSessions', COUNT(*) FROM ar_session
+UNION ALL SELECT 'paymentActivities', COUNT(*) FROM ar_activity WHERE deleted IS NULL
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 "@
 
@@ -170,6 +172,11 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   DATE(MIN(date)), DATE(MAX(date))
 FROM billing
+UNION ALL SELECT 'paymentPostings', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(post_date) >= '$yearStart' AND DATE(post_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(post_date) > '$AsOfDate' AND DATE(post_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(post_date)), DATE(MAX(post_date))
+FROM ar_activity WHERE deleted IS NULL
 UNION ALL SELECT 'patientDocuments', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(docdate) >= '$yearStart' AND DATE(docdate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(docdate) > '$AsOfDate' AND DATE(docdate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),

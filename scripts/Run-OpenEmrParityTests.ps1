@@ -21,6 +21,7 @@ param(
         "procedure-pending-orders",
         "billing",
         "claims",
+        "payments",
         "admin",
         "reports",
         "reports-export",

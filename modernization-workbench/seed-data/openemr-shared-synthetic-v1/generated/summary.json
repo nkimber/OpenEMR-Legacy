@@ -27,6 +27,8 @@
     "patientDocuments": 1200,
     "billingLineItems": 3000,
     "claims": 700,
+    "paymentSessions": 420,
+    "paymentActivities": 617,
     "portalPatients": 200
   },
   "temporalCoverage": {
@@ -101,6 +103,13 @@
       "futureCurrentYear": 32,
       "minDate": "2025-06-18",
       "maxDate": "2026-06-19"
+    },
+    "paymentPostings": {
+      "total": 617,
+      "currentYear": 422,
+      "futureCurrentYear": 227,
+      "minDate": "2025-07-02",
+      "maxDate": "2026-07-09"
     },
     "patientDocuments": {
       "total": 1200,

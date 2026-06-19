@@ -26,6 +26,8 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 - 1,200 messages.
 - 200 portal-enabled patients.
 - 3,000 billing line items.
+- 700 claim status rows.
+- 420 payment sessions and 617 payment activity rows.
 
 ## Source Layers
 
@@ -44,6 +46,7 @@ The current V1 temporal contract is anchored to `2026-06-18` and includes:
 - 2,648 immunizations, including 1,149 administered in 2026 and a stable pediatric anchor at `MOD-PAT-0007`.
 - 1,000 procedure orders in 2026, including 300 future scheduled orders through 2026-12-31.
 - 2,400 completed procedure results in 2026. Future scheduled procedure orders intentionally do not have final result rows.
+- 617 payment activities, including 422 posted in 2026 and 227 future-current-year postings through 2026-07-09.
 
 The generated summary includes a `temporalCoverage` section so tests and future Workbench views can assert date coverage as well as row counts. The legacy seed script validates this temporal contract after applying the SQL seed.
 

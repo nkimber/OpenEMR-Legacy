@@ -3628,6 +3628,77 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 073. Modernized Payment Posting Slice 48
+
+Commit: this commit
+Started: `2026-06-19T17:42:00-04:00`
+Finished: `2026-06-19T18:09:02-04:00`
+
+Implemented the forty-eighth modernized OpenEMR vertical slice: read-only payment posting visibility, focused on carrying OpenEMR's native `ar_session` and `ar_activity` rows through the shared dataset, modernized PostgreSQL schema, ASP.NET Core billing API, React Fees workspace, smoke checks, Workbench actions, and side-by-side parity testing.
+
+Key outcomes:
+
+- Added 420 deterministic payment sessions and 617 payment activity rows to the canonical gold dataset and legacy MariaDB seed output.
+- Stabilized `MOD-PAT-0005` encounter `1000052` with insurance payment reference `EOB-NSTAR-1000052`, payer `Northstar HMO`, payment `$126.00`, adjustment `$42.00`, reason `CO-45`, and payer claim number `NSTAR-CLM-1000052`.
+- Added PostgreSQL `payment_sessions` and `payment_activities` schema/copy support for the modernized seed adapter.
+- Added ASP.NET Core billing read support for payment postings attached to billing encounters.
+- Added payment posting cards, payer/reference data, payment method, post date, paid amount, adjusted amount, account/reason codes, and payer-claim-number visibility to the modernized Fees workspace.
+- Added modernized smoke coverage for the anchor payment posting summary.
+- Added shared legacy and modernized database probes for normalized payment posting facts.
+- Added the `payments` Playwright parity suite and `slice-48-payment-posting-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 48 payment posting plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, seed-data README, and synchronized project documents.
+
+Verified test runs:
+
+- `npm run generate:seed-data` in `modernization-workbench/` regenerated the canonical and legacy SQL gold dataset artifacts with 420 payment sessions and 617 payment activity rows.
+- `node scripts/generate-postgres-seed.mjs` in `modernized-openemr/` regenerated the PostgreSQL seed artifact with payment session/activity tables.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, `parity-tests/package.json`, and the generated seed summary.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d postgres api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`; PostgreSQL seed output confirmed 420 payment sessions and 617 payment activities.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 50 smoke checks, including `anchor payment posting summary`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`; MariaDB `ar_session` and `ar_activity` counts confirmed 420 and 617 rows, with payment-posting temporal coverage validated.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-48-payment-posting-readiness -Reset run` passed with run `2026-06-19T220824-842Z-legacy-openemr-plan-slice-48-payment-posting-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-48-payment-posting-readiness -Reset run` passed with run `2026-06-19T220840-800Z-modernized-openemr-plan-slice-48-payment-posting-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-48-payment-posting-readiness` matched with comparison `2026-06-19T220856-893Z-legacy-openemr-vs-modernized-openemr-plan-slice-48-payment-posting-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/payments/payment-posting.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

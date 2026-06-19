@@ -21,6 +21,7 @@ import type {
   PatientInsuranceCoverageSummary,
   PatientImmunizationsSummary,
   PatientMessagesSummary,
+  PaymentPostingSummary,
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
@@ -93,6 +94,8 @@ UNION ALL SELECT 'messages', COUNT(*) FROM messages
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM patient_documents WHERE deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
+UNION ALL SELECT 'paymentSessions', COUNT(*) FROM payment_sessions
+UNION ALL SELECT 'paymentActivities', COUNT(*) FROM payment_activities WHERE deleted IS NULL
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled = true;
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
@@ -152,6 +155,11 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN billing_date > '${asOfDate}' AND billing_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   MIN(billing_date), MAX(billing_date)
 FROM billing
+UNION ALL SELECT 'paymentPostings', COUNT(*),
+  COALESCE(SUM(CASE WHEN post_date >= '${yearStart}' AND post_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN post_date > '${asOfDate}' AND post_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  MIN(post_date), MAX(post_date)
+FROM payment_activities WHERE deleted IS NULL
 UNION ALL SELECT 'patientDocuments', COUNT(*),
   COALESCE(SUM(CASE WHEN doc_date >= '${yearStart}' AND doc_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN doc_date > '${asOfDate}' AND doc_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
@@ -212,7 +220,9 @@ UNION ALL SELECT 'messages', COUNT(*) FROM messages WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM patient_documents WHERE pid = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM lab_orders WHERE pid = ${pid}
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid}
-UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE pid = ${pid};
+UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE pid = ${pid}
+UNION ALL SELECT 'paymentSessions', COUNT(*) FROM payment_sessions WHERE pid = ${pid}
+UNION ALL SELECT 'paymentActivities', COUNT(*) FROM payment_activities WHERE pid = ${pid} AND deleted IS NULL;
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -581,6 +591,52 @@ ORDER BY encounter, version;
       processFile: row.processFile,
       target: row.target,
       submittedClaim: row.submittedClaim
+    }));
+  }
+
+  async getPaymentPostingsForPatient(pid: number): Promise<PaymentPostingSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pa.pid AS "patientId", pa.encounter, pa.sequence_no AS "sequenceNo",
+  COALESCE(pa.code_type, '') AS "codeType", COALESCE(pa.code, '') AS code,
+  COALESCE(pa.modifier, '') AS modifier, pa.payer_type AS "payerType", pa.session_id AS "sessionId",
+  COALESCE(ps.payer_name, '') AS "payerName", COALESCE(ps.reference, '') AS reference,
+  COALESCE(ps.payment_type, '') AS "paymentType", COALESCE(ps.payment_method, '') AS "paymentMethod",
+  COALESCE(ps.check_date::text, '') AS "checkDate",
+  COALESCE(ps.deposit_date::text, '') AS "depositDate",
+  COALESCE(pa.post_date::text, '') AS "postDate",
+  COALESCE(to_char(pa.post_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "postTime",
+  COALESCE(pa.pay_amount::text, '') AS "payAmount",
+  COALESCE(pa.adj_amount::text, '') AS "adjustmentAmount",
+  COALESCE(pa.memo, '') AS memo, COALESCE(pa.account_code, '') AS "accountCode",
+  COALESCE(pa.reason_code, '') AS "reasonCode", COALESCE(pa.payer_claim_number, '') AS "payerClaimNumber"
+FROM payment_activities pa
+INNER JOIN payment_sessions ps ON ps.id = pa.session_id
+WHERE pa.pid = ${pid} AND pa.deleted IS NULL
+ORDER BY pa.encounter, pa.sequence_no;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      sequenceNo: Number(row.sequenceNo),
+      codeType: row.codeType,
+      code: row.code,
+      modifier: row.modifier,
+      payerType: Number(row.payerType),
+      sessionId: Number(row.sessionId),
+      payerName: row.payerName,
+      reference: row.reference,
+      paymentType: row.paymentType,
+      paymentMethod: row.paymentMethod,
+      checkDate: row.checkDate,
+      depositDate: row.depositDate,
+      postDate: row.postDate,
+      postTime: row.postTime,
+      payAmount: row.payAmount,
+      adjustmentAmount: row.adjustmentAmount,
+      memo: row.memo,
+      accountCode: row.accountCode,
+      reasonCode: row.reasonCode,
+      payerClaimNumber: row.payerClaimNumber
     }));
   }
 

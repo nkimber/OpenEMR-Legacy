@@ -301,8 +301,8 @@ Current limitations:
 
 - This slice is read-only.
 - Focused CPT entry, bill-status update, inactive-line hiding, and billing-line deletion workflows are covered by Slice 16.
-- Claim generation, payer adjudication, payment posting, charge correction history, and full revenue-cycle workflows remain deferred to later billing slices.
-- Patient insurance coverage visibility is covered by Slice 28; focused insurance coverage create/update/delete behavior is covered by Slice 34. Claim generation, payer adjudication, payment posting, and full revenue-cycle workflows remain deferred to later billing slices.
+- Claim generation, payer adjudication, remittance import, payment posting mutation, charge correction history, and full revenue-cycle workflows remain deferred to later billing slices.
+- Patient insurance coverage visibility is covered by Slice 28; focused insurance coverage create/update/delete behavior is covered by Slice 34. Claim generation, payer adjudication, remittance import, payment posting mutation, and full revenue-cycle workflows remain deferred to later billing slices.
 
 ### Slice 8: Administration, Security, And Audit
 
@@ -547,7 +547,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter-scoped CPT billing line lifecycle only.
-- Claim generation, payer/insurance adjudication, payment posting, modifier validation rules, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
+- Claim generation, payer/insurance adjudication, remittance import, payment posting mutation, modifier validation rules, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
 
 ### Slice 17: Procedure Mutation
 
@@ -888,7 +888,7 @@ Current limitations:
 
 - This slice is read-only and patient-chart scoped.
 - Focused coverage create/update/delete behavior is covered by Slice 34.
-- Eligibility checks, claim generation, payer adjudication, benefit rules, copay workflows, payment posting, and full revenue-cycle behavior remain deferred to later billing/insurance slices.
+- Eligibility checks, claim generation, payer adjudication, benefit rules, copay workflows, remittance import, payment posting mutation, and full revenue-cycle behavior remain deferred to later billing/insurance slices.
 
 ### Slice 29: Patient Immunization History
 
@@ -1068,7 +1068,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused coverage create, update, and delete lifecycle only.
-- Eligibility checks, payer lookup maintenance, copay workflows, claim generation, payer adjudication, payment posting, subscriber detail editing, and revenue-cycle audit history remain deferred.
+- Eligibility checks, payer lookup maintenance, copay workflows, claim generation, payer adjudication, remittance import, payment posting mutation, subscriber detail editing, and revenue-cycle audit history remain deferred.
 
 ### Slice 35: Encounter Metadata Mutation
 
@@ -1397,7 +1397,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused fee-sheet charge correction only.
-- Claim generation, payer adjudication, payment posting, charge correction history, statement generation, and revenue-cycle audit history remain future billing slices.
+- Claim generation, payer adjudication, remittance import, payment posting mutation, charge correction history, statement generation, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 46: Fee-Sheet Modifier Mutation
 
@@ -1426,7 +1426,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused CPT fee-sheet modifier behavior only.
-- Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, payment posting, statement generation, and revenue-cycle audit history remain future billing slices.
+- Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, remittance import, payment posting mutation, statement generation, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 47: Claim Status Readiness
 
@@ -1456,7 +1456,37 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers claim status visibility only.
-- Legacy billing-report UI steering, claim generation, payer adjudication, remittance/payment posting, statement generation, and revenue-cycle audit history remain future billing slices.
+- Legacy billing-report UI steering, claim generation, payer adjudication, remittance import, payment posting mutation, statement generation, and revenue-cycle audit history remain future billing slices.
+
+### Slice 48: Payment Posting Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-48-payment-posting-readiness` plan, which validates seeded OpenEMR `ar_session` and `ar_activity` rows and modernized payment-posting rendering for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The shared gold dataset now includes 420 deterministic payment sessions and 617 payment activity rows in OpenEMR's native AR shape.
+- The `MOD-PAT-0005` billing anchor has a stable insurance payment and contractual adjustment for encounter `1000052`, reference `EOB-NSTAR-1000052`, payer `Northstar HMO`, payment `$126.00`, adjustment `$42.00`, reason `CO-45`, and payer claim number `NSTAR-CLM-1000052`.
+- PostgreSQL seed mapping now includes normalized `payment_sessions` and `payment_activities` tables sourced from the same canonical dataset.
+- ASP.NET Core billing read behavior returns payment activity rows alongside each billing encounter.
+- React Fees workspace now shows payment posting cards, payer/reference details, post date, payment method, paid and adjusted amounts, account/reason codes, and payer claim numbers.
+- Modernized smoke coverage validates the anchor payment posting summary.
+- The `payments` parity suite and `slice-48-payment-posting-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL state, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 48 payment posting plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Legacy and modernized seed actions load 420 payment sessions and 617 payment activity rows from the same canonical dataset.
+- Direct probes find the `MOD-PAT-0005` payment and adjustment facts with payer, method, reason, and claim-number data.
+- The modernized billing API and Fees workspace render the same payment posting facts without changing seeded billing rows.
+- The side-by-side Slice 48 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers payment posting visibility only.
+- Full ERA/EOB import, payer adjudication, payment posting mutations, patient statements, payment reversal/void handling, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1566,3 +1596,4 @@ As of 2026-06-19:
 - The forty-fifth modernized vertical slice implements fee-sheet charge correction with React Fees correction controls, ASP.NET Core billing line update endpoint support, PostgreSQL billing row update reuse, Workbench billing correction plan action, smoke coverage, and side-by-side slice-45 parity evidence.
 - The forty-sixth modernized vertical slice implements fee-sheet modifier behavior with canonical billing modifier seed data, React Fees modifier controls and rendering, ASP.NET Core billing modifier create/update/read support, PostgreSQL billing modifier mapping, Workbench billing modifier plan action, smoke coverage, and side-by-side slice-46 parity evidence.
 - The forty-seventh modernized vertical slice implements read-only claim status visibility with canonical claim seed data, PostgreSQL claim mapping, ASP.NET Core billing claim read support, React Fees claim-status rendering, Workbench claim status plan action, smoke coverage, and side-by-side slice-47 parity evidence.
+- The forty-eighth modernized vertical slice implements read-only payment posting visibility with canonical AR session/activity seed data, PostgreSQL payment mapping, ASP.NET Core billing payment read support, React Fees payment-posting rendering, Workbench payment posting plan action, smoke coverage, and side-by-side slice-48 parity evidence.

@@ -72,6 +72,7 @@
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
+        "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -516,6 +517,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-47-claim-status-readiness.json"
         },
         {
+          "id": "parity-plan-payments",
+          "name": "Slice 48 payment posting plan",
+          "description": "Runs the shared read-only payment posting plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPaymentsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-48-payment-posting-readiness.json"
+        },
+        {
           "id": "parity-plan-immunizations",
           "name": "Slice 29 immunizations plan",
           "description": "Runs the shared pediatric immunization history plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -568,7 +577,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 47 target",
+      "stage": "Slice 48 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -628,6 +637,7 @@
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
+        "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -996,6 +1006,14 @@
           "layer": "plan",
           "commandName": "parityClaimsPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-47-claim-status-readiness.json"
+        },
+        {
+          "id": "parity-plan-payments",
+          "name": "Slice 48 payment posting plan",
+          "description": "Runs the shared read-only payment posting plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPaymentsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-48-payment-posting-readiness.json"
         },
         {
           "id": "parity-plan-immunizations",

@@ -195,6 +195,31 @@ export type ClaimStatusSummary = {
   submittedClaim: string;
 };
 
+export type PaymentPostingSummary = {
+  patientId: number;
+  encounter: number;
+  sequenceNo: number;
+  codeType: string;
+  code: string;
+  modifier: string;
+  payerType: number;
+  sessionId: number;
+  payerName: string;
+  reference: string;
+  paymentType: string;
+  paymentMethod: string;
+  checkDate: string;
+  depositDate: string;
+  postDate: string;
+  postTime: string;
+  payAmount: string;
+  adjustmentAmount: string;
+  memo: string;
+  accountCode: string;
+  reasonCode: string;
+  payerClaimNumber: string;
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -424,6 +449,8 @@ UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
+UNION ALL SELECT 'paymentSessions', COUNT(*) FROM ar_session
+UNION ALL SELECT 'paymentActivities', COUNT(*) FROM ar_activity WHERE deleted IS NULL
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
@@ -483,6 +510,11 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date) > '${asOfDate}' AND DATE(date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   DATE(MIN(date)), DATE(MAX(date))
 FROM billing
+UNION ALL SELECT 'paymentPostings', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(post_date) >= '${yearStart}' AND DATE(post_date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(post_date) > '${asOfDate}' AND DATE(post_date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(post_date)), DATE(MAX(post_date))
+FROM ar_activity WHERE deleted IS NULL
 UNION ALL SELECT 'patientDocuments', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(docdate) >= '${yearStart}' AND DATE(docdate) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(docdate) > '${asOfDate}' AND DATE(docdate) < '${nextYear}' THEN 1 ELSE 0 END), 0),
@@ -542,7 +574,9 @@ UNION ALL SELECT 'messages', COUNT(*) FROM pnotes WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM documents WHERE foreign_id = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM procedure_order WHERE patient_id = ${pid}
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid}
-UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE patient_id = ${pid};
+UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE patient_id = ${pid}
+UNION ALL SELECT 'paymentSessions', COUNT(*) FROM ar_session WHERE patient_id = ${pid}
+UNION ALL SELECT 'paymentActivities', COUNT(*) FROM ar_activity WHERE pid = ${pid} AND deleted IS NULL;
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -942,6 +976,53 @@ ORDER BY c.encounter_id, c.version;
       processFile: row.processFile,
       target: row.target,
       submittedClaim: row.submittedClaim
+    }));
+  }
+
+  async getPaymentPostingsForPatient(pid: number): Promise<PaymentPostingSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT aa.pid AS patientId, aa.encounter, aa.sequence_no AS sequenceNo,
+  COALESCE(aa.code_type, '') AS codeType, COALESCE(aa.code, '') AS code,
+  COALESCE(aa.modifier, '') AS modifier, aa.payer_type AS payerType, aa.session_id AS sessionId,
+  COALESCE(ic.name, '') AS payerName, COALESCE(s.reference, '') AS reference,
+  COALESCE(s.payment_type, '') AS paymentType, COALESCE(s.payment_method, '') AS paymentMethod,
+  COALESCE(DATE_FORMAT(s.check_date, '%Y-%m-%d'), '') AS checkDate,
+  COALESCE(DATE_FORMAT(s.deposit_date, '%Y-%m-%d'), '') AS depositDate,
+  COALESCE(DATE_FORMAT(aa.post_date, '%Y-%m-%d'), '') AS postDate,
+  COALESCE(DATE_FORMAT(aa.post_time, '%Y-%m-%d %H:%i:%s'), '') AS postTime,
+  COALESCE(CAST(aa.pay_amount AS CHAR), '') AS payAmount,
+  COALESCE(CAST(aa.adj_amount AS CHAR), '') AS adjustmentAmount,
+  COALESCE(aa.memo, '') AS memo, COALESCE(aa.account_code, '') AS accountCode,
+  COALESCE(aa.reason_code, '') AS reasonCode, COALESCE(aa.payer_claim_number, '') AS payerClaimNumber
+FROM ar_activity aa
+INNER JOIN ar_session s ON s.session_id = aa.session_id
+LEFT JOIN insurance_companies ic ON ic.id = s.payer_id
+WHERE aa.pid = ${pid} AND aa.deleted IS NULL
+ORDER BY aa.encounter, aa.sequence_no;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      sequenceNo: Number(row.sequenceNo),
+      codeType: row.codeType,
+      code: row.code,
+      modifier: row.modifier,
+      payerType: Number(row.payerType),
+      sessionId: Number(row.sessionId),
+      payerName: row.payerName,
+      reference: row.reference,
+      paymentType: row.paymentType,
+      paymentMethod: row.paymentMethod,
+      checkDate: row.checkDate,
+      depositDate: row.depositDate,
+      postDate: row.postDate,
+      postTime: row.postTime,
+      payAmount: row.payAmount,
+      adjustmentAmount: row.adjustmentAmount,
+      memo: row.memo,
+      accountCode: row.accountCode,
+      reasonCode: row.reasonCode,
+      payerClaimNumber: row.payerClaimNumber
     }));
   }
 

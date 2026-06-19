@@ -563,6 +563,120 @@ const claims = encounters.slice(0, 700).map((encounter, index) => {
   };
 });
 
+const billingLineByEncounter = new Map();
+for (const line of billing) {
+  if (line.codeType === "CPT4" && !billingLineByEncounter.has(line.encounter)) {
+    billingLineByEncounter.set(line.encounter, line);
+  }
+}
+
+const billingUser = staff.find((user) => user.username === "gold-billing-01") ?? staff[staff.length - 1];
+const paymentEligibleClaims = claims.filter((claim) => claim.status !== 1 && claim.status !== 5).slice(0, 420);
+const paymentSessions = [];
+const paymentActivities = [];
+
+paymentEligibleClaims.forEach((claim, index) => {
+  const anchorPayment = claim.pid === 100005 && claim.encounter === 1000052;
+  const claimLine = billingLineByEncounter.get(claim.encounter);
+  const sessionId = 1200001 + index;
+  const basePostDate = dateOnly(claim.processTime ?? claim.billTime ?? baseDate);
+  const postDate = anchorPayment ? "2026-04-30" : addDays(basePostDate, 7 + (index % 9));
+  const postTime = at(postDate, 9 + (index % 7), (index % 2) * 30);
+  const paymentAmount = anchorPayment
+    ? 126.0
+    : claim.status === 7
+      ? 0
+      : Number((80 + (index % 9) * 7.25).toFixed(2));
+  const adjustmentAmount = anchorPayment
+    ? 42.0
+    : claim.status === 7
+      ? Number((35 + (index % 5) * 3.5).toFixed(2))
+      : index % 3 === 0
+        ? Number((18 + (index % 4) * 4.25).toFixed(2))
+        : 0;
+  const reference = anchorPayment ? "EOB-NSTAR-1000052" : `EOB-${claim.payerId}-${claim.encounter}`;
+  const payerClaimNumber = anchorPayment ? "NSTAR-CLM-1000052" : `PCLM-${claim.encounter}`;
+
+  paymentSessions.push({
+    id: sessionId,
+    patientId: claim.patientId,
+    pid: claim.pid,
+    payerId: claim.payerId,
+    payerName: claim.payerName,
+    userId: billingUser.id,
+    userName: billingUser.username,
+    closed: 1,
+    reference,
+    checkDate: postDate,
+    depositDate: addDays(postDate, 1),
+    payTotal: paymentAmount,
+    createdTime: postTime,
+    modifiedTime: postTime,
+    globalAmount: 0,
+    paymentType: "insurance_payment",
+    description: anchorPayment ? "Northstar HMO EOB payment for generated claim" : `${claim.payerName} synthetic EOB posting`,
+    adjustmentCode: adjustmentAmount > 0 ? "contractual_adjustment" : "",
+    postToDate: postDate,
+    paymentMethod: "check_payment"
+  });
+
+  paymentActivities.push({
+    id: `PAYACT-${claim.encounter}-1`,
+    sessionId,
+    patientId: claim.patientId,
+    pid: claim.pid,
+    encounter: claim.encounter,
+    sequenceNo: 1,
+    codeType: claimLine?.codeType ?? "CPT4",
+    code: claimLine?.code ?? "99214",
+    modifier: claimLine?.modifier ?? "",
+    payerType: claim.payerType,
+    postTime,
+    postUserId: billingUser.id,
+    postUserName: billingUser.username,
+    memo: anchorPayment ? "Northstar HMO insurance payment" : `${claim.payerName} insurance payment`,
+    payAmount: paymentAmount,
+    adjustmentAmount: 0,
+    modifiedTime: postTime,
+    followUp: "",
+    followUpNote: "",
+    accountCode: "INS",
+    reasonCode: "",
+    deleted: null,
+    postDate,
+    payerClaimNumber
+  });
+
+  if (adjustmentAmount > 0) {
+    paymentActivities.push({
+      id: `PAYACT-${claim.encounter}-2`,
+      sessionId,
+      patientId: claim.patientId,
+      pid: claim.pid,
+      encounter: claim.encounter,
+      sequenceNo: 2,
+      codeType: claimLine?.codeType ?? "CPT4",
+      code: claimLine?.code ?? "99214",
+      modifier: claimLine?.modifier ?? "",
+      payerType: claim.payerType,
+      postTime,
+      postUserId: billingUser.id,
+      postUserName: billingUser.username,
+      memo: anchorPayment ? "Contractual adjustment" : claim.status === 7 ? "Denied claim adjustment" : "Contractual adjustment",
+      payAmount: 0,
+      adjustmentAmount,
+      modifiedTime: postTime,
+      followUp: claim.status === 7 ? "y" : "",
+      followUpNote: claim.status === 7 ? "Review denied claim" : "",
+      accountCode: claim.status === 7 ? "DENIAL" : "CO45",
+      reasonCode: "CO-45",
+      deleted: null,
+      postDate,
+      payerClaimNumber
+    });
+  }
+});
+
 const labOrders = [];
 const labReports = [];
 const labResults = [];
@@ -743,6 +857,8 @@ const dataset = {
   messages,
   billing,
   claims,
+  paymentSessions,
+  paymentActivities,
   labOrders,
   labReports,
   labResults,
@@ -760,6 +876,7 @@ const dataset = {
     procedureResults: coverageFor(labResults, (result) => result.date),
     messages: coverageFor(messages, (message) => message.date),
     billingLineItems: coverageFor(billing, (line) => line.date),
+    paymentPostings: coverageFor(paymentActivities, (activity) => activity.postDate),
     patientDocuments: coverageFor(patientDocuments, (document) => document.docDate)
   },
   testAnchors: patients.slice(0, 25).map((patient) => ({ canonicalId: patient.canonicalId, name: `${patient.fname} ${patient.lname}`, cohort: patient.cohort, purpose: patient.purpose }))
@@ -791,6 +908,8 @@ const summary = {
     patientDocuments: patientDocuments.length,
     billingLineItems: billing.length,
     claims: claims.length,
+    paymentSessions: paymentSessions.length,
+    paymentActivities: paymentActivities.length,
     portalPatients: patients.filter((patient) => patient.portalEnabled).length
   },
   temporalCoverage: dataset.temporalCoverage,
@@ -803,6 +922,8 @@ function buildLegacySql() {
     "-- OpenEMR shared synthetic gold dataset v1",
     "-- Generated by modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs",
     "SET FOREIGN_KEY_CHECKS=0;",
+    "DELETE FROM ar_activity;",
+    "DELETE FROM ar_session;",
     "DELETE FROM claims;",
     "DELETE FROM billing;",
     "DELETE FROM procedure_result;",
@@ -1172,6 +1293,50 @@ function buildLegacySql() {
     target: claim.target,
     x12_partner_id: claim.x12PartnerId,
     submitted_claim: claim.submittedClaim
+  })), 200));
+
+  statements.push(insert("ar_session", ["session_id", "payer_id", "user_id", "closed", "reference", "check_date", "deposit_date", "pay_total", "created_time", "modified_time", "global_amount", "payment_type", "description", "adjustment_code", "post_to_date", "patient_id", "payment_method"], paymentSessions.map((session) => ({
+    session_id: session.id,
+    payer_id: session.payerId,
+    user_id: session.userId,
+    closed: session.closed,
+    reference: session.reference,
+    check_date: session.checkDate,
+    deposit_date: session.depositDate,
+    pay_total: session.payTotal,
+    created_time: session.createdTime,
+    modified_time: session.modifiedTime,
+    global_amount: session.globalAmount,
+    payment_type: session.paymentType,
+    description: session.description,
+    adjustment_code: session.adjustmentCode,
+    post_to_date: session.postToDate,
+    patient_id: session.pid,
+    payment_method: session.paymentMethod
+  })), 200));
+
+  statements.push(insert("ar_activity", ["pid", "encounter", "sequence_no", "code_type", "code", "modifier", "payer_type", "post_time", "post_user", "session_id", "memo", "pay_amount", "adj_amount", "modified_time", "follow_up", "follow_up_note", "account_code", "reason_code", "deleted", "post_date", "payer_claim_number"], paymentActivities.map((activity) => ({
+    pid: activity.pid,
+    encounter: activity.encounter,
+    sequence_no: activity.sequenceNo,
+    code_type: activity.codeType,
+    code: activity.code,
+    modifier: activity.modifier,
+    payer_type: activity.payerType,
+    post_time: activity.postTime,
+    post_user: activity.postUserId,
+    session_id: activity.sessionId,
+    memo: activity.memo,
+    pay_amount: activity.payAmount,
+    adj_amount: activity.adjustmentAmount,
+    modified_time: activity.modifiedTime,
+    follow_up: activity.followUp,
+    follow_up_note: activity.followUpNote,
+    account_code: activity.accountCode,
+    reason_code: activity.reasonCode,
+    deleted: activity.deleted,
+    post_date: activity.postDate,
+    payer_claim_number: activity.payerClaimNumber
   })), 200));
 
   statements.push(insert("procedure_order", ["procedure_order_id", "uuid", "provider_id", "patient_id", "encounter_id", "date_collected", "date_ordered", "order_priority", "order_status", "patient_instructions", "activity", "control_id", "specimen_type", "clinical_hx", "order_diagnosis", "procedure_order_type", "order_intent", "location_id"], labOrders.map((order) => ({
