@@ -1073,7 +1073,7 @@ Primary files:
 
 ### 030. Modernized Administration Directory Slice 8
 
-Commit: `TBD`
+Commit: `6553d55`
 
 Implemented the eighth modernized OpenEMR vertical slice: read-only administration directory behavior with an Admin module, administration API, Workbench orchestration, and matched side-by-side parity against the legacy OpenEMR Users and Facilities screens.
 
