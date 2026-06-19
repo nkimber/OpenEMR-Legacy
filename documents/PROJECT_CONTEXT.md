@@ -30,7 +30,7 @@ The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-own
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, smoke-test, and run named parity plans for the legacy OpenEMR baseline and the modernized target through local-only, allowlisted orchestration commands.
 
-The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers nine read-only vertical slices: patient search/chart summary, scheduling appointment detail, encounter SOAP/vitals detail, clinical lists with problems, allergies, medication list entries, prescriptions, patient messages with portal-enabled status, completed procedure results with lab order/report/result detail, fee-sheet billing with encounter CPT charge detail, administration directory behavior for users and facilities, and operational reports over the gold dataset. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
+The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers nine read-only vertical slices plus the first mutation-capable slice. The read-only slices are patient search/chart summary, scheduling appointment detail, encounter SOAP/vitals detail, clinical lists with problems, allergies, medication list entries, prescriptions, patient messages with portal-enabled status, completed procedure results with lab order/report/result detail, fee-sheet billing with encounter CPT charge detail, administration directory behavior for users and facilities, and operational reports over the gold dataset. Slice 10 adds patient contact mutation through the modernized API and chart UI. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
 
 ## Why OpenEMR
 
@@ -144,7 +144,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized read-only workflow slices until the major OpenEMR clinical, billing, lab, message, administration, reports, documents, and integration views have parity coverage.
+1. Continue implementing modernized workflow slices until the major OpenEMR clinical, billing, lab, message, administration, reports, documents, integration, and mutation paths have parity coverage.
 2. Add modernized workflow action adapters when CRUD-capable slices are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Expand Workbench comparison views so matched and differing run artifacts are visible without reading JSON files directly.

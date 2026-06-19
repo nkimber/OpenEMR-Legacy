@@ -119,7 +119,7 @@ Current limitations:
 - This slice is read-only.
 - Modernized authentication is deferred to the administration/security slice.
 - Reusable parity-test adapters now exist for the first read-only slice: PostgreSQL database probes, shared anchor-patient checks, and Playwright chart visibility checks.
-- Mutation-capable workflow parity remains deferred until CRUD slices are implemented.
+- Broader mutation-capable workflow parity remains deferred slice by slice; the first implemented mutation path is patient contact editing in Slice 10.
 
 ### Slice 2: Scheduling
 
@@ -359,6 +359,32 @@ Current limitations:
 - This slice is read-only.
 - CSV/export generation, saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
+### Slice 10: Patient Contact Mutation
+
+Status:
+
+- Implemented as the first mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-10-contact-mutation-readiness` plan, which updates, renders, and restores the same anchor patient contact record on both legacy and modernized targets.
+
+Scope:
+
+- PostgreSQL patient contact fields for home phone, cell phone, email, and HIPAA SMS/email permission flags.
+- ASP.NET Core `/api/patients/{patientId}/contact` update endpoint that owns the contact mutation behavior.
+- React chart-summary contact editor with inline edit, save, cancel, and refreshed chart state.
+- Modernized workflow action adapter in the parity harness so mutation tests can use the same workflow intent on both targets.
+- Workbench-managed slice-10 contact mutation parity plan for both legacy and modernized targets.
+
+Acceptance:
+
+- The modernized patient chart can edit and save home phone, cell phone, email, SMS permission, and email permission.
+- The update path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-10-contact-mutation-readiness` plan updates `MOD-PAT-0001`, verifies database state, verifies browser-visible contact values, restores the original record, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers patient contact only.
+- Full demographics editing, validation parity, audit history, patient create/merge/deactivate workflows, and broader registration workflows remain deferred to later patient-administration mutation slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -429,3 +455,4 @@ As of 2026-06-19:
 - The seventh modernized vertical slice implements read-only fee-sheet billing with a React Fees module, ASP.NET Core billing API, PostgreSQL billing-line queries, expanded modernized smoke checks, Workbench billing plan actions, and side-by-side slice-7 parity evidence.
 - The eighth modernized vertical slice implements read-only administration directory behavior with a React Admin module, ASP.NET Core administration API, PostgreSQL staff/facility queries, expanded modernized smoke checks, Workbench admin plan actions, and matched side-by-side slice-8 parity evidence.
 - The ninth modernized vertical slice implements read-only operational reports with a React Reports module, ASP.NET Core reports API, PostgreSQL aggregate report queries, expanded modernized smoke checks, Workbench reports plan actions, and matched side-by-side slice-9 parity evidence.
+- The tenth modernized vertical slice implements patient contact mutation with a React chart contact editor, ASP.NET Core contact update endpoint, PostgreSQL contact fields, modernized workflow action adapter, Workbench contact mutation plan action, and side-by-side slice-10 parity evidence.

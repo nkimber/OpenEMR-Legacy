@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, and the slice-9 read-only operational reports plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, and the slice-10 patient contact mutation plan.
 
 ## Test Layers
 
@@ -48,7 +48,7 @@ Current legacy coverage:
 
 The legacy adapter is `parity-tests/src/db/legacyMariaDbProbe.ts`. It intentionally returns normalized facts instead of exposing test code to every legacy table detail.
 
-The modernized adapter is `parity-tests/src/db/modernizedPostgresProbe.ts`. It follows the same normalized method shape for the implemented read-only slices so parity tests do not depend on target-specific table details.
+The modernized adapter is `parity-tests/src/db/modernizedPostgresProbe.ts`. It follows the same normalized method shape for implemented slices so parity tests do not depend on target-specific table details.
 
 ### HTTP Functional Contract
 
@@ -92,7 +92,7 @@ Current legacy coverage:
 - CPT billing line create, bill-status update, deactivate, and delete lifecycle.
 - Lab procedure order create, complete, report, result, and cascade-delete lifecycle.
 
-The current legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The tests are still written as workflow intent, so a future modernized target can implement equivalent actions behind the same behavioral contract.
+The legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The first modernized implementation is `parity-tests/src/workflows/modernizedWorkflowActions.ts`, which updates patient contact data through the modernized ASP.NET Core API and reads post-state through the normalized PostgreSQL probe. The tests are written as workflow intent so each new modernized mutation slice can implement equivalent actions behind the same behavioral contract.
 
 ### Legacy-Native Internal Tests
 
@@ -149,6 +149,10 @@ npm run test:legacy:plan:billing
 npm run test:modernized:plan:billing
 npm run test:legacy:plan:admin
 npm run test:modernized:plan:admin
+npm run test:legacy:plan:reports
+npm run test:modernized:plan:reports
+npm run test:legacy:plan:contact-mutation
+npm run test:modernized:plan:contact-mutation
 ```
 
 Inventory command:
@@ -187,8 +191,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr|modernized-openemr`
-- `--suite all|database|http|ui|workflow|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
-- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|workflow-contact|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -213,9 +217,10 @@ Current plans:
 - `slice-7-billing-readiness` runs the billing parity suite with a run-level reset for both legacy and modernized targets.
 - `slice-8-admin-readiness` runs the admin parity suite with a run-level reset for both legacy and modernized targets.
 - `slice-9-reports-readiness` runs the reports parity suite with a run-level reset for both legacy and modernized targets.
+- `slice-10-contact-mutation-readiness` runs the patient contact mutation suite with a per-test reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
-- `mutation-isolated` runs workflow mutations with per-test resets for strongest mutation isolation.
-- `full-parity` runs database, HTTP, UI, and workflow as the target-neutral contract intended for future side-by-side legacy and modernized runs.
+- `mutation-isolated` runs legacy workflow mutations and the shared patient contact mutation suite with per-test resets for strongest mutation isolation.
+- `full-parity` runs database, HTTP, UI, workflow, and patient contact mutation as the target-neutral contract intended for future side-by-side legacy and modernized runs.
 
 Every plan run records `selectionKind`, `selectionId`, `selectedSuites`, and plan metadata in `run.json`. This makes result files self-describing and lets the Workbench show whether evidence came from a suite or a named plan.
 
@@ -260,6 +265,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-7-billing-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-8-admin-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-9-reports-readiness.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-10-contact-mutation-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
@@ -277,6 +283,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-7-billing-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-8-admin-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-9-reports-readiness.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-10-contact-mutation-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -344,6 +351,12 @@ For the ninth modernized operational reports slice, compare the current side-by-
 npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-9-reports-readiness
 ```
 
+For the tenth modernized patient contact mutation slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-10-contact-mutation-readiness
+```
+
 The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
@@ -372,6 +385,7 @@ The legacy app currently exposes these test actions:
 - Slice 7 billing plan.
 - Slice 8 admin plan.
 - Slice 9 reports plan.
+- Slice 10 contact mutation plan.
 - Full parity plan.
 - Full legacy parity suite.
 
@@ -387,6 +401,7 @@ The modernized app currently exposes these test actions:
 - Slice 7 billing plan for side-by-side fee-sheet billing parity.
 - Slice 8 admin plan for side-by-side users and facilities parity.
 - Slice 9 reports plan for side-by-side operational-reporting parity.
+- Slice 10 contact mutation plan for side-by-side patient contact update parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
@@ -394,12 +409,12 @@ The Test Runs page also includes a custom parity run builder for each managed ap
 
 ## Modernized Target Parity Path
 
-The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, the fifth read-only messaging slice, the sixth read-only procedures slice, the seventh read-only fee-sheet billing slice, the eighth read-only administration directory slice, and the ninth read-only operational reports slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`, retrieve deterministic completed procedure results for `MOD-PAT-0009`, retrieve deterministic fee-sheet billing lines for `MOD-PAT-0001`, retrieve deterministic users/facilities directory facts, and retrieve deterministic operational-report facts. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets. The `slice-6-procedures-readiness` parity plan proves completed procedure order, report, final result, value, unit, range, and status behavior against both targets. The `slice-7-billing-readiness` parity plan proves encounter fee-sheet CPT code, description, fee, and diagnosis-justification behavior against both targets. The `slice-8-admin-readiness` parity plan proves seeded provider, billing-user, role, calendar, authorized-provider, active-user, and facility directory behavior against both targets. The `slice-9-reports-readiness` parity plan proves operational totals, provider activity, facility activity, top clinical condition facts, and browser-visible report surfaces against both targets.
+The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, the fifth read-only messaging slice, the sixth read-only procedures slice, the seventh read-only fee-sheet billing slice, the eighth read-only administration directory slice, the ninth read-only operational reports slice, and the tenth patient contact mutation slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`, retrieve deterministic completed procedure results for `MOD-PAT-0009`, retrieve deterministic fee-sheet billing lines for `MOD-PAT-0001`, retrieve deterministic users/facilities directory facts, and retrieve deterministic operational-report facts. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets. The `slice-6-procedures-readiness` parity plan proves completed procedure order, report, final result, value, unit, range, and status behavior against both targets. The `slice-7-billing-readiness` parity plan proves encounter fee-sheet CPT code, description, fee, and diagnosis-justification behavior against both targets. The `slice-8-admin-readiness` parity plan proves seeded provider, billing-user, role, calendar, authorized-provider, active-user, and facility directory behavior against both targets. The `slice-9-reports-readiness` parity plan proves operational totals, provider activity, facility activity, top clinical condition facts, and browser-visible report surfaces against both targets. The `slice-10-contact-mutation-readiness` parity plan proves patient contact update, browser-visible changed contact values, and restoration behavior against both targets.
 
 Next parity steps:
 
-1. Add modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
-2. Add modernized UI helpers behind the same browser workflow intent for each new slice.
+1. Add additional modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
+2. Add modernized UI helpers behind the same browser workflow intent for each new mutation slice.
 3. Add additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
 4. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
 

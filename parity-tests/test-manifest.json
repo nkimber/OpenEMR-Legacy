@@ -87,6 +87,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-10-contact-mutation-readiness",
+      "name": "Slice 10 Contact Mutation Readiness",
+      "description": "Mutation-capable patient contact confidence plan that updates, renders, and restores the same anchor patient on both legacy and modernized targets.",
+      "suites": ["workflow-contact"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-10", "patient-contact", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -99,7 +108,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow"],
+      "suites": ["workflow", "workflow-contact"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -108,7 +117,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -261,6 +270,16 @@
       "path": "tests/workflow",
       "tags": ["workflow", "mutation", "crud", "database", "ui"],
       "targets": ["legacy-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-contact",
+      "name": "Patient Contact Mutation",
+      "description": "Updates, verifies, renders, and restores patient contact data through the same anchor-patient workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-contact",
+      "tags": ["slice10", "workflow", "mutation", "patient-contact", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }
   ]

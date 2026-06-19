@@ -131,7 +131,7 @@ Limitations:
 
 Purpose: support real modernization parity tests.
 
-Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline and the modernized PostgreSQL read-model seed through the implemented read-only slices.
+Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline and the modernized PostgreSQL seed through the implemented read-only slices plus the first patient contact mutation slice.
 
 This dataset includes named synthetic personas and workflow data for:
 
@@ -159,7 +159,7 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
-The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, read-only procedure-result behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, read-only operational reporting behavior, and normalized database parity checks.
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized tables for patient search/chart summary behavior, patient contact mutation behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, read-only procedure-result behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, read-only operational reporting behavior, and normalized database parity checks.
 
 The scheduling slice now uses `MOD-PAT-0003` as a stable appointment anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's next future appointment after `2026-06-18`, and the `slice-2-scheduling-readiness` plan verifies the appointment facts plus browser-visible appointment detail behavior against both targets.
 
@@ -176,6 +176,8 @@ The fee-sheet billing slice uses `MOD-PAT-0001` as a stable billing anchor. Both
 The administration directory slice uses the seeded provider/staff and facility records as stable anchors. Both legacy MariaDB and modernized PostgreSQL probes locate 20 `gold-*` users, 12 provider users with calendar access, and 3 facilities. The current anchor facts include `gold-provider-02` / `Morris, Jordan` as an authorized provider assigned to `North County Clinic`, `gold-billing-01` / `Grant, Drew` as a non-calendar billing user assigned to `Modernization Family Medicine`, and the MAIN/NORTH/EAST facilities. The `slice-8-admin-readiness` plan verifies these facts plus browser-visible Users and Facilities behavior against both targets.
 
 The operational reports slice uses aggregate facts from the existing gold dataset rather than a separate report fixture table. Both legacy MariaDB and modernized PostgreSQL probes normalize the same reporting anchors: 1,000 patients, 200 portal-enabled patients, 2,800 current-year appointments, 1,261 future appointments after the 2026-06-18 dataset base date, 2,100 encounters, 1,100 current-year encounters, 3,000 billing lines, `$446,000.00` seeded charges, 700 lab reports, 1,200 messages, 12 providers, and 3 facilities. The current report anchors include `gold-provider-02` with 176 encounters and 253 billing lines, NORTH facility with 935 appointments and 701 encounters, and `Asthma, uncomplicated` / `ICD10:J45.909` with 188 active-problem rows. The `slice-9-reports-readiness` plan verifies these facts plus browser-visible report surfaces against both targets.
+
+The patient contact mutation slice uses `MOD-PAT-0001` as the first shared mutation anchor. The legacy seed maps the canonical phone value into OpenEMR's `phone_home`, `phone_contact`, and `phone_cell` fields with HIPAA SMS/email permissions enabled. The modernized PostgreSQL seed maps the same canonical phone value into `phone`, `phone_home`, and `phone_cell`, with `hipaa_allow_sms` and `hipaa_allow_email` enabled. The `slice-10-contact-mutation-readiness` plan updates home phone, cell phone, email, and HIPAA contact permissions, verifies database state and browser-visible contact values, then restores the original seeded record on both targets.
 
 ### Level 3: Extended Synthetic Population
 
@@ -204,7 +206,7 @@ This level should be introduced only after the deterministic V1 gold workflow da
 
 Continue expanding reusable modernized parity adapters that consume the gold dataset:
 
-- Add modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
+- Add additional modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
 - Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
 - Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
 - Additional encounter mutation tests once the modernized target supports create/update/delete workflows.

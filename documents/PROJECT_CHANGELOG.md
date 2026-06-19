@@ -1192,13 +1192,73 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 032. Modernized Patient Contact Mutation Slice 10
+
+Commit: TBD
+
+Implemented the tenth modernized OpenEMR vertical slice: the first mutation-capable parity workflow, focused on patient contact updates with an inline React chart editor, ASP.NET Core update endpoint, PostgreSQL contact fields, Workbench orchestration, and matched side-by-side parity against the legacy OpenEMR chart.
+
+Key outcomes:
+
+- Expanded the modernized PostgreSQL patient seed mapping with `phone_home`, `phone_cell`, `hipaa_allow_sms`, and `hipaa_allow_email` so contact mutation parity can preserve legacy OpenEMR semantics instead of flattening the data into a single phone field.
+- Added the ASP.NET Core `/api/patients/{patientId}/contact` endpoint, `PatientContactUpdateRequest`, and repository update logic that saves home phone, cell phone, email, and HIPAA SMS/email permission flags through the business-tier API.
+- Added an inline contact editor to the modernized Patient/Client chart with edit, save, cancel, home phone, cell phone, email, and permission controls.
+- Added the first modernized workflow action adapter in `parity-tests/src/workflows/modernizedWorkflowActions.ts`, using PostgreSQL probes for exact pre/post state and the public API for the mutation.
+- Added a shared `workflow-contact` parity suite and the `slice-10-contact-mutation-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 10 contact mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the first mutation-capable modernized slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- Direct API update/restore check against `http://localhost:5001/api/patients/MOD-PAT-0001/contact`, returning the expected changed home phone, cell phone, email, and HIPAA permission values.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-10-contact-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-10-contact-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-10-contact-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- Direct Playwright check of the modernized contact editor, proving Edit contact, Save, rendered changed values, and restore.
+- `git diff --check`.
+- Mojibake scan over source, docs, Workbench, and parity-test paths.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-contact/patient-contact-mutation.spec.ts`
+- `parity-tests/src/fixtures/parityTest.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Modernized workflow action adapters for the parity suite.
 - Reports exports, document storage, scanned attachments, and integration adapters.
+- Additional modernized workflow action adapters for scheduling, encounters, clinical lists, messages, prescriptions, billing, and procedures.
 - Encounter mutation workflows in the modernized target.
 - Scheduling mutation workflows in the modernized target.
 - Workbench comparison views that render matched/different comparison artifacts directly.

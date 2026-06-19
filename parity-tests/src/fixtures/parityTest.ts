@@ -3,12 +3,14 @@ import { LegacyMariaDbProbe } from "../db/legacyMariaDbProbe.js";
 import { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import { loadTarget, resetTarget, type RuntimeTarget } from "../config/targets.js";
 import { LegacyWorkflowActions } from "../workflows/legacyWorkflowActions.js";
+import { ModernizedWorkflowActions } from "../workflows/modernizedWorkflowActions.js";
 
 type ParityFixtures = {
   target: RuntimeTarget;
   targetDb: LegacyMariaDbProbe | ModernizedPostgresProbe;
   legacyDb: LegacyMariaDbProbe;
   legacyWorkflow: LegacyWorkflowActions;
+  workflow: LegacyWorkflowActions | ModernizedWorkflowActions;
   resetPerTest: void;
 };
 
@@ -31,6 +33,14 @@ export const test = base.extend<ParityFixtures>({
   },
   legacyWorkflow: async ({ legacyDb }, use) => {
     await use(new LegacyWorkflowActions(legacyDb));
+  },
+  workflow: async ({ target, targetDb }, use) => {
+    if (target.type === "legacy-openemr") {
+      await use(new LegacyWorkflowActions(targetDb as LegacyMariaDbProbe));
+      return;
+    }
+
+    await use(new ModernizedWorkflowActions(targetDb as ModernizedPostgresProbe, target));
   },
   resetPerTest: [
     async ({ target }, use, testInfo) => {
