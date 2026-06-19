@@ -407,6 +407,11 @@ export type PatientDocumentMetadataUpdate = {
   notes: string;
 };
 
+export type PatientDocumentContentReplacement = {
+  fileName: string;
+  content: string;
+};
+
 export type NewPrescription = {
   patientId: number;
   providerId: number;
@@ -1553,6 +1558,24 @@ WHERE document_id = ${integer(legacyId)};
 
 INSERT INTO categories_to_documents (category_id, document_id)
 VALUES (${integer(input.categoryId)}, ${integer(legacyId)});
+`);
+  }
+
+  async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
+    const legacyId = legacyInteger(id);
+    const content = `Gold synthetic document ${input.fileName}\n${input.content}`;
+    await this.db.execute(`
+UPDATE documents
+SET type = 'blob',
+    size = CHAR_LENGTH(${sqlString(content)}),
+    date = NOW(),
+    mimetype = 'text/plain',
+    pages = 1,
+    revision = NOW(),
+    hash = SHA1(${sqlString(content)}),
+    storagemethod = 0,
+    document_data = ${sqlString(content)}
+WHERE id = ${integer(legacyId)} AND COALESCE(deleted, 0) = 0;
 `);
   }
 

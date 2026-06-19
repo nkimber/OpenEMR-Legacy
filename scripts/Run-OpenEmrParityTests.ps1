@@ -41,6 +41,7 @@ param(
         "workflow-document-denial",
         "workflow-document-metadata",
         "workflow-document-archive",
+        "workflow-document-content-replace",
         "workflow-insurance",
         "workflow-prescriptions",
         "workflow-immunizations",

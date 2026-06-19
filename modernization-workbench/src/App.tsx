@@ -318,7 +318,7 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
         <GitBranch size={21} />
         <div>
           <strong>Modern target</strong>
-          <span>{modernizedApp?.runtime.label ?? "Slice 42 document archive restore"}</span>
+          <span>{modernizedApp?.runtime.label ?? "Slice 43 document content replacement"}</span>
         </div>
       </div>
       <div className="overview-item">

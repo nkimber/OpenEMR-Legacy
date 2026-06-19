@@ -3324,12 +3324,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 068. Modernized Patient Document Content Replacement Slice 43
+
+Commit: this commit
+Started: `2026-06-19T15:59:01-04:00`
+Finished: `2026-06-19T16:03:50-04:00`
+
+Implemented the forty-third modernized OpenEMR vertical slice: patient document content replacement, focused on creating a temporary text document, replacing its active payload, verifying updated preview/content/download behavior, rendering it again, archiving it, deleting it, and proving the document baseline returns clean.
+
+Key outcomes:
+
+- Added a modernized ASP.NET Core `PUT /api/documents/{documentId}/content` endpoint for active non-external document text payload replacement.
+- Added a document content replacement DTO and repository mutation that updates text payload, MIME type, file name, size, hash, uploaded timestamp, and refreshed patient document list state.
+- Added modernized Documents workspace Replace controls and an inline replacement form on active non-external document cards.
+- Added frontend API typing and client wrapper for document content replacement.
+- Added modernized smoke coverage for a temporary patient-document content replacement lifecycle.
+- Added shared legacy and modernized workflow adapter methods for `replacePatientDocumentContent`.
+- Added the `workflow-document-content-replace` Playwright parity suite and `slice-43-document-content-replace-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 43 document content replacement plan.
+- Documented the legacy mapping, modernized endpoint, seed-data reuse, Workbench action, and side-by-side parity strategy.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 45 smoke checks, including `patient document content replacement lifecycle`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-43-document-content-replace-readiness -Reset test` passed with run `2026-06-19T200257-450Z-legacy-openemr-plan-slice-43-document-content-replace-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-43-document-content-replace-readiness -Reset test` passed with run `2026-06-19T200324-798Z-modernized-openemr-plan-slice-43-document-content-replace-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-43-document-content-replace-readiness` matched with comparison `2026-06-19T200344-356Z-legacy-openemr-vs-modernized-openemr-plan-slice-43-document-content-replace-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-content-replace/document-content-replace.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Scanned attachments, document thumbnails, document versioning, external storage adapters, and integration workflows.
+- Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

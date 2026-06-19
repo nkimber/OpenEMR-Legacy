@@ -35,6 +35,7 @@ import type {
   NewVitals,
   PatientContact,
   PatientDemographics,
+  PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientInsuranceRecord,
@@ -999,6 +1000,21 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient document metadata update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        fileName: input.fileName,
+        content: input.content
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document content replacement failed with ${response.status}: ${await response.text()}`);
     }
   }
 
