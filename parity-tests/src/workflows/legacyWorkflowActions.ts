@@ -47,6 +47,17 @@ export type ProblemRecord = {
   date: string;
 };
 
+export type MedicationRecord = {
+  id: number | string;
+  patientId: number;
+  type: string;
+  title: string;
+  activity: number;
+  comments: string;
+  diagnosis: string;
+  date: string;
+};
+
 export type PatientMessageRecord = {
   id: number | string;
   patientId: number;
@@ -260,6 +271,14 @@ export type NewClinicalListEntry = {
 };
 
 export type NewProblem = {
+  patientId: number;
+  title: string;
+  dateTime: string;
+  diagnosis: string;
+  comments: string;
+};
+
+export type NewMedication = {
   patientId: number;
   title: string;
   dateTime: string;
@@ -975,6 +994,63 @@ WHERE id = ${integer(legacyId)} AND type = 'medical_problem';
     await this.db.execute(`
 DELETE FROM lists
 WHERE id = ${integer(legacyId)} AND type = 'medical_problem';
+`);
+  }
+
+  async createMedication(input: NewMedication): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO lists
+  (uuid, date, type, title, begdate, diagnosis, activity, comments, pid, user, groupname,
+   reaction, severity_al, list_option_id)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.dateTime)}, 'medication', ${sqlString(input.title)},
+   ${sqlString(input.dateTime)}, ${sqlString(input.diagnosis)}, 1, ${sqlString(input.comments)},
+   ${integer(input.patientId)}, 'admin', 'Default', '', '', '');
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getMedication(id: number | string): Promise<MedicationRecord | null> {
+    const legacyId = legacyInteger(id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS patientId, type, title, activity, COALESCE(comments, '') AS comments,
+  COALESCE(diagnosis, '') AS diagnosis, DATE(date) AS date
+FROM lists
+WHERE id = ${integer(legacyId)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      type: row.type,
+      title: row.title,
+      activity: Number(row.activity),
+      comments: row.comments,
+      diagnosis: row.diagnosis,
+      date: row.date
+    };
+  }
+
+  async deactivateMedication(id: number | string, comments: string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE lists
+SET activity = 0, enddate = '2026-06-18 00:00:00', comments = ${sqlString(comments)}
+WHERE id = ${integer(legacyId)} AND type = 'medication';
+`);
+  }
+
+  async deleteMedication(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+DELETE FROM lists
+WHERE id = ${integer(legacyId)} AND type = 'medication';
 `);
   }
 

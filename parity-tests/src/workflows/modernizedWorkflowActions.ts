@@ -15,6 +15,7 @@ import type {
   NewClinicalListEntry,
   NewFacility,
   NewImmunization,
+  NewMedication,
   NewPatientDocument,
   NewProblem,
   NewUser,
@@ -30,6 +31,7 @@ import type {
   PatientContact,
   PatientDocumentRecord,
   PatientMessageRecord,
+  MedicationRecord,
   ProblemRecord,
   ProcedureOrderRecord,
   ProcedureReportRecord,
@@ -524,6 +526,74 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized clinical problem delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createMedication(input: NewMedication): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        title: input.title,
+        dateTime: input.dateTime,
+        diagnosis: input.diagnosis,
+        comments: input.comments
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical medication create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getMedication(id: number | string): Promise<MedicationRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", type, title, activity, COALESCE(comments, '') AS comments,
+  COALESCE(diagnosis, '') AS diagnosis, medication_date AS date
+FROM medications
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      type: row.type,
+      title: row.title,
+      activity: Number(row.activity),
+      comments: row.comments,
+      diagnosis: row.diagnosis,
+      date: row.date
+    };
+  }
+
+  async deactivateMedication(id: number | string, comments: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications/${encodeURIComponent(String(id))}/deactivate`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ comments })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical medication deactivate failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteMedication(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical medication delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

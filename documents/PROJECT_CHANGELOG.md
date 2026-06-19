@@ -2537,6 +2537,69 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 054. Modernized Patient Medication List Mutation Slice 32
+
+Commit: current slice commit
+
+Implemented the thirty-second modernized OpenEMR vertical slice: medication-list create, active rendering, deactivate, and hard-delete cleanup in the clinical Lists workflow.
+
+Key outcomes:
+
+- Added modernized ASP.NET Core clinical-list endpoints for medication-list create, deactivate, and delete behavior over the PostgreSQL `medications` table.
+- Extended the modernized PostgreSQL medication-list schema and seed generation with OpenEMR-style `activity` and `end_date` fields.
+- Added a New Medication form and row-level deactivate/delete controls to the React Lists Medications panel.
+- Extended the modernized smoke test with a temporary medication-list lifecycle check for `MOD-PAT-0006`.
+- Added shared legacy and modernized workflow adapter methods for medication-list create, direct row readback, deactivate, and cleanup delete.
+- Added the `workflow-medications` Playwright parity suite and `slice-32-medication-list-mutation-readiness` plan for both targets.
+- Added Workbench command cards and result paths for the Slice 32 medication-list mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the new lifecycle behavior.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json` and `parity-tests/test-manifest.json`.
+- `npm run list` in `parity-tests/`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj --nologo -clp:ErrorsOnly`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, producing `passed` with 35 checks and including `clinical medication mutation lifecycle`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-32-medication-list-mutation-readiness -Reset test`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-32-medication-list-mutation-readiness -Reset test`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-32-medication-list-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite database -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite database -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --suite database` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ClinicalListRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ClinicalListDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-medications/medication-list-mutation.spec.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

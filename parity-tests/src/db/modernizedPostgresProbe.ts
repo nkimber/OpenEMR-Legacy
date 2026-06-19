@@ -82,7 +82,7 @@ UNION ALL SELECT 'vitals', COUNT(*) FROM vitals
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM clinical_notes
 UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE activity = 1
 UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE activity = 1
-UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM medications
+UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM medications WHERE activity = 1
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE added_erroneously = 0
 UNION ALL SELECT 'labOrders', COUNT(*) FROM lab_orders
@@ -203,7 +203,7 @@ UNION ALL SELECT 'vitals', COUNT(*) FROM vitals WHERE pid = ${pid}
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM clinical_notes WHERE pid = ${pid}
 UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE pid = ${pid} AND activity = 1
 UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE pid = ${pid} AND activity = 1
-UNION ALL SELECT 'medications', COUNT(*) FROM medications WHERE pid = ${pid}
+UNION ALL SELECT 'medications', COUNT(*) FROM medications WHERE pid = ${pid} AND activity = 1
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE pid = ${pid}
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE pid = ${pid} AND added_erroneously = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM messages WHERE pid = ${pid}
@@ -307,7 +307,7 @@ ORDER BY allergy_date DESC, id;
     const medications = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(diagnosis, '') AS diagnosis, medication_date AS date, COALESCE(comments, '') AS comments
 FROM medications
-WHERE pid = ${pid}
+WHERE pid = ${pid} AND activity = 1
 ORDER BY medication_date DESC, id;
 `);
     const prescriptions = await this.queryRows<Record<string, string>>(`
