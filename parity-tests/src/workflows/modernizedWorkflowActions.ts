@@ -16,6 +16,7 @@ import type {
   NewFacility,
   NewImmunization,
   NewPatientDocument,
+  NewProblem,
   NewUser,
   NewPatientMessage,
   NewAppointment,
@@ -29,6 +30,7 @@ import type {
   PatientContact,
   PatientDocumentRecord,
   PatientMessageRecord,
+  ProblemRecord,
   ProcedureOrderRecord,
   ProcedureReportRecord,
   ProcedureResultRecord,
@@ -454,6 +456,74 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized clinical allergy delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createProblem(input: NewProblem): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        title: input.title,
+        dateTime: input.dateTime,
+        diagnosis: input.diagnosis,
+        comments: input.comments
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical problem create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getProblem(id: number | string): Promise<ProblemRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", type, title, activity, COALESCE(comments, '') AS comments,
+  COALESCE(diagnosis, '') AS diagnosis, problem_date AS date
+FROM problems
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      type: row.type,
+      title: row.title,
+      activity: Number(row.activity),
+      comments: row.comments,
+      diagnosis: row.diagnosis,
+      date: row.date
+    };
+  }
+
+  async deactivateProblem(id: number | string, comments: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems/${encodeURIComponent(String(id))}/deactivate`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ comments })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical problem deactivate failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteProblem(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical problem delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

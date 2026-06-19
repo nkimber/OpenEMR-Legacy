@@ -391,9 +391,9 @@ UNION ALL SELECT 'appointments', COUNT(*) FROM openemr_postcalendar_events
 UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter
 UNION ALL SELECT 'vitals', COUNT(*) FROM form_vitals
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM form_soap
-UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE type = 'medical_problem'
-UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE type = 'allergy'
-UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM lists WHERE type = 'medication'
+UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE type = 'medical_problem' AND activity = 1
+UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE type = 'allergy' AND activity = 1
+UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM lists WHERE type = 'medication' AND activity = 1
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
@@ -511,9 +511,9 @@ SELECT 'appointments' AS name, COUNT(*) AS value FROM openemr_postcalendar_event
 UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter WHERE pid = ${pid}
 UNION ALL SELECT 'vitals', COUNT(*) FROM form_vitals WHERE pid = ${pid}
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM form_soap WHERE pid = ${pid}
-UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medical_problem'
-UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'allergy'
-UNION ALL SELECT 'medications', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medication'
+UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medical_problem' AND activity = 1
+UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'allergy' AND activity = 1
+UNION ALL SELECT 'medications', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medication' AND activity = 1
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE patient_id = ${pid}
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE patient_id = ${pid} AND COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes WHERE pid = ${pid}
@@ -613,20 +613,20 @@ LIMIT 1;
     const problems = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(diagnosis, '') AS diagnosis, DATE(date) AS date, COALESCE(comments, '') AS comments
 FROM lists
-WHERE pid = ${pid} AND type = 'medical_problem'
+WHERE pid = ${pid} AND type = 'medical_problem' AND activity = 1
 ORDER BY date DESC, id;
 `);
     const allergies = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(reaction, '') AS reaction, COALESCE(severity_al, '') AS severity,
   DATE(date) AS date, COALESCE(comments, '') AS comments
 FROM lists
-WHERE pid = ${pid} AND type = 'allergy'
+WHERE pid = ${pid} AND type = 'allergy' AND activity = 1
 ORDER BY date DESC, id;
 `);
     const medications = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(diagnosis, '') AS diagnosis, DATE(date) AS date, COALESCE(comments, '') AS comments
 FROM lists
-WHERE pid = ${pid} AND type = 'medication'
+WHERE pid = ${pid} AND type = 'medication' AND activity = 1
 ORDER BY date DESC, id;
 `);
     const prescriptions = await this.queryRows<Record<string, string>>(`

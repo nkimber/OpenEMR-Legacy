@@ -466,7 +466,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers allergy entries only.
-- Problem list mutation, medication list mutation, diagnoses, allergy vocabulary lookup, duplicate detection, audit history, and broader list option management remain deferred to later clinical-list slices.
+- Problem-list lifecycle mutation is covered by Slice 31. Medication list mutation, diagnoses, allergy vocabulary lookup, duplicate detection, audit history, and broader list option management remain deferred to later clinical-list slices.
 
 ### Slice 14: Patient Message Mutation
 
@@ -947,6 +947,35 @@ Current limitations:
 - This slice covers a focused create, entered-in-error, and delete lifecycle only.
 - Rich edit screens, immunization refusal workflows, registry submission, observation rows, forecast/reminder logic, inventory coupling, and external vaccine registry integrations remain deferred.
 
+### Slice 31: Patient Problem List Mutation
+
+Goal: add mutation-capable active problem-list lifecycle parity using OpenEMR's `lists` medical-problem rows and the modernized clinical Lists module.
+
+Status: implemented.
+
+Scope:
+
+- ASP.NET Core clinical-list API now supports problem create, deactivate, and hard-delete endpoints over the modernized PostgreSQL `problems` table.
+- The modernized PostgreSQL problem schema now preserves OpenEMR-style `activity` and `end_date` state so active problem rendering can hide inactive rows.
+- React Lists workspace now includes a New Problem form plus row-level deactivate and delete controls in the Problems panel.
+- Modernized smoke coverage creates a temporary problem for `MOD-PAT-0006`, verifies it appears in the returned clinical list, deactivates it so it no longer appears as active, and hard-deletes the temporary row.
+- Shared legacy and modernized workflow adapters now expose `createProblem`, `getProblem`, `deactivateProblem`, and `deleteProblem`.
+- The `workflow-problems` parity suite and `slice-31-problem-mutation-readiness` plan verify the same create, render, deactivate, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 31 problem mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary active medical problem can be created for `MOD-PAT-0006` with title, diagnosis, date, and comments.
+- The legacy patient summary clinical-list area and modernized Lists workspace render the temporary active problem.
+- Deactivating the row removes it from active problem counts and active UI rendering on both targets.
+- The temporary row can be hard-deleted during cleanup so the seeded problem baseline returns to its original count.
+- The side-by-side Slice 31 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice covers a focused problem create, deactivate, and delete lifecycle only.
+- Rich problem editing, diagnosis-code lookup, duplicate detection, audit history, care-plan/problem interactions, and broader list option management remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1038,3 +1067,4 @@ As of 2026-06-19:
 - The twenty-eighth modernized vertical slice implements patient insurance coverage visibility with chart-summary coverage rows, a React chart Insurance panel, normalized insurance probes, Workbench insurance plan action, smoke coverage, and side-by-side slice-28 parity evidence.
 - The twenty-ninth modernized vertical slice implements read-only patient immunization history with expanded gold-data vaccine rows, a PostgreSQL `immunizations` table, ASP.NET Core clinical-list API immunization rows, a React Lists Immunizations panel, normalized immunization probes, Workbench immunizations plan action, smoke coverage, and side-by-side slice-29 parity evidence.
 - The thirtieth modernized vertical slice implements immunization mutation with React Lists create/entered-in-error/delete controls, ASP.NET Core immunization lifecycle endpoints, modernized workflow action adapter methods, Workbench immunization mutation plan action, smoke coverage, and side-by-side slice-30 parity evidence.
+- The thirty-first modernized vertical slice implements problem-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core problem lifecycle endpoints, PostgreSQL problem activity fields, modernized workflow action adapter methods, Workbench problem mutation plan action, smoke coverage, and side-by-side slice-31 parity evidence.

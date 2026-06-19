@@ -80,8 +80,8 @@ UNION ALL SELECT 'appointments', COUNT(*) FROM appointments
 UNION ALL SELECT 'encounters', COUNT(*) FROM encounters
 UNION ALL SELECT 'vitals', COUNT(*) FROM vitals
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM clinical_notes
-UNION ALL SELECT 'problems', COUNT(*) FROM problems
-UNION ALL SELECT 'allergies', COUNT(*) FROM allergies
+UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE activity = 1
+UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE activity = 1
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM medications
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE added_erroneously = 0
@@ -201,8 +201,8 @@ SELECT 'appointments' AS name, COUNT(*) AS value FROM appointments WHERE pid = $
 UNION ALL SELECT 'encounters', COUNT(*) FROM encounters WHERE pid = ${pid}
 UNION ALL SELECT 'vitals', COUNT(*) FROM vitals WHERE pid = ${pid}
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM clinical_notes WHERE pid = ${pid}
-UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE pid = ${pid}
-UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE pid = ${pid}
+UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE pid = ${pid} AND activity = 1
+UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE pid = ${pid} AND activity = 1
 UNION ALL SELECT 'medications', COUNT(*) FROM medications WHERE pid = ${pid}
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE pid = ${pid}
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE pid = ${pid} AND added_erroneously = 0
@@ -294,14 +294,14 @@ LIMIT 1;
     const problems = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(diagnosis, '') AS diagnosis, problem_date AS date, COALESCE(comments, '') AS comments
 FROM problems
-WHERE pid = ${pid}
+WHERE pid = ${pid} AND activity = 1
 ORDER BY problem_date DESC, id;
 `);
     const allergies = await this.queryRows<Record<string, string>>(`
 SELECT title, COALESCE(reaction, '') AS reaction, COALESCE(severity, '') AS severity,
   allergy_date AS date, COALESCE(comments, '') AS comments
 FROM allergies
-WHERE pid = ${pid}
+WHERE pid = ${pid} AND activity = 1
 ORDER BY allergy_date DESC, id;
 `);
     const medications = await this.queryRows<Record<string, string>>(`
