@@ -270,13 +270,19 @@ The legacy app currently exposes these test actions:
 - Full parity plan.
 - Full legacy parity suite.
 
+The modernized app currently exposes these test actions:
+
+- Modernized smoke test for API health, anchor patient search, and anchor chart summary.
+
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
 The Test Runs page also includes a custom parity run builder. The Workbench API exposes `parity-tests/test-manifest.json`, and the UI lets an operator choose suite or plan, a specific suite or plan id, reset mode, headed mode, and an optional Playwright grep filter. The backend validates those choices against the manifest before it constructs the existing `scripts/Run-OpenEmrParityTests.ps1` command. This gives the project a real test manager for targeted runs while keeping command execution local and constrained.
 
-## Future Modernized Target
+## Modernized Target Parity Path
 
-When the modernized target exists:
+The modernized target now exists, but only the first read-only patient search/chart summary slice is implemented. The current smoke test proves that the target can run, consume the shared gold dataset, and return the deterministic anchor patient.
+
+Next parity steps:
 
 1. Add its actual runtime config to `parity-tests/config/targets.json`.
 2. Add its database probe adapter.

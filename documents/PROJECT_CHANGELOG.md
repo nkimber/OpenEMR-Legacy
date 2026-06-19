@@ -633,12 +633,59 @@ Primary files:
 - `documents/TEST_ARCHITECTURE.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 
+### 022. Modernized OpenEMR Slice 1 Bootstrap
+
+Commit: `f893db6`
+
+Created the first from-scratch modernized OpenEMR target and implemented the read-only patient search/chart summary vertical slice against the shared gold dataset.
+
+Key outcomes:
+
+- Added `modernized-openemr/` as a separate solution with an ASP.NET Core 10 API, React/TypeScript frontend, PostgreSQL database, and Docker Compose runtime.
+- Implemented PostgreSQL seed generation from `openemr-shared-synthetic-v1`, preserving canonical IDs such as `MOD-PAT-0001` and legacy correlation IDs such as `pid` and `pubpid`.
+- Added patient search and chart-summary API endpoints with activity counts, care team, next appointment, and latest encounter data.
+- Replaced the Vite starter screen with an OpenEMR-like patient workspace using left-side module navigation, patient finder, demographics/contact panels, and clinical activity summaries.
+- Added modernized seed and smoke scripts that the Workbench can run as allowlisted managed-app actions.
+- Registered `modernized-openemr` in the Workbench as a second managed application with Docker lifecycle actions, health checks, seed action, smoke test, logs, and PostgreSQL data profile.
+- Updated architecture/progress metadata and project documents so the target is now in progress rather than planned.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`, loading 1,000 patients, 2,800 appointments, 2,100 encounters, 2,200 prescriptions, 3,000 billing rows, 1,000 lab orders, 1,200 messages, 1,500 problems, 900 allergies, and 2,200 medications.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, passing API health, `MOD-PAT-0001` patient search, and chart summary checks.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`, with frontend `http://localhost:3000` returning HTTP 200 and API smoke passing against the containerized API.
+
+Primary files:
+
+- `modernized-openemr/OpenEmr.Modernized.slnx`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/docker-compose.yml`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Selection of the first modernization workflow slice.
 - Modernized workflow action adapters for the parity suite.
-- Modernized target project bootstrap.
-- PostgreSQL seed adapter for the modernized target.
+- Modernized target entry in `parity-tests/config/targets.json` with PostgreSQL database probes.
+- Modernized Playwright patient-search/chart-summary parity checks.
+- Scheduling slice implementation in the modernized target.

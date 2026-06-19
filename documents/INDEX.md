@@ -28,6 +28,12 @@ Read this when working on the third application: the oversight, orchestration, c
 
 It explains how the workbench relates to the legacy OpenEMR baseline and the modernized target solution.
 
+### `MODERNIZATION_PLAN.md`
+
+Read this when planning or implementing the modernized OpenEMR target, choosing vertical slices, preserving UI fidelity, designing PostgreSQL mappings, or deciding whether a workflow is complete.
+
+It defines the target architecture, modernization fidelity rules, slice order, data migration strategy, parity gates, and first-slice acceptance criteria.
+
 ### `LEGACY_OPENEMR_BASELINE.md`
 
 Read this when working on the installed original OpenEMR baseline, Docker Compose runtime, source checkout, smoke test, native PHPUnit/Jest runners, or environment verification.
@@ -83,6 +89,7 @@ The document set is expected to grow in these areas:
 | `DOCUMENTATION_GOVERNANCE.md` | Defines the rule that project documents must stay synchronized with project state, code, tests, setup, and decisions. | Before making changes that affect implementation, architecture, setup, test strategy, or durable project direction. |
 | `GITHUB_CONNECTION.md` | Tracks local Git and GitHub remote connection state, including what should be pushed and what should remain ignored. | Connecting the project to GitHub, checking remotes, pushing the initial branch, or troubleshooting repository tracking. |
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, native PHPUnit/Jest runners, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |
+| `MODERNIZATION_PLAN.md` | Defines the complete modernization roadmap, target architecture, UI fidelity rules, slice order, PostgreSQL mapping approach, parity gates, and first patient-search/chart slice. | Planning or implementing modernized OpenEMR functionality, deciding slice order, or checking modernization acceptance criteria. |
 | `MODERNIZATION_WORKBENCH.md` | Defines the implemented third website that oversees the legacy baseline, modernized target, application lifecycle control, test orchestration, comparison results, and technical architecture differences. | Running, planning, or extending the workbench, app start/stop controls, test-run dashboard, parity reporting, workflow progress tracking, or architecture comparison views. |
 | `PROJECT_CHANGELOG.md` | Tracks the chronological implementation steps, enhancements, verification milestones, and release-note-style progress for the project. | Understanding what has already been built, adding a new improvement entry, preparing summaries, or checking the sequence of project evolution. |
 | `PROJECT_CONTEXT.md` | Establishes the initial modernization vision, baseline/target-system model, and validation strategy. | Starting project work, explaining the goal, planning architecture, designing tests, or choosing the first modernization slice. |

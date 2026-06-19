@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: openemr_modernized
+      POSTGRES_USER: openemr
+      POSTGRES_PASSWORD: openemr_demo
+    ports:
+      - "5433:5432"
+    volumes:
+      - modernized-openemr-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openemr -d openemr_modernized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./backend/src/OpenEmr.Modernized.Api
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__OpenEmrModernized: Host=postgres;Port=5432;Database=openemr_modernized;Username=openemr;Password=openemr_demo
+    ports:
+      - "5001:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:5001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  modernized-openemr-postgres:

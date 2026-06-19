@@ -8,6 +8,12 @@ legacy-openemr/artifacts/
 modernization-workbench/artifacts/
 modernization-workbench/dist/
 modernization-workbench/node_modules/
+modernized-openemr/.env
+modernized-openemr/artifacts/
+modernized-openemr/frontend/dist/
+modernized-openemr/frontend/node_modules/
+modernized-openemr/**/bin/
+modernized-openemr/**/obj/
 parity-tests/artifacts/
 parity-tests/node_modules/
 parity-tests/playwright-report/

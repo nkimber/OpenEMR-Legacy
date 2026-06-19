@@ -33,7 +33,7 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run OpenEMR-native PHPUnit and Jest tests, run parity test suites, run custom parity runs with selected reset strategy, run the gold seed action, run the starter seed action, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display a database profile, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline and the first modernized OpenEMR target slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run the smoke test, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites for the legacy target, run custom parity runs with selected reset strategy, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline, and show architecture/progress views.
 
 Current pages:
 
@@ -51,7 +51,7 @@ The legacy app launch link opens `http://localhost:8080` because that is the bro
 
 The Managed Application panel also displays the local demo OpenEMR login read from `legacy-openemr/.env`. This is intentionally local-only and helps distinguish the actual baseline credential from any browser autofill suggestion on the OpenEMR login page.
 
-The Workbench owns the shared seed-data contract under `modernization-workbench/seed-data/`. The current manifest defines `openemr-shared-synthetic-v1`, the generated 1,000-patient deterministic synthetic gold dataset. The legacy MariaDB adapter is implemented through `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`; the future modernized PostgreSQL adapter is still planned.
+The Workbench owns the shared seed-data contract under `modernization-workbench/seed-data/`. The current manifest defines `openemr-shared-synthetic-v1`, the generated 1,000-patient deterministic synthetic gold dataset. The legacy MariaDB adapter is implemented through `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`; the modernized PostgreSQL adapter is implemented through `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
 
 Verified behavior:
 
@@ -66,8 +66,10 @@ Verified behavior:
 - The API can run the legacy parity database, HTTP, UI, workflow mutation, named-plan, and full-suite test commands through allowlisted manifests.
 - The API can run validated custom parity selections from the manifest with operator-selected reset mode, headed mode, and optional grep filter.
 - The API can run and validate the legacy gold seed action.
+- The API can run and validate the modernized PostgreSQL gold seed action.
 - The API can parse `documents/PROJECT_CHANGELOG.md` and expose it as structured timeline data.
 - The API can stop and restart the legacy OpenEMR Docker Compose stack.
+- The API can start, stop, restart, health-check, seed, smoke test, and profile the modernized OpenEMR Docker Compose stack.
 - After Workbench restart control, legacy OpenEMR returns to healthy state and the smoke test passes.
 
 ## Relationship To The Other Systems
@@ -120,10 +122,10 @@ Implemented capabilities:
 - Display the project changelog as a designed build timeline sourced from `documents/PROJECT_CHANGELOG.md` on its own page.
 - Display architecture, progress, test runs, seed data, and managed applications on dedicated pages.
 - Display links or paths to logs, screenshots, and reports.
-- Show placeholder sections for the modernized target, marked as not started until that system exists.
+- Show the modernized target as a managed application once the first slice exists.
 - Show a project progress view with the three major systems and their current stage.
 
-The first version does not require the modernized target to exist.
+The first version originally did not require the modernized target to exist. As of the first modernization slice, the Workbench includes `modernized-openemr` as a managed application.
 
 ## Application Lifecycle Control
 
@@ -143,10 +145,12 @@ Initial target:
 
 - Legacy OpenEMR baseline in `legacy-openemr/`, controlled through Docker Compose.
 
+Current additional target:
+
+- Modernized OpenEMR in `modernized-openemr/`, controlled through Docker Compose.
+
 Future targets:
 
-- Modernized OpenEMR API.
-- Modernized OpenEMR UI.
 - Databases and supporting services used by the modernized target.
 - Test runners and comparison services.
 
@@ -186,6 +190,8 @@ The Workbench now exposes curated plan actions for legacy readiness, isolated mu
 
 The Workbench also exposes a custom parity run builder on the Test Runs page. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
+The first modernized target test command is `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`, which writes `modernized-openemr/artifacts/latest-modernized-smoke-test.json`. It checks API health, deterministic anchor patient search for `MOD-PAT-0001`, and the anchor chart summary response.
+
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
 
 ## Seed Data Orchestration
@@ -202,7 +208,9 @@ Current seed-data files:
 - `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
 - `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
 
-The seed manifest is the shared contract. Application-specific seeders should consume that contract and apply it to their own database. The legacy app currently has a gold seed action that resets the relevant legacy data tables, applies the 1,000-patient dataset, and validates expected counts. The starter example seed remains available as a small fallback. The modernized app will later get a PostgreSQL seeder that consumes the same canonical dataset.
+The seed manifest is the shared contract. Application-specific seeders should consume that contract and apply it to their own database. The legacy app currently has a gold seed action that resets the relevant legacy data tables, applies the 1,000-patient dataset, and validates expected counts. The starter example seed remains available as a small fallback.
+
+The modernized app now has a PostgreSQL seeder that consumes the same canonical dataset, generates `modernized-openemr/artifacts/postgres/seed-gold.sql`, resets the modernized read-model tables, applies the canonical gold dataset, and validates counts for patients, appointments, encounters, prescriptions, billing, lab orders, messages, problems, allergies, and medications.
 
 ## Comparison Capabilities
 

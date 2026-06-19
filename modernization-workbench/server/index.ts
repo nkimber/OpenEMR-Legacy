@@ -583,6 +583,69 @@ async function readEnvFile(cwd: string) {
 async function getDataProfile(managedApp: ManagedApp) {
   const cwd = resolveProjectPath(managedApp.workingDirectory);
   try {
+    if (managedApp.id === "modernized-openemr") {
+      const query =
+        "SELECT 'patients' AS table_name, COUNT(*) AS row_count FROM patients UNION ALL " +
+        "SELECT 'encounters', COUNT(*) FROM encounters UNION ALL " +
+        "SELECT 'appointments', COUNT(*) FROM appointments UNION ALL " +
+        "SELECT 'staff', COUNT(*) FROM staff UNION ALL " +
+        "SELECT 'facilities', COUNT(*) FROM facilities UNION ALL " +
+        "SELECT 'prescriptions', COUNT(*) FROM prescriptions UNION ALL " +
+        "SELECT 'billing', COUNT(*) FROM billing UNION ALL " +
+        "SELECT 'lab_orders', COUNT(*) FROM lab_orders UNION ALL " +
+        "SELECT 'messages', COUNT(*) FROM messages UNION ALL " +
+        "SELECT 'problems', COUNT(*) FROM problems UNION ALL " +
+        "SELECT 'allergies', COUNT(*) FROM allergies UNION ALL " +
+        "SELECT 'medications', COUNT(*) FROM medications;";
+      const result = await new Promise<CommandResult>((resolve) => {
+        const startedAt = new Date();
+        const command = [
+          "docker",
+          "compose",
+          "exec",
+          "-T",
+          "postgres",
+          "psql",
+          "-U",
+          "openemr",
+          "-d",
+          "openemr_modernized",
+          "-c",
+          query
+        ];
+        const child = spawn(command[0], command.slice(1), { cwd, shell: false, windowsHide: true });
+        let stdout = "";
+        let stderr = "";
+        child.stdout.on("data", (chunk) => (stdout += chunk.toString()));
+        child.stderr.on("data", (chunk) => (stderr += chunk.toString()));
+        child.on("close", (exitCode) => {
+          const finishedAt = new Date();
+          resolve({
+            command,
+            cwd,
+            exitCode,
+            stdout,
+            stderr,
+            startedAt: startedAt.toISOString(),
+            finishedAt: finishedAt.toISOString(),
+            durationMs: finishedAt.getTime() - startedAt.getTime()
+          });
+        });
+      });
+      if (result.exitCode !== 0) {
+        return { available: false, rows: [], error: preview(result.stderr || result.stdout, 600) };
+      }
+      const rows = result.stdout
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => /^[a-z_]+\s+\|\s+\d+$/.test(line))
+        .map((line) => {
+          const [tableName, rowCount] = line.split("|").map((part) => part.trim());
+          return { tableName, rowCount: Number(rowCount) };
+        });
+      return { available: true, rows };
+    }
+
     const env = await readEnvFile(cwd);
     const query =
       "SELECT 'patient_data' AS table_name, COUNT(*) AS row_count FROM patient_data UNION ALL " +
@@ -652,6 +715,14 @@ async function getDataProfile(managedApp: ManagedApp) {
 }
 
 async function getDemoLogin(managedApp: ManagedApp): Promise<DemoLogin> {
+  if (managedApp.id === "modernized-openemr") {
+    return {
+      available: false,
+      source: "modernized authentication slice",
+      error: "Authentication is not implemented in the first read-only patient slice."
+    };
+  }
+
   const cwd = resolveProjectPath(managedApp.workingDirectory);
   const source = path.join(managedApp.workingDirectory, ".env").replaceAll("\\", "/");
   try {
@@ -695,7 +766,7 @@ async function getSourceInfo(managedApp: ManagedApp) {
   });
   return {
     ...tagResult,
-    matchesExpectedTag: tagResult.tag === managedApp.expectedSourceTag
+    matchesExpectedTag: !managedApp.expectedSourceTag || tagResult.tag === managedApp.expectedSourceTag
   };
 }
 
@@ -975,11 +1046,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Not started",
-        stack: ["React SPA", "Modern API", "PostgreSQL"],
+        status: "Slice 1 started",
+        stack: ["React 19 SPA", "ASP.NET Core 10 API", "PostgreSQL", "Docker Compose"],
         database: "PostgreSQL",
-        businessLogic: "Future server-side business tier",
-        tests: ["Parity suite target profile planned"]
+        businessLogic: "Server-side API owns patient search/chart summary behavior for the first read-only slice",
+        tests: ["Modernized smoke test implemented for health, anchor patient search, and chart summary"]
       }
     ]
   });
@@ -996,7 +1067,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
       { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "not-started", detail: "Future vertical-slice implementation." }
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 1 is scaffolded with React, ASP.NET Core, PostgreSQL, shared gold-data seeding, Workbench management, and patient search/chart summary behavior." }
     ]
   });
 });

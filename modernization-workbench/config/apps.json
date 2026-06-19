@@ -141,6 +141,49 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-all.json"
         }
       ]
+    },
+    {
+      "id": "modernized-openemr",
+      "name": "Modernized OpenEMR",
+      "stage": "Slice 1 target",
+      "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
+      "kind": "docker-compose",
+      "workingDirectory": "../modernized-openemr",
+      "publicUrl": "http://localhost:3000",
+      "healthUrl": "http://localhost:5001/health",
+      "documentationPath": "../documents/MODERNIZATION_PLAN.md",
+      "sourcePath": "../modernized-openemr",
+      "expectedSourceTag": "",
+      "commands": {
+        "status": ["docker", "compose", "ps", "--format", "json"],
+        "start": ["docker", "compose", "up", "-d"],
+        "stop": ["docker", "compose", "down"],
+        "restart": ["docker", "compose", "restart"],
+        "logs": ["docker", "compose", "logs", "--tail", "160"],
+        "seedGoldDataset": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-ModernizedGoldDataset.ps1"],
+        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-ModernizedBaseline.ps1"]
+      },
+      "services": ["postgres", "api", "frontend"],
+      "seeds": [
+        {
+          "id": "gold-test-dataset-v1",
+          "datasetId": "openemr-shared-synthetic-v1",
+          "name": "Gold test dataset v1",
+          "description": "Resets the modernized PostgreSQL tables and applies the 1,000-patient shared synthetic gold dataset.",
+          "commandName": "seedGoldDataset",
+          "resultPath": "../modernized-openemr/artifacts/latest-modernized-seed-result.json"
+        }
+      ],
+      "tests": [
+        {
+          "id": "smoke",
+          "name": "Modernized smoke test",
+          "description": "Checks API health, anchor patient search, and anchor chart summary for the first modernized slice.",
+          "layer": "smoke",
+          "commandName": "smokeTest",
+          "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
+        }
+      ]
     }
   ]
 }

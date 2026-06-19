@@ -261,7 +261,7 @@ function AppHeader({
   );
 }
 
-function OverviewGrid({ legacyApp, progress, changelog }: { legacyApp?: AppSnapshot; progress: ProgressSlice[]; changelog: ProjectChangelog | null }) {
+function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legacyApp?: AppSnapshot; modernizedApp?: AppSnapshot; progress: ProgressSlice[]; changelog: ProjectChangelog | null }) {
   const patientCount = legacyApp?.dataProfile.rows.find((row) => row.tableName === "patient_data")?.rowCount ?? 0;
   const verifiedProgress = progress.filter((slice) => slice.status === "verified").length;
 
@@ -278,7 +278,7 @@ function OverviewGrid({ legacyApp, progress, changelog }: { legacyApp?: AppSnaps
         <GitBranch size={21} />
         <div>
           <strong>Modern target</strong>
-          <span>Not started</span>
+          <span>{modernizedApp?.runtime.label ?? "Slice 1 started"}</span>
         </div>
       </div>
       <div className="overview-item">
@@ -335,9 +335,9 @@ function LegacyAppPanel({
   logs: string;
 }) {
   const busyForApp = busy?.appId === app.id;
-  const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data")?.rowCount ?? 0;
-  const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter")?.rowCount ?? 0;
-  const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events")?.rowCount ?? 0;
+  const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data" || row.tableName === "patients")?.rowCount ?? 0;
+  const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter" || row.tableName === "encounters")?.rowCount ?? 0;
+  const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events" || row.tableName === "appointments")?.rowCount ?? 0;
   const managedSeed = app.seeds.find((seed) => seed.id === "gold-test-dataset-v1") ?? app.seeds[0];
   const seedDataset = seedDatasets.find((dataset) => dataset.id === managedSeed?.datasetId);
   const patientTarget = seedDataset?.recordTargets.find((target) => target.name === "patients")?.target ?? seedDataset?.targetPatientCount;
@@ -361,14 +361,14 @@ function LegacyAppPanel({
         </div>
       </div>
 
-      <div className="control-strip" aria-label="Legacy OpenEMR controls">
-        <IconButton title="Start Legacy OpenEMR" variant="primary" onClick={() => onAction("start")} disabled={busyForApp}>
+      <div className="control-strip" aria-label={`${app.name} controls`}>
+        <IconButton title={`Start ${app.name}`} variant="primary" onClick={() => onAction("start")} disabled={busyForApp}>
           <Power size={18} />
         </IconButton>
-        <IconButton title="Stop Legacy OpenEMR" variant="danger" onClick={() => onAction("stop")} disabled={busyForApp}>
+        <IconButton title={`Stop ${app.name}`} variant="danger" onClick={() => onAction("stop")} disabled={busyForApp}>
           <Square size={18} />
         </IconButton>
-        <IconButton title="Restart Legacy OpenEMR" onClick={() => onAction("restart")} disabled={busyForApp}>
+        <IconButton title={`Restart ${app.name}`} onClick={() => onAction("restart")} disabled={busyForApp}>
           <RotateCw size={18} />
         </IconButton>
         <IconButton title="Run baseline smoke test" onClick={() => onRunTest(app.tests[0]?.id ?? "smoke")} disabled={busyForApp || app.tests.length === 0}>
@@ -1097,6 +1097,7 @@ function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapsho
 
 function DashboardPage({
   legacyApp,
+  modernizedApp,
   busy,
   onAction,
   onRunTest,
@@ -1109,6 +1110,7 @@ function DashboardPage({
   changelog
 }: {
   legacyApp?: AppSnapshot;
+  modernizedApp?: AppSnapshot;
   busy: BusyState;
   onAction: (action: "start" | "stop" | "restart") => void;
   onRunTest: (testId: string) => void;
@@ -1122,7 +1124,7 @@ function DashboardPage({
 }) {
   return (
     <>
-      <OverviewGrid legacyApp={legacyApp} progress={progress} changelog={changelog} />
+      <OverviewGrid legacyApp={legacyApp} modernizedApp={modernizedApp} progress={progress} changelog={changelog} />
       {legacyApp ? (
         <LegacyAppPanel app={legacyApp} busy={busy} onAction={onAction} onRunTest={onRunTest} onRunSeed={onRunSeed} onLoadLogs={onLoadLogs} seedDatasets={seedDatasets} logs={logs} />
       ) : (
@@ -1140,7 +1142,9 @@ function DashboardPage({
 
 function PageBody({
   page,
+  apps,
   legacyApp,
+  modernizedApp,
   busy,
   onAction,
   onRunTest,
@@ -1156,14 +1160,16 @@ function PageBody({
   onRunCustomParity
 }: {
   page: PageId;
+  apps: AppSnapshot[];
   legacyApp?: AppSnapshot;
+  modernizedApp?: AppSnapshot;
   busy: BusyState;
-  onAction: (action: "start" | "stop" | "restart") => void;
-  onRunTest: (testId: string) => void;
-  onRunSeed: (seedId: string) => void;
-  onLoadLogs: () => void;
+  onAction: (appId: string, action: "start" | "stop" | "restart") => void;
+  onRunTest: (appId: string, testId: string) => void;
+  onRunSeed: (appId: string, seedId: string) => void;
+  onLoadLogs: (appId: string) => void;
   seedDatasets: SeedDataset[];
-  logs: string;
+  logs: Record<string, string>;
   progress: ProgressSlice[];
   events: LifecycleEvent[];
   architecture: ArchitectureSystem[];
@@ -1181,14 +1187,28 @@ function PageBody({
     return <ArchitecturePanel systems={architecture} />;
   }
   if (page === "tests") {
-    return <TestsPage app={legacyApp} busy={busy} parityManifest={parityManifest} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
+    return <TestsPage app={legacyApp} busy={busy} parityManifest={parityManifest} onRunTest={(testId) => legacyApp && onRunTest(legacyApp.id, testId)} onRunCustomParity={onRunCustomParity} />;
   }
   if (page === "seed-data") {
-    return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={onRunSeed} />;
+    return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)} />;
   }
   if (page === "applications") {
-    return legacyApp ? (
-      <LegacyAppPanel app={legacyApp} busy={busy} onAction={onAction} onRunTest={onRunTest} onRunSeed={onRunSeed} onLoadLogs={onLoadLogs} seedDatasets={seedDatasets} logs={logs} />
+    return apps.length ? (
+      <div className="page-stack">
+        {apps.map((app) => (
+          <LegacyAppPanel
+            key={app.id}
+            app={app}
+            busy={busy}
+            onAction={(action) => onAction(app.id, action)}
+            onRunTest={(testId) => onRunTest(app.id, testId)}
+            onRunSeed={(seedId) => onRunSeed(app.id, seedId)}
+            onLoadLogs={() => onLoadLogs(app.id)}
+            seedDatasets={seedDatasets}
+            logs={logs[app.id] ?? ""}
+          />
+        ))}
+      </div>
     ) : (
       <section className="panel">
         <EmptyState text="Loading managed applications." />
@@ -1198,13 +1218,14 @@ function PageBody({
   return (
     <DashboardPage
       legacyApp={legacyApp}
+      modernizedApp={modernizedApp}
       busy={busy}
-      onAction={onAction}
-      onRunTest={onRunTest}
-      onRunSeed={onRunSeed}
-      onLoadLogs={onLoadLogs}
+      onAction={(action) => legacyApp && onAction(legacyApp.id, action)}
+      onRunTest={(testId) => legacyApp && onRunTest(legacyApp.id, testId)}
+      onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)}
+      onLoadLogs={() => legacyApp && onLoadLogs(legacyApp.id)}
       seedDatasets={seedDatasets}
-      logs={logs}
+      logs={legacyApp ? (logs[legacyApp.id] ?? "") : ""}
       progress={progress}
       events={events}
       changelog={changelog}
@@ -1263,6 +1284,7 @@ export function App() {
   }, [loadDashboard]);
 
   const legacyApp = useMemo(() => apps.find((app) => app.id === "legacy-openemr"), [apps]);
+  const modernizedApp = useMemo(() => apps.find((app) => app.id === "modernized-openemr"), [apps]);
 
   function navigate(page: PageId) {
     if (page === activePage) {
@@ -1346,14 +1368,16 @@ export function App() {
 
         <PageBody
           page={activePage}
+          apps={apps}
           legacyApp={legacyApp}
+          modernizedApp={modernizedApp}
           busy={busy}
-          onAction={(action) => legacyApp && handleAction(legacyApp.id, action)}
-          onRunTest={(testId) => legacyApp && handleRunTest(legacyApp.id, testId)}
-          onRunSeed={(seedId) => legacyApp && handleRunSeed(legacyApp.id, seedId)}
-          onLoadLogs={() => legacyApp && handleLoadLogs(legacyApp.id)}
+          onAction={handleAction}
+          onRunTest={handleRunTest}
+          onRunSeed={handleRunSeed}
+          onLoadLogs={handleLoadLogs}
           seedDatasets={seedDatasets}
-          logs={legacyApp ? (logs[legacyApp.id] ?? "") : ""}
+          logs={logs}
           progress={progress}
           events={events}
           architecture={architecture}

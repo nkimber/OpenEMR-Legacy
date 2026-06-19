@@ -131,7 +131,7 @@ Limitations:
 
 Purpose: support real modernization parity tests.
 
-Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline.
+Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline and the first modernized PostgreSQL read-model seed.
 
 This dataset includes named synthetic personas and workflow data for:
 
@@ -159,6 +159,8 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior.
+
 ### Level 3: Extended Synthetic Population
 
 Purpose: scale testing, search performance, reporting, and realistic clinical histories.
@@ -184,9 +186,10 @@ This level should be introduced only after the deterministic V1 gold workflow da
 
 ## Near-Term Next Step
 
-Build the first tests that consume the gold dataset:
+Build reusable modernized parity adapters that consume the gold dataset:
 
-- Seed verification test that asserts the counts above.
-- Playwright patient-search/navigation test using `MOD-PAT-0001`.
+- Add the modernized target to the parity harness target config.
+- Add PostgreSQL database probes that normalize the same facts as the legacy MariaDB probes.
+- Add Playwright patient-search/navigation tests using `MOD-PAT-0001` against the modernized UI.
 - Appointment and encounter navigation tests using the scheduling and encounter anchors.
 - Portal/message, labs, medications, allergies, and billing tests as the next workflow slices are selected.
