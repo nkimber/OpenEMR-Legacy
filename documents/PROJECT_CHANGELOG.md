@@ -1743,7 +1743,7 @@ Primary files:
 
 ### 041. Modernized Admin User Mutation Slice 19
 
-Commit: TBD
+Commit: 39b15ac
 
 Implemented the nineteenth modernized OpenEMR vertical slice: the tenth mutation-capable parity workflow, focused on administration user create, browser-visible active user rendering, user update to inactive state, default hidden-inactive behavior, and hard-delete cleanup with React Admin controls, ASP.NET Core administration user lifecycle endpoints, PostgreSQL staff active/email/NPI fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR Users administration workflow.
 
