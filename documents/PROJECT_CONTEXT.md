@@ -30,6 +30,8 @@ The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-own
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, and smoke-test the legacy OpenEMR baseline through local-only, allowlisted orchestration commands.
 
+The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers three read-only vertical slices: patient search/chart summary, scheduling appointment detail, and encounter SOAP/vitals detail. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
+
 ## Why OpenEMR
 
 OpenEMR is a mature, open source electronic health records and medical practice management application. It is large enough to contain real modernization challenges: legacy UI patterns, server-side business behavior, database coupling, authentication and authorization concerns, reporting, healthcare workflows, and integration surfaces.

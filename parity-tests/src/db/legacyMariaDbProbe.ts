@@ -40,6 +40,19 @@ export type EncounterSummary = {
   reason: string;
 };
 
+export type EncounterClinicalDetail = {
+  encounter: number;
+  patientId: number;
+  date: string;
+  reason: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  bloodPressure: string;
+  pulse: string;
+};
+
 export type BillingLineSummary = {
   id: number;
   encounter: number;
@@ -265,6 +278,47 @@ LIMIT 1;
       patientId: Number(row.patientId),
       date: row.date,
       reason: row.reason
+    };
+  }
+
+  async getEncounterClinicalDetail(pid: number, encounter: number): Promise<EncounterClinicalDetail | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT fe.encounter, fe.pid AS patientId, DATE(fe.date) AS date, fe.reason,
+  COALESCE(fs.subjective, '') AS subjective,
+  COALESCE(fs.objective, '') AS objective,
+  COALESCE(fs.assessment, '') AS assessment,
+  COALESCE(fs.plan, '') AS plan,
+  CONCAT(COALESCE(fv.bps, ''), '/', COALESCE(fv.bpd, '')) AS bloodPressure,
+  COALESCE(CAST(fv.pulse AS CHAR), '') AS pulse
+FROM form_encounter fe
+LEFT JOIN forms fv_link ON fv_link.pid = fe.pid
+  AND fv_link.encounter = fe.encounter
+  AND fv_link.formdir = 'vitals'
+  AND fv_link.deleted = 0
+LEFT JOIN form_vitals fv ON fv.id = fv_link.form_id
+LEFT JOIN forms fs_link ON fs_link.pid = fe.pid
+  AND fs_link.encounter = fe.encounter
+  AND fs_link.formdir = 'soap'
+  AND fs_link.deleted = 0
+LEFT JOIN form_soap fs ON fs.id = fs_link.form_id
+WHERE fe.pid = ${pid} AND fe.encounter = ${encounter}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      encounter: Number(row.encounter),
+      patientId: Number(row.patientId),
+      date: row.date,
+      reason: row.reason,
+      subjective: row.subjective,
+      objective: row.objective,
+      assessment: row.assessment,
+      plan: row.plan,
+      bloodPressure: row.bloodPressure,
+      pulse: row.pulse
     };
   }
 

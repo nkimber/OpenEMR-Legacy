@@ -35,7 +35,7 @@ test.describe("legacy Playwright UI contract @ui", () => {
   });
 
   test("renders a seeded encounter with SOAP and vitals details", async ({ page, target }) => {
-    test.skip(target.type !== "legacy-openemr", "Encounter detail is not implemented in the modernized read-only patient slice.");
+    test.skip(target.type !== "legacy-openemr", "Modernized encounter detail is covered by the dedicated slice-3 encounters parity suite.");
 
     const legacyDb = new LegacyMariaDbProbe(target);
     const patient = await legacyDb.findPatientByCanonicalId("MOD-PAT-0001");
@@ -54,7 +54,7 @@ test.describe("legacy Playwright UI contract @ui", () => {
   });
 
   test("renders future gold appointment details in the legacy scheduler", async ({ page, target }) => {
-    test.skip(target.type !== "legacy-openemr", "Scheduler detail is not implemented in the modernized read-only patient slice.");
+    test.skip(target.type !== "legacy-openemr", "Modernized scheduler detail is covered by the dedicated slice-2 scheduling parity suite.");
 
     const legacyDb = new LegacyMariaDbProbe(target);
     const patient = await legacyDb.findPatientByCanonicalId("MOD-PAT-0003");

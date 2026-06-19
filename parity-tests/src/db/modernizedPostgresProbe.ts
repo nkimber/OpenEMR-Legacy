@@ -1,6 +1,7 @@
 import type {
   AppointmentSummary,
   BillingLineSummary,
+  EncounterClinicalDetail,
   EncounterSummary,
   GoldCountMap,
   PatientRecord,
@@ -218,6 +219,39 @@ LIMIT 1;
       patientId: Number(row.patientId),
       date: row.date,
       reason: row.reason
+    };
+  }
+
+  async getEncounterClinicalDetail(pid: number, encounter: number): Promise<EncounterClinicalDetail | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT e.encounter, e.pid AS "patientId", e.encounter_date AS date, e.reason,
+  COALESCE(cn.subjective, '') AS subjective,
+  COALESCE(cn.objective, '') AS objective,
+  COALESCE(cn.assessment, '') AS assessment,
+  COALESCE(cn.plan, '') AS plan,
+  CONCAT(COALESCE(v.bps::text, ''), '/', COALESCE(v.bpd::text, '')) AS "bloodPressure",
+  COALESCE(v.pulse::text, '') AS pulse
+FROM encounters e
+LEFT JOIN clinical_notes cn ON cn.pid = e.pid AND cn.encounter = e.encounter
+LEFT JOIN vitals v ON v.pid = e.pid AND v.encounter = e.encounter
+WHERE e.pid = ${pid} AND e.encounter = ${encounter}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      encounter: Number(row.encounter),
+      patientId: Number(row.patientId),
+      date: row.date,
+      reason: row.reason,
+      subjective: row.subjective,
+      objective: row.objective,
+      assessment: row.assessment,
+      plan: row.plan,
+      bloodPressure: row.bloodPressure,
+      pulse: row.pulse
     };
   }
 

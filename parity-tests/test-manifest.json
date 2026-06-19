@@ -24,6 +24,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-3-encounters-readiness",
+      "name": "Slice 3 Encounters Readiness",
+      "description": "Read-only encounter confidence plan for SOAP and vitals detail behavior on both legacy and modernized targets.",
+      "suites": ["encounters"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-3", "encounters", "clinical-notes", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -87,6 +96,16 @@
       "layer": "parity",
       "path": "tests/scheduling",
       "tags": ["slice2", "scheduling", "appointments", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "encounters",
+      "name": "Encounter Clinical Detail",
+      "description": "Compares the read-only encounter SOAP and vitals detail workflow against the legacy encounter UI using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/encounters",
+      "tags": ["slice3", "encounters", "clinical-notes", "vitals", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

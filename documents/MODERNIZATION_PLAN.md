@@ -154,11 +154,34 @@ Current limitations:
 
 ### Slice 3: Encounters And Clinical Notes
 
+Goal:
+
+- Implement the first clinical-visit workflow that lets users inspect encounter reason, diagnosis, vitals, and SOAP note details from the modernized Encounters module.
+
+Status:
+
+- Implemented as a read-only encounter clinical detail slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-3 encounter parity runs against the legacy baseline.
+
 Scope:
 
-- Encounter list and encounter summary.
-- Vitals and SOAP details.
-- Encounter create/update/delete workflows.
+- PostgreSQL encounter, vitals, clinical note, and billing-count queries from the canonical gold dataset.
+- API endpoints for encounter list/search and encounter detail.
+- React Encounters module with patient/date filters, encounter list, visit metadata, vitals, and SOAP note panels.
+- Workbench-managed slice-3 encounters parity plan for both legacy and modernized targets.
+- Encounter parity tests using the existing `MOD-PAT-0001` clinical anchor.
+
+Acceptance:
+
+- Encounters module is selectable from the modernized left navigation.
+- Encounters can be filtered by canonical patient ID, public patient ID, or legacy PID.
+- Encounter detail displays patient, date, encounter number, provider, facility, diagnosis, billing-line count, vitals, and SOAP note.
+- The `slice-3-encounters-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- Encounter create, update, and delete workflows remain deferred to a later encounter mutation slice.
 
 ### Slice 4: Clinical Lists And Medications
 
@@ -271,3 +294,4 @@ As of 2026-06-19:
 - Modernized OpenEMR target exists under `modernized-openemr/`.
 - The first modernized vertical slice implements React patient search/chart summary, ASP.NET Core patient APIs, PostgreSQL seed mapping from the shared gold dataset, Docker Compose runtime, Workbench app registration, and side-by-side slice-1 parity evidence.
 - The second modernized vertical slice implements read-only scheduling with a React Calendar module, ASP.NET Core appointment APIs, PostgreSQL appointment queries, expanded modernized smoke checks, Workbench scheduling plan actions, and matched side-by-side slice-2 parity evidence.
+- The third modernized vertical slice implements read-only encounters with a React Encounters module, ASP.NET Core encounter APIs, PostgreSQL SOAP/vitals queries, expanded modernized smoke checks, Workbench encounters plan actions, and matched side-by-side slice-3 parity evidence.
