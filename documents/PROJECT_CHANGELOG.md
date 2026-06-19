@@ -1921,7 +1921,7 @@ Primary files:
 
 ### 044. Modernized User Group Membership Mutation Slice 22
 
-Commit: TBD
+Commit: `871edae`
 
 Implemented the twenty-second modernized OpenEMR vertical slice: a focused administration user group membership mutation workflow, centered on creating a temporary user, assigning the Front Office access group, rendering the membership, revoking it, and cleaning up with React Admin membership controls, ASP.NET Core administration ACL membership endpoints, modernized PostgreSQL membership rows, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR phpGACL membership tables.
 
