@@ -1034,7 +1034,8 @@ app.get("/api/architecture", async (_request, response) => {
           "Mutation workflow suite implemented",
           "Slice 1 readiness parity plan implemented for patient search/chart summary comparison",
           "Slice 2 scheduling readiness parity plan implemented for future appointment comparison",
-          "Slice 3 encounters readiness parity plan implemented for SOAP and vitals comparison"
+          "Slice 3 encounters readiness parity plan implemented for SOAP and vitals comparison",
+          "Slice 4 clinical lists readiness parity plan implemented for problems, allergies, medications, and prescriptions comparison"
         ]
       },
       {
@@ -1049,11 +1050,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Slice 3 encounters started",
+        status: "Slice 4 clinical lists started",
         stack: ["React 19 SPA", "ASP.NET Core 10 API", "PostgreSQL", "Docker Compose"],
         database: "PostgreSQL",
-        businessLogic: "Server-side API owns patient search/chart summary, read-only appointment list/detail, and read-only encounter SOAP/vitals behavior for implemented slices",
-        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, appointment detail, and encounter detail", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison"]
+        businessLogic: "Server-side API owns patient search/chart summary, read-only appointment list/detail, read-only encounter SOAP/vitals, and read-only clinical-list behavior for implemented slices",
+        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, appointment detail, encounter detail, and clinical lists", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison", "Slice 4 clinical lists readiness plan implemented for problems, allergies, medications, and prescriptions comparison"]
       }
     ]
   });
@@ -1069,8 +1070,8 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, scheduling parity, encounter SOAP/vitals parity, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 3 adds read-only encounters with an Encounters module, SOAP/vitals detail API, PostgreSQL-backed clinical data, Workbench actions, and side-by-side encounter parity evidence." }
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, scheduling parity, encounter SOAP/vitals parity, clinical-list parity, and the future full parity contract." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 4 adds read-only clinical lists with a Lists module, problems/allergies/medications/prescriptions API, PostgreSQL-backed list data, Workbench actions, and side-by-side clinical-list parity evidence." }
     ]
   });
 });

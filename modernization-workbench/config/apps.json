@@ -32,6 +32,7 @@
         "paritySlice1Plan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-1-readiness", "-Reset", "run"],
         "paritySchedulingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-2-scheduling-readiness", "-Reset", "run"],
         "parityEncountersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-3-encounters-readiness", "-Reset", "run"],
+        "parityClinicalListsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-4-clinical-lists-readiness", "-Reset", "run"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -152,6 +153,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-3-encounters-readiness.json"
         },
         {
+          "id": "parity-plan-clinical-lists",
+          "name": "Slice 4 clinical lists plan",
+          "description": "Runs the shared problems, allergies, medications, and prescriptions parity plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClinicalListsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-4-clinical-lists-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -172,7 +181,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 3 target",
+      "stage": "Slice 4 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -191,7 +200,8 @@
         "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-ModernizedBaseline.ps1"],
         "paritySlice1Plan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-1-readiness", "-Reset", "run"],
         "paritySchedulingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-2-scheduling-readiness", "-Reset", "run"],
-        "parityEncountersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-3-encounters-readiness", "-Reset", "run"]
+        "parityEncountersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-3-encounters-readiness", "-Reset", "run"],
+        "parityClinicalListsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-4-clinical-lists-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -236,6 +246,14 @@
           "layer": "plan",
           "commandName": "parityEncountersPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-3-encounters-readiness.json"
+        },
+        {
+          "id": "parity-plan-clinical-lists",
+          "name": "Slice 4 clinical lists plan",
+          "description": "Runs the shared problems, allergies, medications, and prescriptions parity plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClinicalListsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-4-clinical-lists-readiness.json"
         }
       ]
     }

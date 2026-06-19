@@ -33,6 +33,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-4-clinical-lists-readiness",
+      "name": "Slice 4 Clinical Lists Readiness",
+      "description": "Read-only clinical lists confidence plan for problems, allergies, medication list entries, and prescriptions on both legacy and modernized targets.",
+      "suites": ["clinical-lists"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-4", "clinical-lists", "medications", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -106,6 +115,16 @@
       "layer": "parity",
       "path": "tests/encounters",
       "tags": ["slice3", "encounters", "clinical-notes", "vitals", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "clinical-lists",
+      "name": "Clinical Lists And Medications",
+      "description": "Compares read-only problems, allergies, medication list entries, and prescriptions against the legacy chart using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/clinical-lists",
+      "tags": ["slice4", "clinical-lists", "medications", "prescriptions", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

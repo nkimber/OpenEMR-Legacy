@@ -185,11 +185,34 @@ Current limitations:
 
 ### Slice 4: Clinical Lists And Medications
 
+Goal:
+
+- Implement the first clinical-list workflow that lets users inspect active problems, allergies, medication list entries, and prescriptions from the modernized Lists module.
+
+Status:
+
+- Implemented as a read-only clinical lists and medications slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-4 clinical-lists parity runs against the legacy baseline.
+
 Scope:
 
 - Problems, allergies, medication list, prescriptions.
-- Create/deactivate/delete workflows.
-- Medication reconciliation user flow.
+- React Lists module with patient lookup and separate panels for problems, allergies, medications, and prescriptions.
+- ASP.NET Core clinical-list API over the modernized PostgreSQL gold-data tables.
+- Workbench-managed slice-4 clinical-lists parity plan for both legacy and modernized targets.
+- Clinical-list parity tests using the existing `MOD-PAT-0001` anchor.
+
+Acceptance:
+
+- Lists module is selectable from the modernized left navigation.
+- Clinical lists can be loaded by canonical patient ID, public patient ID, or legacy PID.
+- The modernized UI displays the same stable anchor problem, allergy, medication-list, and prescription facts used by the legacy UI.
+- The `slice-4-clinical-lists-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- Create, deactivate, delete, and medication reconciliation workflows remain deferred to a later clinical-list mutation slice.
 
 ### Slice 5: Messaging And Portal-Facing Data
 
@@ -295,3 +318,4 @@ As of 2026-06-19:
 - The first modernized vertical slice implements React patient search/chart summary, ASP.NET Core patient APIs, PostgreSQL seed mapping from the shared gold dataset, Docker Compose runtime, Workbench app registration, and side-by-side slice-1 parity evidence.
 - The second modernized vertical slice implements read-only scheduling with a React Calendar module, ASP.NET Core appointment APIs, PostgreSQL appointment queries, expanded modernized smoke checks, Workbench scheduling plan actions, and matched side-by-side slice-2 parity evidence.
 - The third modernized vertical slice implements read-only encounters with a React Encounters module, ASP.NET Core encounter APIs, PostgreSQL SOAP/vitals queries, expanded modernized smoke checks, Workbench encounters plan actions, and matched side-by-side slice-3 parity evidence.
+- The fourth modernized vertical slice implements read-only clinical lists with a React Lists module, ASP.NET Core clinical-list API, PostgreSQL problem/allergy/medication/prescription queries, expanded modernized smoke checks, Workbench clinical-lists plan actions, and matched side-by-side slice-4 parity evidence.

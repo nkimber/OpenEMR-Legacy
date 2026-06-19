@@ -1,6 +1,7 @@
 import type {
   AppointmentSummary,
   BillingLineSummary,
+  ClinicalListsSummary,
   EncounterClinicalDetail,
   EncounterSummary,
   GoldCountMap,
@@ -252,6 +253,65 @@ LIMIT 1;
       plan: row.plan,
       bloodPressure: row.bloodPressure,
       pulse: row.pulse
+    };
+  }
+
+  async getClinicalListsForPatient(pid: number): Promise<ClinicalListsSummary> {
+    const problems = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, problem_date AS date, COALESCE(comments, '') AS comments
+FROM problems
+WHERE pid = ${pid}
+ORDER BY problem_date DESC, id;
+`);
+    const allergies = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(reaction, '') AS reaction, COALESCE(severity, '') AS severity,
+  allergy_date AS date, COALESCE(comments, '') AS comments
+FROM allergies
+WHERE pid = ${pid}
+ORDER BY allergy_date DESC, id;
+`);
+    const medications = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, medication_date AS date, COALESCE(comments, '') AS comments
+FROM medications
+WHERE pid = ${pid}
+ORDER BY medication_date DESC, id;
+`);
+    const prescriptions = await this.queryRows<Record<string, string>>(`
+SELECT drug, COALESCE(dosage, '') AS dosage, COALESCE(route, '') AS route,
+  COALESCE(diagnosis, '') AS diagnosis, start_date AS "startDate"
+FROM prescriptions
+WHERE pid = ${pid}
+ORDER BY start_date DESC, id;
+`);
+
+    return {
+      patientId: pid,
+      problems: problems.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        date: row.date,
+        comments: row.comments
+      })),
+      allergies: allergies.map((row) => ({
+        title: row.title,
+        reaction: row.reaction,
+        severity: row.severity,
+        date: row.date,
+        comments: row.comments
+      })),
+      medications: medications.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        date: row.date,
+        comments: row.comments
+      })),
+      prescriptions: prescriptions.map((row) => ({
+        drug: row.drug,
+        dosage: row.dosage,
+        route: row.route,
+        diagnosis: row.diagnosis,
+        startDate: row.startDate
+      }))
     };
   }
 

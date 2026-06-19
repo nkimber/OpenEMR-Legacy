@@ -16,7 +16,7 @@ The first objective is to create a fully reproducible local OpenEMR baseline tha
 
 ## Current Project State
 
-As of 2026-06-18, the legacy OpenEMR baseline is installed under `legacy-openemr/`, running through Docker Compose, and verified by a smoke test. The baseline uses OpenEMR Docker image `openemr/openemr:8.1.0-2026-06-18`, upstream source tag `v8_1_0`, and `mariadb:11.8.8`.
+As of 2026-06-19, the legacy OpenEMR baseline is installed under `legacy-openemr/`, running through Docker Compose, and verified by smoke, native, parity, and workflow tests. The baseline uses OpenEMR Docker image `openemr/openemr:8.1.0-2026-06-18`, upstream source tag `v8_1_0`, and `mariadb:11.8.8`.
 
 The parent project has been initialized as a local Git repository on branch `main`, connected to GitHub remote `origin`, and pushed to `https://github.com/nkimber/OpenEMR-Legacy.git`.
 
@@ -28,9 +28,9 @@ The smoke test currently verifies:
 
 The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-owned deterministic 1,000-patient gold dataset. OpenEMR includes small bundled example patient SQL files and developer demo-data tooling, but the project now treats the Workbench-owned gold dataset as the modernization test contract. The shared seed-data contract lives under `modernization-workbench/seed-data/` so the same dataset can be applied to the legacy MariaDB database and the modernized PostgreSQL database.
 
-The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, and smoke-test the legacy OpenEMR baseline through local-only, allowlisted orchestration commands.
+The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, smoke-test, and run named parity plans for the legacy OpenEMR baseline and the modernized target through local-only, allowlisted orchestration commands.
 
-The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers three read-only vertical slices: patient search/chart summary, scheduling appointment detail, and encounter SOAP/vitals detail. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
+The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers four read-only vertical slices: patient search/chart summary, scheduling appointment detail, encounter SOAP/vitals detail, and clinical lists with problems, allergies, medication list entries, and prescriptions. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
 
 ## Why OpenEMR
 
@@ -144,9 +144,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Add the first Playwright login/navigation test against the seeded legacy baseline.
-2. Add seed-aware patient search and appointment/encounter tests using canonical gold dataset IDs.
-3. Select the first modernization workflow slice.
-4. Build the modernized target implementation for that slice.
-5. Create the PostgreSQL seed adapter for the modernized target.
-6. Run side-by-side parity tests and publish the results through the workbench.
+1. Continue implementing modernized read-only workflow slices until the major OpenEMR clinical, billing, lab, message, and administration views have parity coverage.
+2. Add modernized workflow action adapters when CRUD-capable slices are selected.
+3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
+4. Expand Workbench comparison views so matched and differing run artifacts are visible without reading JSON files directly.

@@ -53,6 +53,44 @@ export type EncounterClinicalDetail = {
   pulse: string;
 };
 
+export type ClinicalProblemSummary = {
+  title: string;
+  diagnosis: string;
+  date: string;
+  comments: string;
+};
+
+export type ClinicalAllergySummary = {
+  title: string;
+  reaction: string;
+  severity: string;
+  date: string;
+  comments: string;
+};
+
+export type ClinicalMedicationSummary = {
+  title: string;
+  diagnosis: string;
+  date: string;
+  comments: string;
+};
+
+export type ClinicalPrescriptionSummary = {
+  drug: string;
+  dosage: string;
+  route: string;
+  diagnosis: string;
+  startDate: string;
+};
+
+export type ClinicalListsSummary = {
+  patientId: number;
+  problems: ClinicalProblemSummary[];
+  allergies: ClinicalAllergySummary[];
+  medications: ClinicalMedicationSummary[];
+  prescriptions: ClinicalPrescriptionSummary[];
+};
+
 export type BillingLineSummary = {
   id: number;
   encounter: number;
@@ -319,6 +357,65 @@ LIMIT 1;
       plan: row.plan,
       bloodPressure: row.bloodPressure,
       pulse: row.pulse
+    };
+  }
+
+  async getClinicalListsForPatient(pid: number): Promise<ClinicalListsSummary> {
+    const problems = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, DATE(date) AS date, COALESCE(comments, '') AS comments
+FROM lists
+WHERE pid = ${pid} AND type = 'medical_problem'
+ORDER BY date DESC, id;
+`);
+    const allergies = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(reaction, '') AS reaction, COALESCE(severity_al, '') AS severity,
+  DATE(date) AS date, COALESCE(comments, '') AS comments
+FROM lists
+WHERE pid = ${pid} AND type = 'allergy'
+ORDER BY date DESC, id;
+`);
+    const medications = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, DATE(date) AS date, COALESCE(comments, '') AS comments
+FROM lists
+WHERE pid = ${pid} AND type = 'medication'
+ORDER BY date DESC, id;
+`);
+    const prescriptions = await this.queryRows<Record<string, string>>(`
+SELECT drug, COALESCE(dosage, '') AS dosage, COALESCE(route, '') AS route,
+  COALESCE(diagnosis, '') AS diagnosis, DATE(start_date) AS startDate
+FROM prescriptions
+WHERE patient_id = ${pid}
+ORDER BY start_date DESC, id;
+`);
+
+    return {
+      patientId: pid,
+      problems: problems.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        date: row.date,
+        comments: row.comments
+      })),
+      allergies: allergies.map((row) => ({
+        title: row.title,
+        reaction: row.reaction,
+        severity: row.severity,
+        date: row.date,
+        comments: row.comments
+      })),
+      medications: medications.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        date: row.date,
+        comments: row.comments
+      })),
+      prescriptions: prescriptions.map((row) => ({
+        drug: row.drug,
+        dosage: row.dosage,
+        route: row.route,
+        diagnosis: row.diagnosis,
+        startDate: row.startDate
+      }))
     };
   }
 

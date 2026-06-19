@@ -159,11 +159,13 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
-The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, and normalized database parity checks.
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, and normalized database parity checks.
 
 The scheduling slice now uses `MOD-PAT-0003` as a stable appointment anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's next future appointment after `2026-06-18`, and the `slice-2-scheduling-readiness` plan verifies the appointment facts plus browser-visible appointment detail behavior against both targets.
 
 The encounter slice now uses `MOD-PAT-0001` as a stable clinical anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's latest encounter in 2026, including SOAP assessment text and vitals blood-pressure data, and the `slice-3-encounters-readiness` plan verifies those facts plus browser-visible encounter detail behavior against both targets.
+
+The clinical-lists slice also uses `MOD-PAT-0001` as a stable clinical-list anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's active problems, allergies, medication list entries, and prescriptions. The current anchor facts include `Type 2 diabetes mellitus without complications`, `Asthma, uncomplicated`, `Penicillin` allergy with rash and moderate severity, `Metformin 500 mg`, `Atorvastatin 20 mg`, `Albuterol inhaler 90 mcg`, and a matching `Metformin` prescription. The `slice-4-clinical-lists-readiness` plan verifies these facts plus browser-visible clinical-list behavior against both targets.
 
 ### Level 3: Extended Synthetic Population
 
@@ -196,4 +198,4 @@ Continue expanding reusable modernized parity adapters that consume the gold dat
 - Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
 - Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
 - Additional encounter mutation tests once the modernized target supports create/update/delete workflows.
-- Portal/message, labs, medications, allergies, and billing tests as the next workflow slices are selected.
+- Portal/message, labs, clinical-list mutation, medication reconciliation, and billing tests as the next workflow slices are selected.
