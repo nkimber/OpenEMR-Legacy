@@ -23,6 +23,7 @@ param(
         "claims",
         "payments",
         "account-balance",
+        "account-aging",
         "admin",
         "reports",
         "reports-export",

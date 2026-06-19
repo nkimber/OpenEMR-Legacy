@@ -447,6 +447,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-50-account-aging-readiness",
+      "name": "Slice 50 Account Aging Readiness",
+      "description": "Read-only revenue-cycle confidence plan that verifies deterministic account aging buckets and modernized aging-summary rendering for the billing anchor.",
+      "suites": ["account-aging"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-50", "billing", "account-aging", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -468,7 +477,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations", "claims", "payments", "account-balance"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -600,6 +609,16 @@
       "layer": "parity",
       "path": "tests/account-balance",
       "tags": ["slice49", "account-balance", "billing", "revenue-cycle", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "account-aging",
+      "name": "Account Aging",
+      "description": "Compares deterministic AR aging bucket totals and modernized aging-summary rendering for the shared billing anchor.",
+      "layer": "parity",
+      "path": "tests/account-aging",
+      "tags": ["slice50", "account-aging", "billing", "revenue-cycle", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

@@ -74,6 +74,7 @@
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
+        "parityAccountAgingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-50-account-aging-readiness", "-Reset", "run"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -534,6 +535,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-49-account-balance-readiness.json"
         },
         {
+          "id": "parity-plan-account-aging",
+          "name": "Slice 50 account aging plan",
+          "description": "Runs the shared read-only account aging plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAccountAgingPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-50-account-aging-readiness.json"
+        },
+        {
           "id": "parity-plan-immunizations",
           "name": "Slice 29 immunizations plan",
           "description": "Runs the shared pediatric immunization history plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -586,7 +595,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 49 target",
+      "stage": "Slice 50 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -648,6 +657,7 @@
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
+        "parityAccountAgingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-50-account-aging-readiness", "-Reset", "run"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -1032,6 +1042,14 @@
           "layer": "plan",
           "commandName": "parityAccountBalancePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-49-account-balance-readiness.json"
+        },
+        {
+          "id": "parity-plan-account-aging",
+          "name": "Slice 50 account aging plan",
+          "description": "Runs the shared read-only account aging plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAccountAgingPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-50-account-aging-readiness.json"
         },
         {
           "id": "parity-plan-immunizations",

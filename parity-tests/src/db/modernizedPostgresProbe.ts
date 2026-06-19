@@ -23,6 +23,7 @@ import type {
   PatientMessagesSummary,
   PaymentPostingSummary,
   AccountBalanceSummary,
+  AccountAgingSummary,
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
@@ -684,6 +685,62 @@ ORDER BY encounter;
       paymentAmount: row.paymentAmount,
       adjustmentAmount: row.adjustmentAmount,
       balanceAmount: row.balanceAmount
+    }));
+  }
+
+  async getAccountAgingForPatient(pid: number, asOfDate = "2026-06-18"): Promise<AccountAgingSummary[]> {
+    const safeAsOfDate = escapeSql(asOfDate);
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH charges AS (
+  SELECT pid, encounter, COUNT(*) AS "lineCount", COALESCE(SUM(fee), 0) AS "chargeAmount",
+    MAX(billing_date) AS "lastBillingDate"
+  FROM billing
+  WHERE pid = ${pid} AND activity = 1
+  GROUP BY pid, encounter
+),
+payments AS (
+  SELECT pid, encounter, COUNT(*) AS "paymentCount",
+    COALESCE(SUM(pay_amount), 0) AS "paymentAmount",
+    COALESCE(SUM(adj_amount), 0) AS "adjustmentAmount"
+  FROM payment_activities
+  WHERE pid = ${pid} AND deleted IS NULL
+  GROUP BY pid, encounter
+),
+aged AS (
+  SELECT c.pid AS "patientId", c.encounter, c."lineCount", COALESCE(p."paymentCount", 0) AS "paymentCount",
+    c."lastBillingDate"::text AS "lastBillingDate",
+    GREATEST(('${safeAsOfDate}'::date - c."lastBillingDate")::int, 0) AS "ageDays",
+    c."chargeAmount" - COALESCE(p."paymentAmount", 0) - COALESCE(p."adjustmentAmount", 0) AS "balanceAmount"
+  FROM charges c
+  LEFT JOIN payments p ON p.pid = c.pid AND p.encounter = c.encounter
+  UNION ALL
+  SELECT p.pid AS "patientId", p.encounter, 0 AS "lineCount", p."paymentCount",
+    '${safeAsOfDate}' AS "lastBillingDate", 0 AS "ageDays",
+    0 - p."paymentAmount" - p."adjustmentAmount" AS "balanceAmount"
+  FROM payments p
+  LEFT JOIN charges c ON c.pid = p.pid AND c.encounter = p.encounter
+  WHERE c.encounter IS NULL
+)
+SELECT "patientId", encounter, "lastBillingDate", "ageDays", "lineCount", "paymentCount",
+  COALESCE("balanceAmount"::text, '0') AS "balanceAmount",
+  CASE
+    WHEN "ageDays" <= 30 THEN 'Current'
+    WHEN "ageDays" <= 60 THEN '31-60'
+    WHEN "ageDays" <= 90 THEN '61-90'
+    ELSE 'Over 90'
+  END AS "agingBucket"
+FROM aged
+ORDER BY encounter;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      lastBillingDate: row.lastBillingDate,
+      ageDays: Number(row.ageDays),
+      lineCount: Number(row.lineCount),
+      paymentCount: Number(row.paymentCount),
+      balanceAmount: row.balanceAmount,
+      agingBucket: row.agingBucket
     }));
   }
 

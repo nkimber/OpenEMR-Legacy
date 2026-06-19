@@ -3798,6 +3798,70 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 076. Modernized Account Aging Slice 50
+
+Commit: this commit
+Started: `2026-06-19T18:48:00-04:00`
+Finished: `2026-06-19T19:15:21-04:00`
+
+Implemented the fiftieth modernized OpenEMR vertical slice: read-only account aging visibility, focused on deriving deterministic Current, 31-60, 61-90, and Over 90 AR buckets from the existing seeded billing and payment-posting records.
+
+Key outcomes:
+
+- Added billing aging DTO fields to the ASP.NET Core billing response and encounter rows.
+- Computed patient-level aging totals from the shared dataset base date `2026-06-18`.
+- Rendered an Aging Summary panel in the modernized Fees workspace with per-encounter aging bucket and age-day labels.
+- Added modernized smoke coverage for the `MOD-PAT-0005` account aging anchor.
+- Added normalized legacy MariaDB and modernized PostgreSQL account-aging probes.
+- Added the `account-aging` parity suite and `slice-50-account-aging-readiness` plan.
+- Added Workbench commands/cards and result paths for the Slice 50 account aging plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing gold billing and payment-posting records; no new seed-data records were required for this slice.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d postgres api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 52 smoke checks, including `anchor account aging summary`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:account-aging` passed with run `2026-06-19T231431-060Z-legacy-openemr-plan-slice-50-account-aging-readiness`.
+- `npm run test:modernized:plan:account-aging` passed with run `2026-06-19T231452-764Z-modernized-openemr-plan-slice-50-account-aging-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-50-account-aging-readiness` matched with comparison `2026-06-19T231514-900Z-legacy-openemr-vs-modernized-openemr-plan-slice-50-account-aging-readiness`.
+- `git diff --check`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-aging/account-aging.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

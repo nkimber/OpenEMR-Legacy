@@ -1514,7 +1514,35 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers balance visibility only.
-- Patient statement generation, aging buckets, collection workflows, payment mutation/reversal behavior, claim adjudication, payer remittance import, and revenue-cycle audit history remain future billing slices.
+- Patient statement generation, collection workflows, payment mutation/reversal behavior, claim adjudication, payer remittance import, and revenue-cycle audit history remain future billing slices.
+
+### Slice 50: Account Aging Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-50-account-aging-readiness` plan, which validates deterministic AR aging buckets for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing rows plus Slice 48 payment posting rows; it does not add new gold-data records.
+- ASP.NET Core billing read behavior now returns a patient-level aging summary using the dataset base date `2026-06-18`.
+- React Fees workspace now shows an Aging Summary panel and per-encounter aging bucket/age-day labels.
+- Modernized smoke coverage validates the `MOD-PAT-0005` account aging summary and encounter bucket facts.
+- The `account-aging` parity suite and `slice-50-account-aging-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL aging rows, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 50 account aging plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute `MOD-PAT-0005` aging totals of `$83.75` Current, `$18.00` 31-60, `$0.00` 61-90, `$263.00` Over 90, and `$364.75` total balance.
+- Direct probes compute encounter `1000053` as Current at 6 days old, encounter `1000052` as 31-60 at 56 days old, and encounter `1000051` as Over 90 at 361 days old.
+- The modernized billing API and Fees workspace render those same patient and encounter aging facts without changing seeded billing or payment rows.
+- The side-by-side Slice 50 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers aging visibility only.
+- Patient statement generation, collection work queues, dunning rules, write-off workflows, payment mutation/reversal behavior, payer remittance import, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1626,3 +1654,4 @@ As of 2026-06-19:
 - The forty-seventh modernized vertical slice implements read-only claim status visibility with canonical claim seed data, PostgreSQL claim mapping, ASP.NET Core billing claim read support, React Fees claim-status rendering, Workbench claim status plan action, smoke coverage, and side-by-side slice-47 parity evidence.
 - The forty-eighth modernized vertical slice implements read-only payment posting visibility with canonical AR session/activity seed data, PostgreSQL payment mapping, ASP.NET Core billing payment read support, React Fees payment-posting rendering, Workbench payment posting plan action, smoke coverage, and side-by-side slice-48 parity evidence.
 - The forty-ninth modernized vertical slice implements read-only account balance visibility by computing charge, payment, adjustment, and balance rollups over existing seeded billing/payment rows, adding ASP.NET Core billing account summaries, React Fees Account Balance rendering, Workbench account balance plan action, smoke coverage, and side-by-side slice-49 parity evidence.
+- The fiftieth modernized vertical slice implements read-only account aging visibility by computing deterministic current, 31-60, 61-90, and over-90 buckets over existing seeded billing/payment rows using the dataset base date, adding ASP.NET Core billing aging summaries, React Fees Aging Summary rendering, Workbench account aging plan action, smoke coverage, and side-by-side slice-50 parity evidence.
