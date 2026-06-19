@@ -1194,7 +1194,7 @@ Primary files:
 
 ### 032. Modernized Patient Contact Mutation Slice 10
 
-Commit: TBD
+Commit: `4638ba8`
 
 Implemented the tenth modernized OpenEMR vertical slice: the first mutation-capable parity workflow, focused on patient contact updates with an inline React chart editor, ASP.NET Core update endpoint, PostgreSQL contact fields, Workbench orchestration, and matched side-by-side parity against the legacy OpenEMR chart.
 
