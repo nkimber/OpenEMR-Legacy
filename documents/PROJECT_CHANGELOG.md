@@ -898,6 +898,63 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 027. Modernized Messaging Slice 5
+
+Commit: `TBD`
+
+Implemented the fifth modernized OpenEMR vertical slice: read-only patient messages and portal-facing status with a Messages module, patient-message API, Workbench orchestration, and matched side-by-side parity against the legacy patient-notes screen.
+
+Key outcomes:
+
+- Added ASP.NET Core message DTOs, repository queries, and `/api/messages/{patientId}` endpoint over the modernized PostgreSQL patients and messages tables.
+- Added a real Messages module to the modernized React shell with patient lookup, portal-enabled status, message status counts, and message detail cards.
+- Expanded the modernized smoke script to validate portal-enabled patient-message facts for `MOD-PAT-0004`.
+- Added normalized patient-message probes for both legacy MariaDB and modernized PostgreSQL.
+- Added a target-neutral messaging parity suite that verifies the same portal flag, message title, message body, and message status facts plus browser-visible patient-message behavior against legacy and modernized targets.
+- Added the `slice-5-messaging-readiness` named plan, npm scripts, Workbench test cards, and Workbench progress/architecture metadata.
+- Added a legacy UI helper for the actual OpenEMR patient-notes screen at `pnotes_full.php`, after confirming the demographics dashboard does not render the complete message set.
+- Updated modernization, workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the implemented messaging slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, passing API health, anchor patient search, anchor chart summary, anchor appointment search/detail, anchor encounter search/detail, anchor clinical-list checks, and anchor patient-message checks.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-5-messaging-readiness -Reset run`, passing 2 expected tests with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-5-messaging-readiness -Reset run`, passing 2 expected tests with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-5-messaging-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/MessageRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/MessageDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/messages/patient-messages.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

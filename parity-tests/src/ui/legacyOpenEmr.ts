@@ -15,6 +15,11 @@ export async function openPatientSummaryDirect(page: Page, target: RuntimeTarget
   await expect(page.locator("body")).toContainText(/Demographics|Patient|History/i);
 }
 
+export async function openPatientNotesDirect(page: Page, target: RuntimeTarget, pid: number) {
+  await page.goto(`${target.publicUrl}/interface/patient_file/summary/pnotes_full.php?set_pid=${pid}`);
+  await expectRenderedText(page, /Patient Notes|Messages|Notes/i);
+}
+
 export async function openEncounterDirect(page: Page, target: RuntimeTarget, pid: number, encounter: number) {
   await page.goto(`${target.publicUrl}/interface/patient_file/encounter/encounter_top.php?set_pid=${pid}&set_encounter=${encounter}`);
   await expectRenderedText(page, /Encounter|Summary/i);

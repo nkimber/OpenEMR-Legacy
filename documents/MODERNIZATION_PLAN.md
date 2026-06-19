@@ -216,11 +216,35 @@ Current limitations:
 
 ### Slice 5: Messaging And Portal-Facing Data
 
+Goal:
+
+- Implement the first patient-communication workflow that lets users inspect portal-enabled status and seeded patient messages from the modernized Messages module.
+
+Status:
+
+- Implemented as a read-only messaging and portal-facing data slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-5 messaging parity runs against the legacy baseline.
+
 Scope:
 
 - Patient messages and status lifecycle.
 - Portal-enabled patient flags.
-- Message workflow parity tests.
+- React Messages module with patient lookup, portal flag display, message status counts, and message detail cards.
+- ASP.NET Core patient-message API over the modernized PostgreSQL gold-data tables.
+- Workbench-managed slice-5 messaging parity plan for both legacy and modernized targets.
+- Messaging parity tests using the existing `MOD-PAT-0004` portal-messaging anchor.
+
+Acceptance:
+
+- Messages module is selectable from the modernized left navigation.
+- Patient messages can be loaded by canonical patient ID, public patient ID, or legacy PID.
+- The modernized UI displays the same stable portal flag, message titles, message bodies, and statuses used by the legacy patient-notes screen.
+- The `slice-5-messaging-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- Message create, status update, soft-delete, hard-delete, assignment, and portal reply workflows remain deferred to a later messaging mutation slice.
 
 ### Slice 6: Labs And Procedure Results
 
@@ -319,3 +343,4 @@ As of 2026-06-19:
 - The second modernized vertical slice implements read-only scheduling with a React Calendar module, ASP.NET Core appointment APIs, PostgreSQL appointment queries, expanded modernized smoke checks, Workbench scheduling plan actions, and matched side-by-side slice-2 parity evidence.
 - The third modernized vertical slice implements read-only encounters with a React Encounters module, ASP.NET Core encounter APIs, PostgreSQL SOAP/vitals queries, expanded modernized smoke checks, Workbench encounters plan actions, and matched side-by-side slice-3 parity evidence.
 - The fourth modernized vertical slice implements read-only clinical lists with a React Lists module, ASP.NET Core clinical-list API, PostgreSQL problem/allergy/medication/prescription queries, expanded modernized smoke checks, Workbench clinical-lists plan actions, and matched side-by-side slice-4 parity evidence.
+- The fifth modernized vertical slice implements read-only patient messages with a React Messages module, ASP.NET Core patient-message API, PostgreSQL message and portal-flag queries, expanded modernized smoke checks, Workbench messaging plan actions, and matched side-by-side slice-5 parity evidence.

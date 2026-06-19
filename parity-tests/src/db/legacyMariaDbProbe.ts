@@ -91,6 +91,19 @@ export type ClinicalListsSummary = {
   prescriptions: ClinicalPrescriptionSummary[];
 };
 
+export type PatientMessageSummary = {
+  title: string;
+  body: string;
+  status: string;
+  date: string;
+};
+
+export type PatientMessagesSummary = {
+  patientId: number;
+  portalEnabled: boolean;
+  messages: PatientMessageSummary[];
+};
+
 export type BillingLineSummary = {
   id: number;
   encounter: number;
@@ -415,6 +428,28 @@ ORDER BY start_date DESC, id;
         route: row.route,
         diagnosis: row.diagnosis,
         startDate: row.startDate
+      }))
+    };
+  }
+
+  async getPatientMessagesForPatient(pid: number): Promise<PatientMessagesSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pn.title, pn.body, COALESCE(pn.message_status, '') AS status, DATE(pn.date) AS date,
+  pd.allow_patient_portal AS portalEnabled
+FROM pnotes pn
+INNER JOIN patient_data pd ON pd.pid = pn.pid
+WHERE pn.pid = ${pid} AND COALESCE(pn.deleted, 0) = 0
+ORDER BY pn.date DESC, pn.id DESC;
+`);
+
+    return {
+      patientId: pid,
+      portalEnabled: rows.some((row) => row.portalEnabled === "YES"),
+      messages: rows.map((row) => ({
+        title: row.title,
+        body: row.body,
+        status: row.status,
+        date: row.date
       }))
     };
   }

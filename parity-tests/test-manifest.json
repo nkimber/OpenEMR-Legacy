@@ -42,6 +42,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-5-messaging-readiness",
+      "name": "Slice 5 Messaging Readiness",
+      "description": "Read-only messaging confidence plan for portal-enabled patients and patient messages on both legacy and modernized targets.",
+      "suites": ["messages"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-5", "messages", "portal", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -125,6 +134,16 @@
       "layer": "parity",
       "path": "tests/clinical-lists",
       "tags": ["slice4", "clinical-lists", "medications", "prescriptions", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "messages",
+      "name": "Patient Messages And Portal Flags",
+      "description": "Compares read-only portal-enabled patient message behavior against the legacy chart using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/messages",
+      "tags": ["slice5", "messages", "portal", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
