@@ -957,7 +957,7 @@ Primary files:
 
 ### 028. Modernized Procedures Slice 6
 
-Commit: `TBD`
+Commit: `630a041`
 
 Implemented the sixth modernized OpenEMR vertical slice: read-only completed procedure/lab results with a Procedures module, procedure-results API, Workbench orchestration, and matched side-by-side parity against the legacy procedure results screen.
 
