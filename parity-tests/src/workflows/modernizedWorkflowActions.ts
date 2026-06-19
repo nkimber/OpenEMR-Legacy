@@ -10,9 +10,11 @@ import type {
   ClinicalListRecord,
   EncounterRecord,
   FacilityRecord,
+  ImmunizationRecord,
   NewBillingLine,
   NewClinicalListEntry,
   NewFacility,
+  NewImmunization,
   NewPatientDocument,
   NewUser,
   NewPatientMessage,
@@ -680,6 +682,114 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized prescription delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createImmunization(input: NewImmunization): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/immunizations`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        encounter: input.encounter ?? null,
+        immunizationId: input.immunizationId,
+        cvxCode: input.cvxCode,
+        vaccine: input.vaccine,
+        administeredAt: input.administeredAt,
+        manufacturer: input.manufacturer,
+        lotNumber: input.lotNumber,
+        administeredById: input.providerId,
+        administeredBy: input.administeredBy,
+        educationDate: input.educationDate,
+        visDate: input.visDate,
+        amountAdministered: input.amountAdministered,
+        amountAdministeredUnit: input.amountAdministeredUnit,
+        expirationDate: input.expirationDate,
+        route: input.route,
+        administrationSite: input.administrationSite,
+        completionStatus: input.completionStatus,
+        informationSource: input.informationSource,
+        note: input.note
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized immunization create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return Number(mutation.id);
+  }
+
+  async getImmunization(id: number | string): Promise<ImmunizationRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id,
+  pid AS "patientId",
+  COALESCE(immunization_id, 0) AS "immunizationId",
+  COALESCE(cvx_code, '') AS "cvxCode",
+  vaccine,
+  administered_at::date AS "administeredDate",
+  COALESCE(manufacturer, '') AS manufacturer,
+  COALESCE(lot_number, '') AS "lotNumber",
+  COALESCE(administered_by, '') AS "administeredBy",
+  COALESCE(route, '') AS route,
+  COALESCE(administration_site, '') AS "administrationSite",
+  COALESCE(completion_status, '') AS "completionStatus",
+  COALESCE(information_source, '') AS "informationSource",
+  COALESCE(note, '') AS note,
+  added_erroneously AS "addedErroneously",
+  COALESCE(encounter::text, '') AS encounter
+FROM immunizations
+WHERE id = ${integer(Number(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      immunizationId: Number(row.immunizationId),
+      cvxCode: row.cvxCode,
+      vaccine: row.vaccine,
+      administeredDate: row.administeredDate,
+      manufacturer: row.manufacturer,
+      lotNumber: row.lotNumber,
+      administeredBy: row.administeredBy,
+      route: row.route,
+      administrationSite: row.administrationSite,
+      completionStatus: row.completionStatus,
+      informationSource: row.informationSource,
+      note: row.note,
+      addedErroneously: Number(row.addedErroneously),
+      encounter: row.encounter ? Number(row.encounter) : null
+    };
+  }
+
+  async markImmunizationEnteredInError(id: number | string, note: string): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/clinical-lists/immunizations/${encodeURIComponent(String(id))}/entered-in-error`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ note })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized immunization entered-in-error update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteImmunization(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/immunizations/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized immunization delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

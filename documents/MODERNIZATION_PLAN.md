@@ -916,7 +916,36 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and focused on immunization history visibility.
-- Immunization create/edit/delete workflows, registry submission, refusal workflows, observation rows, forecast rules, reminder logic, inventory coupling, and external vaccine registry integrations remain deferred.
+- Immunization lifecycle mutation is covered by Slice 30.
+- Broader edit workflows, registry submission, refusal workflows, observation rows, forecast rules, reminder logic, inventory coupling, and external vaccine registry integrations remain deferred.
+
+### Slice 30: Patient Immunization Mutation
+
+Goal: add mutation-capable immunization lifecycle parity using OpenEMR's native Immunizations table/page and the modernized clinical Lists module.
+
+Status: implemented.
+
+Scope:
+
+- ASP.NET Core clinical-list API now supports immunization create, mark entered in error, and hard-delete endpoints over the modernized PostgreSQL `immunizations` table.
+- React Lists workspace now includes a New Immunization form plus row-level entered-in-error and delete controls in the Immunizations panel.
+- Modernized smoke coverage creates a temporary influenza immunization for `MOD-PAT-0007`, verifies it appears in the returned clinical list, marks it entered in error so it no longer appears as active, and hard-deletes the temporary row.
+- Shared legacy and modernized workflow adapters now expose `createImmunization`, `getImmunization`, `markImmunizationEnteredInError`, and `deleteImmunization`.
+- The `workflow-immunizations` parity suite and `slice-30-immunization-mutation-readiness` plan verify the same create, render, entered-in-error, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 30 immunization mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary influenza immunization can be created for `MOD-PAT-0007` with CVX `141`, manufacturer, lot, route/site, VIS date, dose, completion status, source, and note fields.
+- The legacy Immunizations page and modernized Lists workspace render the temporary row before it is marked entered in error.
+- Marking the row entered in error removes it from active immunization counts and active UI rendering on both targets.
+- The temporary row can be hard-deleted during cleanup so the seeded baseline returns to its original count.
+- The side-by-side Slice 30 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice covers a focused create, entered-in-error, and delete lifecycle only.
+- Rich edit screens, immunization refusal workflows, registry submission, observation rows, forecast/reminder logic, inventory coupling, and external vaccine registry integrations remain deferred.
 
 ## Test Strategy
 
@@ -1008,3 +1037,4 @@ As of 2026-06-19:
 - The twenty-seventh modernized vertical slice implements patient document content retrieval with ASP.NET Core content/download endpoints, React Documents viewer and download controls, full-content parity probes, Workbench document content plan action, smoke coverage, and side-by-side slice-27 parity evidence.
 - The twenty-eighth modernized vertical slice implements patient insurance coverage visibility with chart-summary coverage rows, a React chart Insurance panel, normalized insurance probes, Workbench insurance plan action, smoke coverage, and side-by-side slice-28 parity evidence.
 - The twenty-ninth modernized vertical slice implements read-only patient immunization history with expanded gold-data vaccine rows, a PostgreSQL `immunizations` table, ASP.NET Core clinical-list API immunization rows, a React Lists Immunizations panel, normalized immunization probes, Workbench immunizations plan action, smoke coverage, and side-by-side slice-29 parity evidence.
+- The thirtieth modernized vertical slice implements immunization mutation with React Lists create/entered-in-error/delete controls, ASP.NET Core immunization lifecycle endpoints, modernized workflow action adapter methods, Workbench immunization mutation plan action, smoke coverage, and side-by-side slice-30 parity evidence.

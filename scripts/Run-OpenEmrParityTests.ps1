@@ -31,6 +31,7 @@ param(
         "workflow-messages",
         "workflow-documents",
         "workflow-prescriptions",
+        "workflow-immunizations",
         "workflow-billing",
         "workflow-procedures",
         "workflow-admin",

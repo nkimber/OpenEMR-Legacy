@@ -74,6 +74,25 @@ export type PrescriptionRecord = {
   note: string;
 };
 
+export type ImmunizationRecord = {
+  id: number | string;
+  patientId: number;
+  immunizationId: number;
+  cvxCode: string;
+  vaccine: string;
+  administeredDate: string;
+  manufacturer: string;
+  lotNumber: string;
+  administeredBy: string;
+  route: string;
+  administrationSite: string;
+  completionStatus: string;
+  informationSource: string;
+  note: string;
+  addedErroneously: number;
+  encounter: number | null;
+};
+
 export type EncounterRecord = {
   id: number;
   encounter: number;
@@ -258,6 +277,29 @@ export type NewPrescription = {
   refills: number;
   note: string;
   diagnosis: string;
+};
+
+export type NewImmunization = {
+  patientId: number;
+  providerId: number;
+  encounter?: number | null;
+  administeredAt: string;
+  immunizationId: number;
+  cvxCode: string;
+  vaccine: string;
+  manufacturer: string;
+  lotNumber: string;
+  administeredBy: string;
+  educationDate: string;
+  visDate: string;
+  amountAdministered: number;
+  amountAdministeredUnit: string;
+  expirationDate: string;
+  route: string;
+  administrationSite: string;
+  completionStatus: string;
+  informationSource: string;
+  note: string;
 };
 
 export type NewEncounter = {
@@ -1066,6 +1108,94 @@ WHERE id = ${integer(legacyId)};
     const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM prescriptions
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async createImmunization(input: NewImmunization): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO immunizations
+  (uuid, patient_id, administered_date, immunization_id, cvx_code, manufacturer, lot_number,
+   administered_by_id, administered_by, education_date, vis_date, note, create_date, update_date,
+   created_by, updated_by, amount_administered, amount_administered_unit, expiration_date, route,
+   administration_site, added_erroneously, completion_status, information_source, encounter_id)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.patientId)}, ${sqlString(input.administeredAt)},
+   ${integer(input.immunizationId)}, ${sqlString(input.cvxCode)}, ${sqlString(input.manufacturer)},
+   ${sqlString(input.lotNumber)}, ${integer(input.providerId)}, ${sqlString(input.administeredBy)},
+   ${sqlString(input.educationDate)}, ${sqlString(input.visDate)}, ${sqlString(input.note)},
+   NOW(), NOW(), 1, 1, ${input.amountAdministered}, ${sqlString(input.amountAdministeredUnit)},
+   ${sqlString(input.expirationDate)}, ${sqlString(input.route)}, ${sqlString(input.administrationSite)},
+   0, ${sqlString(input.completionStatus)}, ${sqlString(input.informationSource)}, ${integer(input.encounter ?? 0)});
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getImmunization(id: number | string): Promise<ImmunizationRecord | null> {
+    const legacyId = legacyInteger(id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT i.id,
+  i.patient_id AS patientId,
+  COALESCE(i.immunization_id, 0) AS immunizationId,
+  COALESCE(i.cvx_code, '') AS cvxCode,
+  COALESCE(NULLIF(c.code_text_short, ''), NULLIF(lo.title, ''), NULLIF(i.note, ''), COALESCE(i.cvx_code, '')) AS vaccine,
+  DATE(i.administered_date) AS administeredDate,
+  COALESCE(i.manufacturer, '') AS manufacturer,
+  COALESCE(i.lot_number, '') AS lotNumber,
+  COALESCE(i.administered_by, '') AS administeredBy,
+  COALESCE(i.route, '') AS route,
+  COALESCE(i.administration_site, '') AS administrationSite,
+  COALESCE(i.completion_status, '') AS completionStatus,
+  COALESCE(i.information_source, '') AS informationSource,
+  COALESCE(i.note, '') AS note,
+  COALESCE(i.added_erroneously, 0) AS addedErroneously,
+  COALESCE(i.encounter_id, 0) AS encounter
+FROM immunizations i
+LEFT JOIN code_types ct ON ct.ct_key = 'CVX'
+LEFT JOIN codes c ON c.code_type = ct.ct_id AND i.cvx_code = c.code
+LEFT JOIN list_options lo ON lo.list_id = 'immunizations' AND lo.option_id = CAST(i.immunization_id AS CHAR)
+WHERE i.id = ${integer(legacyId)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      immunizationId: Number(row.immunizationId),
+      cvxCode: row.cvxCode,
+      vaccine: row.vaccine,
+      administeredDate: row.administeredDate,
+      manufacturer: row.manufacturer,
+      lotNumber: row.lotNumber,
+      administeredBy: row.administeredBy,
+      route: row.route,
+      administrationSite: row.administrationSite,
+      completionStatus: row.completionStatus,
+      informationSource: row.informationSource,
+      note: row.note,
+      addedErroneously: Number(row.addedErroneously),
+      encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null
+    };
+  }
+
+  async markImmunizationEnteredInError(id: number | string, note: string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE immunizations
+SET added_erroneously = 1, note = ${sqlString(note)}, update_date = NOW(), updated_by = 1
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async deleteImmunization(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+DELETE FROM immunizations
 WHERE id = ${integer(legacyId)};
 `);
   }
