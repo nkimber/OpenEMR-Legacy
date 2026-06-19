@@ -1864,7 +1864,7 @@ Primary files:
 
 ### 043. Modernized Access Permission Mutation Slice 21
 
-Commit: TBD
+Commit: bdc8041
 
 Implemented the twenty-first modernized OpenEMR vertical slice: a focused administration access-permission mutation workflow, centered on revoking and restoring the Front Office `patients:demo` write assignment with React Admin grant/revoke controls, ASP.NET Core administration ACL assignment endpoints, modernized PostgreSQL mutation behavior, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR phpGACL tables.
 
