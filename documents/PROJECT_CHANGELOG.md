@@ -1495,7 +1495,7 @@ Primary files:
 
 ### 037. Modernized Prescription Mutation Slice 15
 
-Commit: TBD
+Commit: ece3f71
 
 Implemented the fifteenth modernized OpenEMR vertical slice: the sixth mutation-capable parity workflow, focused on prescription create, active rendering, deactivate, and hard-delete behavior with React Lists controls, ASP.NET Core prescription lifecycle endpoints, PostgreSQL prescription activity fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR prescription workflow.
 
