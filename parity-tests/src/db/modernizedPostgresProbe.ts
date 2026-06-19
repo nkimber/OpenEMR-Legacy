@@ -383,7 +383,8 @@ ORDER BY s.id;
     const facilities = await this.queryRows<Record<string, string>>(`
 SELECT id, code, name, COALESCE(phone, '') AS phone,
   COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
-  COALESCE(postal_code, '') AS "postalCode", COALESCE(color, '') AS color
+  COALESCE(postal_code, '') AS "postalCode", COALESCE(color, '') AS color,
+  CASE WHEN inactive THEN '0' ELSE '1' END AS active
 FROM facilities
 ORDER BY id;
 `);
@@ -408,6 +409,7 @@ ORDER BY id;
         id: Number(row.id),
         code: row.code,
         name: row.name,
+        active: row.active === "1",
         phone: row.phone,
         street: row.street,
         city: row.city,

@@ -134,6 +134,7 @@ export type AdministrationFacilitySummary = {
   id: number;
   code: string;
   name: string;
+  active: boolean;
   phone: string;
   street: string;
   city: string;
@@ -609,7 +610,8 @@ ORDER BY u.id;
     const facilities = await this.queryRows<Record<string, string>>(`
 SELECT id, COALESCE(facility_code, '') AS code, name, COALESCE(phone, '') AS phone,
   COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
-  COALESCE(postal_code, '') AS postalCode, COALESCE(color, '') AS color
+  COALESCE(postal_code, '') AS postalCode, COALESCE(color, '') AS color,
+  CASE WHEN COALESCE(inactive, 0) = 0 THEN '1' ELSE '0' END AS active
 FROM facility
 WHERE id IN (10, 11, 12)
 ORDER BY id;
@@ -635,6 +637,7 @@ ORDER BY id;
         id: Number(row.id),
         code: row.code,
         name: row.name,
+        active: row.active === "1",
         phone: row.phone,
         street: row.street,
         city: row.city,

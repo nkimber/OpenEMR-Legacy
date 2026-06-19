@@ -330,7 +330,8 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- First-party modernized login, ASP.NET Core Identity, authorization policies, permission editing, user/facility mutation workflows, and audit-event logging remain deferred to later administration/security mutation slices.
+- Focused facility create, update, inactive status, and delete workflows are covered by Slice 18.
+- First-party modernized login, ASP.NET Core Identity, authorization policies, permission editing, user account mutation workflows, role/permission administration, and audit-event logging remain deferred to later administration/security mutation slices.
 - The Admin screen clearly labels authentication, authorization, and audit logging as deferred or planned so this directory slice is not mistaken for full security modernization.
 
 ### Slice 9: Reports, Documents, And Integrations
@@ -575,6 +576,33 @@ Current limitations:
 - This slice covers a focused lab procedure lifecycle only.
 - Result correction, amendment/versioning, external electronic lab interfaces, specimen collection/tracking, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices.
 
+### Slice 18: Administration Facility Mutation
+
+Status:
+
+- Implemented as the ninth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-18-admin-facility-mutation-readiness` plan, which creates, updates, renders, deactivates, and removes a facility on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core facility create, update, and delete endpoints under the administration API over the modernized PostgreSQL facilities table.
+- PostgreSQL seed schema extension for facility inactive state so the normalized target preserves OpenEMR-style facility lifecycle semantics.
+- React Admin controls for creating a facility and marking/deleting visible facility directory cards.
+- Modernized workflow action adapter methods for facility lifecycle parity.
+- Workbench-managed slice-18 admin facility mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe facility create/update/inactive/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Admin module can create a facility, display it in the active facility directory, update it to inactive state so it no longer appears in the default active list, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-18-admin-facility-mutation-readiness` plan creates a temporary facility, verifies direct row state and browser-visible active facility rendering, updates the facility to inactive state, verifies the updated stored row and default hidden-inactive list behavior, deletes the temporary facility, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused facility lifecycle only.
+- User account creation/editing, role/permission administration, authentication, authorization policies, password management, MFA, audit history, and facility-to-user assignment workflows remain deferred to later administration/security slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -653,3 +681,4 @@ As of 2026-06-19:
 - The fifteenth modernized vertical slice implements prescription mutation with React Lists prescription create/deactivate/delete controls, ASP.NET Core prescription lifecycle endpoints, PostgreSQL prescription active/end-date/refill fields, modernized workflow action adapter methods, Workbench prescription mutation plan action, smoke coverage, and side-by-side slice-15 parity evidence.
 - The sixteenth modernized vertical slice implements billing mutation with React Fees CPT create/status/delete controls, ASP.NET Core billing line lifecycle endpoints, PostgreSQL billing units/billed/activity fields, modernized workflow action adapter methods, Workbench billing mutation plan action, smoke coverage, and side-by-side slice-16 parity evidence.
 - The seventeenth modernized vertical slice implements procedure mutation with React Procedures order/status/report/result/delete controls, ASP.NET Core procedure lifecycle endpoints, PostgreSQL lab order/report lifecycle fields, modernized workflow action adapter methods, Workbench procedure mutation plan action, smoke coverage, and side-by-side slice-17 parity evidence.
+- The eighteenth modernized vertical slice implements administration facility mutation with React Admin facility create/inactivate/delete controls, ASP.NET Core administration facility lifecycle endpoints, PostgreSQL facility inactive state, modernized workflow action adapter methods, Workbench admin facility mutation plan action, smoke coverage, and side-by-side slice-18 parity evidence.

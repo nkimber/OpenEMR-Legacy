@@ -135,6 +135,19 @@ export type ProcedureResultRecord = {
   status: string;
 };
 
+export type FacilityRecord = {
+  id: number;
+  code: string;
+  name: string;
+  active: boolean;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  color: string;
+};
+
 export type NewAppointment = {
   patientId: number;
   providerId: number;
@@ -265,8 +278,81 @@ export type NewProcedureResult = {
   status: string;
 };
 
+export type NewFacility = {
+  code: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  color: string;
+  active: boolean;
+};
+
 export class LegacyWorkflowActions {
   constructor(private readonly db: LegacyMariaDbProbe) {}
+
+  async createFacility(input: NewFacility): Promise<number> {
+    await this.db.execute(`
+INSERT INTO facility
+  (uuid, name, phone, street, city, state, postal_code, country_code, service_location,
+   billing_location, accepts_assignment, pos_code, facility_npi, color, primary_business_entity,
+   facility_code, inactive, tax_id_type, oid, organization_type)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.phone)},
+   ${sqlString(input.street)}, ${sqlString(input.city)}, ${sqlString(input.state)}, ${sqlString(input.postalCode)},
+   'US', 1, 1, 1, 11, '1999900000', ${sqlString(input.color)}, 0, ${sqlString(input.code)},
+   ${input.active ? 0 : 1}, '', '', 'prov');
+`);
+
+    const rows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM facility
+WHERE facility_code = ${sqlString(input.code)}
+  AND name = ${sqlString(input.name)}
+ORDER BY id DESC
+LIMIT 1;
+`);
+    return Number(rows[0].id);
+  }
+
+  async getFacility(id: number): Promise<FacilityRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, COALESCE(facility_code, '') AS code, name, COALESCE(phone, '') AS phone,
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS postalCode, COALESCE(color, '') AS color,
+  CASE WHEN COALESCE(inactive, 0) = 0 THEN '1' ELSE '0' END AS active
+FROM facility
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? mapFacility(row) : null;
+  }
+
+  async updateFacility(id: number, input: NewFacility): Promise<void> {
+    await this.db.execute(`
+UPDATE facility
+SET facility_code = ${sqlString(input.code)},
+    name = ${sqlString(input.name)},
+    phone = ${sqlString(input.phone)},
+    street = ${sqlString(input.street)},
+    city = ${sqlString(input.city)},
+    state = ${sqlString(input.state)},
+    postal_code = ${sqlString(input.postalCode)},
+    color = ${sqlString(input.color)},
+    inactive = ${input.active ? 0 : 1}
+WHERE id = ${integer(id)};
+`);
+  }
+
+  async deleteFacility(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM facility
+WHERE id = ${integer(id)};
+`);
+  }
 
   async getPatientContact(pid: number): Promise<PatientContact | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
@@ -961,4 +1047,19 @@ function dbNullToNull(value: string | undefined) {
     return null;
   }
   return value;
+}
+
+function mapFacility(row: Record<string, string>): FacilityRecord {
+  return {
+    id: Number(row.id),
+    code: row.code,
+    name: row.name,
+    active: row.active === "1",
+    phone: row.phone,
+    street: row.street,
+    city: row.city,
+    state: row.state,
+    postalCode: row.postalCode,
+    color: row.color
+  };
 }

@@ -5,8 +5,10 @@ import type {
   BillingLineRecord,
   ClinicalListRecord,
   EncounterRecord,
+  FacilityRecord,
   NewBillingLine,
   NewClinicalListEntry,
+  NewFacility,
   NewPatientMessage,
   NewAppointment,
   NewEncounter,
@@ -31,6 +33,68 @@ export class ModernizedWorkflowActions {
     private readonly db: ModernizedPostgresProbe,
     private readonly target: RuntimeTarget
   ) {}
+
+  async createFacility(input: NewFacility): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized facility create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getFacility(id: number): Promise<FacilityRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, code, name, COALESCE(phone, '') AS phone,
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS "postalCode", COALESCE(color, '') AS color,
+  CASE WHEN inactive THEN '0' ELSE '1' END AS active
+FROM facilities
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: Number(row.id),
+      code: row.code,
+      name: row.name,
+      active: row.active === "1",
+      phone: row.phone,
+      street: row.street,
+      city: row.city,
+      state: row.state,
+      postalCode: row.postalCode,
+      color: row.color
+    } : null;
+  }
+
+  async updateFacility(id: number, input: NewFacility): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities/${id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized facility update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteFacility(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized facility delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
 
   async getPatientContact(pid: number): Promise<PatientContact | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
