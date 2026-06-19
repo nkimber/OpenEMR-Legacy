@@ -1,4 +1,7 @@
 import type {
+  AdministrationDirectorySummary,
+  AdministrationFacilitySummary,
+  AdministrationUserSummary,
   AppointmentSummary,
   BillingLineSummary,
   ClinicalListsSummary,
@@ -359,6 +362,59 @@ ORDER BY id;
       fee: row.fee,
       justify: row.justify
     }));
+  }
+
+  async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
+    const users = await this.queryRows<Record<string, string>>(`
+SELECT s.id, s.username, s.first_name AS "firstName", s.last_name AS "lastName",
+  s.role, CASE WHEN s.role = 'provider' THEN '1' ELSE '0' END AS authorized,
+  '1' AS active,
+  CASE WHEN s.calendar THEN '1' ELSE '0' END AS calendar,
+  COALESCE(s.facility_id::text, '0') AS "facilityId",
+  COALESCE(f.name, '') AS "facilityName",
+  s.username || '@example.test' AS email,
+  CASE WHEN s.role = 'provider' THEN '18888' || s.id::text ELSE '' END AS npi
+FROM staff s
+LEFT JOIN facilities f ON f.id = s.facility_id
+ORDER BY s.id;
+`);
+
+    const facilities = await this.queryRows<Record<string, string>>(`
+SELECT id, code, name, COALESCE(phone, '') AS phone,
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS "postalCode", COALESCE(color, '') AS color
+FROM facilities
+ORDER BY id;
+`);
+
+    return {
+      users: users.map((row): AdministrationUserSummary => ({
+        id: Number(row.id),
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        displayName: `${row.lastName}, ${row.firstName}`,
+        role: row.role,
+        authorized: row.authorized === "1",
+        active: row.active === "1",
+        calendar: row.calendar === "1",
+        facilityId: Number(row.facilityId),
+        facilityName: row.facilityName,
+        email: row.email,
+        npi: row.npi
+      })),
+      facilities: facilities.map((row): AdministrationFacilitySummary => ({
+        id: Number(row.id),
+        code: row.code,
+        name: row.name,
+        phone: row.phone,
+        street: row.street,
+        city: row.city,
+        state: row.state,
+        postalCode: row.postalCode,
+        color: row.color
+      }))
+    };
   }
 
   async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {

@@ -1071,6 +1071,66 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 030. Modernized Administration Directory Slice 8
+
+Commit: `TBD`
+
+Implemented the eighth modernized OpenEMR vertical slice: read-only administration directory behavior with an Admin module, administration API, Workbench orchestration, and matched side-by-side parity against the legacy OpenEMR Users and Facilities screens.
+
+Key outcomes:
+
+- Added ASP.NET Core administration DTOs, repository queries, and `/api/administration/directory` endpoint over the modernized PostgreSQL staff and facility tables.
+- Added a real Admin module to the modernized React shell with user/facility directory cards, role mix metrics, calendar-user counts, and a visible access-control status summary.
+- Kept the slice honest by labeling authentication, authorization, and audit logging as deferred/planned rather than treating the read-only directory as full security modernization.
+- Expanded the modernized smoke script to validate the stable seeded admin anchors: 20 users, 12 providers, 12 calendar-enabled users, 3 facilities, `gold-provider-02`, `gold-billing-01`, and MAIN/NORTH facilities.
+- Added normalized administration probes for both legacy MariaDB and modernized PostgreSQL, including username, role, authorized flag, active flag, calendar flag, facility assignment, and facility address data.
+- Added a target-neutral administration parity suite that verifies the same seeded users, roles, facilities, and browser-visible Users/Facilities behavior against legacy and modernized targets.
+- Added the `slice-8-admin-readiness` named plan, npm scripts, Workbench test cards, custom-run defaults, smoke-test metadata, and Workbench progress/architecture metadata.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the implemented administration directory slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `git diff --check`.
+- Mojibake scan over source, docs, Workbench, and parity-test paths.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, passing API health, anchor patient search, anchor chart summary, anchor appointment checks, anchor encounter checks, anchor clinical-list checks, anchor patient-message checks, anchor procedure-result checks, anchor fee-sheet billing checks, and anchor administration directory checks.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-8-admin-readiness -Reset run`, passing 2 expected tests with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-8-admin-readiness -Reset run`, passing 2 expected tests with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-8-admin-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AdministrationDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/admin/administration-directory.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

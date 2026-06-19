@@ -304,11 +304,32 @@ Current limitations:
 
 ### Slice 8: Administration, Security, And Audit
 
+Status:
+
+- Implemented as a read-only administration directory slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-8 administration parity runs against the legacy baseline.
+
 Scope:
 
-- Users, roles, permissions, facilities.
-- Authentication and authorization.
-- Audit logging and security-sensitive behavior.
+- Seeded users, provider/staff roles, calendar-enabled provider flags, active status, authorized-provider flags, and assigned facilities.
+- Seeded facility directory details, including code, name, phone, address, and color.
+- React Admin module with user/facility directory cards and access-control status summary.
+- ASP.NET Core administration API over the modernized PostgreSQL staff and facility tables.
+- Workbench-managed slice-8 admin parity plan for both legacy and modernized targets.
+- Administration parity tests using the seeded `gold-provider-02`, `gold-billing-01`, and MAIN/NORTH/EAST facility anchors.
+
+Acceptance:
+
+- Admin module is selectable from the modernized left navigation.
+- The modernized UI displays the same seeded gold users and facilities visible in legacy OpenEMR's Users and Facilities administration pages.
+- The API reports 20 seeded users, 12 providers, 12 calendar-enabled users, and 3 seeded facilities.
+- The `slice-8-admin-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- First-party modernized login, ASP.NET Core Identity, authorization policies, permission editing, user/facility mutation workflows, and audit-event logging remain deferred to later administration/security mutation slices.
+- The Admin screen clearly labels authentication, authorization, and audit logging as deferred or planned so this directory slice is not mistaken for full security modernization.
 
 ### Slice 9: Reports, Documents, And Integrations
 
@@ -386,3 +407,4 @@ As of 2026-06-19:
 - The fifth modernized vertical slice implements read-only patient messages with a React Messages module, ASP.NET Core patient-message API, PostgreSQL message and portal-flag queries, expanded modernized smoke checks, Workbench messaging plan actions, and matched side-by-side slice-5 parity evidence.
 - The sixth modernized vertical slice implements read-only completed procedure/lab results with a React Procedures module, ASP.NET Core procedure-results API, PostgreSQL lab order/report/result queries, expanded modernized smoke checks, Workbench procedures plan actions, and matched side-by-side slice-6 parity evidence.
 - The seventh modernized vertical slice implements read-only fee-sheet billing with a React Fees module, ASP.NET Core billing API, PostgreSQL billing-line queries, expanded modernized smoke checks, Workbench billing plan actions, and side-by-side slice-7 parity evidence.
+- The eighth modernized vertical slice implements read-only administration directory behavior with a React Admin module, ASP.NET Core administration API, PostgreSQL staff/facility queries, expanded modernized smoke checks, Workbench admin plan actions, and matched side-by-side slice-8 parity evidence.

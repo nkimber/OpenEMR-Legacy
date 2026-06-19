@@ -40,6 +40,16 @@ export async function openProcedureResultsDirect(page: Page, target: RuntimeTarg
   await expect(page).toHaveTitle(/Procedure Results/i);
 }
 
+export async function openUserAdministrationDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
+  await expectRenderedText(page, /Users|Add User/i);
+}
+
+export async function openFacilitiesDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/usergroup/facilities.php`);
+  await expectRenderedText(page, /Facilities|Facility/i);
+}
+
 export async function expectRenderedText(page: Page, expected: string | RegExp) {
   const text = expect.poll(async () => await collectRenderedText(page), { timeout: 10_000 });
   if (typeof expected === "string") {

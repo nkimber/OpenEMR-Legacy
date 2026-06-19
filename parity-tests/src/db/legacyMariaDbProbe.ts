@@ -114,6 +114,39 @@ export type BillingLineSummary = {
   justify: string;
 };
 
+export type AdministrationUserSummary = {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  role: string;
+  authorized: boolean;
+  active: boolean;
+  calendar: boolean;
+  facilityId: number;
+  facilityName: string;
+  email: string;
+  npi: string;
+};
+
+export type AdministrationFacilitySummary = {
+  id: number;
+  code: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  color: string;
+};
+
+export type AdministrationDirectorySummary = {
+  users: AdministrationUserSummary[];
+  facilities: AdministrationFacilitySummary[];
+};
+
 export type ProcedureOrderSummary = {
   id: number;
   patientId: number;
@@ -504,6 +537,62 @@ ORDER BY id;
       fee: row.fee,
       justify: row.justify
     }));
+  }
+
+  async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
+    const users = await this.queryRows<Record<string, string>>(`
+SELECT u.id, u.username, u.fname AS firstName, u.lname AS lastName,
+  COALESCE(NULLIF(u.abook_type, ''), NULLIF(u.main_menu_role, ''), '') AS role,
+  COALESCE(u.authorized, 0) AS authorized,
+  COALESCE(u.active, 0) AS active,
+  COALESCE(u.calendar, 0) AS calendar,
+  COALESCE(u.facility_id, 0) AS facilityId,
+  COALESCE(f.name, u.facility, '') AS facilityName,
+  COALESCE(u.email, '') AS email,
+  COALESCE(u.npi, '') AS npi
+FROM users u
+LEFT JOIN facility f ON f.id = u.facility_id
+WHERE u.username LIKE 'gold-%'
+ORDER BY u.id;
+`);
+
+    const facilities = await this.queryRows<Record<string, string>>(`
+SELECT id, COALESCE(facility_code, '') AS code, name, COALESCE(phone, '') AS phone,
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS postalCode, COALESCE(color, '') AS color
+FROM facility
+WHERE id IN (10, 11, 12)
+ORDER BY id;
+`);
+
+    return {
+      users: users.map((row) => ({
+        id: Number(row.id),
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        displayName: `${row.lastName}, ${row.firstName}`,
+        role: row.role,
+        authorized: row.authorized === "1",
+        active: row.active === "1",
+        calendar: row.calendar === "1",
+        facilityId: Number(row.facilityId),
+        facilityName: row.facilityName,
+        email: row.email,
+        npi: row.npi
+      })),
+      facilities: facilities.map((row) => ({
+        id: Number(row.id),
+        code: row.code,
+        name: row.name,
+        phone: row.phone,
+        street: row.street,
+        city: row.city,
+        state: row.state,
+        postalCode: row.postalCode,
+        color: row.color
+      }))
+    };
   }
 
   async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {

@@ -69,6 +69,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-8-admin-readiness",
+      "name": "Slice 8 Admin Readiness",
+      "description": "Read-only administration directory confidence plan for seeded users and facilities on both legacy and modernized targets.",
+      "suites": ["admin"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-8", "admin", "users", "facilities", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -186,6 +195,16 @@
       "defaultResetMode": "run"
     },
     {
+      "id": "admin",
+      "name": "Administration Directory",
+      "description": "Compares read-only users and facilities directory behavior against the legacy administration screens using shared gold-data anchors.",
+      "layer": "parity",
+      "path": "tests/admin",
+      "tags": ["slice8", "admin", "users", "facilities", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
       "id": "database",
       "name": "Gold Database Contract",
       "description": "Validates the seeded gold dataset through normalized database probes.",
@@ -208,7 +227,7 @@
     {
       "id": "ui",
       "name": "Playwright UI Contract",
-      "description": "Exercises browser-visible login, chart, encounter, scheduling, billing, and lab result workflows.",
+      "description": "Exercises browser-visible login, chart, encounter, scheduling, billing, lab result, and administration workflows.",
       "layer": "ui",
       "path": "tests/ui",
       "tags": ["ui", "playwright", "read-only"],
