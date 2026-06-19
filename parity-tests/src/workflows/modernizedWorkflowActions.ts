@@ -1,6 +1,16 @@
 import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
-import type { AppointmentRecord, NewAppointment, PatientContact } from "./legacyWorkflowActions.js";
+import type {
+  AppointmentRecord,
+  EncounterRecord,
+  NewAppointment,
+  NewEncounter,
+  NewSoapNote,
+  NewVitals,
+  PatientContact,
+  SoapNoteRecord,
+  VitalsRecord
+} from "./legacyWorkflowActions.js";
 
 export class ModernizedWorkflowActions {
   constructor(
@@ -124,6 +134,216 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized appointment delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createEncounter(input: NewEncounter): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        providerId: input.providerId,
+        dateTime: input.dateTime,
+        reason: input.reason,
+        facilityId: input.facilityId,
+        billingFacilityId: input.billingFacilityId,
+        billingNote: input.billingNote
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const encounter = (await response.json()) as { id: number; encounter: number };
+    return encounter.encounter;
+  }
+
+  async getEncounter(id: number): Promise<EncounterRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, encounter, pid AS "patientId", provider_id AS "providerId", encounter_date AS date,
+  reason, facility_id AS "facilityId", COALESCE(billing_facility_id, facility_id) AS "billingFacilityId",
+  COALESCE(billing_note, '') AS "billingNote"
+FROM encounters
+WHERE encounter = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      encounter: Number(row.encounter),
+      patientId: Number(row.patientId),
+      providerId: Number(row.providerId),
+      date: row.date,
+      reason: row.reason,
+      facilityId: Number(row.facilityId),
+      billingFacilityId: Number(row.billingFacilityId),
+      billingNote: row.billingNote
+    };
+  }
+
+  async updateEncounterReason(id: number, reason: string, billingNote: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reason, billingNote })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteEncounter(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createVitals(input: NewVitals): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/vitals`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        dateTime: input.dateTime,
+        systolic: Number(input.bps),
+        diastolic: Number(input.bpd),
+        weight: input.weight,
+        height: input.height,
+        pulse: input.pulse,
+        oxygenSaturation: input.oxygenSaturation,
+        note: input.note
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter vitals create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getVitals(id: number): Promise<VitalsRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", COALESCE(bps::text, '') AS bps, COALESCE(bpd::text, '') AS bpd,
+  COALESCE(weight::text, '0') AS weight, COALESCE(height::text, '0') AS height,
+  COALESCE(pulse::text, '0') AS pulse, COALESCE(oxygen_saturation::text, '0') AS "oxygenSaturation",
+  COALESCE(note, '') AS note
+FROM vitals
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      bps: row.bps,
+      bpd: row.bpd,
+      weight: Number(row.weight),
+      height: Number(row.height),
+      pulse: Number(row.pulse),
+      oxygenSaturation: Number(row.oxygenSaturation),
+      note: row.note
+    };
+  }
+
+  async deleteVitals(id: number): Promise<void> {
+    const vitals = await this.db.queryRows<Record<string, string>>(`
+SELECT encounter
+FROM vitals
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const encounter = vitals[0]?.encounter;
+    if (!encounter) {
+      return;
+    }
+
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(encounter)}/vitals/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter vitals delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createSoapNote(input: NewSoapNote): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/soap-notes`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        dateTime: input.dateTime,
+        subjective: input.subjective,
+        objective: input.objective,
+        assessment: input.assessment,
+        plan: input.plan
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter SOAP note create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getSoapNote(id: number): Promise<SoapNoteRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", COALESCE(subjective, '') AS subjective, COALESCE(objective, '') AS objective,
+  COALESCE(assessment, '') AS assessment, COALESCE(plan, '') AS plan
+FROM clinical_notes
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      subjective: row.subjective,
+      objective: row.objective,
+      assessment: row.assessment,
+      plan: row.plan
+    };
+  }
+
+  async deleteSoapNote(id: number): Promise<void> {
+    const notes = await this.db.queryRows<Record<string, string>>(`
+SELECT encounter
+FROM clinical_notes
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const encounter = notes[0]?.encounter;
+    if (!encounter) {
+      return;
+    }
+
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(encounter)}/soap-notes/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter SOAP note delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 }

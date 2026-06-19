@@ -180,7 +180,7 @@ type NewPrescription = {
   diagnosis: string;
 };
 
-type NewEncounter = {
+export type NewEncounter = {
   patientId: number;
   providerId: number;
   dateTime: string;
@@ -191,7 +191,7 @@ type NewEncounter = {
   billingNote: string;
 };
 
-type NewVitals = {
+export type NewVitals = {
   patientId: number;
   encounter: number;
   dateTime: string;
@@ -204,7 +204,7 @@ type NewVitals = {
   note: string;
 };
 
-type NewSoapNote = {
+export type NewSoapNote = {
   patientId: number;
   encounter: number;
   dateTime: string;

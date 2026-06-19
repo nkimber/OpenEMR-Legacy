@@ -1312,13 +1312,73 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 034. Modernized Encounter Mutation Slice 12
+
+Commit: TBD
+
+Implemented the twelfth modernized OpenEMR vertical slice: the third mutation-capable parity workflow, focused on encounter create, summary update, vitals recording, SOAP note recording, browser rendering, and cleanup with React Encounters controls, ASP.NET Core encounter lifecycle endpoints, Workbench orchestration, smoke coverage, and matched side-by-side parity against the legacy OpenEMR encounter workflow.
+
+Key outcomes:
+
+- Added ASP.NET Core encounter create, update, delete, vitals create/delete, and SOAP note create/delete endpoints under `/api/encounters`.
+- Extended `EncounterRepository` with mutation methods while preserving read-only encounter search/detail behavior and making detail retrieval choose the newest vitals/SOAP rows deterministically.
+- Extended the modernized PostgreSQL seed schema with `billing_facility_id`, `billing_note`, and vitals `note` fields so Slice 12 preserves legacy-observed mutation facts instead of dropping them.
+- Fixed new modernized encounter ID generation to use the maximum of existing `id` and `encounter` values, preventing collisions where seeded encounter numbers differ from seeded row IDs.
+- Added Encounters UI controls for creating an encounter, updating the selected encounter, deleting it, recording vitals, and recording SOAP detail.
+- Expanded the modernized smoke script with a safe encounter create/update/vitals/SOAP/delete lifecycle check that cleans up its temporary rows.
+- Extended the modernized workflow action adapter with encounter, vitals, and SOAP lifecycle methods that mutate through the public API and verify exact post-state through PostgreSQL probes.
+- Added a shared `workflow-encounters` parity suite and the `slice-12-encounter-mutation-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 12 encounter mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the encounter mutation slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, with artifact status `passed`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-12-encounter-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-12-encounter-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-12-encounter-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- PostgreSQL cleanup probe confirming zero leftover Slice 12 temporary encounter, vitals, or SOAP rows.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-encounters/encounter-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Reports exports, document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for encounters, clinical lists, messages, prescriptions, billing, and procedures.
-- Encounter mutation workflows in the modernized target.
-- Scheduling mutation workflows in the modernized target.
+- Additional modernized workflow action adapters for clinical lists, messages, prescriptions, billing, and procedures.
+- Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

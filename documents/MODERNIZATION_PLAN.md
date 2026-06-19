@@ -181,7 +181,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Encounter create, update, and delete workflows remain deferred to a later encounter mutation slice.
+- Encounter create, update, and delete workflows are covered by Slice 12 for the focused encounter/vitals/SOAP lifecycle; broader encounter-adjacent workflows such as orders, billing linkage, authorization, and audit history remain deferred.
 
 ### Slice 4: Clinical Lists And Medications
 
@@ -411,6 +411,33 @@ Current limitations:
 - This slice covers a single future appointment lifecycle only.
 - Recurring appointments, provider availability validation, resource scheduling, appointment categories beyond the seeded default, reminders, check-in/check-out, waitlist flows, and billing/encounter conversion remain deferred to later scheduling slices.
 
+### Slice 12: Encounter Mutation
+
+Status:
+
+- Implemented as the third mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-12-encounter-mutation-readiness` plan, which creates, updates, renders, and removes an encounter with vitals and SOAP detail on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core encounter create, summary update, delete, vitals create/delete, and SOAP note create/delete endpoints over the modernized PostgreSQL encounter, vitals, and clinical-note tables.
+- PostgreSQL seed schema extensions for encounter billing facility, encounter billing note, and vitals note values so the normalized model preserves legacy-observed mutation facts.
+- React Encounters controls for creating an encounter from the finder panel, updating or deleting the selected encounter, and recording vitals and SOAP details from the detail panel.
+- Modernized workflow action adapter methods for encounter, vitals, and SOAP lifecycles.
+- Workbench-managed slice-12 encounter mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe encounter create/update/vitals/SOAP/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Encounters module can create an encounter for a patient, display it in the encounter list/detail view, update its reason and billing note, record vitals, record SOAP detail, and delete the temporary encounter.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-12-encounter-mutation-readiness` plan creates an encounter for `MOD-PAT-0002`, verifies encounter, vitals, and SOAP counts and database state, verifies browser-visible updated reason, billing note, blood pressure, and SOAP assessment, deletes the temporary encounter and child rows, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order/billing linkage, document attachment, and multi-form encounter packages remain deferred to later clinical workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -483,3 +510,4 @@ As of 2026-06-19:
 - The ninth modernized vertical slice implements read-only operational reports with a React Reports module, ASP.NET Core reports API, PostgreSQL aggregate report queries, expanded modernized smoke checks, Workbench reports plan actions, and matched side-by-side slice-9 parity evidence.
 - The tenth modernized vertical slice implements patient contact mutation with a React chart contact editor, ASP.NET Core contact update endpoint, PostgreSQL contact fields, modernized workflow action adapter, Workbench contact mutation plan action, and side-by-side slice-10 parity evidence.
 - The eleventh modernized vertical slice implements appointment mutation with React Calendar create/cancel/delete controls, ASP.NET Core appointment lifecycle endpoints, modernized workflow action adapter methods, Workbench appointment mutation plan action, smoke coverage, and side-by-side slice-11 parity evidence.
+- The twelfth modernized vertical slice implements encounter mutation with React Encounters create/update/delete, vitals, and SOAP controls, ASP.NET Core encounter lifecycle endpoints, PostgreSQL encounter/vitals/clinical-note mutation fields, modernized workflow action adapter methods, Workbench encounter mutation plan action, smoke coverage, and side-by-side slice-12 parity evidence.
