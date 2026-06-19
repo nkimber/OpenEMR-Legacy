@@ -9,6 +9,7 @@ import type {
   AdministrationUserSummary,
   AppointmentSummary,
   BillingLineSummary,
+  ClaimStatusSummary,
   ClinicalListsSummary,
   EncounterClinicalDetail,
   EncounterSummary,
@@ -91,6 +92,7 @@ UNION ALL SELECT 'labResults', COUNT(*) FROM lab_results
 UNION ALL SELECT 'messages', COUNT(*) FROM messages
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM patient_documents WHERE deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
+UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled = true;
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
@@ -209,7 +211,8 @@ UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE pid = ${pid}
 UNION ALL SELECT 'messages', COUNT(*) FROM messages WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM patient_documents WHERE pid = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM lab_orders WHERE pid = ${pid}
-UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid};
+UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid}
+UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE pid = ${pid};
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -548,6 +551,36 @@ ORDER BY id;
       codeText: row.codeText,
       fee: row.fee,
       justify: row.justify
+    }));
+  }
+
+  async getClaimsForPatient(pid: number): Promise<ClaimStatusSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pid AS "patientId", encounter, version, payer_id AS "payerId",
+  COALESCE(payer_name, '') AS "payerName", payer_type AS "payerType", status,
+  bill_process AS "billProcess", COALESCE(to_char(bill_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "billTime",
+  COALESCE(to_char(process_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "processTime",
+  COALESCE(process_file, '') AS "processFile", COALESCE(target, '') AS target,
+  COALESCE(submitted_claim, '') AS "submittedClaim"
+FROM claims
+WHERE pid = ${pid}
+ORDER BY encounter, version;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      version: Number(row.version),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      status: Number(row.status),
+      statusLabel: claimStatusLabel(Number(row.status), Number(row.billProcess)),
+      billProcess: Number(row.billProcess),
+      billTime: row.billTime,
+      processTime: row.processTime,
+      processFile: row.processFile,
+      target: row.target,
+      submittedClaim: row.submittedClaim
     }));
   }
 
@@ -964,6 +997,20 @@ function nullIfDbNull(value: string | undefined) {
     return null;
   }
   return value;
+}
+
+function claimStatusLabel(status: number, billProcess: number) {
+  if (billProcess !== 0) {
+    return "Queued for billing";
+  }
+
+  if (status === 1) return "Re-opened";
+  if (status === 2 || status === 3) return "Marked as cleared";
+  if (status === 4) return "Closed";
+  if (status === 5) return "Canceled";
+  if (status === 6) return "Forwarded";
+  if (status === 7) return "Denied";
+  return "Unsubmitted";
 }
 
 function escapeSql(value: string) {

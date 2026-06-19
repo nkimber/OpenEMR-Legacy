@@ -1428,6 +1428,36 @@ Current limitations:
 - This slice covers focused CPT fee-sheet modifier behavior only.
 - Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, payment posting, statement generation, and revenue-cycle audit history remain future billing slices.
 
+### Slice 47: Claim Status Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-47-claim-status-readiness` plan, which validates seeded OpenEMR `claims` rows and modernized claim-status rendering for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The shared gold dataset now includes 700 deterministic claim status rows in OpenEMR's native `claims` shape.
+- The `MOD-PAT-0005` billing anchor has stable queued, generated-to-file, and cleared claim examples for repeatable tests.
+- PostgreSQL seed mapping now includes a normalized `claims` table sourced from the same canonical dataset.
+- ASP.NET Core billing read behavior returns claim status rows alongside each billing encounter.
+- React Fees workspace now shows claim status cards, payer, target, billing time, process time, generated file, and submitted-claim payload availability.
+- Modernized smoke coverage validates the anchor claim status summary.
+- The `claims` parity suite and `slice-47-claim-status-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL state, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 47 claim status plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Legacy and modernized seed actions load 700 claim rows from the same canonical dataset.
+- Direct probes find the `MOD-PAT-0005` queued, generated, and cleared claim statuses with primary payer data.
+- The modernized billing API and Fees workspace render the same claim statuses without changing seeded billing rows.
+- The side-by-side Slice 47 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers claim status visibility only.
+- Legacy billing-report UI steering, claim generation, payer adjudication, remittance/payment posting, statement generation, and revenue-cycle audit history remain future billing slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1535,3 +1565,4 @@ As of 2026-06-19:
 - The forty-fourth modernized vertical slice implements fee-sheet diagnosis coding with React Fees ICD10 diagnosis controls, the existing ASP.NET Core billing line endpoint, PostgreSQL billing row lifecycle reuse, Workbench billing diagnosis plan action, smoke coverage, and side-by-side slice-44 parity evidence.
 - The forty-fifth modernized vertical slice implements fee-sheet charge correction with React Fees correction controls, ASP.NET Core billing line update endpoint support, PostgreSQL billing row update reuse, Workbench billing correction plan action, smoke coverage, and side-by-side slice-45 parity evidence.
 - The forty-sixth modernized vertical slice implements fee-sheet modifier behavior with canonical billing modifier seed data, React Fees modifier controls and rendering, ASP.NET Core billing modifier create/update/read support, PostgreSQL billing modifier mapping, Workbench billing modifier plan action, smoke coverage, and side-by-side slice-46 parity evidence.
+- The forty-seventh modernized vertical slice implements read-only claim status visibility with canonical claim seed data, PostgreSQL claim mapping, ASP.NET Core billing claim read support, React Fees claim-status rendering, Workbench claim status plan action, smoke coverage, and side-by-side slice-47 parity evidence.

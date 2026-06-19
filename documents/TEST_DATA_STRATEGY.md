@@ -219,6 +219,8 @@ The billing correction mutation slice uses `MOD-PAT-0001` as the stable fee-shee
 
 The billing modifier mutation slice adds the legacy-compatible `modifier` field to the canonical billing model and maps 334 seeded follow-up office-visit rows with modifier `25`. The shared `slice-46-billing-modifier-readiness` plan still uses a temporary `MOD-PAT-0001` CPT row for mutation behavior, applying modifier `25`, verifying direct row state, checking legacy Fee Sheet and modernized Fees rendering, deactivating the row, and hard-deleting it so the seeded modifier baseline remains unchanged.
 
+The claim status readiness slice adds 700 deterministic OpenEMR `claims` rows to the canonical dataset. These map to legacy MariaDB's native `claims` table and to the modernized PostgreSQL `claims` table. The `MOD-PAT-0005` billing anchor intentionally includes queued, generated-to-file, and cleared primary-payer claim examples so the `slice-47-claim-status-readiness` plan can verify direct database facts and modernized Fees rendering from the same gold data. This slice does not mutate claim rows; claim generation, adjudication, remittance, payment posting, and statement workflows remain future revenue-cycle slices.
+
 The administration directory slice uses the seeded provider/staff and facility records as stable anchors. Both legacy MariaDB and modernized PostgreSQL probes locate 20 `gold-*` users, 12 provider users with calendar access, and 3 facilities. The current anchor facts include `gold-provider-02` / `Morris, Jordan` as an authorized provider assigned to `North County Clinic`, `gold-billing-01` / `Grant, Drew` as a non-calendar billing user assigned to `Modernization Family Medicine`, and the MAIN/NORTH/EAST facilities. The `slice-8-admin-readiness` plan verifies these facts plus browser-visible Users and Facilities behavior against both targets.
 
 The administration facility mutation slice uses temporary facilities rather than changing the three seeded MAIN/NORTH/EAST anchors. The shared parity workflow creates a temporary facility, verifies direct row state and browser-visible active rendering, updates the facility name and inactive state, verifies the updated inactive row and default hidden-inactive list behavior, and then hard-deletes the temporary facility so facility mutation rows return to the seeded baseline. The `slice-18-admin-facility-mutation-readiness` plan verifies that lifecycle against both legacy MariaDB and modernized PostgreSQL.
@@ -263,7 +265,7 @@ The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation
 
 Purpose: scale testing, search performance, reporting, and realistic clinical histories.
 
-Current status: optional future extension. The V1 gold dataset already contains 1,000 patients, 1,200 patient document records, and 2,648 immunization records. Future expansions may add richer Synthea-derived clinical history, additional billing/claims depth, binary/scanned document storage fixtures, vaccine-registry fixtures, or reporting-specific fixtures.
+Current status: optional future extension. The V1 gold dataset already contains 1,000 patients, 1,200 patient document records, 2,648 immunization records, and 700 seeded claim status rows. Future expansions may add richer Synthea-derived clinical history, additional billing/claims depth, binary/scanned document storage fixtures, vaccine-registry fixtures, or reporting-specific fixtures.
 
 Potential future sources:
 

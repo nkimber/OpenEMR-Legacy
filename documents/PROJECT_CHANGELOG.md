@@ -1374,6 +1374,7 @@ Primary files:
 - `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
 - `parity-tests/src/workflows/legacyWorkflowActions.ts`
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+
 - `parity-tests/tests/workflow-appointments/appointment-mutation.spec.ts`
 - `parity-tests/test-manifest.json`
 - `parity-tests/package.json`
@@ -3546,6 +3547,73 @@ Primary files:
 - `parity-tests/src/db/modernizedPostgresProbe.ts`
 - `parity-tests/src/workflows/legacyWorkflowActions.ts`
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 072. Modernized Claim Status Slice 47
+
+Commit: this commit
+Started: `2026-06-19T17:32:34-04:00`
+Finished: `2026-06-19T17:41:40-04:00`
+
+Implemented the forty-seventh modernized OpenEMR vertical slice: read-only claim status visibility, focused on carrying OpenEMR's native `claims` rows through the shared dataset, modernized PostgreSQL schema, ASP.NET Core billing API, React Fees workspace, smoke checks, and side-by-side parity testing.
+
+Key outcomes:
+
+- Added 700 deterministic claim status rows to the canonical gold dataset and legacy MariaDB seed output.
+- Stabilized `MOD-PAT-0005` with queued, generated-to-file, and cleared claim examples for repeatable parity checks.
+- Added PostgreSQL `claims` schema/copy support for the modernized seed adapter.
+- Added ASP.NET Core billing read support for claim status rows attached to billing encounters.
+- Added claim status cards, counts, payer, target, process file, and submitted-payload visibility to the modernized Fees workspace.
+- Added modernized smoke coverage for the anchor claim status summary.
+- Added shared legacy and modernized database probes for normalized claim status facts.
+- Added the `claims` Playwright parity suite and `slice-47-claim-status-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 47 claim status plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+
+Verified test runs:
+
+- `npm run generate:seed-data` in `modernization-workbench/` regenerated the canonical and legacy SQL gold dataset artifacts with 700 claim status rows.
+- `node scripts/generate-postgres-seed.mjs` in `modernized-openemr/` regenerated the PostgreSQL seed artifact with 700 claim rows.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`; PostgreSQL `claims` table confirmed 700 rows.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 49 smoke checks, including `anchor claim status summary`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`; MariaDB `claims` table confirmed 700 rows.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-47-claim-status-readiness -Reset run` passed with run `2026-06-19T214103-328Z-legacy-openemr-plan-slice-47-claim-status-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-47-claim-status-readiness -Reset run` passed with run `2026-06-19T214117-354Z-modernized-openemr-plan-slice-47-claim-status-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-47-claim-status-readiness` matched with comparison `2026-06-19T214131-925Z-legacy-openemr-vs-modernized-openemr-plan-slice-47-claim-status-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/claims/claim-status.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
 - `parity-tests/test-manifest.json`
 - `parity-tests/package.json`
 - `scripts/Run-OpenEmrParityTests.ps1`

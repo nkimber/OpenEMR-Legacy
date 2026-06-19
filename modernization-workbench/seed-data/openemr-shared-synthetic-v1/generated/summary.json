@@ -26,6 +26,7 @@
     "messages": 1200,
     "patientDocuments": 1200,
     "billingLineItems": 3000,
+    "claims": 700,
     "portalPatients": 200
   },
   "temporalCoverage": {

@@ -81,6 +81,7 @@ UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
+UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 "@
 

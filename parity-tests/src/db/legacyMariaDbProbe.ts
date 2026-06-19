@@ -178,6 +178,23 @@ export type BillingLineSummary = {
   justify: string;
 };
 
+export type ClaimStatusSummary = {
+  patientId: number;
+  encounter: number;
+  version: number;
+  payerId: number;
+  payerName: string;
+  payerType: number;
+  status: number;
+  statusLabel: string;
+  billProcess: number;
+  billTime: string;
+  processTime: string;
+  processFile: string;
+  target: string;
+  submittedClaim: string;
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -406,6 +423,7 @@ UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
+UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
@@ -523,7 +541,8 @@ UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE patient_id =
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM documents WHERE foreign_id = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM procedure_order WHERE patient_id = ${pid}
-UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid};
+UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid}
+UNION ALL SELECT 'claims', COUNT(*) FROM claims WHERE patient_id = ${pid};
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -892,6 +911,37 @@ ORDER BY id;
       codeText: row.codeText,
       fee: row.fee,
       justify: row.justify
+    }));
+  }
+
+  async getClaimsForPatient(pid: number): Promise<ClaimStatusSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT c.patient_id AS patientId, c.encounter_id AS encounter, c.version, c.payer_id AS payerId,
+  COALESCE(ic.name, '') AS payerName, c.payer_type AS payerType, c.status, c.bill_process AS billProcess,
+  COALESCE(DATE_FORMAT(c.bill_time, '%Y-%m-%d %H:%i:%s'), '') AS billTime,
+  COALESCE(DATE_FORMAT(c.process_time, '%Y-%m-%d %H:%i:%s'), '') AS processTime,
+  COALESCE(c.process_file, '') AS processFile, COALESCE(c.target, '') AS target,
+  COALESCE(c.submitted_claim, '') AS submittedClaim
+FROM claims c
+LEFT JOIN insurance_companies ic ON ic.id = c.payer_id
+WHERE c.patient_id = ${pid}
+ORDER BY c.encounter_id, c.version;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      version: Number(row.version),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      status: Number(row.status),
+      statusLabel: claimStatusLabel(Number(row.status), Number(row.billProcess)),
+      billProcess: Number(row.billProcess),
+      billTime: row.billTime,
+      processTime: row.processTime,
+      processFile: row.processFile,
+      target: row.target,
+      submittedClaim: row.submittedClaim
     }));
   }
 
@@ -1370,6 +1420,20 @@ function nullIfDbNull(value: string | undefined) {
     return null;
   }
   return value;
+}
+
+function claimStatusLabel(status: number, billProcess: number) {
+  if (billProcess !== 0) {
+    return "Queued for billing";
+  }
+
+  if (status === 1) return "Re-opened";
+  if (status === 2 || status === 3) return "Marked as cleared";
+  if (status === 4) return "Closed";
+  if (status === 5) return "Canceled";
+  if (status === 6) return "Forwarded";
+  if (status === 7) return "Denied";
+  return "Unsubmitted";
 }
 
 export function escapeSql(value: string) {
