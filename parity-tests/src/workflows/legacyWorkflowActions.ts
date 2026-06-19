@@ -117,6 +117,9 @@ export type PatientDocumentRecord = {
   sizeBytes: number;
   storageMethod: string;
   deleted: number;
+  reviewStatus: string;
+  reviewedBy: string;
+  reviewedAt: string;
   contentBase64: string;
   contentPreview: string;
 };
@@ -1431,6 +1434,14 @@ SELECT d.id,
   COALESCE(d.size, 0) AS sizeBytes,
   CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
   COALESCE(d.deleted, 0) AS deleted,
+  CASE COALESCE(d.audit_master_approval_status, 1)
+    WHEN 1 THEN 'pending'
+    WHEN 2 THEN 'approved'
+    WHEN 3 THEN 'denied'
+    ELSE CONCAT('status-', COALESCE(d.audit_master_approval_status, 1))
+  END AS reviewStatus,
+  CASE WHEN COALESCE(d.audit_master_approval_status, 1) = 2 THEN 'admin' ELSE '' END AS reviewedBy,
+  CASE WHEN COALESCE(d.audit_master_approval_status, 1) = 2 THEN DATE_FORMAT(d.revision, '%Y-%m-%d %H:%i:%s') ELSE '' END AS reviewedAt,
   TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
 FROM documents d
@@ -1457,9 +1468,23 @@ LIMIT 1;
       sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
+      reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
       contentPreview: row.contentPreview
     };
+  }
+
+  async signPatientDocument(id: number | string, _reviewedBy = "admin"): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE documents
+SET audit_master_approval_status = 2,
+    owner = 1,
+    revision = NOW()
+WHERE id = ${integer(legacyId)};
+`);
   }
 
   async softDeletePatientDocument(id: number | string): Promise<void> {

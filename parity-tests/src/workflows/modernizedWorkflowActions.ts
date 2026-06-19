@@ -915,6 +915,9 @@ SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "ca
   category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
   COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
   COALESCE(storage_method, '') AS "storageMethod", deleted,
+  COALESCE(review_status, 'pending') AS "reviewStatus",
+  COALESCE(reviewed_by, '') AS "reviewedBy",
+  COALESCE(to_char(reviewed_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "reviewedAt",
   CASE
     WHEN content_bytes IS NOT NULL THEN encode(content_bytes, 'hex')
     ELSE encode(convert_to(coalesce(content, ''), 'UTF8'), 'hex')
@@ -942,9 +945,24 @@ LIMIT 1;
       sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
+      reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
       contentPreview: row.contentPreview
     };
+  }
+
+  async signPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/sign`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reviewStatus: "approved", reviewedBy })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document sign-off failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async softDeletePatientDocument(id: number | string): Promise<void> {

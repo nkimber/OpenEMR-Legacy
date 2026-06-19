@@ -339,6 +339,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-38-document-signoff-readiness",
+      "name": "Slice 38 Document Sign-Off Readiness",
+      "description": "Mutation-capable patient document sign-off confidence plan that creates, approves, renders, archives, and removes a reviewed document on both legacy and modernized targets.",
+      "suites": ["workflow-document-signoff"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-38", "documents", "document-signoff", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -351,7 +360,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -360,7 +369,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -702,6 +711,16 @@
       "layer": "workflow",
       "path": "tests/workflow-document-binary",
       "tags": ["slice33", "workflow", "mutation", "documents", "binary-documents", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-document-signoff",
+      "name": "Patient Document Sign-Off Mutation",
+      "description": "Creates, approves, renders, archives, and removes a reviewed patient document through the same patient-file workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-document-signoff",
+      "tags": ["slice38", "workflow", "mutation", "documents", "document-signoff", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

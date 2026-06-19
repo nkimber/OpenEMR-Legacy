@@ -804,7 +804,7 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews; focused binary upload/download lifecycle behavior is covered by Slice 33.
-- Versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, and full text content retrieval/download is covered by Slice 27.
+- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, and focused document sign-off is covered by Slice 38.
 
 ### Slice 26: Patient Document Mutation
 
@@ -1161,6 +1161,37 @@ Current limitations:
 - This slice covers focused patient registration create/render/delete parity only.
 - Duplicate detection, patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, audit history, and authorization enforcement remain deferred.
 
+### Slice 38: Patient Document Sign-Off
+
+Goal: add mutation-capable patient document sign-off parity using OpenEMR's document approval status and the modernized Documents workspace review controls.
+
+Status:
+
+- Implemented as the twenty-second mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-38-document-signoff-readiness` plan, which creates, approves, renders, archives, and removes a temporary reviewed document on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core documents API now supports `/api/documents/{documentId}/sign` for focused document approval.
+- Modernized PostgreSQL `patient_documents` now includes `review_status`, `reviewed_by`, and `reviewed_at` fields with seeded documents defaulting to `pending`.
+- React Documents workspace now renders document review status, reviewer metadata, and a Sign action for pending documents.
+- Modernized smoke coverage signs a temporary text document before archive/delete cleanup.
+- Shared legacy and modernized workflow adapters now expose `signPatientDocument`, mapping legacy `audit_master_approval_status = 2` to modernized `approved`.
+- The `workflow-document-signoff` parity suite and `slice-38-document-signoff-readiness` plan verify the same create, approve, render, archive, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 38 document sign-off plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary database-backed text document starts with pending review state on both targets.
+- Signing the document updates normalized readback to `approved`, `reviewedBy = admin`, and a non-empty review timestamp.
+- The modernized Documents workspace renders the approved status and reviewer, while the legacy document list remains browser-renderable for the same approved document.
+- The temporary document can be archived and hard-deleted during cleanup so the seeded 1,200-document baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused document approval/sign-off only.
+- Denial/rejection flows, multi-reviewer routing, document versioning, thumbnails, scanned-document capture, encryption/key management, CCDA import/export, external storage adapters, and authorization enforcement remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1259,3 +1290,4 @@ As of 2026-06-19:
 - The thirty-fifth modernized vertical slice implements encounter metadata mutation with React Encounters sensitivity/referral/external-ID/POS controls, ASP.NET Core encounter metadata fields, PostgreSQL encounter metadata columns, modernized workflow action adapter methods, Workbench encounter metadata plan action, smoke coverage, and side-by-side slice-35 parity evidence.
 - The thirty-sixth modernized vertical slice implements patient demographics mutation with React Patient/Client chart demographics edit controls, an ASP.NET Core patient demographics update endpoint, PostgreSQL patient demographic fields, modernized workflow action adapter methods, Workbench patient demographics plan action, smoke coverage, and side-by-side slice-36 parity evidence.
 - The thirty-seventh modernized vertical slice implements patient registration with a React Patient/Client registration form, ASP.NET Core patient registration and guarded temporary-delete endpoints, PostgreSQL patient insert/delete behavior, modernized workflow action adapter methods, Workbench patient registration plan action, smoke coverage, and side-by-side slice-37 parity evidence.
+- The thirty-eighth modernized vertical slice implements patient document sign-off with React Documents review controls, ASP.NET Core document approval endpoint, PostgreSQL document review-status fields, modernized workflow action adapter methods, Workbench document sign-off plan action, smoke coverage, and side-by-side slice-38 parity evidence.
