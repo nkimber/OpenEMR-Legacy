@@ -1254,7 +1254,7 @@ Primary files:
 
 ### 033. Modernized Appointment Mutation Slice 11
 
-Commit: TBD
+Commit: 06db879
 
 Implemented the eleventh modernized OpenEMR vertical slice: the second mutation-capable parity workflow, focused on future appointment create, cancel, render, and delete behavior with React Calendar controls, ASP.NET Core appointment lifecycle endpoints, Workbench orchestration, smoke coverage, and matched side-by-side parity against the legacy OpenEMR scheduler.
 
