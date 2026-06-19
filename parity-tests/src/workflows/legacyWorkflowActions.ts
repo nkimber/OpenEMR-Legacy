@@ -112,6 +112,7 @@ export type PatientDocumentRecord = {
   categoryName: string;
   name: string;
   docDate: string;
+  encounter: number;
   mimetype: string;
   fileName: string;
   url: string;
@@ -121,6 +122,7 @@ export type PatientDocumentRecord = {
   reviewStatus: string;
   reviewedBy: string;
   reviewedAt: string;
+  notes: string;
   contentBase64: string;
   contentPreview: string;
 };
@@ -393,6 +395,15 @@ export type NewPatientExternalLinkDocument = {
   docDate: string;
   encounter: number;
   url: string;
+  notes: string;
+};
+
+export type PatientDocumentMetadataUpdate = {
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  encounter: number | null;
   notes: string;
 };
 
@@ -1468,6 +1479,7 @@ SELECT d.id,
   COALESCE(c.name, '') AS categoryName,
   d.name,
   DATE(d.docdate) AS docDate,
+  COALESCE(d.encounter_id, 0) AS encounter,
   COALESCE(d.mimetype, '') AS mimetype,
   COALESCE(d.url, '') AS url,
   COALESCE(d.name, '') AS fileName,
@@ -1487,6 +1499,7 @@ SELECT d.id,
   END AS reviewStatus,
   CASE WHEN COALESCE(d.audit_master_approval_status, 1) IN (2, 3) THEN 'admin' ELSE '' END AS reviewedBy,
   CASE WHEN COALESCE(d.audit_master_approval_status, 1) IN (2, 3) THEN DATE_FORMAT(d.revision, '%Y-%m-%d %H:%i:%s') ELSE '' END AS reviewedAt,
+  COALESCE(d.documentationOf, '') AS notes,
   TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
 FROM documents d
@@ -1508,6 +1521,7 @@ LIMIT 1;
       categoryName: row.categoryName,
       name: row.name,
       docDate: row.docDate,
+      encounter: Number(row.encounter),
       mimetype: row.mimetype,
       fileName: row.fileName,
       url: row.url,
@@ -1517,9 +1531,29 @@ LIMIT 1;
       reviewStatus: row.reviewStatus,
       reviewedBy: row.reviewedBy,
       reviewedAt: row.reviewedAt,
+      notes: row.notes,
       contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
       contentPreview: row.contentPreview
     };
+  }
+
+  async updatePatientDocumentMetadata(id: number | string, input: PatientDocumentMetadataUpdate): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE documents
+SET name = ${sqlString(input.name)},
+    docdate = ${sqlString(input.docDate)},
+    encounter_id = ${nullableInteger(input.encounter)},
+    documentationOf = ${sqlString(input.notes)},
+    revision = NOW()
+WHERE id = ${integer(legacyId)};
+
+DELETE FROM categories_to_documents
+WHERE document_id = ${integer(legacyId)};
+
+INSERT INTO categories_to_documents (category_id, document_id)
+VALUES (${integer(input.categoryId)}, ${integer(legacyId)});
+`);
   }
 
   async signPatientDocument(id: number | string, _reviewedBy = "admin"): Promise<void> {

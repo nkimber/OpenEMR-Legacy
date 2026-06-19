@@ -35,6 +35,7 @@ import type {
   NewVitals,
   PatientContact,
   PatientDemographics,
+  PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientInsuranceRecord,
   PatientMessageRecord,
@@ -938,11 +939,13 @@ LIMIT 1;
 SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "categoryId",
   category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
   COALESCE(url, '') AS url,
+  COALESCE(encounter::text, '0') AS encounter,
   COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
   COALESCE(storage_method, '') AS "storageMethod", deleted,
   COALESCE(review_status, 'pending') AS "reviewStatus",
   COALESCE(reviewed_by, '') AS "reviewedBy",
   COALESCE(to_char(reviewed_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "reviewedAt",
+  COALESCE(notes, '') AS notes,
   CASE
     WHEN content_bytes IS NOT NULL THEN encode(content_bytes, 'hex')
     ELSE encode(convert_to(coalesce(content, ''), 'UTF8'), 'hex')
@@ -965,6 +968,7 @@ LIMIT 1;
       categoryName: row.categoryName,
       name: row.name,
       docDate: row.docDate,
+      encounter: Number(row.encounter),
       mimetype: row.mimetype,
       fileName: row.fileName,
       url: row.url,
@@ -974,9 +978,28 @@ LIMIT 1;
       reviewStatus: row.reviewStatus,
       reviewedBy: row.reviewedBy,
       reviewedAt: row.reviewedAt,
+      notes: row.notes,
       contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
       contentPreview: row.contentPreview
     };
+  }
+
+  async updatePatientDocumentMetadata(id: number | string, input: PatientDocumentMetadataUpdate): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/metadata`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        encounter: input.encounter,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document metadata update failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async signPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {

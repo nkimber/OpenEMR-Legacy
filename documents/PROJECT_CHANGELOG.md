@@ -3200,6 +3200,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 066. Modernized Patient Document Metadata Slice 41
+
+Commit: pending
+Started: `2026-06-19T15:12:49-04:00`
+Finished: `2026-06-19T15:17:49-04:00`
+
+Implemented the forty-first modernized OpenEMR vertical slice: patient document metadata refiling, focused on creating a temporary document, editing its title, category, document date, linked encounter, and notes, rendering the refiled document, archiving it, deleting it, and proving the document baseline returns clean.
+
+Key outcomes:
+
+- Added an ASP.NET Core document metadata update endpoint for focused filing metadata changes without replacing document content.
+- Added modernized Documents workspace inline Edit controls on document cards, plus viewer fields for category, document date, encounter, and notes.
+- Added modernized smoke coverage for a temporary patient-document metadata lifecycle.
+- Added shared legacy and modernized workflow adapter methods for `updatePatientDocumentMetadata`.
+- Normalized legacy `documents.name`, `documents.docdate`, `documents.encounter_id`, `documents.documentationOf`, and `categories_to_documents.category_id` into the shared patient-document workflow record.
+- Added the `workflow-document-metadata` Playwright parity suite and `slice-41-document-metadata-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 41 document metadata plan.
+- Documented the legacy mapping, modernized endpoint, seed-data reuse, Workbench action, and side-by-side parity strategy.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001`; result status `passed`.
+- Legacy parity run `2026-06-19T191653-632Z-legacy-openemr-plan-slice-41-document-metadata-readiness`; 1 expected, 1 passed.
+- Modernized parity run `2026-06-19T191718-554Z-modernized-openemr-plan-slice-41-document-metadata-readiness`; 1 expected, 1 passed.
+- Side-by-side comparison `2026-06-19T191737-183Z-legacy-openemr-vs-modernized-openemr-plan-slice-41-document-metadata-readiness`; status `matched`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-metadata/document-metadata-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
