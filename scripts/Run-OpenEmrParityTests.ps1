@@ -25,6 +25,7 @@ param(
         "reports-export",
         "admin-access-control",
         "workflow-contact",
+        "workflow-demographics",
         "workflow-appointments",
         "workflow-encounters",
         "workflow-encounter-metadata",

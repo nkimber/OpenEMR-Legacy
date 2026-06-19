@@ -13,8 +13,27 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 - Add entries in chronological order.
 - Keep each entry concrete: describe what changed, why it matters, and where the evidence or source files live.
 - Reference the relevant commit when available.
+- Record `Started:` and `Finished:` timestamps for each new entry using ISO 8601 local time with timezone offset, such as `2026-06-19T13:06:12-04:00`.
+- Treat `Started:` as the time active implementation work for that changelog section began and `Finished:` as the time verification and document updates for that section were complete.
+- Do not manually calculate or write a duration; the Modernization Workbench calculates section duration from `Started:` and `Finished:`.
 - Do not replace the detailed project documents. Link to them or name them when the change belongs to a specific area.
 - If a later change supersedes an earlier entry, add a new entry that says so rather than silently rewriting history.
+
+## Entry Template
+
+Future entries should use this header shape:
+
+```markdown
+### 000. Short Entry Title
+
+Commit: pending
+Started: `2026-06-19T13:06:12-04:00`
+Finished: `2026-06-19T13:42:30-04:00`
+
+One-paragraph summary of what changed and why it matters.
+```
+
+Use the local machine clock, for example PowerShell `Get-Date -Format o`, so the Workbench can display actual clock times and calculate elapsed section duration.
 
 ## 2026-06-18
 
@@ -2772,6 +2791,155 @@ Primary files:
 - `parity-tests/src/workflows/legacyWorkflowActions.ts`
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
 - `parity-tests/tests/workflow-encounter-metadata/encounter-metadata.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+## 2026-06-19
+
+### 058. Workbench HTTP Health Checks Restored
+
+Commit: current slice commit
+
+Fixed the Modernization Workbench backend health checker so managed applications with `http` health URLs can be evaluated without throwing `Protocol "http:" not supported. Expected "https:"`.
+
+Key outcomes:
+
+- Added protocol-aware Workbench health checks using Node's HTTP client for `http` URLs and HTTPS client for `https` URLs.
+- Preserved the self-signed certificate bypass only for HTTPS health checks, which keeps the legacy OpenEMR health endpoint behavior intact.
+- Restored shared `/api/apps` snapshot loading for every Workbench page when the modernized target health URL is `http://localhost:5001/health`.
+
+Verified test runs:
+
+- `npm run typecheck` in `modernization-workbench/`.
+- `npm run build` in `modernization-workbench/`.
+- Short-lived Workbench API smoke on port `5197` with `/api/changelog`, confirming entry 060 returned explicit `startedAt`, `finishedAt`, calculated `durationMs`, and `completedAt`.
+- Short-lived Workbench API smoke on port `5198` with `/api/changelog`, confirming 59 timeline entries and 46 commit-timed entries.
+- `npm run build` in `modernization-workbench/`.
+- Short-lived Workbench API smoke on port `5199` with `/api/apps`, confirming both legacy HTTPS and modernized HTTP health URLs load successfully.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 059. Project Timeline Commit Timing Added
+
+Commit: current slice commit
+
+Enhanced the Modernization Workbench Project Timeline so changelog entries with resolvable Git commit hashes can show actual completion clock time and elapsed time since the previous completed changelog step.
+
+Key outcomes:
+
+- Added Workbench API enrichment that resolves changelog commit hashes against local Git history.
+- Added `completedAt`, `completedCommit`, and `elapsedSincePreviousMs` fields to structured changelog entries when commit metadata is available.
+- Added compact timeline chips for commit completion time and the elapsed span since the prior completed step.
+- Kept the duration label honest as "Since prior step" because the changelog does not record actual human task start times.
+
+Verified test runs:
+
+- `npm run typecheck` in `modernization-workbench/`.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 060. Changelog Explicit Timing Convention Added
+
+Commit: current slice commit
+Started: `2026-06-19T13:06:12-04:00`
+Finished: `2026-06-19T13:08:03-04:00`
+
+Updated the project changelog convention so future entries record explicit section start and finish timestamps, allowing the Modernization Workbench to calculate actual per-section duration.
+
+Key outcomes:
+
+- Added `Started:` and `Finished:` timestamp requirements to the changelog maintenance rules.
+- Added an entry template using ISO 8601 local timestamps with timezone offsets.
+- Updated documentation governance and the document index so future contributors know changelog timing metadata is required.
+- Extended the Workbench changelog parser and timeline types to parse explicit start, finish, and calculated duration fields.
+- Updated the Project Timeline UI to show Started, Finished, and Duration chips when explicit timing is present, while preserving commit-time fallback behavior for older entries.
+
+Verified test runs:
+
+- `npm run typecheck` in `modernization-workbench/`.
+- `npm run build` in `modernization-workbench/`.
+
+Primary files:
+
+- `documents/PROJECT_CHANGELOG.md`
+- `documents/DOCUMENTATION_GOVERNANCE.md`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+
+### 061. Modernized Patient Demographics Mutation Slice 36
+
+Commit: current slice commit
+Started: `2026-06-19T12:47:00-04:00`
+Finished: `2026-06-19T13:14:22-04:00`
+
+Implemented the thirty-sixth modernized OpenEMR vertical slice: patient demographics mutation, focused on updating and restoring patient identity, DOB, address, marital status, and occupation through the modernized Patient/Client chart while preserving side-by-side parity against legacy OpenEMR.
+
+Key outcomes:
+
+- Added an ASP.NET Core patient demographics update endpoint and PostgreSQL repository mutation over the modernized `patients` table.
+- Added a React Patient/Client chart Demographics editor for first name, last name, preferred name, sex, date of birth, address, marital status, and occupation.
+- Added modernized frontend API typing and state synchronization so saved demographics update both the chart header and current search result row.
+- Added shared legacy and modernized workflow adapter methods for `getPatientDemographics` and `updatePatientDemographics`.
+- Added the `workflow-demographics` Playwright parity suite and `slice-36-patient-demographics-mutation-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 36 patient demographics plan.
+- Added modernized smoke coverage that updates `MOD-PAT-0010`, verifies returned chart state, and restores the original demographics.
+- Documented the verified legacy rendering nuance: all demographic fields are checked by normalized row/API readback, while legacy browser checks assert the fields exposed by OpenEMR's summary/edit surfaces.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run list` in `parity-tests/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, producing `passed` and including `patient demographics mutation lifecycle`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-36-patient-demographics-mutation-readiness -Reset test`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-36-patient-demographics-mutation-readiness -Reset test`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-36-patient-demographics-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `git diff --check`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-demographics/patient-demographics-mutation.spec.ts`
 - `parity-tests/test-manifest.json`
 - `parity-tests/package.json`
 - `scripts/Run-OpenEmrParityTests.ps1`

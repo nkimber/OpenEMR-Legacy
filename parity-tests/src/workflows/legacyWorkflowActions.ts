@@ -10,6 +10,22 @@ export type PatientContact = {
   hipaaAllowEmail: string;
 };
 
+export type PatientDemographics = {
+  pid: number;
+  pubpid: string;
+  firstName: string;
+  lastName: string;
+  preferredName: string;
+  sex: string;
+  dateOfBirth: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  maritalStatus: string;
+  occupation: string;
+};
+
 export type AppointmentRecord = {
   id: number | string;
   patientId: number;
@@ -869,6 +885,64 @@ SET phone_home = ${sqlString(contact.phoneHome)},
   hipaa_allowsms = ${sqlString(contact.hipaaAllowSms)},
   hipaa_allowemail = ${sqlString(contact.hipaaAllowEmail)}
 WHERE pid = ${integer(contact.pid)};
+`);
+  }
+
+  async getPatientDemographics(pid: number): Promise<PatientDemographics | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pid, pubpid,
+  COALESCE(fname, '') AS firstName,
+  COALESCE(lname, '') AS lastName,
+  COALESCE(preferred_name, '') AS preferredName,
+  COALESCE(sex, '') AS sex,
+  COALESCE(DATE(DOB), '') AS dateOfBirth,
+  COALESCE(street, '') AS street,
+  COALESCE(city, '') AS city,
+  COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS postalCode,
+  COALESCE(status, '') AS maritalStatus,
+  COALESCE(occupation, '') AS occupation
+FROM patient_data
+WHERE pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      preferredName: row.preferredName,
+      sex: row.sex,
+      dateOfBirth: row.dateOfBirth,
+      street: row.street,
+      city: row.city,
+      state: row.state,
+      postalCode: row.postalCode,
+      maritalStatus: row.maritalStatus,
+      occupation: row.occupation
+    };
+  }
+
+  async updatePatientDemographics(demographics: PatientDemographics): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_data
+SET fname = ${sqlString(demographics.firstName)},
+  lname = ${sqlString(demographics.lastName)},
+  preferred_name = ${sqlString(demographics.preferredName)},
+  sex = ${sqlString(demographics.sex)},
+  DOB = ${sqlString(demographics.dateOfBirth)},
+  street = ${sqlString(demographics.street)},
+  city = ${sqlString(demographics.city)},
+  state = ${sqlString(demographics.state)},
+  postal_code = ${sqlString(demographics.postalCode)},
+  status = ${sqlString(demographics.maritalStatus)},
+  occupation = ${sqlString(demographics.occupation)}
+WHERE pid = ${integer(demographics.pid)};
 `);
   }
 

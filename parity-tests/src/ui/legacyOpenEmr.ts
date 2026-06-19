@@ -15,6 +15,11 @@ export async function openPatientSummaryDirect(page: Page, target: RuntimeTarget
   await expect(page.locator("body")).toContainText(/Demographics|Patient|History/i);
 }
 
+export async function openPatientDemographicsEditDirect(page: Page, target: RuntimeTarget, pid: number) {
+  await page.goto(`${target.publicUrl}/interface/patient_file/summary/demographics_full.php?set_pid=${pid}`);
+  await expectRenderedText(page, /Demographics|First Name|Last Name/i);
+}
+
 export async function openPatientInsuranceBrowseDirect(
   page: Page,
   target: RuntimeTarget,

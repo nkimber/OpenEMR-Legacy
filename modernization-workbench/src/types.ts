@@ -282,6 +282,12 @@ export type ChangelogEntry = {
   title: string;
   date: string;
   commit: string;
+  startedAt?: string;
+  finishedAt?: string;
+  durationMs?: number;
+  completedAt?: string;
+  completedCommit?: string;
+  elapsedSincePreviousMs?: number;
   summary: string;
   keyOutcomes: string[];
   primaryFiles: string[];

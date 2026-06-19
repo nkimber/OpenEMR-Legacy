@@ -37,7 +37,7 @@ Common update patterns:
 - Update testing documents when test layers, fixtures, seed data, Playwright coverage, or parity checks change.
 - Update migration documents when a legacy workflow, table, API, or business rule is mapped into the modernized system.
 - Update decision records when a durable decision is made or reversed.
-- Update `documents/PROJECT_CHANGELOG.md` when a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed.
+- Update `documents/PROJECT_CHANGELOG.md` when a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed, including `Started:` and `Finished:` ISO 8601 local timestamps so the Workbench can calculate section duration.
 - Update `documents/INDEX.md` whenever a new document is added or the purpose of an existing document changes.
 
 ## Decision Handling

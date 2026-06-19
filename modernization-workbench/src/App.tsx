@@ -127,6 +127,18 @@ function formatDateOnly(value?: string) {
   }).format(new Date(`${value}T12:00:00`));
 }
 
+function formatClockTime(value?: string) {
+  if (!value) {
+    return "-";
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short"
+  }).format(new Date(value));
+}
+
 function formatDuration(ms?: number) {
   if (ms === undefined || Number.isNaN(ms)) {
     return "-";
@@ -135,6 +147,34 @@ function formatDuration(ms?: number) {
     return `${ms} ms`;
   }
   return `${(ms / 1000).toFixed(1)} s`;
+}
+
+function formatElapsedDuration(ms?: number) {
+  if (ms === undefined || Number.isNaN(ms)) {
+    return "-";
+  }
+
+  const totalSeconds = Math.max(0, Math.round(ms / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const parts: string[] = [];
+
+  if (days) {
+    parts.push(`${days}d`);
+  }
+  if (hours) {
+    parts.push(`${hours}h`);
+  }
+  if (minutes && parts.length < 2) {
+    parts.push(`${minutes}m`);
+  }
+  if (!parts.length || (!days && !hours && parts.length < 2)) {
+    parts.push(`${seconds}s`);
+  }
+
+  return parts.slice(0, 2).join(" ");
 }
 
 function StatusPill({ state, label }: { state: RuntimeState | string; label: string }) {
@@ -278,7 +318,7 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
         <GitBranch size={21} />
         <div>
           <strong>Modern target</strong>
-          <span>{modernizedApp?.runtime.label ?? "Slice 35 encounter metadata"}</span>
+          <span>{modernizedApp?.runtime.label ?? "Slice 36 patient demographics"}</span>
         </div>
       </div>
       <div className="overview-item">
@@ -657,6 +697,20 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
               const hiddenOutcomeCount = Math.max(0, entry.keyOutcomes.length - 5);
               const hiddenFileCount = Math.max(0, entry.primaryFiles.length - 3);
               const visibleMetrics = entry.metrics.slice(0, 4);
+              const timingMetrics: Array<{ label: string; value: string }> = [];
+              if (entry.startedAt) {
+                timingMetrics.push({ label: "Started", value: formatClockTime(entry.startedAt) });
+              }
+              if (entry.finishedAt) {
+                timingMetrics.push({ label: "Finished", value: formatClockTime(entry.finishedAt) });
+              } else if (entry.completedAt) {
+                timingMetrics.push({ label: "Completed", value: formatClockTime(entry.completedAt) });
+              }
+              if (entry.durationMs !== undefined) {
+                timingMetrics.push({ label: "Duration", value: formatElapsedDuration(entry.durationMs) });
+              } else if (entry.elapsedSincePreviousMs !== undefined) {
+                timingMetrics.push({ label: "Since prior step", value: formatElapsedDuration(entry.elapsedSincePreviousMs) });
+              }
 
               return (
                 <article className="changelog-entry" key={`${entry.date}-${entry.id}`}>
@@ -673,6 +727,16 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                     </div>
 
                     {entry.summary ? <p>{entry.summary}</p> : null}
+
+                    {timingMetrics.length ? (
+                      <div className="changelog-timing">
+                        {timingMetrics.map((metric) => (
+                          <span key={`${entry.id}-${metric.label}`}>
+                            {metric.label} <strong>{metric.value}</strong>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
 
                     {visibleMetrics.length ? (
                       <div className="changelog-metrics">

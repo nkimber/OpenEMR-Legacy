@@ -1101,6 +1101,36 @@ Current limitations:
 - This slice covers focused encounter metadata create, update, and delete parity only.
 - Diagnosis coding, encounter locking/sign-off, audit history, authorization rules, billing linkage updates, referrals workflow integration, templates, and attachments remain deferred.
 
+### Slice 36: Patient Demographics Mutation
+
+Goal: add mutation-capable patient demographics parity using OpenEMR's `patient_data` identity, DOB, address, marital-status, and occupation fields and the modernized Patient/Client chart Demographics panel.
+
+Status:
+
+- Implemented as the twentieth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-36-patient-demographics-mutation-readiness` plan, which updates, renders, and restores a stable patient demographics record on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient API now supports a demographics update endpoint over the modernized PostgreSQL `patients` table.
+- React Patient/Client chart now includes an editable Demographics panel for first name, last name, preferred name, sex, DOB, address, marital status, and occupation.
+- Modernized smoke coverage updates `MOD-PAT-0010`, verifies returned chart state, and restores the original demographics.
+- Shared legacy and modernized workflow adapters now expose `getPatientDemographics` and `updatePatientDemographics`.
+- The `workflow-demographics` parity suite and `slice-36-patient-demographics-mutation-readiness` plan verify the same update, render, and restore lifecycle against both targets.
+- Workbench-managed Slice 36 patient demographics plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- `MOD-PAT-0010` demographics can be updated through the modernized server tier and restored to the seeded baseline.
+- The updated record can be read back directly from both legacy MariaDB and modernized PostgreSQL with matching normalized demographic fields.
+- The updated identity, DOB, address, marital status, and occupation are verified through normalized row/API readback; the modernized Patient/Client chart renders the updated demographics, and the legacy browser check verifies the demographics fields exposed by OpenEMR's summary/edit surfaces.
+- The side-by-side Slice 36 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice covers focused demographics update and restore parity only.
+- Patient creation, deletion, duplicate detection, guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1197,3 +1227,4 @@ As of 2026-06-19:
 - The thirty-third modernized vertical slice implements binary patient-document mutation with React Documents file upload/view/download controls, ASP.NET Core binary document lifecycle endpoints, PostgreSQL document byte storage fields, modernized workflow action adapter methods, Workbench binary document mutation plan action, smoke coverage, and side-by-side slice-33 parity evidence.
 - The thirty-fourth modernized vertical slice implements patient insurance mutation with React Patient/Client chart coverage add/edit/delete controls, ASP.NET Core patient insurance lifecycle endpoints, modernized workflow action adapter methods, Workbench insurance mutation plan action, smoke coverage, and side-by-side slice-34 parity evidence.
 - The thirty-fifth modernized vertical slice implements encounter metadata mutation with React Encounters sensitivity/referral/external-ID/POS controls, ASP.NET Core encounter metadata fields, PostgreSQL encounter metadata columns, modernized workflow action adapter methods, Workbench encounter metadata plan action, smoke coverage, and side-by-side slice-35 parity evidence.
+- The thirty-sixth modernized vertical slice implements patient demographics mutation with React Patient/Client chart demographics edit controls, an ASP.NET Core patient demographics update endpoint, PostgreSQL patient demographic fields, modernized workflow action adapter methods, Workbench patient demographics plan action, smoke coverage, and side-by-side slice-36 parity evidence.

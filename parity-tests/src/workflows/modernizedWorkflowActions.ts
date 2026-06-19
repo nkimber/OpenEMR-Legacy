@@ -32,6 +32,7 @@ import type {
   NewSoapNote,
   NewVitals,
   PatientContact,
+  PatientDemographics,
   PatientDocumentRecord,
   PatientInsuranceRecord,
   PatientMessageRecord,
@@ -309,6 +310,70 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient contact update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientDemographics(pid: number): Promise<PatientDemographics | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT legacy_pid AS pid, pubpid,
+  first_name AS "firstName",
+  last_name AS "lastName",
+  COALESCE(preferred_name, '') AS "preferredName",
+  COALESCE(sex, '') AS sex,
+  date_of_birth AS "dateOfBirth",
+  COALESCE(street, '') AS street,
+  COALESCE(city, '') AS city,
+  COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS "postalCode",
+  COALESCE(marital_status, '') AS "maritalStatus",
+  COALESCE(occupation, '') AS occupation
+FROM patients
+WHERE legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      preferredName: row.preferredName,
+      sex: row.sex,
+      dateOfBirth: row.dateOfBirth,
+      street: row.street,
+      city: row.city,
+      state: row.state,
+      postalCode: row.postalCode,
+      maritalStatus: row.maritalStatus,
+      occupation: row.occupation
+    };
+  }
+
+  async updatePatientDemographics(demographics: PatientDemographics): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(demographics.pubpid)}/demographics`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        firstName: demographics.firstName,
+        lastName: demographics.lastName,
+        preferredName: demographics.preferredName,
+        sex: demographics.sex,
+        dateOfBirth: demographics.dateOfBirth,
+        street: demographics.street,
+        city: demographics.city,
+        state: demographics.state,
+        postalCode: demographics.postalCode,
+        maritalStatus: demographics.maritalStatus,
+        occupation: demographics.occupation
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient demographics update failed with ${response.status}: ${await response.text()}`);
     }
   }
 
