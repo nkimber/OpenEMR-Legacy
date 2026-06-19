@@ -1133,7 +1133,7 @@ Primary files:
 
 ### 031. Modernized Operational Reports Slice 9
 
-Commit: `TBD`
+Commit: `6edab8b`
 
 Implemented the ninth modernized OpenEMR vertical slice: read-only operational reporting with a Reports module, reports API, Workbench orchestration, and matched side-by-side parity against legacy OpenEMR report surfaces and normalized report facts.
 
