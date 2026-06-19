@@ -1805,7 +1805,7 @@ Primary files:
 
 ### 042. Modernized Access-Control Read Model Slice 20
 
-Commit: TBD
+Commit: ae99d38
 
 Implemented the twentieth modernized OpenEMR vertical slice: a read-only administration access-control parity workflow, focused on default OpenEMR ACL groups, visible permission objects, group-permission assignments, and browser-visible access-control surfaces with React Admin visibility, ASP.NET Core administration response fields, PostgreSQL access-control tables, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR Access Control administration workflow.
 
