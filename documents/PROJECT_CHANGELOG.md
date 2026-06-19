@@ -1435,7 +1435,7 @@ Primary files:
 
 ### 036. Modernized Patient Message Mutation Slice 14
 
-Commit: TBD
+Commit: dc79a4a
 
 Implemented the fourteenth modernized OpenEMR vertical slice: the fifth mutation-capable parity workflow, focused on patient message create, close/status update, soft-delete/archive, and hard-delete behavior with React Messages controls, ASP.NET Core message lifecycle endpoints, PostgreSQL message activity fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR patient-message workflow.
 
