@@ -516,9 +516,10 @@ patients.forEach((patient, index) => {
 
 const billing = [];
 encounters.forEach((encounter, index) => {
-  billing.push({ id: `BILL-${encounter.encounter}-E`, pid: encounter.pid, providerId: encounter.providerId, encounter: encounter.encounter, date: encounter.datetime, codeType: "CPT4", code: encounter.categoryId === 10 ? "99204" : "99214", codeText: encounter.categoryId === 10 ? "New patient office visit" : "Established patient office visit", fee: encounter.categoryId === 10 ? 245.0 : 168.0, justify: encounter.diagnosisCode });
+  const officeVisitModifier = encounter.categoryId === 10 ? "" : (index % 6 === 1 ? "25" : "");
+  billing.push({ id: `BILL-${encounter.encounter}-E`, pid: encounter.pid, providerId: encounter.providerId, encounter: encounter.encounter, date: encounter.datetime, codeType: "CPT4", code: encounter.categoryId === 10 ? "99204" : "99214", modifier: officeVisitModifier, codeText: encounter.categoryId === 10 ? "New patient office visit" : "Established patient office visit", fee: encounter.categoryId === 10 ? 245.0 : 168.0, justify: encounter.diagnosisCode });
   if (index < 900) {
-    billing.push({ id: `BILL-${encounter.encounter}-A`, pid: encounter.pid, providerId: encounter.providerId, encounter: encounter.encounter, date: encounter.datetime, codeType: "CPT4", code: "36415", codeText: "Routine venipuncture", fee: 18.0, justify: encounter.diagnosisCode });
+    billing.push({ id: `BILL-${encounter.encounter}-A`, pid: encounter.pid, providerId: encounter.providerId, encounter: encounter.encounter, date: encounter.datetime, codeType: "CPT4", code: "36415", modifier: "", codeText: "Routine venipuncture", fee: 18.0, justify: encounter.diagnosisCode });
   }
 });
 
@@ -1095,10 +1096,11 @@ function buildLegacySql() {
     document_id: document.id
   })), 300));
 
-  statements.push(insert("billing", ["date", "code_type", "code", "pid", "provider_id", "user", "groupname", "authorized", "encounter", "code_text", "billed", "activity", "units", "fee", "justify"], billing.map((line) => ({
+  statements.push(insert("billing", ["date", "code_type", "code", "modifier", "pid", "provider_id", "user", "groupname", "authorized", "encounter", "code_text", "billed", "activity", "units", "fee", "justify"], billing.map((line) => ({
     date: line.date,
     code_type: line.codeType,
     code: line.code,
+    modifier: line.modifier ?? "",
     pid: line.pid,
     provider_id: line.providerId,
     user: 1,

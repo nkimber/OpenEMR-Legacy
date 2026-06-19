@@ -3494,6 +3494,72 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 071. Modernized Fee-Sheet Modifier Slice 46
+
+Commit: this commit
+Started: `2026-06-19T17:09:42-04:00`
+Finished: `2026-06-19T17:14:59-04:00`
+
+Implemented the forty-sixth modernized OpenEMR vertical slice: fee-sheet modifier support, focused on carrying OpenEMR's `billing.modifier` field through the shared dataset, modernized PostgreSQL schema, ASP.NET Core billing API, React Fees workspace, smoke checks, and side-by-side parity testing.
+
+Key outcomes:
+
+- Added `modifier` to canonical billing rows and regenerated the shared gold dataset with 334 modifier-bearing CPT office-visit rows.
+- Added PostgreSQL billing modifier schema/copy support for the modernized seed adapter.
+- Added ASP.NET Core billing create/update/read support for modifiers.
+- Added modifier inputs and modifier rendering to the modernized Fees workspace.
+- Added modernized smoke coverage for a temporary billing modifier lifecycle.
+- Added shared legacy and modernized workflow adapter support for billing modifiers.
+- Added the `workflow-billing-modifier` Playwright parity suite and `slice-46-billing-modifier-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 46 billing modifier plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+
+Verified test runs:
+
+- `npm run generate:seed-data` in `modernization-workbench/` regenerated the canonical and legacy SQL gold dataset artifacts with 3,000 billing rows and 334 modifier-bearing billing rows.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`; PostgreSQL billing table confirmed 3,000 billing rows and 334 modifier-bearing billing rows.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 48 smoke checks, including `billing modifier mutation lifecycle`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`; MariaDB billing table confirmed 3,000 billing rows and 334 modifier-bearing billing rows.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-46-billing-modifier-readiness -Reset test` passed with run `2026-06-19T211403-807Z-legacy-openemr-plan-slice-46-billing-modifier-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-46-billing-modifier-readiness -Reset test` passed with run `2026-06-19T211433-788Z-modernized-openemr-plan-slice-46-billing-modifier-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-46-billing-modifier-readiness` matched with comparison `2026-06-19T211450-872Z-legacy-openemr-vs-modernized-openemr-plan-slice-46-billing-modifier-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-billing-modifier/billing-line-modifier.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

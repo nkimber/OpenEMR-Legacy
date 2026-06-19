@@ -172,6 +172,7 @@ export type BillingLineSummary = {
   encounter: number;
   codeType: string;
   code: string;
+  modifier: string;
   codeText: string;
   fee: string;
   justify: string;
@@ -877,7 +878,7 @@ LIMIT 1;
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, encounter, code_type AS codeType, code, code_text AS codeText,
-  COALESCE(CAST(fee AS CHAR), '') AS fee, COALESCE(justify, '') AS justify
+  COALESCE(modifier, '') AS modifier, COALESCE(CAST(fee AS CHAR), '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
 ORDER BY id;
@@ -887,6 +888,7 @@ ORDER BY id;
       encounter: Number(row.encounter),
       codeType: row.codeType,
       code: row.code,
+      modifier: row.modifier,
       codeText: row.codeText,
       fee: row.fee,
       justify: row.justify

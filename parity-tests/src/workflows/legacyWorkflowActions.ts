@@ -214,6 +214,7 @@ export type BillingLineRecord = {
   encounter: number;
   codeType: string;
   code: string;
+  modifier: string;
   codeText: string;
   fee: string;
   justify: string;
@@ -501,6 +502,7 @@ export type NewBillingLine = {
   dateTime: string;
   codeType: string;
   code: string;
+  modifier?: string;
   codeText: string;
   fee: string;
   units: number;
@@ -509,6 +511,7 @@ export type NewBillingLine = {
 
 export type BillingLineCorrection = {
   codeText: string;
+  modifier?: string;
   fee: string;
   units: number;
   justify: string;
@@ -1976,11 +1979,11 @@ WHERE id = ${integer(id)};
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO billing
   (date, code_type, code, pid, provider_id, user, groupname, authorized, encounter,
-   code_text, billed, activity, units, fee, justify)
+   code_text, billed, activity, modifier, units, fee, justify)
 VALUES
   (${sqlString(input.dateTime)}, ${sqlString(input.codeType)}, ${sqlString(input.code)}, ${integer(input.patientId)},
    ${integer(input.providerId)}, 1, 'Default', 1, ${integer(input.encounter)}, ${sqlString(input.codeText)},
-   0, 1, ${integer(input.units)}, ${decimal(Number(input.fee))}, ${sqlString(input.justify)});
+   0, 1, ${sqlString(input.modifier ?? "")}, ${integer(input.units)}, ${decimal(Number(input.fee))}, ${sqlString(input.justify)});
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
@@ -1989,7 +1992,7 @@ SELECT LAST_INSERT_ID() AS id;
   async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, encounter, code_type AS codeType, code, code_text AS codeText,
-  fee, COALESCE(justify, '') AS justify, units, activity, billed
+  COALESCE(modifier, '') AS modifier, fee, COALESCE(justify, '') AS justify, units, activity, billed
 FROM billing
 WHERE id = ${legacyInteger(id)}
 LIMIT 1;
@@ -2004,6 +2007,7 @@ LIMIT 1;
       encounter: Number(row.encounter),
       codeType: row.codeType,
       code: row.code,
+      modifier: row.modifier,
       codeText: row.codeText,
       fee: Number(row.fee).toFixed(2),
       justify: row.justify,
@@ -2017,6 +2021,7 @@ LIMIT 1;
     await this.db.execute(`
 UPDATE billing
 SET code_text = ${sqlString(input.codeText)},
+    modifier = ${sqlString(input.modifier ?? "")},
     fee = ${decimal(Number(input.fee))},
     units = ${integer(input.units)},
     justify = ${sqlString(input.justify)}

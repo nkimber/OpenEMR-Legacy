@@ -1271,6 +1271,7 @@ LIMIT 1;
         billingDate: input.dateTime.slice(0, 10),
         codeType: input.codeType,
         code: input.code,
+        modifier: input.modifier ?? "",
         codeText: input.codeText,
         fee: Number(input.fee),
         units: input.units,
@@ -1289,7 +1290,7 @@ LIMIT 1;
   async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter, code_type AS "codeType", code, code_text AS "codeText",
-  COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify, units, activity, billed
+  COALESCE(modifier, '') AS modifier, COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify, units, activity, billed
 FROM billing
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -1305,6 +1306,7 @@ LIMIT 1;
       encounter: Number(row.encounter),
       codeType: row.codeType,
       code: row.code,
+      modifier: row.modifier,
       codeText: row.codeText,
       fee: Number(row.fee).toFixed(2),
       justify: row.justify,
@@ -1320,6 +1322,7 @@ LIMIT 1;
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         codeText: input.codeText,
+        modifier: input.modifier ?? "",
         fee: Number(input.fee),
         units: input.units,
         justify: input.justify

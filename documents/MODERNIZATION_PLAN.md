@@ -547,7 +547,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter-scoped CPT billing line lifecycle only.
-- Claim generation, payer/insurance adjudication, payment posting, modifiers, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
+- Claim generation, payer/insurance adjudication, payment posting, modifier validation rules, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
 
 ### Slice 17: Procedure Mutation
 
@@ -1397,7 +1397,36 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused fee-sheet charge correction only.
-- Claim generation, payer adjudication, payment posting, charge correction history, modifiers, statement generation, and revenue-cycle audit history remain future billing slices.
+- Claim generation, payer adjudication, payment posting, charge correction history, statement generation, and revenue-cycle audit history remain future billing slices.
+
+### Slice 46: Fee-Sheet Modifier Mutation
+
+Status:
+
+- Implemented as the thirtieth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-46-billing-modifier-readiness` plan, which creates, applies modifier `25`, renders, deactivates, and removes a temporary CPT fee-sheet billing line on both legacy and modernized targets.
+
+Scope:
+
+- The shared gold dataset now carries OpenEMR-style `billing.modifier` values for selected seeded CPT follow-up visits, with 334 modifier-bearing billing rows in the canonical dataset.
+- PostgreSQL billing schema and seed mapping now include a `modifier` column that mirrors the legacy `billing.modifier` field.
+- ASP.NET Core billing create/update/read behavior now accepts and returns billing modifiers.
+- React Fees workspace now exposes modifier fields in the New CPT Line and Correct Billing Line flows and renders modifier-bearing lines as `code:modifier`.
+- Modernized smoke coverage creates, modifies, verifies, deactivates, and deletes a temporary modifier-bearing CPT line for `MOD-PAT-0001`.
+- The `workflow-billing-modifier` parity suite and `slice-46-billing-modifier-readiness` plan verify direct row state plus browser-visible legacy Fee Sheet and modernized Fees rendering.
+- Workbench-managed Slice 46 billing modifier plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary CPT row can be created for `MOD-PAT-0001` on both targets without changing seeded charge rows.
+- Direct probes verify modifier, corrected text, fee, units, justification, billed state, active state, and cleanup counts.
+- Legacy OpenEMR Fee Sheet and modernized Fees workspace both render the modifier-bearing billing line before deactivation.
+- The temporary billing row can be deactivated and hard-deleted so the seeded billing baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused CPT fee-sheet modifier behavior only.
+- Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, payment posting, statement generation, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1505,3 +1534,4 @@ As of 2026-06-19:
 - The forty-third modernized vertical slice implements patient document content replacement with React Documents Replace controls, ASP.NET Core document content replacement endpoint support, PostgreSQL text payload/hash/size updates, modernized workflow action adapter methods, Workbench document content replacement plan action, smoke coverage, and side-by-side slice-43 parity evidence.
 - The forty-fourth modernized vertical slice implements fee-sheet diagnosis coding with React Fees ICD10 diagnosis controls, the existing ASP.NET Core billing line endpoint, PostgreSQL billing row lifecycle reuse, Workbench billing diagnosis plan action, smoke coverage, and side-by-side slice-44 parity evidence.
 - The forty-fifth modernized vertical slice implements fee-sheet charge correction with React Fees correction controls, ASP.NET Core billing line update endpoint support, PostgreSQL billing row update reuse, Workbench billing correction plan action, smoke coverage, and side-by-side slice-45 parity evidence.
+- The forty-sixth modernized vertical slice implements fee-sheet modifier behavior with canonical billing modifier seed data, React Fees modifier controls and rendering, ASP.NET Core billing modifier create/update/read support, PostgreSQL billing modifier mapping, Workbench billing modifier plan action, smoke coverage, and side-by-side slice-46 parity evidence.
