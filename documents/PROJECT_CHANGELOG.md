@@ -2044,7 +2044,7 @@ Primary files:
 
 ### 046. Modernized Operational Reports CSV Export Slice 24
 
-Commit: `TBD`
+Commit: `cd192f5`
 
 Implemented the twenty-fourth modernized OpenEMR vertical slice: operational reports CSV export, centered on a deterministic `Section, Name, Metric, Value` export of the existing gold-data operational report read model, with a React Reports export action, ASP.NET Core CSV endpoint, normalized legacy MariaDB and modernized PostgreSQL probes, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR report-export affordance.
 
