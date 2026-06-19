@@ -19,6 +19,7 @@
     "allergies": 900,
     "medicationsAndPrescriptions": 2200,
     "medicationListEntries": 2200,
+    "immunizations": 2648,
     "labOrders": 1000,
     "labReports": 700,
     "labResults": 2400,
@@ -57,6 +58,13 @@
       "futureCurrentYear": 1175,
       "minDate": "2026-01-01",
       "maxDate": "2026-12-31"
+    },
+    "immunizations": {
+      "total": 2648,
+      "currentYear": 1149,
+      "futureCurrentYear": 0,
+      "minDate": "2024-06-28",
+      "maxDate": "2026-05-08"
     },
     "procedureOrders": {
       "total": 1000,

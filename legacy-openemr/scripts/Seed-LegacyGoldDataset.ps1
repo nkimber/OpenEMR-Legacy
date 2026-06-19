@@ -74,6 +74,7 @@ UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE type = 'medical_problem'
 UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE type = 'allergy'
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM lists WHERE type = 'medication'
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
@@ -138,6 +139,11 @@ UNION ALL SELECT 'prescriptions', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(start_date) > '$AsOfDate' AND DATE(start_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   DATE(MIN(start_date)), DATE(MAX(start_date))
 FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(administered_date) >= '$yearStart' AND DATE(administered_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(administered_date) > '$AsOfDate' AND DATE(administered_date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(administered_date)), DATE(MAX(administered_date))
+FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date_ordered) >= '$yearStart' AND DATE(date_ordered) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(date_ordered) > '$AsOfDate' AND DATE(date_ordered) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),

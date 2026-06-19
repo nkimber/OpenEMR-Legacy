@@ -57,6 +57,7 @@
         "parityDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-26-document-mutation-readiness", "-Reset", "test"],
         "parityDocumentContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-27-document-content-readiness", "-Reset", "run"],
         "parityInsurancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-28-insurance-readiness", "-Reset", "run"],
+        "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -377,6 +378,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-28-insurance-readiness.json"
         },
         {
+          "id": "parity-plan-immunizations",
+          "name": "Slice 29 immunizations plan",
+          "description": "Runs the shared pediatric immunization history plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityImmunizationsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-29-immunizations-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -441,7 +450,8 @@
         "parityDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-25-documents-readiness", "-Reset", "run"],
         "parityDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-26-document-mutation-readiness", "-Reset", "test"],
         "parityDocumentContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-27-document-content-readiness", "-Reset", "run"],
-        "parityInsurancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-28-insurance-readiness", "-Reset", "run"]
+        "parityInsurancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-28-insurance-readiness", "-Reset", "run"],
+        "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -686,6 +696,14 @@
           "layer": "plan",
           "commandName": "parityInsurancePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-28-insurance-readiness.json"
+        },
+        {
+          "id": "parity-plan-immunizations",
+          "name": "Slice 29 immunizations plan",
+          "description": "Runs the shared pediatric immunization history plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityImmunizationsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-29-immunizations-readiness.json"
         }
       ]
     }

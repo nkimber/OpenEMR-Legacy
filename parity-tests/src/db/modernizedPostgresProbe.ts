@@ -18,6 +18,7 @@ import type {
   PatientDocumentContentSummary,
   PatientDocumentsSummary,
   PatientInsuranceCoverageSummary,
+  PatientImmunizationsSummary,
   PatientMessagesSummary,
   PatientRecord,
   ProcedureOrderSummary,
@@ -83,6 +84,7 @@ UNION ALL SELECT 'problems', COUNT(*) FROM problems
 UNION ALL SELECT 'allergies', COUNT(*) FROM allergies
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM medications
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE added_erroneously = 0
 UNION ALL SELECT 'labOrders', COUNT(*) FROM lab_orders
 UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
 UNION ALL SELECT 'labResults', COUNT(*) FROM lab_results
@@ -118,6 +120,11 @@ UNION ALL SELECT 'prescriptions', COUNT(*),
   COALESCE(SUM(CASE WHEN start_date > '${asOfDate}' AND start_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   MIN(start_date), MAX(start_date)
 FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*),
+  COALESCE(SUM(CASE WHEN administered_at::date >= '${yearStart}' AND administered_at::date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN administered_at::date > '${asOfDate}' AND administered_at::date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  MIN(administered_at::date), MAX(administered_at::date)
+FROM immunizations WHERE added_erroneously = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*),
   COALESCE(SUM(CASE WHEN order_date >= '${yearStart}' AND order_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN order_date > '${asOfDate}' AND order_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
@@ -198,6 +205,7 @@ UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE pid = ${pid}
 UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE pid = ${pid}
 UNION ALL SELECT 'medications', COUNT(*) FROM medications WHERE pid = ${pid}
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE pid = ${pid}
+UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE pid = ${pid} AND added_erroneously = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM messages WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM patient_documents WHERE pid = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM lab_orders WHERE pid = ${pid}
@@ -337,6 +345,41 @@ ORDER BY start_date DESC, id;
         route: row.route,
         diagnosis: row.diagnosis,
         startDate: row.startDate
+      }))
+    };
+  }
+
+  async getPatientImmunizationsForPatient(pid: number): Promise<PatientImmunizationsSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT id::text AS id,
+  vaccine,
+  COALESCE(cvx_code, '') AS "cvxCode",
+  administered_at::date AS "administeredDate",
+  COALESCE(manufacturer, '') AS manufacturer,
+  COALESCE(lot_number, '') AS "lotNumber",
+  COALESCE(route, '') AS route,
+  COALESCE(administration_site, '') AS "administrationSite",
+  COALESCE(note, '') AS note,
+  COALESCE(completion_status, '') AS "completionStatus"
+FROM immunizations
+WHERE pid = ${pid}
+  AND added_erroneously = 0
+ORDER BY administered_at DESC, id;
+`);
+
+    return {
+      patientId: pid,
+      immunizations: rows.map((row) => ({
+        id: Number(row.id),
+        vaccine: row.vaccine,
+        cvxCode: row.cvxCode,
+        administeredDate: row.administeredDate,
+        manufacturer: row.manufacturer,
+        lotNumber: row.lotNumber,
+        route: row.route,
+        administrationSite: row.administrationSite,
+        note: row.note,
+        completionStatus: row.completionStatus
       }))
     };
   }

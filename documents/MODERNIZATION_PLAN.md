@@ -889,6 +889,35 @@ Current limitations:
 - This slice is read-only and patient-chart scoped.
 - Eligibility checks, claim generation, payer adjudication, benefit rules, copay workflows, payment posting, and full revenue-cycle behavior remain deferred to later billing/insurance slices.
 
+### Slice 29: Patient Immunization History
+
+Goal: add read-only immunization history parity using OpenEMR's native Immunizations table/page and the modernized clinical Lists module.
+
+Status: implemented.
+
+Scope:
+
+- Gold dataset now includes 2,648 deterministic immunization records across the 1,000-patient population, including a rich pediatric vaccine history for `MOD-PAT-0007`.
+- Legacy seed maps immunization rows into OpenEMR's native `immunizations` table with vaccine list IDs, CVX codes, manufacturer, lot, administered date, VIS dates, route/site, provider, and encounter linkage.
+- Modernized PostgreSQL seed maps the same records into a normalized `immunizations` table.
+- ASP.NET Core clinical-list API now returns immunizations with vaccine, CVX, manufacturer, lot, administered date, route/site, VIS date, completion status, provider, encounter, and note fields.
+- React Lists workspace now includes an Immunizations section and count alongside problems, allergies, medications, and prescriptions.
+- Shared database probes now normalize legacy MariaDB and modernized PostgreSQL immunization rows into the same vaccine-history shape.
+- Workbench-managed Slice 29 immunizations plan is available for both legacy and modernized targets.
+- Modernized smoke coverage validates the deterministic `MOD-PAT-0007` pediatric immunization anchor.
+
+Acceptance:
+
+- `MOD-PAT-0007` returns at least eight immunization rows, including `Influenza, seasonal, injectable` with CVX `141` and `Hep A, ped/adol, 2 dose` manufactured by `GlaxoSmithKline`.
+- The modernized Lists workspace displays the seeded immunization count and vaccine details.
+- The legacy Immunizations page and modernized Lists workspace expose the same vaccine facts through the `slice-29-immunizations-readiness` plan.
+- The side-by-side Slice 29 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice is read-only and focused on immunization history visibility.
+- Immunization create/edit/delete workflows, registry submission, refusal workflows, observation rows, forecast rules, reminder logic, inventory coupling, and external vaccine registry integrations remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -978,3 +1007,4 @@ As of 2026-06-19:
 - The twenty-sixth modernized vertical slice implements patient document mutation with React Documents create/archive/delete controls, ASP.NET Core documents lifecycle endpoints, modernized workflow action adapter methods, Workbench document mutation plan action, smoke coverage, and side-by-side slice-26 parity evidence.
 - The twenty-seventh modernized vertical slice implements patient document content retrieval with ASP.NET Core content/download endpoints, React Documents viewer and download controls, full-content parity probes, Workbench document content plan action, smoke coverage, and side-by-side slice-27 parity evidence.
 - The twenty-eighth modernized vertical slice implements patient insurance coverage visibility with chart-summary coverage rows, a React chart Insurance panel, normalized insurance probes, Workbench insurance plan action, smoke coverage, and side-by-side slice-28 parity evidence.
+- The twenty-ninth modernized vertical slice implements read-only patient immunization history with expanded gold-data vaccine rows, a PostgreSQL `immunizations` table, ASP.NET Core clinical-list API immunization rows, a React Lists Immunizations panel, normalized immunization probes, Workbench immunizations plan action, smoke coverage, and side-by-side slice-29 parity evidence.

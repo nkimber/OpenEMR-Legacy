@@ -2356,6 +2356,70 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 051. Modernized Patient Immunization History Slice 29
+
+Commit: current slice commit
+
+Implemented the twenty-ninth modernized OpenEMR vertical slice: read-only patient immunization history in the clinical lists workspace, centered on stable pediatric vaccine history for `MOD-PAT-0007`.
+
+Key outcomes:
+
+- Expanded the shared gold dataset with 2,648 deterministic immunization rows, including current-year influenza coverage for every patient and richer childhood vaccine history for pediatric anchors.
+- Seeded legacy OpenEMR's native `immunizations` table with OpenEMR immunization IDs, CVX codes, manufacturers, lot numbers, VIS dates, route/site, encounter linkage, and completion/source metadata.
+- Added normalized modernized PostgreSQL immunization records and aligned the modernized display names with OpenEMR's CVX-first legacy rendering.
+- Extended the modernized ASP.NET Core clinical-lists API and React Lists workspace with immunization history display.
+- Added legacy and modernized DB probes, legacy UI navigation support, the `immunizations` parity suite, and the `slice-29-immunizations-readiness` named plan.
+- Added Workbench command cards, result paths, and custom-run default plan support for the Slice 29 immunization plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects immunization history behavior.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `modernization-workbench/seed-data/manifest.json`, `parity-tests/test-manifest.json`, `parity-tests/package.json`, and regenerated seed JSON.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.slnx` in `modernized-openemr/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-LegacyGoldDataset.ps1` from `legacy-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-LegacyBaseline.ps1` from `legacy-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, including `anchor immunizations`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-29-immunizations-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-29-immunizations-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-29-immunizations-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite database -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite database -Reset run`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ClinicalListRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ClinicalListDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/tests/immunizations/immunizations-readiness.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -258,6 +258,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-29-immunizations-readiness",
+      "name": "Slice 29 Immunizations Readiness",
+      "description": "Read-only immunization confidence plan that verifies rich vaccine history facts and chart visibility for the shared pediatric gold-data anchor.",
+      "suites": ["immunizations"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-29", "immunizations", "vaccines", "clinical-lists", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -279,7 +288,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -441,6 +450,16 @@
       "layer": "parity",
       "path": "tests/insurance",
       "tags": ["slice28", "insurance", "billing", "patient-chart", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "immunizations",
+      "name": "Patient Immunizations",
+      "description": "Compares pediatric immunization history facts and rendering against the legacy Immunizations screen using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/immunizations",
+      "tags": ["slice29", "immunizations", "vaccines", "clinical-lists", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

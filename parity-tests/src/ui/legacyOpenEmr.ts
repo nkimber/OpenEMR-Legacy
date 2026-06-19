@@ -31,6 +31,12 @@ export async function openPatientInsuranceBrowseDirect(
   }
 }
 
+export async function openPatientImmunizationsDirect(page: Page, target: RuntimeTarget, pid: number) {
+  await openPatientSummaryDirect(page, target, pid);
+  await page.goto(`${target.publicUrl}/interface/patient_file/summary/immunizations.php`);
+  await expectRenderedText(page, /Immunizations|Vaccine|Lot Number/i);
+}
+
 export async function openPatientNotesDirect(page: Page, target: RuntimeTarget, pid: number) {
   await page.goto(`${target.publicUrl}/interface/patient_file/summary/pnotes_full.php?set_pid=${pid}`);
   await expectRenderedText(page, /Patient Notes|Messages|Notes/i);

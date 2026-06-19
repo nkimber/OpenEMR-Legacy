@@ -170,6 +170,29 @@ const medicationCatalog = [
   ["Sertraline", "50 mg", "Oral", "F41.9"],
   ["Ibuprofen", "400 mg", "Oral", "M54.50"]
 ];
+const immunizationCatalog = {
+  influenza: { immunizationId: 30, cvxCode: "141", vaccine: "Influenza, seasonal, injectable", manufacturer: "Sanofi Pasteur", note: "Seasonal influenza vaccine" },
+  pneumococcal: { immunizationId: 19, cvxCode: "133", vaccine: "Pneumococcal conjugate PCV 13", manufacturer: "Merck", note: "Pneumococcal conjugate vaccine" },
+  td: { immunizationId: 32, cvxCode: "113", vaccine: "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed", manufacturer: "MassBiologics", note: "Tetanus and diphtheria booster" },
+  dtap: { immunizationId: 1, cvxCode: "20", vaccine: "DTaP", manufacturer: "GlaxoSmithKline", note: "Pediatric DTaP series" },
+  ipv: { immunizationId: 11, cvxCode: "10", vaccine: "IPV", manufacturer: "Sanofi Pasteur", note: "Pediatric IPV series" },
+  hib: { immunizationId: 15, cvxCode: "48", vaccine: "Hib (PRP-T)", manufacturer: "Merck", note: "Pediatric Hib series" },
+  pcv: { immunizationId: 19, cvxCode: "133", vaccine: "Pneumococcal conjugate PCV 13", manufacturer: "Pfizer", note: "Pediatric pneumococcal conjugate series" },
+  mmr: { immunizationId: 23, cvxCode: "03", vaccine: "MMR 1", manufacturer: "Merck", note: "Pediatric MMR series" },
+  varicella: { immunizationId: 25, cvxCode: "21", vaccine: "varicella", manufacturer: "Merck", note: "Pediatric varicella series" },
+  hepatitisA: { immunizationId: 33, cvxCode: "83", vaccine: "Hep A, ped/adol, 2 dose", manufacturer: "GlaxoSmithKline", note: "Pediatric hepatitis A series" },
+  hepatitisB: { immunizationId: 27, cvxCode: "08", vaccine: "Hepatitis B 1", manufacturer: "Merck", note: "Pediatric hepatitis B series" }
+};
+const pediatricImmunizationSchedule = [
+  ["hepatitisB", -720],
+  ["dtap", -640],
+  ["ipv", -570],
+  ["hib", -500],
+  ["pcv", -430],
+  ["mmr", -320],
+  ["varicella", -210],
+  ["hepatitisA", -90]
+];
 const labPanels = [
   ["83036", "Hemoglobin A1c", [["4548-4", "Hemoglobin A1c", "%", "5.7", "4.0-5.6"], ["2345-7", "Glucose", "mg/dL", "102", "70-99"], ["2093-3", "Cholesterol", "mg/dL", "188", "<200"], ["2085-9", "HDL Cholesterol", "mg/dL", "52", ">40"]]],
   ["80053", "Comprehensive metabolic panel", [["2951-2", "Sodium", "mmol/L", "140", "135-145"], ["2823-3", "Potassium", "mmol/L", "4.2", "3.5-5.1"], ["2160-0", "Creatinine", "mg/dL", "0.9", "0.6-1.3"], ["3094-0", "Urea nitrogen", "mg/dL", "14", "7-20"]]],
@@ -422,6 +445,59 @@ patients.forEach((patient, index) => {
   }
 });
 
+const immunizations = [];
+function addImmunization(patient, index, sequence, catalogItem, dateOffset, route = "intramuscular", site = "left_deltoid") {
+  const administeredDate = addDays(baseDate, dateOffset);
+  const provider = staff.find((candidate) => candidate.id === patient.providerId) ?? staff[0];
+  immunizations.push({
+    id: 8500000 + immunizations.length + 1,
+    key: `IMM-${patient.canonicalId}-${pad(sequence, 2)}`,
+    patientId: patient.canonicalId,
+    pid: patient.pid,
+    encounter: patient.pid * 10 + 1,
+    immunizationId: catalogItem.immunizationId,
+    cvxCode: catalogItem.cvxCode,
+    vaccine: catalogItem.vaccine,
+    administeredDate: at(administeredDate, 9 + (index % 6), sequence % 2 ? 15 : 45),
+    manufacturer: catalogItem.manufacturer,
+    lotNumber: `LOT-${patient.pid}-${pad(sequence, 2)}`,
+    administeredById: patient.providerId,
+    administeredBy: `${provider.fname} ${provider.lname}`,
+    educationDate: administeredDate,
+    visDate: addDays(administeredDate, -3),
+    amountAdministered: 0.5,
+    amountAdministeredUnit: "mL",
+    expirationDate: addDays(administeredDate, 365),
+    route,
+    administrationSite: site,
+    completionStatus: "completed",
+    informationSource: "new_immunization_record",
+    note: `${catalogItem.note} for ${patient.cohort}.`
+  });
+}
+
+patients.forEach((patient, index) => {
+  let sequence = 1;
+  addImmunization(patient, index, sequence, immunizationCatalog.influenza, -160 + (index % 120));
+
+  if (patient.cohort === "chronic-care" || index % 5 === 0) {
+    sequence += 1;
+    addImmunization(patient, index, sequence, immunizationCatalog.pneumococcal, -360 + ((index * 7) % 220), "intramuscular", "right_deltoid");
+  }
+
+  if (patient.cohort === "chronic-care" || index % 4 === 0) {
+    sequence += 1;
+    addImmunization(patient, index, sequence, immunizationCatalog.td, -520 + ((index * 5) % 300));
+  }
+
+  if (patient.cohort.includes("pediatric")) {
+    for (const [catalogKey, dateOffset] of pediatricImmunizationSchedule) {
+      sequence += 1;
+      addImmunization(patient, index, sequence, immunizationCatalog[catalogKey], dateOffset + (index % 21), "intramuscular", index % 2 === 0 ? "left_thigh" : "right_thigh");
+    }
+  }
+});
+
 const messages = [];
 patients.forEach((patient, index) => {
   const count = index < 200 ? 2 : index < 1000 ? 1 : 0;
@@ -622,6 +698,7 @@ const dataset = {
   allergies,
   medicationLists,
   prescriptions,
+  immunizations,
   messages,
   billing,
   labOrders,
@@ -635,6 +712,7 @@ const dataset = {
     encounters: coverageFor(encounters, (encounter) => encounter.date),
     medicationListEntries: coverageFor(medicationLists, (medication) => medication.date),
     prescriptions: coverageFor(prescriptions, (prescription) => prescription.startDate),
+    immunizations: coverageFor(immunizations, (immunization) => immunization.administeredDate),
     procedureOrders: coverageFor(labOrders, (order) => order.date),
     procedureReports: coverageFor(labReports, (report) => report.date),
     procedureResults: coverageFor(labResults, (result) => result.date),
@@ -663,6 +741,7 @@ const summary = {
     allergies: allergies.length,
     medicationsAndPrescriptions: prescriptions.length,
     medicationListEntries: medicationLists.length,
+    immunizations: immunizations.length,
     labOrders: labOrders.length,
     labReports: labReports.length,
     labResults: labResults.length,
@@ -687,6 +766,8 @@ function buildLegacySql() {
     "DELETE FROM procedure_order_code;",
     "DELETE FROM procedure_order;",
     "DELETE FROM prescriptions;",
+    "DELETE FROM immunization_observation WHERE imo_im_id BETWEEN 8500001 AND 8505000 OR imo_pid BETWEEN 100001 AND 101000;",
+    "DELETE FROM immunizations WHERE id BETWEEN 8500001 AND 8505000 OR patient_id BETWEEN 100001 AND 101000;",
     "DELETE FROM pnotes;",
     "DELETE FROM categories_to_documents WHERE document_id BETWEEN 8000001 AND 8001200;",
     "DELETE FROM documents WHERE id BETWEEN 8000001 AND 8001200 OR url LIKE 'gold://documents/%';",
@@ -936,6 +1017,36 @@ function buildLegacySql() {
     diagnosis: prescription.diagnosis,
     created_by: 1,
     updated_by: 1
+  })), 200));
+
+  statements.push(insert("immunizations", ["id", "uuid", "patient_id", "administered_date", "immunization_id", "cvx_code", "manufacturer", "lot_number", "administered_by_id", "administered_by", "education_date", "vis_date", "note", "create_date", "update_date", "created_by", "updated_by", "amount_administered", "amount_administered_unit", "expiration_date", "route", "administration_site", "added_erroneously", "completion_status", "information_source", "ordering_provider", "encounter_id"], immunizations.map((immunization) => ({
+    id: immunization.id,
+    uuid: raw(sqlUuid(immunization.key)),
+    patient_id: immunization.pid,
+    administered_date: immunization.administeredDate,
+    immunization_id: immunization.immunizationId,
+    cvx_code: immunization.cvxCode,
+    manufacturer: immunization.manufacturer,
+    lot_number: immunization.lotNumber,
+    administered_by_id: immunization.administeredById,
+    administered_by: immunization.administeredBy,
+    education_date: dateOnly(immunization.educationDate),
+    vis_date: dateOnly(immunization.visDate),
+    note: immunization.note,
+    create_date: immunization.administeredDate,
+    update_date: immunization.administeredDate,
+    created_by: 1,
+    updated_by: 1,
+    amount_administered: immunization.amountAdministered,
+    amount_administered_unit: immunization.amountAdministeredUnit,
+    expiration_date: immunization.expirationDate,
+    route: immunization.route,
+    administration_site: immunization.administrationSite,
+    added_erroneously: 0,
+    completion_status: immunization.completionStatus,
+    information_source: immunization.informationSource,
+    ordering_provider: immunization.administeredById,
+    encounter_id: immunization.encounter
   })), 200));
 
   statements.push(insert("pnotes", ["date", "body", "pid", "user", "groupname", "activity", "authorized", "title", "assigned_to", "message_status"], messages.map((message) => ({

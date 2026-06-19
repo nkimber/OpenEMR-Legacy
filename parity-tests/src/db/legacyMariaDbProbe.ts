@@ -83,6 +83,24 @@ export type ClinicalPrescriptionSummary = {
   startDate: string;
 };
 
+export type PatientImmunizationSummary = {
+  id: number | string;
+  vaccine: string;
+  cvxCode: string;
+  administeredDate: string;
+  manufacturer: string;
+  lotNumber: string;
+  route: string;
+  administrationSite: string;
+  note: string;
+  completionStatus: string;
+};
+
+export type PatientImmunizationsSummary = {
+  patientId: number;
+  immunizations: PatientImmunizationSummary[];
+};
+
 export type ClinicalListsSummary = {
   patientId: number;
   problems: ClinicalProblemSummary[];
@@ -377,6 +395,7 @@ UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE type = 'medical_problem'
 UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE type = 'allergy'
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM lists WHERE type = 'medication'
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
@@ -412,6 +431,11 @@ UNION ALL SELECT 'prescriptions', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(start_date) > '${asOfDate}' AND DATE(start_date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   DATE(MIN(start_date)), DATE(MAX(start_date))
 FROM prescriptions
+UNION ALL SELECT 'immunizations', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(administered_date) >= '${yearStart}' AND DATE(administered_date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(administered_date) > '${asOfDate}' AND DATE(administered_date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(administered_date)), DATE(MAX(administered_date))
+FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date_ordered) >= '${yearStart}' AND DATE(date_ordered) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(date_ordered) > '${asOfDate}' AND DATE(date_ordered) < '${nextYear}' THEN 1 ELSE 0 END), 0),
@@ -491,6 +515,7 @@ UNION ALL SELECT 'problems', COUNT(*) FROM lists WHERE pid = ${pid} AND type = '
 UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'allergy'
 UNION ALL SELECT 'medications', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medication'
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE patient_id = ${pid}
+UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE patient_id = ${pid} AND COALESCE(added_erroneously, 0) = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes WHERE pid = ${pid}
 UNION ALL SELECT 'documents', COUNT(*) FROM documents WHERE foreign_id = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM procedure_order WHERE patient_id = ${pid}
@@ -639,6 +664,44 @@ ORDER BY start_date DESC, id;
         route: row.route,
         diagnosis: row.diagnosis,
         startDate: row.startDate
+      }))
+    };
+  }
+
+  async getPatientImmunizationsForPatient(pid: number): Promise<PatientImmunizationsSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT i.id,
+  COALESCE(NULLIF(c.code_text_short, ''), NULLIF(lo.title, ''), NULLIF(i.note, ''), COALESCE(i.cvx_code, '')) AS vaccine,
+  COALESCE(i.cvx_code, '') AS cvxCode,
+  DATE(i.administered_date) AS administeredDate,
+  COALESCE(i.manufacturer, '') AS manufacturer,
+  COALESCE(i.lot_number, '') AS lotNumber,
+  COALESCE(i.route, '') AS route,
+  COALESCE(i.administration_site, '') AS administrationSite,
+  COALESCE(i.note, '') AS note,
+  COALESCE(i.completion_status, '') AS completionStatus
+FROM immunizations i
+LEFT JOIN code_types ct ON ct.ct_key = 'CVX'
+LEFT JOIN codes c ON c.code_type = ct.ct_id AND i.cvx_code = c.code
+LEFT JOIN list_options lo ON lo.list_id = 'immunizations' AND lo.option_id = CAST(i.immunization_id AS CHAR)
+WHERE i.patient_id = ${pid}
+  AND COALESCE(i.added_erroneously, 0) = 0
+ORDER BY i.administered_date DESC, i.id;
+`);
+
+    return {
+      patientId: pid,
+      immunizations: rows.map((row) => ({
+        id: Number(row.id),
+        vaccine: row.vaccine,
+        cvxCode: row.cvxCode,
+        administeredDate: row.administeredDate,
+        manufacturer: row.manufacturer,
+        lotNumber: row.lotNumber,
+        route: row.route,
+        administrationSite: row.administrationSite,
+        note: row.note,
+        completionStatus: row.completionStatus
       }))
     };
   }

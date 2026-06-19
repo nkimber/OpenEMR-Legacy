@@ -219,6 +219,8 @@ Purpose: Stable search and demographics navigation
 
 The `slice-27-document-content-readiness` plan verifies the full payload through normalized legacy MariaDB and modernized PostgreSQL probes, then verifies modernized API retrieval, text download, and Documents workspace viewer rendering for that same document.
 
+The immunization history slice uses `MOD-PAT-0007` as the stable pediatric vaccine-history anchor. The shared dataset now includes 2,648 deterministic immunization records across the synthetic population. Every patient receives a current-year influenza record, chronic-care/adult cohorts receive additional pneumococcal and Td-style coverage, and pediatric cohorts receive a richer childhood vaccine set. The legacy seed maps these rows into OpenEMR's native `immunizations` table with OpenEMR immunization list IDs, CVX codes, manufacturer, lot, administered date, VIS dates, route/site, provider, and encounter linkage. The modernized PostgreSQL seed maps the same rows into normalized `immunizations` records and uses the same CVX-first display labels that legacy OpenEMR renders. The `slice-29-immunizations-readiness` plan verifies `MOD-PAT-0007` includes at least eight immunization records, including `Influenza, seasonal, injectable` with CVX `141` and `Hep A, ped/adol, 2 dose` manufactured by `GlaxoSmithKline`, and verifies browser-visible rendering on the legacy Immunizations page and modernized Lists workspace.
+
 The patient contact mutation slice uses `MOD-PAT-0001` as the first shared mutation anchor. The legacy seed maps the canonical phone value into OpenEMR's `phone_home`, `phone_contact`, and `phone_cell` fields with HIPAA SMS/email permissions enabled. The modernized PostgreSQL seed maps the same canonical phone value into `phone`, `phone_home`, and `phone_cell`, with `hipaa_allow_sms` and `hipaa_allow_email` enabled. The `slice-10-contact-mutation-readiness` plan updates home phone, cell phone, email, and HIPAA contact permissions, verifies database state and browser-visible contact values, then restores the original seeded record on both targets.
 
 The appointment mutation slice uses `MOD-PAT-0003` as the shared scheduling mutation anchor. The plan creates a temporary future appointment on `2026-10-15` at `10:30`, verifies the appointment count increases, marks the appointment cancelled with status `x`, verifies browser-visible cancelled detail, deletes the temporary appointment, and verifies the count returns to the seeded baseline. This keeps the shared gold dataset stable while proving the create/cancel/delete lifecycle against both legacy MariaDB and modernized PostgreSQL.
@@ -229,7 +231,7 @@ The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation
 
 Purpose: scale testing, search performance, reporting, and realistic clinical histories.
 
-Current status: optional future extension. The V1 gold dataset already contains 1,000 patients and 1,200 patient document records. Future expansions may add richer Synthea-derived clinical history, additional billing/claims depth, binary/scanned document storage fixtures, immunizations, or reporting-specific fixtures.
+Current status: optional future extension. The V1 gold dataset already contains 1,000 patients, 1,200 patient document records, and 2,648 immunization records. Future expansions may add richer Synthea-derived clinical history, additional billing/claims depth, binary/scanned document storage fixtures, immunization mutation/registry fixtures, or reporting-specific fixtures.
 
 Potential future sources:
 

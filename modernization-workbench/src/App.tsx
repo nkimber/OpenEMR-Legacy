@@ -804,7 +804,7 @@ function CustomParityRunPanel({
 }) {
   const [selectionKind, setSelectionKind] = useState<"suite" | "plan">("suite");
   const [suite, setSuite] = useState("all");
-  const [plan, setPlan] = useState("slice-28-insurance-readiness");
+  const [plan, setPlan] = useState("slice-29-immunizations-readiness");
   const [reset, setReset] = useState<ParityResetMode>("run");
   const [headed, setHeaded] = useState(false);
   const [grep, setGrep] = useState("");

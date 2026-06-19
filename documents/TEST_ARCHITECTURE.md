@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only completed procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, the slice-20 access-control read model plan, the slice-21 access-permission mutation plan, the slice-22 user group membership mutation plan, the slice-23 pending/scheduled procedure orders plan, the slice-24 reports export plan, the slice-25 patient documents plan, the slice-26 patient document mutation plan, the slice-27 patient document content plan, and the slice-28 patient insurance coverage plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only completed procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, the slice-20 access-control read model plan, the slice-21 access-permission mutation plan, the slice-22 user group membership mutation plan, the slice-23 pending/scheduled procedure orders plan, the slice-24 reports export plan, the slice-25 patient documents plan, the slice-26 patient document mutation plan, the slice-27 patient document content plan, the slice-28 patient insurance coverage plan, and the slice-29 patient immunization history plan.
 
 ## Test Layers
 
@@ -44,7 +44,7 @@ Current legacy coverage:
 - Gold dataset row counts.
 - Gold dataset temporal coverage.
 - Stable named workflow anchor patients.
-- Related workflow counts for appointments, encounters, problems, prescriptions, medications, messages, procedure orders, procedure reports, procedure results, billing, and patient documents.
+- Related workflow counts for appointments, encounters, problems, prescriptions, medications, immunizations, messages, procedure orders, procedure reports, procedure results, billing, and patient documents.
 
 The legacy adapter is `parity-tests/src/db/legacyMariaDbProbe.ts`. It intentionally returns normalized facts instead of exposing test code to every legacy table detail.
 
@@ -76,6 +76,7 @@ Current legacy coverage:
 - Render completed procedure results for a gold lab patient.
 - Render a future scheduled procedure order without report rows for a gold lab patient.
 - Render seeded patient documents for a gold patient.
+- Render seeded patient immunization history for a gold pediatric patient.
 
 The focused UI suite is intentionally read-only. Mutation workflows live in the Workflow Mutation Contract suite, where they can combine database pre/post probes with browser-visible evidence when useful.
 
@@ -163,6 +164,8 @@ npm run test:legacy:plan:reports-export
 npm run test:modernized:plan:reports-export
 npm run test:legacy:plan:documents
 npm run test:modernized:plan:documents
+npm run test:legacy:plan:immunizations
+npm run test:modernized:plan:immunizations
 npm run test:legacy:plan:document-mutation
 npm run test:modernized:plan:document-mutation
 npm run test:legacy:plan:contact-mutation
