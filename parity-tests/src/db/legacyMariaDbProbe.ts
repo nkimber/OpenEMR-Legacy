@@ -104,6 +104,20 @@ export type PatientMessagesSummary = {
   messages: PatientMessageSummary[];
 };
 
+export type PatientInsuranceSummary = {
+  type: string;
+  provider: string;
+  planName: string;
+  policyNumber: string;
+  groupNumber: string;
+  relationship: string;
+};
+
+export type PatientInsuranceCoverageSummary = {
+  patientId: number;
+  insurance: PatientInsuranceSummary[];
+};
+
 export type PatientDocumentSummary = {
   id: number;
   documentKey: string;
@@ -647,6 +661,33 @@ ORDER BY pn.date DESC, pn.id DESC;
         body: row.body,
         status: row.status,
         date: row.date
+      }))
+    };
+  }
+
+  async getPatientInsuranceForPatient(pid: number): Promise<PatientInsuranceCoverageSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT COALESCE(insd.type, '') AS type,
+  COALESCE(ic.name, insd.provider, '') AS provider,
+  COALESCE(plan_name, '') AS planName,
+  COALESCE(policy_number, '') AS policyNumber,
+  COALESCE(group_number, '') AS groupNumber,
+  COALESCE(subscriber_relationship, '') AS relationship
+FROM insurance_data insd
+LEFT JOIN insurance_companies ic ON ic.id = insd.provider
+WHERE insd.pid = ${pid}
+ORDER BY FIELD(insd.type, 'primary', 'secondary'), insd.type, insd.id;
+`);
+
+    return {
+      patientId: pid,
+      insurance: rows.map((row) => ({
+        type: row.type,
+        provider: row.provider,
+        planName: row.planName,
+        policyNumber: row.policyNumber,
+        groupNumber: row.groupNumber,
+        relationship: row.relationship
       }))
     };
   }

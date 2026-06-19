@@ -140,6 +140,7 @@ const cities = [
 ];
 const occupations = ["Teacher", "Accountant", "Software Analyst", "Retail Manager", "Nurse", "Driver", "Student", "Retired", "Engineer", "Food Service Manager"];
 const insurers = ["Acme Health", "Blue Valley Health", "CommunityCare", "Evergreen PPO", "Northstar HMO", "Harbor Mutual"];
+const insuranceCompanies = insurers.map((name, index) => ({ id: 9001 + index, name }));
 const plans = ["Standard Silver", "Family Choice", "Premier PPO", "Community HMO", "Medicare Advantage", "High Deductible"];
 const problemCatalog = [
   ["I10", "Essential hypertension"],
@@ -696,6 +697,7 @@ function buildLegacySql() {
     "DELETE FROM openemr_postcalendar_events;",
     "DELETE FROM lists;",
     "DELETE FROM insurance_data;",
+    "DELETE FROM insurance_companies WHERE id BETWEEN 9001 AND 9006;",
     "DELETE FROM patient_data;",
     "DELETE FROM users WHERE id BETWEEN 101 AND 120 OR username LIKE 'gold-%' OR username IN ('davis', 'hamming');",
     "DELETE FROM facility WHERE id IN (10, 11, 12);",
@@ -720,6 +722,13 @@ function buildLegacySql() {
     color: facility.color,
     primary_business_entity: facility.id === 10 ? 1 : 0,
     facility_code: facility.code
+  }))));
+
+  statements.push(insert("insurance_companies", ["id", "uuid", "name", "inactive"], insuranceCompanies.map((company) => ({
+    id: company.id,
+    uuid: raw(sqlUuid(`insurance-company-${company.id}`)),
+    name: company.name,
+    inactive: 0
   }))));
 
   statements.push(insert("users", ["id", "uuid", "username", "password", "authorized", "fname", "lname", "facility", "facility_id", "see_auth", "active", "npi", "title", "specialty", "email", "calendar", "taxonomy", "abook_type", "main_menu_role", "patient_menu_role", "billing_facility_id"], staff.map((user) => ({
@@ -798,10 +807,11 @@ function buildLegacySql() {
 
   statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {
     const patient = patients.find((candidate) => candidate.pid === record.pid);
+    const company = insuranceCompanies.find((candidate) => candidate.name === record.provider);
     return {
       uuid: raw(sqlUuid(record.id)),
       type: record.type,
-      provider: record.provider,
+      provider: company?.id ?? "",
       plan_name: record.planName,
       policy_number: record.policyNumber,
       group_number: record.groupNumber,

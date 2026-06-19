@@ -302,7 +302,7 @@ Current limitations:
 - This slice is read-only.
 - Focused CPT entry, bill-status update, inactive-line hiding, and billing-line deletion workflows are covered by Slice 16.
 - Claim generation, payer adjudication, payment posting, charge correction history, and full revenue-cycle workflows remain deferred to later billing slices.
-- Insurance-aware billing summaries remain planned.
+- Patient insurance coverage visibility is covered by Slice 28; claim generation, payer adjudication, payment posting, and full revenue-cycle workflows remain deferred to later billing slices.
 
 ### Slice 8: Administration, Security, And Audit
 
@@ -862,6 +862,33 @@ Current limitations:
 - This slice intentionally handles database-backed text payload retrieval for seeded and mutation-created text documents.
 - Binary scan streaming, external object storage, thumbnails, signing, version history, encryption/key management, and patient-portal document access rules remain deferred.
 
+### Slice 28: Patient Insurance Coverage
+
+Status:
+
+- Implemented as the fifteenth read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-28-insurance-readiness` plan, which verifies primary and secondary insurance coverage facts and chart visibility for the stable `MOD-PAT-0005` insurance anchor.
+
+Scope:
+
+- ASP.NET Core patient chart summary now returns normalized insurance coverage rows from the modernized PostgreSQL `insurance_records` table.
+- React Patient/Client chart now includes an Insurance panel with payer, plan, policy, group, and relationship details.
+- Shared database probes now normalize legacy `insurance_data` and modernized `insurance_records` into the same coverage shape.
+- Workbench-managed Slice 28 insurance plan is available for both legacy and modernized targets.
+- Modernized smoke coverage validates the deterministic `MOD-PAT-0005` primary and secondary coverage rows.
+
+Acceptance:
+
+- `MOD-PAT-0005` returns two coverage rows in the modernized chart summary: primary `Northstar HMO / Medicare Advantage / POL100005 / GRP104` and secondary `Acme Health / Family Choice / SEC100005 / GRP204`.
+- The modernized chart displays those coverage values in the Insurance panel.
+- The legacy demographics screen and modernized chart expose the same coverage facts through the `slice-28-insurance-readiness` plan.
+- The side-by-side Slice 28 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice is read-only and patient-chart scoped.
+- Eligibility checks, claim generation, payer adjudication, benefit rules, copay workflows, payment posting, and full revenue-cycle behavior remain deferred to later billing/insurance slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -950,3 +977,4 @@ As of 2026-06-19:
 - The twenty-fifth modernized vertical slice implements read-only patient documents with a React Documents workspace, ASP.NET Core documents API, PostgreSQL patient document mapping, expanded gold-data document records, Workbench documents plan action, smoke coverage, and side-by-side slice-25 parity evidence.
 - The twenty-sixth modernized vertical slice implements patient document mutation with React Documents create/archive/delete controls, ASP.NET Core documents lifecycle endpoints, modernized workflow action adapter methods, Workbench document mutation plan action, smoke coverage, and side-by-side slice-26 parity evidence.
 - The twenty-seventh modernized vertical slice implements patient document content retrieval with ASP.NET Core content/download endpoints, React Documents viewer and download controls, full-content parity probes, Workbench document content plan action, smoke coverage, and side-by-side slice-27 parity evidence.
+- The twenty-eighth modernized vertical slice implements patient insurance coverage visibility with chart-summary coverage rows, a React chart Insurance panel, normalized insurance probes, Workbench insurance plan action, smoke coverage, and side-by-side slice-28 parity evidence.

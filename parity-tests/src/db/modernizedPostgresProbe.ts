@@ -17,6 +17,7 @@ import type {
   OperationalReportExportRow,
   PatientDocumentContentSummary,
   PatientDocumentsSummary,
+  PatientInsuranceCoverageSummary,
   PatientMessagesSummary,
   PatientRecord,
   ProcedureOrderSummary,
@@ -358,6 +359,38 @@ ORDER BY m.message_date DESC, m.id DESC;
         body: row.body,
         status: row.status,
         date: row.date
+      }))
+    };
+  }
+
+  async getPatientInsuranceForPatient(pid: number): Promise<PatientInsuranceCoverageSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT COALESCE(type, '') AS type,
+  COALESCE(provider, '') AS provider,
+  COALESCE(plan_name, '') AS "planName",
+  COALESCE(policy_number, '') AS "policyNumber",
+  COALESCE(group_number, '') AS "groupNumber",
+  COALESCE(relationship, '') AS relationship
+FROM insurance_records
+WHERE pid = ${pid}
+ORDER BY
+  CASE lower(COALESCE(type, ''))
+    WHEN 'primary' THEN 1
+    WHEN 'secondary' THEN 2
+    ELSE 3
+  END,
+  id;
+`);
+
+    return {
+      patientId: pid,
+      insurance: rows.map((row) => ({
+        type: row.type,
+        provider: row.provider,
+        planName: row.planName,
+        policyNumber: row.policyNumber,
+        groupNumber: row.groupNumber,
+        relationship: row.relationship
       }))
     };
   }

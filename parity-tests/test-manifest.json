@@ -249,6 +249,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-28-insurance-readiness",
+      "name": "Slice 28 Insurance Readiness",
+      "description": "Read-only insurance coverage confidence plan that verifies primary and secondary coverage facts and chart visibility for the shared gold-data anchor.",
+      "suites": ["insurance"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-28", "insurance", "billing", "patient-chart", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -270,7 +279,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -422,6 +431,16 @@
       "layer": "parity",
       "path": "tests/document-content",
       "tags": ["slice27", "documents", "patient-files", "download", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "insurance",
+      "name": "Patient Insurance Coverage",
+      "description": "Compares primary and secondary insurance coverage facts and chart rendering against the legacy demographics screen using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/insurance",
+      "tags": ["slice28", "insurance", "billing", "patient-chart", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

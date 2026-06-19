@@ -15,6 +15,22 @@ export async function openPatientSummaryDirect(page: Page, target: RuntimeTarget
   await expect(page.locator("body")).toContainText(/Demographics|Patient|History/i);
 }
 
+export async function openPatientInsuranceBrowseDirect(
+  page: Page,
+  target: RuntimeTarget,
+  pid: number,
+  type: "primary" | "secondary" | "tertiary" = "primary"
+) {
+  await page.goto(`${target.publicUrl}/interface/patient_file/summary/browse.php?browsenum=1&set_pid=${pid}`);
+  await expectRenderedText(page, /Insurance Provider|Policy Number/i);
+
+  if (type !== "primary") {
+    await page.locator('select[name="insurance"]').selectOption(type);
+    await expect(page.locator('select[name="insurance"]')).toHaveValue(type);
+    await expectRenderedText(page, /Insurance Provider|Policy Number/i);
+  }
+}
+
 export async function openPatientNotesDirect(page: Page, target: RuntimeTarget, pid: number) {
   await page.goto(`${target.publicUrl}/interface/patient_file/summary/pnotes_full.php?set_pid=${pid}`);
   await expectRenderedText(page, /Patient Notes|Messages|Notes/i);

@@ -15,6 +15,7 @@ param(
         "messages",
         "documents",
         "document-content",
+        "insurance",
         "procedures",
         "procedure-pending-orders",
         "billing",

@@ -13,6 +13,7 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 
 - 20 providers and staff.
 - 3 facilities.
+- 6 synthetic insurance companies and 1,400 insurance coverage records.
 - 2,800 appointments.
 - 2,100 encounters.
 - 2,100 vitals and clinical notes.
