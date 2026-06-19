@@ -1375,7 +1375,7 @@ Primary files:
 
 ### 035. Modernized Clinical List Mutation Slice 13
 
-Commit: TBD
+Commit: 30f314f
 
 Implemented the thirteenth modernized OpenEMR vertical slice: the fourth mutation-capable parity workflow, focused on allergy list create, browser rendering, deactivate, and delete behavior with React Lists controls, ASP.NET Core clinical-list lifecycle endpoints, PostgreSQL allergy activity fields, Workbench orchestration, smoke coverage, and matched side-by-side parity against the legacy OpenEMR clinical-list workflow.
 
