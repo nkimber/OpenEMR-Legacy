@@ -114,6 +114,7 @@ export type PatientDocumentRecord = {
   docDate: string;
   mimetype: string;
   fileName: string;
+  url: string;
   sizeBytes: number;
   storageMethod: string;
   deleted: number;
@@ -381,6 +382,17 @@ export type NewPatientBinaryDocument = {
   fileName: string;
   mimetype: string;
   contentBase64: string;
+  notes: string;
+};
+
+export type NewPatientExternalLinkDocument = {
+  patientId: number;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  encounter: number;
+  url: string;
   notes: string;
 };
 
@@ -1414,6 +1426,33 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
     return id;
   }
 
+  async createPatientExternalLinkDocument(input: NewPatientExternalLinkDocument): Promise<number> {
+    const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 8999999) + 1, 9000000) AS id
+FROM documents;
+`);
+    const id = Number(nextRows[0]?.id);
+    const documentKey = `DOC-WEBLINK-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const content = `External document link: ${input.url}`;
+
+    await this.db.execute(`
+INSERT INTO documents
+  (id, uuid, type, size, date, url, mimetype, pages, owner, revision, foreign_id, docdate, hash,
+   list_id, name, storagemethod, path_depth, imported, encounter_id, encounter_check,
+   audit_master_approval_status, documentationOf, encrypted, document_data, deleted)
+VALUES
+  (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), 'web_url', CHAR_LENGTH(${sqlString(content)}), NOW(),
+   ${sqlString(input.url)}, 'text/uri-list', 0, 1, NOW(), ${integer(input.patientId)},
+   ${sqlString(input.docDate)}, SHA1(${sqlString(content)}), 0, ${sqlString(input.name)}, 0, 0, 0,
+   ${integer(input.encounter)}, 1, 1, ${sqlString(input.notes)}, 0, ${sqlString(content)}, 0);
+
+INSERT INTO categories_to_documents (category_id, document_id)
+VALUES (${integer(input.categoryId)}, ${integer(id)});
+`);
+
+    return id;
+  }
+
   async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
@@ -1430,9 +1469,15 @@ SELECT d.id,
   d.name,
   DATE(d.docdate) AS docDate,
   COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.url, '') AS url,
   COALESCE(d.name, '') AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
-  CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
+  CASE
+    WHEN d.type = 'web_url' THEN 'web_url'
+    WHEN d.type = 'file_url' THEN 'file_url'
+    WHEN COALESCE(d.storagemethod, 0) = 0 THEN 'database'
+    ELSE CAST(d.storagemethod AS CHAR)
+  END AS storageMethod,
   COALESCE(d.deleted, 0) AS deleted,
   CASE COALESCE(d.audit_master_approval_status, 1)
     WHEN 1 THEN 'pending'
@@ -1465,6 +1510,7 @@ LIMIT 1;
       docDate: row.docDate,
       mimetype: row.mimetype,
       fileName: row.fileName,
+      url: row.url,
       sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),

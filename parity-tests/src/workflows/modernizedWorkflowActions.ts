@@ -19,6 +19,7 @@ import type {
   NewMedication,
   NewPatientBinaryDocument,
   NewPatientDocument,
+  NewPatientExternalLinkDocument,
   NewPatientInsurance,
   NewPatientRegistration,
   NewProblem,
@@ -909,10 +910,34 @@ LIMIT 1;
     return mutation.id;
   }
 
+  async createPatientExternalLinkDocument(input: NewPatientExternalLinkDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/external-link`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        encounter: input.encounter,
+        url: input.url,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized external-link patient document create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
   async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "categoryId",
   category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
+  COALESCE(url, '') AS url,
   COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
   COALESCE(storage_method, '') AS "storageMethod", deleted,
   COALESCE(review_status, 'pending') AS "reviewStatus",
@@ -942,6 +967,7 @@ LIMIT 1;
       docDate: row.docDate,
       mimetype: row.mimetype,
       fileName: row.fileName,
+      url: row.url,
       sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),

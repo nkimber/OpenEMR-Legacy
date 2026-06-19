@@ -3081,6 +3081,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 064. Modernized Patient Document External-Link Slice 39
+
+Commit: current slice commit
+Started: `2026-06-19T14:05:00-04:00`
+Finished: `2026-06-19T14:27:01-04:00`
+
+Implemented the thirty-ninth modernized OpenEMR vertical slice: patient document external-link filing, focused on creating a temporary `web_url` document, rendering URL/storage metadata, archiving it, deleting it, and proving the document baseline returns clean.
+
+Key outcomes:
+
+- Added an ASP.NET Core external-link patient document endpoint at `/api/documents/external-link`.
+- Added URL validation and `web_url` document creation in the modernized Documents repository while reusing the normalized `patient_documents` URL/storage fields.
+- Added React Documents workspace support for External Link creation, URL/storage rendering, and Open Link actions on document cards and the viewer.
+- Added modernized frontend API typing and helper support for external-link patient documents.
+- Added shared legacy and modernized workflow adapter methods for `createPatientExternalLinkDocument`.
+- Added the `workflow-document-external-link` Playwright parity suite and `slice-39-document-external-link-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 39 document external-link plan.
+- Expanded modernized smoke coverage so a temporary external-link document is created, read, archived, and deleted.
+- Documented the legacy mapping: OpenEMR `documents.type = web_url` is normalized as `storageMethod = web_url`.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run list` in `parity-tests/`, confirming `slice-39-document-external-link-readiness` and `workflow-document-external-link`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, including the patient external-link document smoke.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-39-document-external-link-readiness -Reset test`, producing run id `2026-06-19T182615-907Z-legacy-openemr-plan-slice-39-document-external-link-readiness`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-39-document-external-link-readiness -Reset test`, producing run id `2026-06-19T182638-979Z-modernized-openemr-plan-slice-39-document-external-link-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-39-document-external-link-readiness` in `parity-tests/`, producing matched comparison id `2026-06-19T182655-818Z-legacy-openemr-vs-modernized-openemr-plan-slice-39-document-external-link-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-external-link/external-link-document-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

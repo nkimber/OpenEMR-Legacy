@@ -804,7 +804,7 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews; focused binary upload/download lifecycle behavior is covered by Slice 33.
-- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, and focused document sign-off is covered by Slice 38.
+- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, focused document sign-off is covered by Slice 38, and focused external-link document filing is covered by Slice 39.
 
 ### Slice 26: Patient Document Mutation
 
@@ -1192,6 +1192,36 @@ Current limitations:
 - This slice covers focused document approval/sign-off only.
 - Denial/rejection flows, multi-reviewer routing, document versioning, thumbnails, scanned-document capture, encryption/key management, CCDA import/export, external storage adapters, and authorization enforcement remain deferred.
 
+### Slice 39: Patient Document External Links
+
+Goal: add mutation-capable patient document external-link parity using OpenEMR's `documents.type = web_url` behavior and the modernized Documents workspace URL controls.
+
+Status:
+
+- Implemented as the twenty-third mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-39-document-external-link-readiness` plan, which creates, renders, archives, and removes a temporary web-url document on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core documents API now supports `/api/documents/external-link` for focused external URL filings.
+- Modernized PostgreSQL `patient_documents` uses existing `storage_method`, `url`, MIME, content-preview, and lifecycle fields to represent `web_url` documents without changing the seeded gold rows.
+- React Documents workspace now includes an External Link form, displays `web_url` storage metadata and URL references, and exposes an Open Link action on document cards and the viewer.
+- Modernized smoke coverage creates a temporary external-link document, verifies content/readback state, then archives and hard-deletes it.
+- Shared legacy and modernized workflow adapters now expose `createPatientExternalLinkDocument`, mapping legacy `documents.type = web_url` to modernized `storageMethod = web_url`.
+- The `workflow-document-external-link` parity suite and `slice-39-document-external-link-readiness` plan verify the same create, render, archive, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 39 document external-link plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary external-link document can be created for `MOD-PAT-0001` on both targets with `mimetype = text/uri-list`, `storageMethod = web_url`, and a stable URL value.
+- The modernized Documents workspace renders the URL, storage mode, and Open Link action, while the legacy document list remains browser-renderable for the same filing.
+- The temporary document can be archived and hard-deleted during cleanup so the seeded 1,200-document baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused external-link document filing only.
+- External object storage adapters, scanned-document capture, multi-file uploads, thumbnails, document versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and authorization enforcement remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1291,3 +1321,4 @@ As of 2026-06-19:
 - The thirty-sixth modernized vertical slice implements patient demographics mutation with React Patient/Client chart demographics edit controls, an ASP.NET Core patient demographics update endpoint, PostgreSQL patient demographic fields, modernized workflow action adapter methods, Workbench patient demographics plan action, smoke coverage, and side-by-side slice-36 parity evidence.
 - The thirty-seventh modernized vertical slice implements patient registration with a React Patient/Client registration form, ASP.NET Core patient registration and guarded temporary-delete endpoints, PostgreSQL patient insert/delete behavior, modernized workflow action adapter methods, Workbench patient registration plan action, smoke coverage, and side-by-side slice-37 parity evidence.
 - The thirty-eighth modernized vertical slice implements patient document sign-off with React Documents review controls, ASP.NET Core document approval endpoint, PostgreSQL document review-status fields, modernized workflow action adapter methods, Workbench document sign-off plan action, smoke coverage, and side-by-side slice-38 parity evidence.
+- The thirty-ninth modernized vertical slice implements patient document external links with a React Documents External Link form, ASP.NET Core document external-link endpoint, PostgreSQL document URL/storage metadata, modernized workflow action adapter methods, Workbench document external-link plan action, smoke coverage, and side-by-side slice-39 parity evidence.

@@ -37,6 +37,7 @@ param(
         "workflow-documents",
         "workflow-document-binary",
         "workflow-document-signoff",
+        "workflow-document-external-link",
         "workflow-insurance",
         "workflow-prescriptions",
         "workflow-immunizations",
