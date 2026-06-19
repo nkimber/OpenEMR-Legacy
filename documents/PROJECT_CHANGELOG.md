@@ -682,7 +682,7 @@ Primary files:
 
 ### 023. Slice 1 Side-By-Side Parity
 
-Commit: `TBD`
+Commit: `be5f634`
 
 Promoted the first modernized patient search/chart summary slice from smoke-only validation into the reusable parity harness with matched legacy-vs-modernized comparison evidence.
 
