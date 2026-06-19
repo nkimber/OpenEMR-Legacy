@@ -635,7 +635,7 @@ Primary files:
 
 ### 022. Modernized OpenEMR Slice 1 Bootstrap
 
-Commit: `f893db6`
+Commit: `6586a4a`
 
 Created the first from-scratch modernized OpenEMR target and implemented the read-only patient search/chart summary vertical slice against the shared gold dataset.
 
