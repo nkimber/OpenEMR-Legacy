@@ -1032,7 +1032,8 @@ app.get("/api/architecture", async (_request, response) => {
           "Parity database/http/ui/workflow suites and named run plans implemented",
           "Playwright UI suite implemented for login, chart, encounter, scheduling, billing, and lab-result screens",
           "Mutation workflow suite implemented",
-          "Slice 1 readiness parity plan implemented for patient search/chart summary comparison"
+          "Slice 1 readiness parity plan implemented for patient search/chart summary comparison",
+          "Slice 2 scheduling readiness parity plan implemented for future appointment comparison"
         ]
       },
       {
@@ -1047,11 +1048,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Slice 1 started",
+        status: "Slice 2 scheduling started",
         stack: ["React 19 SPA", "ASP.NET Core 10 API", "PostgreSQL", "Docker Compose"],
         database: "PostgreSQL",
-        businessLogic: "Server-side API owns patient search/chart summary behavior for the first read-only slice",
-        tests: ["Modernized smoke test implemented for health, anchor patient search, and chart summary", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison"]
+        businessLogic: "Server-side API owns patient search/chart summary behavior and read-only appointment list/detail behavior for implemented slices",
+        tests: ["Modernized smoke test implemented for health, anchor patient search, and chart summary", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison"]
       }
     ]
   });
@@ -1067,8 +1068,8 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 1 is scaffolded with React, ASP.NET Core, PostgreSQL, shared gold-data seeding, Workbench management, patient search/chart summary behavior, and side-by-side slice-1 parity evidence." }
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, scheduling parity, and the future full parity contract." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 2 adds read-only scheduling with a Calendar module, appointment list/detail API, PostgreSQL-backed appointment data, Workbench actions, and side-by-side scheduling parity evidence." }
     ]
   });
 });

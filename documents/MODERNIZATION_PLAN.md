@@ -123,11 +123,34 @@ Current limitations:
 
 ### Slice 2: Scheduling
 
+Goal:
+
+- Implement the first scheduling workflow that lets existing users find and inspect future appointments from the modernized Calendar module.
+
+Status:
+
+- Implemented as a read-only scheduling slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-2 scheduling parity runs against the legacy baseline.
+
 Scope:
 
-- Future appointment list and appointment detail views.
-- Appointment create/cancel/delete workflow.
+- PostgreSQL appointment queries from the canonical gold dataset.
+- API endpoints for future appointment list/search and appointment detail.
+- React Calendar module with appointment filter, appointment list, and appointment detail panels.
+- Workbench-managed slice-2 scheduling parity plan for both legacy and modernized targets.
 - Scheduling parity tests using existing gold scheduling anchors.
+
+Acceptance:
+
+- Calendar module is selectable from the modernized left navigation.
+- Future appointments can be filtered by canonical patient ID, public patient ID, or legacy PID.
+- Appointment detail displays patient, date, time, duration, status, room, provider, facility, category, and appointment ID.
+- The `slice-2-scheduling-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- Appointment create, cancel, update, and delete workflows remain deferred to a later scheduling mutation slice.
 
 ### Slice 3: Encounters And Clinical Notes
 
@@ -246,4 +269,5 @@ As of 2026-06-19:
 - Legacy parity plan passes.
 - Native legacy PHPUnit and Jest lanes pass.
 - Modernized OpenEMR target exists under `modernized-openemr/`.
-- The first modernized vertical slice implements React patient search/chart summary, ASP.NET Core patient APIs, PostgreSQL seed mapping from the shared gold dataset, Docker Compose runtime, Workbench app registration, and modernized smoke evidence.
+- The first modernized vertical slice implements React patient search/chart summary, ASP.NET Core patient APIs, PostgreSQL seed mapping from the shared gold dataset, Docker Compose runtime, Workbench app registration, and side-by-side slice-1 parity evidence.
+- The second modernized vertical slice implements read-only scheduling with a React Calendar module, ASP.NET Core appointment APIs, PostgreSQL appointment queries, expanded modernized smoke checks, Workbench scheduling plan actions, and matched side-by-side slice-2 parity evidence.

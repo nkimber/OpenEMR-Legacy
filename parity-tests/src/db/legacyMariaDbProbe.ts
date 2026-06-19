@@ -24,7 +24,7 @@ export type PatientRecord = {
 };
 
 export type AppointmentSummary = {
-  id: number;
+  id: number | string;
   patientId: number;
   title: string;
   eventDate: string;

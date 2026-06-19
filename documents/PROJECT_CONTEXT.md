@@ -26,7 +26,7 @@ The smoke test currently verifies:
 - The login page is reachable.
 - The local demo admin login reaches the main OpenEMR shell.
 
-The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-owned deterministic 1,000-patient gold dataset. OpenEMR includes small bundled example patient SQL files and developer demo-data tooling, but the project now treats the Workbench-owned gold dataset as the modernization test contract. The shared seed-data contract lives under `modernization-workbench/seed-data/` so the same dataset can be applied to the legacy MariaDB database and the future modernized PostgreSQL database.
+The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-owned deterministic 1,000-patient gold dataset. OpenEMR includes small bundled example patient SQL files and developer demo-data tooling, but the project now treats the Workbench-owned gold dataset as the modernization test contract. The shared seed-data contract lives under `modernization-workbench/seed-data/` so the same dataset can be applied to the legacy MariaDB database and the modernized PostgreSQL database.
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, and smoke-test the legacy OpenEMR baseline through local-only, allowlisted orchestration commands.
 

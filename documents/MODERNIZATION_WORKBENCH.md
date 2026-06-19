@@ -68,6 +68,7 @@ Verified behavior:
 - The API can run and validate the legacy gold seed action.
 - The API can run and validate the modernized PostgreSQL gold seed action.
 - The API can run the shared slice-1 readiness parity plan for both legacy and modernized targets.
+- The API can run the shared slice-2 scheduling readiness parity plan for both legacy and modernized targets.
 - The API can parse `documents/PROJECT_CHANGELOG.md` and expose it as structured timeline data.
 - The API can stop and restart the legacy OpenEMR Docker Compose stack.
 - The API can start, stop, restart, health-check, seed, smoke test, and profile the modernized OpenEMR Docker Compose stack.
@@ -183,15 +184,15 @@ The native OpenEMR implementation-confidence command is `legacy-openemr/scripts/
 
 The native JavaScript implementation-confidence command is `legacy-openemr/scripts/Test-LegacyNativeJs.ps1`, which writes `legacy-openemr/artifacts/latest-native-jest-test.json`, a full Jest JSON report, and a companion log file. It runs OpenEMR's upstream Jest suite with 12 verified suites and 105 tests covering CCDA service utilities and jsPDF compatibility.
 
-The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, a side-by-side slice-1 readiness plan, and full-suite legacy runs. The UI suite covers login, chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
+The reusable parity test harness lives in `parity-tests/` and is launched by `scripts/Run-OpenEmrParityTests.ps1`. It currently provides database, HTTP, Playwright UI, workflow mutation, named run plans, a side-by-side slice-1 readiness plan, a side-by-side slice-2 scheduling readiness plan, and full-suite legacy runs. The UI suite covers login, chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering. Latest suite and plan summaries are written under `parity-tests/artifacts/` and displayed on the Workbench Test Runs page.
 
 The workflow mutation run covers deterministic demographics, appointment, encounter-detail, clinical-list, patient-message, prescription, billing, and lab procedure lifecycles. The Workbench command uses per-test reseeding for stronger isolation, while the suite also performs cleanup so it can safely run inside the full parity suite.
 
-The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness, slice-2 scheduling readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 The Workbench also exposes a custom parity run builder on the Test Runs page for each managed application. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
-The first modernized target test command is `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`, which writes `modernized-openemr/artifacts/latest-modernized-smoke-test.json`. It checks API health, deterministic anchor patient search for `MOD-PAT-0001`, and the anchor chart summary response. The first reusable side-by-side command is the `slice-1-readiness` parity plan, which writes latest summaries for both `legacy-openemr` and `modernized-openemr` under `parity-tests/artifacts/` and can be compared with the parity comparison runner.
+The modernized target test command is `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`, which writes `modernized-openemr/artifacts/latest-modernized-smoke-test.json`. It checks API health, deterministic anchor patient search for `MOD-PAT-0001`, the anchor chart summary response, appointment search for `MOD-PAT-0003`, and appointment detail retrieval. The reusable side-by-side commands include the `slice-1-readiness` and `slice-2-scheduling-readiness` parity plans, which write latest summaries for both `legacy-openemr` and `modernized-openemr` under `parity-tests/artifacts/` and can be compared with the parity comparison runner.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
 

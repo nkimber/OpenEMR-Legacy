@@ -4,9 +4,9 @@ Created: 2026-06-18
 
 ## Purpose
 
-This document defines how the project writes, runs, stores, and later compares tests for the legacy OpenEMR baseline and the future modernized OpenEMR target.
+This document defines how the project writes, runs, stores, and compares tests for the legacy OpenEMR baseline and the modernized OpenEMR target.
 
-The goal is not only to test legacy OpenEMR. The goal is to build executable parity specifications that describe observable behavior and domain state so the same tests can run against the modernized implementation once it exists.
+The goal is not only to test legacy OpenEMR. The goal is to build executable parity specifications that describe observable behavior and domain state so the same tests can run against the modernized implementation as each slice is delivered.
 
 ## Current Implementation
 
@@ -20,7 +20,7 @@ Technology stack:
 - Legacy MariaDB probes through Docker Compose and the MariaDB CLI.
 - Legacy workflow mutation actions through an adapter layer.
 - Manifest-defined suites and run plans.
-- A run-summary comparator for future side-by-side parity evidence.
+- A run-summary comparator for side-by-side parity evidence.
 - JSON, JUnit, HTML, screenshots, videos, and Playwright traces as test evidence.
 
 The legacy baseline is the first implemented target:
@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The future modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `planned`. It cannot run yet, but the runner and manifest already model the target boundary.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan and the slice-2 read-only scheduling plan.
 
 ## Test Layers
 
@@ -175,8 +175,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr`
-- `--suite all|database|http|ui|workflow`
-- `--plan legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|slice1|scheduling`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -187,11 +187,13 @@ The runner accepts:
 
 The test manifest now has two selection layers:
 
-- Suites: layer-level groups such as database, HTTP, UI, and workflow.
+- Suites: layer-level groups such as database, HTTP, UI, workflow, patient-chart slice parity, and scheduling slice parity.
 - Plans: operator-facing run plans that select suites, reset behavior, target support, and intent.
 
 Current plans:
 
+- `slice-1-readiness` runs database and patient chart parity with a run-level reset for both legacy and modernized targets.
+- `slice-2-scheduling-readiness` runs the scheduling parity suite with a run-level reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
 - `mutation-isolated` runs workflow mutations with per-test resets for strongest mutation isolation.
 - `full-parity` runs database, HTTP, UI, and workflow as the target-neutral contract intended for future side-by-side legacy and modernized runs.
@@ -231,6 +233,7 @@ The runner also writes latest summary files by target and suite:
 
 - `parity-tests/artifacts/latest-legacy-openemr-database.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-1-readiness.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-2-scheduling-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
@@ -240,6 +243,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-modernized-openemr-http.json`
 - `parity-tests/artifacts/latest-modernized-openemr-ui.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-1-readiness.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-2-scheduling-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -257,6 +261,12 @@ For the first modernized slice, compare the current side-by-side readiness plan 
 
 ```powershell
 npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-1-readiness
+```
+
+For the second modernized scheduling slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-2-scheduling-readiness
 ```
 
 The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
@@ -279,13 +289,15 @@ The legacy app currently exposes these test actions:
 - Legacy readiness plan.
 - Isolated mutation plan.
 - Slice 1 readiness plan.
+- Slice 2 scheduling plan.
 - Full parity plan.
 - Full legacy parity suite.
 
 The modernized app currently exposes these test actions:
 
-- Modernized smoke test for API health, anchor patient search, and anchor chart summary.
+- Modernized smoke test for API health, anchor patient search, anchor chart summary, anchor appointment search, and anchor appointment detail.
 - Slice 1 readiness plan for side-by-side patient search/chart summary parity.
+- Slice 2 scheduling plan for side-by-side future appointment detail parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
@@ -293,13 +305,13 @@ The Test Runs page also includes a custom parity run builder for each managed ap
 
 ## Modernized Target Parity Path
 
-The modernized target now exists, but only the first read-only patient search/chart summary slice is implemented. The smoke test proves that the target can run, consume the shared gold dataset, and return the deterministic anchor patient. The `slice-1-readiness` parity plan now proves the same database contract and anchor chart behavior against both legacy and modernized targets.
+The modernized target now exists and currently includes the first read-only patient search/chart summary slice plus the second read-only scheduling slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, and retrieve a deterministic future appointment for `MOD-PAT-0003`. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets.
 
 Next parity steps:
 
 1. Add modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
 2. Add modernized UI helpers behind the same browser workflow intent for each new slice.
-3. Expand `slice-1-readiness` into additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
+3. Add additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
 4. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
 
 The test code should continue to assert observable behavior and normalized domain state, not identical implementation details.

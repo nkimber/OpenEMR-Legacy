@@ -15,6 +15,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-2-scheduling-readiness",
+      "name": "Slice 2 Scheduling Readiness",
+      "description": "Read-only scheduling confidence plan for a future appointment list/detail workflow on both legacy and modernized targets.",
+      "suites": ["scheduling"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-2", "scheduling", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -68,6 +77,16 @@
       "layer": "parity",
       "path": "tests/slice1",
       "tags": ["slice1", "patient-chart", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "scheduling",
+      "name": "Scheduling Appointment Detail",
+      "description": "Compares the read-only future appointment detail workflow against the legacy scheduler using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/scheduling",
+      "tags": ["slice2", "scheduling", "appointments", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

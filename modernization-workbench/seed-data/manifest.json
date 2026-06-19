@@ -5,7 +5,7 @@
       "name": "OpenEMR Shared Synthetic Dataset",
       "version": "v1",
       "status": "implemented",
-      "description": "Project-owned deterministic synthetic data contract for seeding both the legacy OpenEMR database and the future modernized PostgreSQL database.",
+      "description": "Project-owned deterministic synthetic data contract for seeding both the legacy OpenEMR database and the modernized PostgreSQL database.",
       "canonicalPath": "modernization-workbench/seed-data/openemr-shared-synthetic-v1",
       "currentSeedLevel": "Gold test dataset v1 generated and verified against the legacy MariaDB baseline on 2026-06-18 with full 2026 prescription coverage and future 2026 appointment/procedure-order coverage",
       "targetPatientCount": 1000,

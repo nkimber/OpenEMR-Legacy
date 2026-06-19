@@ -191,7 +191,7 @@ LIMIT 1;
       return null;
     }
     return {
-      id: Number(row.id),
+      id: row.id,
       patientId: Number(row.patientId),
       title: row.title,
       eventDate: row.eventDate,

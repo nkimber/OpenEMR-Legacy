@@ -20,7 +20,7 @@ export async function openEncounterDirect(page: Page, target: RuntimeTarget, pid
   await expectRenderedText(page, /Encounter|Summary/i);
 }
 
-export async function openAppointmentDirect(page: Page, target: RuntimeTarget, appointmentId: number) {
+export async function openAppointmentDirect(page: Page, target: RuntimeTarget, appointmentId: number | string) {
   await page.goto(`${target.publicUrl}/interface/main/calendar/add_edit_event.php?eid=${appointmentId}`);
   await expect(page).toHaveTitle(/Edit Event/i);
 }
