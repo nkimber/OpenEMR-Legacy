@@ -3436,6 +3436,64 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 070. Modernized Fee-Sheet Charge Correction Slice 45
+
+Commit: this commit
+Started: `2026-06-19T16:24:30-04:00`
+Finished: `2026-06-19T16:48:49-04:00`
+
+Implemented the forty-fifth modernized OpenEMR vertical slice: fee-sheet charge correction, focused on creating a temporary CPT billing row, correcting its description, fee, units, and diagnosis justification, rendering the corrected line in the legacy Fee Sheet and modernized Fees workspace, deactivating it, deleting it, and proving the billing baseline returns clean.
+
+Key outcomes:
+
+- Added an ASP.NET Core billing line update endpoint for focused charge correction.
+- Added modernized Fees workspace controls for selecting a billing line and submitting corrected description, fee, units, and justification values.
+- Added modernized smoke coverage for a temporary billing correction lifecycle.
+- Added shared legacy and modernized workflow adapter support for billing line correction.
+- Added the `workflow-billing-correction` Playwright parity suite and `slice-45-billing-correction-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 45 billing correction plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 47 smoke checks, including `billing correction mutation lifecycle`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-45-billing-correction-readiness -Reset test` passed with run `2026-06-19T204759-012Z-legacy-openemr-plan-slice-45-billing-correction-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-45-billing-correction-readiness -Reset test` passed with run `2026-06-19T204826-160Z-modernized-openemr-plan-slice-45-billing-correction-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-45-billing-correction-readiness` matched with comparison `2026-06-19T204843-842Z-legacy-openemr-vs-modernized-openemr-plan-slice-45-billing-correction-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-billing-correction/billing-line-correction.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

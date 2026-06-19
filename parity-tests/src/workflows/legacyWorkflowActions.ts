@@ -216,6 +216,7 @@ export type BillingLineRecord = {
   code: string;
   codeText: string;
   fee: string;
+  justify: string;
   units: number;
   activity: number;
   billed: number;
@@ -500,6 +501,13 @@ export type NewBillingLine = {
   dateTime: string;
   codeType: string;
   code: string;
+  codeText: string;
+  fee: string;
+  units: number;
+  justify: string;
+};
+
+export type BillingLineCorrection = {
   codeText: string;
   fee: string;
   units: number;
@@ -1981,7 +1989,7 @@ SELECT LAST_INSERT_ID() AS id;
   async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, encounter, code_type AS codeType, code, code_text AS codeText,
-  fee, units, activity, billed
+  fee, COALESCE(justify, '') AS justify, units, activity, billed
 FROM billing
 WHERE id = ${legacyInteger(id)}
 LIMIT 1;
@@ -1998,10 +2006,22 @@ LIMIT 1;
       code: row.code,
       codeText: row.codeText,
       fee: Number(row.fee).toFixed(2),
+      justify: row.justify,
       units: Number(row.units),
       activity: Number(row.activity),
       billed: Number(row.billed)
     };
+  }
+
+  async updateBillingLine(id: number | string, input: BillingLineCorrection): Promise<void> {
+    await this.db.execute(`
+UPDATE billing
+SET code_text = ${sqlString(input.codeText)},
+    fee = ${decimal(Number(input.fee))},
+    units = ${integer(input.units)},
+    justify = ${sqlString(input.justify)}
+WHERE id = ${legacyInteger(id)};
+`);
   }
 
   async updateBillingLineStatus(id: number | string, billed: number, activity: number): Promise<void> {

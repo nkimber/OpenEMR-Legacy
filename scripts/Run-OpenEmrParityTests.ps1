@@ -47,6 +47,7 @@ param(
         "workflow-immunizations",
         "workflow-billing",
         "workflow-billing-diagnosis",
+        "workflow-billing-correction",
         "workflow-procedures",
         "workflow-admin",
         "workflow-admin-users",

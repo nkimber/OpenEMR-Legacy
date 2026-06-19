@@ -1370,7 +1370,34 @@ Current limitations:
 
 - This slice covers focused fee-sheet diagnosis row lifecycle only.
 - Diagnosis search/autocomplete, multi-code clinical assessment authoring, and claim adjudication behavior remain future slices.
-- Full document version history, binary replacement, scanned-document capture, thumbnails, encryption/key management, CCDA import/export, external storage adapters, patient-portal document access rules, and authorization enforcement remain deferred.
+
+### Slice 45: Fee-Sheet Charge Correction Mutation
+
+Status:
+
+- Implemented as the twenty-ninth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-45-billing-correction-readiness` plan, which creates, corrects, renders, deactivates, and removes a temporary CPT fee-sheet billing line on both legacy and modernized targets.
+
+Scope:
+
+- React Fees workspace now exposes a Correct Billing Line flow: selecting a fee-sheet row fills a correction form, and the operator can update description, fee, units, and diagnosis justification.
+- ASP.NET Core billing API now exposes a billing line update endpoint that preserves the existing code and lifecycle state while updating correction fields.
+- PostgreSQL billing row lifecycle now supports focused charge-correction behavior without adding a separate claim or payment model.
+- Modernized smoke coverage creates, corrects, verifies, deactivates, and deletes a temporary CPT line for `MOD-PAT-0001`.
+- The `workflow-billing-correction` parity suite and `slice-45-billing-correction-readiness` plan verify direct row state plus browser-visible legacy Fee Sheet and modernized Fees rendering.
+- Workbench-managed Slice 45 billing correction plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary CPT row can be created for `MOD-PAT-0001` on both targets without changing seeded charge rows.
+- Direct probes verify corrected text, fee, units, justification, billed state, active state, and cleanup counts.
+- Legacy OpenEMR Fee Sheet and modernized Fees workspace both render the corrected billing line before deactivation.
+- The temporary billing row can be deactivated and hard-deleted so the seeded billing baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused fee-sheet charge correction only.
+- Claim generation, payer adjudication, payment posting, charge correction history, modifiers, statement generation, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1477,3 +1504,4 @@ As of 2026-06-19:
 - The forty-second modernized vertical slice implements patient document archive restore with React Documents archived-record visibility and Restore controls, ASP.NET Core include-archived retrieval and restore endpoint support, PostgreSQL document deleted-state mapping, modernized workflow action adapter methods, Workbench document archive plan action, smoke coverage, and side-by-side slice-42 parity evidence.
 - The forty-third modernized vertical slice implements patient document content replacement with React Documents Replace controls, ASP.NET Core document content replacement endpoint support, PostgreSQL text payload/hash/size updates, modernized workflow action adapter methods, Workbench document content replacement plan action, smoke coverage, and side-by-side slice-43 parity evidence.
 - The forty-fourth modernized vertical slice implements fee-sheet diagnosis coding with React Fees ICD10 diagnosis controls, the existing ASP.NET Core billing line endpoint, PostgreSQL billing row lifecycle reuse, Workbench billing diagnosis plan action, smoke coverage, and side-by-side slice-44 parity evidence.
+- The forty-fifth modernized vertical slice implements fee-sheet charge correction with React Fees correction controls, ASP.NET Core billing line update endpoint support, PostgreSQL billing row update reuse, Workbench billing correction plan action, smoke coverage, and side-by-side slice-45 parity evidence.

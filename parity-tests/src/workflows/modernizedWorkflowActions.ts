@@ -6,6 +6,7 @@ import type {
   AccessPermissionAssignment,
   AccessPermissionMutation,
   AppointmentRecord,
+  BillingLineCorrection,
   BillingLineRecord,
   ClinicalListRecord,
   EncounterMetadataInput,
@@ -1288,7 +1289,7 @@ LIMIT 1;
   async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter, code_type AS "codeType", code, code_text AS "codeText",
-  COALESCE(fee::text, '') AS fee, units, activity, billed
+  COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify, units, activity, billed
 FROM billing
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -1306,10 +1307,28 @@ LIMIT 1;
       code: row.code,
       codeText: row.codeText,
       fee: Number(row.fee).toFixed(2),
+      justify: row.justify,
       units: Number(row.units),
       activity: Number(row.activity),
       billed: Number(row.billed)
     };
+  }
+
+  async updateBillingLine(id: number | string, input: BillingLineCorrection): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        codeText: input.codeText,
+        fee: Number(input.fee),
+        units: input.units,
+        justify: input.justify
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized billing line update failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async updateBillingLineStatus(id: number | string, billed: number, activity: number): Promise<void> {
