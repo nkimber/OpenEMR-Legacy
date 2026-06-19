@@ -242,6 +242,18 @@ export type AccountAgingSummary = {
   agingBucket: string;
 };
 
+export type AccountLedgerEntry = {
+  patientId: number;
+  entryDate: string;
+  encounter: number;
+  entryType: string;
+  description: string;
+  code: string;
+  reference: string;
+  amount: string;
+  runningBalanceAmount: string;
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -1150,6 +1162,40 @@ ORDER BY encounter;
     }));
   }
 
+  async getAccountLedgerForPatient(pid: number): Promise<AccountLedgerEntry[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH entries AS (
+  SELECT b.pid AS \`patientId\`, DATE(b.date) AS \`entryDate\`, b.encounter,
+    'Charge' AS \`entryType\`, COALESCE(b.code_text, '') AS description,
+    COALESCE(b.code, '') AS code, CAST(b.id AS CHAR) AS reference,
+    b.fee AS amount, 0 AS priority
+  FROM billing b
+  WHERE b.pid = ${pid} AND b.activity = 1 AND COALESCE(b.fee, 0) <> 0
+  UNION ALL
+  SELECT aa.pid AS \`patientId\`, DATE(aa.post_date) AS \`entryDate\`, aa.encounter,
+    'Payment' AS \`entryType\`, COALESCE(aa.memo, '') AS description,
+    COALESCE(aa.code, '') AS code, COALESCE(CAST(s.reference AS CHAR), CAST(aa.session_id AS CHAR)) AS reference,
+    -aa.pay_amount AS amount, 1 AS priority
+  FROM ar_activity aa
+  INNER JOIN ar_session s ON s.session_id = aa.session_id
+  WHERE aa.pid = ${pid} AND aa.deleted IS NULL AND aa.pay_amount <> 0
+  UNION ALL
+  SELECT aa.pid AS \`patientId\`, DATE(aa.post_date) AS \`entryDate\`, aa.encounter,
+    'Adjustment' AS \`entryType\`, COALESCE(aa.memo, '') AS description,
+    COALESCE(aa.code, '') AS code, COALESCE(CAST(s.reference AS CHAR), CAST(aa.session_id AS CHAR)) AS reference,
+    -aa.adj_amount AS amount, 2 AS priority
+  FROM ar_activity aa
+  INNER JOIN ar_session s ON s.session_id = aa.session_id
+  WHERE aa.pid = ${pid} AND aa.deleted IS NULL AND aa.adj_amount <> 0
+)
+SELECT \`patientId\`, \`entryDate\`, encounter, \`entryType\`, description, code, reference,
+  COALESCE(CAST(amount AS CHAR), '0') AS amount
+FROM entries
+ORDER BY \`entryDate\`, encounter, priority, code, description, reference;
+`);
+    return buildAccountLedgerEntries(rows);
+  }
+
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
     const users = await this.queryRows<Record<string, string>>(`
 SELECT u.id, u.username, u.fname AS firstName, u.lname AS lastName,
@@ -1606,6 +1652,25 @@ export function buildOperationalReportExportRows(reports: OperationalReportsSumm
   }
 
   return rows;
+}
+
+export function buildAccountLedgerEntries(rows: Record<string, string>[]): AccountLedgerEntry[] {
+  let runningBalance = 0;
+  return rows.map((row) => {
+    const amount = Number(row.amount);
+    runningBalance += amount;
+    return {
+      patientId: Number(row.patientId),
+      entryDate: row.entryDate,
+      encounter: Number(row.encounter),
+      entryType: row.entryType,
+      description: row.description,
+      code: row.code,
+      reference: row.reference,
+      amount: amount.toFixed(2),
+      runningBalanceAmount: runningBalance.toFixed(2)
+    };
+  });
 }
 
 function parseTabRows<T extends Record<string, string>>(stdout: string): T[] {

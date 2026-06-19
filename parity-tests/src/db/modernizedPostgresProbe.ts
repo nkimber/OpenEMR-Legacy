@@ -24,6 +24,7 @@ import type {
   PaymentPostingSummary,
   AccountBalanceSummary,
   AccountAgingSummary,
+  AccountLedgerEntry,
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
@@ -32,7 +33,7 @@ import type {
   ProcedureResultsSummary,
   TemporalCoverageRow
 } from "./legacyMariaDbProbe.js";
-import { buildOperationalReportExportRows } from "./legacyMariaDbProbe.js";
+import { buildAccountLedgerEntries, buildOperationalReportExportRows } from "./legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import { runCommand } from "../core/command.js";
 
@@ -742,6 +743,40 @@ ORDER BY encounter;
       balanceAmount: row.balanceAmount,
       agingBucket: row.agingBucket
     }));
+  }
+
+  async getAccountLedgerForPatient(pid: number): Promise<AccountLedgerEntry[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH entries AS (
+  SELECT b.pid AS "patientId", b.billing_date AS "entryDate", b.encounter,
+    'Charge' AS "entryType", COALESCE(b.code_text, '') AS description,
+    COALESCE(b.code, '') AS code, b.id::text AS reference,
+    b.fee AS amount, 0 AS priority
+  FROM billing b
+  WHERE b.pid = ${pid} AND b.activity = 1 AND COALESCE(b.fee, 0) <> 0
+  UNION ALL
+  SELECT pa.pid AS "patientId", pa.post_date AS "entryDate", pa.encounter,
+    'Payment' AS "entryType", COALESCE(pa.memo, '') AS description,
+    COALESCE(pa.code, '') AS code, COALESCE(ps.reference, pa.session_id::text) AS reference,
+    -pa.pay_amount AS amount, 1 AS priority
+  FROM payment_activities pa
+  INNER JOIN payment_sessions ps ON ps.id = pa.session_id
+  WHERE pa.pid = ${pid} AND pa.deleted IS NULL AND pa.pay_amount <> 0
+  UNION ALL
+  SELECT pa.pid AS "patientId", pa.post_date AS "entryDate", pa.encounter,
+    'Adjustment' AS "entryType", COALESCE(pa.memo, '') AS description,
+    COALESCE(pa.code, '') AS code, COALESCE(ps.reference, pa.session_id::text) AS reference,
+    -pa.adj_amount AS amount, 2 AS priority
+  FROM payment_activities pa
+  INNER JOIN payment_sessions ps ON ps.id = pa.session_id
+  WHERE pa.pid = ${pid} AND pa.deleted IS NULL AND pa.adj_amount <> 0
+)
+SELECT "patientId", "entryDate", encounter, "entryType", description, code, reference,
+  COALESCE(amount::text, '0') AS amount
+FROM entries
+ORDER BY "entryDate", encounter, priority, code, description, reference;
+`);
+    return buildAccountLedgerEntries(rows);
   }
 
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {

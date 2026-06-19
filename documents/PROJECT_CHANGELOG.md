@@ -3862,6 +3862,70 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 077. Modernized Account Ledger Slice 51
+
+Commit: this commit
+Started: `2026-06-19T19:31:38-04:00`
+Finished: `2026-06-19T19:43:47-04:00`
+
+Implemented the fifty-first modernized OpenEMR vertical slice: read-only account ledger visibility, focused on deriving chronological charge, payment, adjustment, and running-balance rows from the existing seeded fee-sheet billing and payment-posting records.
+
+Key outcomes:
+
+- Added account ledger DTO fields to the ASP.NET Core billing response.
+- Built canonical ledger entries from billing rows and AR/payment activity rows using a stable date, encounter, type, code, description, and reference ordering.
+- Added patient-level ledger summary totals for entry count, first/last entry dates, charges, payments, adjustments, and ending balance.
+- Rendered an Account Ledger panel in the modernized Fees workspace with per-entry amount, code/reference, and running balance details.
+- Added modernized smoke coverage for the `MOD-PAT-0005` account ledger anchor.
+- Added normalized legacy MariaDB and modernized PostgreSQL account-ledger probes.
+- Added the `account-ledger` parity suite and `slice-51-account-ledger-readiness` plan.
+- Added Workbench commands/cards and result paths for the Slice 51 account ledger plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing gold billing and payment-posting records; no new seed-data records were required for this slice.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d postgres api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 53 smoke checks, including `anchor account ledger summary`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:account-ledger` passed with run `2026-06-19T234306-319Z-legacy-openemr-plan-slice-51-account-ledger-readiness`.
+- `npm run test:modernized:plan:account-ledger` passed with run `2026-06-19T234323-081Z-modernized-openemr-plan-slice-51-account-ledger-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-51-account-ledger-readiness` matched with comparison `2026-06-19T234339-578Z-legacy-openemr-vs-modernized-openemr-plan-slice-51-account-ledger-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-ledger/account-ledger.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

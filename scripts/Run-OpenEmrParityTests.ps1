@@ -24,6 +24,7 @@ param(
         "payments",
         "account-balance",
         "account-aging",
+        "account-ledger",
         "admin",
         "reports",
         "reports-export",

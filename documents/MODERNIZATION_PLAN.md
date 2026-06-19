@@ -1544,6 +1544,34 @@ Current limitations:
 - This slice is read-only and covers aging visibility only.
 - Patient statement generation, collection work queues, dunning rules, write-off workflows, payment mutation/reversal behavior, payer remittance import, and revenue-cycle audit history remain future billing slices.
 
+### Slice 51: Account Ledger Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-51-account-ledger-readiness` plan, which validates chronological charge, payment, adjustment, and running-balance ledger entries for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing rows plus Slice 48 payment posting rows; it does not add new gold-data records.
+- ASP.NET Core billing read behavior now returns a patient-level ledger summary and canonical ordered ledger entries.
+- React Fees workspace now shows an Account Ledger panel with entry count, first/last entry dates, charge/paid/adjusted totals, ending balance, and per-entry running balance.
+- Modernized smoke coverage validates the `MOD-PAT-0005` account ledger summary and final running balance.
+- The `account-ledger` parity suite and `slice-51-account-ledger-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL ledger rows, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 51 account ledger plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute 10 ledger entries for `MOD-PAT-0005`.
+- Direct probes compute `$635.00` charges, `$206.00` payments, `$64.25` adjustments, and `$364.75` ending balance.
+- The canonical ledger starts on `2025-06-22`, ends on `2026-06-25`, includes `EOB-NSTAR-1000052`, and renders `Running $364.75` in the modernized Fees workspace.
+- The side-by-side Slice 51 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers ledger visibility only.
+- Patient statement generation, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1655,3 +1683,4 @@ As of 2026-06-19:
 - The forty-eighth modernized vertical slice implements read-only payment posting visibility with canonical AR session/activity seed data, PostgreSQL payment mapping, ASP.NET Core billing payment read support, React Fees payment-posting rendering, Workbench payment posting plan action, smoke coverage, and side-by-side slice-48 parity evidence.
 - The forty-ninth modernized vertical slice implements read-only account balance visibility by computing charge, payment, adjustment, and balance rollups over existing seeded billing/payment rows, adding ASP.NET Core billing account summaries, React Fees Account Balance rendering, Workbench account balance plan action, smoke coverage, and side-by-side slice-49 parity evidence.
 - The fiftieth modernized vertical slice implements read-only account aging visibility by computing deterministic current, 31-60, 61-90, and over-90 buckets over existing seeded billing/payment rows using the dataset base date, adding ASP.NET Core billing aging summaries, React Fees Aging Summary rendering, Workbench account aging plan action, smoke coverage, and side-by-side slice-50 parity evidence.
+- The fifty-first modernized vertical slice implements read-only account ledger visibility by deriving canonical chronological charge, payment, adjustment, and running-balance entries from existing seeded billing/payment rows, adding ASP.NET Core billing ledger summaries, React Fees Account Ledger rendering, Workbench account ledger plan action, smoke coverage, and side-by-side slice-51 parity evidence.
