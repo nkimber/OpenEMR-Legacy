@@ -2600,12 +2600,79 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 055. Modernized Binary Patient Document Mutation Slice 33
+
+Commit: current slice commit
+
+Implemented the thirty-third modernized OpenEMR vertical slice: PDF-style binary patient-document upload, active rendering, MIME-aware byte-preserving download, soft-delete/archive, and hard-delete cleanup in the Documents workflow.
+
+Key outcomes:
+
+- Extended the modernized ASP.NET Core document API with binary document creation and MIME-aware download behavior.
+- Extended the modernized PostgreSQL patient-document schema and seed adapter with `file_name` and `content_bytes` fields while keeping existing seeded text documents stable.
+- Added an Upload File form to the React Documents workspace, including file selection, category/date/encounter metadata, notes, binary viewer metadata, and row rendering for uploaded filenames.
+- Extended the modernized smoke test with a temporary PDF-style binary document lifecycle check for `MOD-PAT-0001`.
+- Added shared legacy and modernized workflow adapter methods for binary document create, direct readback, soft-delete/archive, and cleanup delete.
+- Added the `workflow-document-binary` Playwright parity suite and `slice-33-binary-document-mutation-readiness` plan for both targets.
+- Added Workbench command cards and result paths for the Slice 33 binary document mutation plan.
+- Preserved Slice 27 text-document content behavior by making legacy document-key extraction prefer embedded gold-data keys for seeded text documents and use URL-derived keys for new binary document uploads.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the new binary document lifecycle behavior.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run list` in `parity-tests/`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj --nologo -clp:ErrorsOnly`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, producing `passed` with 36 checks and including `patient binary document mutation lifecycle`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-33-binary-document-mutation-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-33-binary-document-mutation-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-33-binary-document-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-27-document-content-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-27-document-content-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-27-document-content-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Suite database -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite database -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --suite database` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-binary/binary-document-mutation.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Binary document storage, scanned attachments, upload/delete workflows, and integration adapters.
+- Scanned attachments, document thumbnails, document versioning, signing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

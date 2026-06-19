@@ -16,6 +16,7 @@ import type {
   NewFacility,
   NewImmunization,
   NewMedication,
+  NewPatientBinaryDocument,
   NewPatientDocument,
   NewProblem,
   NewUser,
@@ -697,11 +698,41 @@ LIMIT 1;
     return mutation.id;
   }
 
+  async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/binary`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        encounter: input.encounter,
+        fileName: input.fileName,
+        mimetype: input.mimetype,
+        contentBase64: input.contentBase64,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized binary patient document create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
   async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "categoryId",
   category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
+  COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
   COALESCE(storage_method, '') AS "storageMethod", deleted,
+  CASE
+    WHEN content_bytes IS NOT NULL THEN encode(content_bytes, 'hex')
+    ELSE encode(convert_to(coalesce(content, ''), 'UTF8'), 'hex')
+  END AS "contentHex",
   left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview"
 FROM patient_documents
 WHERE id = ${integer(Number(id))}
@@ -721,8 +752,11 @@ LIMIT 1;
       name: row.name,
       docDate: row.docDate,
       mimetype: row.mimetype,
+      fileName: row.fileName,
+      sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
+      contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
       contentPreview: row.contentPreview
     };
   }

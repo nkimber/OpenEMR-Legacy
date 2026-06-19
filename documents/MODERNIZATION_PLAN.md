@@ -360,7 +360,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Saved report definitions, binary document storage, scanned attachments, upload/delete workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Saved report definitions, scanned attachments, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -773,7 +773,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers operational report CSV export only.
-- Saved report definitions, binary document storage, scanned attachments, binary patient document upload workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
+- Saved report definitions, scanned attachments, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33.
 
 ### Slice 25: Patient Documents Read-Only
 
@@ -803,8 +803,8 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- It covers document metadata and text payload previews, not binary scan storage.
-- Binary upload, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, and full text content retrieval/download is covered by Slice 27.
+- It covers document metadata and text payload previews; focused binary upload/download lifecycle behavior is covered by Slice 33.
+- Versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, and full text content retrieval/download is covered by Slice 27.
 
 ### Slice 26: Patient Document Mutation
 
@@ -832,7 +832,7 @@ Acceptance:
 Current limitations:
 
 - This slice intentionally handles database-backed `text/plain` documents only.
-- Binary upload, scanned document storage, thumbnails, signing, versioning, encryption/key management, CCDA import/export, document routing, and external document-storage adapters remain deferred.
+- Focused PDF-style binary upload/download lifecycle behavior is covered by Slice 33. Scanned document capture, thumbnails, signing, versioning, encryption/key management, CCDA import/export, document routing, and external document-storage adapters remain deferred.
 
 ### Slice 27: Patient Document Content Retrieval
 
@@ -860,7 +860,7 @@ Acceptance:
 Current limitations:
 
 - This slice intentionally handles database-backed text payload retrieval for seeded and mutation-created text documents.
-- Binary scan streaming, external object storage, thumbnails, signing, version history, encryption/key management, and patient-portal document access rules remain deferred.
+- Focused PDF-style binary upload/download lifecycle behavior is covered by Slice 33. Binary scan streaming, external object storage, thumbnails, signing, version history, encryption/key management, and patient-portal document access rules remain deferred.
 
 ### Slice 28: Patient Insurance Coverage
 
@@ -1005,6 +1005,39 @@ Current limitations:
 - This slice covers a focused medication-list create, deactivate, and delete lifecycle only.
 - Medication reconciliation, structured dose/frequency fields, allergy/problem interactions, pharmacy routing, electronic prescribing, controlled-substance rules, refill requests, and audit history remain deferred.
 
+### Slice 33: Binary Patient Document Mutation
+
+Goal: add mutation-capable binary patient-document lifecycle parity using OpenEMR's `documents` rows and the modernized Documents module.
+
+Status:
+
+- Implemented as the seventeenth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-33-binary-document-mutation-readiness` plan, which creates, renders, downloads, archives, and hard-deletes a temporary PDF-style patient document on both legacy and modernized targets.
+
+Scope:
+
+- Modernized PostgreSQL `patient_documents` now stores text payloads and binary payloads separately with `content` preview text, `content_bytes` for byte-preserving file content, and `file_name` for deterministic downloads.
+- ASP.NET Core documents API now exposes `/api/documents/binary` for binary document creation and keeps `/api/documents/{documentId}/download` MIME-aware for byte-preserving binary downloads.
+- React Documents workspace now includes an `Upload File` form with category, document date, encounter, notes, and file selection controls.
+- React document viewer now shows inline text for text documents and binary metadata plus a download action for binary documents.
+- Shared legacy and modernized workflow adapters now expose `createPatientBinaryDocument`, with normalized file name, size, MIME type, base64 content, archive, and cleanup readback.
+- The `workflow-document-binary` parity suite and `slice-33-binary-document-mutation-readiness` plan verify the same lifecycle against both targets.
+- Workbench-managed Slice 33 binary document mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary `application/pdf` document can be created for `MOD-PAT-0001` against seeded encounter `1000013`.
+- The created binary document appears in the legacy OpenEMR document list and the modernized Documents workspace.
+- Modernized document content retrieval marks the row as binary and exposes the deterministic file name, MIME type, hash, preview text, and base64 content.
+- Modernized document download returns the same PDF bytes that were uploaded.
+- Soft-delete/archive removes the temporary binary document from active document counts, and hard-delete cleanup returns counts to the seeded baseline.
+- The side-by-side Slice 33 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice covers a focused PDF-style binary document create, active rendering, download, archive, and delete lifecycle only.
+- Scanned-document capture, multi-file uploads, thumbnails, signing, versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and external document-storage adapters remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1098,3 +1131,4 @@ As of 2026-06-19:
 - The thirtieth modernized vertical slice implements immunization mutation with React Lists create/entered-in-error/delete controls, ASP.NET Core immunization lifecycle endpoints, modernized workflow action adapter methods, Workbench immunization mutation plan action, smoke coverage, and side-by-side slice-30 parity evidence.
 - The thirty-first modernized vertical slice implements problem-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core problem lifecycle endpoints, PostgreSQL problem activity fields, modernized workflow action adapter methods, Workbench problem mutation plan action, smoke coverage, and side-by-side slice-31 parity evidence.
 - The thirty-second modernized vertical slice implements medication-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core medication-list lifecycle endpoints, PostgreSQL medication activity fields, modernized workflow action adapter methods, Workbench medication-list mutation plan action, smoke coverage, and side-by-side slice-32 parity evidence.
+- The thirty-third modernized vertical slice implements binary patient-document mutation with React Documents file upload/view/download controls, ASP.NET Core binary document lifecycle endpoints, PostgreSQL document byte storage fields, modernized workflow action adapter methods, Workbench binary document mutation plan action, smoke coverage, and side-by-side slice-33 parity evidence.

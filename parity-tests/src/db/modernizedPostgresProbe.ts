@@ -444,8 +444,12 @@ SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
-  COALESCE(url, '') AS url, COALESCE(hash, '') AS hash, COALESCE(notes, '') AS notes,
-  left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview"
+  COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
+  COALESCE(notes, '') AS notes,
+  case
+    when content_bytes is not null then left(coalesce(content, ''), 260)
+    else left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260)
+  end AS "contentPreview"
 FROM patient_documents
 WHERE pid = ${pid} AND deleted = 0
 ORDER BY doc_date DESC, id DESC;
@@ -466,6 +470,7 @@ ORDER BY doc_date DESC, id DESC;
         pages: Number(row.pages),
         encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
         storageMethod: row.storageMethod,
+        fileName: row.fileName,
         url: row.url,
         hash: row.hash,
         notes: row.notes,
@@ -480,9 +485,17 @@ SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
-  COALESCE(url, '') AS url, COALESCE(hash, '') AS hash, COALESCE(notes, '') AS notes,
-  left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview",
-  replace(replace(encode(convert_to(coalesce(content, ''), 'UTF8'), 'base64'), E'\\n', ''), E'\\r', '') AS "contentBase64"
+  COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
+  COALESCE(notes, '') AS notes,
+  case
+    when content_bytes is not null then left(coalesce(content, ''), 260)
+    else left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260)
+  end AS "contentPreview",
+  case
+    when content_bytes is not null then encode(content_bytes, 'hex')
+    else encode(convert_to(coalesce(content, ''), 'UTF8'), 'hex')
+  end AS "contentHex",
+  case when content_bytes is not null then '1' else '0' end AS "isBinary"
 FROM patient_documents
 WHERE id = ${documentId} AND deleted = 0
 LIMIT 1;
@@ -501,6 +514,7 @@ LIMIT 1;
       docDate: row.docDate,
       uploadedAt: row.uploadedAt,
       mimetype: row.mimetype,
+      fileName: row.fileName,
       sizeBytes: Number(row.sizeBytes),
       pages: Number(row.pages),
       encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
@@ -509,7 +523,11 @@ LIMIT 1;
       hash: row.hash,
       notes: row.notes,
       contentPreview: row.contentPreview,
-      content: Buffer.from(row.contentBase64, "base64").toString("utf8").replaceAll("\\n", "\n")
+      content: row.isBinary === "1"
+        ? row.contentPreview
+        : Buffer.from(row.contentHex, "hex").toString("utf8").replaceAll("\\n", "\n"),
+      contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
+      isBinary: row.isBinary === "1"
     };
   }
 

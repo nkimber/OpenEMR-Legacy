@@ -32,6 +32,7 @@ param(
         "workflow-medications",
         "workflow-messages",
         "workflow-documents",
+        "workflow-document-binary",
         "workflow-prescriptions",
         "workflow-immunizations",
         "workflow-billing",

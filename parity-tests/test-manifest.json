@@ -294,6 +294,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-33-binary-document-mutation-readiness",
+      "name": "Slice 33 Binary Patient Document Mutation Readiness",
+      "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
+      "suites": ["workflow-document-binary"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-33", "documents", "binary-documents", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -306,7 +315,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -315,7 +324,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -617,6 +626,16 @@
       "layer": "workflow",
       "path": "tests/workflow-documents",
       "tags": ["slice26", "workflow", "mutation", "documents", "patient-files", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-document-binary",
+      "name": "Binary Patient Document Mutation",
+      "description": "Creates, renders, downloads, archives, and removes a PDF-style binary patient document through the same patient-file workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-document-binary",
+      "tags": ["slice33", "workflow", "mutation", "documents", "binary-documents", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -145,6 +145,7 @@ export type PatientDocumentSummary = {
   docDate: string;
   uploadedAt: string;
   mimetype: string;
+  fileName: string;
   sizeBytes: number;
   pages: number;
   encounter: number | null;
@@ -162,6 +163,8 @@ export type PatientDocumentsSummary = {
 
 export type PatientDocumentContentSummary = PatientDocumentSummary & {
   content: string;
+  contentBase64: string;
+  isBinary: boolean;
 };
 
 export type BillingLineSummary = {
@@ -758,13 +761,19 @@ ORDER BY FIELD(insd.type, 'primary', 'secondary'), insd.type, insd.id;
   async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT d.id,
-  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  CASE
+    WHEN SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1) LIKE 'Gold synthetic document %'
+      THEN SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+    WHEN d.url LIKE 'gold://documents/%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(d.url, 'gold://documents/', -1), '/', 1)
+    ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+  END AS documentKey,
   COALESCE(c.id, 0) AS categoryId,
   COALESCE(c.name, '') AS categoryName,
   d.name,
   DATE(d.docdate) AS docDate,
   d.date AS uploadedAt,
   COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.name, '') AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
   COALESCE(d.pages, 0) AS pages,
   COALESCE(d.encounter_id, 0) AS encounter,
@@ -791,6 +800,7 @@ ORDER BY d.docdate DESC, d.id DESC;
         docDate: row.docDate,
         uploadedAt: row.uploadedAt,
         mimetype: row.mimetype,
+        fileName: row.fileName,
         sizeBytes: Number(row.sizeBytes),
         pages: Number(row.pages),
         encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
@@ -806,13 +816,19 @@ ORDER BY d.docdate DESC, d.id DESC;
   async getPatientDocumentContent(documentId: number): Promise<PatientDocumentContentSummary | null> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT d.id,
-  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  CASE
+    WHEN SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1) LIKE 'Gold synthetic document %'
+      THEN SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+    WHEN d.url LIKE 'gold://documents/%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(d.url, 'gold://documents/', -1), '/', 1)
+    ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+  END AS documentKey,
   COALESCE(c.id, 0) AS categoryId,
   COALESCE(c.name, '') AS categoryName,
   d.name,
   DATE(d.docdate) AS docDate,
   d.date AS uploadedAt,
   COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.name, '') AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
   COALESCE(d.pages, 0) AS pages,
   COALESCE(d.encounter_id, 0) AS encounter,
@@ -821,6 +837,7 @@ SELECT d.id,
   COALESCE(d.hash, '') AS hash,
   COALESCE(d.documentationOf, '') AS notes,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview,
+  TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   COALESCE(CONVERT(d.document_data USING utf8mb4), '') AS content
 FROM documents d
 LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
@@ -842,6 +859,7 @@ LIMIT 1;
       docDate: row.docDate,
       uploadedAt: row.uploadedAt,
       mimetype: row.mimetype,
+      fileName: row.fileName,
       sizeBytes: Number(row.sizeBytes),
       pages: Number(row.pages),
       encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
@@ -850,7 +868,9 @@ LIMIT 1;
       hash: row.hash,
       notes: row.notes,
       contentPreview: row.contentPreview,
-      content: row.content.replaceAll("\\n", "\n")
+      content: row.content.replaceAll("\\n", "\n"),
+      contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
+      isBinary: row.mimetype !== "text/plain"
     };
   }
 

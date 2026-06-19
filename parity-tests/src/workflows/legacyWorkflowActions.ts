@@ -77,8 +77,11 @@ export type PatientDocumentRecord = {
   name: string;
   docDate: string;
   mimetype: string;
+  fileName: string;
+  sizeBytes: number;
   storageMethod: string;
   deleted: number;
+  contentBase64: string;
   contentPreview: string;
 };
 
@@ -301,6 +304,19 @@ export type NewPatientDocument = {
   docDate: string;
   encounter: number;
   content: string;
+  notes: string;
+};
+
+export type NewPatientBinaryDocument = {
+  patientId: number;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  encounter: number;
+  fileName: string;
+  mimetype: string;
+  contentBase64: string;
   notes: string;
 };
 
@@ -1143,19 +1159,54 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
     return id;
   }
 
+  async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {
+    const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 8999999) + 1, 9000000) AS id
+FROM documents;
+`);
+    const id = Number(nextRows[0]?.id);
+    const documentKey = `DOC-BINARY-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const content = Buffer.from(input.contentBase64, "base64").toString("utf8");
+
+    await this.db.execute(`
+INSERT INTO documents
+  (id, uuid, type, size, date, url, mimetype, pages, owner, revision, foreign_id, docdate, hash,
+   list_id, name, storagemethod, path_depth, imported, encounter_id, encounter_check,
+   audit_master_approval_status, documentationOf, encrypted, document_data, deleted)
+VALUES
+  (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), 'blob', ${integer(Buffer.byteLength(content, "utf8"))}, NOW(),
+   ${sqlString(`gold://documents/${documentKey}/${input.fileName}`)}, ${sqlString(input.mimetype)}, 1, 1, NOW(),
+   ${integer(input.patientId)}, ${sqlString(input.docDate)}, SHA1(${sqlString(content)}), 0, ${sqlString(input.name)},
+   0, 0, 0, ${integer(input.encounter)}, 1, 1, ${sqlString(input.notes)}, 0, ${sqlString(content)}, 0);
+
+INSERT INTO categories_to_documents (category_id, document_id)
+VALUES (${integer(input.categoryId)}, ${integer(id)});
+`);
+
+    return id;
+  }
+
   async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT d.id,
   d.foreign_id AS patientId,
-  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  CASE
+    WHEN SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1) LIKE 'Gold synthetic document %'
+      THEN SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+    WHEN d.url LIKE 'gold://documents/%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(d.url, 'gold://documents/', -1), '/', 1)
+    ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+  END AS documentKey,
   COALESCE(c.id, 0) AS categoryId,
   COALESCE(c.name, '') AS categoryName,
   d.name,
   DATE(d.docdate) AS docDate,
   COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.name, '') AS fileName,
+  COALESCE(d.size, 0) AS sizeBytes,
   CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
   COALESCE(d.deleted, 0) AS deleted,
+  TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
 FROM documents d
 LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
@@ -1177,8 +1228,11 @@ LIMIT 1;
       name: row.name,
       docDate: row.docDate,
       mimetype: row.mimetype,
+      fileName: row.fileName,
+      sizeBytes: Number(row.sizeBytes),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
+      contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
       contentPreview: row.contentPreview
     };
   }
