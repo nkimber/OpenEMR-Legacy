@@ -3143,6 +3143,63 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 065. Modernized Patient Document Denial Slice 40
+
+Commit: current slice commit
+Started: `2026-06-19T14:30:00-04:00`
+Finished: `2026-06-19T14:48:17-04:00`
+
+Implemented the fortieth modernized OpenEMR vertical slice: patient document denial/rejection, focused on creating a temporary pending document, denying it as `admin`, rendering the denied state, archiving it, deleting it, and proving the document baseline returns clean.
+
+Key outcomes:
+
+- Added modernized Documents workspace Deny action support beside Sign and disabled both review actions after a document is approved or denied.
+- Reused the ASP.NET Core document review endpoint's `reviewStatus = denied` support for focused patient-document denial behavior.
+- Added modernized smoke coverage for a temporary patient-document denial lifecycle.
+- Added shared legacy and modernized workflow adapter methods for `denyPatientDocument`.
+- Normalized legacy `documents.audit_master_approval_status = 3` as `reviewStatus = denied`, with `admin` reviewer metadata for the focused parity workflow.
+- Added the `workflow-document-denial` Playwright parity suite and `slice-40-document-denial-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 40 document denial plan.
+- Documented the legacy mapping and the modernized review-state behavior.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run list` in `parity-tests/`, confirming `slice-40-document-denial-readiness` and `workflow-document-denial`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, including the patient document denial smoke.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-40-document-denial-readiness -Reset test`, producing run id `2026-06-19T184720-613Z-legacy-openemr-plan-slice-40-document-denial-readiness`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-40-document-denial-readiness -Reset test`, producing run id `2026-06-19T184747-545Z-modernized-openemr-plan-slice-40-document-denial-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-40-document-denial-readiness` in `parity-tests/`, producing matched comparison id `2026-06-19T184808-790Z-legacy-openemr-vs-modernized-openemr-plan-slice-40-document-denial-readiness`.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-denial/document-denial-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

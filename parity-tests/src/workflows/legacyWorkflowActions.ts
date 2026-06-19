@@ -1485,8 +1485,8 @@ SELECT d.id,
     WHEN 3 THEN 'denied'
     ELSE CONCAT('status-', COALESCE(d.audit_master_approval_status, 1))
   END AS reviewStatus,
-  CASE WHEN COALESCE(d.audit_master_approval_status, 1) = 2 THEN 'admin' ELSE '' END AS reviewedBy,
-  CASE WHEN COALESCE(d.audit_master_approval_status, 1) = 2 THEN DATE_FORMAT(d.revision, '%Y-%m-%d %H:%i:%s') ELSE '' END AS reviewedAt,
+  CASE WHEN COALESCE(d.audit_master_approval_status, 1) IN (2, 3) THEN 'admin' ELSE '' END AS reviewedBy,
+  CASE WHEN COALESCE(d.audit_master_approval_status, 1) IN (2, 3) THEN DATE_FORMAT(d.revision, '%Y-%m-%d %H:%i:%s') ELSE '' END AS reviewedAt,
   TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
 FROM documents d
@@ -1527,6 +1527,17 @@ LIMIT 1;
     await this.db.execute(`
 UPDATE documents
 SET audit_master_approval_status = 2,
+    owner = 1,
+    revision = NOW()
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async denyPatientDocument(id: number | string, _reviewedBy = "admin"): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE documents
+SET audit_master_approval_status = 3,
     owner = 1,
     revision = NOW()
 WHERE id = ${integer(legacyId)};

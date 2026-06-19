@@ -980,14 +980,27 @@ LIMIT 1;
   }
 
   async signPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
+    await this.reviewPatientDocument(id, "approved", reviewedBy, "sign-off");
+  }
+
+  async denyPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
+    await this.reviewPatientDocument(id, "denied", reviewedBy, "denial");
+  }
+
+  private async reviewPatientDocument(
+    id: number | string,
+    reviewStatus: "approved" | "denied",
+    reviewedBy: string,
+    actionName: string
+  ): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/sign`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ reviewStatus: "approved", reviewedBy })
+      body: JSON.stringify({ reviewStatus, reviewedBy })
     });
 
     if (!response.ok) {
-      throw new Error(`Modernized patient document sign-off failed with ${response.status}: ${await response.text()}`);
+      throw new Error(`Modernized patient document ${actionName} failed with ${response.status}: ${await response.text()}`);
     }
   }
 

@@ -804,7 +804,7 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews; focused binary upload/download lifecycle behavior is covered by Slice 33.
-- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, focused document sign-off is covered by Slice 38, and focused external-link document filing is covered by Slice 39.
+- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, focused document sign-off is covered by Slice 38, focused external-link document filing is covered by Slice 39, and focused document denial/rejection is covered by Slice 40.
 
 ### Slice 26: Patient Document Mutation
 
@@ -1190,7 +1190,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused document approval/sign-off only.
-- Denial/rejection flows, multi-reviewer routing, document versioning, thumbnails, scanned-document capture, encryption/key management, CCDA import/export, external storage adapters, and authorization enforcement remain deferred.
+- Multi-reviewer routing, document versioning, thumbnails, scanned-document capture, encryption/key management, CCDA import/export, external storage adapters, and authorization enforcement remain deferred.
 
 ### Slice 39: Patient Document External Links
 
@@ -1221,6 +1221,37 @@ Current limitations:
 
 - This slice covers focused external-link document filing only.
 - External object storage adapters, scanned-document capture, multi-file uploads, thumbnails, document versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and authorization enforcement remain deferred.
+
+### Slice 40: Patient Document Denial
+
+Goal: add mutation-capable patient document denial/rejection parity using OpenEMR's `documents.audit_master_approval_status = 3` behavior and the modernized Documents workspace review controls.
+
+Status:
+
+- Implemented as the twenty-fourth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-40-document-denial-readiness` plan, which creates, denies, renders, archives, and removes a temporary reviewed document on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core documents API now supports denial through the existing document review endpoint by accepting `reviewStatus = denied`.
+- Modernized PostgreSQL `patient_documents` reuses `review_status`, `reviewed_by`, and `reviewed_at` to preserve denied review decisions without changing seeded gold rows.
+- React Documents workspace now includes a Deny action next to Sign, prevents duplicate review decisions after approval or denial, and renders denied review status on document cards and in the viewer.
+- Modernized smoke coverage creates a temporary pending document, denies it as `admin`, verifies the denied state, then archives and hard-deletes it.
+- Shared legacy and modernized workflow adapters now expose `denyPatientDocument`, mapping legacy `audit_master_approval_status = 3` to modernized `reviewStatus = denied`.
+- The `workflow-document-denial` parity suite and `slice-40-document-denial-readiness` plan verify the same create, deny, render, archive, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 40 document denial plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary pending text document can be created for `MOD-PAT-0001` on both targets, then denied as `admin`.
+- Direct probes normalize the review state as `reviewStatus = denied`, `reviewedBy = admin`, and a review timestamp.
+- The modernized Documents workspace renders the denied state and disables both Sign and Deny after the decision, while the legacy document list remains browser-renderable for the same filing.
+- The temporary document can be archived and hard-deleted during cleanup so the seeded 1,200-document baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused single-reviewer denial/rejection only.
+- Multi-reviewer routing, document versioning, thumbnails, scanned-document capture, encryption/key management, CCDA import/export, external storage adapters, patient-portal document access rules, and authorization enforcement remain deferred.
 
 ## Test Strategy
 
@@ -1322,3 +1353,4 @@ As of 2026-06-19:
 - The thirty-seventh modernized vertical slice implements patient registration with a React Patient/Client registration form, ASP.NET Core patient registration and guarded temporary-delete endpoints, PostgreSQL patient insert/delete behavior, modernized workflow action adapter methods, Workbench patient registration plan action, smoke coverage, and side-by-side slice-37 parity evidence.
 - The thirty-eighth modernized vertical slice implements patient document sign-off with React Documents review controls, ASP.NET Core document approval endpoint, PostgreSQL document review-status fields, modernized workflow action adapter methods, Workbench document sign-off plan action, smoke coverage, and side-by-side slice-38 parity evidence.
 - The thirty-ninth modernized vertical slice implements patient document external links with a React Documents External Link form, ASP.NET Core document external-link endpoint, PostgreSQL document URL/storage metadata, modernized workflow action adapter methods, Workbench document external-link plan action, smoke coverage, and side-by-side slice-39 parity evidence.
+- The fortieth modernized vertical slice implements patient document denial with React Documents Deny controls, ASP.NET Core document review endpoint support for `denied`, PostgreSQL document review-status fields, modernized workflow action adapter methods, Workbench document denial plan action, smoke coverage, and side-by-side slice-40 parity evidence.
