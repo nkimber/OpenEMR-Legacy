@@ -789,7 +789,7 @@ Primary files:
 
 ### 025. Modernized Encounters Slice 3
 
-Commit: TBD
+Commit: `c74dc8f`
 
 Implemented the third modernized OpenEMR vertical slice: read-only encounters with SOAP and vitals detail, Workbench orchestration, and matched side-by-side parity against the legacy encounter UI.
 
