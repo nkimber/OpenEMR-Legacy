@@ -330,7 +330,7 @@ SELECT m.title, m.body, COALESCE(m.status, '') AS status, m.message_date AS date
   CASE WHEN p.portal_enabled THEN 'YES' ELSE 'NO' END AS "portalEnabled"
 FROM messages m
 INNER JOIN patients p ON p.legacy_pid = m.pid
-WHERE m.pid = ${pid}
+WHERE m.pid = ${pid} AND m.deleted = 0
 ORDER BY m.message_date DESC, m.id DESC;
 `);
 

@@ -131,7 +131,7 @@ Limitations:
 
 Purpose: support real modernization parity tests.
 
-Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline and the modernized PostgreSQL seed through the implemented read-only slices plus patient contact, appointment, encounter, and clinical-list allergy mutation slices.
+Current status: implemented as `openemr-shared-synthetic-v1` and verified against the legacy MariaDB baseline and the modernized PostgreSQL seed through the implemented read-only slices plus patient contact, appointment, encounter, clinical-list allergy, and patient-message mutation slices.
 
 This dataset includes named synthetic personas and workflow data for:
 
@@ -159,7 +159,7 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
-The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized tables for patient search/chart summary behavior, patient contact mutation behavior, appointment mutation behavior, encounter mutation behavior, clinical-list allergy mutation behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, read-only procedure-result behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, read-only operational reporting behavior, and normalized database parity checks. Slice 13 extends the generated normalized allergy schema with `activity`, `end_date`, and `list_option_id` fields so the modernized target can preserve OpenEMR-style active/inactive list lifecycle semantics.
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized tables for patient search/chart summary behavior, patient contact mutation behavior, appointment mutation behavior, encounter mutation behavior, clinical-list allergy mutation behavior, patient-message mutation behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, read-only procedure-result behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, read-only operational reporting behavior, and normalized database parity checks. Slice 14 extends the generated normalized message schema with `assigned_to`, `deleted`, and `activity` fields so the modernized target can preserve OpenEMR-style `pnotes` lifecycle semantics.
 
 The scheduling slice now uses `MOD-PAT-0003` as a stable appointment anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's next future appointment after `2026-06-18`, and the `slice-2-scheduling-readiness` plan verifies the appointment facts plus browser-visible appointment detail behavior against both targets.
 
@@ -170,6 +170,8 @@ The clinical-lists slice also uses `MOD-PAT-0001` as a stable clinical-list anch
 The clinical-list mutation slice uses `MOD-PAT-0006` as a stable allergy-lifecycle anchor. The shared parity workflow creates a temporary `allergy` list entry, verifies direct row state and active UI rendering, sets `activity = 0` with an inactive comment, and then deletes the temporary row so the patient allergy count returns to the seeded baseline. The `slice-13-clinical-list-mutation-readiness` plan verifies that lifecycle against both legacy MariaDB and modernized PostgreSQL.
 
 The messaging slice uses `MOD-PAT-0004` as a stable portal-messaging anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's portal-enabled flag and seeded patient messages. The current anchor facts include portal access enabled, a `Care team follow-up` message with `New` status and body `Follow-up message for Nora Kim.`, and a `Portal message` with `Done` status and body `Patient portal question about medications.` The `slice-5-messaging-readiness` plan verifies these facts plus browser-visible patient-message behavior against both targets.
+
+The message mutation slice also uses `MOD-PAT-0004` as a stable patient-message lifecycle anchor. The shared parity workflow creates a temporary patient message assigned to `admin`, verifies direct row state and browser rendering after it is closed with `Done` status, soft-deletes the row so it no longer appears in active patient-message lists, and then hard-deletes the temporary row so the patient message count returns to the seeded baseline. The `slice-14-message-mutation-readiness` plan verifies that lifecycle against both legacy MariaDB and modernized PostgreSQL.
 
 The procedure-results slice uses `MOD-PAT-0009` as a stable completed-lab anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's completed `Complete blood count` procedure order with code `85025`, completed report, and final result rows for `Erythrocytes`, `Hemoglobin`, `Platelets`, and `Leukocytes`. The current anchor facts include `Hemoglobin` result `13.8 g/dL`, normal range `12.0-17.5`, and `final` result status. The `slice-6-procedures-readiness` plan verifies these facts plus browser-visible procedure-result behavior against both targets.
 
@@ -216,4 +218,4 @@ Continue expanding reusable modernized parity adapters that consume the gold dat
 - Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
 - Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
 - Additional encounter mutation tests for templates, sign-off, diagnosis coding, order linkage, and billing linkage as those modernized workflows are implemented.
-- Procedure-result mutation, clinical-list mutation, messaging mutation, medication reconciliation, and billing tests as the next workflow slices are selected.
+- Procedure-result mutation, medication reconciliation, billing tests, and deeper messaging workflows as the next workflow slices are selected.

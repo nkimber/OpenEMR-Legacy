@@ -244,7 +244,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Message create, status update, soft-delete, hard-delete, assignment, and portal reply workflows remain deferred to a later messaging mutation slice.
+- Message create, status update, soft-delete, hard-delete, and assignment workflows are covered by Slice 14 for the focused patient-message lifecycle; portal replies, attachments, routing queues, notification delivery, and richer task assignment remain deferred.
 
 ### Slice 6: Labs And Procedure Results
 
@@ -465,6 +465,33 @@ Current limitations:
 - This slice covers allergy entries only.
 - Problem list mutation, medication list mutation, diagnoses, allergy vocabulary lookup, duplicate detection, audit history, and broader list option management remain deferred to later clinical-list slices.
 
+### Slice 14: Patient Message Mutation
+
+Status:
+
+- Implemented as the fifth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-14-message-mutation-readiness` plan, which creates, renders, closes, soft-deletes, and removes a patient message on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient-message create, status update, soft-delete, and hard-delete endpoints over the modernized PostgreSQL messages table.
+- PostgreSQL seed schema extensions for message assignee, deleted flag, and activity values so the normalized model preserves legacy OpenEMR `pnotes` lifecycle semantics.
+- React Messages controls for creating a new patient message from the finder panel and closing, archiving, or deleting active message entries from the message list.
+- Modernized workflow action adapter methods for patient-message create, get, status update, soft-delete, and delete behavior.
+- Workbench-managed slice-14 message mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe patient-message create/close/soft-delete/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Messages module can create a message for a patient, display it as an active message, close it with an updated body and `Done` status, soft-delete it so it no longer appears in active message lists, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-14-message-mutation-readiness` plan creates a message for `MOD-PAT-0004`, verifies message counts and database state, verifies browser-visible closed message rendering, soft-deletes the row, deletes it, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers care-team `pnotes` style patient messages only.
+- Portal reply threading, attachments, notification delivery, assignment queues, priority/escalation behavior, and audit history remain deferred to later messaging workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -539,3 +566,4 @@ As of 2026-06-19:
 - The eleventh modernized vertical slice implements appointment mutation with React Calendar create/cancel/delete controls, ASP.NET Core appointment lifecycle endpoints, modernized workflow action adapter methods, Workbench appointment mutation plan action, smoke coverage, and side-by-side slice-11 parity evidence.
 - The twelfth modernized vertical slice implements encounter mutation with React Encounters create/update/delete, vitals, and SOAP controls, ASP.NET Core encounter lifecycle endpoints, PostgreSQL encounter/vitals/clinical-note mutation fields, modernized workflow action adapter methods, Workbench encounter mutation plan action, smoke coverage, and side-by-side slice-12 parity evidence.
 - The thirteenth modernized vertical slice implements clinical-list allergy mutation with React Lists create/deactivate/delete controls, ASP.NET Core allergy lifecycle endpoints, PostgreSQL clinical-list activity fields, modernized workflow action adapter methods, Workbench clinical-list mutation plan action, smoke coverage, and side-by-side slice-13 parity evidence.
+- The fourteenth modernized vertical slice implements patient-message mutation with React Messages create/close/archive/delete controls, ASP.NET Core message lifecycle endpoints, PostgreSQL message activity fields, modernized workflow action adapter methods, Workbench message mutation plan action, smoke coverage, and side-by-side slice-14 parity evidence.

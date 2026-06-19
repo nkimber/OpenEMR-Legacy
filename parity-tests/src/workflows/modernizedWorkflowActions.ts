@@ -5,11 +5,13 @@ import type {
   ClinicalListRecord,
   EncounterRecord,
   NewClinicalListEntry,
+  NewPatientMessage,
   NewAppointment,
   NewEncounter,
   NewSoapNote,
   NewVitals,
   PatientContact,
+  PatientMessageRecord,
   SoapNoteRecord,
   VitalsRecord
 } from "./legacyWorkflowActions.js";
@@ -212,6 +214,83 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized clinical allergy delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPatientMessage(input: NewPatientMessage): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        title: input.title,
+        body: input.body,
+        assignedTo: input.assignedTo
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getPatientMessage(id: number | string): Promise<PatientMessageRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", COALESCE(title, '') AS title, COALESCE(body, '') AS body,
+  COALESCE(status, '') AS status, COALESCE(assigned_to, '') AS "assignedTo",
+  deleted
+FROM messages
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      title: row.title,
+      body: row.body,
+      status: row.status,
+      assignedTo: row.assignedTo,
+      deleted: Number(row.deleted)
+    };
+  }
+
+  async updatePatientMessageStatus(id: number | string, status: string, body: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/status`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status, body })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async softDeletePatientMessage(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/soft-delete`, {
+      method: "PUT"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message soft delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deletePatientMessage(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

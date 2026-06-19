@@ -37,7 +37,7 @@ export type ClinicalListRecord = {
 };
 
 export type PatientMessageRecord = {
-  id: number;
+  id: number | string;
   patientId: number;
   title: string;
   body: string;
@@ -160,7 +160,7 @@ export type NewClinicalListEntry = {
   listOptionId: string;
 };
 
-type NewPatientMessage = {
+export type NewPatientMessage = {
   patientId: number;
   title: string;
   body: string;
@@ -435,12 +435,13 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
-  async getPatientMessage(id: number): Promise<PatientMessageRecord | null> {
+  async getPatientMessage(id: number | string): Promise<PatientMessageRecord | null> {
+    const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, title, body, message_status AS status, assigned_to AS assignedTo,
   COALESCE(deleted, 0) AS deleted
 FROM pnotes
-WHERE id = ${integer(id)}
+WHERE id = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -458,26 +459,29 @@ LIMIT 1;
     };
   }
 
-  async updatePatientMessageStatus(id: number, status: string, body: string): Promise<void> {
+  async updatePatientMessageStatus(id: number | string, status: string, body: string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 UPDATE pnotes
 SET message_status = ${sqlString(status)}, body = ${sqlString(body)}, update_by = 1, update_date = NOW()
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
-  async softDeletePatientMessage(id: number): Promise<void> {
+  async softDeletePatientMessage(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 UPDATE pnotes
 SET deleted = 1, activity = 0, update_by = 1, update_date = NOW()
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
-  async deletePatientMessage(id: number): Promise<void> {
+  async deletePatientMessage(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM pnotes
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
