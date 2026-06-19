@@ -85,6 +85,17 @@ export type PatientDocumentRecord = {
   contentPreview: string;
 };
 
+export type PatientInsuranceRecord = {
+  id: number | string;
+  patientId: number;
+  type: string;
+  provider: string;
+  planName: string;
+  policyNumber: string;
+  groupNumber: string;
+  relationship: string;
+};
+
 export type PrescriptionRecord = {
   id: number | string;
   patientId: number;
@@ -305,6 +316,16 @@ export type NewPatientDocument = {
   encounter: number;
   content: string;
   notes: string;
+};
+
+export type NewPatientInsurance = {
+  patientId: number;
+  type: string;
+  provider: string;
+  planName: string;
+  policyNumber: string;
+  groupNumber: string;
+  relationship: string;
 };
 
 export type NewPatientBinaryDocument = {
@@ -833,6 +854,71 @@ SET phone_home = ${sqlString(contact.phoneHome)},
   hipaa_allowsms = ${sqlString(contact.hipaaAllowSms)},
   hipaa_allowemail = ${sqlString(contact.hipaaAllowEmail)}
 WHERE pid = ${integer(contact.pid)};
+`);
+  }
+
+  async createPatientInsurance(input: NewPatientInsurance): Promise<number> {
+    const providerId = await this.getInsuranceCompanyId(input.provider);
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO insurance_data
+  (uuid, type, provider, plan_name, policy_number, group_number, subscriber_relationship,
+   date, pid, accept_assignment, policy_type)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.type)}, ${integer(providerId)},
+   ${sqlString(input.planName)}, ${sqlString(input.policyNumber)}, ${sqlString(input.groupNumber)},
+   ${sqlString(input.relationship)}, '2026-06-18', ${integer(input.patientId)}, 'TRUE', 'group');
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getPatientInsurance(id: number | string): Promise<PatientInsuranceRecord | null> {
+    const legacyId = legacyInteger(id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT insd.id, insd.pid AS patientId, COALESCE(insd.type, '') AS type,
+  COALESCE(ic.name, insd.provider, '') AS provider,
+  COALESCE(insd.plan_name, '') AS planName,
+  COALESCE(insd.policy_number, '') AS policyNumber,
+  COALESCE(insd.group_number, '') AS groupNumber,
+  COALESCE(insd.subscriber_relationship, '') AS relationship
+FROM insurance_data insd
+LEFT JOIN insurance_companies ic ON ic.id = insd.provider
+WHERE insd.id = ${integer(legacyId)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      type: row.type,
+      provider: row.provider,
+      planName: row.planName,
+      policyNumber: row.policyNumber,
+      groupNumber: row.groupNumber,
+      relationship: row.relationship
+    } : null;
+  }
+
+  async updatePatientInsurance(id: number | string, input: NewPatientInsurance): Promise<void> {
+    const legacyId = legacyInteger(id);
+    const providerId = await this.getInsuranceCompanyId(input.provider);
+    await this.db.execute(`
+UPDATE insurance_data
+SET type = ${sqlString(input.type)},
+  provider = ${integer(providerId)},
+  plan_name = ${sqlString(input.planName)},
+  policy_number = ${sqlString(input.policyNumber)},
+  group_number = ${sqlString(input.groupNumber)},
+  subscriber_relationship = ${sqlString(input.relationship)}
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async deletePatientInsurance(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+DELETE FROM insurance_data
+WHERE id = ${integer(legacyId)};
 `);
   }
 
@@ -1813,6 +1899,30 @@ WHERE aro.section_value = 'users'
   AND aro.value = ${sqlString(userValue)}
   AND gm.aro_id IS NULL;
 `);
+  }
+
+  private async getInsuranceCompanyId(name: string): Promise<number> {
+    const existingRows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM insurance_companies
+WHERE name = ${sqlString(name)}
+LIMIT 1;
+`);
+    const existingId = Number(existingRows[0]?.id);
+    if (Number.isInteger(existingId)) {
+      return existingId;
+    }
+
+    const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9000) + 1, 990000) AS id
+FROM insurance_companies;
+`);
+    const id = Number(nextRows[0]?.id);
+    await this.db.execute(`
+INSERT INTO insurance_companies (id, uuid, name, inactive)
+VALUES (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(name)}, 0);
+`);
+    return id;
   }
 }
 

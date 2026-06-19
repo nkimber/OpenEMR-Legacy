@@ -18,6 +18,7 @@ import type {
   NewMedication,
   NewPatientBinaryDocument,
   NewPatientDocument,
+  NewPatientInsurance,
   NewProblem,
   NewUser,
   NewPatientMessage,
@@ -31,6 +32,7 @@ import type {
   NewVitals,
   PatientContact,
   PatientDocumentRecord,
+  PatientInsuranceRecord,
   PatientMessageRecord,
   MedicationRecord,
   ProblemRecord,
@@ -306,6 +308,86 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient contact update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPatientInsurance(input: NewPatientInsurance): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(String(input.patientId))}/insurance`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: input.type,
+        provider: input.provider,
+        planName: input.planName,
+        policyNumber: input.policyNumber,
+        groupNumber: input.groupNumber,
+        relationship: input.relationship
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient insurance create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const chart = (await response.json()) as { insurance: Array<{ id: string; policyNumber: string }> };
+    const created = chart.insurance.find((item) => item.policyNumber === input.policyNumber);
+    if (!created) {
+      throw new Error(`Modernized patient insurance create response did not include policy ${input.policyNumber}.`);
+    }
+    return created.id;
+  }
+
+  async getPatientInsurance(id: number | string): Promise<PatientInsuranceRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", COALESCE(type, '') AS type,
+  COALESCE(provider, '') AS provider,
+  COALESCE(plan_name, '') AS "planName",
+  COALESCE(policy_number, '') AS "policyNumber",
+  COALESCE(group_number, '') AS "groupNumber",
+  COALESCE(relationship, '') AS relationship
+FROM insurance_records
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: row.id,
+      patientId: Number(row.patientId),
+      type: row.type,
+      provider: row.provider,
+      planName: row.planName,
+      policyNumber: row.policyNumber,
+      groupNumber: row.groupNumber,
+      relationship: row.relationship
+    } : null;
+  }
+
+  async updatePatientInsurance(id: number | string, input: NewPatientInsurance): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/insurance/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: input.type,
+        provider: input.provider,
+        planName: input.planName,
+        policyNumber: input.policyNumber,
+        groupNumber: input.groupNumber,
+        relationship: input.relationship
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient insurance update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deletePatientInsurance(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/insurance/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized patient insurance delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

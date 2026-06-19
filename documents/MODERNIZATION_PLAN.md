@@ -302,7 +302,7 @@ Current limitations:
 - This slice is read-only.
 - Focused CPT entry, bill-status update, inactive-line hiding, and billing-line deletion workflows are covered by Slice 16.
 - Claim generation, payer adjudication, payment posting, charge correction history, and full revenue-cycle workflows remain deferred to later billing slices.
-- Patient insurance coverage visibility is covered by Slice 28; claim generation, payer adjudication, payment posting, and full revenue-cycle workflows remain deferred to later billing slices.
+- Patient insurance coverage visibility is covered by Slice 28; focused insurance coverage create/update/delete behavior is covered by Slice 34. Claim generation, payer adjudication, payment posting, and full revenue-cycle workflows remain deferred to later billing slices.
 
 ### Slice 8: Administration, Security, And Audit
 
@@ -887,6 +887,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and patient-chart scoped.
+- Focused coverage create/update/delete behavior is covered by Slice 34.
 - Eligibility checks, claim generation, payer adjudication, benefit rules, copay workflows, payment posting, and full revenue-cycle behavior remain deferred to later billing/insurance slices.
 
 ### Slice 29: Patient Immunization History
@@ -1038,6 +1039,37 @@ Current limitations:
 - This slice covers a focused PDF-style binary document create, active rendering, download, archive, and delete lifecycle only.
 - Scanned-document capture, multi-file uploads, thumbnails, signing, versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and external document-storage adapters remain deferred.
 
+### Slice 34: Patient Insurance Mutation
+
+Goal: add mutation-capable patient insurance lifecycle parity using OpenEMR's `insurance_data` rows and the modernized Patient/Client chart Insurance panel.
+
+Status:
+
+- Implemented as the eighteenth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-34-insurance-mutation-readiness` plan, which creates, renders, updates, and hard-deletes a temporary tertiary coverage row on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient API now supports insurance coverage create, update, and delete endpoints over the modernized PostgreSQL `insurance_records` table.
+- React Patient/Client chart now includes an Insurance panel editor for adding coverage, editing existing rows, and deleting temporary coverage rows.
+- Modernized smoke coverage creates temporary tertiary coverage for `MOD-PAT-0005`, verifies returned chart state, updates payer and policy details, and hard-deletes the row.
+- Shared legacy and modernized workflow adapters now expose `createPatientInsurance`, `getPatientInsurance`, `updatePatientInsurance`, and `deletePatientInsurance`.
+- The `workflow-insurance` parity suite and `slice-34-insurance-mutation-readiness` plan verify the same create, render, update, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 34 insurance mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary tertiary insurance coverage row can be created for `MOD-PAT-0005` with payer, plan, policy, group, and relationship fields.
+- The created row appears in the legacy OpenEMR insurance browse screen and the modernized Patient/Client chart Insurance panel.
+- Updating the row changes the payer, plan, policy, and group values on both targets.
+- The temporary row can be hard-deleted during cleanup so the seeded insurance baseline returns to its original coverage count.
+- The side-by-side Slice 34 comparison produces no run-summary differences.
+
+Current limitations:
+
+- This slice covers a focused coverage create, update, and delete lifecycle only.
+- Eligibility checks, payer lookup maintenance, copay workflows, claim generation, payer adjudication, payment posting, subscriber detail editing, and revenue-cycle audit history remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1132,3 +1164,4 @@ As of 2026-06-19:
 - The thirty-first modernized vertical slice implements problem-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core problem lifecycle endpoints, PostgreSQL problem activity fields, modernized workflow action adapter methods, Workbench problem mutation plan action, smoke coverage, and side-by-side slice-31 parity evidence.
 - The thirty-second modernized vertical slice implements medication-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core medication-list lifecycle endpoints, PostgreSQL medication activity fields, modernized workflow action adapter methods, Workbench medication-list mutation plan action, smoke coverage, and side-by-side slice-32 parity evidence.
 - The thirty-third modernized vertical slice implements binary patient-document mutation with React Documents file upload/view/download controls, ASP.NET Core binary document lifecycle endpoints, PostgreSQL document byte storage fields, modernized workflow action adapter methods, Workbench binary document mutation plan action, smoke coverage, and side-by-side slice-33 parity evidence.
+- The thirty-fourth modernized vertical slice implements patient insurance mutation with React Patient/Client chart coverage add/edit/delete controls, ASP.NET Core patient insurance lifecycle endpoints, modernized workflow action adapter methods, Workbench insurance mutation plan action, smoke coverage, and side-by-side slice-34 parity evidence.

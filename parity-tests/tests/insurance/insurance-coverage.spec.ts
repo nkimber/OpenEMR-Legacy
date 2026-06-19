@@ -63,7 +63,7 @@ test.describe("patient insurance coverage parity @slice28 @insurance", () => {
     await expect(page.getByRole("button", { name: /Morgan, Elias/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Morgan, Elias" })).toBeVisible();
 
-    const insurancePanel = page.getByLabel("Insurance coverage");
+    const insurancePanel = page.getByLabel("Insurance coverage", { exact: true });
     await expect(insurancePanel).toContainText(primary.provider);
     await expect(insurancePanel).toContainText(primary.planName);
     await expect(insurancePanel).toContainText(primary.policyNumber);

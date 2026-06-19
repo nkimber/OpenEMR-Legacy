@@ -2667,6 +2667,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 056. Modernized Patient Insurance Mutation Slice 34
+
+Commit: current slice commit
+
+Implemented the thirty-fourth modernized OpenEMR vertical slice: patient insurance coverage create, active rendering, update, and hard-delete cleanup in the Patient/Client chart Insurance panel.
+
+Key outcomes:
+
+- Added modernized ASP.NET Core patient insurance lifecycle endpoints for create, update, and delete behavior over the PostgreSQL `insurance_records` table.
+- Added a compact insurance coverage add/edit form and row-level Edit/Delete controls to the React Patient/Client chart Insurance panel.
+- Extended the modernized smoke test with a temporary tertiary insurance lifecycle check for `MOD-PAT-0005`.
+- Added shared legacy and modernized workflow adapter methods for insurance coverage create, direct readback, update, and cleanup delete.
+- Added the `workflow-insurance` Playwright parity suite and `slice-34-insurance-mutation-readiness` plan for both targets.
+- Added Workbench command cards and result paths for the Slice 34 insurance mutation plan.
+- Preserved Slice 28 read-only insurance coverage behavior by using a temporary tertiary row and deleting it so the seeded primary/secondary `MOD-PAT-0005` baseline stays stable.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the new insurance lifecycle behavior.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run list` in `parity-tests/`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj --nologo -clp:ErrorsOnly`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, producing `passed` with 37 checks and including `patient insurance mutation lifecycle`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-34-insurance-mutation-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-34-insurance-mutation-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-34-insurance-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-28-insurance-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-28-insurance-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-28-insurance-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-insurance/insurance-mutation.spec.ts`
+- `parity-tests/tests/insurance/insurance-coverage.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
