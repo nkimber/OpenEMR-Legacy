@@ -1555,7 +1555,7 @@ Primary files:
 
 ### 038. Modernized Billing Mutation Slice 16
 
-Commit: TBD
+Commit: 704697e
 
 Implemented the sixteenth modernized OpenEMR vertical slice: the seventh mutation-capable parity workflow, focused on encounter-scoped CPT billing line create, active fee-sheet rendering, billed/inactive status update, and hard-delete behavior with React Fees controls, ASP.NET Core billing lifecycle endpoints, PostgreSQL billing lifecycle fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR fee-sheet workflow.
 
