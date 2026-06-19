@@ -148,6 +148,34 @@ export type AdministrationDirectorySummary = {
   facilities: AdministrationFacilitySummary[];
 };
 
+export type AdministrationAccessGroupSummary = {
+  id: number;
+  value: string;
+  name: string;
+  parentId: number | null;
+  permissionCount: number;
+};
+
+export type AdministrationAccessPermissionSummary = {
+  sectionValue: string;
+  value: string;
+  name: string;
+};
+
+export type AdministrationAccessGroupPermissionSummary = {
+  groupValue: string;
+  sectionValue: string;
+  permissionValue: string;
+  permissionName: string;
+  returnValue: string;
+};
+
+export type AdministrationAccessControlSummary = {
+  groups: AdministrationAccessGroupSummary[];
+  permissions: AdministrationAccessPermissionSummary[];
+  groupPermissions: AdministrationAccessGroupPermissionSummary[];
+};
+
 export type OperationalReportCounts = {
   patients: number;
   portalPatients: number;
@@ -644,6 +672,59 @@ ORDER BY id;
         state: row.state,
         postalCode: row.postalCode,
         color: row.color
+      }))
+    };
+  }
+
+  async getAdministrationAccessControl(): Promise<AdministrationAccessControlSummary> {
+    const groups = await this.queryRows<Record<string, string>>(`
+SELECT ag.id, ag.value, ag.name, ag.parent_id AS parentId, COUNT(am.value) AS permissionCount
+FROM gacl_aro_groups ag
+LEFT JOIN gacl_aro_groups_map gm ON gm.group_id = ag.id
+LEFT JOIN gacl_acl acl ON acl.id = gm.acl_id AND acl.enabled = 1 AND acl.allow = 1
+LEFT JOIN gacl_aco_map am ON am.acl_id = acl.id
+GROUP BY ag.id, ag.value, ag.name, ag.parent_id
+ORDER BY ag.id;
+`);
+
+    const permissions = await this.queryRows<Record<string, string>>(`
+SELECT section_value AS sectionValue, value, name
+FROM gacl_aco
+WHERE hidden = 0
+ORDER BY section_value, value;
+`);
+
+    const groupPermissions = await this.queryRows<Record<string, string>>(`
+SELECT ag.value AS groupValue, am.section_value AS sectionValue, am.value AS permissionValue,
+  aco.name AS permissionName, acl.return_value AS returnValue
+FROM gacl_aro_groups ag
+INNER JOIN gacl_aro_groups_map gm ON gm.group_id = ag.id
+INNER JOIN gacl_acl acl ON acl.id = gm.acl_id
+INNER JOIN gacl_aco_map am ON am.acl_id = acl.id
+INNER JOIN gacl_aco aco ON aco.section_value = am.section_value AND aco.value = am.value
+WHERE ag.id <> 10 AND acl.enabled = 1 AND acl.allow = 1 AND aco.hidden = 0
+ORDER BY ag.id, am.section_value, am.value, acl.return_value;
+`);
+
+    return {
+      groups: groups.map((row) => ({
+        id: Number(row.id),
+        value: row.value,
+        name: row.name,
+        parentId: row.parentId === "0" ? null : Number(row.parentId),
+        permissionCount: Number(row.permissionCount)
+      })),
+      permissions: permissions.map((row) => ({
+        sectionValue: row.sectionValue,
+        value: row.value,
+        name: row.name
+      })),
+      groupPermissions: groupPermissions.map((row) => ({
+        groupValue: row.groupValue,
+        sectionValue: row.sectionValue,
+        permissionValue: row.permissionValue,
+        permissionName: row.permissionName,
+        returnValue: row.returnValue
       }))
     };
   }

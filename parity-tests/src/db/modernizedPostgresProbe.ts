@@ -1,4 +1,8 @@
 import type {
+  AdministrationAccessControlSummary,
+  AdministrationAccessGroupSummary,
+  AdministrationAccessPermissionSummary,
+  AdministrationAccessGroupPermissionSummary,
   AdministrationDirectorySummary,
   AdministrationFacilitySummary,
   AdministrationUserSummary,
@@ -416,6 +420,51 @@ ORDER BY id;
         state: row.state,
         postalCode: row.postalCode,
         color: row.color
+      }))
+    };
+  }
+
+  async getAdministrationAccessControl(): Promise<AdministrationAccessControlSummary> {
+    const groups = await this.queryRows<Record<string, string>>(`
+SELECT g.id, g.value, g.name, COALESCE(g.parent_id::text, '\\N') AS "parentId", COUNT(gp.*) AS "permissionCount"
+FROM access_groups g
+LEFT JOIN access_group_permissions gp ON gp.group_value = g.value
+GROUP BY g.id, g.value, g.name, g.parent_id
+ORDER BY g.id;
+`);
+
+    const permissions = await this.queryRows<Record<string, string>>(`
+SELECT section_value AS "sectionValue", value, name
+FROM access_permissions
+ORDER BY section_value, value;
+`);
+
+    const groupPermissions = await this.queryRows<Record<string, string>>(`
+SELECT group_value AS "groupValue", section_value AS "sectionValue", permission_value AS "permissionValue",
+  permission_name AS "permissionName", return_value AS "returnValue"
+FROM access_group_permissions
+ORDER BY group_value, section_value, permission_value, return_value;
+`);
+
+    return {
+      groups: groups.map((row): AdministrationAccessGroupSummary => ({
+        id: Number(row.id),
+        value: row.value,
+        name: row.name,
+        parentId: nullIfDbNull(row.parentId) === null ? null : Number(row.parentId),
+        permissionCount: Number(row.permissionCount)
+      })),
+      permissions: permissions.map((row): AdministrationAccessPermissionSummary => ({
+        sectionValue: row.sectionValue,
+        value: row.value,
+        name: row.name
+      })),
+      groupPermissions: groupPermissions.map((row): AdministrationAccessGroupPermissionSummary => ({
+        groupValue: row.groupValue,
+        sectionValue: row.sectionValue,
+        permissionValue: row.permissionValue,
+        permissionName: row.permissionName,
+        returnValue: row.returnValue
       }))
     };
   }

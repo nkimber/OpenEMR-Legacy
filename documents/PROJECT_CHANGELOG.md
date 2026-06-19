@@ -1803,12 +1803,71 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 042. Modernized Access-Control Read Model Slice 20
+
+Commit: TBD
+
+Implemented the twentieth modernized OpenEMR vertical slice: a read-only administration access-control parity workflow, focused on default OpenEMR ACL groups, visible permission objects, group-permission assignments, and browser-visible access-control surfaces with React Admin visibility, ASP.NET Core administration response fields, PostgreSQL access-control tables, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR Access Control administration workflow.
+
+Key outcomes:
+
+- Added normalized modernized PostgreSQL seed tables for `access_groups`, `access_permissions`, and `access_group_permissions`, mirroring 7 default OpenEMR groups, 65 visible permission objects, and 203 group-permission assignments from the legacy phpGACL baseline.
+- Extended the ASP.NET Core administration directory response with access-control counts, group rows, permission rows, and group-permission rows.
+- Added React Admin UI visibility for the Access Control Matrix, including group counts and representative permission assignments.
+- Expanded the modernized smoke script with default ACL group and permission anchor checks.
+- Added normalized legacy MariaDB and modernized PostgreSQL access-control probes for default ACL facts.
+- Added a shared `admin-access-control` parity suite and the `slice-20-access-control-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 20 access-control plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the access-control read-model slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, with artifact status `passed`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-20-access-control-readiness -Reset run`, passing the access-control suite.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-20-access-control-readiness -Reset run`, passing the access-control suite.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-20-access-control-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AdministrationDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/tests/admin-access-control/access-control.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Reports exports, document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for reports, documents, role/permission security administration, and deeper billing/lab workflows.
+- Additional modernized workflow action adapters for reports, documents, ACL permission editing, user/group membership administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

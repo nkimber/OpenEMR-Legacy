@@ -177,6 +177,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-20-access-control-readiness",
+      "name": "Slice 20 Access Control Readiness",
+      "description": "Read-only administration security confidence plan that compares default ACL groups, permission objects, and group-permission assignments on both legacy and modernized targets.",
+      "suites": ["admin-access-control"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-20", "admin", "access-control", "security", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -198,7 +207,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "admin-access-control"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -310,6 +319,16 @@
       "layer": "parity",
       "path": "tests/reports",
       "tags": ["slice9", "reports", "operational-reporting", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "admin-access-control",
+      "name": "Administration Access Control",
+      "description": "Compares read-only ACL groups, permission objects, and default group-permission assignments against the legacy Access Control administration surface.",
+      "layer": "parity",
+      "path": "tests/admin-access-control",
+      "tags": ["slice20", "admin", "access-control", "security", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

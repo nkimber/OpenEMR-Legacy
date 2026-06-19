@@ -50,6 +50,11 @@ export async function openFacilitiesDirect(page: Page, target: RuntimeTarget) {
   await expectRenderedText(page, /Facilities|Facility/i);
 }
 
+export async function openAccessControlDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/usergroup/adminacl.php`);
+  await expectRenderedText(page, /Access Control List Administration|Groups and Access Controls/i);
+}
+
 export async function openPatientListReportDirect(page: Page, target: RuntimeTarget) {
   await page.goto(`${target.publicUrl}/interface/reports/patient_list.php`);
   await expectRenderedText(page, /Report|Patient List/i);

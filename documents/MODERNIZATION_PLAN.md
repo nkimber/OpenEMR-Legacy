@@ -629,7 +629,36 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused user-directory lifecycle only.
-- Real login/password creation, ASP.NET Core Identity, role/permission administration, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and group/ACL membership workflows remain deferred to later administration/security slices.
+- Default ACL group and permission matrix visibility is covered by Slice 20.
+- Real login/password creation, ASP.NET Core Identity, permission editing, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and group/ACL membership mutation workflows remain deferred to later administration/security slices.
+
+### Slice 20: Administration Access-Control Read Model
+
+Status:
+
+- Implemented as the tenth read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-20-access-control-readiness` plan, which compares OpenEMR default ACL groups, visible permission objects, and group-permission assignments on both legacy and modernized targets.
+
+Scope:
+
+- PostgreSQL seed schema extension for normalized access-control groups, permissions, and group-permission assignments mirroring the legacy default phpGACL matrix.
+- ASP.NET Core administration API extension that exposes access-control counts and matrix detail with the existing users/facilities directory.
+- React Admin visibility for access-control counts, leaf groups, and representative permission assignments.
+- Normalized legacy MariaDB and modernized PostgreSQL parity probes for ACL facts.
+- Workbench-managed slice-20 access-control parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for default ACL group, permission, and assignment anchors.
+
+Acceptance:
+
+- The modernized Admin module displays an Access Control Matrix with the same default OpenEMR groups visible from the legacy Access Control administration surface.
+- The API reports 7 access groups, 65 visible permission objects, and 203 group-permission assignments.
+- The `slice-20-access-control-readiness` plan verifies Administrator, Physician, Clinician, Front Office, Accounting, and Emergency Login group anchors; verifies key permission objects such as `admin:acl`, `patients:demo`, `patients:rx`, and `sensitivities:high`; verifies representative group-permission assignments; and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- It mirrors the default ACL topology as application data but does not enforce authorization policies at runtime.
+- Permission editing, user/group membership mutation, ASP.NET Core Identity, login/password creation, MFA, audit history, and user-facility restriction matrices remain deferred to later administration/security slices.
 
 ## Test Strategy
 
@@ -711,3 +740,4 @@ As of 2026-06-19:
 - The seventeenth modernized vertical slice implements procedure mutation with React Procedures order/status/report/result/delete controls, ASP.NET Core procedure lifecycle endpoints, PostgreSQL lab order/report lifecycle fields, modernized workflow action adapter methods, Workbench procedure mutation plan action, smoke coverage, and side-by-side slice-17 parity evidence.
 - The eighteenth modernized vertical slice implements administration facility mutation with React Admin facility create/inactivate/delete controls, ASP.NET Core administration facility lifecycle endpoints, PostgreSQL facility inactive state, modernized workflow action adapter methods, Workbench admin facility mutation plan action, smoke coverage, and side-by-side slice-18 parity evidence.
 - The nineteenth modernized vertical slice implements administration user mutation with React Admin user create/inactivate/delete controls, ASP.NET Core administration user lifecycle endpoints, PostgreSQL staff active/email/NPI fields, modernized workflow action adapter methods, Workbench admin user mutation plan action, smoke coverage, and side-by-side slice-19 parity evidence.
+- The twentieth modernized vertical slice implements a read-only administration access-control matrix with React Admin visibility, ASP.NET Core administration access-control response fields, PostgreSQL access group/permission/assignment tables, normalized parity probes, Workbench access-control plan action, smoke coverage, and side-by-side slice-20 parity evidence.
