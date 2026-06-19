@@ -8,6 +8,7 @@ import type {
   EncounterClinicalDetail,
   EncounterSummary,
   GoldCountMap,
+  OperationalReportsSummary,
   PatientMessagesSummary,
   PatientRecord,
   ProcedureOrderSummary,
@@ -413,6 +414,140 @@ ORDER BY id;
         state: row.state,
         postalCode: row.postalCode,
         color: row.color
+      }))
+    };
+  }
+
+  async getOperationalReports(): Promise<OperationalReportsSummary> {
+    const metadataRows = await this.queryRows<Record<string, string>>(`
+SELECT base_date AS "baseDate"
+FROM dataset_metadata
+ORDER BY generated_at DESC
+LIMIT 1;
+`);
+    const asOfDate = metadataRows[0]?.baseDate ?? "2026-06-18";
+    const currentYear = Number(asOfDate.slice(0, 4));
+    const yearStart = `${currentYear}-01-01`;
+    const nextYear = `${currentYear + 1}-01-01`;
+
+    const countRows = await this.queryRows<{ name: string; value: string }>(`
+SELECT 'patients' AS name, COUNT(*) AS value FROM patients
+UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled
+UNION ALL SELECT 'appointments', COUNT(*) FROM appointments
+UNION ALL SELECT 'futureAppointments', COUNT(*) FROM appointments WHERE appointment_date > '${asOfDate}'
+UNION ALL SELECT 'currentYearAppointments', COUNT(*) FROM appointments WHERE appointment_date >= '${yearStart}' AND appointment_date < '${nextYear}'
+UNION ALL SELECT 'encounters', COUNT(*) FROM encounters
+UNION ALL SELECT 'currentYearEncounters', COUNT(*) FROM encounters WHERE encounter_date >= '${yearStart}' AND encounter_date < '${nextYear}'
+UNION ALL SELECT 'billingLines', COUNT(*) FROM billing
+UNION ALL SELECT 'billingTotal', COALESCE(SUM(fee), 0) FROM billing
+UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
+UNION ALL SELECT 'messages', COUNT(*) FROM messages
+UNION ALL SELECT 'newMessages', COUNT(*) FROM messages WHERE status = 'New'
+UNION ALL SELECT 'doneMessages', COUNT(*) FROM messages WHERE status = 'Done'
+UNION ALL SELECT 'facilities', COUNT(*) FROM facilities
+UNION ALL SELECT 'providers', COUNT(*) FROM staff WHERE role = 'provider';
+`);
+    const countMap = Object.fromEntries(countRows.map((row) => [row.name, Number(row.value)]));
+
+    const providerRows = await this.queryRows<Record<string, string>>(`
+WITH provider_encounters AS (
+  SELECT provider_id, COUNT(*) AS encounters
+  FROM encounters
+  GROUP BY provider_id
+),
+provider_billing AS (
+  SELECT provider_id, COUNT(*) AS "billingLines", COALESCE(SUM(fee), 0) AS "billingTotal"
+  FROM billing
+  GROUP BY provider_id
+)
+SELECT s.username, s.first_name AS "firstName", s.last_name AS "lastName",
+  COALESCE(pe.encounters, 0) AS encounters,
+  COALESCE(pb."billingLines", 0) AS "billingLines",
+  COALESCE(pb."billingTotal", 0) AS "billingTotal"
+FROM staff s
+LEFT JOIN provider_encounters pe ON pe.provider_id = s.id
+LEFT JOIN provider_billing pb ON pb.provider_id = s.id
+WHERE s.role = 'provider'
+ORDER BY encounters DESC, "billingTotal" DESC, s.id
+LIMIT 8;
+`);
+
+    const facilityRows = await this.queryRows<Record<string, string>>(`
+WITH facility_appointments AS (
+  SELECT facility_id, COUNT(*) AS appointments
+  FROM appointments
+  GROUP BY facility_id
+),
+facility_encounters AS (
+  SELECT facility_id, COUNT(*) AS encounters
+  FROM encounters
+  GROUP BY facility_id
+),
+facility_billing AS (
+  SELECT e.facility_id, COUNT(b.*) AS "billingLines", COALESCE(SUM(b.fee), 0) AS "billingTotal"
+  FROM billing b
+  INNER JOIN encounters e ON e.encounter = b.encounter
+  GROUP BY e.facility_id
+)
+SELECT f.code, f.name,
+  COALESCE(fa.appointments, 0) AS appointments,
+  COALESCE(fe.encounters, 0) AS encounters,
+  COALESCE(fb."billingLines", 0) AS "billingLines",
+  COALESCE(fb."billingTotal", 0) AS "billingTotal"
+FROM facilities f
+LEFT JOIN facility_appointments fa ON fa.facility_id = f.id
+LEFT JOIN facility_encounters fe ON fe.facility_id = f.id
+LEFT JOIN facility_billing fb ON fb.facility_id = f.id
+ORDER BY f.id;
+`);
+
+    const conditionRows = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, COUNT(*) AS patients
+FROM problems
+GROUP BY title, diagnosis
+ORDER BY patients DESC, title
+LIMIT 8;
+`);
+
+    return {
+      counts: {
+        patients: countMap.patients,
+        portalPatients: countMap.portalPatients,
+        appointments: countMap.appointments,
+        futureAppointments: countMap.futureAppointments,
+        currentYearAppointments: countMap.currentYearAppointments,
+        encounters: countMap.encounters,
+        currentYearEncounters: countMap.currentYearEncounters,
+        billingLines: countMap.billingLines,
+        billingTotal: countMap.billingTotal,
+        labReports: countMap.labReports,
+        messages: countMap.messages,
+        newMessages: countMap.newMessages,
+        doneMessages: countMap.doneMessages,
+        facilities: countMap.facilities,
+        providers: countMap.providers
+      },
+      providerActivity: providerRows.map((row) => ({
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        displayName: `${row.lastName}, ${row.firstName}`,
+        encounters: Number(row.encounters),
+        billingLines: Number(row.billingLines),
+        billingTotal: Number(row.billingTotal)
+      })),
+      facilityActivity: facilityRows.map((row) => ({
+        code: row.code,
+        name: row.name,
+        appointments: Number(row.appointments),
+        encounters: Number(row.encounters),
+        billingLines: Number(row.billingLines),
+        billingTotal: Number(row.billingTotal)
+      })),
+      clinicalConditions: conditionRows.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        patients: Number(row.patients)
       }))
     };
   }

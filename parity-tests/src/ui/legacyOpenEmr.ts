@@ -50,6 +50,16 @@ export async function openFacilitiesDirect(page: Page, target: RuntimeTarget) {
   await expectRenderedText(page, /Facilities|Facility/i);
 }
 
+export async function openPatientListReportDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/reports/patient_list.php`);
+  await expectRenderedText(page, /Report|Patient List/i);
+}
+
+export async function openClinicalReportsDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/reports/clinical_reports.php`);
+  await expectRenderedText(page, /Report - Clinical|Diagnosis/i);
+}
+
 export async function expectRenderedText(page: Page, expected: string | RegExp) {
   const text = expect.poll(async () => await collectRenderedText(page), { timeout: 10_000 });
   if (typeof expected === "string") {

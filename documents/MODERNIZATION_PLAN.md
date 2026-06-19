@@ -333,11 +333,31 @@ Current limitations:
 
 ### Slice 9: Reports, Documents, And Integrations
 
+Status:
+
+- Implemented first as a read-only operational reports slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-9 reports parity runs against the legacy baseline.
+
 Scope:
 
-- Reports and exports.
-- Documents.
-- External integration surfaces that matter for the modernization demo.
+- Gold-data operational report snapshot covering patients, portal-enabled patients, appointments, future appointments, current-year activity, encounters, billing totals, lab reports, messages, facilities, and providers.
+- Provider activity reports with encounter counts, billing-line counts, and seeded charge totals.
+- Facility activity reports with appointment counts, encounter counts, billing-line counts, and seeded charge totals.
+- Clinical condition summary reports over active problem-list entries.
+- React Reports module with report cards and summary panels.
+- ASP.NET Core reports API over the modernized PostgreSQL read model.
+- Workbench-managed slice-9 reports parity plan for both legacy and modernized targets.
+
+Acceptance:
+
+- Reports module is selectable from the modernized left navigation.
+- The modernized API returns the stable operational-report anchors: 1,000 patients, 1,261 future appointments, 1,100 current-year encounters, 3,000 billing lines, `$446,000.00` seeded charges, `gold-provider-02` activity, NORTH facility activity, and `Asthma, uncomplicated` condition count.
+- The `slice-9-reports-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- CSV/export generation, saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ## Test Strategy
 
@@ -408,3 +428,4 @@ As of 2026-06-19:
 - The sixth modernized vertical slice implements read-only completed procedure/lab results with a React Procedures module, ASP.NET Core procedure-results API, PostgreSQL lab order/report/result queries, expanded modernized smoke checks, Workbench procedures plan actions, and matched side-by-side slice-6 parity evidence.
 - The seventh modernized vertical slice implements read-only fee-sheet billing with a React Fees module, ASP.NET Core billing API, PostgreSQL billing-line queries, expanded modernized smoke checks, Workbench billing plan actions, and side-by-side slice-7 parity evidence.
 - The eighth modernized vertical slice implements read-only administration directory behavior with a React Admin module, ASP.NET Core administration API, PostgreSQL staff/facility queries, expanded modernized smoke checks, Workbench admin plan actions, and matched side-by-side slice-8 parity evidence.
+- The ninth modernized vertical slice implements read-only operational reports with a React Reports module, ASP.NET Core reports API, PostgreSQL aggregate report queries, expanded modernized smoke checks, Workbench reports plan actions, and matched side-by-side slice-9 parity evidence.

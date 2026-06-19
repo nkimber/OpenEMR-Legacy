@@ -147,6 +147,56 @@ export type AdministrationDirectorySummary = {
   facilities: AdministrationFacilitySummary[];
 };
 
+export type OperationalReportCounts = {
+  patients: number;
+  portalPatients: number;
+  appointments: number;
+  futureAppointments: number;
+  currentYearAppointments: number;
+  encounters: number;
+  currentYearEncounters: number;
+  billingLines: number;
+  billingTotal: number;
+  labReports: number;
+  messages: number;
+  newMessages: number;
+  doneMessages: number;
+  facilities: number;
+  providers: number;
+};
+
+export type ProviderActivityReportSummary = {
+  username: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  encounters: number;
+  billingLines: number;
+  billingTotal: number;
+};
+
+export type FacilityActivityReportSummary = {
+  code: string;
+  name: string;
+  appointments: number;
+  encounters: number;
+  billingLines: number;
+  billingTotal: number;
+};
+
+export type ClinicalConditionReportSummary = {
+  title: string;
+  diagnosis: string;
+  patients: number;
+};
+
+export type OperationalReportsSummary = {
+  counts: OperationalReportCounts;
+  providerActivity: ProviderActivityReportSummary[];
+  facilityActivity: FacilityActivityReportSummary[];
+  clinicalConditions: ClinicalConditionReportSummary[];
+};
+
 export type ProcedureOrderSummary = {
   id: number;
   patientId: number;
@@ -591,6 +641,130 @@ ORDER BY id;
         state: row.state,
         postalCode: row.postalCode,
         color: row.color
+      }))
+    };
+  }
+
+  async getOperationalReports(): Promise<OperationalReportsSummary> {
+    const asOfDate = "2026-06-18";
+    const yearStart = "2026-01-01";
+    const nextYear = "2027-01-01";
+    const countRows = await this.queryRows<{ name: string; value: string }>(`
+SELECT 'patients' AS name, COUNT(*) AS value FROM patient_data
+UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES'
+UNION ALL SELECT 'appointments', COUNT(*) FROM openemr_postcalendar_events WHERE pc_pid <> 0
+UNION ALL SELECT 'futureAppointments', COUNT(*) FROM openemr_postcalendar_events WHERE pc_pid <> 0 AND DATE(pc_eventDate) > '${asOfDate}'
+UNION ALL SELECT 'currentYearAppointments', COUNT(*) FROM openemr_postcalendar_events WHERE pc_pid <> 0 AND DATE(pc_eventDate) >= '${yearStart}' AND DATE(pc_eventDate) < '${nextYear}'
+UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter
+UNION ALL SELECT 'currentYearEncounters', COUNT(*) FROM form_encounter WHERE DATE(date) >= '${yearStart}' AND DATE(date) < '${nextYear}'
+UNION ALL SELECT 'billingLines', COUNT(*) FROM billing
+UNION ALL SELECT 'billingTotal', COALESCE(SUM(fee), 0) FROM billing
+UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
+UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
+UNION ALL SELECT 'newMessages', COUNT(*) FROM pnotes WHERE message_status = 'New'
+UNION ALL SELECT 'doneMessages', COUNT(*) FROM pnotes WHERE message_status = 'Done'
+UNION ALL SELECT 'facilities', COUNT(*) FROM facility WHERE id IN (10, 11, 12)
+UNION ALL SELECT 'providers', COUNT(*) FROM users WHERE username LIKE 'gold-provider-%';
+`);
+    const countMap = Object.fromEntries(countRows.map((row) => [row.name, Number(row.value)]));
+
+    const providerRows = await this.queryRows<Record<string, string>>(`
+SELECT u.username, u.fname AS firstName, u.lname AS lastName,
+  COALESCE(pe.encounters, 0) AS encounters,
+  COALESCE(pb.billing_lines, 0) AS billingLines,
+  COALESCE(pb.billing_total, 0) AS billingTotal
+FROM users u
+LEFT JOIN (
+  SELECT provider_id, COUNT(*) AS encounters
+  FROM form_encounter
+  GROUP BY provider_id
+) pe ON pe.provider_id = u.id
+LEFT JOIN (
+  SELECT provider_id, COUNT(*) AS billing_lines, COALESCE(SUM(fee), 0) AS billing_total
+  FROM billing
+  GROUP BY provider_id
+) pb ON pb.provider_id = u.id
+WHERE u.username LIKE 'gold-provider-%'
+ORDER BY encounters DESC, billingTotal DESC, u.id
+LIMIT 8;
+`);
+
+    const facilityRows = await this.queryRows<Record<string, string>>(`
+SELECT f.facility_code AS code, f.name,
+  COALESCE(fa.appointments, 0) AS appointments,
+  COALESCE(fe.encounters, 0) AS encounters,
+  COALESCE(fb.billing_lines, 0) AS billingLines,
+  COALESCE(fb.billing_total, 0) AS billingTotal
+FROM facility f
+LEFT JOIN (
+  SELECT pc_facility, COUNT(*) AS appointments
+  FROM openemr_postcalendar_events
+  WHERE pc_pid <> 0
+  GROUP BY pc_facility
+) fa ON fa.pc_facility = f.id
+LEFT JOIN (
+  SELECT facility_id, COUNT(*) AS encounters
+  FROM form_encounter
+  GROUP BY facility_id
+) fe ON fe.facility_id = f.id
+LEFT JOIN (
+  SELECT fe.facility_id, COUNT(b.id) AS billing_lines, COALESCE(SUM(b.fee), 0) AS billing_total
+  FROM billing b
+  INNER JOIN form_encounter fe ON fe.encounter = b.encounter
+  GROUP BY fe.facility_id
+) fb ON fb.facility_id = f.id
+WHERE f.id IN (10, 11, 12)
+ORDER BY f.id;
+`);
+
+    const conditionRows = await this.queryRows<Record<string, string>>(`
+SELECT title, COALESCE(diagnosis, '') AS diagnosis, COUNT(*) AS patients
+FROM lists
+WHERE type = 'medical_problem' AND activity = 1
+GROUP BY title, diagnosis
+ORDER BY patients DESC, title
+LIMIT 8;
+`);
+
+    return {
+      counts: {
+        patients: countMap.patients,
+        portalPatients: countMap.portalPatients,
+        appointments: countMap.appointments,
+        futureAppointments: countMap.futureAppointments,
+        currentYearAppointments: countMap.currentYearAppointments,
+        encounters: countMap.encounters,
+        currentYearEncounters: countMap.currentYearEncounters,
+        billingLines: countMap.billingLines,
+        billingTotal: countMap.billingTotal,
+        labReports: countMap.labReports,
+        messages: countMap.messages,
+        newMessages: countMap.newMessages,
+        doneMessages: countMap.doneMessages,
+        facilities: countMap.facilities,
+        providers: countMap.providers
+      },
+      providerActivity: providerRows.map((row) => ({
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        displayName: `${row.lastName}, ${row.firstName}`,
+        encounters: Number(row.encounters),
+        billingLines: Number(row.billingLines),
+        billingTotal: Number(row.billingTotal)
+      })),
+      facilityActivity: facilityRows.map((row) => ({
+        code: row.code,
+        name: row.name,
+        appointments: Number(row.appointments),
+        encounters: Number(row.encounters),
+        billingLines: Number(row.billingLines),
+        billingTotal: Number(row.billingTotal)
+      })),
+      clinicalConditions: conditionRows.map((row) => ({
+        title: row.title,
+        diagnosis: row.diagnosis,
+        patients: Number(row.patients)
       }))
     };
   }

@@ -78,6 +78,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-9-reports-readiness",
+      "name": "Slice 9 Reports Readiness",
+      "description": "Read-only operational reporting confidence plan for gold-data activity, provider, facility, and clinical-condition summaries on both legacy and modernized targets.",
+      "suites": ["reports"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-9", "reports", "operational-reporting", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -205,6 +214,16 @@
       "defaultResetMode": "run"
     },
     {
+      "id": "reports",
+      "name": "Operational Reports",
+      "description": "Compares read-only operational reporting facts and report surfaces against legacy report screens using the shared gold dataset.",
+      "layer": "parity",
+      "path": "tests/reports",
+      "tags": ["slice9", "reports", "operational-reporting", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
       "id": "database",
       "name": "Gold Database Contract",
       "description": "Validates the seeded gold dataset through normalized database probes.",
@@ -227,7 +246,7 @@
     {
       "id": "ui",
       "name": "Playwright UI Contract",
-      "description": "Exercises browser-visible login, chart, encounter, scheduling, billing, lab result, and administration workflows.",
+      "description": "Exercises browser-visible login, chart, encounter, scheduling, billing, lab result, reports, and administration workflows.",
       "layer": "ui",
       "path": "tests/ui",
       "tags": ["ui", "playwright", "read-only"],
