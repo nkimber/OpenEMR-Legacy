@@ -1680,7 +1680,7 @@ Primary files:
 
 ### 040. Modernized Admin Facility Mutation Slice 18
 
-Commit: TBD
+Commit: 3754e02
 
 Implemented the eighteenth modernized OpenEMR vertical slice: the ninth mutation-capable parity workflow, focused on administration facility create, browser-visible active facility rendering, facility update to inactive state, default hidden-inactive behavior, and hard-delete cleanup with React Admin controls, ASP.NET Core administration facility lifecycle endpoints, PostgreSQL facility inactive state, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR Facilities administration workflow.
 
