@@ -368,6 +368,7 @@ p {
 }
 
 .panel {
+  min-width: 0;
   padding: 20px;
   margin-bottom: 18px;
 }
@@ -1105,6 +1106,290 @@ p {
   gap: 14px;
 }
 
+.architecture-page {
+  align-items: stretch;
+}
+
+.architecture-page > * {
+  min-width: 0;
+}
+
+.architecture-hero {
+  padding-bottom: 14px;
+}
+
+.architecture-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid #e1e8ee;
+  padding-top: 14px;
+}
+
+.architecture-tabs button {
+  min-height: 38px;
+  border: 1px solid #cfdae2;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #3d4d5e;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 730;
+  cursor: pointer;
+}
+
+.architecture-tabs button:hover {
+  border-color: #b9cbd4;
+  background: #f5f9fb;
+}
+
+.architecture-tabs button.active {
+  border-color: #246b73;
+  background: #eaf7f6;
+  color: #155b63;
+}
+
+.architecture-panel {
+  overflow: hidden;
+}
+
+.architecture-matrix {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.72fr) repeat(var(--architecture-system-count), minmax(240px, 1fr));
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.architecture-matrix-heading,
+.architecture-layer-cell,
+.architecture-stack-cell {
+  min-width: 0;
+  border-right: 1px solid #e2e9ee;
+  border-bottom: 1px solid #e2e9ee;
+  padding: 13px;
+}
+
+.architecture-matrix-heading:nth-child(4n),
+.architecture-layer-cell + .architecture-stack-cell + .architecture-stack-cell + .architecture-stack-cell {
+  border-right: 0;
+}
+
+.architecture-matrix-heading {
+  background: #f3f7f8;
+}
+
+.architecture-matrix-heading strong,
+.architecture-layer-cell strong,
+.architecture-stack-cell strong,
+.diagram-node strong,
+.decision-item strong,
+.architecture-story strong {
+  display: block;
+  color: #172534;
+}
+
+.architecture-matrix-heading span {
+  display: block;
+  margin-top: 4px;
+  color: #667486;
+  font-size: 0.82rem;
+}
+
+.architecture-layer-heading {
+  color: #667486;
+  font-size: 0.82rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.architecture-layer-cell {
+  background: #f9fbfc;
+}
+
+.architecture-layer-cell p,
+.architecture-stack-cell p,
+.diagram-node p,
+.decision-item p,
+.architecture-story p {
+  margin-top: 6px;
+  font-size: 0.88rem;
+}
+
+.tech-chip-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 38px;
+  border: 1px solid color-mix(in srgb, var(--tech-color), #ffffff 58%);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--tech-color), #ffffff 92%);
+  color: #172534;
+  padding: 5px 8px 5px 5px;
+}
+
+.tech-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--tech-color), #ffffff 66%);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--tech-color);
+  font-size: 0.68rem;
+  font-weight: 820;
+  line-height: 1;
+}
+
+.tech-logo img {
+  display: block;
+  max-width: 20px;
+  max-height: 20px;
+}
+
+.tech-logo img + .tech-logo-fallback {
+  display: none;
+}
+
+.tech-logo.fallback-visible .tech-logo-fallback {
+  display: inline-flex;
+}
+
+.tech-chip-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tech-chip-text strong {
+  overflow: hidden;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tech-chip-text span {
+  color: #617184;
+  font-size: 0.74rem;
+  font-weight: 690;
+  line-height: 1.1;
+}
+
+.architecture-diagram {
+  display: grid;
+  gap: 16px;
+}
+
+.architecture-diagram-heading h3 {
+  margin-bottom: 4px;
+}
+
+.diagram-node-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.diagram-node {
+  display: grid;
+  gap: 12px;
+  align-content: space-between;
+  min-height: 156px;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 13px;
+}
+
+.diagram-edge-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px;
+}
+
+.diagram-edge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  border-left: 3px solid #246b73;
+  border-radius: 8px;
+  background: #f5f9fa;
+  padding: 9px 11px;
+}
+
+.diagram-edge span {
+  color: #607082;
+  font-size: 0.84rem;
+}
+
+.decision-grid,
+.architecture-story-grid,
+.architecture-lists-grid,
+.architecture-detail-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.decision-item,
+.architecture-story,
+.technology-inventory {
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 13px;
+}
+
+.technology-inventory .tech-chip-list {
+  margin-top: 10px;
+}
+
+.architecture-facts {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 13px;
+}
+
+.architecture-facts dd {
+  margin-bottom: 12px;
+}
+
+.architecture-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.architecture-list li {
+  border-left: 3px solid #6b9a50;
+  border-radius: 7px;
+  background: #f8faf5;
+  color: #374553;
+  padding: 8px 10px;
+  line-height: 1.38;
+}
+
 .architecture-item {
   box-shadow: none;
   padding: 14px;
@@ -1196,8 +1481,16 @@ dd {
   .custom-run-form,
   .test-run-grid,
   .seed-target-grid,
-  .architecture-grid {
+  .architecture-grid,
+  .decision-grid,
+  .architecture-story-grid,
+  .architecture-lists-grid,
+  .architecture-detail-layout {
     grid-template-columns: 1fr;
+  }
+
+  .architecture-tabs button {
+    flex: 1 1 180px;
   }
 
   .changelog-entry {

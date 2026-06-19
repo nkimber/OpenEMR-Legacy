@@ -3753,9 +3753,7 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/server/index.ts`
 - `modernization-workbench/src/App.tsx`
-- `modernization-workbench/src/api.ts`
 - `modernization-workbench/src/architectureModel.ts`
-- `modernization-workbench/src/types.ts`
 - `documents/MODERNIZATION_PLAN.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/TEST_ARCHITECTURE.md`
@@ -3763,6 +3761,41 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 075. Workbench Architecture Screen Redesigned
+
+Commit: this commit
+Started: `2026-06-19T18:37:00-04:00`
+Finished: `2026-06-19T18:47:04-04:00`
+
+Redesigned the Modernization Workbench Architecture page from a flat three-card summary into a visual, tabbed architecture map for the three project systems: legacy OpenEMR, the Modernization Workbench, and modernized OpenEMR.
+
+Key outcomes:
+
+- Added a versioned architecture model for technology chips, comparison layers, topology diagrams, per-system diagrams, narratives, responsibilities, evidence notes, and architecture decisions.
+- Added the Architecture Overview tab with a stack matrix grouped by UI technology, server-side technology, data stores, runtime/orchestration, and tests/evidence.
+- Added system detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
+- Added logo-style chips for major technologies with explicit versions, including OpenEMR, PHP, Apache, MariaDB, React, TypeScript, Vite, Node.js, Express, ASP.NET Core, .NET, Npgsql, PostgreSQL, Docker Compose, PHPUnit, Jest, and Playwright.
+- Updated the architecture endpoint's existing stack summaries to include verified or pinned version numbers.
+- Updated Workbench documentation so the Architecture page behavior and version-source expectations are durable project guidance.
+
+Verified test runs:
+
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check`.
+- `Invoke-WebRequest http://127.0.0.1:5173` returned HTTP 200.
+- `Invoke-WebRequest http://127.0.0.1:5174/api/architecture` returned HTTP 200 with the three expected systems.
+- Local version checks verified Docker Compose `v5.0.2`, Node.js `v24.13.1`, ASP.NET Core runtime `10.0.9`, PHP `8.5.6`, Apache/httpd `2.4.67`, MariaDB `11.8.8`, PostgreSQL `17.10`, and package-lock versions for React, TypeScript, Vite, and Express.
+- Browser smoke check opened `http://127.0.0.1:5173/#/architecture` in desktop `1440x1000` and mobile `390x900` viewports, verified key Architecture page text, and confirmed no body-level horizontal overflow.
+
+Primary files:
+
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries

@@ -88,7 +88,7 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
   },
   architecture: {
     title: "Architecture",
-    subtitle: "Technical comparison between the baseline, Workbench, and future target."
+    subtitle: "Technical comparison between the baseline, Workbench, and modernized target."
   },
   tests: {
     title: "Test Runs",
@@ -593,36 +593,273 @@ function ProgressPanel({ slices }: { slices: ProgressSlice[] }) {
   );
 }
 
-function ArchitecturePanel({ systems }: { systems: ArchitectureSystem[] }) {
+function TechChip({ tech }: { tech: ArchitectureTechnology }) {
   return (
-    <section className="panel architecture-panel">
-      <div className="panel-header compact">
-        <h2>
-          <Layers size={20} />
-          Technical Architecture
-        </h2>
+    <span className="tech-chip" style={{ "--tech-color": tech.color } as CSSProperties} title={`${tech.name} ${tech.version}: ${tech.detail}`}>
+      <span className="tech-logo">
+        {tech.logoUrl ? (
+          <img
+            src={tech.logoUrl}
+            alt={`${tech.name} logo`}
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+              event.currentTarget.parentElement?.classList.add("fallback-visible");
+            }}
+          />
+        ) : null}
+        <span className="tech-logo-fallback">{tech.logoText}</span>
+      </span>
+      <span className="tech-chip-text">
+        <strong>{tech.name}</strong>
+        <span>{tech.version}</span>
+      </span>
+    </span>
+  );
+}
+
+function TechChipList({ technologies }: { technologies: ArchitectureTechnology[] }) {
+  return (
+    <div className="tech-chip-list">
+      {technologies.map((tech) => (
+        <TechChip tech={tech} key={tech.id} />
+      ))}
+    </div>
+  );
+}
+
+function ArchitectureDiagramView({ diagram }: { diagram: ArchitectureModel["topology"] }) {
+  return (
+    <div className="architecture-diagram">
+      <div className="architecture-diagram-heading">
+        <h3>{diagram.title}</h3>
+        <p>{diagram.subtitle}</p>
       </div>
-      <div className="architecture-grid">
-        {systems.map((system) => (
-          <div className="architecture-item" key={system.id}>
-            <div className="architecture-title">
-              <strong>{system.name}</strong>
-              <span>{system.status}</span>
+      <div className="diagram-node-grid">
+        {diagram.nodes.map((node) => (
+          <div className="diagram-node" key={node.id}>
+            <div>
+              <strong>{node.title}</strong>
+              <p>{node.subtitle}</p>
             </div>
-            <dl>
-              <dt>Stack</dt>
-              <dd>{system.stack.join(", ")}</dd>
-              <dt>Database</dt>
-              <dd>{system.database}</dd>
-              <dt>Business logic</dt>
-              <dd>{system.businessLogic}</dd>
-              <dt>Tests</dt>
-              <dd>{system.tests.join(", ")}</dd>
-            </dl>
+            <TechChipList technologies={node.technologies} />
           </div>
         ))}
       </div>
-    </section>
+      <div className="diagram-edge-list">
+        {diagram.edges.map((edge) => (
+          <div className="diagram-edge" key={`${edge.from}-${edge.to}-${edge.label}`}>
+            <strong>{edge.from}</strong>
+            <span>{edge.label}</span>
+            <strong>{edge.to}</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ArchitectureMatrix({ architecture }: { architecture: ArchitectureModel }) {
+  return (
+    <div className="architecture-matrix" style={{ "--architecture-system-count": architecture.systems.length } as CSSProperties}>
+      <div className="architecture-matrix-heading architecture-layer-heading">Layer</div>
+      {architecture.systems.map((system) => (
+        <div className="architecture-matrix-heading" key={system.id}>
+          <strong>{system.name}</strong>
+          <span>{system.status}</span>
+        </div>
+      ))}
+      {architecture.layers.map((layer) => (
+        <Fragment key={layer.id}>
+          <div className="architecture-layer-cell">
+            <strong>{layer.label}</strong>
+            <p>{layer.summary}</p>
+          </div>
+          {architecture.systems.map((system) => {
+            const cell = layer.cells.find((candidate) => candidate.systemId === system.id);
+            return (
+              <div className="architecture-stack-cell" key={`${layer.id}-${system.id}`}>
+                {cell ? (
+                  <>
+                    <TechChipList technologies={cell.technologies} />
+                    <p>{cell.detail}</p>
+                  </>
+                ) : (
+                  <EmptyState text="Architecture metadata unavailable." />
+                )}
+              </div>
+            );
+          })}
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+function ArchitectureOverview({ architecture }: { architecture: ArchitectureModel }) {
+  return (
+    <>
+      <section className="panel architecture-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Technology comparison</div>
+            <h2>
+              <Layers size={20} />
+              Stack Matrix
+            </h2>
+            <p>Versioned technology stacks for the legacy reference, the Workbench, and the modernized target.</p>
+          </div>
+        </div>
+        <ArchitectureMatrix architecture={architecture} />
+      </section>
+
+      <section className="panel architecture-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">System topology</div>
+            <h2>
+              <Server size={20} />
+              Project Map
+            </h2>
+            <p>How orchestration, seed data, parity checks, and evidence artifacts connect the three project systems.</p>
+          </div>
+        </div>
+        <ArchitectureDiagramView diagram={architecture.topology} />
+      </section>
+
+      <section className="panel architecture-panel">
+        <div className="panel-header compact">
+          <h2>
+            <GitBranch size={20} />
+            Architecture Decisions
+          </h2>
+        </div>
+        <div className="decision-grid">
+          {architecture.decisions.map((decision) => (
+            <div className="decision-item" key={decision.title}>
+              <strong>{decision.title}</strong>
+              <p>{decision.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ArchitectureSystemDetail({ system }: { system: ArchitectureSystem }) {
+  return (
+    <>
+      <section className="panel architecture-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">{system.status}</div>
+            <h2>
+              <Server size={20} />
+              {system.name}
+            </h2>
+            <p>{system.purpose}</p>
+          </div>
+          <div className="panel-status">
+            <StatusPill state={system.status.toLowerCase().includes("verified") || system.status.toLowerCase().includes("implemented") ? "verified" : "in-progress"} label={system.status} />
+          </div>
+        </div>
+        <div className="architecture-detail-layout">
+          <div className="technology-inventory">
+            <div className="section-kicker">Technology inventory</div>
+            <TechChipList technologies={system.technologies} />
+          </div>
+          <dl className="architecture-facts">
+            <dt>Pattern</dt>
+            <dd>{system.architecturePattern}</dd>
+            <dt>Runtime</dt>
+            <dd>{system.runtime}</dd>
+            <dt>Data ownership</dt>
+            <dd>{system.dataOwnership}</dd>
+            <dt>Business logic</dt>
+            <dd>{system.businessLogic}</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section className="panel architecture-panel">
+        <div className="panel-header compact">
+          <h2>
+            <Layers size={20} />
+            System Diagram
+          </h2>
+        </div>
+        <ArchitectureDiagramView diagram={system.diagram} />
+      </section>
+
+      <section className="panel architecture-panel">
+        <div className="architecture-story-grid">
+          {system.narratives.map((narrative) => (
+            <div className="architecture-story" key={narrative.title}>
+              <strong>{narrative.title}</strong>
+              <p>{narrative.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="architecture-lists-grid">
+          <div>
+            <h3>Responsibilities</h3>
+            <ul className="architecture-list">
+              {system.responsibilities.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3>Evidence</h3>
+            <ul className="architecture-list">
+              {system.evidence.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ArchitecturePanel({ architecture }: { architecture: ArchitectureModel | null }) {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  if (!architecture) {
+    return (
+      <section className="panel architecture-panel">
+        <EmptyState text="Architecture metadata is loading." />
+      </section>
+    );
+  }
+
+  const tabs = [{ id: "overview", label: "Overview" }, ...architecture.systems.map((system) => ({ id: system.id, label: system.name }))];
+  const activeSystem = architecture.systems.find((system) => system.id === activeTab);
+
+  return (
+    <div className="page-stack architecture-page">
+      <section className="panel architecture-hero">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Architecture map</div>
+            <h2>
+              <Layers size={20} />
+              Technical Architecture
+            </h2>
+            <p>Three systems, one shared modernization contract: preserve legacy behavior, expose the work, and grow the target through verified vertical slices.</p>
+          </div>
+        </div>
+        <div className="architecture-tabs" role="tablist" aria-label="Architecture views">
+          {tabs.map((tab) => (
+            <button className={activeTab === tab.id ? "active" : ""} type="button" role="tab" aria-selected={activeTab === tab.id} key={tab.id} onClick={() => setActiveTab(tab.id)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </section>
+      <div role="tabpanel">{activeTab === "overview" ? <ArchitectureOverview architecture={architecture} /> : activeSystem ? <ArchitectureSystemDetail system={activeSystem} /> : <ArchitectureOverview architecture={architecture} />}</div>
+    </div>
   );
 }
 
@@ -1246,7 +1483,7 @@ function PageBody({
   logs: Record<string, string>;
   progress: ProgressSlice[];
   events: LifecycleEvent[];
-  architecture: ArchitectureSystem[];
+  architecture: ArchitectureModel | null;
   changelog: ProjectChangelog | null;
   parityManifest: ParityManifest | null;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
@@ -1258,7 +1495,7 @@ function PageBody({
     return <ProgressPanel slices={progress} />;
   }
   if (page === "architecture") {
-    return <ArchitecturePanel systems={architecture} />;
+    return <ArchitecturePanel architecture={architecture} />;
   }
   if (page === "tests") {
     return <TestsPage apps={apps} busy={busy} parityManifest={parityManifest} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
@@ -1309,7 +1546,7 @@ function PageBody({
 
 export function App() {
   const [apps, setApps] = useState<AppSnapshot[]>([]);
-  const [architecture, setArchitecture] = useState<ArchitectureSystem[]>([]);
+  const [architecture, setArchitecture] = useState<ArchitectureModel | null>(null);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
@@ -1335,7 +1572,7 @@ export function App() {
       api.getChangelog()
     ]);
     setApps(appData.apps);
-    setArchitecture(architectureData.systems);
+    setArchitecture(architectureData);
     setProgress(progressData.slices);
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);

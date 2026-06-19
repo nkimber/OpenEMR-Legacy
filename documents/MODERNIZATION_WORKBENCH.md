@@ -33,7 +33,7 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline, and show architecture/progress views.
+The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline, and show architecture/progress views. The Architecture page now presents a tabbed model with a versioned stack matrix, project topology map, architecture decisions, and per-system detail views for the legacy baseline, Workbench, and modernized target.
 
 Current pages:
 
@@ -47,6 +47,8 @@ Current pages:
 
 The navigation model supports nested child items so the Workbench can grow into two-level navigation later without reworking the shell.
 
+The Architecture page now uses sub-tabs. The Overview tab shows a versioned technology-stack matrix for the three project systems: legacy OpenEMR, the Modernization Workbench, and modernized OpenEMR. The matrix groups technologies by UI, server-side runtime, data stores, local runtime/orchestration, and tests/evidence, with logo-style technology chips and explicit versions where the repository or running containers provide them. The Overview tab also includes a project topology diagram and architecture-decision notes. Each system tab provides a focused architecture diagram, runtime summary, data ownership summary, business-logic narrative, responsibilities, and evidence notes.
+
 The legacy app launch link opens `http://localhost:8080` because that is the browser-friendly local URL. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but it uses a self-signed local certificate and browsers will show a privacy warning unless the certificate is trusted or manually bypassed. The Workbench backend supports both `http` and `https` health URLs, still uses `https://localhost:9443/meta/health/readyz` for the legacy health check, and is configured to tolerate the self-signed certificate only for HTTPS internal checks.
 
 The Managed Application panel also displays the local demo OpenEMR login read from `legacy-openemr/.env`. This is intentionally local-only and helps distinguish the actual baseline credential from any browser autofill suggestion on the OpenEMR login page.
@@ -58,6 +60,7 @@ Verified behavior:
 - Production build passes with `npm run build`.
 - The UI renders in desktop and mobile viewports.
 - The UI includes a left navigation shell with separate pages for dashboard, applications, timeline, progress, architecture, tests, and seed data.
+- The Architecture page renders a versioned visual stack matrix, project topology diagram, architecture-decision notes, and detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
 - The API can read legacy OpenEMR status.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
@@ -274,8 +277,8 @@ The workbench should also make the technical modernization visible.
 
 Architecture comparison views should show:
 
-- Legacy technology stack and runtime components.
-- Modernized technology stack and runtime components.
+- Legacy, Workbench, and modernized technology stack and runtime components.
+- Version numbers for key technologies, images, frameworks, and runtime components when they are pinned or observable from the repo or running containers.
 - Data stores used by each system.
 - API boundaries and integration points.
 - Where business logic lives in each system.
@@ -283,7 +286,7 @@ Architecture comparison views should show:
 - Test coverage by layer for each system.
 - Migration status by workflow, table, API, or domain area.
 
-This information may initially come from curated project documents and static metadata. Over time, some of it may be generated from repository scans, build metadata, service health endpoints, or test manifests.
+This information currently comes from curated Workbench UI metadata, project documents, package manifests, Docker Compose configuration, and verified running-container versions. Over time, more of it may be generated from repository scans, build metadata, service health endpoints, or test manifests.
 
 ## Progress Model
 
