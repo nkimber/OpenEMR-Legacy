@@ -3,6 +3,7 @@ import type {
   AdministrationAccessGroupSummary,
   AdministrationAccessPermissionSummary,
   AdministrationAccessGroupPermissionSummary,
+  AdministrationAccessUserMembershipSummary,
   AdministrationDirectorySummary,
   AdministrationFacilitySummary,
   AdministrationUserSummary,
@@ -446,6 +447,13 @@ FROM access_group_permissions
 ORDER BY group_value, section_value, permission_value, return_value;
 `);
 
+    const userMemberships = await this.queryRows<Record<string, string>>(`
+SELECT user_value AS "userValue", user_name AS "userName", group_value AS "groupValue", group_name AS "groupName",
+  COALESCE(staff_id::text, '\\N') AS "staffId"
+FROM access_user_memberships
+ORDER BY group_value, user_value;
+`);
+
     return {
       groups: groups.map((row): AdministrationAccessGroupSummary => ({
         id: Number(row.id),
@@ -465,6 +473,13 @@ ORDER BY group_value, section_value, permission_value, return_value;
         permissionValue: row.permissionValue,
         permissionName: row.permissionName,
         returnValue: row.returnValue
+      })),
+      userMemberships: userMemberships.map((row): AdministrationAccessUserMembershipSummary => ({
+        userValue: row.userValue,
+        userName: row.userName,
+        groupValue: row.groupValue,
+        groupName: row.groupName,
+        staffId: nullIfDbNull(row.staffId) === null ? null : Number(row.staffId)
       }))
     };
   }

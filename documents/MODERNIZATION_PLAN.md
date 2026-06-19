@@ -631,36 +631,38 @@ Current limitations:
 - This slice covers a focused user-directory lifecycle only.
 - Default ACL group and permission matrix visibility is covered by Slice 20.
 - Focused ACL permission assignment grant/revoke behavior is covered by Slice 21.
-- Real login/password creation, ASP.NET Core Identity, broad role/permission administration, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and user/group membership mutation workflows remain deferred to later administration/security slices.
+- Focused user/group membership assignment grant/revoke behavior is covered by Slice 22.
+- Real login/password creation, ASP.NET Core Identity, broad role/permission administration, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and broad membership administration workflows remain deferred to later administration/security slices.
 
 ### Slice 20: Administration Access-Control Read Model
 
 Status:
 
 - Implemented as the tenth read-only modernized vertical slice under `modernized-openemr/`.
-- Verification is the shared `slice-20-access-control-readiness` plan, which compares OpenEMR default ACL groups, visible permission objects, and group-permission assignments on both legacy and modernized targets.
+- Verification is the shared `slice-20-access-control-readiness` plan, which compares OpenEMR default ACL groups, visible permission objects, group-permission assignments, and default user memberships on both legacy and modernized targets.
 
 Scope:
 
-- PostgreSQL seed schema extension for normalized access-control groups, permissions, and group-permission assignments mirroring the legacy default phpGACL matrix.
+- PostgreSQL seed schema extension for normalized access-control groups, permissions, group-permission assignments, and default user memberships mirroring the legacy default phpGACL matrix.
 - ASP.NET Core administration API extension that exposes access-control counts and matrix detail with the existing users/facilities directory.
 - React Admin visibility for access-control counts, leaf groups, and representative permission assignments.
 - Normalized legacy MariaDB and modernized PostgreSQL parity probes for ACL facts.
 - Workbench-managed slice-20 access-control parity plan for both legacy and modernized targets.
-- Modernized smoke coverage for default ACL group, permission, and assignment anchors.
+- Modernized smoke coverage for default ACL group, permission, assignment, and user-membership anchors.
 
 Acceptance:
 
 - The modernized Admin module displays an Access Control Matrix with the same default OpenEMR groups visible from the legacy Access Control administration surface.
-- The API reports 7 access groups, 65 visible permission objects, and 203 group-permission assignments.
-- The `slice-20-access-control-readiness` plan verifies Administrator, Physician, Clinician, Front Office, Accounting, and Emergency Login group anchors; verifies key permission objects such as `admin:acl`, `patients:demo`, `patients:rx`, and `sensitivities:high`; verifies representative group-permission assignments; and passes against both legacy and modernized targets with no comparison differences.
+- The API reports 7 access groups, 65 visible permission objects, 203 group-permission assignments, and 2 default user memberships.
+- The `slice-20-access-control-readiness` plan verifies Administrator, Physician, Clinician, Front Office, Accounting, and Emergency Login group anchors; verifies key permission objects such as `admin:acl`, `patients:demo`, `patients:rx`, and `sensitivities:high`; verifies representative group-permission assignments; verifies the default `admin` and `oe-system` Administrator memberships; and passes against both legacy and modernized targets with no comparison differences.
 
 Current limitations:
 
 - This slice is read-only.
 - It mirrors the default ACL topology as application data but does not enforce authorization policies at runtime.
 - Focused ACL permission assignment grant/revoke behavior is covered by Slice 21.
-- Broad permission editing, user/group membership mutation, ASP.NET Core Identity, login/password creation, MFA, audit history, and user-facility restriction matrices remain deferred to later administration/security slices.
+- Focused user/group membership assignment grant/revoke behavior is covered by Slice 22.
+- Broad permission editing, broad membership administration, ASP.NET Core Identity, login/password creation, MFA, audit history, and user-facility restriction matrices remain deferred to later administration/security slices.
 
 ### Slice 21: Administration Access Permission Mutation
 
@@ -688,7 +690,38 @@ Current limitations:
 
 - This slice covers one focused ACL group-permission assignment lifecycle only.
 - It mutates ACL data but does not yet enforce authorization policies at runtime.
-- Full role/permission administration, user/group membership editing, ASP.NET Core Identity, login/password creation, MFA, audit history, user-facility restriction matrices, and policy enforcement remain deferred to later administration/security slices.
+- Focused user/group membership assignment grant/revoke behavior is covered by Slice 22.
+- Full role/permission administration, broad membership editing, ASP.NET Core Identity, login/password creation, MFA, audit history, user-facility restriction matrices, and policy enforcement remain deferred to later administration/security slices.
+
+### Slice 22: Administration User Group Membership Mutation
+
+Status:
+
+- Implemented as the twelfth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-22-user-group-membership-mutation-readiness` plan, which creates a temporary user, assigns access-group membership, renders it, revokes it, and cleans up on both legacy and modernized targets.
+
+Scope:
+
+- PostgreSQL seed schema extension for normalized access user memberships seeded from the default legacy `admin` and `oe-system` Administrator memberships.
+- ASP.NET Core administration API endpoints for granting and revoking user-to-access-group memberships.
+- React Admin User Group Membership control with active-user and leaf-group selectors plus Assign/Revoke actions.
+- User directory cards that show assigned access-group membership chips for browser-visible verification.
+- Modernized smoke coverage for a temporary user membership grant/revoke lifecycle with cleanup.
+- Legacy and modernized workflow action adapters for normalized ACL user-membership mutation.
+- Workbench-managed slice-22 user group membership mutation plan for both legacy and modernized targets.
+
+Acceptance:
+
+- The modernized Admin module can assign a temporary active user to the Front Office access group and render the membership in that user's directory card.
+- The membership mutation path goes through the modernized backend API, not direct browser-to-database access.
+- Deleting a user cleans up its modernized access memberships.
+- The `slice-22-user-group-membership-mutation-readiness` plan verifies direct row state, browser-visible membership state, revocation back to the seeded baseline, cleanup, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers one focused user-to-group membership lifecycle only.
+- It mutates ACL membership data but does not yet enforce authorization policies at runtime.
+- Full role/permission administration, broad membership editing UX, ASP.NET Core Identity, login/password creation, MFA, audit history, user-facility restriction matrices, and policy enforcement remain deferred to later administration/security slices.
 
 ## Test Strategy
 
@@ -772,3 +805,4 @@ As of 2026-06-19:
 - The nineteenth modernized vertical slice implements administration user mutation with React Admin user create/inactivate/delete controls, ASP.NET Core administration user lifecycle endpoints, PostgreSQL staff active/email/NPI fields, modernized workflow action adapter methods, Workbench admin user mutation plan action, smoke coverage, and side-by-side slice-19 parity evidence.
 - The twentieth modernized vertical slice implements a read-only administration access-control matrix with React Admin visibility, ASP.NET Core administration access-control response fields, PostgreSQL access group/permission/assignment tables, normalized parity probes, Workbench access-control plan action, smoke coverage, and side-by-side slice-20 parity evidence.
 - The twenty-first modernized vertical slice implements focused administration access-permission assignment mutation with React Admin grant/revoke controls, ASP.NET Core administration ACL assignment endpoints, modernized workflow action adapter methods, Workbench access-permission mutation plan action, smoke coverage, and side-by-side slice-21 parity evidence.
+- The twenty-second modernized vertical slice implements focused administration user group membership mutation with React Admin Assign/Revoke controls, ASP.NET Core administration ACL membership endpoints, PostgreSQL access membership rows, modernized workflow action adapter methods, Workbench user group membership mutation plan action, smoke coverage, and side-by-side slice-22 parity evidence.

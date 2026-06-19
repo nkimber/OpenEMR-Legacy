@@ -8,6 +8,7 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
     expect(accessControl.groups).toHaveLength(7);
     expect(accessControl.permissions).toHaveLength(65);
     expect(accessControl.groupPermissions).toHaveLength(203);
+    expect(accessControl.userMemberships).toHaveLength(2);
 
     expect(accessControl.groups).toEqual(
       expect.arrayContaining([
@@ -41,6 +42,13 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
       ])
     );
 
+    expect(accessControl.userMemberships).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ userValue: "admin", groupValue: "admin", groupName: "Administrators" }),
+        expect.objectContaining({ userValue: "oe-system", groupValue: "admin", groupName: "Administrators" })
+      ])
+    );
+
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
       await openAccessControlDirect(page, target);
@@ -53,6 +61,7 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
     await page.getByRole("button", { name: "Admin" }).click();
     await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
     await expect(page.locator("body")).toContainText("Access Control Matrix");
+    await expect(page.locator("body")).toContainText("Access memberships");
     await expect(page.locator("body")).toContainText("Administrators");
     await expect(page.locator("body")).toContainText("Physicians");
     await expect(page.locator("body")).toContainText("Clinicians");

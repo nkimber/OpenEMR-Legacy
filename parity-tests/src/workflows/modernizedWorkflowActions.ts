@@ -1,6 +1,8 @@
 import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import type {
+  AccessGroupMembership,
+  AccessGroupMembershipMutation,
   AccessPermissionAssignment,
   AccessPermissionMutation,
   AppointmentRecord,
@@ -211,6 +213,48 @@ LIMIT 1;
 
     if (!response.ok && response.status !== 404) {
       throw new Error(`Modernized access permission revoke failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<AccessGroupMembership | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT user_value AS "userValue", user_name AS "userName", group_value AS "groupValue", group_name AS "groupName"
+FROM access_user_memberships
+WHERE user_value = ${sqlString(input.userValue)}
+  AND group_value = ${sqlString(input.groupValue)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      userValue: row.userValue,
+      userName: row.userName,
+      groupValue: row.groupValue,
+      groupName: row.groupName
+    } : null;
+  }
+
+  async grantAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/access-control/user-memberships`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized access group membership grant failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async revokeAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/administration/access-control/user-memberships/${encodeURIComponent(input.userValue)}/${encodeURIComponent(input.groupValue)}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized access group membership revoke failed with ${response.status}: ${await response.text()}`);
     }
   }
 

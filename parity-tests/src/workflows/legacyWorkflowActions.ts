@@ -178,6 +178,18 @@ export type AccessPermissionMutation = {
   returnValue: string;
 };
 
+export type AccessGroupMembership = {
+  userValue: string;
+  userName: string;
+  groupValue: string;
+  groupName: string;
+};
+
+export type AccessGroupMembershipMutation = {
+  userValue: string;
+  groupValue: string;
+};
+
 export type NewAppointment = {
   patientId: number;
   providerId: number;
@@ -401,6 +413,17 @@ WHERE id = ${integer(id)};
   }
 
   async deleteUser(id: number): Promise<void> {
+    const users = await this.db.queryRows<{ username: string }>(`
+SELECT username
+FROM users
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const username = users[0]?.username;
+    if (username) {
+      await this.deleteAccessControlUser(username);
+    }
+
     await this.db.execute(`
 DELETE FROM users
 WHERE id = ${integer(id)};
@@ -568,6 +591,93 @@ WHERE ag.value = ${sqlString(input.groupValue)}
   AND acl.enabled = 1
   AND acl.allow = 1;
 `);
+  }
+
+  async getAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<AccessGroupMembership | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT aro.value AS userValue, aro.name AS userName, ag.value AS groupValue, ag.name AS groupName
+FROM gacl_aro aro
+INNER JOIN gacl_groups_aro_map gm ON gm.aro_id = aro.id
+INNER JOIN gacl_aro_groups ag ON ag.id = gm.group_id
+WHERE aro.section_value = 'users'
+  AND aro.value = ${sqlString(input.userValue)}
+  AND ag.value = ${sqlString(input.groupValue)}
+ORDER BY ag.id
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      userValue: row.userValue,
+      userName: row.userName,
+      groupValue: row.groupValue,
+      groupName: row.groupName
+    } : null;
+  }
+
+  async grantAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<void> {
+    const groupRows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, name
+FROM gacl_aro_groups
+WHERE value = ${sqlString(input.groupValue)}
+LIMIT 1;
+`);
+    const group = groupRows[0];
+    if (!group) {
+      throw new Error(`Legacy ACL group not found: ${input.groupValue}`);
+    }
+
+    const userRows = await this.db.queryRows<Record<string, string>>(`
+SELECT username, fname AS firstName, lname AS lastName
+FROM users
+WHERE username = ${sqlString(input.userValue)}
+LIMIT 1;
+`);
+    const user = userRows[0];
+    if (!user) {
+      throw new Error(`Legacy ACL user not found: ${input.userValue}`);
+    }
+
+    let aroRows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM gacl_aro
+WHERE section_value = 'users'
+  AND value = ${sqlString(input.userValue)}
+LIMIT 1;
+`);
+    let aroId = Number(aroRows[0]?.id);
+    if (!Number.isInteger(aroId)) {
+      const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT COALESCE(MAX(id), 0) + 1 AS id
+FROM gacl_aro;
+`);
+      aroId = Number(nextRows[0]?.id);
+      const userName = `${user.lastName}, ${user.firstName}`;
+      await this.db.execute(`
+INSERT INTO gacl_aro (id, section_value, value, order_value, name, hidden)
+VALUES (${integer(aroId)}, 'users', ${sqlString(input.userValue)}, 10, ${sqlString(userName)}, 0);
+`);
+    }
+    if (!Number.isInteger(aroId)) {
+      throw new Error(`Legacy ACL ARO could not be created for: ${input.userValue}`);
+    }
+
+    await this.db.execute(`
+INSERT IGNORE INTO gacl_groups_aro_map (group_id, aro_id)
+VALUES (${integer(Number(group.id))}, ${integer(aroId)});
+`);
+  }
+
+  async revokeAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<void> {
+    await this.db.execute(`
+DELETE gm
+FROM gacl_groups_aro_map gm
+INNER JOIN gacl_aro aro ON aro.id = gm.aro_id
+INNER JOIN gacl_aro_groups ag ON ag.id = gm.group_id
+WHERE aro.section_value = 'users'
+  AND aro.value = ${sqlString(input.userValue)}
+  AND ag.value = ${sqlString(input.groupValue)};
+`);
+    await this.deleteOrphanAccessControlUser(input.userValue);
   }
 
   async getPatientContact(pid: number): Promise<PatientContact | null> {
@@ -1228,6 +1338,32 @@ INSERT INTO forms
 VALUES
   (${sqlString(input.dateTime)}, ${integer(input.encounter)}, ${sqlString(input.formName)}, ${integer(input.formId)},
    ${integer(input.patientId)}, 'admin', 'Default', 1, 0, ${sqlString(input.formDir)}, 1);
+`);
+  }
+
+  private async deleteAccessControlUser(userValue: string): Promise<void> {
+    await this.db.execute(`
+DELETE gm
+FROM gacl_groups_aro_map gm
+INNER JOIN gacl_aro aro ON aro.id = gm.aro_id
+WHERE aro.section_value = 'users'
+  AND aro.value = ${sqlString(userValue)};
+`);
+    await this.deleteOrphanAccessControlUser(userValue);
+  }
+
+  private async deleteOrphanAccessControlUser(userValue: string): Promise<void> {
+    if (userValue === "admin" || userValue === "oe-system") {
+      return;
+    }
+
+    await this.db.execute(`
+DELETE aro
+FROM gacl_aro aro
+LEFT JOIN gacl_groups_aro_map gm ON gm.aro_id = aro.id
+WHERE aro.section_value = 'users'
+  AND aro.value = ${sqlString(userValue)}
+  AND gm.aro_id IS NULL;
 `);
   }
 }

@@ -1919,12 +1919,78 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 044. Modernized User Group Membership Mutation Slice 22
+
+Commit: TBD
+
+Implemented the twenty-second modernized OpenEMR vertical slice: a focused administration user group membership mutation workflow, centered on creating a temporary user, assigning the Front Office access group, rendering the membership, revoking it, and cleaning up with React Admin membership controls, ASP.NET Core administration ACL membership endpoints, modernized PostgreSQL membership rows, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR phpGACL membership tables.
+
+Key outcomes:
+
+- Added normalized modernized `access_user_memberships` seed data for the default `admin` and `oe-system` Administrator memberships.
+- Added ASP.NET Core administration endpoints for granting and revoking user-to-access-group memberships, including user-delete cleanup for modernized membership rows.
+- Added React Admin User Group Membership controls with active-user and leaf-group selectors plus Assign/Revoke actions.
+- Added membership chips to modernized user directory cards so Playwright can verify browser-visible access membership state.
+- Expanded the modernized smoke script with a temporary user membership grant/revoke lifecycle that verifies baseline 2-to-3-to-2 membership counts.
+- Added legacy and modernized workflow action adapter methods for normalized ACL membership read/grant/revoke behavior.
+- Extended read-only access-control parity to verify the default ACL user memberships.
+- Added a shared `workflow-admin-memberships` parity suite and the `slice-22-user-group-membership-mutation-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 22 user group membership mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the user group membership mutation slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-20-access-control-readiness -Reset run`, passing the expanded access-control suite with default user membership assertions.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-20-access-control-readiness -Reset run`, passing the expanded access-control suite with default user membership assertions.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-20-access-control-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-22-user-group-membership-mutation-readiness -Reset test`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-22-user-group-membership-mutation-readiness -Reset test`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-22-user-group-membership-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AdministrationDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/admin-access-control/access-control.spec.ts`
+- `parity-tests/tests/workflow-admin-memberships/user-group-membership-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Reports exports, document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for reports, documents, broader ACL administration, user/group membership administration, and deeper billing/lab workflows.
+- Additional modernized workflow action adapters for reports, documents, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

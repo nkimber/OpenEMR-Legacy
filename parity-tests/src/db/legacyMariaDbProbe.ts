@@ -170,10 +170,19 @@ export type AdministrationAccessGroupPermissionSummary = {
   returnValue: string;
 };
 
+export type AdministrationAccessUserMembershipSummary = {
+  userValue: string;
+  userName: string;
+  groupValue: string;
+  groupName: string;
+  staffId: number | null;
+};
+
 export type AdministrationAccessControlSummary = {
   groups: AdministrationAccessGroupSummary[];
   permissions: AdministrationAccessPermissionSummary[];
   groupPermissions: AdministrationAccessGroupPermissionSummary[];
+  userMemberships: AdministrationAccessUserMembershipSummary[];
 };
 
 export type OperationalReportCounts = {
@@ -706,6 +715,17 @@ WHERE ag.id <> 10 AND acl.enabled = 1 AND acl.allow = 1 AND aco.hidden = 0
 ORDER BY ag.id, am.section_value, am.value, acl.return_value;
 `);
 
+    const userMemberships = await this.queryRows<Record<string, string>>(`
+SELECT aro.value AS userValue, aro.name AS userName, ag.value AS groupValue, ag.name AS groupName,
+  COALESCE(CAST(u.id AS CHAR), '') AS staffId
+FROM gacl_aro aro
+INNER JOIN gacl_groups_aro_map gm ON gm.aro_id = aro.id
+INNER JOIN gacl_aro_groups ag ON ag.id = gm.group_id
+LEFT JOIN users u ON u.username = aro.value
+WHERE aro.section_value = 'users'
+ORDER BY ag.id, aro.value;
+`);
+
     return {
       groups: groups.map((row) => ({
         id: Number(row.id),
@@ -725,6 +745,13 @@ ORDER BY ag.id, am.section_value, am.value, acl.return_value;
         permissionValue: row.permissionValue,
         permissionName: row.permissionName,
         returnValue: row.returnValue
+      })),
+      userMemberships: userMemberships.map((row): AdministrationAccessUserMembershipSummary => ({
+        userValue: row.userValue,
+        userName: row.userName,
+        groupValue: row.groupValue,
+        groupName: row.groupName,
+        staffId: row.staffId ? Number(row.staffId) : null
       }))
     };
   }
