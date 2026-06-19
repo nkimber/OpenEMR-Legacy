@@ -2099,12 +2099,92 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 047. Modernized Patient Documents Read-Only Slice 25
+
+Commit: current slice commit
+
+Implemented the twenty-fifth modernized OpenEMR vertical slice: read-only patient documents, centered on deterministic gold-data document records, OpenEMR-style document categories, patient document metadata, text payload previews, a React Documents workspace, ASP.NET Core documents API, normalized legacy MariaDB and modernized PostgreSQL probes, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR document-list surface.
+
+Key outcomes:
+
+- Added 1,200 deterministic patient document records to the shared gold dataset, including stable `MOD-PAT-0001` anchors for `Primary care intake packet` and `Advance directive acknowledgement`.
+- Extended the legacy seed to populate OpenEMR `documents` and `categories_to_documents` rows, and extended the modernized seed to populate a normalized `patient_documents` table.
+- Added `/api/documents/{patientId}` to the modernized ASP.NET Core API for patient document metadata, categories, encounter links, storage method, and content previews.
+- Added a React Documents workspace with patient lookup, category summary, document counts, linked encounter counts, page counts, document cards, metadata, and content previews.
+- Extended operational reports and CSV export to include the shared 1,200 patient-document count.
+- Added normalized legacy MariaDB and modernized PostgreSQL patient document probes.
+- Added a shared `documents` parity suite and the `slice-25-documents-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 25 documents plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the documents slice.
+
+Verified test runs:
+
+- `npx --version` from the repository root, confirming `11.8.0`.
+- `dotnet --version` from the repository root, confirming SDK `10.0.301`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.slnx` in `modernized-openemr/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-LegacyGoldDataset.ps1` from `legacy-openemr/`, validating 1,200 patient documents and document temporal coverage.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`, copying 1,200 `patient_documents` rows.
+- `.\scripts\Test-LegacyBaseline.ps1` from `legacy-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-25-documents-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-25-documents-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-25-documents-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-9-reports-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-9-reports-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-9-reports-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-24-reports-export-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-24-reports-export-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-24-reports-export-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ReportRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ReportDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/tests/documents/patient-documents.spec.ts`
+- `parity-tests/tests/reports/operational-reports.spec.ts`
+- `parity-tests/tests/reports-export/operational-reports-export.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for reports, documents, broader ACL administration, and deeper billing/lab workflows.
+- Binary document storage, scanned attachments, upload/delete workflows, and integration adapters.
+- Additional modernized workflow action adapters for reports, broader ACL administration, document mutation, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

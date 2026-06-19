@@ -23,6 +23,7 @@
     "labReports": 700,
     "labResults": 2400,
     "messages": 1200,
+    "patientDocuments": 1200,
     "billingLineItems": 3000,
     "portalPatients": 200
   },
@@ -91,6 +92,13 @@
       "futureCurrentYear": 32,
       "minDate": "2025-06-18",
       "maxDate": "2026-06-19"
+    },
+    "patientDocuments": {
+      "total": 1200,
+      "currentYear": 1152,
+      "futureCurrentYear": 0,
+      "minDate": "2025-12-25",
+      "maxDate": "2026-06-12"
     }
   },
   "cohorts": {

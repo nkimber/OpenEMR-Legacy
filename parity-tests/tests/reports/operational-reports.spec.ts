@@ -20,6 +20,7 @@ test.describe("operational reports parity @slice9 @reports", () => {
     expect(reports.counts.billingLines).toBe(3000);
     expect(reports.counts.billingTotal).toBe(446000);
     expect(reports.counts.labReports).toBe(700);
+    expect(reports.counts.patientDocuments).toBe(1200);
     expect(reports.counts.messages).toBe(1200);
     expect(reports.counts.newMessages).toBe(1000);
     expect(reports.counts.doneMessages).toBe(200);
@@ -72,6 +73,8 @@ test.describe("operational reports parity @slice9 @reports", () => {
     await expect(page.locator("body")).toContainText("Gold Data Snapshot");
     await expect(page.locator("body")).toContainText("Future appointments");
     await expect(page.locator("body")).toContainText("1261");
+    await expect(page.locator("body")).toContainText("Documents");
+    await expect(page.locator("body")).toContainText("1200");
     await expect(page.locator("body")).toContainText("$446000.00");
     await expect(page.locator("body")).toContainText("gold-provider-02");
     await expect(page.locator("body")).toContainText("North County Clinic");

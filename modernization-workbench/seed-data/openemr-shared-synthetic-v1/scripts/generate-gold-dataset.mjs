@@ -174,6 +174,16 @@ const labPanels = [
   ["80053", "Comprehensive metabolic panel", [["2951-2", "Sodium", "mmol/L", "140", "135-145"], ["2823-3", "Potassium", "mmol/L", "4.2", "3.5-5.1"], ["2160-0", "Creatinine", "mg/dL", "0.9", "0.6-1.3"], ["3094-0", "Urea nitrogen", "mg/dL", "14", "7-20"]]],
   ["85025", "Complete blood count", [["789-8", "Erythrocytes", "10*6/uL", "4.6", "4.1-5.9"], ["718-7", "Hemoglobin", "g/dL", "13.8", "12.0-17.5"], ["777-3", "Platelets", "10*3/uL", "245", "150-400"], ["6690-2", "Leukocytes", "10*3/uL", "6.8", "4.0-11.0"]]]
 ];
+const documentCategories = [
+  { id: 3, name: "Medical Record", templateName: "Primary care intake packet", mimetype: "text/plain", pages: 4, documentationOf: "patient-record" },
+  { id: 2, name: "Lab Report", templateName: "External lab summary", mimetype: "text/plain", pages: 3, documentationOf: "laboratory-result" },
+  { id: 4, name: "Patient Information", templateName: "Registration packet", mimetype: "text/plain", pages: 2, documentationOf: "patient-information" },
+  { id: 5, name: "Patient ID card", templateName: "Identity verification card", mimetype: "text/plain", pages: 1, documentationOf: "identity-document" },
+  { id: 6, name: "Advance Directive", templateName: "Advance directive acknowledgement", mimetype: "text/plain", pages: 2, documentationOf: "advance-directive" },
+  { id: 13, name: "CCDA", templateName: "Continuity of care document", mimetype: "application/xml", pages: 5, documentationOf: "ccda" },
+  { id: 29, name: "Reviewed", templateName: "Reviewed outside record", mimetype: "text/plain", pages: 3, documentationOf: "reviewed-record" },
+  { id: 31, name: "Invoices", templateName: "Patient statement archive", mimetype: "text/plain", pages: 2, documentationOf: "billing-document" }
+];
 
 const curatedPatients = [
   ["Avery", "Stone", "patient-search", "Stable search and demographics navigation"],
@@ -496,6 +506,78 @@ patients.slice(700, 1000).forEach((patient, futureIndex) => {
   });
 });
 
+const encountersByPid = encounters.reduce((groups, encounter) => {
+  const patientEncounters = groups.get(encounter.pid) ?? [];
+  patientEncounters.push(encounter);
+  groups.set(encounter.pid, patientEncounters);
+  return groups;
+}, new Map());
+
+function encounterForDocument(patient, docDate) {
+  const patientEncounters = encountersByPid.get(patient.pid) ?? [];
+  const eligible = patientEncounters
+    .filter((encounter) => encounter.date <= docDate)
+    .sort((left, right) => right.date.localeCompare(left.date) || right.encounter - left.encounter);
+  return eligible[0] ?? patientEncounters[0] ?? null;
+}
+
+const patientDocuments = [];
+patients.slice(0, 900).forEach((patient, index) => {
+  const count = index < 300 ? 2 : 1;
+  for (let sequence = 1; sequence <= count; sequence += 1) {
+    const anchorPrimary = index === 0 && sequence === 1;
+    const anchorDirective = index === 0 && sequence === 2;
+    const category = anchorPrimary
+      ? documentCategories[0]
+      : anchorDirective
+        ? documentCategories[4]
+        : documentCategories[(index + sequence) % documentCategories.length];
+    const id = 8000000 + patientDocuments.length + 1;
+    const docDate = anchorPrimary
+      ? "2026-06-10"
+      : anchorDirective
+        ? "2026-06-12"
+        : addDays(baseDate, -180 + ((index * 7 + sequence * 13) % 175));
+    const uploadedAt = at(docDate, 13 + (sequence % 4), (index + sequence) % 2 ? 30 : 0);
+    const encounter = encounterForDocument(patient, docDate);
+    const documentKey = `DOC-${patient.canonicalId}-${sequence}`;
+    const name = anchorPrimary || anchorDirective
+      ? category.templateName
+      : `${category.templateName} ${pad(sequence, 2)}`;
+    const content = [
+      `Gold synthetic document ${documentKey}`,
+      `Patient: ${patient.fname} ${patient.lname} (${patient.canonicalId})`,
+      `Category: ${category.name}`,
+      `Document: ${name}`,
+      `Document date: ${docDate}`,
+      `Encounter: ${encounter?.encounter ?? "none"}`,
+      `Purpose: ${patient.purpose}`
+    ].join("\n");
+
+    patientDocuments.push({
+      id,
+      documentKey,
+      patientId: patient.canonicalId,
+      pid: patient.pid,
+      categoryId: category.id,
+      categoryName: category.name,
+      name,
+      docDate,
+      uploadedAt,
+      mimetype: category.mimetype,
+      sizeBytes: Buffer.byteLength(content, "utf8"),
+      pages: category.pages + ((index + sequence) % 2),
+      encounter: encounter?.encounter ?? null,
+      storageMethod: "database",
+      url: `gold://documents/${id}.txt`,
+      hash: crypto.createHash("sha1").update(content).digest("hex"),
+      documentationOf: category.documentationOf,
+      notes: `Synthetic ${category.name.toLowerCase()} document for ${patient.cohort}.`,
+      content
+    });
+  }
+});
+
 function listRows(items) {
   return items.map((item) => ({
     uuid: raw(sqlUuid(item.id)),
@@ -544,6 +626,7 @@ const dataset = {
   labOrders,
   labReports,
   labResults,
+  patientDocuments,
   temporalCoverage: {
     asOfDate: baseDate,
     currentYear: baseDate.slice(0, 4),
@@ -555,7 +638,8 @@ const dataset = {
     procedureReports: coverageFor(labReports, (report) => report.date),
     procedureResults: coverageFor(labResults, (result) => result.date),
     messages: coverageFor(messages, (message) => message.date),
-    billingLineItems: coverageFor(billing, (line) => line.date)
+    billingLineItems: coverageFor(billing, (line) => line.date),
+    patientDocuments: coverageFor(patientDocuments, (document) => document.docDate)
   },
   testAnchors: patients.slice(0, 25).map((patient) => ({ canonicalId: patient.canonicalId, name: `${patient.fname} ${patient.lname}`, cohort: patient.cohort, purpose: patient.purpose }))
 };
@@ -582,6 +666,7 @@ const summary = {
     labReports: labReports.length,
     labResults: labResults.length,
     messages: messages.length,
+    patientDocuments: patientDocuments.length,
     billingLineItems: billing.length,
     portalPatients: patients.filter((patient) => patient.portalEnabled).length
   },
@@ -602,6 +687,8 @@ function buildLegacySql() {
     "DELETE FROM procedure_order;",
     "DELETE FROM prescriptions;",
     "DELETE FROM pnotes;",
+    "DELETE FROM categories_to_documents WHERE document_id BETWEEN 8000001 AND 8001200;",
+    "DELETE FROM documents WHERE id BETWEEN 8000001 AND 8001200 OR url LIKE 'gold://documents/%';",
     "DELETE FROM forms;",
     "DELETE FROM form_soap;",
     "DELETE FROM form_vitals;",
@@ -853,6 +940,39 @@ function buildLegacySql() {
     assigned_to: "admin",
     message_status: message.status
   })), 200));
+
+  statements.push(insert("documents", ["id", "uuid", "type", "size", "date", "url", "mimetype", "pages", "owner", "revision", "foreign_id", "docdate", "hash", "list_id", "name", "storagemethod", "path_depth", "imported", "encounter_id", "encounter_check", "audit_master_approval_status", "documentationOf", "encrypted", "document_data", "deleted"], patientDocuments.map((document) => ({
+    id: document.id,
+    uuid: raw(sqlUuid(document.documentKey)),
+    type: "blob",
+    size: document.sizeBytes,
+    date: document.uploadedAt,
+    url: document.url,
+    mimetype: document.mimetype,
+    pages: document.pages,
+    owner: 1,
+    revision: document.uploadedAt,
+    foreign_id: document.pid,
+    docdate: document.docDate,
+    hash: document.hash,
+    list_id: 0,
+    name: document.name,
+    storagemethod: 0,
+    path_depth: 1,
+    imported: 0,
+    encounter_id: document.encounter ?? 0,
+    encounter_check: 0,
+    audit_master_approval_status: 1,
+    documentationOf: document.documentationOf,
+    encrypted: 0,
+    document_data: document.content,
+    deleted: 0
+  })), 200));
+
+  statements.push(insert("categories_to_documents", ["category_id", "document_id"], patientDocuments.map((document) => ({
+    category_id: document.categoryId,
+    document_id: document.id
+  })), 300));
 
   statements.push(insert("billing", ["date", "code_type", "code", "pid", "provider_id", "user", "groupname", "authorized", "encounter", "code_text", "billed", "activity", "units", "fee", "justify"], billing.map((line) => ({
     date: line.date,

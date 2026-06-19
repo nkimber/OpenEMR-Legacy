@@ -15,6 +15,7 @@ import type {
   GoldCountMap,
   OperationalReportsSummary,
   OperationalReportExportRow,
+  PatientDocumentsSummary,
   PatientMessagesSummary,
   PatientRecord,
   ProcedureOrderSummary,
@@ -84,6 +85,7 @@ UNION ALL SELECT 'labOrders', COUNT(*) FROM lab_orders
 UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
 UNION ALL SELECT 'labResults', COUNT(*) FROM lab_results
 UNION ALL SELECT 'messages', COUNT(*) FROM messages
+UNION ALL SELECT 'patientDocuments', COUNT(*) FROM patient_documents WHERE deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled = true;
 `);
@@ -138,7 +140,12 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN billing_date >= '${yearStart}' AND billing_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN billing_date > '${asOfDate}' AND billing_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
   MIN(billing_date), MAX(billing_date)
-FROM billing;
+FROM billing
+UNION ALL SELECT 'patientDocuments', COUNT(*),
+  COALESCE(SUM(CASE WHEN doc_date >= '${yearStart}' AND doc_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN doc_date > '${asOfDate}' AND doc_date < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  MIN(doc_date), MAX(doc_date)
+FROM patient_documents WHERE deleted = 0;
 `);
     return Object.fromEntries(
       rows.map((row) => [
@@ -190,6 +197,7 @@ UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE pid = ${pid}
 UNION ALL SELECT 'medications', COUNT(*) FROM medications WHERE pid = ${pid}
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE pid = ${pid}
 UNION ALL SELECT 'messages', COUNT(*) FROM messages WHERE pid = ${pid}
+UNION ALL SELECT 'documents', COUNT(*) FROM patient_documents WHERE pid = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM lab_orders WHERE pid = ${pid}
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid};
 `);
@@ -353,6 +361,42 @@ ORDER BY m.message_date DESC, m.id DESC;
     };
   }
 
+  async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
+  name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
+  COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
+  COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
+  COALESCE(url, '') AS url, COALESCE(hash, '') AS hash, COALESCE(notes, '') AS notes,
+  left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview"
+FROM patient_documents
+WHERE pid = ${pid} AND deleted = 0
+ORDER BY doc_date DESC, id DESC;
+`);
+
+    return {
+      patientId: pid,
+      documents: rows.map((row) => ({
+        id: Number(row.id),
+        documentKey: row.documentKey,
+        categoryId: Number(row.categoryId),
+        categoryName: row.categoryName,
+        name: row.name,
+        docDate: row.docDate,
+        uploadedAt: row.uploadedAt,
+        mimetype: row.mimetype,
+        sizeBytes: Number(row.sizeBytes),
+        pages: Number(row.pages),
+        encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
+        storageMethod: row.storageMethod,
+        url: row.url,
+        hash: row.hash,
+        notes: row.notes,
+        contentPreview: row.contentPreview
+      }))
+    };
+  }
+
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, encounter, code_type AS "codeType", code, code_text AS "codeText",
@@ -509,6 +553,7 @@ UNION ALL SELECT 'currentYearEncounters', COUNT(*) FROM encounters WHERE encount
 UNION ALL SELECT 'billingLines', COUNT(*) FROM billing
 UNION ALL SELECT 'billingTotal', COALESCE(SUM(fee), 0) FROM billing
 UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
+UNION ALL SELECT 'patientDocuments', COUNT(*) FROM patient_documents WHERE deleted = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM messages
 UNION ALL SELECT 'newMessages', COUNT(*) FROM messages WHERE status = 'New'
 UNION ALL SELECT 'doneMessages', COUNT(*) FROM messages WHERE status = 'Done'
@@ -589,6 +634,7 @@ LIMIT 8;
         billingLines: countMap.billingLines,
         billingTotal: countMap.billingTotal,
         labReports: countMap.labReports,
+        patientDocuments: countMap.patientDocuments,
         messages: countMap.messages,
         newMessages: countMap.newMessages,
         doneMessages: countMap.doneMessages,

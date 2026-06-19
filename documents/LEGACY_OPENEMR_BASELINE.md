@@ -179,6 +179,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared user group membership mutation plan now runs against the legacy target as the legacy half of Slice 22 side-by-side parity, covering temporary-user Front Office membership grant/revoke behavior in the legacy phpGACL tables.
 - Shared pending procedure orders plan now runs against the legacy target as the legacy half of Slice 23 side-by-side parity, covering future scheduled procedure orders that intentionally have no linked report rows.
 - Shared reports export plan now runs against the legacy target as the legacy half of Slice 24 side-by-side parity, covering normalized operational report export rows and the legacy Patient List `Export to CSV` affordance.
+- Shared patient documents plan now runs against the legacy target as the legacy half of Slice 25 side-by-side parity, covering seeded patient documents through OpenEMR's document list controller.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 
@@ -206,6 +207,7 @@ The shared gold dataset has been imported and verified with these checks:
 - Lab reports: 700
 - Lab results: 2,400
 - Messages: 1,200
+- Patient documents: 1,200
 - Billing line items: 3,000
 - Portal-enabled patients: 200
 
@@ -216,13 +218,14 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 - Medication list entries: 2,200 in 2026, including 1,175 future-starting entries after 2026-06-18 and through 2026-12-31.
 - Procedure orders: 1,000 in 2026, including 300 future scheduled orders after 2026-06-18 and through 2026-12-31.
 - Procedure results: 2,400 completed results in 2026. Future scheduled procedure orders intentionally do not have final result rows.
+- Patient documents: 1,200 total, including 1,152 dated in 2026 and anchored by `MOD-PAT-0001` document records on 2026-06-10 and 2026-06-12.
 
 `Seed-LegacyGoldDataset.ps1` now validates the generated temporal coverage contract after applying the seed, so count and date-coverage regressions are both caught by the same legacy seed action.
 
 ## Current Gaps
 
-- The modernized PostgreSQL seed adapter now exists for patient, scheduling, encounter, clinical-list, messaging, procedure-result, pending procedure-order, fee-sheet billing, administration directory, access-control, operational reporting, contact mutation, appointment mutation, encounter mutation, clinical-list allergy mutation, patient-message mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, access-permission mutation, user group membership mutation, and supporting gold-data tables; additional mutation-oriented seed and workflow behavior will expand slice by slice.
-- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, read-only patient-message facts, read-only completed procedure results, read-only pending/scheduled procedure orders, read-only fee-sheet billing facts, read-only administration directory facts, read-only access-control facts, read-only operational report facts, patient contact mutation behavior, appointment mutation behavior, encounter mutation behavior, clinical-list allergy mutation behavior, patient-message mutation behavior, prescription mutation behavior, billing mutation behavior, procedure mutation behavior, admin facility mutation behavior, admin user mutation behavior, access-permission mutation behavior, and user group membership mutation behavior; broader mutation workflow adapters remain future work.
+- The modernized PostgreSQL seed adapter now exists for patient, scheduling, encounter, clinical-list, messaging, procedure-result, pending procedure-order, fee-sheet billing, administration directory, access-control, operational reporting, patient documents, contact mutation, appointment mutation, encounter mutation, clinical-list allergy mutation, patient-message mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, access-permission mutation, user group membership mutation, and supporting gold-data tables; additional mutation-oriented seed and workflow behavior will expand slice by slice.
+- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, read-only patient-message facts, read-only completed procedure results, read-only pending/scheduled procedure orders, read-only fee-sheet billing facts, read-only administration directory facts, read-only access-control facts, read-only operational report facts, read-only patient document facts, patient contact mutation behavior, appointment mutation behavior, encounter mutation behavior, clinical-list allergy mutation behavior, patient-message mutation behavior, prescription mutation behavior, billing mutation behavior, procedure mutation behavior, admin facility mutation behavior, admin user mutation behavior, access-permission mutation behavior, and user group membership mutation behavior; broader mutation workflow adapters remain future work.
 - The OpenEMR-native PHPUnit stable lane is runnable and verified, but the full upstream isolated suite remains environment-sensitive on the Windows bind-mounted checkout.
 - OpenEMR-native Panther browser tests have not been wired into the Workbench yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.

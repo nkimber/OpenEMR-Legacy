@@ -13,6 +13,7 @@ param(
         "encounters",
         "clinical-lists",
         "messages",
+        "documents",
         "procedures",
         "procedure-pending-orders",
         "billing",

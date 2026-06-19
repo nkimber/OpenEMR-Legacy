@@ -222,6 +222,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-25-documents-readiness",
+      "name": "Slice 25 Documents Readiness",
+      "description": "Read-only patient document confidence plan that verifies filed document metadata, categories, encounter links, and visible document list behavior on both legacy and modernized targets.",
+      "suites": ["documents"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-25", "documents", "patient-files", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -243,7 +252,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -375,6 +384,16 @@
       "layer": "parity",
       "path": "tests/reports-export",
       "tags": ["slice24", "reports", "exports", "csv", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "documents",
+      "name": "Patient Documents",
+      "description": "Compares read-only patient document metadata and document-list rendering against the legacy patient Documents screen using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/documents",
+      "tags": ["slice25", "documents", "patient-files", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

@@ -78,6 +78,7 @@ UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
+UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 "@
@@ -161,7 +162,12 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date) >= '$yearStart' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(date) > '$AsOfDate' AND DATE(date) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
   DATE(MIN(date)), DATE(MAX(date))
-FROM billing;
+FROM billing
+UNION ALL SELECT 'patientDocuments', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(docdate) >= '$yearStart' AND DATE(docdate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(docdate) > '$AsOfDate' AND DATE(docdate) < '$yearEndExclusive' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(docdate)), DATE(MAX(docdate))
+FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0;
 "@
 
     $map = [ordered]@{}

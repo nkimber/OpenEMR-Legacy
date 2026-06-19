@@ -9,8 +9,9 @@ test.describe("operational reports export parity @slice24 @reports-export", () =
   test("normalized operational report export rows match the gold data contract", async ({ targetDb }) => {
     const rows = await targetDb.getOperationalReportExportRows();
 
-    expect(rows).toHaveLength(78);
+    expect(rows).toHaveLength(79);
     expect(rows).toContainEqual({ section: "Counts", name: "Patients", metric: "Total", value: "1000" });
+    expect(rows).toContainEqual({ section: "Counts", name: "Patient Documents", metric: "Total", value: "1200" });
     expect(rows).toContainEqual({
       section: "Counts",
       name: "Billing Total",
@@ -83,6 +84,7 @@ test.describe("operational reports export parity @slice24 @reports-export", () =
     const csv = await response.text();
     expect(csv).toContain("Section,Name,Metric,Value");
     expect(csv).toContain("Counts,Patients,Total,1000");
+    expect(csv).toContain("Counts,Patient Documents,Total,1200");
     expect(csv).toContain("Provider Activity,gold-provider-02,Encounters,176");
     expect(csv).toContain("Facility Activity,NORTH,Billing Total,148904.00");
     expect(csv).toContain('Clinical Conditions,ICD10:J45.909,Title,"Asthma, uncomplicated"');

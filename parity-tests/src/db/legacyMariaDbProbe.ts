@@ -104,6 +104,30 @@ export type PatientMessagesSummary = {
   messages: PatientMessageSummary[];
 };
 
+export type PatientDocumentSummary = {
+  id: number;
+  documentKey: string;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  uploadedAt: string;
+  mimetype: string;
+  sizeBytes: number;
+  pages: number;
+  encounter: number | null;
+  storageMethod: string;
+  url: string;
+  hash: string;
+  notes: string;
+  contentPreview: string;
+};
+
+export type PatientDocumentsSummary = {
+  patientId: number;
+  documents: PatientDocumentSummary[];
+};
+
 export type BillingLineSummary = {
   id: string;
   encounter: number;
@@ -196,6 +220,7 @@ export type OperationalReportCounts = {
   billingLines: number;
   billingTotal: number;
   labReports: number;
+  patientDocuments: number;
   messages: number;
   newMessages: number;
   doneMessages: number;
@@ -338,6 +363,7 @@ UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
+UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 `);
@@ -392,7 +418,12 @@ UNION ALL SELECT 'billingLineItems', COUNT(*),
   COALESCE(SUM(CASE WHEN DATE(date) >= '${yearStart}' AND DATE(date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN DATE(date) > '${asOfDate}' AND DATE(date) < '${nextYear}' THEN 1 ELSE 0 END), 0),
   DATE(MIN(date)), DATE(MAX(date))
-FROM billing;
+FROM billing
+UNION ALL SELECT 'patientDocuments', COUNT(*),
+  COALESCE(SUM(CASE WHEN DATE(docdate) >= '${yearStart}' AND DATE(docdate) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  COALESCE(SUM(CASE WHEN DATE(docdate) > '${asOfDate}' AND DATE(docdate) < '${nextYear}' THEN 1 ELSE 0 END), 0),
+  DATE(MIN(docdate)), DATE(MAX(docdate))
+FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0;
 `);
     return Object.fromEntries(
       rows.map((row) => [
@@ -443,6 +474,7 @@ UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 
 UNION ALL SELECT 'medications', COUNT(*) FROM lists WHERE pid = ${pid} AND type = 'medication'
 UNION ALL SELECT 'prescriptions', COUNT(*) FROM prescriptions WHERE patient_id = ${pid}
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes WHERE pid = ${pid}
+UNION ALL SELECT 'documents', COUNT(*) FROM documents WHERE foreign_id = ${pid} AND deleted = 0
 UNION ALL SELECT 'procedureOrders', COUNT(*) FROM procedure_order WHERE patient_id = ${pid}
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing WHERE pid = ${pid};
 `);
@@ -615,6 +647,54 @@ ORDER BY pn.date DESC, pn.id DESC;
     };
   }
 
+  async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT d.id,
+  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  COALESCE(c.id, 0) AS categoryId,
+  COALESCE(c.name, '') AS categoryName,
+  d.name,
+  DATE(d.docdate) AS docDate,
+  d.date AS uploadedAt,
+  COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.size, 0) AS sizeBytes,
+  COALESCE(d.pages, 0) AS pages,
+  COALESCE(d.encounter_id, 0) AS encounter,
+  CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
+  COALESCE(d.url, '') AS url,
+  COALESCE(d.hash, '') AS hash,
+  COALESCE(d.documentationOf, '') AS notes,
+  LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
+FROM documents d
+LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
+LEFT JOIN categories c ON c.id = ctd.category_id
+WHERE d.foreign_id = ${pid} AND d.deleted = 0 AND d.id BETWEEN 8000001 AND 8001200
+ORDER BY d.docdate DESC, d.id DESC;
+`);
+
+    return {
+      patientId: pid,
+      documents: rows.map((row) => ({
+        id: Number(row.id),
+        documentKey: row.documentKey,
+        categoryId: Number(row.categoryId),
+        categoryName: row.categoryName,
+        name: row.name,
+        docDate: row.docDate,
+        uploadedAt: row.uploadedAt,
+        mimetype: row.mimetype,
+        sizeBytes: Number(row.sizeBytes),
+        pages: Number(row.pages),
+        encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
+        storageMethod: row.storageMethod,
+        url: row.url,
+        hash: row.hash,
+        notes: row.notes,
+        contentPreview: row.contentPreview
+      }))
+    };
+  }
+
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, encounter, code_type AS codeType, code, code_text AS codeText,
@@ -778,6 +858,7 @@ UNION ALL SELECT 'currentYearEncounters', COUNT(*) FROM form_encounter WHERE DAT
 UNION ALL SELECT 'billingLines', COUNT(*) FROM billing
 UNION ALL SELECT 'billingTotal', COALESCE(SUM(fee), 0) FROM billing
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
+UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
 UNION ALL SELECT 'newMessages', COUNT(*) FROM pnotes WHERE message_status = 'New'
 UNION ALL SELECT 'doneMessages', COUNT(*) FROM pnotes WHERE message_status = 'Done'
@@ -856,6 +937,7 @@ LIMIT 8;
         billingLines: countMap.billingLines,
         billingTotal: countMap.billingTotal,
         labReports: countMap.labReports,
+        patientDocuments: countMap.patientDocuments,
         messages: countMap.messages,
         newMessages: countMap.newMessages,
         doneMessages: countMap.doneMessages,
@@ -1059,6 +1141,7 @@ export function buildOperationalReportExportRows(reports: OperationalReportsSumm
   add("Counts", "Billing Lines", "Total", reports.counts.billingLines);
   addMoney("Counts", "Billing Total", "USD", reports.counts.billingTotal);
   add("Counts", "Lab Reports", "Total", reports.counts.labReports);
+  add("Counts", "Patient Documents", "Total", reports.counts.patientDocuments);
   add("Counts", "Messages", "Total", reports.counts.messages);
   add("Counts", "New Messages", "Total", reports.counts.newMessages);
   add("Counts", "Done Messages", "Total", reports.counts.doneMessages);

@@ -20,6 +20,22 @@ export async function openPatientNotesDirect(page: Page, target: RuntimeTarget, 
   await expectRenderedText(page, /Patient Notes|Messages|Notes/i);
 }
 
+export async function openPatientDocumentsDirect(page: Page, target: RuntimeTarget, pid: number) {
+  await page.goto(`${target.publicUrl}/controller.php?document&list&patient_id=${pid}`);
+  await expectRenderedText(page, /Documents|Patient Documents|Document/i);
+}
+
+export async function expandPatientDocumentCategories(page: Page, categoryNames: string[]) {
+  for (const categoryName of categoryNames) {
+    const categoryLink = page.locator("a", { hasText: categoryName }).first();
+    await expect(categoryLink).toBeVisible();
+    const expander = categoryLink.locator('xpath=ancestor::nobr[1]/img[contains(@src, "plus.gif")]').first();
+    if ((await expander.count()) > 0) {
+      await expander.click();
+    }
+  }
+}
+
 export async function openEncounterDirect(page: Page, target: RuntimeTarget, pid: number, encounter: number) {
   await page.goto(`${target.publicUrl}/interface/patient_file/encounter/encounter_top.php?set_pid=${pid}&set_encounter=${encounter}`);
   await expectRenderedText(page, /Encounter|Summary/i);

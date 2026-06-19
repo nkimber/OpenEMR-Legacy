@@ -343,7 +343,7 @@ Status:
 
 Scope:
 
-- Gold-data operational report snapshot covering patients, portal-enabled patients, appointments, future appointments, current-year activity, encounters, billing totals, lab reports, messages, facilities, and providers.
+- Gold-data operational report snapshot covering patients, portal-enabled patients, appointments, future appointments, current-year activity, encounters, billing totals, lab reports, patient documents, messages, facilities, and providers.
 - Provider activity reports with encounter counts, billing-line counts, and seeded charge totals.
 - Facility activity reports with appointment counts, encounter counts, billing-line counts, and seeded charge totals.
 - Clinical condition summary reports over active problem-list entries.
@@ -354,13 +354,13 @@ Scope:
 Acceptance:
 
 - Reports module is selectable from the modernized left navigation.
-- The modernized API returns the stable operational-report anchors: 1,000 patients, 1,261 future appointments, 1,100 current-year encounters, 3,000 billing lines, `$446,000.00` seeded charges, `gold-provider-02` activity, NORTH facility activity, and `Asthma, uncomplicated` condition count.
+- The modernized API returns the stable operational-report anchors: 1,000 patients, 1,261 future appointments, 1,100 current-year encounters, 3,000 billing lines, `$446,000.00` seeded charges, 1,200 patient documents, `gold-provider-02` activity, NORTH facility activity, and `Asthma, uncomplicated` condition count.
 - The `slice-9-reports-readiness` plan passes against both legacy and modernized targets with no comparison differences.
 
 Current limitations:
 
 - This slice is read-only.
-- CSV export generation is covered by Slice 24. Saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Saved report definitions, binary document storage, scanned attachments, upload/delete workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -773,7 +773,38 @@ Acceptance:
 Current limitations:
 
 - This slice covers operational report CSV export only.
-- Saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
+- Saved report definitions, binary document storage, scanned attachments, patient document upload/delete workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
+
+### Slice 25: Patient Documents Read-Only
+
+Status:
+
+- Implemented as the thirteenth read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-25-documents-readiness` plan, which compares seeded patient document metadata and browser-visible document lists on both legacy and modernized targets.
+
+Scope:
+
+- Gold dataset now includes 1,200 deterministic patient document records across 900 patients, with OpenEMR-style document categories and text payload previews.
+- Legacy seed maps the document records into OpenEMR `documents` and `categories_to_documents` rows.
+- Modernized PostgreSQL seed maps the same records into a normalized `patient_documents` table.
+- ASP.NET Core documents API exposes `/api/documents/{patientId}` for patient document metadata, categories, dates, encounter links, storage method, and content preview.
+- React Documents workspace lets users load a patient by canonical id and review filed documents, categories, linked encounters, page counts, storage metadata, and content previews.
+- Operational reports and CSV export include the 1,200 document count so reporting remains aligned with the shared gold dataset.
+- Workbench-managed slice-25 documents plan is available for both legacy and modernized targets.
+- Modernized smoke coverage validates the `MOD-PAT-0001` document anchors and the operational report document count.
+
+Acceptance:
+
+- The modernized Documents module is selectable from the left navigation.
+- `MOD-PAT-0001` shows `Primary care intake packet` in `Medical Record` and `Advance directive acknowledgement` in `Advance Directive`.
+- The modernized API returns stable document metadata, category ids, document dates, storage method `database`, and content previews for the same anchor records.
+- The `slice-25-documents-readiness` plan verifies the same patient document facts plus browser-visible document behavior against both legacy and modernized targets.
+
+Current limitations:
+
+- This slice is read-only.
+- It covers document metadata and text payload previews, not binary scan storage.
+- Upload, delete, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices.
 
 ## Test Strategy
 
@@ -860,3 +891,4 @@ As of 2026-06-19:
 - The twenty-second modernized vertical slice implements focused administration user group membership mutation with React Admin Assign/Revoke controls, ASP.NET Core administration ACL membership endpoints, PostgreSQL access membership rows, modernized workflow action adapter methods, Workbench user group membership mutation plan action, smoke coverage, and side-by-side slice-22 parity evidence.
 - The twenty-third modernized vertical slice implements pending/scheduled procedure-order visibility with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized reportless-order probes, Workbench pending procedure order plan action, smoke coverage, and side-by-side slice-23 parity evidence.
 - The twenty-fourth modernized vertical slice implements operational reports CSV export with a React Reports export action, ASP.NET Core CSV endpoint, normalized report export rows, Workbench reports export plan action, smoke coverage, and side-by-side slice-24 parity evidence.
+- The twenty-fifth modernized vertical slice implements read-only patient documents with a React Documents workspace, ASP.NET Core documents API, PostgreSQL patient document mapping, expanded gold-data document records, Workbench documents plan action, smoke coverage, and side-by-side slice-25 parity evidence.
