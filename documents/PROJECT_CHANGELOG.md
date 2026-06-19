@@ -1987,7 +1987,7 @@ Primary files:
 
 ### 045. Modernized Pending Procedure Orders Slice 23
 
-Commit: TBD
+Commit: `278d2f5`
 
 Implemented the twenty-third modernized OpenEMR vertical slice: read-only pending/scheduled procedure-order visibility, centered on the gold dataset's future scheduled, reportless lab orders with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized legacy MariaDB and modernized PostgreSQL probes, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR procedure results screen.
 
