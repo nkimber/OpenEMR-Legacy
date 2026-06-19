@@ -1343,6 +1343,33 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused active text payload replacement only.
+
+### Slice 44: Fee-Sheet Diagnosis Coding Mutation
+
+Status:
+
+- Implemented as the twenty-eighth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-44-billing-diagnosis-readiness` plan, which creates, renders, deactivates, and removes a temporary ICD10 fee-sheet diagnosis line on both legacy and modernized targets.
+
+Scope:
+
+- React Fees workspace now exposes a New Diagnosis Line form that creates `ICD10` billing rows with zero fee and diagnosis-code justification.
+- The existing ASP.NET Core billing line endpoint and PostgreSQL billing row model are used for diagnosis lines, preserving the same lifecycle semantics as legacy OpenEMR fee-sheet rows.
+- Modernized smoke coverage creates, verifies, deactivates, and deletes a temporary diagnosis line for `MOD-PAT-0001`.
+- The `workflow-billing-diagnosis` parity suite and `slice-44-billing-diagnosis-readiness` plan verify direct row state plus browser-visible legacy Fee Sheet and modernized Fees rendering.
+- Workbench-managed Slice 44 billing diagnosis plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary `ICD10` row can be created for `MOD-PAT-0001` on both targets without changing seeded CPT charge rows.
+- Direct probes verify `code_type`, code, text, zero fee, justification, billed state, active state, and cleanup counts.
+- Legacy OpenEMR Fee Sheet and modernized Fees workspace both render the diagnosis code and description before deactivation.
+- The temporary diagnosis row can be deactivated and hard-deleted so the seeded billing baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused fee-sheet diagnosis row lifecycle only.
+- Diagnosis search/autocomplete, multi-code clinical assessment authoring, and claim adjudication behavior remain future slices.
 - Full document version history, binary replacement, scanned-document capture, thumbnails, encryption/key management, CCDA import/export, external storage adapters, patient-portal document access rules, and authorization enforcement remain deferred.
 
 ## Test Strategy
@@ -1449,3 +1476,4 @@ As of 2026-06-19:
 - The forty-first modernized vertical slice implements patient document metadata refiling with React Documents inline Edit controls, ASP.NET Core document metadata endpoint support, PostgreSQL document filing metadata fields, modernized workflow action adapter methods, Workbench document metadata plan action, smoke coverage, and side-by-side slice-41 parity evidence.
 - The forty-second modernized vertical slice implements patient document archive restore with React Documents archived-record visibility and Restore controls, ASP.NET Core include-archived retrieval and restore endpoint support, PostgreSQL document deleted-state mapping, modernized workflow action adapter methods, Workbench document archive plan action, smoke coverage, and side-by-side slice-42 parity evidence.
 - The forty-third modernized vertical slice implements patient document content replacement with React Documents Replace controls, ASP.NET Core document content replacement endpoint support, PostgreSQL text payload/hash/size updates, modernized workflow action adapter methods, Workbench document content replacement plan action, smoke coverage, and side-by-side slice-43 parity evidence.
+- The forty-fourth modernized vertical slice implements fee-sheet diagnosis coding with React Fees ICD10 diagnosis controls, the existing ASP.NET Core billing line endpoint, PostgreSQL billing row lifecycle reuse, Workbench billing diagnosis plan action, smoke coverage, and side-by-side slice-44 parity evidence.

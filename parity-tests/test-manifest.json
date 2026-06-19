@@ -393,6 +393,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-44-billing-diagnosis-readiness",
+      "name": "Slice 44 Billing Diagnosis Readiness",
+      "description": "Mutation-capable fee-sheet diagnosis coding plan that creates, renders, deactivates, and removes an ICD10 diagnosis line on both legacy and modernized targets.",
+      "suites": ["workflow-billing-diagnosis"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-44", "billing", "diagnosis", "fee-sheet", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -405,7 +414,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -414,7 +423,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -856,6 +865,16 @@
       "layer": "workflow",
       "path": "tests/workflow-billing",
       "tags": ["slice16", "workflow", "mutation", "billing", "fee-sheet", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-billing-diagnosis",
+      "name": "Billing Diagnosis Line Mutation",
+      "description": "Creates, renders, deactivates, and removes an ICD10 diagnosis line through the same fee-sheet workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-billing-diagnosis",
+      "tags": ["slice44", "workflow", "mutation", "billing", "diagnosis", "fee-sheet", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
