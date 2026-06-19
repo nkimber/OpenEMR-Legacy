@@ -804,7 +804,7 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews; focused binary upload/download lifecycle behavior is covered by Slice 33.
-- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, focused document sign-off is covered by Slice 38, focused external-link document filing is covered by Slice 39, focused document denial/rejection is covered by Slice 40, and focused document metadata refiling/editing is covered by Slice 41.
+- Versioning, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, scanned-document capture, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, full text content retrieval/download is covered by Slice 27, focused document sign-off is covered by Slice 38, focused external-link document filing is covered by Slice 39, focused document denial/rejection is covered by Slice 40, focused document metadata refiling/editing is covered by Slice 41, and focused archived-document visibility/restore is covered by Slice 42.
 
 ### Slice 26: Patient Document Mutation
 
@@ -1284,6 +1284,37 @@ Current limitations:
 - This slice covers focused document filing metadata only.
 - Content replacement/versioning, multi-file uploads, scanned-document capture, thumbnails, encryption/key management, CCDA import/export, external storage adapters, patient-portal document access rules, and authorization enforcement remain deferred.
 
+### Slice 42: Patient Document Archive Restore
+
+Goal: add mutation-capable patient document archive restore parity so archived documents are hidden from active document views by default, visible on explicit archived-document request, restorable to active state, and browser-renderable again after restore.
+
+Status:
+
+- Implemented as the twenty-sixth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-42-document-archive-readiness` plan, which creates, archives, restores, renders, and removes a temporary patient document on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core documents API now supports active-only document retrieval by default, `includeArchived=true` document retrieval for explicit archived views, and `/api/documents/{documentId}/restore` for restoring archived documents.
+- Modernized PostgreSQL `patient_documents.deleted` is now returned through the document DTO so the React workspace can distinguish active and archived records.
+- React Documents workspace now includes a Show archived documents checkbox, active/archived counts, archived badges, disabled active-only actions on archived records, and a Restore action.
+- Modernized smoke coverage creates a temporary text document, archives it, verifies active-only hiding plus archived-list visibility and content inaccessibility, restores it, verifies content readback, then hard-deletes it.
+- Shared legacy and modernized workflow adapters now expose `restorePatientDocument`, mapping legacy `documents.deleted = 0` to the modernized restore endpoint.
+- The `workflow-document-archive` parity suite and `slice-42-document-archive-readiness` plan verify the same create, archive, hidden-content, restore, render, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 42 document archive restore plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary text document can be created for `MOD-PAT-0001` on both targets, archived, hidden from active document counts/content retrieval, restored, and rendered again.
+- Direct probes normalize the archive state as `deleted = 1`, verify active document counts drop back to the pre-create baseline, and verify content retrieval is unavailable while archived.
+- The modernized Documents workspace renders archived rows only when Show archived documents is enabled and exposes Restore on archived cards, while the legacy document list remains browser-renderable after restore.
+- The temporary document can be hard-deleted during cleanup so the seeded 1,200-document baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused document archive restore only.
+- Bulk restore, role-based document trash permissions, retention-policy enforcement, content version rollback, scanned-document capture, thumbnails, encryption/key management, CCDA import/export, external storage adapters, patient-portal document access rules, and authorization enforcement remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1386,3 +1417,4 @@ As of 2026-06-19:
 - The thirty-ninth modernized vertical slice implements patient document external links with a React Documents External Link form, ASP.NET Core document external-link endpoint, PostgreSQL document URL/storage metadata, modernized workflow action adapter methods, Workbench document external-link plan action, smoke coverage, and side-by-side slice-39 parity evidence.
 - The fortieth modernized vertical slice implements patient document denial with React Documents Deny controls, ASP.NET Core document review endpoint support for `denied`, PostgreSQL document review-status fields, modernized workflow action adapter methods, Workbench document denial plan action, smoke coverage, and side-by-side slice-40 parity evidence.
 - The forty-first modernized vertical slice implements patient document metadata refiling with React Documents inline Edit controls, ASP.NET Core document metadata endpoint support, PostgreSQL document filing metadata fields, modernized workflow action adapter methods, Workbench document metadata plan action, smoke coverage, and side-by-side slice-41 parity evidence.
+- The forty-second modernized vertical slice implements patient document archive restore with React Documents archived-record visibility and Restore controls, ASP.NET Core include-archived retrieval and restore endpoint support, PostgreSQL document deleted-state mapping, modernized workflow action adapter methods, Workbench document archive plan action, smoke coverage, and side-by-side slice-42 parity evidence.

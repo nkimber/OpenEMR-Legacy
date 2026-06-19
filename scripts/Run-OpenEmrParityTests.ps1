@@ -40,6 +40,7 @@ param(
         "workflow-document-external-link",
         "workflow-document-denial",
         "workflow-document-metadata",
+        "workflow-document-archive",
         "workflow-insurance",
         "workflow-prescriptions",
         "workflow-immunizations",

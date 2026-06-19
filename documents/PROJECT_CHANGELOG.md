@@ -3261,6 +3261,69 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 067. Modernized Patient Document Archive Restore Slice 42
+
+Commit: this commit
+Started: `2026-06-19T15:37:44-04:00`
+Finished: `2026-06-19T15:43:51-04:00`
+
+Implemented the forty-second modernized OpenEMR vertical slice: patient document archive restore, focused on creating a temporary document, archiving it, verifying active-list hiding and inaccessible content while archived, restoring it, rendering it again, deleting it, and proving the document baseline returns clean.
+
+Key outcomes:
+
+- Added active-only document retrieval by default and explicit `includeArchived=true` retrieval for archived document visibility.
+- Added an ASP.NET Core document restore endpoint that sets archived patient documents back to active.
+- Added the document `deleted` state to the modernized document DTO and frontend type model.
+- Added modernized Documents workspace Show archived documents control, active/archived counts, Archived badges, disabled active-only actions on archived cards, and a Restore action.
+- Added modernized smoke coverage for a temporary patient-document archive restore lifecycle.
+- Added shared legacy and modernized workflow adapter methods for `restorePatientDocument`.
+- Added the `workflow-document-archive` Playwright parity suite and `slice-42-document-archive-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 42 document archive restore plan.
+- Documented the legacy mapping, modernized endpoint, seed-data reuse, Workbench action, and side-by-side parity strategy.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 44 smoke checks, including `patient document archive restore lifecycle`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-42-document-archive-readiness -Reset test` passed with run `2026-06-19T194247-753Z-legacy-openemr-plan-slice-42-document-archive-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-42-document-archive-readiness -Reset test` passed with run `2026-06-19T194316-873Z-modernized-openemr-plan-slice-42-document-archive-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-42-document-archive-readiness` matched with comparison `2026-06-19T194337-353Z-legacy-openemr-vs-modernized-openemr-plan-slice-42-document-archive-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-archive/document-archive-restore.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

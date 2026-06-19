@@ -1587,6 +1587,15 @@ WHERE id = ${integer(legacyId)};
 `);
   }
 
+  async restorePatientDocument(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE documents
+SET deleted = 0
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
   async deletePatientDocument(id: number | string): Promise<void> {
     const legacyId = legacyInteger(id);
     await this.db.execute(`

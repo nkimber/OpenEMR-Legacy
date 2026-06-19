@@ -66,6 +66,7 @@
         "parityDocumentExternalLinkPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-39-document-external-link-readiness", "-Reset", "test"],
         "parityDocumentDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-40-document-denial-readiness", "-Reset", "test"],
         "parityDocumentMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-41-document-metadata-readiness", "-Reset", "test"],
+        "parityDocumentArchivePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-42-document-archive-readiness", "-Reset", "test"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -462,6 +463,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-41-document-metadata-readiness.json"
         },
         {
+          "id": "parity-plan-document-archive",
+          "name": "Slice 42 document archive restore plan",
+          "description": "Runs the shared patient-document archive, restore, render, and cleanup lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentArchivePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-42-document-archive-readiness.json"
+        },
+        {
           "id": "parity-plan-immunizations",
           "name": "Slice 29 immunizations plan",
           "description": "Runs the shared pediatric immunization history plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -514,7 +523,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 41 target",
+      "stage": "Slice 42 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -568,6 +577,7 @@
         "parityDocumentExternalLinkPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-39-document-external-link-readiness", "-Reset", "test"],
         "parityDocumentDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-40-document-denial-readiness", "-Reset", "test"],
         "parityDocumentMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-41-document-metadata-readiness", "-Reset", "test"],
+        "parityDocumentArchivePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-42-document-archive-readiness", "-Reset", "test"],
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
@@ -588,7 +598,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter metadata mutation, clinical lists, messages, document lifecycle, document sign-off, document denial, document metadata refiling, external-link documents, procedure results, procedure mutation, fee sheet billing, billing mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
+          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter metadata mutation, clinical lists, messages, document lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, external-link documents, procedure results, procedure mutation, fee sheet billing, billing mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -888,6 +898,14 @@
           "layer": "plan",
           "commandName": "parityDocumentMetadataPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-41-document-metadata-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-archive",
+          "name": "Slice 42 document archive restore plan",
+          "description": "Runs the shared patient-document archive, restore, render, and cleanup lifecycle plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentArchivePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-42-document-archive-readiness.json"
         },
         {
           "id": "parity-plan-immunizations",

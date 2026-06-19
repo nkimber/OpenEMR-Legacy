@@ -1037,6 +1037,16 @@ LIMIT 1;
     }
   }
 
+  async restorePatientDocument(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/restore`, {
+      method: "PUT"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document restore failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async deletePatientDocument(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}`, {
       method: "DELETE"
