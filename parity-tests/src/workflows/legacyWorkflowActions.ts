@@ -47,7 +47,7 @@ export type PatientMessageRecord = {
 };
 
 export type PrescriptionRecord = {
-  id: number;
+  id: number | string;
   patientId: number;
   providerId: number;
   startDate: string;
@@ -167,7 +167,7 @@ export type NewPatientMessage = {
   assignedTo: string;
 };
 
-type NewPrescription = {
+export type NewPrescription = {
   patientId: number;
   providerId: number;
   startDate: string;
@@ -501,12 +501,13 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
-  async getPrescription(id: number): Promise<PrescriptionRecord | null> {
+  async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {
+    const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, patient_id AS patientId, provider_id AS providerId, DATE(start_date) AS startDate,
   DATE(end_date) AS endDate, drug, dosage, quantity, refills, active, note
 FROM prescriptions
-WHERE id = ${integer(id)}
+WHERE id = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -528,18 +529,20 @@ LIMIT 1;
     };
   }
 
-  async deactivatePrescription(id: number, endDate: string, note: string): Promise<void> {
+  async deactivatePrescription(id: number | string, endDate: string, note: string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 UPDATE prescriptions
 SET active = 0, end_date = ${sqlString(endDate)}, note = ${sqlString(note)}, date_modified = NOW(), updated_by = 1
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
-  async deletePrescription(id: number): Promise<void> {
+  async deletePrescription(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM prescriptions
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 

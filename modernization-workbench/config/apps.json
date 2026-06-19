@@ -43,6 +43,7 @@
         "parityEncounterMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-12-encounter-mutation-readiness", "-Reset", "test"],
         "parityClinicalListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-13-clinical-list-mutation-readiness", "-Reset", "test"],
         "parityMessageMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-14-message-mutation-readiness", "-Reset", "test"],
+        "parityPrescriptionMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-15-prescription-mutation-readiness", "-Reset", "test"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -251,6 +252,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-14-message-mutation-readiness.json"
         },
         {
+          "id": "parity-plan-prescription-mutation",
+          "name": "Slice 15 prescription mutation plan",
+          "description": "Runs the shared prescription mutation plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPrescriptionMutationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-15-prescription-mutation-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -271,7 +280,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 14 target",
+      "stage": "Slice 15 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -301,7 +310,8 @@
         "parityAppointmentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-11-appointment-mutation-readiness", "-Reset", "test"],
         "parityEncounterMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-12-encounter-mutation-readiness", "-Reset", "test"],
         "parityClinicalListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-13-clinical-list-mutation-readiness", "-Reset", "test"],
-        "parityMessageMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-14-message-mutation-readiness", "-Reset", "test"]
+        "parityMessageMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-14-message-mutation-readiness", "-Reset", "test"],
+        "parityPrescriptionMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-15-prescription-mutation-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -434,6 +444,14 @@
           "layer": "plan",
           "commandName": "parityMessageMutationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-14-message-mutation-readiness.json"
+        },
+        {
+          "id": "parity-plan-prescription-mutation",
+          "name": "Slice 15 prescription mutation plan",
+          "description": "Runs the shared prescription mutation plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPrescriptionMutationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-15-prescription-mutation-readiness.json"
         }
       ]
     }

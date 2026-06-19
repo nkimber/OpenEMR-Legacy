@@ -212,7 +212,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Allergy create, deactivate, and delete workflows are covered by Slice 13 for the focused allergy lifecycle; problem-list mutation, medication-list mutation, vocabulary lookup, duplicate detection, audit history, and medication reconciliation remain deferred.
+- Allergy create, deactivate, and delete workflows are covered by Slice 13 for the focused allergy lifecycle. Prescription create, active rendering, deactivate, and delete workflows are covered by Slice 15 for the focused prescription lifecycle. Problem-list mutation, medication-list mutation, vocabulary lookup, duplicate detection, audit history, medication reconciliation, and broader e-prescribing workflows remain deferred.
 
 ### Slice 5: Messaging And Portal-Facing Data
 
@@ -492,6 +492,33 @@ Current limitations:
 - This slice covers care-team `pnotes` style patient messages only.
 - Portal reply threading, attachments, notification delivery, assignment queues, priority/escalation behavior, and audit history remain deferred to later messaging workflow slices.
 
+### Slice 15: Prescription Mutation
+
+Status:
+
+- Implemented as the sixth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-15-prescription-mutation-readiness` plan, which creates, renders, deactivates, and removes a prescription on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core prescription create, deactivate, and delete endpoints under the clinical-list API over the modernized PostgreSQL prescriptions table.
+- PostgreSQL seed schema extensions for prescription RxNorm code, quantity, refills, note, active state, and end date so the normalized target preserves legacy-observed prescription lifecycle facts.
+- React Lists controls for creating a prescription from the finder panel and deactivating or deleting active prescription entries from the prescription panel.
+- Modernized workflow action adapter methods for prescription lifecycle parity.
+- Workbench-managed slice-15 prescription mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe prescription create/deactivate/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Lists module can create a prescription for a patient, display it in the active prescription list, deactivate it so it no longer appears as active, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-15-prescription-mutation-readiness` plan creates a prescription for `MOD-PAT-0008`, verifies prescription counts and database state, verifies browser-visible active prescription rendering, deactivates the row, deletes it, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused prescription lifecycle only.
+- Full medication-list mutation, allergy/problem interactions, pharmacy routing, electronic prescribing, controlled-substance rules, refill requests, medication reconciliation, and audit history remain deferred to later medication workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -567,3 +594,4 @@ As of 2026-06-19:
 - The twelfth modernized vertical slice implements encounter mutation with React Encounters create/update/delete, vitals, and SOAP controls, ASP.NET Core encounter lifecycle endpoints, PostgreSQL encounter/vitals/clinical-note mutation fields, modernized workflow action adapter methods, Workbench encounter mutation plan action, smoke coverage, and side-by-side slice-12 parity evidence.
 - The thirteenth modernized vertical slice implements clinical-list allergy mutation with React Lists create/deactivate/delete controls, ASP.NET Core allergy lifecycle endpoints, PostgreSQL clinical-list activity fields, modernized workflow action adapter methods, Workbench clinical-list mutation plan action, smoke coverage, and side-by-side slice-13 parity evidence.
 - The fourteenth modernized vertical slice implements patient-message mutation with React Messages create/close/archive/delete controls, ASP.NET Core message lifecycle endpoints, PostgreSQL message activity fields, modernized workflow action adapter methods, Workbench message mutation plan action, smoke coverage, and side-by-side slice-14 parity evidence.
+- The fifteenth modernized vertical slice implements prescription mutation with React Lists prescription create/deactivate/delete controls, ASP.NET Core prescription lifecycle endpoints, PostgreSQL prescription active/end-date/refill fields, modernized workflow action adapter methods, Workbench prescription mutation plan action, smoke coverage, and side-by-side slice-15 parity evidence.

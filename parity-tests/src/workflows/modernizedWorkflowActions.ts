@@ -8,10 +8,12 @@ import type {
   NewPatientMessage,
   NewAppointment,
   NewEncounter,
+  NewPrescription,
   NewSoapNote,
   NewVitals,
   PatientContact,
   PatientMessageRecord,
+  PrescriptionRecord,
   SoapNoteRecord,
   VitalsRecord
 } from "./legacyWorkflowActions.js";
@@ -291,6 +293,84 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient message delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPrescription(input: NewPrescription): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        providerId: input.providerId,
+        startDate: input.startDate,
+        drug: input.drug,
+        rxNormCode: input.rxNormCode,
+        dosage: input.dosage,
+        quantity: input.quantity,
+        route: "oral",
+        refills: input.refills,
+        note: input.note,
+        diagnosis: input.diagnosis
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized prescription create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", provider_id AS "providerId", start_date AS "startDate",
+  COALESCE(end_date::text, '') AS "endDate", drug, COALESCE(dosage, '') AS dosage,
+  COALESCE(quantity, '') AS quantity, refills, active, COALESCE(note, '') AS note
+FROM prescriptions
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      providerId: Number(row.providerId),
+      startDate: row.startDate,
+      endDate: row.endDate || null,
+      drug: row.drug,
+      dosage: row.dosage,
+      quantity: row.quantity,
+      refills: Number(row.refills),
+      active: Number(row.active),
+      note: row.note
+    };
+  }
+
+  async deactivatePrescription(id: number | string, endDate: string, note: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(id))}/deactivate`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ endDate, note })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized prescription deactivate failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deletePrescription(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized prescription delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

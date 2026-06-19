@@ -132,6 +132,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-15-prescription-mutation-readiness",
+      "name": "Slice 15 Prescription Mutation Readiness",
+      "description": "Mutation-capable prescription confidence plan that creates, renders, deactivates, and removes a prescription on both legacy and modernized targets.",
+      "suites": ["workflow-prescriptions"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-15", "prescriptions", "medications", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -144,7 +153,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -153,7 +162,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -355,6 +364,16 @@
       "layer": "workflow",
       "path": "tests/workflow-messages",
       "tags": ["slice14", "workflow", "mutation", "messages", "pnotes", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-prescriptions",
+      "name": "Prescription Mutation",
+      "description": "Creates, renders, deactivates, and removes a prescription through the same medication workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-prescriptions",
+      "tags": ["slice15", "workflow", "mutation", "prescriptions", "medications", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }
