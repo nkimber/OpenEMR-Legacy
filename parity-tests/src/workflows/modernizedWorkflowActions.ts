@@ -13,6 +13,7 @@ import type {
   NewBillingLine,
   NewClinicalListEntry,
   NewFacility,
+  NewPatientDocument,
   NewUser,
   NewPatientMessage,
   NewAppointment,
@@ -24,6 +25,7 @@ import type {
   NewSoapNote,
   NewVitals,
   PatientContact,
+  PatientDocumentRecord,
   PatientMessageRecord,
   ProcedureOrderRecord,
   ProcedureReportRecord,
@@ -527,6 +529,79 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient message delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPatientDocument(input: NewPatientDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        encounter: input.encounter,
+        content: input.content,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "categoryId",
+  category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
+  COALESCE(storage_method, '') AS "storageMethod", deleted,
+  left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview"
+FROM patient_documents
+WHERE id = ${integer(Number(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      documentKey: row.documentKey,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName,
+      name: row.name,
+      docDate: row.docDate,
+      mimetype: row.mimetype,
+      storageMethod: row.storageMethod,
+      deleted: Number(row.deleted),
+      contentPreview: row.contentPreview
+    };
+  }
+
+  async softDeletePatientDocument(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/soft-delete`, {
+      method: "PUT"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient document soft delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deletePatientDocument(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized patient document delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

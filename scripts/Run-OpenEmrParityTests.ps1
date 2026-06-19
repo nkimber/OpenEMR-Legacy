@@ -26,6 +26,7 @@ param(
         "workflow-encounters",
         "workflow-clinical-lists",
         "workflow-messages",
+        "workflow-documents",
         "workflow-prescriptions",
         "workflow-billing",
         "workflow-procedures",

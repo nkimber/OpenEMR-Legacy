@@ -773,7 +773,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers operational report CSV export only.
-- Saved report definitions, binary document storage, scanned attachments, patient document upload/delete workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
+- Saved report definitions, binary document storage, scanned attachments, binary patient document upload workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
 
 ### Slice 25: Patient Documents Read-Only
 
@@ -804,7 +804,35 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews, not binary scan storage.
-- Upload, delete, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices.
+- Binary upload, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26.
+
+### Slice 26: Patient Document Mutation
+
+Status:
+
+- Implemented as the thirteenth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-26-document-mutation-readiness` plan, which creates, renders, soft-deletes, and hard-deletes a temporary patient document on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core documents API now exposes document lifecycle endpoints for database-backed text documents: create, soft-delete/archive, and hard-delete cleanup.
+- PostgreSQL `patient_documents` remains the normalized document table for seeded and temporary mutation records.
+- React Documents workspace now includes a compact `New Document` form with patient, category, document date, encounter, and text body fields.
+- React document cards now include Archive and Delete actions so active document state can be changed from the modernized UI.
+- Shared parity workflow adapters now include legacy MariaDB document lifecycle actions and modernized API-backed document lifecycle actions behind the same behavioral contract.
+- Workbench-managed Slice 26 document mutation plan is available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary `Medical Record` text document can be created for `MOD-PAT-0001` against seeded encounter `1000013`.
+- The created document appears in the legacy OpenEMR document list and the modernized Documents workspace.
+- The active document count increases after create, soft-delete marks the record deleted, and hard-delete cleanup returns counts to the seeded baseline.
+- The `slice-26-document-mutation-readiness` plan verifies the same document lifecycle against both targets.
+
+Current limitations:
+
+- This slice intentionally handles database-backed `text/plain` documents only.
+- Binary upload, scanned document storage, thumbnails, signing, versioning, encryption/key management, CCDA import/export, document routing, and external document-storage adapters remain deferred.
 
 ## Test Strategy
 
@@ -892,3 +920,4 @@ As of 2026-06-19:
 - The twenty-third modernized vertical slice implements pending/scheduled procedure-order visibility with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized reportless-order probes, Workbench pending procedure order plan action, smoke coverage, and side-by-side slice-23 parity evidence.
 - The twenty-fourth modernized vertical slice implements operational reports CSV export with a React Reports export action, ASP.NET Core CSV endpoint, normalized report export rows, Workbench reports export plan action, smoke coverage, and side-by-side slice-24 parity evidence.
 - The twenty-fifth modernized vertical slice implements read-only patient documents with a React Documents workspace, ASP.NET Core documents API, PostgreSQL patient document mapping, expanded gold-data document records, Workbench documents plan action, smoke coverage, and side-by-side slice-25 parity evidence.
+- The twenty-sixth modernized vertical slice implements patient document mutation with React Documents create/archive/delete controls, ASP.NET Core documents lifecycle endpoints, modernized workflow action adapter methods, Workbench document mutation plan action, smoke coverage, and side-by-side slice-26 parity evidence.

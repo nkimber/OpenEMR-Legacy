@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only completed procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, the slice-20 access-control read model plan, the slice-21 access-permission mutation plan, the slice-22 user group membership mutation plan, the slice-23 pending/scheduled procedure orders plan, the slice-24 reports export plan, and the slice-25 patient documents plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only completed procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, the slice-16 billing mutation plan, the slice-17 procedure mutation plan, the slice-18 admin facility mutation plan, the slice-19 admin user mutation plan, the slice-20 access-control read model plan, the slice-21 access-permission mutation plan, the slice-22 user group membership mutation plan, the slice-23 pending/scheduled procedure orders plan, the slice-24 reports export plan, the slice-25 patient documents plan, and the slice-26 patient document mutation plan.
 
 ## Test Layers
 
@@ -89,6 +89,7 @@ Current legacy coverage:
 - Future appointment create, cancel, and delete lifecycle with patient appointment count probes.
 - Clinical allergy list create, deactivate, and delete lifecycle with patient allergy count probes.
 - Patient message create, close, soft-delete, and hard-cleanup lifecycle with message count probes.
+- Patient document create, render, soft-delete, and hard-cleanup lifecycle with document count probes.
 - Prescription create, deactivate, and delete lifecycle with patient prescription count probes.
 - Encounter create, update, and delete lifecycle with vitals and SOAP detail form links.
 - CPT billing line create, bill-status update, deactivate, and delete lifecycle.
@@ -162,6 +163,8 @@ npm run test:legacy:plan:reports-export
 npm run test:modernized:plan:reports-export
 npm run test:legacy:plan:documents
 npm run test:modernized:plan:documents
+npm run test:legacy:plan:document-mutation
+npm run test:modernized:plan:document-mutation
 npm run test:legacy:plan:contact-mutation
 npm run test:modernized:plan:contact-mutation
 npm run test:legacy:plan:appointment-mutation
@@ -218,8 +221,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr|modernized-openemr`
-- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-prescriptions|workflow-billing|workflow-procedures|workflow-admin|workflow-admin-users|workflow-admin-access|workflow-admin-memberships|admin-access-control|slice1|scheduling|encounters|clinical-lists|messages|procedures|procedure-pending-orders|billing|admin|reports|reports-export|documents`
-- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|slice-16-billing-mutation-readiness|slice-17-procedure-mutation-readiness|slice-18-admin-facility-mutation-readiness|slice-19-admin-user-mutation-readiness|slice-20-access-control-readiness|slice-21-access-permission-mutation-readiness|slice-22-user-group-membership-mutation-readiness|slice-23-procedure-pending-orders-readiness|slice-24-reports-export-readiness|slice-25-documents-readiness|legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-documents|workflow-prescriptions|workflow-billing|workflow-procedures|workflow-admin|workflow-admin-users|workflow-admin-access|workflow-admin-memberships|admin-access-control|slice1|scheduling|encounters|clinical-lists|messages|procedures|procedure-pending-orders|billing|admin|reports|reports-export|documents`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|slice-16-billing-mutation-readiness|slice-17-procedure-mutation-readiness|slice-18-admin-facility-mutation-readiness|slice-19-admin-user-mutation-readiness|slice-20-access-control-readiness|slice-21-access-permission-mutation-readiness|slice-22-user-group-membership-mutation-readiness|slice-23-procedure-pending-orders-readiness|slice-24-reports-export-readiness|slice-25-documents-readiness|slice-26-document-mutation-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -230,7 +233,7 @@ The runner accepts:
 
 The test manifest now has two selection layers:
 
-- Suites: layer-level groups such as database, HTTP, UI, workflow, patient-chart slice parity, scheduling slice parity, encounter slice parity, clinical-list slice parity, messaging slice parity, procedure-result slice parity, pending procedure-order slice parity, fee-sheet billing slice parity, administration directory slice parity, operational reports slice parity, reports export slice parity, and patient documents slice parity.
+- Suites: layer-level groups such as database, HTTP, UI, workflow, patient-chart slice parity, scheduling slice parity, encounter slice parity, clinical-list slice parity, messaging slice parity, procedure-result slice parity, pending procedure-order slice parity, fee-sheet billing slice parity, administration directory slice parity, operational reports slice parity, reports export slice parity, patient documents slice parity, and patient document mutation parity.
 - Plans: operator-facing run plans that select suites, reset behavior, target support, and intent.
 
 Current plans:
@@ -260,9 +263,10 @@ Current plans:
 - `slice-23-procedure-pending-orders-readiness` runs the pending/scheduled procedure-order suite with a run-level reset for both legacy and modernized targets.
 - `slice-24-reports-export-readiness` runs the reports export suite with a run-level reset for both legacy and modernized targets.
 - `slice-25-documents-readiness` runs the patient documents suite with a run-level reset for both legacy and modernized targets.
+- `slice-26-document-mutation-readiness` runs the patient document mutation suite with a per-test reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
-- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/prescription/billing/procedure/admin-facility/admin-user/access-permission/user-group-membership mutation suites with per-test resets for strongest mutation isolation.
-- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, access-permission mutation, user-group-membership mutation, access-control read-model coverage, pending/scheduled procedure-order coverage, reports export coverage, and patient documents coverage as the target-neutral contract intended for future side-by-side legacy and modernized runs.
+- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/document/prescription/billing/procedure/admin-facility/admin-user/access-permission/user-group-membership mutation suites with per-test resets for strongest mutation isolation.
+- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, document mutation, prescription mutation, billing mutation, procedure mutation, admin facility mutation, admin user mutation, access-permission mutation, user-group-membership mutation, access-control read-model coverage, pending/scheduled procedure-order coverage, reports export coverage, and patient documents coverage as the target-neutral contract intended for future side-by-side legacy and modernized runs.
 
 Every plan run records `selectionKind`, `selectionId`, `selectedSuites`, and plan metadata in `run.json`. This makes result files self-describing and lets the Workbench show whether evidence came from a suite or a named plan.
 
@@ -323,6 +327,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-23-procedure-pending-orders-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-24-reports-export-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-25-documents-readiness.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-26-document-mutation-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
@@ -356,6 +361,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-23-procedure-pending-orders-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-24-reports-export-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-25-documents-readiness.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-26-document-mutation-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -519,6 +525,12 @@ For the twenty-fifth modernized patient documents slice, compare the current sid
 npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-25-documents-readiness
 ```
 
+For the twenty-sixth modernized patient document mutation slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-26-document-mutation-readiness
+```
+
 The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
@@ -563,6 +575,7 @@ The legacy app currently exposes these test actions:
 - Slice 23 pending procedure orders plan.
 - Slice 24 reports export plan.
 - Slice 25 patient documents plan.
+- Slice 26 document mutation plan.
 - Full parity plan.
 - Full legacy parity suite.
 
@@ -594,6 +607,7 @@ The modernized app currently exposes these test actions:
 - Slice 23 pending procedure orders plan for side-by-side scheduled, reportless lab-order parity.
 - Slice 24 reports export plan for side-by-side operational CSV export parity.
 - Slice 25 patient documents plan for side-by-side seeded patient document parity.
+- Slice 26 document mutation plan for side-by-side patient document lifecycle parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
@@ -601,9 +615,9 @@ The Test Runs page also includes a custom parity run builder for each managed ap
 
 ## Modernized Target Parity Path
 
-The modernized target now exists and currently includes thirteen read-only slices plus twelve mutation-capable slices through Slice 25. The smoke test proves that the target can run, consume the shared gold dataset, retrieve deterministic anchors across patient, scheduling, encounter, clinical-list, messaging, completed procedure-result, pending procedure-order, billing, administration, access-control, reporting, report export, and patient document workflows, and perform safe cleanup-backed mutation lifecycles for patient contact, appointments, encounters, allergies, messages, prescriptions, billing lines, procedures, facilities, users, ACL permission assignments, and ACL user group memberships.
+The modernized target now exists and currently includes thirteen read-only slices plus thirteen mutation-capable slices through Slice 26. The smoke test proves that the target can run, consume the shared gold dataset, retrieve deterministic anchors across patient, scheduling, encounter, clinical-list, messaging, completed procedure-result, pending procedure-order, billing, administration, access-control, reporting, report export, and patient document workflows, and perform safe cleanup-backed mutation lifecycles for patient contact, appointments, encounters, allergies, messages, patient documents, prescriptions, billing lines, procedures, facilities, users, ACL permission assignments, and ACL user group memberships.
 
-The slice readiness plans from `slice-1-readiness` through `slice-25-documents-readiness` prove the same normalized database facts, browser-visible behavior, mutation post-state where applicable, cleanup, and restoration expectations against both legacy and modernized targets. The newest documents plan covers seeded patient document metadata and visible document lists; the newest reports plans cover deterministic operational-report facts and CSV export rows; the newest lab plan covers seeded future scheduled procedure orders without report rows; the newest administration/security plans cover seeded ACL groups, visible permission objects, representative group-permission assignments, default `admin` and `oe-system` memberships, focused Front Office `patients:demo` assignment revoke/restore behavior, and focused temporary-user Front Office membership assignment/revoke behavior.
+The slice readiness plans from `slice-1-readiness` through `slice-26-document-mutation-readiness` prove the same normalized database facts, browser-visible behavior, mutation post-state where applicable, cleanup, and restoration expectations against both legacy and modernized targets. The newest document mutation plan covers database-backed text document create/render/archive/delete behavior; the read-only documents plan covers seeded patient document metadata and visible document lists; the newest reports plans cover deterministic operational-report facts and CSV export rows; the newest lab plan covers seeded future scheduled procedure orders without report rows; the newest administration/security plans cover seeded ACL groups, visible permission objects, representative group-permission assignments, default `admin` and `oe-system` memberships, focused Front Office `patients:demo` assignment revoke/restore behavior, and focused temporary-user Front Office membership assignment/revoke behavior.
 
 Next parity steps:
 

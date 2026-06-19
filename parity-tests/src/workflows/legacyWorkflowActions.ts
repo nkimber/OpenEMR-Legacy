@@ -46,6 +46,20 @@ export type PatientMessageRecord = {
   deleted: number;
 };
 
+export type PatientDocumentRecord = {
+  id: number | string;
+  patientId: number;
+  documentKey: string;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  mimetype: string;
+  storageMethod: string;
+  deleted: number;
+  contentPreview: string;
+};
+
 export type PrescriptionRecord = {
   id: number | string;
   patientId: number;
@@ -220,6 +234,17 @@ export type NewPatientMessage = {
   title: string;
   body: string;
   assignedTo: string;
+};
+
+export type NewPatientDocument = {
+  patientId: number;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  encounter: number;
+  content: string;
+  notes: string;
 };
 
 export type NewPrescription = {
@@ -893,6 +918,93 @@ WHERE id = ${integer(legacyId)};
     const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM pnotes
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async createPatientDocument(input: NewPatientDocument): Promise<number> {
+    const nextRows = await this.db.queryRows<{ id: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 8999999) + 1, 9000000) AS id
+FROM documents;
+`);
+    const id = Number(nextRows[0]?.id);
+    const documentKey = `DOC-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const content = `Gold synthetic document ${documentKey}\n${input.content}`;
+
+    await this.db.execute(`
+INSERT INTO documents
+  (id, uuid, type, size, date, url, mimetype, pages, owner, revision, foreign_id, docdate, hash,
+   list_id, name, storagemethod, path_depth, imported, encounter_id, encounter_check,
+   audit_master_approval_status, documentationOf, encrypted, document_data, deleted)
+VALUES
+  (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), 'blob', CHAR_LENGTH(${sqlString(content)}), NOW(),
+   ${sqlString(`gold://documents/${documentKey}`)}, 'text/plain', 1, 1, NOW(), ${integer(input.patientId)},
+   ${sqlString(input.docDate)}, SHA1(${sqlString(content)}), 0, ${sqlString(input.name)}, 0, 0, 0,
+   ${integer(input.encounter)}, 1, 1, ${sqlString(input.notes)}, 0, ${sqlString(content)}, 0);
+
+INSERT INTO categories_to_documents (category_id, document_id)
+VALUES (${integer(input.categoryId)}, ${integer(id)});
+`);
+
+    return id;
+  }
+
+  async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
+    const legacyId = legacyInteger(id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT d.id,
+  d.foreign_id AS patientId,
+  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  COALESCE(c.id, 0) AS categoryId,
+  COALESCE(c.name, '') AS categoryName,
+  d.name,
+  DATE(d.docdate) AS docDate,
+  COALESCE(d.mimetype, '') AS mimetype,
+  CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
+  COALESCE(d.deleted, 0) AS deleted,
+  LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
+FROM documents d
+LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
+LEFT JOIN categories c ON c.id = ctd.category_id
+WHERE d.id = ${integer(legacyId)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      documentKey: row.documentKey,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName,
+      name: row.name,
+      docDate: row.docDate,
+      mimetype: row.mimetype,
+      storageMethod: row.storageMethod,
+      deleted: Number(row.deleted),
+      contentPreview: row.contentPreview
+    };
+  }
+
+  async softDeletePatientDocument(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE documents
+SET deleted = 1
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async deletePatientDocument(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+DELETE FROM categories_to_documents
+WHERE document_id = ${integer(legacyId)};
+
+DELETE FROM documents
 WHERE id = ${integer(legacyId)};
 `);
   }
