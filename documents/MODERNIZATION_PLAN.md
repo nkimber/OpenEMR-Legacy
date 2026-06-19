@@ -150,7 +150,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Appointment create, cancel, update, and delete workflows remain deferred to a later scheduling mutation slice.
+- Appointment create, cancel, and delete workflows are covered by Slice 11 for the focused future-appointment lifecycle; recurring appointments, availability validation, reminders, and conversion to encounter workflows remain deferred.
 
 ### Slice 3: Encounters And Clinical Notes
 
@@ -212,7 +212,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Create, deactivate, delete, and medication reconciliation workflows remain deferred to a later clinical-list mutation slice.
+- Allergy create, deactivate, and delete workflows are covered by Slice 13 for the focused allergy lifecycle; problem-list mutation, medication-list mutation, vocabulary lookup, duplicate detection, audit history, and medication reconciliation remain deferred.
 
 ### Slice 5: Messaging And Portal-Facing Data
 
@@ -438,6 +438,33 @@ Current limitations:
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
 - Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order/billing linkage, document attachment, and multi-form encounter packages remain deferred to later clinical workflow slices.
 
+### Slice 13: Clinical List Allergy Mutation
+
+Status:
+
+- Implemented as the fourth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-13-clinical-list-mutation-readiness` plan, which creates, renders, deactivates, and removes an allergy list entry on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core clinical-list allergy create, deactivate, and delete endpoints over the modernized PostgreSQL allergy table.
+- PostgreSQL seed schema extensions for allergy activity, end date, and list option values so the normalized model preserves legacy OpenEMR list lifecycle semantics.
+- React Lists controls for creating a new allergy from the finder panel and deactivating or deleting active allergy entries from the Allergies panel.
+- Modernized workflow action adapter methods for allergy create, get, deactivate, and delete behavior.
+- Workbench-managed slice-13 clinical-list mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe allergy create/deactivate/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Lists module can create an allergy for a patient, display it as an active allergy, deactivate it so it no longer appears in active lists, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-13-clinical-list-mutation-readiness` plan creates an allergy for `MOD-PAT-0006`, verifies allergy counts and database state, verifies browser-visible active allergy rendering, deactivates the row, deletes it, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers allergy entries only.
+- Problem list mutation, medication list mutation, diagnoses, allergy vocabulary lookup, duplicate detection, audit history, and broader list option management remain deferred to later clinical-list slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -511,3 +538,4 @@ As of 2026-06-19:
 - The tenth modernized vertical slice implements patient contact mutation with a React chart contact editor, ASP.NET Core contact update endpoint, PostgreSQL contact fields, modernized workflow action adapter, Workbench contact mutation plan action, and side-by-side slice-10 parity evidence.
 - The eleventh modernized vertical slice implements appointment mutation with React Calendar create/cancel/delete controls, ASP.NET Core appointment lifecycle endpoints, modernized workflow action adapter methods, Workbench appointment mutation plan action, smoke coverage, and side-by-side slice-11 parity evidence.
 - The twelfth modernized vertical slice implements encounter mutation with React Encounters create/update/delete, vitals, and SOAP controls, ASP.NET Core encounter lifecycle endpoints, PostgreSQL encounter/vitals/clinical-note mutation fields, modernized workflow action adapter methods, Workbench encounter mutation plan action, smoke coverage, and side-by-side slice-12 parity evidence.
+- The thirteenth modernized vertical slice implements clinical-list allergy mutation with React Lists create/deactivate/delete controls, ASP.NET Core allergy lifecycle endpoints, PostgreSQL clinical-list activity fields, modernized workflow action adapter methods, Workbench clinical-list mutation plan action, smoke coverage, and side-by-side slice-13 parity evidence.

@@ -114,6 +114,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-13-clinical-list-mutation-readiness",
+      "name": "Slice 13 Clinical List Mutation Readiness",
+      "description": "Mutation-capable clinical-list confidence plan that creates, renders, deactivates, and removes an allergy list entry on both legacy and modernized targets.",
+      "suites": ["workflow-clinical-lists"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-13", "clinical-lists", "allergies", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -126,7 +135,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -135,7 +144,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -317,6 +326,16 @@
       "layer": "workflow",
       "path": "tests/workflow-encounters",
       "tags": ["slice12", "workflow", "mutation", "encounters", "vitals", "soap", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-clinical-lists",
+      "name": "Clinical List Allergy Mutation",
+      "description": "Creates, renders, deactivates, and removes an allergy list entry through the same clinical-list workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-clinical-lists",
+      "tags": ["slice13", "workflow", "mutation", "clinical-lists", "allergies", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }

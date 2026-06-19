@@ -2,7 +2,9 @@ import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import type {
   AppointmentRecord,
+  ClinicalListRecord,
   EncounterRecord,
+  NewClinicalListEntry,
   NewAppointment,
   NewEncounter,
   NewSoapNote,
@@ -134,6 +136,82 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized appointment delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createClinicalListEntry(input: NewClinicalListEntry): Promise<string> {
+    if (input.type !== "allergy") {
+      throw new Error(`Modernized clinical list mutation only supports allergy entries in this slice, received ${input.type}.`);
+    }
+
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        title: input.title,
+        dateTime: input.dateTime,
+        comments: input.comments,
+        reaction: input.reaction,
+        severity: input.severity,
+        listOptionId: input.listOptionId
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical allergy create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getClinicalListEntry(id: number | string): Promise<ClinicalListRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", type, title, activity, COALESCE(comments, '') AS comments,
+  COALESCE(reaction, '') AS reaction, COALESCE(severity, '') AS severity,
+  COALESCE(list_option_id, '') AS "listOptionId"
+FROM allergies
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      type: row.type,
+      title: row.title,
+      activity: Number(row.activity),
+      comments: row.comments,
+      reaction: row.reaction,
+      severity: row.severity,
+      listOptionId: row.listOptionId
+    };
+  }
+
+  async deactivateClinicalListEntry(id: number | string, comments: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies/${encodeURIComponent(String(id))}/deactivate`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ comments })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical allergy deactivate failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteClinicalListEntry(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized clinical allergy delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

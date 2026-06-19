@@ -25,7 +25,7 @@ export type AppointmentRecord = {
 };
 
 export type ClinicalListRecord = {
-  id: number;
+  id: number | string;
   patientId: number;
   type: string;
   title: string;
@@ -149,7 +149,7 @@ export type NewAppointment = {
   room: string;
 };
 
-type NewClinicalListEntry = {
+export type NewClinicalListEntry = {
   patientId: number;
   type: "allergy" | "medical_problem" | "medication";
   title: string;
@@ -380,12 +380,13 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
-  async getClinicalListEntry(id: number): Promise<ClinicalListRecord | null> {
+  async getClinicalListEntry(id: number | string): Promise<ClinicalListRecord | null> {
+    const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, type, title, activity, comments, reaction, severity_al AS severity,
   list_option_id AS listOptionId
 FROM lists
-WHERE id = ${integer(id)}
+WHERE id = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -405,18 +406,20 @@ LIMIT 1;
     };
   }
 
-  async deactivateClinicalListEntry(id: number, comments: string): Promise<void> {
+  async deactivateClinicalListEntry(id: number | string, comments: string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 UPDATE lists
 SET activity = 0, enddate = '2026-06-18 00:00:00', comments = ${sqlString(comments)}
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
-  async deleteClinicalListEntry(id: number): Promise<void> {
+  async deleteClinicalListEntry(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM lists
-WHERE id = ${integer(id)};
+WHERE id = ${integer(legacyId)};
 `);
   }
 
