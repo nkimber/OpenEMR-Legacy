@@ -278,7 +278,7 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
         <GitBranch size={21} />
         <div>
           <strong>Modern target</strong>
-          <span>{modernizedApp?.runtime.label ?? "Slice 23 pending procedure orders"}</span>
+          <span>{modernizedApp?.runtime.label ?? "Slice 24 reports export"}</span>
         </div>
       </div>
       <div className="overview-item">
@@ -804,7 +804,7 @@ function CustomParityRunPanel({
 }) {
   const [selectionKind, setSelectionKind] = useState<"suite" | "plan">("suite");
   const [suite, setSuite] = useState("all");
-  const [plan, setPlan] = useState("slice-23-procedure-pending-orders-readiness");
+  const [plan, setPlan] = useState("slice-24-reports-export-readiness");
   const [reset, setReset] = useState<ParityResetMode>("run");
   const [headed, setHeaded] = useState(false);
   const [grep, setGrep] = useState("");

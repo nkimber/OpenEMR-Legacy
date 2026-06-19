@@ -178,6 +178,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared access-permission mutation plan now runs against the legacy target as the legacy half of Slice 21 side-by-side parity, covering focused Front Office `patients:demo` revoke/restore behavior in the legacy phpGACL tables.
 - Shared user group membership mutation plan now runs against the legacy target as the legacy half of Slice 22 side-by-side parity, covering temporary-user Front Office membership grant/revoke behavior in the legacy phpGACL tables.
 - Shared pending procedure orders plan now runs against the legacy target as the legacy half of Slice 23 side-by-side parity, covering future scheduled procedure orders that intentionally have no linked report rows.
+- Shared reports export plan now runs against the legacy target as the legacy half of Slice 24 side-by-side parity, covering normalized operational report export rows and the legacy Patient List `Export to CSV` affordance.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 

@@ -14,6 +14,7 @@ import type {
   EncounterSummary,
   GoldCountMap,
   OperationalReportsSummary,
+  OperationalReportExportRow,
   PatientMessagesSummary,
   PatientRecord,
   ProcedureOrderSummary,
@@ -23,6 +24,7 @@ import type {
   ProcedureResultsSummary,
   TemporalCoverageRow
 } from "./legacyMariaDbProbe.js";
+import { buildOperationalReportExportRows } from "./legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import { runCommand } from "../core/command.js";
 
@@ -616,6 +618,10 @@ LIMIT 8;
         patients: Number(row.patients)
       }))
     };
+  }
+
+  async getOperationalReportExportRows(): Promise<OperationalReportExportRow[]> {
+    return buildOperationalReportExportRows(await this.getOperationalReports());
   }
 
   async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {

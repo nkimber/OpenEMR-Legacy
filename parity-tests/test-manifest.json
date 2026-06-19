@@ -213,6 +213,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-24-reports-export-readiness",
+      "name": "Slice 24 Reports Export Readiness",
+      "description": "Read-only operational reporting export confidence plan that verifies normalized report export rows and visible CSV export affordances on both legacy and modernized targets.",
+      "suites": ["reports-export"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-24", "reports", "exports", "csv", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -234,7 +243,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -356,6 +365,16 @@
       "layer": "parity",
       "path": "tests/reports",
       "tags": ["slice9", "reports", "operational-reporting", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "reports-export",
+      "name": "Operational Reports Export",
+      "description": "Compares normalized operational report export rows and browser-visible CSV export affordances against the legacy report-export behavior.",
+      "layer": "parity",
+      "path": "tests/reports-export",
+      "tags": ["slice24", "reports", "exports", "csv", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

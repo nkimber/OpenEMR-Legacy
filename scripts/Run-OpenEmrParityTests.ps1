@@ -18,6 +18,7 @@ param(
         "billing",
         "admin",
         "reports",
+        "reports-export",
         "admin-access-control",
         "workflow-contact",
         "workflow-appointments",

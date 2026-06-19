@@ -360,7 +360,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CSV/export generation, saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -749,6 +749,32 @@ Current limitations:
 - This slice is read-only and focused on scheduled/reportless procedure-order visibility.
 - Order catalogs, clinical order queues, specimen tracking, provider sign-off, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
 
+### Slice 24: Operational Reports CSV Export
+
+Status:
+
+- Implemented as the twelfth read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-24-reports-export-readiness` plan, which compares normalized operational report export rows and browser-visible export affordances on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core reports API now exposes `/api/reports/operational/export` as a deterministic CSV export over the same operational report read model used by the Reports dashboard.
+- React Reports workspace now marks exports as CSV ready and exposes a `CSV Export` action linked to the backend export endpoint.
+- Normalized legacy MariaDB and modernized PostgreSQL parity probes produce the same `Section, Name, Metric, Value` operational export rows from the gold dataset.
+- Workbench-managed slice-24 reports export plan for both legacy and modernized targets.
+- Modernized smoke coverage for CSV content type and stable gold-data export rows.
+
+Acceptance:
+
+- The modernized Reports module displays a visible CSV export action.
+- The modernized export endpoint returns CSV containing stable report rows such as 1,000 patients, `$446,000.00` seeded charges, `gold-provider-02` encounters, NORTH facility billing total, and the `Asthma, uncomplicated` clinical condition.
+- The `slice-24-reports-export-readiness` plan verifies normalized export rows and visible export affordances against both legacy and modernized targets.
+
+Current limitations:
+
+- This slice covers operational report CSV export only.
+- Saved report definitions, document storage, scanned attachments, patient document workflows, fax/SMS integrations, CCDA/export workflows, external integration adapters, and richer downloadable formats remain deferred to later reports/documents/integrations slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -833,3 +859,4 @@ As of 2026-06-19:
 - The twenty-first modernized vertical slice implements focused administration access-permission assignment mutation with React Admin grant/revoke controls, ASP.NET Core administration ACL assignment endpoints, modernized workflow action adapter methods, Workbench access-permission mutation plan action, smoke coverage, and side-by-side slice-21 parity evidence.
 - The twenty-second modernized vertical slice implements focused administration user group membership mutation with React Admin Assign/Revoke controls, ASP.NET Core administration ACL membership endpoints, PostgreSQL access membership rows, modernized workflow action adapter methods, Workbench user group membership mutation plan action, smoke coverage, and side-by-side slice-22 parity evidence.
 - The twenty-third modernized vertical slice implements pending/scheduled procedure-order visibility with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized reportless-order probes, Workbench pending procedure order plan action, smoke coverage, and side-by-side slice-23 parity evidence.
+- The twenty-fourth modernized vertical slice implements operational reports CSV export with a React Reports export action, ASP.NET Core CSV endpoint, normalized report export rows, Workbench reports export plan action, smoke coverage, and side-by-side slice-24 parity evidence.

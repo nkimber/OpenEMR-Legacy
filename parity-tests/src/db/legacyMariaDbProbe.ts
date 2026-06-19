@@ -235,6 +235,13 @@ export type OperationalReportsSummary = {
   clinicalConditions: ClinicalConditionReportSummary[];
 };
 
+export type OperationalReportExportRow = {
+  section: string;
+  name: string;
+  metric: string;
+  value: string;
+};
+
 export type ProcedureOrderSummary = {
   id: number;
   patientId: number;
@@ -880,6 +887,10 @@ LIMIT 8;
     };
   }
 
+  async getOperationalReportExportRows(): Promise<OperationalReportExportRow[]> {
+    return buildOperationalReportExportRows(await this.getOperationalReports());
+  }
+
   async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
@@ -1027,6 +1038,55 @@ ORDER BY procedure_result_id;
 
     return { patientId: pid, orders };
   }
+}
+
+export function buildOperationalReportExportRows(reports: OperationalReportsSummary): OperationalReportExportRow[] {
+  const rows: OperationalReportExportRow[] = [];
+  const add = (section: string, name: string, metric: string, value: string | number) => {
+    rows.push({ section, name, metric, value: String(value) });
+  };
+  const addMoney = (section: string, name: string, metric: string, value: number) => {
+    rows.push({ section, name, metric, value: value.toFixed(2) });
+  };
+
+  add("Counts", "Patients", "Total", reports.counts.patients);
+  add("Counts", "Portal Patients", "Total", reports.counts.portalPatients);
+  add("Counts", "Appointments", "Total", reports.counts.appointments);
+  add("Counts", "Future Appointments", "Total", reports.counts.futureAppointments);
+  add("Counts", "Current Year Appointments", "Total", reports.counts.currentYearAppointments);
+  add("Counts", "Encounters", "Total", reports.counts.encounters);
+  add("Counts", "Current Year Encounters", "Total", reports.counts.currentYearEncounters);
+  add("Counts", "Billing Lines", "Total", reports.counts.billingLines);
+  addMoney("Counts", "Billing Total", "USD", reports.counts.billingTotal);
+  add("Counts", "Lab Reports", "Total", reports.counts.labReports);
+  add("Counts", "Messages", "Total", reports.counts.messages);
+  add("Counts", "New Messages", "Total", reports.counts.newMessages);
+  add("Counts", "Done Messages", "Total", reports.counts.doneMessages);
+  add("Counts", "Facilities", "Total", reports.counts.facilities);
+  add("Counts", "Providers", "Total", reports.counts.providers);
+
+  for (const provider of reports.providerActivity) {
+    add("Provider Activity", provider.username, "Display Name", provider.displayName);
+    add("Provider Activity", provider.username, "Encounters", provider.encounters);
+    add("Provider Activity", provider.username, "Billing Lines", provider.billingLines);
+    addMoney("Provider Activity", provider.username, "Billing Total", provider.billingTotal);
+  }
+
+  for (const facility of reports.facilityActivity) {
+    add("Facility Activity", facility.code, "Name", facility.name);
+    add("Facility Activity", facility.code, "Appointments", facility.appointments);
+    add("Facility Activity", facility.code, "Encounters", facility.encounters);
+    add("Facility Activity", facility.code, "Billing Lines", facility.billingLines);
+    addMoney("Facility Activity", facility.code, "Billing Total", facility.billingTotal);
+  }
+
+  for (const condition of reports.clinicalConditions) {
+    const name = condition.diagnosis.trim() || condition.title;
+    add("Clinical Conditions", name, "Title", condition.title);
+    add("Clinical Conditions", name, "Patients", condition.patients);
+  }
+
+  return rows;
 }
 
 function parseTabRows<T extends Record<string, string>>(stdout: string): T[] {
