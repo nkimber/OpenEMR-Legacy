@@ -2955,6 +2955,69 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 062. Modernized Patient Registration Slice 37
+
+Commit: current slice commit
+Started: `2026-06-19T13:15:00-04:00`
+Finished: `2026-06-19T13:43:58-04:00`
+
+Implemented the thirty-seventh modernized OpenEMR vertical slice: patient registration lifecycle, focused on creating a temporary registered patient, rendering the new chart in both applications, deleting the temporary patient, and proving the baseline returns clean.
+
+Key outcomes:
+
+- Added an ASP.NET Core patient registration endpoint and guarded temporary-patient delete endpoint.
+- Added PostgreSQL repository support for registration validation, legacy PID allocation, duplicate-public-ID handling, and safe cleanup of `TMP-PAT-REG-*` patients.
+- Added a React Patient/Client registration form in the finder panel with identity, DOB, sex, address, phone, email, and HIPAA contact preference fields.
+- Added frontend API helpers and chart/search state synchronization after a successful registration.
+- Added legacy and modernized workflow adapter methods for `createPatient` and `deleteTemporaryPatient`.
+- Added the `workflow-registration` Playwright parity suite and `slice-37-patient-registration-readiness` plan for both targets.
+- Added Workbench commands/cards and result paths for the Slice 37 patient registration plan.
+- Expanded modernized smoke coverage so it creates, searches, charts, deletes, and confirms cleanup for a temporary registered patient.
+- Captured the legacy dashboard rendering nuance: OpenEMR exposes the assigned chart id on the dashboard, while public ID remains validated by exact backend readback and by the modernized search/rendering path.
+
+Verified test runs:
+
+- JSON parse validation for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run typecheck` in `modernization-workbench/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run list` in `parity-tests/`, confirming `slice-37-patient-registration-readiness` and `workflow-registration`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, including the patient registration lifecycle smoke.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-37-patient-registration-readiness -Reset test`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-37-patient-registration-readiness -Reset test`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-37-patient-registration-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-registration/patient-registration-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

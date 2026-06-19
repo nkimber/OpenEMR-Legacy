@@ -26,6 +26,26 @@ export type PatientDemographics = {
   occupation: string;
 };
 
+export type NewPatientRegistration = {
+  pubpid: string;
+  firstName: string;
+  lastName: string;
+  preferredName: string;
+  sex: string;
+  dateOfBirth: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  maritalStatus: string;
+  occupation: string;
+  phoneHome: string;
+  phoneCell: string;
+  email: string;
+  hipaaAllowSms: string;
+  hipaaAllowEmail: string;
+};
+
 export type AppointmentRecord = {
   id: number | string;
   patientId: number;
@@ -943,6 +963,36 @@ SET fname = ${sqlString(demographics.firstName)},
   status = ${sqlString(demographics.maritalStatus)},
   occupation = ${sqlString(demographics.occupation)}
 WHERE pid = ${integer(demographics.pid)};
+`);
+  }
+
+  async createPatient(input: NewPatientRegistration): Promise<number> {
+    const rows = await this.db.queryRows<{ pid: string }>(`
+SET @next_pid := (SELECT COALESCE(MAX(pid), 100000) + 1 FROM patient_data);
+INSERT INTO patient_data
+  (uuid, pid, pubpid, fname, lname, mname, preferred_name, DOB, sex,
+   street, city, state, postal_code, status, occupation, phone_home, phone_cell, email,
+   providerID, allow_patient_portal, hipaa_allowsms, hipaa_allowemail,
+   allow_imm_reg_use, allow_imm_info_share, allow_health_info_ex, date, regdate)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), @next_pid, ${sqlString(input.pubpid)},
+   ${sqlString(input.firstName)}, ${sqlString(input.lastName)}, '', ${sqlString(input.preferredName)},
+   ${sqlString(input.dateOfBirth)}, ${sqlString(input.sex)}, ${sqlString(input.street)},
+   ${sqlString(input.city)}, ${sqlString(input.state)}, ${sqlString(input.postalCode)},
+   ${sqlString(input.maritalStatus)}, ${sqlString(input.occupation)}, ${sqlString(input.phoneHome)},
+   ${sqlString(input.phoneCell)}, ${sqlString(input.email)}, 1, 'NO',
+   ${sqlString(input.hipaaAllowSms)}, ${sqlString(input.hipaaAllowEmail)}, 'YES', 'YES', 'YES',
+   '2026-06-18 09:00:00', '2026-06-18 09:00:00');
+SELECT @next_pid AS pid;
+`);
+    return Number(rows[0]?.pid);
+  }
+
+  async deleteTemporaryPatient(pid: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM patient_data
+WHERE pid = ${integer(pid)}
+  AND pubpid LIKE 'TMP-PAT-REG-%';
 `);
   }
 

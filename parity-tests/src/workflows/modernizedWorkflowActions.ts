@@ -20,6 +20,7 @@ import type {
   NewPatientBinaryDocument,
   NewPatientDocument,
   NewPatientInsurance,
+  NewPatientRegistration,
   NewProblem,
   NewUser,
   NewPatientMessage,
@@ -374,6 +375,43 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient demographics update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPatient(input: NewPatientRegistration): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient registration failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const patient = (await response.json()) as { legacyPid: number };
+    return patient.legacyPid;
+  }
+
+  async deleteTemporaryPatient(pid: number): Promise<void> {
+    const rows = await this.db.queryRows<{ pubpid: string }>(`
+SELECT pubpid
+FROM patients
+WHERE legacy_pid = ${integer(pid)}
+  AND pubpid LIKE 'TMP-PAT-REG-%'
+LIMIT 1;
+`);
+    const pubpid = rows[0]?.pubpid;
+    if (!pubpid) {
+      return;
+    }
+
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(pubpid)}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized temporary patient delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

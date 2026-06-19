@@ -1129,7 +1129,37 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused demographics update and restore parity only.
-- Patient creation, deletion, duplicate detection, guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
+- Duplicate detection, guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
+
+### Slice 37: Patient Registration Lifecycle
+
+Goal: add mutation-capable patient registration parity using OpenEMR's `patient_data` registration fields and the modernized Patient/Client workspace registration form.
+
+Status:
+
+- Implemented as the twenty-first mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-37-patient-registration-readiness` plan, which creates, renders, and removes a temporary patient record on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient API now supports patient registration and guarded temporary-patient deletion over the modernized PostgreSQL `patients` table.
+- React Patient/Client workspace now includes a compact Register Patient form in the finder panel, then selects the newly created chart after successful registration.
+- Modernized smoke coverage creates a `TMP-PAT-REG-*` patient, verifies direct load and search visibility, deletes the temporary patient, and verifies it no longer loads.
+- Shared legacy and modernized workflow adapters now expose `createPatient` and `deleteTemporaryPatient` actions.
+- The `workflow-registration` parity suite and `slice-37-patient-registration-readiness` plan verify the same create, render, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 37 patient registration plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary patient can be registered through the modernized server tier with public ID, identity, DOB, address, contact, HIPAA permission, marital status, and occupation fields.
+- The created patient can be read back directly from both legacy MariaDB and modernized PostgreSQL with matching normalized demographics and contact fields.
+- The created patient appears in browser-visible chart workflows for both targets.
+- The temporary patient can be hard-deleted during cleanup so the seeded 1,000-patient baseline remains unchanged.
+
+Current limitations:
+
+- This slice covers focused patient registration create/render/delete parity only.
+- Duplicate detection, patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, audit history, and authorization enforcement remain deferred.
 
 ## Test Strategy
 
@@ -1228,3 +1258,4 @@ As of 2026-06-19:
 - The thirty-fourth modernized vertical slice implements patient insurance mutation with React Patient/Client chart coverage add/edit/delete controls, ASP.NET Core patient insurance lifecycle endpoints, modernized workflow action adapter methods, Workbench insurance mutation plan action, smoke coverage, and side-by-side slice-34 parity evidence.
 - The thirty-fifth modernized vertical slice implements encounter metadata mutation with React Encounters sensitivity/referral/external-ID/POS controls, ASP.NET Core encounter metadata fields, PostgreSQL encounter metadata columns, modernized workflow action adapter methods, Workbench encounter metadata plan action, smoke coverage, and side-by-side slice-35 parity evidence.
 - The thirty-sixth modernized vertical slice implements patient demographics mutation with React Patient/Client chart demographics edit controls, an ASP.NET Core patient demographics update endpoint, PostgreSQL patient demographic fields, modernized workflow action adapter methods, Workbench patient demographics plan action, smoke coverage, and side-by-side slice-36 parity evidence.
+- The thirty-seventh modernized vertical slice implements patient registration with a React Patient/Client registration form, ASP.NET Core patient registration and guarded temporary-delete endpoints, PostgreSQL patient insert/delete behavior, modernized workflow action adapter methods, Workbench patient registration plan action, smoke coverage, and side-by-side slice-37 parity evidence.

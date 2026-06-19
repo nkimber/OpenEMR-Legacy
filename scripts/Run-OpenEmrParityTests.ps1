@@ -26,6 +26,7 @@ param(
         "admin-access-control",
         "workflow-contact",
         "workflow-demographics",
+        "workflow-registration",
         "workflow-appointments",
         "workflow-encounters",
         "workflow-encounter-metadata",
