@@ -248,11 +248,30 @@ Current limitations:
 
 ### Slice 6: Labs And Procedure Results
 
+Status:
+
+- Implemented as a read-only procedure-result slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-6 procedure-result parity runs against the legacy baseline.
+
 Scope:
 
 - Procedure orders, reports, and results.
-- Lab review UI and result details.
-- Lab lifecycle parity tests.
+- React Procedures module with patient lookup, order/report/result counts, order cards, and final result detail cards.
+- ASP.NET Core procedure-results API over the modernized PostgreSQL lab order, lab report, and lab result tables.
+- Workbench-managed slice-6 procedures parity plan for both legacy and modernized targets.
+- Procedure-result parity tests using the existing `MOD-PAT-0009` completed-lab anchor.
+
+Acceptance:
+
+- Procedures module is selectable from the modernized left navigation.
+- Procedure results can be loaded by canonical patient ID, public patient ID, or legacy PID.
+- The modernized UI displays the same stable completed CBC order, complete report, final result rows, result values, units, ranges, and status concepts used by the legacy procedure results screen.
+- The `slice-6-procedures-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- Procedure order create, completion, report entry, result entry, correction, review, and delete workflows remain deferred to a later procedure mutation slice.
 
 ### Slice 7: Billing And Fee Sheet
 

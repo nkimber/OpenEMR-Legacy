@@ -593,6 +593,8 @@ async function getDataProfile(managedApp: ManagedApp) {
         "SELECT 'prescriptions', COUNT(*) FROM prescriptions UNION ALL " +
         "SELECT 'billing', COUNT(*) FROM billing UNION ALL " +
         "SELECT 'lab_orders', COUNT(*) FROM lab_orders UNION ALL " +
+        "SELECT 'lab_reports', COUNT(*) FROM lab_reports UNION ALL " +
+        "SELECT 'lab_results', COUNT(*) FROM lab_results UNION ALL " +
         "SELECT 'messages', COUNT(*) FROM messages UNION ALL " +
         "SELECT 'problems', COUNT(*) FROM problems UNION ALL " +
         "SELECT 'allergies', COUNT(*) FROM allergies UNION ALL " +
@@ -1036,7 +1038,8 @@ app.get("/api/architecture", async (_request, response) => {
           "Slice 2 scheduling readiness parity plan implemented for future appointment comparison",
           "Slice 3 encounters readiness parity plan implemented for SOAP and vitals comparison",
           "Slice 4 clinical lists readiness parity plan implemented for problems, allergies, medications, and prescriptions comparison",
-          "Slice 5 messaging readiness parity plan implemented for portal-enabled patient message comparison"
+          "Slice 5 messaging readiness parity plan implemented for portal-enabled patient message comparison",
+          "Slice 6 procedures readiness parity plan implemented for completed lab result comparison"
         ]
       },
       {
@@ -1051,11 +1054,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Slice 5 messaging started",
+        status: "Slice 6 procedures started",
         stack: ["React 19 SPA", "ASP.NET Core 10 API", "PostgreSQL", "Docker Compose"],
         database: "PostgreSQL",
-        businessLogic: "Server-side API owns patient search/chart summary, read-only appointment list/detail, read-only encounter SOAP/vitals, read-only clinical-list behavior, and read-only patient-message behavior for implemented slices",
-        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, appointment detail, encounter detail, clinical lists, and patient messages", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison", "Slice 4 clinical lists readiness plan implemented for problems, allergies, medications, and prescriptions comparison", "Slice 5 messaging readiness plan implemented for portal-enabled patient message comparison"]
+        businessLogic: "Server-side API owns patient search/chart summary, read-only appointment list/detail, read-only encounter SOAP/vitals, read-only clinical-list behavior, read-only patient-message behavior, and read-only procedure-result behavior for implemented slices",
+        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, appointment detail, encounter detail, clinical lists, patient messages, and procedure results", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison", "Slice 4 clinical lists readiness plan implemented for problems, allergies, medications, and prescriptions comparison", "Slice 5 messaging readiness plan implemented for portal-enabled patient message comparison", "Slice 6 procedures readiness plan implemented for completed lab result comparison"]
       }
     ]
   });
@@ -1071,8 +1074,8 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, scheduling parity, encounter SOAP/vitals parity, clinical-list parity, messaging parity, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 5 adds read-only patient messages with a Messages module, portal-enabled flag display, PostgreSQL-backed message data, Workbench actions, and side-by-side messaging parity evidence." }
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, scheduling parity, encounter SOAP/vitals parity, clinical-list parity, messaging parity, procedure-result parity, and the future full parity contract." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 6 adds read-only completed procedure results with a Procedures module, PostgreSQL-backed lab order/report/result data, Workbench actions, smoke coverage, and side-by-side procedure parity evidence." }
     ]
   });
 });

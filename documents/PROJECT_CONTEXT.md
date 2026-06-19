@@ -30,7 +30,7 @@ The baseline has been seeded with `openemr-shared-synthetic-v1`, the project-own
 
 The first Modernization Workbench version is implemented under `modernization-workbench/`. It uses React, TypeScript, Vite, Node.js, and Express. It can inspect, start, stop, restart, health-check, log, seed, smoke-test, and run named parity plans for the legacy OpenEMR baseline and the modernized target through local-only, allowlisted orchestration commands.
 
-The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers five read-only vertical slices: patient search/chart summary, scheduling appointment detail, encounter SOAP/vitals detail, clinical lists with problems, allergies, medication list entries, prescriptions, and patient messages with portal-enabled status. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
+The modernized OpenEMR target is implemented under `modernized-openemr/` and currently covers six read-only vertical slices: patient search/chart summary, scheduling appointment detail, encounter SOAP/vitals detail, clinical lists with problems, allergies, medication list entries, prescriptions, patient messages with portal-enabled status, and completed procedure results with lab order/report/result detail. Each implemented slice has matched side-by-side parity evidence against the legacy baseline.
 
 ## Why OpenEMR
 

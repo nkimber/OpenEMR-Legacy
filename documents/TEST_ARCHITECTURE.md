@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, and the slice-5 read-only messaging plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, and the slice-6 read-only procedures plan.
 
 ## Test Layers
 
@@ -44,7 +44,7 @@ Current legacy coverage:
 - Gold dataset row counts.
 - Gold dataset temporal coverage.
 - Stable named workflow anchor patients.
-- Related workflow counts for appointments, encounters, problems, prescriptions, medications, messages, procedure orders, and billing.
+- Related workflow counts for appointments, encounters, problems, prescriptions, medications, messages, procedure orders, procedure reports, procedure results, and billing.
 
 The legacy adapter is `parity-tests/src/db/legacyMariaDbProbe.ts`. It intentionally returns normalized facts instead of exposing test code to every legacy table detail.
 
@@ -63,6 +63,8 @@ Current legacy coverage:
 ### Playwright UI Contract
 
 UI tests validate browser-visible workflows.
+
+The legacy UI helper collects rendered text across OpenEMR frames and form field values from inputs, textareas, and selected options. This matters for legacy clinical forms such as procedure results, where visible result names and values are often stored inside editable fields rather than plain body text.
 
 Current legacy coverage:
 
@@ -141,6 +143,8 @@ npm run test:legacy:plan:clinical-lists
 npm run test:modernized:plan:clinical-lists
 npm run test:legacy:plan:messages
 npm run test:modernized:plan:messages
+npm run test:legacy:plan:procedures
+npm run test:modernized:plan:procedures
 ```
 
 Inventory command:
@@ -179,8 +183,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr|modernized-openemr`
-- `--suite all|database|http|ui|workflow|slice1|scheduling|encounters|clinical-lists|messages`
-- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|slice1|scheduling|encounters|clinical-lists|messages|procedures`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -191,7 +195,7 @@ The runner accepts:
 
 The test manifest now has two selection layers:
 
-- Suites: layer-level groups such as database, HTTP, UI, workflow, patient-chart slice parity, scheduling slice parity, encounter slice parity, clinical-list slice parity, and messaging slice parity.
+- Suites: layer-level groups such as database, HTTP, UI, workflow, patient-chart slice parity, scheduling slice parity, encounter slice parity, clinical-list slice parity, messaging slice parity, and procedure-result slice parity.
 - Plans: operator-facing run plans that select suites, reset behavior, target support, and intent.
 
 Current plans:
@@ -201,6 +205,7 @@ Current plans:
 - `slice-3-encounters-readiness` runs the encounter SOAP/vitals parity suite with a run-level reset for both legacy and modernized targets.
 - `slice-4-clinical-lists-readiness` runs the clinical-lists parity suite with a run-level reset for both legacy and modernized targets.
 - `slice-5-messaging-readiness` runs the messages parity suite with a run-level reset for both legacy and modernized targets.
+- `slice-6-procedures-readiness` runs the procedures parity suite with a run-level reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
 - `mutation-isolated` runs workflow mutations with per-test resets for strongest mutation isolation.
 - `full-parity` runs database, HTTP, UI, and workflow as the target-neutral contract intended for future side-by-side legacy and modernized runs.
@@ -244,6 +249,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-3-encounters-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-4-clinical-lists-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-5-messaging-readiness.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-6-procedures-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
@@ -257,6 +263,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-3-encounters-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-4-clinical-lists-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-5-messaging-readiness.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-6-procedures-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -300,6 +307,12 @@ For the fifth modernized messaging slice, compare the current side-by-side readi
 npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-5-messaging-readiness
 ```
 
+For the sixth modernized procedures slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-6-procedures-readiness
+```
+
 The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
@@ -324,17 +337,19 @@ The legacy app currently exposes these test actions:
 - Slice 3 encounters plan.
 - Slice 4 clinical-lists plan.
 - Slice 5 messaging plan.
+- Slice 6 procedures plan.
 - Full parity plan.
 - Full legacy parity suite.
 
 The modernized app currently exposes these test actions:
 
-- Modernized smoke test for API health, anchor patient search, anchor chart summary, anchor appointment search/detail, and anchor encounter search/detail.
+- Modernized smoke test for API health, anchor patient search, anchor chart summary, anchor appointment search/detail, anchor encounter search/detail, clinical lists, patient messages, and procedure results.
 - Slice 1 readiness plan for side-by-side patient search/chart summary parity.
 - Slice 2 scheduling plan for side-by-side future appointment detail parity.
 - Slice 3 encounters plan for side-by-side SOAP and vitals detail parity.
 - Slice 4 clinical-lists plan for side-by-side problem, allergy, medication-list, and prescription parity.
 - Slice 5 messaging plan for side-by-side portal-enabled patient message parity.
+- Slice 6 procedures plan for side-by-side completed lab result parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
@@ -342,7 +357,7 @@ The Test Runs page also includes a custom parity run builder for each managed ap
 
 ## Modernized Target Parity Path
 
-The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, and the fifth read-only messaging slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, and retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets.
+The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, the fifth read-only messaging slice, and the sixth read-only procedures slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`, and retrieve deterministic completed procedure results for `MOD-PAT-0009`. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets. The `slice-6-procedures-readiness` parity plan proves completed procedure order, report, final result, value, unit, range, and status behavior against both targets.
 
 Next parity steps:
 

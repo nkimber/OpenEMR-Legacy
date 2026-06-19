@@ -51,6 +51,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-6-procedures-readiness",
+      "name": "Slice 6 Procedures Readiness",
+      "description": "Read-only procedure results confidence plan for completed lab order, report, and final result behavior on both legacy and modernized targets.",
+      "suites": ["procedures"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-6", "procedures", "labs", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -144,6 +153,16 @@
       "layer": "parity",
       "path": "tests/messages",
       "tags": ["slice5", "messages", "portal", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "procedures",
+      "name": "Procedure Results",
+      "description": "Compares completed lab procedure order, report, and final result rendering against the legacy procedure results screen using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/procedures",
+      "tags": ["slice6", "procedures", "labs", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

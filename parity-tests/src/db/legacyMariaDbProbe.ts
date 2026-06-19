@@ -122,6 +122,37 @@ export type ProcedureOrderSummary = {
   procedureName: string;
 };
 
+export type ProcedureResultSummary = {
+  id: number;
+  reportId: number;
+  code: string;
+  text: string;
+  units: string;
+  result: string;
+  range: string;
+  abnormal: string;
+  resultDate: string;
+  resultStatus: string;
+};
+
+export type ProcedureReportSummary = {
+  id: number;
+  orderId: number;
+  reportDate: string;
+  status: string;
+  reviewStatus: string;
+  results: ProcedureResultSummary[];
+};
+
+export type ProcedureOrderWithResults = ProcedureOrderSummary & {
+  reports: ProcedureReportSummary[];
+};
+
+export type ProcedureResultsSummary = {
+  patientId: number;
+  orders: ProcedureOrderWithResults[];
+};
+
 export class LegacyMariaDbProbe {
   constructor(private readonly target: RuntimeTarget) {}
 
@@ -494,6 +525,98 @@ LIMIT 1;
       procedureCode: row.procedureCode,
       procedureName: row.procedureName
     };
+  }
+
+  async getProcedureResultsForPatient(pid: number): Promise<ProcedureResultsSummary> {
+    const orderRows = await this.queryRows<Record<string, string>>(`
+SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
+  DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+FROM procedure_order po
+LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
+WHERE po.patient_id = ${pid}
+ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
+`);
+    const orders: ProcedureOrderWithResults[] = orderRows.map((row) => ({
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
+      orderStatus: row.orderStatus,
+      procedureCode: row.procedureCode,
+      procedureName: row.procedureName,
+      reports: []
+    }));
+
+    if (orders.length === 0) {
+      return { patientId: pid, orders };
+    }
+
+    const orderIdList = orders.map((order) => order.id).join(",");
+    const reportRows = await this.queryRows<Record<string, string>>(`
+SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_report) AS reportDate,
+  COALESCE(report_status, '') AS status, COALESCE(review_status, '') AS reviewStatus
+FROM procedure_report
+WHERE procedure_order_id IN (${orderIdList})
+ORDER BY date_report DESC, procedure_report_id DESC;
+`);
+    const reports: ProcedureReportSummary[] = reportRows.map((row) => ({
+      id: Number(row.id),
+      orderId: Number(row.orderId),
+      reportDate: row.reportDate,
+      status: row.status,
+      reviewStatus: row.reviewStatus,
+      results: []
+    }));
+
+    if (reports.length > 0) {
+      const reportIdList = reports.map((report) => report.id).join(",");
+      const resultRows = await this.queryRows<Record<string, string>>(`
+SELECT procedure_result_id AS id, procedure_report_id AS reportId, COALESCE(result_code, '') AS code,
+  COALESCE(result_text, '') AS text, COALESCE(units, '') AS units, COALESCE(result, '') AS result,
+  COALESCE(\`range\`, '') AS resultRange, COALESCE(abnormal, '') AS abnormal, DATE(date) AS resultDate,
+  COALESCE(result_status, '') AS resultStatus
+FROM procedure_result
+WHERE procedure_report_id IN (${reportIdList})
+ORDER BY procedure_result_id;
+`);
+
+      const resultsByReport = new Map<number, ProcedureResultSummary[]>();
+      for (const row of resultRows) {
+        const reportId = Number(row.reportId);
+        const reportResults = resultsByReport.get(reportId) ?? [];
+        reportResults.push({
+          id: Number(row.id),
+          reportId,
+          code: row.code,
+          text: row.text,
+          units: row.units,
+          result: row.result,
+          range: row.resultRange,
+          abnormal: row.abnormal,
+          resultDate: row.resultDate,
+          resultStatus: row.resultStatus
+        });
+        resultsByReport.set(reportId, reportResults);
+      }
+
+      for (const report of reports) {
+        report.results = resultsByReport.get(report.id) ?? [];
+      }
+    }
+
+    const reportsByOrder = new Map<number, ProcedureReportSummary[]>();
+    for (const report of reports) {
+      const orderReports = reportsByOrder.get(report.orderId) ?? [];
+      orderReports.push(report);
+      reportsByOrder.set(report.orderId, orderReports);
+    }
+
+    for (const order of orders) {
+      order.reports = reportsByOrder.get(order.id) ?? [];
+    }
+
+    return { patientId: pid, orders };
   }
 }
 

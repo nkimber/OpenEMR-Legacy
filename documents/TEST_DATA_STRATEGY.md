@@ -159,7 +159,7 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
-The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, and normalized database parity checks.
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior, read-only scheduling behavior, read-only encounter SOAP/vitals behavior, read-only clinical-list behavior, read-only messaging behavior, read-only procedure-result behavior, and normalized database parity checks.
 
 The scheduling slice now uses `MOD-PAT-0003` as a stable appointment anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's next future appointment after `2026-06-18`, and the `slice-2-scheduling-readiness` plan verifies the appointment facts plus browser-visible appointment detail behavior against both targets.
 
@@ -168,6 +168,8 @@ The encounter slice now uses `MOD-PAT-0001` as a stable clinical anchor. Both le
 The clinical-lists slice also uses `MOD-PAT-0001` as a stable clinical-list anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's active problems, allergies, medication list entries, and prescriptions. The current anchor facts include `Type 2 diabetes mellitus without complications`, `Asthma, uncomplicated`, `Penicillin` allergy with rash and moderate severity, `Metformin 500 mg`, `Atorvastatin 20 mg`, `Albuterol inhaler 90 mcg`, and a matching `Metformin` prescription. The `slice-4-clinical-lists-readiness` plan verifies these facts plus browser-visible clinical-list behavior against both targets.
 
 The messaging slice uses `MOD-PAT-0004` as a stable portal-messaging anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's portal-enabled flag and seeded patient messages. The current anchor facts include portal access enabled, a `Care team follow-up` message with `New` status and body `Follow-up message for Nora Kim.`, and a `Portal message` with `Done` status and body `Patient portal question about medications.` The `slice-5-messaging-readiness` plan verifies these facts plus browser-visible patient-message behavior against both targets.
+
+The procedure-results slice uses `MOD-PAT-0009` as a stable completed-lab anchor. Both legacy MariaDB and modernized PostgreSQL probes locate that patient's completed `Complete blood count` procedure order with code `85025`, completed report, and final result rows for `Erythrocytes`, `Hemoglobin`, `Platelets`, and `Leukocytes`. The current anchor facts include `Hemoglobin` result `13.8 g/dL`, normal range `12.0-17.5`, and `final` result status. The `slice-6-procedures-readiness` plan verifies these facts plus browser-visible procedure-result behavior against both targets.
 
 ### Level 3: Extended Synthetic Population
 
@@ -200,4 +202,4 @@ Continue expanding reusable modernized parity adapters that consume the gold dat
 - Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
 - Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
 - Additional encounter mutation tests once the modernized target supports create/update/delete workflows.
-- Labs, clinical-list mutation, messaging mutation, medication reconciliation, and billing tests as the next workflow slices are selected.
+- Procedure-result mutation, clinical-list mutation, messaging mutation, medication reconciliation, and billing tests as the next workflow slices are selected.

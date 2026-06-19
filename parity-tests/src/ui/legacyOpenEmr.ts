@@ -54,7 +54,24 @@ async function collectRenderedText(page: Page) {
   const frameTexts = await Promise.all(
     page.frames().map(async (frame) => {
       try {
-        return await frame.locator("body").innerText({ timeout: 2_500 });
+        const bodyText = await frame.locator("body").innerText({ timeout: 2_500 });
+        const fieldValues = await frame.locator("input, textarea, select").evaluateAll((elements) =>
+          elements
+            .map((element) => {
+              if (element instanceof HTMLSelectElement) {
+                return Array.from(element.selectedOptions)
+                  .map((option) => option.textContent?.trim() || option.value)
+                  .join(" ");
+              }
+              if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+                return element.value;
+              }
+              return "";
+            })
+            .filter(Boolean)
+            .join(" ")
+        );
+        return `${bodyText} ${fieldValues}`;
       } catch {
         return "";
       }

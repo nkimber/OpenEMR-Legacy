@@ -34,6 +34,7 @@
         "parityEncountersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-3-encounters-readiness", "-Reset", "run"],
         "parityClinicalListsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-4-clinical-lists-readiness", "-Reset", "run"],
         "parityMessagesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-5-messaging-readiness", "-Reset", "run"],
+        "parityProceduresPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-6-procedures-readiness", "-Reset", "run"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -170,6 +171,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-5-messaging-readiness.json"
         },
         {
+          "id": "parity-plan-procedures",
+          "name": "Slice 6 procedures plan",
+          "description": "Runs the shared completed lab procedure result parity plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProceduresPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-6-procedures-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -190,7 +199,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 5 target",
+      "stage": "Slice 6 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -211,7 +220,8 @@
         "paritySchedulingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-2-scheduling-readiness", "-Reset", "run"],
         "parityEncountersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-3-encounters-readiness", "-Reset", "run"],
         "parityClinicalListsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-4-clinical-lists-readiness", "-Reset", "run"],
-        "parityMessagesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-5-messaging-readiness", "-Reset", "run"]
+        "parityMessagesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-5-messaging-readiness", "-Reset", "run"],
+        "parityProceduresPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-6-procedures-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -228,7 +238,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, and anchor chart summary for the first modernized slice.",
+          "description": "Checks API health, anchor patient search, chart summary, scheduling, encounters, clinical lists, messages, and procedure results.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -272,6 +282,14 @@
           "layer": "plan",
           "commandName": "parityMessagesPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-5-messaging-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedures",
+          "name": "Slice 6 procedures plan",
+          "description": "Runs the shared completed lab procedure result parity plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProceduresPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-6-procedures-readiness.json"
         }
       ]
     }

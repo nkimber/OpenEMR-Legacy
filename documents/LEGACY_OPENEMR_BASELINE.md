@@ -206,8 +206,8 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 
 ## Current Gaps
 
-- The modernized PostgreSQL seed adapter now exists for read-only patient, scheduling, encounter, clinical-list, messaging, and supporting gold-data tables; mutation-oriented seed and workflow behavior will expand slice by slice.
-- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, and read-only patient-message facts; mutation workflow adapters remain future work.
+- The modernized PostgreSQL seed adapter now exists for read-only patient, scheduling, encounter, clinical-list, messaging, procedure-result, and supporting gold-data tables; mutation-oriented seed and workflow behavior will expand slice by slice.
+- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, read-only patient-message facts, and read-only completed procedure results; mutation workflow adapters remain future work.
 - The OpenEMR-native PHPUnit stable lane is runnable and verified, but the full upstream isolated suite remains environment-sensitive on the Windows bind-mounted checkout.
 - OpenEMR-native Panther browser tests have not been wired into the Workbench yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.
