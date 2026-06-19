@@ -271,7 +271,8 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Procedure order create, completion, report entry, result entry, correction, review, and delete workflows remain deferred to a later procedure mutation slice.
+- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17.
+- Result correction, amendment/versioning, external lab integration, specimen handling, order catalog management, review queues, and audit history remain deferred to later lab/procedure slices.
 
 ### Slice 7: Billing And Fee Sheet
 
@@ -547,6 +548,33 @@ Current limitations:
 - This slice covers a focused encounter-scoped CPT billing line lifecycle only.
 - Claim generation, payer/insurance adjudication, payment posting, modifiers, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
 
+### Slice 17: Procedure Mutation
+
+Status:
+
+- Implemented as the eighth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-17-procedure-mutation-readiness` plan, which creates, completes, reports, renders, and removes a lab procedure workflow on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core procedure order create, status update, report create, result create, and order cascade-delete endpoints under the procedure API over the modernized PostgreSQL lab tables.
+- PostgreSQL seed schema extensions for procedure order priority, procedure type, instructions, report review status, and report notes so the normalized target preserves the procedure lifecycle facts needed by mutation parity tests.
+- React Procedures controls for creating a lab order against a loaded patient encounter, completing an order, adding a reviewed report, adding a final result, and deleting temporary order trees.
+- Modernized workflow action adapter methods for procedure order, report, and result lifecycle parity.
+- Workbench-managed slice-17 procedure mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe procedure order/status/report/result/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Procedures module can create a lab order for a patient encounter, display it in the procedure order list, mark the order complete, add a reviewed final report, add a final result value, and delete the temporary order tree.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-17-procedure-mutation-readiness` plan creates a temporary procedure order for `MOD-PAT-0009`, verifies procedure counts and direct row state, verifies browser-visible order/report/result rendering, marks the order complete, deletes the temporary order tree, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused lab procedure lifecycle only.
+- Result correction, amendment/versioning, external electronic lab interfaces, specimen collection/tracking, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -624,3 +652,4 @@ As of 2026-06-19:
 - The fourteenth modernized vertical slice implements patient-message mutation with React Messages create/close/archive/delete controls, ASP.NET Core message lifecycle endpoints, PostgreSQL message activity fields, modernized workflow action adapter methods, Workbench message mutation plan action, smoke coverage, and side-by-side slice-14 parity evidence.
 - The fifteenth modernized vertical slice implements prescription mutation with React Lists prescription create/deactivate/delete controls, ASP.NET Core prescription lifecycle endpoints, PostgreSQL prescription active/end-date/refill fields, modernized workflow action adapter methods, Workbench prescription mutation plan action, smoke coverage, and side-by-side slice-15 parity evidence.
 - The sixteenth modernized vertical slice implements billing mutation with React Fees CPT create/status/delete controls, ASP.NET Core billing line lifecycle endpoints, PostgreSQL billing units/billed/activity fields, modernized workflow action adapter methods, Workbench billing mutation plan action, smoke coverage, and side-by-side slice-16 parity evidence.
+- The seventeenth modernized vertical slice implements procedure mutation with React Procedures order/status/report/result/delete controls, ASP.NET Core procedure lifecycle endpoints, PostgreSQL lab order/report lifecycle fields, modernized workflow action adapter methods, Workbench procedure mutation plan action, smoke coverage, and side-by-side slice-17 parity evidence.

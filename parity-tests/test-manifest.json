@@ -150,6 +150,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-17-procedure-mutation-readiness",
+      "name": "Slice 17 Procedure Mutation Readiness",
+      "description": "Mutation-capable lab procedure confidence plan that creates, completes, reports, renders, and removes a procedure order/result workflow on both legacy and modernized targets.",
+      "suites": ["workflow-procedures"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-17", "procedures", "labs", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -162,7 +171,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -171,7 +180,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -393,6 +402,16 @@
       "layer": "workflow",
       "path": "tests/workflow-billing",
       "tags": ["slice16", "workflow", "mutation", "billing", "fee-sheet", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-procedures",
+      "name": "Procedure Order Mutation",
+      "description": "Creates, completes, reports, renders, and removes a lab procedure order/result through the same procedure-results workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-procedures",
+      "tags": ["slice17", "workflow", "mutation", "procedures", "labs", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }

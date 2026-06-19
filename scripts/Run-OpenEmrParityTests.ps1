@@ -2,7 +2,30 @@ param(
     [ValidateSet("legacy-openemr", "modernized-openemr")]
     [string] $Target = "legacy-openemr",
 
-    [ValidateSet("all", "database", "http", "ui", "workflow")]
+    [ValidateSet(
+        "all",
+        "database",
+        "http",
+        "ui",
+        "workflow",
+        "slice1",
+        "scheduling",
+        "encounters",
+        "clinical-lists",
+        "messages",
+        "procedures",
+        "billing",
+        "admin",
+        "reports",
+        "workflow-contact",
+        "workflow-appointments",
+        "workflow-encounters",
+        "workflow-clinical-lists",
+        "workflow-messages",
+        "workflow-prescriptions",
+        "workflow-billing",
+        "workflow-procedures"
+    )]
     [string] $Suite = "all",
 
     [string] $Plan = "",

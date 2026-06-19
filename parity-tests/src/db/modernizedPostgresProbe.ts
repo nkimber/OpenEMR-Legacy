@@ -602,7 +602,7 @@ ORDER BY order_date DESC, id DESC;
     const orderIdList = orders.map((order) => order.id).join(",");
     const reportRows = await this.queryRows<Record<string, string>>(`
 SELECT id, order_id AS "orderId", report_date::date AS "reportDate", COALESCE(status, '') AS status,
-  COALESCE(status, '') AS "reviewStatus"
+  COALESCE(review_status, status, '') AS "reviewStatus"
 FROM lab_reports
 WHERE order_id IN (${orderIdList})
 ORDER BY report_date DESC, id DESC;

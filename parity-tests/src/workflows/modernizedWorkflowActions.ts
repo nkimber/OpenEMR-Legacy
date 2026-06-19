@@ -10,11 +10,17 @@ import type {
   NewPatientMessage,
   NewAppointment,
   NewEncounter,
+  NewProcedureOrder,
+  NewProcedureReport,
+  NewProcedureResult,
   NewPrescription,
   NewSoapNote,
   NewVitals,
   PatientContact,
   PatientMessageRecord,
+  ProcedureOrderRecord,
+  ProcedureReportRecord,
+  ProcedureResultRecord,
   PrescriptionRecord,
   SoapNoteRecord,
   VitalsRecord
@@ -448,6 +454,179 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized billing line delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createProcedureOrder(input: NewProcedureOrder): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        providerId: input.providerId,
+        encounterId: input.encounterId,
+        dateOrdered: input.dateOrdered,
+        priority: input.priority,
+        status: input.status,
+        procedureCode: input.procedureCode,
+        procedureName: input.procedureName,
+        procedureType: input.procedureType,
+        diagnosis: input.diagnosis,
+        instructions: input.instructions
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", encounter AS "encounterId",
+  COALESCE(order_status, '') AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
+  COALESCE(code, '') AS "procedureCode", COALESCE(name, '') AS "procedureName",
+  COALESCE(procedure_type, '') AS "procedureType"
+FROM lab_orders
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounterId: Number(row.encounterId),
+      orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
+      procedureCode: row.procedureCode,
+      procedureName: row.procedureName,
+      procedureType: row.procedureType
+    };
+  }
+
+  async updateProcedureOrderStatus(id: number, status: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}/status`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createProcedureReport(input: NewProcedureReport): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        orderId: input.orderId,
+        dateCollected: input.dateCollected,
+        dateReport: input.dateReport,
+        specimenNumber: input.specimenNumber,
+        reportStatus: input.reportStatus,
+        reviewStatus: input.reviewStatus,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getProcedureReport(id: number): Promise<ProcedureReportRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, order_id AS "orderId", COALESCE(status, '') AS "reportStatus",
+  COALESCE(review_status, '') AS "reviewStatus", COALESCE(notes, '') AS "reportNotes"
+FROM lab_reports
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      orderId: Number(row.orderId),
+      reportStatus: row.reportStatus,
+      reviewStatus: row.reviewStatus,
+      reportNotes: row.reportNotes
+    };
+  }
+
+  async createProcedureResult(input: NewProcedureResult): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/results`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        reportId: input.reportId,
+        resultCode: input.resultCode,
+        resultText: input.resultText,
+        dateTime: input.dateTime,
+        facility: input.facility,
+        units: input.units,
+        result: input.result,
+        range: input.range,
+        abnormal: input.abnormal,
+        comments: input.comments,
+        status: input.status
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure result create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getProcedureResult(id: number): Promise<ProcedureResultRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, report_id AS "reportId", COALESCE(code, '') AS "resultCode",
+  COALESCE(text, '') AS "resultText", COALESCE(result, '') AS result,
+  COALESCE(abnormal, '') AS abnormal, COALESCE(result_status, '') AS status
+FROM lab_results
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      reportId: Number(row.reportId),
+      resultCode: row.resultCode,
+      resultText: row.resultText,
+      result: row.result,
+      abnormal: row.abnormal,
+      status: row.status
+    };
+  }
+
+  async deleteProcedureOrderCascade(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized procedure order delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

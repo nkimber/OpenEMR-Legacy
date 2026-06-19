@@ -444,8 +444,29 @@ patients.slice(0, 700).forEach((patient, index) => {
   const orderId = 5000000 + index + 1;
   const reportId = 6000000 + index + 1;
   const orderedDate = addDays(baseDate, -120 + (index % 90));
-  labOrders.push({ id: orderId, patientId: patient.canonicalId, pid: patient.pid, encounter: encounter.encounter, providerId: patient.providerId, date: at(orderedDate, 11), code: panel[0], name: panel[1], diagnosis: encounter.diagnosisCode, orderStatus: "complete" });
-  labReports.push({ id: reportId, orderId, date: at(addDays(orderedDate, 2), 14), status: "complete" });
+  labOrders.push({
+    id: orderId,
+    patientId: patient.canonicalId,
+    pid: patient.pid,
+    encounter: encounter.encounter,
+    providerId: patient.providerId,
+    date: at(orderedDate, 11),
+    code: panel[0],
+    name: panel[1],
+    diagnosis: encounter.diagnosisCode,
+    orderPriority: "routine",
+    procedureType: "laboratory",
+    instructions: "Gold dataset lab order",
+    orderStatus: "complete"
+  });
+  labReports.push({
+    id: reportId,
+    orderId,
+    date: at(addDays(orderedDate, 2), 14),
+    status: "complete",
+    reviewStatus: "reviewed",
+    notes: "Gold dataset result"
+  });
   const resultCount = index < 300 ? 4 : 3;
   panel[2].slice(0, resultCount).forEach((result, resultIndex) => {
     labResults.push({ id: 7000000 + labResults.length + 1, reportId, code: result[0], text: result[1], units: result[2], result: result[3], range: result[4], abnormal: resultIndex === 0 && patient.cohort === "chronic-care" ? "high" : "no", date: at(addDays(orderedDate, 2), 14), resultStatus: "final" });
@@ -468,6 +489,9 @@ patients.slice(700, 1000).forEach((patient, futureIndex) => {
     code: panel[0],
     name: panel[1],
     diagnosis: encounter.diagnosisCode,
+    orderPriority: "routine",
+    procedureType: "laboratory",
+    instructions: "Gold dataset future lab order",
     orderStatus: "scheduled"
   });
 });
@@ -856,9 +880,9 @@ function buildLegacySql() {
     encounter_id: order.encounter,
     date_collected: order.date,
     date_ordered: order.date,
-    order_priority: "routine",
+    order_priority: order.orderPriority,
     order_status: order.orderStatus,
-    patient_instructions: "Gold dataset lab order",
+    patient_instructions: order.instructions,
     activity: 1,
     control_id: `CTRL-${order.id}`,
     specimen_type: "blood",
@@ -877,7 +901,7 @@ function buildLegacySql() {
     procedure_source: "1",
     diagnoses: `ICD10:${order.diagnosis}`,
     procedure_order_title: order.name,
-    procedure_type: "laboratory"
+    procedure_type: order.procedureType
   })), 200));
 
   statements.push(insert("procedure_report", ["procedure_report_id", "uuid", "procedure_order_id", "procedure_order_seq", "date_collected", "date_report", "source", "specimen_num", "report_status", "review_status", "report_notes"], labReports.map((report) => ({
@@ -890,8 +914,8 @@ function buildLegacySql() {
     source: 1,
     specimen_num: `SP-${report.id}`,
     report_status: report.status,
-    review_status: report.status === "complete" ? "reviewed" : "pending",
-    report_notes: "Gold dataset result"
+    review_status: report.reviewStatus,
+    report_notes: report.notes
   })), 200));
 
   statements.push(insert("procedure_result", ["procedure_result_id", "uuid", "procedure_report_id", "result_data_type", "result_code", "result_text", "date", "facility", "units", "result", "range", "abnormal", "comments", "result_status"], labResults.map((result) => ({

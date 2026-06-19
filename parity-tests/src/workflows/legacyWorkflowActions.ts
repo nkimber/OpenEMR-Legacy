@@ -227,7 +227,7 @@ export type NewBillingLine = {
   justify: string;
 };
 
-type NewProcedureOrder = {
+export type NewProcedureOrder = {
   patientId: number;
   providerId: number;
   encounterId: number;
@@ -241,7 +241,7 @@ type NewProcedureOrder = {
   instructions: string;
 };
 
-type NewProcedureReport = {
+export type NewProcedureReport = {
   orderId: number;
   dateCollected: string;
   dateReport: string;
@@ -251,7 +251,7 @@ type NewProcedureReport = {
   notes: string;
 };
 
-type NewProcedureResult = {
+export type NewProcedureResult = {
   reportId: number;
   resultCode: string;
   resultText: string;
