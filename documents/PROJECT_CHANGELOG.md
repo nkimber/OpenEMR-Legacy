@@ -734,7 +734,7 @@ Primary files:
 
 ### 024. Modernized Scheduling Slice 2
 
-Commit: TBD
+Commit: `8b2bc6f`
 
 Implemented the second modernized OpenEMR vertical slice: read-only scheduling with a Calendar module, appointment list/detail API, Workbench orchestration, and matched side-by-side parity against the legacy scheduler.
 
