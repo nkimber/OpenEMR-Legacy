@@ -138,6 +138,10 @@ export type EncounterRecord = {
   reason: string;
   facilityId: number;
   billingFacilityId: number;
+  sensitivity: string;
+  referralSource: string;
+  externalId: string;
+  posCode: number | null;
   billingNote: string;
 };
 
@@ -385,7 +389,18 @@ export type NewEncounter = {
   facilityId: number;
   facilityName: string;
   billingFacilityId: number;
+  sensitivity?: string | null;
+  referralSource?: string | null;
+  externalId?: string | null;
+  posCode?: number | null;
   billingNote: string;
+};
+
+export type EncounterMetadataInput = {
+  sensitivity?: string | null;
+  referralSource?: string | null;
+  externalId?: string | null;
+  posCode?: number | null;
 };
 
 export type NewVitals = {
@@ -1495,11 +1510,13 @@ WHERE id = ${integer(legacyId)};
   async createEncounter(input: NewEncounter): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO form_encounter
-  (uuid, date, reason, facility, facility_id, pid, encounter, pc_catid, provider_id, billing_facility, class_code, billing_note)
+  (uuid, date, reason, facility, facility_id, pid, encounter, pc_catid, provider_id, billing_facility, class_code,
+   sensitivity, referral_source, external_id, pos_code, billing_note)
 VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.dateTime)}, ${sqlString(input.reason)}, ${sqlString(input.facilityName)},
    ${integer(input.facilityId)}, ${integer(input.patientId)}, 0, 9, ${integer(input.providerId)},
-   ${integer(input.billingFacilityId)}, 'AMB', ${sqlString(input.billingNote)});
+   ${integer(input.billingFacilityId)}, 'AMB', ${nullableSqlString(input.sensitivity)}, ${nullableSqlString(input.referralSource)},
+   ${nullableSqlString(input.externalId)}, ${nullableInteger(input.posCode)}, ${sqlString(input.billingNote)});
 SELECT LAST_INSERT_ID() AS id;
 `);
     const encounterId = Number(rows[0]?.id);
@@ -1514,7 +1531,9 @@ WHERE id = ${integer(encounterId)};
   async getEncounter(id: number): Promise<EncounterRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, encounter, pid AS patientId, provider_id AS providerId, DATE(date) AS date,
-  reason, facility_id AS facilityId, billing_facility AS billingFacilityId, COALESCE(billing_note, '') AS billingNote
+  reason, facility_id AS facilityId, billing_facility AS billingFacilityId,
+  COALESCE(sensitivity, '') AS sensitivity, COALESCE(referral_source, '') AS referralSource,
+  COALESCE(external_id, '') AS externalId, pos_code AS posCode, COALESCE(billing_note, '') AS billingNote
 FROM form_encounter
 WHERE id = ${integer(id)}
 LIMIT 1;
@@ -1532,14 +1551,30 @@ LIMIT 1;
       reason: row.reason,
       facilityId: Number(row.facilityId),
       billingFacilityId: Number(row.billingFacilityId),
+      sensitivity: row.sensitivity,
+      referralSource: row.referralSource,
+      externalId: row.externalId,
+      posCode: row.posCode ? Number(row.posCode) : null,
       billingNote: row.billingNote
     };
   }
 
-  async updateEncounterReason(id: number, reason: string, billingNote: string): Promise<void> {
+  async updateEncounterReason(
+    id: number,
+    reason: string,
+    billingNote: string,
+    metadata?: EncounterMetadataInput
+  ): Promise<void> {
+    const metadataSet = metadata
+      ? `,
+    sensitivity = ${nullableSqlString(metadata.sensitivity)},
+    referral_source = ${nullableSqlString(metadata.referralSource)},
+    external_id = ${nullableSqlString(metadata.externalId)},
+    pos_code = ${nullableInteger(metadata.posCode)}`
+      : "";
     await this.db.execute(`
 UPDATE form_encounter
-SET reason = ${sqlString(reason)}, billing_note = ${sqlString(billingNote)}
+SET reason = ${sqlString(reason)}, billing_note = ${sqlString(billingNote)}${metadataSet}
 WHERE id = ${integer(id)};
 `);
   }
@@ -1930,11 +1965,19 @@ function sqlString(value: string) {
   return `'${escapeSql(value)}'`;
 }
 
+function nullableSqlString(value: string | null | undefined) {
+  return value === null || value === undefined || value.trim() === "" ? "NULL" : sqlString(value);
+}
+
 function integer(value: number) {
   if (!Number.isInteger(value)) {
     throw new Error(`Expected integer value, received ${value}.`);
   }
   return String(value);
+}
+
+function nullableInteger(value: number | null | undefined) {
+  return value === null || value === undefined ? "NULL" : integer(value);
 }
 
 function legacyInteger(value: number | string) {

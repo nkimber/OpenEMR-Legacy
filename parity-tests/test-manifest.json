@@ -312,6 +312,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-35-encounter-metadata-readiness",
+      "name": "Slice 35 Encounter Metadata Readiness",
+      "description": "Mutation-capable encounter metadata confidence plan that creates, renders, updates, and removes referral, sensitivity, external ID, and POS metadata on both legacy and modernized targets.",
+      "suites": ["workflow-encounter-metadata"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-35", "encounters", "metadata", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -324,7 +333,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -333,7 +342,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "insurance", "immunizations"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -585,6 +594,16 @@
       "layer": "workflow",
       "path": "tests/workflow-encounters",
       "tags": ["slice12", "workflow", "mutation", "encounters", "vitals", "soap", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-encounter-metadata",
+      "name": "Encounter Metadata Mutation",
+      "description": "Creates, renders, updates, and removes encounter sensitivity, referral source, external ID, and POS metadata through the same clinical workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-encounter-metadata",
+      "tags": ["slice35", "workflow", "mutation", "encounters", "metadata", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -8,6 +8,7 @@ import type {
   AppointmentRecord,
   BillingLineRecord,
   ClinicalListRecord,
+  EncounterMetadataInput,
   EncounterRecord,
   FacilityRecord,
   ImmunizationRecord,
@@ -1308,6 +1309,10 @@ LIMIT 1;
         reason: input.reason,
         facilityId: input.facilityId,
         billingFacilityId: input.billingFacilityId,
+        sensitivity: input.sensitivity ?? null,
+        referralSource: input.referralSource ?? null,
+        externalId: input.externalId ?? null,
+        posCode: input.posCode ?? null,
         billingNote: input.billingNote
       })
     });
@@ -1324,6 +1329,8 @@ LIMIT 1;
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, encounter, pid AS "patientId", provider_id AS "providerId", encounter_date AS date,
   reason, facility_id AS "facilityId", COALESCE(billing_facility_id, facility_id) AS "billingFacilityId",
+  COALESCE(sensitivity, '') AS sensitivity, COALESCE(referral_source, '') AS "referralSource",
+  COALESCE(external_id, '') AS "externalId", pos_code AS "posCode",
   COALESCE(billing_note, '') AS "billingNote"
 FROM encounters
 WHERE encounter = ${integer(id)}
@@ -1343,15 +1350,32 @@ LIMIT 1;
       reason: row.reason,
       facilityId: Number(row.facilityId),
       billingFacilityId: Number(row.billingFacilityId),
+      sensitivity: row.sensitivity,
+      referralSource: row.referralSource,
+      externalId: row.externalId,
+      posCode: row.posCode && row.posCode !== "\\N" ? Number(row.posCode) : null,
       billingNote: row.billingNote
     };
   }
 
-  async updateEncounterReason(id: number, reason: string, billingNote: string): Promise<void> {
+  async updateEncounterReason(
+    id: number,
+    reason: string,
+    billingNote: string,
+    metadata?: EncounterMetadataInput
+  ): Promise<void> {
+    const current = metadata ? null : await this.getEncounter(id);
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ reason, billingNote })
+      body: JSON.stringify({
+        reason,
+        sensitivity: metadata?.sensitivity ?? current?.sensitivity ?? null,
+        referralSource: metadata?.referralSource ?? current?.referralSource ?? null,
+        externalId: metadata?.externalId ?? current?.externalId ?? null,
+        posCode: metadata?.posCode ?? current?.posCode ?? null,
+        billingNote
+      })
     });
 
     if (!response.ok) {

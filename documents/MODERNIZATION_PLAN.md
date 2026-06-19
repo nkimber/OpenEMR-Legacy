@@ -1070,6 +1070,37 @@ Current limitations:
 - This slice covers a focused coverage create, update, and delete lifecycle only.
 - Eligibility checks, payer lookup maintenance, copay workflows, claim generation, payer adjudication, payment posting, subscriber detail editing, and revenue-cycle audit history remain deferred.
 
+### Slice 35: Encounter Metadata Mutation
+
+Goal: add mutation-capable encounter metadata parity using OpenEMR's `form_encounter` sensitivity, referral source, external ID, and place-of-service fields and the modernized Encounters workspace.
+
+Status:
+
+- Implemented as the nineteenth mutation-capable modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-35-encounter-metadata-readiness` plan, which creates, renders, updates, and hard-deletes a temporary encounter metadata row on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core encounter API and PostgreSQL seed schema now preserve `sensitivity`, `referral_source`, `external_id`, and `pos_code` on encounter search, detail, create, and update.
+- React Encounters create/update forms now expose sensitivity, referral source, external ID, and POS code, and the Visit panel renders the saved metadata.
+- Modernized smoke coverage creates a temporary metadata-rich encounter for `MOD-PAT-0002`, updates the metadata, verifies the returned API state, and hard-deletes the row.
+- Shared legacy and modernized workflow adapters now expose encounter metadata fields through `createEncounter`, `getEncounter`, and `updateEncounterReason`.
+- The `workflow-encounter-metadata` parity suite and `slice-35-encounter-metadata-readiness` plan verify the same create, render, update, and cleanup lifecycle against both targets.
+- Workbench-managed Slice 35 encounter metadata plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary encounter can be created for `MOD-PAT-0002` with sensitivity, referral source, external ID, POS code, and billing note fields.
+- The created row can be read back directly from both legacy MariaDB and modernized PostgreSQL with matching normalized metadata.
+- Updating the row changes sensitivity, referral source, external ID, POS code, reason, and billing note on both targets.
+- The updated metadata appears in the modernized Encounters Visit panel and the legacy target remains browser-smoke-renderable for the same patient workflow.
+- The temporary encounter can be hard-deleted during cleanup so the seeded encounter baseline returns to its original count.
+
+Current limitations:
+
+- This slice covers focused encounter metadata create, update, and delete parity only.
+- Diagnosis coding, encounter locking/sign-off, audit history, authorization rules, billing linkage updates, referrals workflow integration, templates, and attachments remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1165,3 +1196,4 @@ As of 2026-06-19:
 - The thirty-second modernized vertical slice implements medication-list mutation with React Lists create/deactivate/delete controls, ASP.NET Core medication-list lifecycle endpoints, PostgreSQL medication activity fields, modernized workflow action adapter methods, Workbench medication-list mutation plan action, smoke coverage, and side-by-side slice-32 parity evidence.
 - The thirty-third modernized vertical slice implements binary patient-document mutation with React Documents file upload/view/download controls, ASP.NET Core binary document lifecycle endpoints, PostgreSQL document byte storage fields, modernized workflow action adapter methods, Workbench binary document mutation plan action, smoke coverage, and side-by-side slice-33 parity evidence.
 - The thirty-fourth modernized vertical slice implements patient insurance mutation with React Patient/Client chart coverage add/edit/delete controls, ASP.NET Core patient insurance lifecycle endpoints, modernized workflow action adapter methods, Workbench insurance mutation plan action, smoke coverage, and side-by-side slice-34 parity evidence.
+- The thirty-fifth modernized vertical slice implements encounter metadata mutation with React Encounters sensitivity/referral/external-ID/POS controls, ASP.NET Core encounter metadata fields, PostgreSQL encounter metadata columns, modernized workflow action adapter methods, Workbench encounter metadata plan action, smoke coverage, and side-by-side slice-35 parity evidence.
