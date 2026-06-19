@@ -275,11 +275,32 @@ Current limitations:
 
 ### Slice 7: Billing And Fee Sheet
 
+Status:
+
+- Implemented as a read-only fee-sheet billing slice under `modernized-openemr/`.
+- Verified with local builds, Docker Compose runtime, modernized smoke checks, and matched side-by-side slice-7 fee-sheet billing parity runs against the legacy baseline.
+
 Scope:
 
-- Encounter billing lines.
-- CPT entry and bill status lifecycle.
-- Insurance-aware billing summaries.
+- Encounter billing lines and charge totals.
+- CPT code, description, fee, billing date, and diagnosis justification display.
+- React Fees module with patient lookup, billing encounter list, selected fee-sheet line display, and count/total summary.
+- ASP.NET Core billing API over the modernized PostgreSQL billing and encounter tables.
+- Workbench-managed slice-7 billing parity plan for both legacy and modernized targets.
+- Fee-sheet parity tests using the existing `MOD-PAT-0001` clinical/billing anchor.
+
+Acceptance:
+
+- Fees module is selectable from the modernized left navigation.
+- Billing can be loaded by canonical patient ID, public patient ID, or legacy PID.
+- The modernized UI displays the same stable `99214` established patient office visit and `36415` routine venipuncture fee-sheet lines used by the legacy fee sheet for encounter `1000013`.
+- The `slice-7-billing-readiness` plan passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice is read-only.
+- CPT entry, bill-status lifecycle, claim generation, payer adjudication, payment posting, and billing deletion workflows remain deferred to later billing mutation slices.
+- Insurance-aware billing summaries remain planned.
 
 ### Slice 8: Administration, Security, And Audit
 
@@ -363,3 +384,5 @@ As of 2026-06-19:
 - The third modernized vertical slice implements read-only encounters with a React Encounters module, ASP.NET Core encounter APIs, PostgreSQL SOAP/vitals queries, expanded modernized smoke checks, Workbench encounters plan actions, and matched side-by-side slice-3 parity evidence.
 - The fourth modernized vertical slice implements read-only clinical lists with a React Lists module, ASP.NET Core clinical-list API, PostgreSQL problem/allergy/medication/prescription queries, expanded modernized smoke checks, Workbench clinical-lists plan actions, and matched side-by-side slice-4 parity evidence.
 - The fifth modernized vertical slice implements read-only patient messages with a React Messages module, ASP.NET Core patient-message API, PostgreSQL message and portal-flag queries, expanded modernized smoke checks, Workbench messaging plan actions, and matched side-by-side slice-5 parity evidence.
+- The sixth modernized vertical slice implements read-only completed procedure/lab results with a React Procedures module, ASP.NET Core procedure-results API, PostgreSQL lab order/report/result queries, expanded modernized smoke checks, Workbench procedures plan actions, and matched side-by-side slice-6 parity evidence.
+- The seventh modernized vertical slice implements read-only fee-sheet billing with a React Fees module, ASP.NET Core billing API, PostgreSQL billing-line queries, expanded modernized smoke checks, Workbench billing plan actions, and side-by-side slice-7 parity evidence.

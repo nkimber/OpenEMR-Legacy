@@ -105,11 +105,13 @@ export type PatientMessagesSummary = {
 };
 
 export type BillingLineSummary = {
-  id: number;
+  id: string;
   encounter: number;
   codeType: string;
   code: string;
   codeText: string;
+  fee: string;
+  justify: string;
 };
 
 export type ProcedureOrderSummary = {
@@ -487,17 +489,20 @@ ORDER BY pn.date DESC, pn.id DESC;
 
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
-SELECT id, encounter, code_type AS codeType, code, code_text AS codeText
+SELECT id, encounter, code_type AS codeType, code, code_text AS codeText,
+  COALESCE(CAST(fee AS CHAR), '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
 ORDER BY id;
 `);
     return rows.map((row) => ({
-      id: Number(row.id),
+      id: row.id,
       encounter: Number(row.encounter),
       codeType: row.codeType,
       code: row.code,
-      codeText: row.codeText
+      codeText: row.codeText,
+      fee: row.fee,
+      justify: row.justify
     }));
   }
 

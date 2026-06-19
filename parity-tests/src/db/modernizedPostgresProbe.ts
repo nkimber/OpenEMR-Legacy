@@ -344,17 +344,20 @@ ORDER BY m.message_date DESC, m.id DESC;
 
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
-SELECT id, encounter, code_type AS "codeType", code, code_text AS "codeText"
+SELECT id, encounter, code_type AS "codeType", code, code_text AS "codeText",
+  COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter}
 ORDER BY id;
 `);
     return rows.map((row) => ({
-      id: Number(row.id),
+      id: row.id,
       encounter: Number(row.encounter),
       codeType: row.codeType,
       code: row.code,
-      codeText: row.codeText
+      codeText: row.codeText,
+      fee: row.fee,
+      justify: row.justify
     }));
   }
 

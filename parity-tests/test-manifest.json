@@ -60,6 +60,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-7-billing-readiness",
+      "name": "Slice 7 Billing Readiness",
+      "description": "Read-only fee sheet confidence plan for seeded encounter billing lines on both legacy and modernized targets.",
+      "suites": ["billing"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-7", "billing", "fee-sheet", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -163,6 +172,16 @@
       "layer": "parity",
       "path": "tests/procedures",
       "tags": ["slice6", "procedures", "labs", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "billing",
+      "name": "Fee Sheet Billing",
+      "description": "Compares read-only encounter fee sheet billing lines against the legacy fee sheet using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/billing",
+      "tags": ["slice7", "billing", "fee-sheet", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
