@@ -1616,7 +1616,7 @@ Primary files:
 
 ### 039. Modernized Procedure Mutation Slice 17
 
-Commit: TBD
+Commit: 328ddc3
 
 Implemented the seventeenth modernized OpenEMR vertical slice: the eighth mutation-capable parity workflow, focused on lab procedure order create, order completion, reviewed final report creation, final result creation, browser-visible order/report/result rendering, and cascade-delete cleanup with React Procedures controls, ASP.NET Core procedure lifecycle endpoints, PostgreSQL lab lifecycle fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR procedure-results workflow.
 
