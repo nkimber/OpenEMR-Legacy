@@ -22,7 +22,7 @@ import {
   TestTube2,
   XCircle
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 import { api } from "./api";
 import type {
@@ -724,61 +724,69 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
 }
 
 function TestsPage({
-  app,
+  apps,
   busy,
   parityManifest,
   onRunTest,
   onRunCustomParity
 }: {
-  app?: AppSnapshot;
+  apps: AppSnapshot[];
   busy: BusyState;
   parityManifest: ParityManifest | null;
-  onRunTest: (testId: string) => void;
-  onRunCustomParity: (request: CustomParityRunRequest) => void;
+  onRunTest: (appId: string, testId: string) => void;
+  onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
-  const busyForApp = busy?.appId === app?.id;
-
   return (
     <div className="page-stack">
-      <CustomParityRunPanel app={app} busy={busy} parityManifest={parityManifest} onRunCustomParity={onRunCustomParity} />
-      <section className="panel">
-        <div className="panel-header">
-          <div>
-            <div className="section-kicker">Executable evidence</div>
-            <h2>
-              <TestTube2 size={20} />
-              Test Runs
-            </h2>
-          </div>
-        </div>
-        {app ? (
-          <div className="test-run-grid">
-            {app.tests.map((test) => {
-              const latest = app.latestTests[test.id] ?? null;
-              return (
-                <div className="test-run-card" key={test.id}>
-                  <div className="test-card-main">
-                    <div>
-                      <div className="architecture-title">
-                        <strong>{test.name}</strong>
-                        <span className="layer-pill">{test.layer}</span>
-                      </div>
-                      <p>{test.description}</p>
-                    </div>
-                    <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(test.id)} disabled={busyForApp}>
-                      <Play size={18} />
-                    </IconButton>
-                  </div>
-                  <TestRunEvidence result={latest} />
+      {apps.length ? (
+        apps.map((app) => {
+          const busyForApp = busy?.appId === app.id;
+          return (
+            <Fragment key={app.id}>
+              <CustomParityRunPanel app={app} busy={busy} parityManifest={parityManifest} onRunCustomParity={(request) => onRunCustomParity(app.id, request)} />
+              <section className="panel">
+              <div className="panel-header">
+                <div>
+                  <div className="section-kicker">Executable evidence</div>
+                  <h2>
+                    <TestTube2 size={20} />
+                    {app.name}
+                  </h2>
+                  <p>{app.description}</p>
                 </div>
-              );
-            })}
-            <LatestSmokePanel app={app} />
-          </div>
-        ) : (
+              </div>
+              <div className="test-run-grid">
+                {app.tests.map((test) => {
+                  const latest = app.latestTests[test.id] ?? null;
+                  return (
+                    <div className="test-run-card" key={test.id}>
+                      <div className="test-card-main">
+                        <div>
+                          <div className="architecture-title">
+                            <strong>{test.name}</strong>
+                            <span className="layer-pill">{test.layer}</span>
+                          </div>
+                          <p>{test.description}</p>
+                        </div>
+                        <IconButton title={`Run ${test.name}`} onClick={() => onRunTest(app.id, test.id)} disabled={busyForApp}>
+                          <Play size={18} />
+                        </IconButton>
+                      </div>
+                      <TestRunEvidence result={latest} />
+                    </div>
+                  );
+                })}
+                <LatestSmokePanel app={app} />
+              </div>
+            </section>
+            </Fragment>
+          );
+        })
+      ) : (
+        <section className="panel">
           <EmptyState text="Managed application data is loading." />
-        )}
-      </section>
+        </section>
+      )}
     </div>
   );
 }
@@ -796,7 +804,7 @@ function CustomParityRunPanel({
 }) {
   const [selectionKind, setSelectionKind] = useState<"suite" | "plan">("suite");
   const [suite, setSuite] = useState("all");
-  const [plan, setPlan] = useState("full-parity");
+  const [plan, setPlan] = useState("slice-1-readiness");
   const [reset, setReset] = useState<ParityResetMode>("run");
   const [headed, setHeaded] = useState(false);
   const [grep, setGrep] = useState("");
@@ -820,12 +828,12 @@ function CustomParityRunPanel({
     <section className="panel custom-run-panel">
       <div className="panel-header">
         <div>
-          <div className="section-kicker">Run builder</div>
+          <div className="section-kicker">Run builder{app ? ` - ${app.name}` : ""}</div>
           <h2>
             <Play size={20} />
             Custom Parity Run
           </h2>
-          <p>{runDescription ?? "Choose a suite or plan, then run it against the managed baseline with the selected reset mode."}</p>
+          <p>{runDescription ?? "Choose a suite or plan, then run it against the managed application with the selected reset mode."}</p>
         </div>
         <IconButton
           title={`Run ${runLabel}`}
@@ -1175,7 +1183,7 @@ function PageBody({
   architecture: ArchitectureSystem[];
   changelog: ProjectChangelog | null;
   parityManifest: ParityManifest | null;
-  onRunCustomParity: (request: CustomParityRunRequest) => void;
+  onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
   if (page === "timeline") {
     return <ChangelogPanel changelog={changelog} />;
@@ -1187,7 +1195,7 @@ function PageBody({
     return <ArchitecturePanel systems={architecture} />;
   }
   if (page === "tests") {
-    return <TestsPage app={legacyApp} busy={busy} parityManifest={parityManifest} onRunTest={(testId) => legacyApp && onRunTest(legacyApp.id, testId)} onRunCustomParity={onRunCustomParity} />;
+    return <TestsPage apps={apps} busy={busy} parityManifest={parityManifest} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
   }
   if (page === "seed-data") {
     return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)} />;
@@ -1383,7 +1391,7 @@ export function App() {
           architecture={architecture}
           changelog={changelog}
           parityManifest={parityManifest}
-          onRunCustomParity={(request) => legacyApp && handleRunCustomParity(legacyApp.id, request)}
+          onRunCustomParity={handleRunCustomParity}
         />
       </main>
     </div>

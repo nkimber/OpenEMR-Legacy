@@ -1031,7 +1031,8 @@ app.get("/api/architecture", async (_request, response) => {
           "Gold seed-data validation implemented",
           "Parity database/http/ui/workflow suites and named run plans implemented",
           "Playwright UI suite implemented for login, chart, encounter, scheduling, billing, and lab-result screens",
-          "Mutation workflow suite implemented"
+          "Mutation workflow suite implemented",
+          "Slice 1 readiness parity plan implemented for patient search/chart summary comparison"
         ]
       },
       {
@@ -1050,7 +1051,7 @@ app.get("/api/architecture", async (_request, response) => {
         stack: ["React 19 SPA", "ASP.NET Core 10 API", "PostgreSQL", "Docker Compose"],
         database: "PostgreSQL",
         businessLogic: "Server-side API owns patient search/chart summary behavior for the first read-only slice",
-        tests: ["Modernized smoke test implemented for health, anchor patient search, and chart summary"]
+        tests: ["Modernized smoke test implemented for health, anchor patient search, and chart summary", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison"]
       }
     ]
   });
@@ -1067,7 +1068,7 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, scheduling, encounters with vitals/SOAP details, clinical lists, patient messages, prescriptions, billing, and lab procedure lifecycle coverage with pre/post database probes." },
       { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 1 is scaffolded with React, ASP.NET Core, PostgreSQL, shared gold-data seeding, Workbench management, and patient search/chart summary behavior." }
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 1 is scaffolded with React, ASP.NET Core, PostgreSQL, shared gold-data seeding, Workbench management, patient search/chart summary behavior, and side-by-side slice-1 parity evidence." }
     ]
   });
 });

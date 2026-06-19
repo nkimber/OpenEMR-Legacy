@@ -15,6 +15,7 @@ export type TargetConfig = {
   type: TargetType;
   appId: string;
   publicUrl: string;
+  apiBaseUrl?: string;
   healthUrl: string;
   workingDirectory: string;
   envPath: string;
@@ -49,6 +50,7 @@ export type RuntimeTarget = TargetConfig & {
     username: string;
     password: string;
   };
+  apiBaseUrl: string;
 };
 
 export async function loadTargets() {
@@ -77,6 +79,7 @@ export async function loadTarget(targetId = process.env.PARITY_TARGET ?? "legacy
 
   return {
     ...target,
+    apiBaseUrl: target.apiBaseUrl ?? target.publicUrl,
     repoRoot,
     parityRoot,
     workingDirectoryAbs,

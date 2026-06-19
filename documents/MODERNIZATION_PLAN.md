@@ -96,7 +96,7 @@ Goal:
 Status:
 
 - Implemented as the first modernized target slice under `modernized-openemr/`.
-- Verified with local builds, Docker Compose runtime, PostgreSQL gold-data seed, and modernized smoke checks.
+- Verified with local builds, Docker Compose runtime, PostgreSQL gold-data seed, modernized smoke checks, and matched side-by-side slice-1 parity runs against the legacy baseline.
 
 Scope:
 
@@ -118,7 +118,8 @@ Current limitations:
 
 - This slice is read-only.
 - Modernized authentication is deferred to the administration/security slice.
-- Reusable parity-test adapters for the modernized target are still pending; the first implemented check is a modernized smoke test covering health, anchor patient search, and anchor chart summary.
+- Reusable parity-test adapters now exist for the first read-only slice: PostgreSQL database probes, shared anchor-patient checks, and Playwright chart visibility checks.
+- Mutation-capable workflow parity remains deferred until CRUD slices are implemented.
 
 ### Slice 2: Scheduling
 

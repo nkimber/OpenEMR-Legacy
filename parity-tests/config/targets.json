@@ -33,21 +33,28 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "status": "planned",
+      "status": "implemented",
       "type": "modernized-openemr",
       "appId": "modernized-openemr",
       "publicUrl": "http://localhost:3000",
-      "healthUrl": "http://localhost:3000/health",
+      "apiBaseUrl": "http://localhost:5001",
+      "healthUrl": "http://localhost:5001/health",
       "workingDirectory": "../modernized-openemr",
       "envPath": "../modernized-openemr/.env",
       "seedDatasetId": "openemr-shared-synthetic-v1",
       "seedSummaryPath": "../modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json",
       "database": {
         "kind": "postgres",
+        "composeService": "postgres",
         "defaultDatabase": "openemr_modernized",
         "defaultUser": "openemr"
       },
-      "commands": {}
+      "commands": {
+        "start": ["docker", "compose", "up", "-d"],
+        "status": ["docker", "compose", "ps", "--format", "json"],
+        "reset": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-ModernizedGoldDataset.ps1"],
+        "smoke": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-ModernizedBaseline.ps1"]
+      }
     }
   ]
 }

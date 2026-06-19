@@ -6,6 +6,15 @@
   "defaultResetMode": "run",
   "plans": [
     {
+      "id": "slice-1-readiness",
+      "name": "Slice 1 Readiness",
+      "description": "Read-only patient-search/chart-summary confidence plan for both legacy and modernized targets.",
+      "suites": ["database", "slice1"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-1", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -26,11 +35,11 @@
     {
       "id": "full-parity",
       "name": "Full Parity Contract",
-      "description": "Complete target-neutral parity plan intended to run against legacy now and both targets later.",
+      "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
       "suites": ["database", "http", "ui", "workflow"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
-      "targets": ["legacy-openemr", "modernized-openemr"]
+      "targets": ["legacy-openemr"]
     }
   ],
   "resetModes": [
@@ -53,9 +62,19 @@
   ],
   "suites": [
     {
+      "id": "slice1",
+      "name": "Patient Search And Chart Summary",
+      "description": "Compares the first modernized read-only slice against the legacy baseline using the shared anchor patient.",
+      "layer": "parity",
+      "path": "tests/slice1",
+      "tags": ["slice1", "patient-chart", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
       "id": "database",
       "name": "Gold Database Contract",
-      "description": "Validates the seeded legacy database through normalized probes.",
+      "description": "Validates the seeded gold dataset through normalized database probes.",
       "layer": "database",
       "path": "tests/database",
       "tags": ["gold", "database", "read-only"],
@@ -89,7 +108,7 @@
       "layer": "workflow",
       "path": "tests/workflow",
       "tags": ["workflow", "mutation", "crud", "database", "ui"],
-      "targets": ["legacy-openemr", "modernized-openemr"],
+      "targets": ["legacy-openemr"],
       "defaultResetMode": "test"
     }
   ]

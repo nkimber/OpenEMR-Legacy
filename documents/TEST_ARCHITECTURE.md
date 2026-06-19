@@ -230,11 +230,16 @@ Each run folder contains:
 The runner also writes latest summary files by target and suite:
 
 - `parity-tests/artifacts/latest-legacy-openemr-database.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-1-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
 - `parity-tests/artifacts/latest-legacy-openemr-all.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-full-parity.json`
+- `parity-tests/artifacts/latest-modernized-openemr-database.json`
+- `parity-tests/artifacts/latest-modernized-openemr-http.json`
+- `parity-tests/artifacts/latest-modernized-openemr-ui.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-1-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -248,7 +253,13 @@ The comparison runner can compare two `run.json` or latest-summary files:
 npm run compare -- --left artifacts/latest-legacy-openemr-plan-full-parity.json --right artifacts/latest-modernized-openemr-plan-full-parity.json --plan full-parity
 ```
 
-Until the modernized target exists, the comparator can still be verified with two legacy run files. Once both targets exist, it should become the Workbench and CI input for side-by-side parity status.
+For the first modernized slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-1-readiness
+```
+
+The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
 
@@ -267,28 +278,28 @@ The legacy app currently exposes these test actions:
 - Workflow mutation contract.
 - Legacy readiness plan.
 - Isolated mutation plan.
+- Slice 1 readiness plan.
 - Full parity plan.
 - Full legacy parity suite.
 
 The modernized app currently exposes these test actions:
 
 - Modernized smoke test for API health, anchor patient search, and anchor chart summary.
+- Slice 1 readiness plan for side-by-side patient search/chart summary parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
-The Test Runs page also includes a custom parity run builder. The Workbench API exposes `parity-tests/test-manifest.json`, and the UI lets an operator choose suite or plan, a specific suite or plan id, reset mode, headed mode, and an optional Playwright grep filter. The backend validates those choices against the manifest before it constructs the existing `scripts/Run-OpenEmrParityTests.ps1` command. This gives the project a real test manager for targeted runs while keeping command execution local and constrained.
+The Test Runs page also includes a custom parity run builder for each managed app. The Workbench API exposes `parity-tests/test-manifest.json`, and the UI lets an operator choose suite or plan, a specific suite or plan id, reset mode, headed mode, and an optional Playwright grep filter. The backend validates those choices against the manifest before it constructs the existing `scripts/Run-OpenEmrParityTests.ps1` command. This gives the project a real test manager for targeted runs while keeping command execution local and constrained.
 
 ## Modernized Target Parity Path
 
-The modernized target now exists, but only the first read-only patient search/chart summary slice is implemented. The current smoke test proves that the target can run, consume the shared gold dataset, and return the deterministic anchor patient.
+The modernized target now exists, but only the first read-only patient search/chart summary slice is implemented. The smoke test proves that the target can run, consume the shared gold dataset, and return the deterministic anchor patient. The `slice-1-readiness` parity plan now proves the same database contract and anchor chart behavior against both legacy and modernized targets.
 
 Next parity steps:
 
-1. Add its actual runtime config to `parity-tests/config/targets.json`.
-2. Add its database probe adapter.
-3. Add modernized workflow actions behind the same mutation-test intent.
-4. Add modernized UI helpers behind the same browser workflow intent.
-5. Run the same suites against both targets.
-6. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
+1. Add modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
+2. Add modernized UI helpers behind the same browser workflow intent for each new slice.
+3. Expand `slice-1-readiness` into additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
+4. Add comparison views in the Workbench that read the two run summaries and normalized probe outputs.
 
 The test code should continue to assert observable behavior and normalized domain state, not identical implementation details.

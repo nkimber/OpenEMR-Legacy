@@ -680,12 +680,63 @@ Primary files:
 - `documents/TEST_ARCHITECTURE.md`
 - `documents/TEST_DATA_STRATEGY.md`
 
+### 023. Slice 1 Side-By-Side Parity
+
+Commit: `TBD`
+
+Promoted the first modernized patient search/chart summary slice from smoke-only validation into the reusable parity harness with matched legacy-vs-modernized comparison evidence.
+
+Key outcomes:
+
+- Marked `modernized-openemr` as an implemented parity target in `parity-tests/config/targets.json` with API, UI, PostgreSQL, reset, and smoke command metadata.
+- Added a PostgreSQL parity probe for the modernized target with normalized gold-count, temporal-coverage, anchor-patient, and patient-workflow-count methods matching the legacy MariaDB probe contract.
+- Expanded the modernized PostgreSQL seed adapter to load the full read-only gold contract, including insurance records, vitals, clinical notes, lab reports, and lab results.
+- Converted the gold database contract to use a target-neutral database fixture.
+- Added a dedicated `slice1` parity suite for patient search/chart summary behavior with the same test inventory on legacy and modernized targets.
+- Added a `slice-1-readiness` named plan that runs the database contract plus the slice-1 patient chart suite against both targets.
+- Kept mutation workflow parity legacy-only until modernized CRUD slices exist.
+- Added modernized parity npm scripts and Workbench-managed slice-1 parity test actions for both legacy and modernized applications.
+- Updated the Workbench Test Runs page so it renders test cards and custom parity run builders for every managed application, not only the legacy baseline.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`, loading the expanded PostgreSQL read-only gold schema.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite database -Reset none`, passing 4 database contract tests.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite http -Reset none`, passing 3 HTTP checks with 2 legacy-only skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite ui -Reset none`, passing the modernized chart UI check with legacy-only checks skipped.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-1-readiness -Reset run`, passing 7 expected tests with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-1-readiness -Reset run`, passing 7 expected tests with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-1-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- `npm run build` in `modernization-workbench/`.
+
+Primary files:
+
+- `parity-tests/config/targets.json`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/fixtures/parityTest.ts`
+- `parity-tests/src/config/targets.ts`
+- `parity-tests/tests/database/gold-seed-contract.spec.ts`
+- `parity-tests/tests/http/legacy-http.spec.ts`
+- `parity-tests/tests/ui/legacy-login-and-chart.spec.ts`
+- `parity-tests/tests/slice1/patient-search-chart-summary.spec.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Modernized workflow action adapters for the parity suite.
-- Modernized target entry in `parity-tests/config/targets.json` with PostgreSQL database probes.
-- Modernized Playwright patient-search/chart-summary parity checks.
 - Scheduling slice implementation in the modernized target.
+- Workbench comparison views that render matched/different comparison artifacts directly.

@@ -159,7 +159,7 @@ Each workflow slice should define:
 
 Stable tests should reference canonical patient identifiers such as `MOD-PAT-0001`, not legacy database auto-increment IDs.
 
-The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior.
+The first modernized seed adapter lives in `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`. It consumes the canonical gold dataset, generates a PostgreSQL seed script under ignored artifacts, and loads the same patient and workflow records into modernized read-model tables for patient search/chart summary behavior and normalized database parity checks.
 
 ### Level 3: Extended Synthetic Population
 
@@ -186,10 +186,10 @@ This level should be introduced only after the deterministic V1 gold workflow da
 
 ## Near-Term Next Step
 
-Build reusable modernized parity adapters that consume the gold dataset:
+Continue expanding reusable modernized parity adapters that consume the gold dataset:
 
-- Add the modernized target to the parity harness target config.
-- Add PostgreSQL database probes that normalize the same facts as the legacy MariaDB probes.
-- Add Playwright patient-search/navigation tests using `MOD-PAT-0001` against the modernized UI.
+- Add modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
+- Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
+- Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
 - Appointment and encounter navigation tests using the scheduling and encounter anchors.
 - Portal/message, labs, medications, allergies, and billing tests as the next workflow slices are selected.

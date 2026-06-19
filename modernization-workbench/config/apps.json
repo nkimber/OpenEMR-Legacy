@@ -29,6 +29,7 @@
         "parityWorkflowTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "workflow", "-Reset", "test"],
         "parityReadinessPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "legacy-readiness", "-Reset", "run"],
         "parityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "mutation-isolated", "-Reset", "test"],
+        "paritySlice1Plan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-1-readiness", "-Reset", "run"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -125,6 +126,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-mutation-isolated.json"
         },
         {
+          "id": "parity-plan-slice1",
+          "name": "Slice 1 readiness plan",
+          "description": "Runs the shared patient search/chart-summary parity plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "paritySlice1Plan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-1-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -161,7 +170,8 @@
         "restart": ["docker", "compose", "restart"],
         "logs": ["docker", "compose", "logs", "--tail", "160"],
         "seedGoldDataset": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Seed-ModernizedGoldDataset.ps1"],
-        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-ModernizedBaseline.ps1"]
+        "smokeTest": ["powershell", "-ExecutionPolicy", "Bypass", "-File", ".\\scripts\\Test-ModernizedBaseline.ps1"],
+        "paritySlice1Plan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-1-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -182,6 +192,14 @@
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
+        },
+        {
+          "id": "parity-plan-slice1",
+          "name": "Slice 1 readiness plan",
+          "description": "Runs the shared patient search/chart-summary parity plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "paritySlice1Plan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-1-readiness.json"
         }
       ]
     }
