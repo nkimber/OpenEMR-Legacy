@@ -1488,6 +1488,34 @@ Current limitations:
 - This slice is read-only and covers payment posting visibility only.
 - Full ERA/EOB import, payer adjudication, payment posting mutations, patient statements, payment reversal/void handling, and revenue-cycle audit history remain future billing slices.
 
+### Slice 49: Account Balance Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-49-account-balance-readiness` plan, which validates seeded charge, payment, adjustment, and balance rollups for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing rows plus Slice 48 payment posting rows; it does not add new gold-data records.
+- ASP.NET Core billing read behavior now returns patient-level and encounter-level account summaries with charge, payment, adjustment, and balance amounts.
+- React Fees workspace now shows an Account Balance panel and per-encounter charges, paid amount, adjusted amount, and remaining balance.
+- Modernized smoke coverage validates the `MOD-PAT-0005` account balance summary and encounter `1000052` balance facts.
+- The `account-balance` parity suite and `slice-49-account-balance-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL rollups, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 49 account balance plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute `MOD-PAT-0005` patient totals of `$635.00` charges, `$206.00` paid, `$64.25` adjusted, and `$364.75` balance from the same seeded data.
+- Direct probes compute encounter `1000052` totals of `$186.00` charges, `$126.00` paid, `$42.00` adjusted, and `$18.00` balance.
+- The modernized billing API and Fees workspace render those same patient and encounter balance facts without changing seeded billing or payment rows.
+- The side-by-side Slice 49 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers balance visibility only.
+- Patient statement generation, aging buckets, collection workflows, payment mutation/reversal behavior, claim adjudication, payer remittance import, and revenue-cycle audit history remain future billing slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1597,3 +1625,4 @@ As of 2026-06-19:
 - The forty-sixth modernized vertical slice implements fee-sheet modifier behavior with canonical billing modifier seed data, React Fees modifier controls and rendering, ASP.NET Core billing modifier create/update/read support, PostgreSQL billing modifier mapping, Workbench billing modifier plan action, smoke coverage, and side-by-side slice-46 parity evidence.
 - The forty-seventh modernized vertical slice implements read-only claim status visibility with canonical claim seed data, PostgreSQL claim mapping, ASP.NET Core billing claim read support, React Fees claim-status rendering, Workbench claim status plan action, smoke coverage, and side-by-side slice-47 parity evidence.
 - The forty-eighth modernized vertical slice implements read-only payment posting visibility with canonical AR session/activity seed data, PostgreSQL payment mapping, ASP.NET Core billing payment read support, React Fees payment-posting rendering, Workbench payment posting plan action, smoke coverage, and side-by-side slice-48 parity evidence.
+- The forty-ninth modernized vertical slice implements read-only account balance visibility by computing charge, payment, adjustment, and balance rollups over existing seeded billing/payment rows, adding ASP.NET Core billing account summaries, React Fees Account Balance rendering, Workbench account balance plan action, smoke coverage, and side-by-side slice-49 parity evidence.

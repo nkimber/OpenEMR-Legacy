@@ -1,4 +1,16 @@
-import type { AppSnapshot, ArchitectureSystem, CustomParityRunRequest, LifecycleEvent, ParityManifest, ParityRunResult, ProgressSlice, ProjectChangelog, SeedDataset } from "./types";
+import { buildArchitectureModel } from "./architectureModel";
+import type {
+  AppSnapshot,
+  ArchitectureModel,
+  ArchitectureSystemSummary,
+  CustomParityRunRequest,
+  LifecycleEvent,
+  ParityManifest,
+  ParityRunResult,
+  ProgressSlice,
+  ProjectChangelog,
+  SeedDataset
+} from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -47,7 +59,8 @@ export const api = {
     return requestJson<{ events: LifecycleEvent[] }>("/api/events");
   },
   async getArchitecture() {
-    return requestJson<{ systems: ArchitectureSystem[] }>("/api/architecture");
+    const data = await requestJson<{ systems: ArchitectureSystemSummary[] }>("/api/architecture");
+    return buildArchitectureModel(data.systems);
   },
   async getProgress() {
     return requestJson<{ slices: ProgressSlice[] }>("/api/progress");

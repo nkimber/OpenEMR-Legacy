@@ -260,7 +260,60 @@ export type LifecycleEvent = {
   stderrPreview: string;
 };
 
-export type ArchitectureSystem = {
+export type ArchitectureTechnology = {
+  id: string;
+  name: string;
+  version: string;
+  detail: string;
+  logoUrl?: string;
+  logoText: string;
+  color: string;
+};
+
+export type ArchitectureLayerCell = {
+  systemId: string;
+  detail: string;
+  technologies: ArchitectureTechnology[];
+};
+
+export type ArchitectureLayer = {
+  id: string;
+  label: string;
+  summary: string;
+  cells: ArchitectureLayerCell[];
+};
+
+export type ArchitectureDiagramNode = {
+  id: string;
+  title: string;
+  subtitle: string;
+  technologies: ArchitectureTechnology[];
+};
+
+export type ArchitectureDiagramEdge = {
+  from: string;
+  to: string;
+  label: string;
+};
+
+export type ArchitectureDiagram = {
+  title: string;
+  subtitle: string;
+  nodes: ArchitectureDiagramNode[];
+  edges: ArchitectureDiagramEdge[];
+};
+
+export type ArchitectureNarrative = {
+  title: string;
+  body: string;
+};
+
+export type ArchitectureDecision = {
+  title: string;
+  detail: string;
+};
+
+export type ArchitectureSystemSummary = {
   id: string;
   name: string;
   status: string;
@@ -268,6 +321,25 @@ export type ArchitectureSystem = {
   database: string;
   businessLogic: string;
   tests: string[];
+};
+
+export type ArchitectureSystem = ArchitectureSystemSummary & {
+  purpose: string;
+  architecturePattern: string;
+  runtime: string;
+  dataOwnership: string;
+  technologies: ArchitectureTechnology[];
+  diagram: ArchitectureDiagram;
+  narratives: ArchitectureNarrative[];
+  responsibilities: string[];
+  evidence: string[];
+};
+
+export type ArchitectureModel = {
+  systems: ArchitectureSystem[];
+  layers: ArchitectureLayer[];
+  topology: ArchitectureDiagram;
+  decisions: ArchitectureDecision[];
 };
 
 export type ProgressSlice = {

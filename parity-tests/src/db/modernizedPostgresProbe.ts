@@ -22,6 +22,7 @@ import type {
   PatientImmunizationsSummary,
   PatientMessagesSummary,
   PaymentPostingSummary,
+  AccountBalanceSummary,
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
@@ -637,6 +638,52 @@ ORDER BY pa.encounter, pa.sequence_no;
       accountCode: row.accountCode,
       reasonCode: row.reasonCode,
       payerClaimNumber: row.payerClaimNumber
+    }));
+  }
+
+  async getAccountBalancesForPatient(pid: number): Promise<AccountBalanceSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH charges AS (
+  SELECT pid, encounter, COUNT(*) AS "lineCount", COALESCE(SUM(fee), 0) AS "chargeAmount"
+  FROM billing
+  WHERE pid = ${pid} AND activity = 1
+  GROUP BY pid, encounter
+),
+payments AS (
+  SELECT pid, encounter, COUNT(*) AS "paymentCount",
+    COALESCE(SUM(pay_amount), 0) AS "paymentAmount",
+    COALESCE(SUM(adj_amount), 0) AS "adjustmentAmount"
+  FROM payment_activities
+  WHERE pid = ${pid} AND deleted IS NULL
+  GROUP BY pid, encounter
+)
+SELECT c.pid AS "patientId", c.encounter, c."lineCount", COALESCE(p."paymentCount", 0) AS "paymentCount",
+  COALESCE(c."chargeAmount"::text, '0') AS "chargeAmount",
+  COALESCE(p."paymentAmount"::text, '0') AS "paymentAmount",
+  COALESCE(p."adjustmentAmount"::text, '0') AS "adjustmentAmount",
+  COALESCE((c."chargeAmount" - COALESCE(p."paymentAmount", 0) - COALESCE(p."adjustmentAmount", 0))::text, '0') AS "balanceAmount"
+FROM charges c
+LEFT JOIN payments p ON p.pid = c.pid AND p.encounter = c.encounter
+UNION ALL
+SELECT p.pid AS "patientId", p.encounter, 0 AS "lineCount", p."paymentCount",
+  '0' AS "chargeAmount",
+  COALESCE(p."paymentAmount"::text, '0') AS "paymentAmount",
+  COALESCE(p."adjustmentAmount"::text, '0') AS "adjustmentAmount",
+  COALESCE((0 - p."paymentAmount" - p."adjustmentAmount")::text, '0') AS "balanceAmount"
+FROM payments p
+LEFT JOIN charges c ON c.pid = p.pid AND c.encounter = p.encounter
+WHERE c.encounter IS NULL
+ORDER BY encounter;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      lineCount: Number(row.lineCount),
+      paymentCount: Number(row.paymentCount),
+      chargeAmount: row.chargeAmount,
+      paymentAmount: row.paymentAmount,
+      adjustmentAmount: row.adjustmentAmount,
+      balanceAmount: row.balanceAmount
     }));
   }
 

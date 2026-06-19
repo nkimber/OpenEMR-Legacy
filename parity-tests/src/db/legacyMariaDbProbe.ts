@@ -220,6 +220,17 @@ export type PaymentPostingSummary = {
   payerClaimNumber: string;
 };
 
+export type AccountBalanceSummary = {
+  patientId: number;
+  encounter: number;
+  lineCount: number;
+  paymentCount: number;
+  chargeAmount: string;
+  paymentAmount: string;
+  adjustmentAmount: string;
+  balanceAmount: string;
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -1023,6 +1034,52 @@ ORDER BY aa.encounter, aa.sequence_no;
       accountCode: row.accountCode,
       reasonCode: row.reasonCode,
       payerClaimNumber: row.payerClaimNumber
+    }));
+  }
+
+  async getAccountBalancesForPatient(pid: number): Promise<AccountBalanceSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH charges AS (
+  SELECT pid, encounter, COUNT(*) AS \`lineCount\`, COALESCE(SUM(fee), 0) AS \`chargeAmount\`
+  FROM billing
+  WHERE pid = ${pid} AND activity = 1
+  GROUP BY pid, encounter
+),
+payments AS (
+  SELECT pid, encounter, COUNT(*) AS \`paymentCount\`,
+    COALESCE(SUM(pay_amount), 0) AS \`paymentAmount\`,
+    COALESCE(SUM(adj_amount), 0) AS \`adjustmentAmount\`
+  FROM ar_activity
+  WHERE pid = ${pid} AND deleted IS NULL
+  GROUP BY pid, encounter
+)
+SELECT c.pid AS \`patientId\`, c.encounter, c.\`lineCount\`, COALESCE(p.\`paymentCount\`, 0) AS \`paymentCount\`,
+  COALESCE(CAST(c.\`chargeAmount\` AS CHAR), '0') AS \`chargeAmount\`,
+  COALESCE(CAST(p.\`paymentAmount\` AS CHAR), '0') AS \`paymentAmount\`,
+  COALESCE(CAST(p.\`adjustmentAmount\` AS CHAR), '0') AS \`adjustmentAmount\`,
+  COALESCE(CAST(c.\`chargeAmount\` - COALESCE(p.\`paymentAmount\`, 0) - COALESCE(p.\`adjustmentAmount\`, 0) AS CHAR), '0') AS \`balanceAmount\`
+FROM charges c
+LEFT JOIN payments p ON p.pid = c.pid AND p.encounter = c.encounter
+UNION ALL
+SELECT p.pid AS \`patientId\`, p.encounter, 0 AS \`lineCount\`, p.\`paymentCount\`,
+  '0' AS \`chargeAmount\`,
+  COALESCE(CAST(p.\`paymentAmount\` AS CHAR), '0') AS \`paymentAmount\`,
+  COALESCE(CAST(p.\`adjustmentAmount\` AS CHAR), '0') AS \`adjustmentAmount\`,
+  COALESCE(CAST(0 - p.\`paymentAmount\` - p.\`adjustmentAmount\` AS CHAR), '0') AS \`balanceAmount\`
+FROM payments p
+LEFT JOIN charges c ON c.pid = p.pid AND c.encounter = p.encounter
+WHERE c.encounter IS NULL
+ORDER BY encounter;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      lineCount: Number(row.lineCount),
+      paymentCount: Number(row.paymentCount),
+      chargeAmount: row.chargeAmount,
+      paymentAmount: row.paymentAmount,
+      adjustmentAmount: row.adjustmentAmount,
+      balanceAmount: row.balanceAmount
     }));
   }
 

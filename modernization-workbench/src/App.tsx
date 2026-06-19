@@ -23,11 +23,13 @@ import {
   XCircle
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { api } from "./api";
 import type {
   AppSnapshot,
+  ArchitectureModel,
   ArchitectureSystem,
+  ArchitectureTechnology,
   CustomParityRunRequest,
   LifecycleEvent,
   NativeJestRunResult,
@@ -318,7 +320,7 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
         <GitBranch size={21} />
         <div>
           <strong>Modern target</strong>
-          <span>{modernizedApp?.runtime.label ?? "Slice 48 payment posting readiness"}</span>
+          <span>{modernizedApp?.runtime.label ?? "Slice 49 account balance readiness"}</span>
         </div>
       </div>
       <div className="overview-item">
