@@ -385,6 +385,32 @@ Current limitations:
 - This slice covers patient contact only.
 - Full demographics editing, validation parity, audit history, patient create/merge/deactivate workflows, and broader registration workflows remain deferred to later patient-administration mutation slices.
 
+### Slice 11: Scheduling Appointment Mutation
+
+Status:
+
+- Implemented as the second mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-11-appointment-mutation-readiness` plan, which creates, cancels, renders, and removes a future appointment on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core appointment create, status update, and delete endpoints over the modernized PostgreSQL appointment table.
+- React Calendar controls for creating a future appointment from the scheduler panel and cancelling or deleting the selected appointment from the detail panel.
+- Modernized workflow action adapter methods for appointment create, get, cancel/status update, and delete.
+- Workbench-managed slice-11 appointment mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe create/cancel/delete appointment lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Calendar module can create a future appointment for a patient, display it in the appointment list/detail view, mark it cancelled, and delete it.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-11-appointment-mutation-readiness` plan creates a future appointment for `MOD-PAT-0003`, verifies appointment counts and database state, verifies browser-visible cancelled appointment values, deletes the appointment, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a single future appointment lifecycle only.
+- Recurring appointments, provider availability validation, resource scheduling, appointment categories beyond the seeded default, reminders, check-in/check-out, waitlist flows, and billing/encounter conversion remain deferred to later scheduling slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -456,3 +482,4 @@ As of 2026-06-19:
 - The eighth modernized vertical slice implements read-only administration directory behavior with a React Admin module, ASP.NET Core administration API, PostgreSQL staff/facility queries, expanded modernized smoke checks, Workbench admin plan actions, and matched side-by-side slice-8 parity evidence.
 - The ninth modernized vertical slice implements read-only operational reports with a React Reports module, ASP.NET Core reports API, PostgreSQL aggregate report queries, expanded modernized smoke checks, Workbench reports plan actions, and matched side-by-side slice-9 parity evidence.
 - The tenth modernized vertical slice implements patient contact mutation with a React chart contact editor, ASP.NET Core contact update endpoint, PostgreSQL contact fields, modernized workflow action adapter, Workbench contact mutation plan action, and side-by-side slice-10 parity evidence.
+- The eleventh modernized vertical slice implements appointment mutation with React Calendar create/cancel/delete controls, ASP.NET Core appointment lifecycle endpoints, modernized workflow action adapter methods, Workbench appointment mutation plan action, smoke coverage, and side-by-side slice-11 parity evidence.

@@ -165,6 +165,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Playwright UI suite passed, including login, patient chart, encounter SOAP/vitals, scheduler appointment details, fee sheet billing codes, and procedure-result rendering.
 - Workflow mutation suite passed with per-test gold-data resets, including demographics, appointments, clinical lists, messages, prescriptions, encounters with vitals/SOAP details, billing, and lab procedure workflows.
 - Shared patient contact mutation plan now runs against the legacy target as the legacy half of Slice 10 side-by-side parity.
+- Shared appointment mutation plan now runs against the legacy target as the legacy half of Slice 11 side-by-side parity.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 
@@ -207,8 +208,8 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 
 ## Current Gaps
 
-- The modernized PostgreSQL seed adapter now exists for patient, scheduling, encounter, clinical-list, messaging, procedure-result, fee-sheet billing, administration directory, operational reporting, contact mutation, and supporting gold-data tables; additional mutation-oriented seed and workflow behavior will expand slice by slice.
-- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, read-only patient-message facts, read-only completed procedure results, read-only fee-sheet billing facts, read-only administration directory facts, read-only operational report facts, and patient contact mutation behavior; broader mutation workflow adapters remain future work.
+- The modernized PostgreSQL seed adapter now exists for patient, scheduling, encounter, clinical-list, messaging, procedure-result, fee-sheet billing, administration directory, operational reporting, contact mutation, appointment mutation, and supporting gold-data tables; additional mutation-oriented seed and workflow behavior will expand slice by slice.
+- Modernized parity adapters now exist for normalized PostgreSQL probes and Playwright checks covering patient search/chart summary, read-only scheduling, read-only encounter SOAP/vitals detail, read-only clinical-list facts, read-only patient-message facts, read-only completed procedure results, read-only fee-sheet billing facts, read-only administration directory facts, read-only operational report facts, patient contact mutation behavior, and appointment mutation behavior; broader mutation workflow adapters remain future work.
 - The OpenEMR-native PHPUnit stable lane is runnable and verified, but the full upstream isolated suite remains environment-sensitive on the Windows bind-mounted checkout.
 - OpenEMR-native Panther browser tests have not been wired into the Workbench yet.
 - The parent project is connected to GitHub at `https://github.com/nkimber/OpenEMR-Legacy.git`.

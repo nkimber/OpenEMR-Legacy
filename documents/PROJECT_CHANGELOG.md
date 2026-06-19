@@ -1252,13 +1252,73 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 033. Modernized Appointment Mutation Slice 11
+
+Commit: TBD
+
+Implemented the eleventh modernized OpenEMR vertical slice: the second mutation-capable parity workflow, focused on future appointment create, cancel, render, and delete behavior with React Calendar controls, ASP.NET Core appointment lifecycle endpoints, Workbench orchestration, smoke coverage, and matched side-by-side parity against the legacy OpenEMR scheduler.
+
+Key outcomes:
+
+- Added ASP.NET Core appointment create, status update, and delete endpoints under `/api/appointments`.
+- Extended `AppointmentRepository` with appointment lifecycle methods that preserve existing read-only scheduling behavior while adding controlled mutation paths.
+- Made optional provider/facility overrides resilient by falling back to the patient's seeded provider/facility when supplied IDs do not exist, avoiding foreign-key 500s for invalid optional overrides.
+- Added Calendar UI controls for creating a future appointment, cancelling the selected appointment, and deleting the selected appointment.
+- Expanded the modernized smoke script with a safe appointment create/cancel/delete lifecycle check that cleans up its temporary appointment.
+- Extended the modernized workflow action adapter with appointment lifecycle methods that mutate through the public API and verify exact post-state through PostgreSQL probes.
+- Added a shared `workflow-appointments` parity suite and the `slice-11-appointment-mutation-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 11 appointment mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the appointment mutation slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- Direct API create/cancel/delete check against `http://localhost:5001/api/appointments`, including invalid optional provider/facility fallback to the patient's seeded provider/facility.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, with artifact status `passed`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-11-appointment-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-11-appointment-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-11-appointment-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- Direct Playwright check of the modernized Calendar controls, proving Create, Cancel appointment, Delete appointment, and API-confirmed deletion.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-appointments/appointment-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Reports exports, document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for scheduling, encounters, clinical lists, messages, prescriptions, billing, and procedures.
+- Additional modernized workflow action adapters for encounters, clinical lists, messages, prescriptions, billing, and procedures.
 - Encounter mutation workflows in the modernized target.
 - Scheduling mutation workflows in the modernized target.
 - Workbench comparison views that render matched/different comparison artifacts directly.

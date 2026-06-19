@@ -11,7 +11,7 @@ export type PatientContact = {
 };
 
 export type AppointmentRecord = {
-  id: number;
+  id: number | string;
   patientId: number;
   providerId: number;
   title: string;
@@ -135,7 +135,7 @@ export type ProcedureResultRecord = {
   status: string;
 };
 
-type NewAppointment = {
+export type NewAppointment = {
   patientId: number;
   providerId: number;
   title: string;
@@ -319,14 +319,15 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
-  async getAppointment(id: number): Promise<AppointmentRecord | null> {
+  async getAppointment(id: number | string): Promise<AppointmentRecord | null> {
+    const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT pc_eid AS id, pc_pid AS patientId, pc_aid AS providerId, pc_title AS title,
   DATE(pc_eventDate) AS eventDate, pc_startTime AS startTime, pc_endTime AS endTime,
   pc_apptstatus AS status, pc_facility AS facilityId, pc_billing_location AS billingLocationId,
   pc_room AS room
 FROM openemr_postcalendar_events
-WHERE pc_eid = ${integer(id)}
+WHERE pc_eid = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -348,18 +349,20 @@ LIMIT 1;
     };
   }
 
-  async updateAppointmentStatus(id: number, status: string, title: string): Promise<void> {
+  async updateAppointmentStatus(id: number | string, status: string, title: string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 UPDATE openemr_postcalendar_events
 SET pc_apptstatus = ${sqlString(status)}, pc_title = ${sqlString(title)}
-WHERE pc_eid = ${integer(id)};
+WHERE pc_eid = ${integer(legacyId)};
 `);
   }
 
-  async deleteAppointment(id: number): Promise<void> {
+  async deleteAppointment(id: number | string): Promise<void> {
+    const legacyId = legacyInteger(id);
     await this.db.execute(`
 DELETE FROM openemr_postcalendar_events
-WHERE pc_eid = ${integer(id)};
+WHERE pc_eid = ${integer(legacyId)};
 `);
   }
 
@@ -926,6 +929,14 @@ function integer(value: number) {
     throw new Error(`Expected integer value, received ${value}.`);
   }
   return String(value);
+}
+
+function legacyInteger(value: number | string) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`Expected legacy numeric ID, received ${value}.`);
+  }
+  return parsed;
 }
 
 function decimal(value: number) {

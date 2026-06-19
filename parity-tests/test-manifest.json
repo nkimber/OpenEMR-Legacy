@@ -96,6 +96,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-11-appointment-mutation-readiness",
+      "name": "Slice 11 Appointment Mutation Readiness",
+      "description": "Mutation-capable scheduling confidence plan that creates, cancels, renders, and removes a future appointment on both legacy and modernized targets.",
+      "suites": ["workflow-appointments"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-11", "appointments", "scheduling", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -108,7 +117,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -117,7 +126,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -279,6 +288,16 @@
       "layer": "workflow",
       "path": "tests/workflow-contact",
       "tags": ["slice10", "workflow", "mutation", "patient-contact", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-appointments",
+      "name": "Appointment Mutation",
+      "description": "Creates, cancels, renders, and removes a future appointment through the same scheduling workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointments",
+      "tags": ["slice11", "workflow", "mutation", "appointments", "scheduling", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }
