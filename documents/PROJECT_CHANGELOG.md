@@ -1015,7 +1015,7 @@ Primary files:
 
 ### 029. Modernized Billing Slice 7
 
-Commit: `TBD`
+Commit: `3ff837f`
 
 Implemented the seventh modernized OpenEMR vertical slice: read-only fee-sheet billing with a Fees module, billing API, Workbench orchestration, and matched side-by-side parity against the legacy OpenEMR fee sheet.
 
