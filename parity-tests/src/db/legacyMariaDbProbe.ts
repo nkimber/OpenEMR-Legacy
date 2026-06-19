@@ -906,6 +906,36 @@ LIMIT 1;
     };
   }
 
+  async getFutureScheduledProcedureOrderForPatient(pid: number, afterDate: string): Promise<ProcedureOrderSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
+  DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+FROM procedure_order po
+LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
+LEFT JOIN procedure_report pr ON pr.procedure_order_id = po.procedure_order_id
+WHERE po.patient_id = ${pid}
+  AND DATE(po.date_ordered) > '${escapeSql(afterDate)}'
+  AND po.order_status = 'scheduled'
+  AND pr.procedure_report_id IS NULL
+ORDER BY po.date_ordered, po.procedure_order_id
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
+      orderStatus: row.orderStatus,
+      procedureCode: row.procedureCode,
+      procedureName: row.procedureName
+    };
+  }
+
   async getProcedureResultsForPatient(pid: number): Promise<ProcedureResultsSummary> {
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,

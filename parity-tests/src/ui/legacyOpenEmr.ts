@@ -40,6 +40,24 @@ export async function openProcedureResultsDirect(page: Page, target: RuntimeTarg
   await expect(page).toHaveTitle(/Procedure Results/i);
 }
 
+export async function openProcedureOrdersAndReportsForPatient(
+  page: Page,
+  target: RuntimeTarget,
+  pid: number,
+  fromDate: string,
+  toDate: string
+) {
+  await openPatientSummaryDirect(page, target, pid);
+  await page.goto(`${target.publicUrl}/interface/orders/list_reports.php`);
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+  await page.locator('input[name="form_from_date"]').fill(fromDate);
+  await page.locator('input[name="form_to_date"]').fill(toDate);
+  await page.locator('input[name="form_patient"]').check();
+  await page.locator('select[name="form_reviewed"]').selectOption("5");
+  await page.getByRole("button", { name: /Filter/i }).click();
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+}
+
 export async function openUserAdministrationDirect(page: Page, target: RuntimeTarget) {
   await page.goto(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
   await expectRenderedText(page, /Users|Add User/i);

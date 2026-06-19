@@ -642,6 +642,34 @@ LIMIT 1;
     };
   }
 
+  async getFutureScheduledProcedureOrderForPatient(pid: number, afterDate: string): Promise<ProcedureOrderSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT lo.id, lo.pid AS "patientId", lo.encounter AS "encounterId", lo.order_date AS "dateOrdered",
+  lo.order_status AS "orderStatus", lo.code AS "procedureCode", lo.name AS "procedureName"
+FROM lab_orders lo
+LEFT JOIN lab_reports lr ON lr.order_id = lo.id
+WHERE lo.pid = ${pid}
+  AND lo.order_date > '${escapeSql(afterDate)}'
+  AND lo.order_status = 'scheduled'
+  AND lr.id IS NULL
+ORDER BY lo.order_date, lo.id
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
+      orderStatus: row.orderStatus,
+      procedureCode: row.procedureCode,
+      procedureName: row.procedureName
+    };
+  }
+
   async getProcedureResultsForPatient(pid: number): Promise<ProcedureResultsSummary> {
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter AS "encounterId", order_date AS "dateOrdered",

@@ -204,6 +204,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-23-procedure-pending-orders-readiness",
+      "name": "Slice 23 Pending Procedure Orders Readiness",
+      "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
+      "suites": ["procedure-pending-orders"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-23", "procedures", "labs", "scheduled-orders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -225,7 +234,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -307,6 +316,16 @@
       "layer": "parity",
       "path": "tests/procedures",
       "tags": ["slice6", "procedures", "labs", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "procedure-pending-orders",
+      "name": "Pending Scheduled Procedure Orders",
+      "description": "Compares future scheduled procedure orders with no report rows against the legacy procedure results screen using a shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/procedure-pending-orders",
+      "tags": ["slice23", "procedures", "labs", "scheduled-orders", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

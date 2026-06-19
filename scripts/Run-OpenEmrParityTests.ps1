@@ -14,6 +14,7 @@ param(
         "clinical-lists",
         "messages",
         "procedures",
+        "procedure-pending-orders",
         "billing",
         "admin",
         "reports",

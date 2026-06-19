@@ -723,6 +723,32 @@ Current limitations:
 - It mutates ACL membership data but does not yet enforce authorization policies at runtime.
 - Full role/permission administration, broad membership editing UX, ASP.NET Core Identity, login/password creation, MFA, audit history, user-facility restriction matrices, and policy enforcement remain deferred to later administration/security slices.
 
+### Slice 23: Pending/Scheduled Procedure Orders
+
+Status:
+
+- Implemented as the eleventh read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-23-procedure-pending-orders-readiness` plan, which compares future scheduled, reportless procedure orders on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core procedure read model now returns procedure-order counts for total, completed, scheduled, reportless, future scheduled, report, result, and final-result totals.
+- React Procedures workspace now separates completed result workflows from Pending/Scheduled Orders, showing reportless lab orders with status, code, date, encounter, provider, diagnosis, and no-report state.
+- Normalized legacy MariaDB and modernized PostgreSQL parity probes locate future scheduled orders with no linked report rows.
+- Workbench-managed slice-23 pending procedure orders plan for both legacy and modernized targets.
+- Modernized smoke coverage for `MOD-PAT-0701` scheduled CBC order on `2026-06-25`.
+
+Acceptance:
+
+- The modernized Procedures module can display `MOD-PAT-0701` with the seeded scheduled `Complete blood count` order, code `85025`, status `scheduled`, order date `2026-06-25`, and no report rows.
+- The modernized procedure API returns explicit scheduled and reportless counts so pending-order workflows are not hidden behind completed lab-result totals.
+- The `slice-23-procedure-pending-orders-readiness` plan verifies the same future scheduled, reportless order through database probes and browser-visible UI checks against both legacy and modernized targets.
+
+Current limitations:
+
+- This slice is read-only and focused on scheduled/reportless procedure-order visibility.
+- Order catalogs, clinical order queues, specimen tracking, provider sign-off, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -806,3 +832,4 @@ As of 2026-06-19:
 - The twentieth modernized vertical slice implements a read-only administration access-control matrix with React Admin visibility, ASP.NET Core administration access-control response fields, PostgreSQL access group/permission/assignment tables, normalized parity probes, Workbench access-control plan action, smoke coverage, and side-by-side slice-20 parity evidence.
 - The twenty-first modernized vertical slice implements focused administration access-permission assignment mutation with React Admin grant/revoke controls, ASP.NET Core administration ACL assignment endpoints, modernized workflow action adapter methods, Workbench access-permission mutation plan action, smoke coverage, and side-by-side slice-21 parity evidence.
 - The twenty-second modernized vertical slice implements focused administration user group membership mutation with React Admin Assign/Revoke controls, ASP.NET Core administration ACL membership endpoints, PostgreSQL access membership rows, modernized workflow action adapter methods, Workbench user group membership mutation plan action, smoke coverage, and side-by-side slice-22 parity evidence.
+- The twenty-third modernized vertical slice implements pending/scheduled procedure-order visibility with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized reportless-order probes, Workbench pending procedure order plan action, smoke coverage, and side-by-side slice-23 parity evidence.

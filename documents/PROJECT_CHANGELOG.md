@@ -1985,6 +1985,63 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 045. Modernized Pending Procedure Orders Slice 23
+
+Commit: TBD
+
+Implemented the twenty-third modernized OpenEMR vertical slice: read-only pending/scheduled procedure-order visibility, centered on the gold dataset's future scheduled, reportless lab orders with React Procedures scheduled-order cards, ASP.NET Core procedure count fields, normalized legacy MariaDB and modernized PostgreSQL probes, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR procedure results screen.
+
+Key outcomes:
+
+- Added explicit procedure counts to the modernized procedure API for total, completed, scheduled, reportless, future scheduled, report, result, and final-result totals.
+- Added Pending/Scheduled Orders visibility to the modernized Procedures workspace so reportless procedure orders are not hidden behind completed result workflows.
+- Expanded the modernized smoke script with a `MOD-PAT-0701` scheduled CBC order anchor check for `2026-06-25`.
+- Added normalized legacy MariaDB and modernized PostgreSQL probes for future scheduled procedure orders with no linked report rows.
+- Added a shared `procedure-pending-orders` parity suite and the `slice-23-procedure-pending-orders-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 23 pending procedure orders plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the pending/scheduled procedure-order slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-23-procedure-pending-orders-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-23-procedure-pending-orders-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-23-procedure-pending-orders-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/tests/procedure-pending-orders/pending-procedure-orders.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
