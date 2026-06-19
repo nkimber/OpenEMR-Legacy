@@ -15,6 +15,7 @@ import type {
   GoldCountMap,
   OperationalReportsSummary,
   OperationalReportExportRow,
+  PatientDocumentContentSummary,
   PatientDocumentsSummary,
   PatientMessagesSummary,
   PatientRecord,
@@ -394,6 +395,45 @@ ORDER BY doc_date DESC, id DESC;
         notes: row.notes,
         contentPreview: row.contentPreview
       }))
+    };
+  }
+
+  async getPatientDocumentContent(documentId: number): Promise<PatientDocumentContentSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
+  name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
+  COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
+  COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
+  COALESCE(url, '') AS url, COALESCE(hash, '') AS hash, COALESCE(notes, '') AS notes,
+  left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260) AS "contentPreview",
+  replace(replace(encode(convert_to(coalesce(content, ''), 'UTF8'), 'base64'), E'\\n', ''), E'\\r', '') AS "contentBase64"
+FROM patient_documents
+WHERE id = ${documentId} AND deleted = 0
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      documentKey: row.documentKey,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName,
+      name: row.name,
+      docDate: row.docDate,
+      uploadedAt: row.uploadedAt,
+      mimetype: row.mimetype,
+      sizeBytes: Number(row.sizeBytes),
+      pages: Number(row.pages),
+      encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
+      storageMethod: row.storageMethod,
+      url: row.url,
+      hash: row.hash,
+      notes: row.notes,
+      contentPreview: row.contentPreview,
+      content: Buffer.from(row.contentBase64, "base64").toString("utf8").replaceAll("\\n", "\n")
     };
   }
 

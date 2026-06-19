@@ -804,7 +804,7 @@ Current limitations:
 
 - This slice is read-only.
 - It covers document metadata and text payload previews, not binary scan storage.
-- Binary upload, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26.
+- Binary upload, versioning, signing, thumbnails, encryption/key management, CCDA import/export, document routing, fax/SMS attachments, and external document-storage adapters remain deferred to later documents/integrations slices. A focused database-backed text document create/archive/delete lifecycle is covered by Slice 26, and full text content retrieval/download is covered by Slice 27.
 
 ### Slice 26: Patient Document Mutation
 
@@ -833,6 +833,34 @@ Current limitations:
 
 - This slice intentionally handles database-backed `text/plain` documents only.
 - Binary upload, scanned document storage, thumbnails, signing, versioning, encryption/key management, CCDA import/export, document routing, and external document-storage adapters remain deferred.
+
+### Slice 27: Patient Document Content Retrieval
+
+Status:
+
+- Implemented as the fourteenth read-only modernized vertical slice under `modernized-openemr/`.
+- Verification is the shared `slice-27-document-content-readiness` plan, which verifies the full stored patient document payload and modernized content viewer/download behavior for the stable `MOD-PAT-0001` document anchor.
+
+Scope:
+
+- ASP.NET Core documents API now exposes `/api/documents/{documentId}/content` for structured active-document content retrieval.
+- ASP.NET Core documents API now exposes `/api/documents/{documentId}/download` for browser/file retrieval using the document MIME type and a deterministic text filename for seeded text documents.
+- React Documents workspace now includes a `Document Viewer` panel and document-card View/Download controls.
+- Shared database probes now compare full stored document payloads, not only content previews.
+- Workbench-managed Slice 27 document content plan is available for both legacy and modernized targets.
+- Modernized smoke coverage validates the `MOD-PAT-0001` primary-care intake packet content endpoint and download endpoint.
+
+Acceptance:
+
+- `Primary care intake packet` for `MOD-PAT-0001` can be loaded through the modernized Documents viewer.
+- The content endpoint returns the full seeded `Gold synthetic document DOC-MOD-PAT-0001-1` text payload with stable metadata, MIME type, hash, file name, and document id.
+- The download endpoint returns the same text payload with a `text/plain` content type.
+- The `slice-27-document-content-readiness` plan verifies the same full stored document payload against both targets and the modernized browser/API retrieval surface.
+
+Current limitations:
+
+- This slice intentionally handles database-backed text payload retrieval for seeded and mutation-created text documents.
+- Binary scan streaming, external object storage, thumbnails, signing, version history, encryption/key management, and patient-portal document access rules remain deferred.
 
 ## Test Strategy
 
@@ -921,3 +949,4 @@ As of 2026-06-19:
 - The twenty-fourth modernized vertical slice implements operational reports CSV export with a React Reports export action, ASP.NET Core CSV endpoint, normalized report export rows, Workbench reports export plan action, smoke coverage, and side-by-side slice-24 parity evidence.
 - The twenty-fifth modernized vertical slice implements read-only patient documents with a React Documents workspace, ASP.NET Core documents API, PostgreSQL patient document mapping, expanded gold-data document records, Workbench documents plan action, smoke coverage, and side-by-side slice-25 parity evidence.
 - The twenty-sixth modernized vertical slice implements patient document mutation with React Documents create/archive/delete controls, ASP.NET Core documents lifecycle endpoints, modernized workflow action adapter methods, Workbench document mutation plan action, smoke coverage, and side-by-side slice-26 parity evidence.
+- The twenty-seventh modernized vertical slice implements patient document content retrieval with ASP.NET Core content/download endpoints, React Documents viewer and download controls, full-content parity probes, Workbench document content plan action, smoke coverage, and side-by-side slice-27 parity evidence.

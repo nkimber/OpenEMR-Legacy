@@ -128,6 +128,10 @@ export type PatientDocumentsSummary = {
   documents: PatientDocumentSummary[];
 };
 
+export type PatientDocumentContentSummary = PatientDocumentSummary & {
+  content: string;
+};
+
 export type BillingLineSummary = {
   id: string;
   encounter: number;
@@ -692,6 +696,57 @@ ORDER BY d.docdate DESC, d.id DESC;
         notes: row.notes,
         contentPreview: row.contentPreview
       }))
+    };
+  }
+
+  async getPatientDocumentContent(documentId: number): Promise<PatientDocumentContentSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT d.id,
+  SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1) AS documentKey,
+  COALESCE(c.id, 0) AS categoryId,
+  COALESCE(c.name, '') AS categoryName,
+  d.name,
+  DATE(d.docdate) AS docDate,
+  d.date AS uploadedAt,
+  COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.size, 0) AS sizeBytes,
+  COALESCE(d.pages, 0) AS pages,
+  COALESCE(d.encounter_id, 0) AS encounter,
+  CASE COALESCE(d.storagemethod, 0) WHEN 0 THEN 'database' ELSE CAST(d.storagemethod AS CHAR) END AS storageMethod,
+  COALESCE(d.url, '') AS url,
+  COALESCE(d.hash, '') AS hash,
+  COALESCE(d.documentationOf, '') AS notes,
+  LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview,
+  COALESCE(CONVERT(d.document_data USING utf8mb4), '') AS content
+FROM documents d
+LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
+LEFT JOIN categories c ON c.id = ctd.category_id
+WHERE d.id = ${documentId} AND d.deleted = 0
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      documentKey: row.documentKey,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName,
+      name: row.name,
+      docDate: row.docDate,
+      uploadedAt: row.uploadedAt,
+      mimetype: row.mimetype,
+      sizeBytes: Number(row.sizeBytes),
+      pages: Number(row.pages),
+      encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
+      storageMethod: row.storageMethod,
+      url: row.url,
+      hash: row.hash,
+      notes: row.notes,
+      contentPreview: row.contentPreview,
+      content: row.content.replaceAll("\\n", "\n")
     };
   }
 

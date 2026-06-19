@@ -843,6 +843,63 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 049. Modernized Patient Document Content Slice 27
+
+Commit: current slice commit
+
+Implemented the twenty-seventh modernized OpenEMR vertical slice: patient document content retrieval, centered on retrieving, viewing, and downloading the full seeded text payload for database-backed patient documents.
+
+Key outcomes:
+
+- Added modernized ASP.NET Core document content and download endpoints at `/api/documents/{documentId}/content` and `/api/documents/{documentId}/download`.
+- Added a React Documents `Document Viewer` panel plus View and Download controls on document cards.
+- Added TypeScript API client support for document content retrieval and deterministic download URLs.
+- Added normalized full-content document probes for legacy MariaDB and modernized PostgreSQL, including newline-safe handling for multi-line seeded text payloads.
+- Added the `document-content` parity suite and `slice-27-document-content-readiness` named plan for both legacy and modernized targets.
+- Added Workbench command cards, result paths, and custom-run default plan support for the Slice 27 document content plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects patient document content retrieval behavior.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.slnx` in `modernized-openemr/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose build api frontend` and `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, including `anchor patient document content`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-27-document-content-readiness -Reset run`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-27-document-content-readiness -Reset run`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-27-document-content-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- Sequential regression checks: `slice-25-documents-readiness` and `slice-26-document-mutation-readiness` against `modernized-openemr`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/tests/document-content/patient-document-content.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ### 026. Modernized Clinical Lists Slice 4
 
 Commit: `0fb425f`

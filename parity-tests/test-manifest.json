@@ -240,6 +240,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-27-document-content-readiness",
+      "name": "Slice 27 Document Content Readiness",
+      "description": "Read-only patient document content confidence plan that verifies full stored document payloads and modernized viewer/download retrieval for the shared gold-data anchor.",
+      "suites": ["document-content"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-27", "documents", "patient-files", "download", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -261,7 +270,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-documents", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -403,6 +412,16 @@
       "layer": "parity",
       "path": "tests/documents",
       "tags": ["slice25", "documents", "patient-files", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "document-content",
+      "name": "Patient Document Content",
+      "description": "Compares full stored patient document payloads and validates modernized viewer/download retrieval for the shared gold-data anchor.",
+      "layer": "parity",
+      "path": "tests/document-content",
+      "tags": ["slice27", "documents", "patient-files", "download", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

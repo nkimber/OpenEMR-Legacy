@@ -14,6 +14,7 @@ param(
         "clinical-lists",
         "messages",
         "documents",
+        "document-content",
         "procedures",
         "procedure-pending-orders",
         "billing",
