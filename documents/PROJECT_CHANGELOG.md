@@ -845,7 +845,7 @@ Primary files:
 
 ### 026. Modernized Clinical Lists Slice 4
 
-Commit: `TBD`
+Commit: `0fb425f`
 
 Implemented the fourth modernized OpenEMR vertical slice: read-only clinical lists with problems, allergies, medication list entries, prescriptions, Workbench orchestration, and matched side-by-side parity against the legacy patient-summary clinical-list UI.
 
