@@ -47,6 +47,7 @@
         "parityBillingMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-16-billing-mutation-readiness", "-Reset", "test"],
         "parityProcedureMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-17-procedure-mutation-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
+        "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
       },
@@ -287,6 +288,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-18-admin-facility-mutation-readiness.json"
         },
         {
+          "id": "parity-plan-admin-user-mutation",
+          "name": "Slice 19 admin user mutation plan",
+          "description": "Runs the shared user administration mutation plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdminUserMutationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-19-admin-user-mutation-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -307,7 +316,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 18 target",
+      "stage": "Slice 19 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -341,7 +350,8 @@
         "parityPrescriptionMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-15-prescription-mutation-readiness", "-Reset", "test"],
         "parityBillingMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-16-billing-mutation-readiness", "-Reset", "test"],
         "parityProcedureMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-17-procedure-mutation-readiness", "-Reset", "test"],
-        "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"]
+        "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
+        "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -358,7 +368,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, chart summary, scheduling, encounters, clinical lists, messages, procedure results, procedure mutation, fee sheet billing, billing mutation, administration directory, facility mutation, and operational reports.",
+          "description": "Checks API health, anchor patient search, chart summary, scheduling, encounters, clinical lists, messages, procedure results, procedure mutation, fee sheet billing, billing mutation, administration directory, user mutation, facility mutation, and operational reports.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -506,6 +516,14 @@
           "layer": "plan",
           "commandName": "parityAdminFacilityMutationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-18-admin-facility-mutation-readiness.json"
+        },
+        {
+          "id": "parity-plan-admin-user-mutation",
+          "name": "Slice 19 admin user mutation plan",
+          "description": "Runs the shared user administration mutation plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdminUserMutationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-19-admin-user-mutation-readiness.json"
         }
       ]
     }

@@ -25,7 +25,8 @@ param(
         "workflow-prescriptions",
         "workflow-billing",
         "workflow-procedures",
-        "workflow-admin"
+        "workflow-admin",
+        "workflow-admin-users"
     )]
     [string] $Suite = "all",
 

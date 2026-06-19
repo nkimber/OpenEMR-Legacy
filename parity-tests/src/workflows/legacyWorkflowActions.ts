@@ -148,6 +148,21 @@ export type FacilityRecord = {
   color: string;
 };
 
+export type UserRecord = {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  authorized: boolean;
+  active: boolean;
+  calendar: boolean;
+  facilityId: number;
+  facilityName: string;
+  email: string;
+  npi: string;
+};
+
 export type NewAppointment = {
   patientId: number;
   providerId: number;
@@ -290,8 +305,92 @@ export type NewFacility = {
   active: boolean;
 };
 
+export type NewUser = {
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  calendar: boolean;
+  facilityId: number;
+  email: string;
+  npi: string;
+  active: boolean;
+};
+
 export class LegacyWorkflowActions {
   constructor(private readonly db: LegacyMariaDbProbe) {}
+
+  async createUser(input: NewUser): Promise<number> {
+    await this.db.execute(`
+INSERT INTO users
+  (uuid, username, password, authorized, fname, lname, facility, facility_id, see_auth,
+   active, npi, title, specialty, email, calendar, taxonomy, abook_type,
+   main_menu_role, patient_menu_role, billing_facility_id)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.username)}, '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',
+   ${input.role === "provider" ? 1 : 0}, ${sqlString(input.firstName)}, ${sqlString(input.lastName)},
+   (SELECT name FROM facility WHERE id = ${integer(input.facilityId)} LIMIT 1), ${integer(input.facilityId)}, 1,
+   ${input.active ? 1 : 0}, ${sqlString(input.npi)}, ${input.role === "provider" ? "'Dr.'" : "''"},
+   ${sqlString(input.role)}, ${sqlString(input.email)}, ${input.calendar ? 1 : 0}, '207Q00000X',
+   ${sqlString(input.role)}, 'standard', 'standard', ${integer(input.facilityId)});
+`);
+
+    const rows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM users
+WHERE username = ${sqlString(input.username)}
+ORDER BY id DESC
+LIMIT 1;
+`);
+    return Number(rows[0].id);
+  }
+
+  async getUser(id: number): Promise<UserRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT u.id, u.username, u.fname AS firstName, u.lname AS lastName,
+  COALESCE(NULLIF(u.abook_type, ''), NULLIF(u.main_menu_role, ''), '') AS role,
+  COALESCE(u.authorized, 0) AS authorized,
+  COALESCE(u.active, 0) AS active,
+  COALESCE(u.calendar, 0) AS calendar,
+  COALESCE(u.facility_id, 0) AS facilityId,
+  COALESCE(f.name, u.facility, '') AS facilityName,
+  COALESCE(u.email, '') AS email,
+  COALESCE(u.npi, '') AS npi
+FROM users u
+LEFT JOIN facility f ON f.id = u.facility_id
+WHERE u.id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? mapUser(row) : null;
+  }
+
+  async updateUser(id: number, input: NewUser): Promise<void> {
+    await this.db.execute(`
+UPDATE users
+SET username = ${sqlString(input.username)},
+    fname = ${sqlString(input.firstName)},
+    lname = ${sqlString(input.lastName)},
+    abook_type = ${sqlString(input.role)},
+    specialty = ${sqlString(input.role)},
+    authorized = ${input.role === "provider" ? 1 : 0},
+    active = ${input.active ? 1 : 0},
+    calendar = ${input.calendar ? 1 : 0},
+    facility_id = ${integer(input.facilityId)},
+    facility = (SELECT name FROM facility WHERE id = ${integer(input.facilityId)} LIMIT 1),
+    billing_facility_id = ${integer(input.facilityId)},
+    email = ${sqlString(input.email)},
+    npi = ${sqlString(input.npi)}
+WHERE id = ${integer(id)};
+`);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM users
+WHERE id = ${integer(id)};
+`);
+  }
 
   async createFacility(input: NewFacility): Promise<number> {
     await this.db.execute(`
@@ -1047,6 +1146,23 @@ function dbNullToNull(value: string | undefined) {
     return null;
   }
   return value;
+}
+
+function mapUser(row: Record<string, string>): UserRecord {
+  return {
+    id: Number(row.id),
+    username: row.username,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    role: row.role,
+    authorized: row.authorized === "1",
+    active: row.active === "1",
+    calendar: row.calendar === "1",
+    facilityId: Number(row.facilityId),
+    facilityName: row.facilityName,
+    email: row.email,
+    npi: row.npi
+  };
 }
 
 function mapFacility(row: Record<string, string>): FacilityRecord {

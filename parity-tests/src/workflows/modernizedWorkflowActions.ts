@@ -9,6 +9,7 @@ import type {
   NewBillingLine,
   NewClinicalListEntry,
   NewFacility,
+  NewUser,
   NewPatientMessage,
   NewAppointment,
   NewEncounter,
@@ -25,6 +26,7 @@ import type {
   ProcedureResultRecord,
   PrescriptionRecord,
   SoapNoteRecord,
+  UserRecord,
   VitalsRecord
 } from "./legacyWorkflowActions.js";
 
@@ -33,6 +35,75 @@ export class ModernizedWorkflowActions {
     private readonly db: ModernizedPostgresProbe,
     private readonly target: RuntimeTarget
   ) {}
+
+  async createUser(input: NewUser): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized user create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getUser(id: number): Promise<UserRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT s.id, s.username, s.first_name AS "firstName", s.last_name AS "lastName",
+  s.role, CASE WHEN s.role = 'provider' THEN '1' ELSE '0' END AS authorized,
+  CASE WHEN s.active THEN '1' ELSE '0' END AS active,
+  CASE WHEN s.calendar THEN '1' ELSE '0' END AS calendar,
+  COALESCE(s.facility_id::text, '0') AS "facilityId",
+  COALESCE(f.name, '') AS "facilityName",
+  COALESCE(s.email, '') AS email,
+  COALESCE(s.npi, '') AS npi
+FROM staff s
+LEFT JOIN facilities f ON f.id = s.facility_id
+WHERE s.id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: Number(row.id),
+      username: row.username,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      role: row.role,
+      authorized: row.authorized === "1",
+      active: row.active === "1",
+      calendar: row.calendar === "1",
+      facilityId: Number(row.facilityId),
+      facilityName: row.facilityName,
+      email: row.email,
+      npi: row.npi
+    } : null;
+  }
+
+  async updateUser(id: number, input: NewUser): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users/${id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized user update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized user delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
 
   async createFacility(input: NewFacility): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities`, {

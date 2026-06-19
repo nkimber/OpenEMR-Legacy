@@ -601,7 +601,35 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused facility lifecycle only.
-- User account creation/editing, role/permission administration, authentication, authorization policies, password management, MFA, audit history, and facility-to-user assignment workflows remain deferred to later administration/security slices.
+- Focused user create, update, inactive status, and delete workflows are covered by Slice 19.
+- Role/permission administration, authentication, authorization policies, password management, MFA, audit history, and facility-to-user assignment workflows remain deferred to later administration/security slices.
+
+### Slice 19: Administration User Mutation
+
+Status:
+
+- Implemented as the tenth mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-19-admin-user-mutation-readiness` plan, which creates, updates, renders, deactivates, and removes a user on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core user create, update, and delete endpoints under the administration API over the modernized PostgreSQL staff table.
+- PostgreSQL seed schema extension for staff active state, email, and NPI so the normalized target preserves OpenEMR-style user lifecycle semantics.
+- React Admin controls for creating users and marking/deleting visible active user directory cards.
+- Modernized workflow action adapter methods for user lifecycle parity.
+- Workbench-managed slice-19 admin user mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe user create/update/inactive/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Admin module can create a user, display it in the active user directory, update it to inactive state so it no longer appears in the default active list, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-19-admin-user-mutation-readiness` plan creates a temporary user, verifies direct row state and browser-visible active user rendering, updates the user to inactive state, verifies the updated stored row and default hidden-inactive list behavior, deletes the temporary user, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused user-directory lifecycle only.
+- Real login/password creation, ASP.NET Core Identity, role/permission administration, authorization policies, MFA, audit history, user-facility restriction matrices, provider credentialing, and group/ACL membership workflows remain deferred to later administration/security slices.
 
 ## Test Strategy
 
@@ -682,3 +710,4 @@ As of 2026-06-19:
 - The sixteenth modernized vertical slice implements billing mutation with React Fees CPT create/status/delete controls, ASP.NET Core billing line lifecycle endpoints, PostgreSQL billing units/billed/activity fields, modernized workflow action adapter methods, Workbench billing mutation plan action, smoke coverage, and side-by-side slice-16 parity evidence.
 - The seventeenth modernized vertical slice implements procedure mutation with React Procedures order/status/report/result/delete controls, ASP.NET Core procedure lifecycle endpoints, PostgreSQL lab order/report lifecycle fields, modernized workflow action adapter methods, Workbench procedure mutation plan action, smoke coverage, and side-by-side slice-17 parity evidence.
 - The eighteenth modernized vertical slice implements administration facility mutation with React Admin facility create/inactivate/delete controls, ASP.NET Core administration facility lifecycle endpoints, PostgreSQL facility inactive state, modernized workflow action adapter methods, Workbench admin facility mutation plan action, smoke coverage, and side-by-side slice-18 parity evidence.
+- The nineteenth modernized vertical slice implements administration user mutation with React Admin user create/inactivate/delete controls, ASP.NET Core administration user lifecycle endpoints, PostgreSQL staff active/email/NPI fields, modernized workflow action adapter methods, Workbench admin user mutation plan action, smoke coverage, and side-by-side slice-19 parity evidence.

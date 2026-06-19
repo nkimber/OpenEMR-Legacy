@@ -168,6 +168,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-19-admin-user-mutation-readiness",
+      "name": "Slice 19 Admin User Mutation Readiness",
+      "description": "Mutation-capable administration confidence plan that creates, updates, renders, deactivates, and removes a user on both legacy and modernized targets.",
+      "suites": ["workflow-admin-users"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-19", "admin", "users", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -180,7 +189,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin"],
+      "suites": ["workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -189,7 +198,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-appointments", "workflow-encounters", "workflow-clinical-lists", "workflow-messages", "workflow-prescriptions", "workflow-billing", "workflow-procedures", "workflow-admin", "workflow-admin-users"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -431,6 +440,16 @@
       "layer": "workflow",
       "path": "tests/workflow-admin",
       "tags": ["slice18", "workflow", "mutation", "admin", "facilities", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-admin-users",
+      "name": "Administration User Mutation",
+      "description": "Creates, updates, renders, deactivates, and removes a user through the same administration workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-admin-users",
+      "tags": ["slice19", "workflow", "mutation", "admin", "users", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     }

@@ -369,12 +369,12 @@ ORDER BY id;
     const users = await this.queryRows<Record<string, string>>(`
 SELECT s.id, s.username, s.first_name AS "firstName", s.last_name AS "lastName",
   s.role, CASE WHEN s.role = 'provider' THEN '1' ELSE '0' END AS authorized,
-  '1' AS active,
+  CASE WHEN s.active THEN '1' ELSE '0' END AS active,
   CASE WHEN s.calendar THEN '1' ELSE '0' END AS calendar,
   COALESCE(s.facility_id::text, '0') AS "facilityId",
   COALESCE(f.name, '') AS "facilityName",
-  s.username || '@example.test' AS email,
-  CASE WHEN s.role = 'provider' THEN '18888' || s.id::text ELSE '' END AS npi
+  COALESCE(s.email, '') AS email,
+  COALESCE(s.npi, '') AS npi
 FROM staff s
 LEFT JOIN facilities f ON f.id = s.facility_id
 ORDER BY s.id;
