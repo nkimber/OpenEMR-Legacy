@@ -351,7 +351,7 @@ ORDER BY m.message_date DESC, m.id DESC;
 SELECT id, encounter, code_type AS "codeType", code, code_text AS "codeText",
   COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
-WHERE pid = ${pid} AND encounter = ${encounter}
+WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
 ORDER BY id;
 `);
     return rows.map((row) => ({

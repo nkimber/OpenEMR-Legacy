@@ -2,8 +2,10 @@ import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import type {
   AppointmentRecord,
+  BillingLineRecord,
   ClinicalListRecord,
   EncounterRecord,
+  NewBillingLine,
   NewClinicalListEntry,
   NewPatientMessage,
   NewAppointment,
@@ -371,6 +373,81 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized prescription delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createBillingLine(input: NewBillingLine): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        providerId: input.providerId,
+        encounter: input.encounter,
+        billingDate: input.dateTime.slice(0, 10),
+        codeType: input.codeType,
+        code: input.code,
+        codeText: input.codeText,
+        fee: Number(input.fee),
+        units: input.units,
+        justify: input.justify
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized billing line create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", encounter, code_type AS "codeType", code, code_text AS "codeText",
+  COALESCE(fee::text, '') AS fee, units, activity, billed
+FROM billing
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      codeType: row.codeType,
+      code: row.code,
+      codeText: row.codeText,
+      fee: Number(row.fee).toFixed(2),
+      units: Number(row.units),
+      activity: Number(row.activity),
+      billed: Number(row.billed)
+    };
+  }
+
+  async updateBillingLineStatus(id: number | string, billed: number, activity: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}/status`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ billed, activity })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized billing line status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteBillingLine(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized billing line delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

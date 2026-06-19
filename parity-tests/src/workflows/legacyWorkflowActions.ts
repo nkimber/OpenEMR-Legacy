@@ -94,7 +94,7 @@ export type SoapNoteRecord = {
 };
 
 export type BillingLineRecord = {
-  id: number;
+  id: number | string;
   patientId: number;
   encounter: number;
   codeType: string;
@@ -214,7 +214,7 @@ export type NewSoapNote = {
   plan: string;
 };
 
-type NewBillingLine = {
+export type NewBillingLine = {
   patientId: number;
   providerId: number;
   encounter: number;
@@ -725,12 +725,12 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
-  async getBillingLine(id: number): Promise<BillingLineRecord | null> {
+  async getBillingLine(id: number | string): Promise<BillingLineRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, encounter, code_type AS codeType, code, code_text AS codeText,
   fee, units, activity, billed
 FROM billing
-WHERE id = ${integer(id)}
+WHERE id = ${legacyInteger(id)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -751,18 +751,18 @@ LIMIT 1;
     };
   }
 
-  async updateBillingLineStatus(id: number, billed: number, activity: number): Promise<void> {
+  async updateBillingLineStatus(id: number | string, billed: number, activity: number): Promise<void> {
     await this.db.execute(`
 UPDATE billing
 SET billed = ${integer(billed)}, activity = ${integer(activity)}
-WHERE id = ${integer(id)};
+WHERE id = ${legacyInteger(id)};
 `);
   }
 
-  async deleteBillingLine(id: number): Promise<void> {
+  async deleteBillingLine(id: number | string): Promise<void> {
     await this.db.execute(`
 DELETE FROM billing
-WHERE id = ${integer(id)};
+WHERE id = ${legacyInteger(id)};
 `);
   }
 

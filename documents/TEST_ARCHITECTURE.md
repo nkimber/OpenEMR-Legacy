@@ -31,7 +31,7 @@ The legacy baseline is the first implemented target:
 - Seed dataset: `openemr-shared-synthetic-v1`
 - Reset command: `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
 
-The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, and the slice-15 prescription mutation plan.
+The modernized target is represented in `parity-tests/config/targets.json` as `modernized-openemr` with status `implemented`. It currently supports the slice-1 patient search/chart summary plan, the slice-2 read-only scheduling plan, the slice-3 read-only encounters plan, the slice-4 read-only clinical-lists plan, the slice-5 read-only messaging plan, the slice-6 read-only procedures plan, the slice-7 read-only fee-sheet billing plan, the slice-8 read-only administration directory plan, the slice-9 read-only operational reports plan, the slice-10 patient contact mutation plan, the slice-11 appointment mutation plan, the slice-12 encounter mutation plan, the slice-13 clinical-list allergy mutation plan, the slice-14 patient-message mutation plan, the slice-15 prescription mutation plan, and the slice-16 billing mutation plan.
 
 ## Test Layers
 
@@ -92,7 +92,7 @@ Current legacy coverage:
 - CPT billing line create, bill-status update, deactivate, and delete lifecycle.
 - Lab procedure order create, complete, report, result, and cascade-delete lifecycle.
 
-The legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The first modernized implementation is `parity-tests/src/workflows/modernizedWorkflowActions.ts`, which updates patient contact data through the modernized ASP.NET Core API and reads post-state through the normalized PostgreSQL probe. The tests are written as workflow intent so each new modernized mutation slice can implement equivalent actions behind the same behavioral contract.
+The legacy implementation is `parity-tests/src/workflows/legacyWorkflowActions.ts`. It uses controlled SQL mutations against the legacy MariaDB schema because OpenEMR's internal PHP entry points and OAuth-protected APIs are not yet wrapped as stable modernization parity adapters. The modernized implementation is `parity-tests/src/workflows/modernizedWorkflowActions.ts`, which mutates implemented workflows through the modernized ASP.NET Core API and reads post-state through normalized PostgreSQL probes. The tests are written as workflow intent so each new modernized mutation slice can implement equivalent actions behind the same behavioral contract.
 
 ### Legacy-Native Internal Tests
 
@@ -163,6 +163,8 @@ npm run test:legacy:plan:message-mutation
 npm run test:modernized:plan:message-mutation
 npm run test:legacy:plan:prescription-mutation
 npm run test:modernized:plan:prescription-mutation
+npm run test:legacy:plan:billing-mutation
+npm run test:modernized:plan:billing-mutation
 ```
 
 Inventory command:
@@ -201,8 +203,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Test-LegacyNativeJs.ps1 -Inst
 The runner accepts:
 
 - `--target legacy-openemr|modernized-openemr`
-- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-prescriptions|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
-- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|legacy-readiness|mutation-isolated|full-parity`
+- `--suite all|database|http|ui|workflow|workflow-contact|workflow-appointments|workflow-encounters|workflow-clinical-lists|workflow-messages|workflow-prescriptions|workflow-billing|slice1|scheduling|encounters|clinical-lists|messages|procedures|billing|admin|reports`
+- `--plan slice-1-readiness|slice-2-scheduling-readiness|slice-3-encounters-readiness|slice-4-clinical-lists-readiness|slice-5-messaging-readiness|slice-6-procedures-readiness|slice-7-billing-readiness|slice-8-admin-readiness|slice-9-reports-readiness|slice-10-contact-mutation-readiness|slice-11-appointment-mutation-readiness|slice-12-encounter-mutation-readiness|slice-13-clinical-list-mutation-readiness|slice-14-message-mutation-readiness|slice-15-prescription-mutation-readiness|slice-16-billing-mutation-readiness|legacy-readiness|mutation-isolated|full-parity`
 - `--reset none|run|suite|test`
 - `--headed`
 - `--grep <pattern>`
@@ -233,9 +235,10 @@ Current plans:
 - `slice-13-clinical-list-mutation-readiness` runs the clinical-list allergy mutation suite with a per-test reset for both legacy and modernized targets.
 - `slice-14-message-mutation-readiness` runs the patient-message mutation suite with a per-test reset for both legacy and modernized targets.
 - `slice-15-prescription-mutation-readiness` runs the prescription mutation suite with a per-test reset for both legacy and modernized targets.
+- `slice-16-billing-mutation-readiness` runs the billing line mutation suite with a per-test reset for both legacy and modernized targets.
 - `legacy-readiness` runs database, HTTP, and UI with a run-level reset for read-only baseline confidence.
-- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/prescription mutation suites with per-test resets for strongest mutation isolation.
-- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, and prescription mutation as the target-neutral contract intended for future side-by-side legacy and modernized runs.
+- `mutation-isolated` runs legacy workflow mutations and shared patient contact/appointment/encounter/clinical-list/message/prescription/billing mutation suites with per-test resets for strongest mutation isolation.
+- `full-parity` runs database, HTTP, UI, workflow, patient contact mutation, appointment mutation, encounter mutation, clinical-list mutation, message mutation, prescription mutation, and billing mutation as the target-neutral contract intended for future side-by-side legacy and modernized runs.
 
 Every plan run records `selectionKind`, `selectionId`, `selectedSuites`, and plan metadata in `run.json`. This makes result files self-describing and lets the Workbench show whether evidence came from a suite or a named plan.
 
@@ -286,6 +289,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-13-clinical-list-mutation-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-14-message-mutation-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-plan-slice-15-prescription-mutation-readiness.json`
+- `parity-tests/artifacts/latest-legacy-openemr-plan-slice-16-billing-mutation-readiness.json`
 - `parity-tests/artifacts/latest-legacy-openemr-http.json`
 - `parity-tests/artifacts/latest-legacy-openemr-ui.json`
 - `parity-tests/artifacts/latest-legacy-openemr-workflow.json`
@@ -309,6 +313,7 @@ The runner also writes latest summary files by target and suite:
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-13-clinical-list-mutation-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-14-message-mutation-readiness.json`
 - `parity-tests/artifacts/latest-modernized-openemr-plan-slice-15-prescription-mutation-readiness.json`
+- `parity-tests/artifacts/latest-modernized-openemr-plan-slice-16-billing-mutation-readiness.json`
 
 Comparison artifacts are written under:
 
@@ -412,6 +417,12 @@ For the fifteenth modernized prescription mutation slice, compare the current si
 npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-15-prescription-mutation-readiness
 ```
 
+For the sixteenth modernized billing mutation slice, compare the current side-by-side readiness plan with:
+
+```powershell
+npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-16-billing-mutation-readiness
+```
+
 The comparator is now active evidence for implemented slices. It should continue to be the Workbench and CI input for side-by-side parity status as new slices join the modernized target.
 
 Artifacts are local runtime evidence and are intentionally ignored by Git.
@@ -446,12 +457,13 @@ The legacy app currently exposes these test actions:
 - Slice 13 clinical-list mutation plan.
 - Slice 14 message mutation plan.
 - Slice 15 prescription mutation plan.
+- Slice 16 billing mutation plan.
 - Full parity plan.
 - Full legacy parity suite.
 
 The modernized app currently exposes these test actions:
 
-- Modernized smoke test for API health, anchor patient search, anchor chart summary, anchor appointment search/detail, anchor encounter search/detail, clinical lists, patient messages, procedure results, fee-sheet billing, administration directory, operational reports, appointment mutation, encounter mutation, clinical-list allergy mutation, patient-message mutation, and prescription mutation.
+- Modernized smoke test for API health, anchor patient search, anchor chart summary, anchor appointment search/detail, anchor encounter search/detail, clinical lists, patient messages, procedure results, fee-sheet billing, administration directory, operational reports, appointment mutation, encounter mutation, clinical-list allergy mutation, patient-message mutation, prescription mutation, and billing mutation.
 - Slice 1 readiness plan for side-by-side patient search/chart summary parity.
 - Slice 2 scheduling plan for side-by-side future appointment detail parity.
 - Slice 3 encounters plan for side-by-side SOAP and vitals detail parity.
@@ -467,6 +479,7 @@ The modernized app currently exposes these test actions:
 - Slice 13 clinical-list mutation plan for side-by-side allergy lifecycle parity.
 - Slice 14 message mutation plan for side-by-side patient-message lifecycle parity.
 - Slice 15 prescription mutation plan for side-by-side prescription lifecycle parity.
+- Slice 16 billing mutation plan for side-by-side fee-sheet CPT lifecycle parity.
 
 The Workbench runs only allowlisted commands. It displays latest evidence per test card and stores lifecycle/test action events in `modernization-workbench/artifacts/events.json`.
 
@@ -474,7 +487,7 @@ The Test Runs page also includes a custom parity run builder for each managed ap
 
 ## Modernized Target Parity Path
 
-The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, the fifth read-only messaging slice, the sixth read-only procedures slice, the seventh read-only fee-sheet billing slice, the eighth read-only administration directory slice, the ninth read-only operational reports slice, the tenth patient contact mutation slice, the eleventh appointment mutation slice, the twelfth encounter mutation slice, the thirteenth clinical-list allergy mutation slice, the fourteenth patient-message mutation slice, and the fifteenth prescription mutation slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`, retrieve deterministic completed procedure results for `MOD-PAT-0009`, retrieve deterministic fee-sheet billing lines for `MOD-PAT-0001`, retrieve deterministic users/facilities directory facts, retrieve deterministic operational-report facts, perform a safe appointment create/cancel/delete lifecycle, perform a safe encounter create/update/vitals/SOAP/delete lifecycle, perform a safe allergy create/deactivate/delete lifecycle, perform a safe patient-message create/close/soft-delete/delete lifecycle, and perform a safe prescription create/deactivate/delete lifecycle. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets. The `slice-6-procedures-readiness` parity plan proves completed procedure order, report, final result, value, unit, range, and status behavior against both targets. The `slice-7-billing-readiness` parity plan proves encounter fee-sheet CPT code, description, fee, and diagnosis-justification behavior against both targets. The `slice-8-admin-readiness` parity plan proves seeded provider, billing-user, role, calendar, authorized-provider, active-user, and facility directory behavior against both targets. The `slice-9-reports-readiness` parity plan proves operational totals, provider activity, facility activity, top clinical condition facts, and browser-visible report surfaces against both targets. The `slice-10-contact-mutation-readiness` parity plan proves patient contact update, browser-visible changed contact values, and restoration behavior against both targets. The `slice-11-appointment-mutation-readiness` parity plan proves future appointment create, cancel, browser-visible changed appointment status, and deletion cleanup behavior against both targets. The `slice-12-encounter-mutation-readiness` parity plan proves encounter create, vitals create, SOAP create, summary update, browser-visible clinical detail, and deletion cleanup behavior against both targets. The `slice-13-clinical-list-mutation-readiness` parity plan proves allergy create, browser-visible active rendering, deactivation, and deletion cleanup behavior against both targets. The `slice-14-message-mutation-readiness` parity plan proves patient-message create, browser-visible closed rendering, soft-delete behavior, and deletion cleanup behavior against both targets. The `slice-15-prescription-mutation-readiness` parity plan proves prescription create, browser-visible active rendering, deactivation, and deletion cleanup behavior against both targets.
+The modernized target now exists and currently includes the first read-only patient search/chart summary slice, the second read-only scheduling slice, the third read-only encounter clinical detail slice, the fourth read-only clinical-lists slice, the fifth read-only messaging slice, the sixth read-only procedures slice, the seventh read-only fee-sheet billing slice, the eighth read-only administration directory slice, the ninth read-only operational reports slice, the tenth patient contact mutation slice, the eleventh appointment mutation slice, the twelfth encounter mutation slice, the thirteenth clinical-list allergy mutation slice, the fourteenth patient-message mutation slice, the fifteenth prescription mutation slice, and the sixteenth billing mutation slice. The smoke test proves that the target can run, consume the shared gold dataset, return the deterministic anchor patient, retrieve a deterministic future appointment for `MOD-PAT-0003`, retrieve deterministic SOAP/vitals detail for `MOD-PAT-0001`, retrieve deterministic problem, allergy, medication-list, and prescription facts for `MOD-PAT-0001`, retrieve deterministic portal-enabled patient messages for `MOD-PAT-0004`, retrieve deterministic completed procedure results for `MOD-PAT-0009`, retrieve deterministic fee-sheet billing lines for `MOD-PAT-0001`, retrieve deterministic users/facilities directory facts, retrieve deterministic operational-report facts, perform a safe appointment create/cancel/delete lifecycle, perform a safe encounter create/update/vitals/SOAP/delete lifecycle, perform a safe allergy create/deactivate/delete lifecycle, perform a safe patient-message create/close/soft-delete/delete lifecycle, perform a safe prescription create/deactivate/delete lifecycle, and perform a safe billing line create/status/delete lifecycle. The `slice-1-readiness` parity plan proves the same database contract and anchor chart behavior against both legacy and modernized targets. The `slice-2-scheduling-readiness` parity plan proves future appointment facts and browser-visible appointment detail behavior against both targets. The `slice-3-encounters-readiness` parity plan proves encounter SOAP/vitals facts and browser-visible clinical detail behavior against both targets. The `slice-4-clinical-lists-readiness` parity plan proves clinical-list facts and browser-visible problem/allergy/medication/prescription behavior against both targets. The `slice-5-messaging-readiness` parity plan proves portal flag, message title, message body, and message status behavior against both targets. The `slice-6-procedures-readiness` parity plan proves completed procedure order, report, final result, value, unit, range, and status behavior against both targets. The `slice-7-billing-readiness` parity plan proves encounter fee-sheet CPT code, description, fee, and diagnosis-justification behavior against both targets. The `slice-8-admin-readiness` parity plan proves seeded provider, billing-user, role, calendar, authorized-provider, active-user, and facility directory behavior against both targets. The `slice-9-reports-readiness` parity plan proves operational totals, provider activity, facility activity, top clinical condition facts, and browser-visible report surfaces against both targets. The `slice-10-contact-mutation-readiness` parity plan proves patient contact update, browser-visible changed contact values, and restoration behavior against both targets. The `slice-11-appointment-mutation-readiness` parity plan proves future appointment create, cancel, browser-visible changed appointment status, and deletion cleanup behavior against both targets. The `slice-12-encounter-mutation-readiness` parity plan proves encounter create, vitals create, SOAP create, summary update, browser-visible clinical detail, and deletion cleanup behavior against both targets. The `slice-13-clinical-list-mutation-readiness` parity plan proves allergy create, browser-visible active rendering, deactivation, and deletion cleanup behavior against both targets. The `slice-14-message-mutation-readiness` parity plan proves patient-message create, browser-visible closed rendering, soft-delete behavior, and deletion cleanup behavior against both targets. The `slice-15-prescription-mutation-readiness` parity plan proves prescription create, browser-visible active rendering, deactivation, and deletion cleanup behavior against both targets. The `slice-16-billing-mutation-readiness` parity plan proves CPT billing line create, browser-visible active fee-sheet rendering, billed/inactive status update, and billing-line deletion cleanup behavior against both targets.
 
 Next parity steps:
 

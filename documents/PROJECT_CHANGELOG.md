@@ -1553,12 +1553,73 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 038. Modernized Billing Mutation Slice 16
+
+Commit: TBD
+
+Implemented the sixteenth modernized OpenEMR vertical slice: the seventh mutation-capable parity workflow, focused on encounter-scoped CPT billing line create, active fee-sheet rendering, billed/inactive status update, and hard-delete behavior with React Fees controls, ASP.NET Core billing lifecycle endpoints, PostgreSQL billing lifecycle fields, Workbench orchestration, smoke coverage, and side-by-side parity against the legacy OpenEMR fee-sheet workflow.
+
+Key outcomes:
+
+- Added ASP.NET Core billing line create, status update, and delete endpoints under `/api/billing/lines`.
+- Extended `BillingRepository` with billing line lifecycle methods while preserving active fee-sheet rendering for the visible line contract.
+- Extended the modernized PostgreSQL seed schema with billing units, billed state, and activity state so Slice 16 preserves OpenEMR-style fee-sheet lifecycle semantics.
+- Added React Fees UI controls for creating a CPT line, marking a line billed/inactive, and deleting active billing lines.
+- Expanded the modernized smoke script with a safe billing line create/status/delete lifecycle check that cleans up its temporary row.
+- Extended the modernized workflow action adapter with billing lifecycle methods that mutate through the public API and verify exact post-state through PostgreSQL probes.
+- Added a shared `workflow-billing` parity suite and the `slice-16-billing-mutation-readiness` named plan for both legacy and modernized targets.
+- Added Workbench test actions/cards and custom-run defaults for the Slice 16 billing mutation plan.
+- Updated modernization, Workbench, test architecture, seed-data, baseline, project-context, and document-index guidance so the documented state reflects the billing mutation slice.
+
+Verified test runs:
+
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernization-workbench/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` from `modernized-openemr/`.
+- `docker compose up -d api frontend` from `modernized-openemr/`.
+- `.\scripts\Seed-ModernizedGoldDataset.ps1` from `modernized-openemr/`.
+- `.\scripts\Test-ModernizedBaseline.ps1 -ApiBaseUrl 'http://localhost:5001'` from `modernized-openemr/`, with artifact status `passed`.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-16-billing-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `.\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-16-billing-mutation-readiness -Reset test`, passing 1 expected test with 0 skips.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-16-billing-mutation-readiness` in `parity-tests/`, producing a matched comparison with no differences.
+- PostgreSQL and MariaDB cleanup probes confirming zero leftover Slice 16 temporary billing rows.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/tests/workflow-billing/billing-line-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Reports exports, document storage, scanned attachments, and integration adapters.
-- Additional modernized workflow action adapters for billing and procedures.
+- Additional modernized workflow action adapters for procedures.
 - Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

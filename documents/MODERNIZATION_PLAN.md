@@ -299,7 +299,8 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CPT entry, bill-status lifecycle, claim generation, payer adjudication, payment posting, and billing deletion workflows remain deferred to later billing mutation slices.
+- Focused CPT entry, bill-status update, inactive-line hiding, and billing-line deletion workflows are covered by Slice 16.
+- Claim generation, payer adjudication, payment posting, charge correction history, and full revenue-cycle workflows remain deferred to later billing slices.
 - Insurance-aware billing summaries remain planned.
 
 ### Slice 8: Administration, Security, And Audit
@@ -519,6 +520,33 @@ Current limitations:
 - This slice covers a focused prescription lifecycle only.
 - Full medication-list mutation, allergy/problem interactions, pharmacy routing, electronic prescribing, controlled-substance rules, refill requests, medication reconciliation, and audit history remain deferred to later medication workflow slices.
 
+### Slice 16: Billing Mutation
+
+Status:
+
+- Implemented as the seventh mutation-capable modernized workflow slice under `modernized-openemr/`.
+- Verification is the shared `slice-16-billing-mutation-readiness` plan, which creates, renders, marks billed, deactivates, and removes a CPT fee-sheet line on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core billing line create, billed/activity status update, and delete endpoints under the billing API over the modernized PostgreSQL billing table.
+- PostgreSQL seed schema extensions for billing units, billed state, and activity state so the normalized target preserves legacy-observed fee-sheet lifecycle facts.
+- React Fees controls for creating a CPT line against a loaded encounter and marking or deleting visible fee-sheet lines.
+- Modernized workflow action adapter methods for billing-line lifecycle parity.
+- Workbench-managed slice-16 billing mutation parity plan for both legacy and modernized targets.
+- Modernized smoke coverage for a safe billing line create/status/delete lifecycle with cleanup.
+
+Acceptance:
+
+- The modernized Fees module can create a CPT billing line for an encounter, display it in the active fee-sheet line list, mark it billed and inactive so it no longer appears as active, and delete the temporary row.
+- The mutation path goes through the modernized backend API, not direct UI-to-database access.
+- The `slice-16-billing-mutation-readiness` plan creates a temporary CPT billing line for seeded encounter `1000013` on `MOD-PAT-0001`, verifies billing counts and direct row state, verifies browser-visible active billing rendering, marks the row billed/inactive, deletes it, and passes against both legacy and modernized targets with no comparison differences.
+
+Current limitations:
+
+- This slice covers a focused encounter-scoped CPT billing line lifecycle only.
+- Claim generation, payer/insurance adjudication, payment posting, modifiers, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -595,3 +623,4 @@ As of 2026-06-19:
 - The thirteenth modernized vertical slice implements clinical-list allergy mutation with React Lists create/deactivate/delete controls, ASP.NET Core allergy lifecycle endpoints, PostgreSQL clinical-list activity fields, modernized workflow action adapter methods, Workbench clinical-list mutation plan action, smoke coverage, and side-by-side slice-13 parity evidence.
 - The fourteenth modernized vertical slice implements patient-message mutation with React Messages create/close/archive/delete controls, ASP.NET Core message lifecycle endpoints, PostgreSQL message activity fields, modernized workflow action adapter methods, Workbench message mutation plan action, smoke coverage, and side-by-side slice-14 parity evidence.
 - The fifteenth modernized vertical slice implements prescription mutation with React Lists prescription create/deactivate/delete controls, ASP.NET Core prescription lifecycle endpoints, PostgreSQL prescription active/end-date/refill fields, modernized workflow action adapter methods, Workbench prescription mutation plan action, smoke coverage, and side-by-side slice-15 parity evidence.
+- The sixteenth modernized vertical slice implements billing mutation with React Fees CPT create/status/delete controls, ASP.NET Core billing line lifecycle endpoints, PostgreSQL billing units/billed/activity fields, modernized workflow action adapter methods, Workbench billing mutation plan action, smoke coverage, and side-by-side slice-16 parity evidence.
