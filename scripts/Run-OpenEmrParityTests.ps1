@@ -53,6 +53,7 @@ param(
         "workflow-encounter-diagnoses",
         "workflow-encounter-fee-sheet",
         "workflow-encounter-procedures",
+        "workflow-encounter-procedure-results",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

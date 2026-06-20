@@ -681,6 +681,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-76-encounter-procedure-result-entry-readiness",
+      "name": "Slice 76 Encounter Procedure Result Entry Readiness",
+      "description": "Mutation-capable encounter procedure-result entry plan that adds a temporary lab order, records a reviewed final result from the encounter procedure workflow, verifies encounter procedure report/result surfaces, and deletes it.",
+      "suites": ["workflow-encounter-procedure-results"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-76", "encounters", "procedures", "results", "laboratory", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -693,7 +702,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-encounter-billing", "workflow-encounter-diagnoses", "workflow-encounter-fee-sheet", "workflow-encounter-procedures", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-message-assignment", "workflow-message-content", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "account-collections-follow-up", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-encounter-billing", "workflow-encounter-diagnoses", "workflow-encounter-fee-sheet", "workflow-encounter-procedures", "workflow-encounter-procedure-results", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-message-assignment", "workflow-message-content", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "account-collections-follow-up", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -702,7 +711,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-encounter-billing", "workflow-encounter-diagnoses", "workflow-encounter-fee-sheet", "workflow-encounter-procedures", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-message-assignment", "workflow-message-content", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "account-collections-follow-up", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "encounter-documents", "encounter-billing", "encounter-claims", "encounter-procedures", "encounter-diagnoses", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement", "account-statement-generation", "account-statement-pdf", "account-statement-batch", "account-statement-batch-package", "account-collections-work-queue"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-encounter-billing", "workflow-encounter-diagnoses", "workflow-encounter-fee-sheet", "workflow-encounter-procedures", "workflow-encounter-procedure-results", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-message-assignment", "workflow-message-content", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "account-collections-follow-up", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "encounter-documents", "encounter-billing", "encounter-claims", "encounter-procedures", "encounter-diagnoses", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement", "account-statement-generation", "account-statement-pdf", "account-statement-batch", "account-statement-batch-package", "account-collections-work-queue"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -1054,6 +1063,16 @@
       "layer": "workflow",
       "path": "tests/workflow-encounter-procedures",
       "tags": ["slice75", "encounters", "procedures", "orders", "laboratory", "mutation", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-encounter-procedure-results",
+      "name": "Encounter Procedure Result Entry",
+      "description": "Adds a temporary procedure order, records a reviewed final result from the encounter workflow, and verifies encounter procedure report/result surfaces before cleanup deletes it.",
+      "layer": "workflow",
+      "path": "tests/workflow-encounter-procedure-results",
+      "tags": ["slice76", "encounters", "procedures", "results", "laboratory", "mutation", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

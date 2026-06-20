@@ -5338,6 +5338,57 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 102. Modernized Encounter Procedure Result Entry Slice 76
+
+Commit: this commit
+Started: `2026-06-20T06:39:00-04:00`
+Finished: `2026-06-20T07:06:00.6208693-04:00`
+
+Implemented the seventy-sixth modernized OpenEMR vertical slice: focused encounter procedure-result entry readiness, adding per-order report/result controls to the modernized Encounters workspace while preserving legacy Procedure Results rendering and cleanup discipline.
+
+Key outcomes:
+
+- Added a `Result Entry` form to each modernized Encounter Procedure Orders card with report date, specimen, review status, result status, result code, text, value, units, range, abnormal flag, and notes fields.
+- Wired encounter result entry through the existing modernized procedure report and procedure result APIs, refreshing the selected encounter so the new report/result appears in the active Procedure Orders panel.
+- Added the `workflow-encounter-procedure-results` Playwright parity suite and `slice-76-encounter-procedure-result-entry-readiness` plan for both legacy and modernized targets.
+- The shared test creates a temporary pending `80053` laboratory order on `MOD-PAT-0001` encounter `1000013`, records a reviewed final report/result, verifies legacy Procedure Results rendering, verifies modernized encounter UI/API rendering, and hard-deletes the order so report/result cleanup cascades.
+- Added modernized smoke coverage for the encounter procedure-result entry lifecycle.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 76 encounter procedure-result entry plan.
+- Updated the parity runner wrapper, package scripts, mutation/full-parity suite lists, and synchronized project documents.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 77 smoke checks.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-76-encounter-procedure-result-entry-readiness -Reset test` passed with run `2026-06-20T110436-503Z-legacy-openemr-plan-slice-76-encounter-procedure-result-entry-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-76-encounter-procedure-result-entry-readiness -Reset test` passed with run `2026-06-20T110519-143Z-modernized-openemr-plan-slice-76-encounter-procedure-result-entry-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-76-encounter-procedure-result-entry-readiness` matched with comparison `2026-06-20T110546-554Z-legacy-openemr-vs-modernized-openemr-plan-slice-76-encounter-procedure-result-entry-readiness`.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-procedure-results/encounter-procedure-result-entry.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -5345,5 +5396,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, result entry, order catalogs, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
+- Broader encounter workflows for templates, sign-off, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.
