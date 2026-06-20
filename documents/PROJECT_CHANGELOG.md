@@ -6002,6 +6002,63 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 114. Modernized Encounter Document Archive Restore Slice 85
+
+Commit: current slice commit
+Started: `2026-06-20T11:58:00-04:00`
+Finished: `2026-06-20T12:20:16.1634369-04:00`
+
+Implemented the eighty-fifth modernized OpenEMR vertical slice: encounter document archive/restore readiness, adding encounter-scoped archive and restore controls from the modernized Encounters workspace and proving the same temporary document create/archive/hide/restore/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 23
+- Lines added: 830
+- Lines deleted: 59
+- Net lines: 771
+- Total churn: 889
+
+Key outcomes:
+
+- Added guarded ASP.NET Core encounter document archive and restore endpoints that only mutate documents attached to the selected encounter.
+- Added archived-document detail inclusion through `includeArchivedDocuments=true` while preserving normal active-detail hiding for archived encounter attachments.
+- Added modernized frontend API support and Encounters workspace Archive/Restore controls, archived-document toggle rendering, and disabled actions for archived attached documents.
+- Added modernized smoke coverage for the encounter document archive/restore lifecycle.
+- Added shared legacy and modernized workflow adapter support for encounter document archive/restore behavior.
+- Added the `workflow-encounter-document-archive` Playwright parity suite and the `slice-85-encounter-document-archive-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 85 archive/restore plan.
+- Updated synchronized project documents so the current modernization state is Slice 85 with thirty-four read-only slices and fifty-one mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 86 checks, including `encounter document archive restore lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-85-encounter-document-archive-readiness -Reset test` passed; run `2026-06-20T161903-314Z-legacy-openemr-plan-slice-85-encounter-document-archive-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-85-encounter-document-archive-readiness -Reset test` passed; run `2026-06-20T161940-501Z-modernized-openemr-plan-slice-85-encounter-document-archive-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-85-encounter-document-archive-readiness` passed with `status: matched`; comparison `2026-06-20T162009-197Z-legacy-openemr-vs-modernized-openemr-plan-slice-85-encounter-document-archive-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-archive/encounter-document-archive-restore.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

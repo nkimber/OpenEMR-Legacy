@@ -60,7 +60,7 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
   const modernized = summaryFor(summaries, "modernized-openemr", {
     id: "modernized-openemr",
     name: "Modernized OpenEMR",
-    status: "Slice 84 encounter document content replacement readiness implemented",
+    status: "Slice 85 encounter document archive restore readiness implemented",
     stack: [],
     database: "PostgreSQL",
     businessLogic: "Server-side API owns implemented modernization slices",
@@ -110,7 +110,7 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
           "Smoke test verifies health, login reachability, and admin shell access.",
           "Native PHPUnit stable lane covers 2,344 tests and 6,188 assertions.",
           "Native Jest lane covers 12 suites and 105 JavaScript tests.",
-          "Side-by-side parity plans exist through Slice 84 encounter document content replacement readiness."
+          "Side-by-side parity plans exist through Slice 85 encounter document archive restore readiness."
         ]
       },
       {
@@ -201,7 +201,7 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
         ],
         evidence: [
           "Modernized smoke test covers implemented read-only and mutation workflows.",
-          "Side-by-side parity plans exist through Slice 84 encounter document content replacement readiness.",
+          "Side-by-side parity plans exist through Slice 85 encounter document archive restore readiness.",
           "The Workbench can start, stop, seed, health-check, smoke-test, and run parity actions for the target."
         ]
       }

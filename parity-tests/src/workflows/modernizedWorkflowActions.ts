@@ -1180,6 +1180,32 @@ LIMIT 1;
     }
   }
 
+  async softDeleteEncounterDocument(encounter: number, id: number | string): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/soft-delete`,
+      {
+        method: "PUT"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document archive failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async restoreEncounterDocument(encounter: number, id: number | string): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/restore`,
+      {
+        method: "PUT"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document restore failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async signPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
     await this.reviewPatientDocument(id, "approved", reviewedBy, "sign-off");
   }

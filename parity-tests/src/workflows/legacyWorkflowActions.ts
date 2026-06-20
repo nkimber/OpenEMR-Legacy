@@ -1804,6 +1804,14 @@ WHERE id = ${integer(legacyId)} AND COALESCE(deleted, 0) = 0;
     await this.replacePatientDocumentContent(id, input);
   }
 
+  async softDeleteEncounterDocument(_encounter: number, id: number | string): Promise<void> {
+    await this.softDeletePatientDocument(id);
+  }
+
+  async restoreEncounterDocument(_encounter: number, id: number | string): Promise<void> {
+    await this.restorePatientDocument(id);
+  }
+
   async signPatientDocument(id: number | string, _reviewedBy = "admin"): Promise<void> {
     const legacyId = legacyInteger(id);
     await this.db.execute(`
