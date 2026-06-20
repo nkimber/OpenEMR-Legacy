@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, and focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74; scanned upload workflows, full encounter document lifecycle behavior, templates, code search, coding validation, claim scrubbing, and richer charge-capture workflows remain future work.
+- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, and focused encounter-workspace procedure-order entry is covered by Slice 75; scanned upload workflows, full encounter document lifecycle behavior, templates, code search, coding validation, claim scrubbing, order catalogs, result entry from the encounter screen, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2249,6 +2249,34 @@ Current limitations:
 
 - This slice proves focused encounter-workspace fee-sheet entry for CPT and ICD10 rows. It does not implement code search, code-system validation, claim-scrubbing workflow, order-to-charge conversion, charge templates, authorization, audit history, or broader encounter coding management.
 
+### Slice 75: Encounter Procedure Order Entry Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter procedure-order entry readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-75-encounter-procedure-order-entry-readiness` plan, which adds a temporary pending lab order from an encounter workflow, validates encounter-linked procedure-order rendering, and deletes the order on both legacy and modernized targets.
+
+Scope:
+
+- The modernized Encounters workspace now includes an `Encounter procedure order entry` form beside the Procedure Orders panel.
+- The form supports focused procedure/lab order entry with order date, code, name, diagnosis, priority, status, type, and instructions.
+- The form calls the existing server-side procedure order API with the selected encounter id, then refreshes the selected encounter so the Procedure Orders panel shows the newly linked pending order.
+- The modernized smoke test now includes an `encounter procedure order entry lifecycle` check that creates a temporary pending order on `MOD-PAT-0001` encounter `1000013`, verifies the Encounter detail API, deletes the order, and verifies it is gone.
+- The parity workflow reuses `MOD-PAT-0001` encounter `1000013`, creates a temporary `80053` pending laboratory order, verifies legacy Procedure Orders and Reports rendering, verifies modernized Encounter workspace/API rendering, and hard-deletes the order.
+- Workbench-managed Slice 75 encounter procedure-order entry plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary pending procedure order for encounter `1000013` increases procedure-order count by one without changing encounter count.
+- The created order appears in the modernized Encounter Procedure Orders panel with code, diagnosis, priority, type, instructions, pending status, and no reports/results.
+- The legacy Procedure Orders and Reports screen renders the same temporary order after the shared workflow adapter creates it.
+- Hard-delete cleanup restores the seeded procedure-order count.
+- The side-by-side Slice 75 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter-workspace pending procedure-order entry. It does not implement order catalogs, result entry from the encounter screen, provider sign-off, specimen collection, external lab integration, authorization, audit history, or order-to-charge conversion.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2384,3 +2412,4 @@ As of 2026-06-20:
 - The seventy-second modernized vertical slice implements encounter billing linkage mutation readiness with temporary CPT fee-sheet create/render/deactivate/delete behavior, active encounter-linked billing visibility checks, normalized legacy/modernized workflow probes, Workbench encounter billing mutation plan actions, smoke coverage, and side-by-side slice-72 parity evidence.
 - The seventy-third modernized vertical slice implements encounter diagnosis coding mutation readiness with temporary ICD10 fee-sheet diagnosis create/render/deactivate/delete behavior, active encounter-linked diagnosis-coding visibility checks, normalized legacy/modernized workflow probes, Workbench encounter diagnosis mutation plan actions, smoke coverage, and side-by-side slice-73 parity evidence.
 - The seventy-fourth modernized vertical slice implements focused encounter fee-sheet entry readiness with React Encounters CPT/ICD entry controls, existing ASP.NET Core billing-line API behavior, active encounter billing and diagnosis panel refresh, normalized legacy/modernized workflow probes, Workbench encounter fee-sheet entry plan actions, and side-by-side slice-74 parity evidence.
+- The seventy-fifth modernized vertical slice implements focused encounter procedure-order entry readiness with React Encounters pending lab-order controls, existing ASP.NET Core procedure-order API behavior, active encounter procedure-order panel refresh, normalized legacy/modernized workflow probes, Workbench encounter procedure-order entry plan actions, smoke coverage, and side-by-side slice-75 parity evidence.
