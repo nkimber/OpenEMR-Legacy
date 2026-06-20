@@ -5184,6 +5184,55 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 099. Modernized Encounter Diagnosis Coding Mutation Slice 73
+
+Commit: this commit
+Started: `2026-06-20T05:30:00-04:00`
+Finished: `2026-06-20T05:52:20.0865743-04:00`
+
+Implemented the seventy-third modernized OpenEMR vertical slice: encounter diagnosis coding mutation readiness, focused on creating a temporary ICD10 fee-sheet diagnosis row for an existing encounter, proving it appears through encounter diagnosis-coding surfaces, then deactivating and deleting it so the gold dataset returns clean.
+
+Key outcomes:
+
+- Added the `workflow-encounter-diagnoses` Playwright parity suite and `slice-73-encounter-diagnosis-mutation-readiness` plan for both legacy and modernized targets.
+- The shared test creates a temporary `ICD10 R73.03` row on `MOD-PAT-0001` encounter `1000013`, verifies normalized row state and patient workflow counts, checks legacy Fee Sheet rendering, checks modernized Encounter detail API/UI Diagnosis Coding rendering, then marks the row billed/inactive and hard-deletes it.
+- Extended modernized smoke coverage with `encounter diagnosis coding mutation visibility`.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 73 encounter diagnosis coding mutation plan.
+- Updated the parity runner wrapper, package scripts, mutation/full-parity suite lists, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 75 smoke checks, including `encounter diagnosis coding mutation visibility`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-73-encounter-diagnosis-mutation-readiness -Reset test` passed with run `2026-06-20T095117-053Z-legacy-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-73-encounter-diagnosis-mutation-readiness -Reset test` passed with run `2026-06-20T095150-218Z-modernized-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-73-encounter-diagnosis-mutation-readiness` matched with comparison `2026-06-20T095214-289Z-legacy-openemr-vs-modernized-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-diagnoses/encounter-diagnosis-coding-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -5191,5 +5240,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, diagnosis mutation, order mutation, charge-capture expansion, audit history, and attachments.
+- Broader encounter workflows for templates, sign-off, order mutation, charge-capture expansion, audit history, dedicated encounter-screen coding tools, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

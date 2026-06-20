@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding mutation workflows, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, and temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, and temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73; scanned upload workflows, full encounter document lifecycle behavior, and dedicated encounter-screen coding workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2195,6 +2195,33 @@ Current limitations:
 
 - This slice proves encounter-linked billing mutation visibility through the existing billing-row lifecycle. It does not add a dedicated encounter-scoped billing editor, claim-scrubbing workflow, order-to-charge conversion, charge capture templates, or diagnosis mutation from the encounter screen.
 
+### Slice 73: Encounter Diagnosis Coding Mutation Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter diagnosis-coding readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-73-encounter-diagnosis-mutation-readiness` plan, which creates a temporary ICD10 fee-sheet diagnosis row, validates encounter-linked diagnosis rendering, deactivates it, and deletes it on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses `MOD-PAT-0001` encounter `1000013` and does not add permanent gold-data records.
+- The shared parity workflow creates a temporary `ICD10 R73.03` fee-sheet diagnosis row with zero fee and stored justification `R73.03`.
+- Legacy verification opens the encounter Fee Sheet and confirms the temporary diagnosis code and text render.
+- Modernized verification reads the Encounter detail API, confirms diagnosis code `R73.03` appears with `Fee sheet diagnosis line` and `Fee sheet justification` sources, verifies supporting code `ICD10 R73.03`, and checks the Encounters workspace Diagnosis Coding panel.
+- The workflow marks the row billed/inactive, verifies it is hidden from active encounter diagnosis-coding surfaces, hard-deletes it, and proves patient workflow counts return to baseline.
+- Workbench-managed Slice 73 encounter diagnosis coding mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary ICD10 diagnosis row for encounter `1000013` increases active encounter-linked billing rows by one without changing encounter count.
+- The created `ICD10 R73.03` row is visible through the legacy Fee Sheet and the modernized Encounter detail API/UI Diagnosis Coding surface.
+- Deactivation hides the diagnosis from active encounter-linked diagnosis evidence, and hard-delete cleanup restores the seeded billing count.
+- The side-by-side Slice 73 parity comparison matches.
+
+Current limitations:
+
+- This slice proves encounter diagnosis-coding mutation visibility through the existing billing-row lifecycle. It does not add a dedicated encounter-screen diagnosis editor, code search, code-system validation, claim-scrubbing workflow, or broader diagnosis management workflow.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2328,3 +2355,4 @@ As of 2026-06-20:
 - The seventieth modernized vertical slice implements encounter procedure order linkage readiness with ASP.NET Core encounter detail procedure-order/report/result fields, React Encounters Procedure Orders rendering, normalized legacy/modernized procedure probes, Workbench encounter procedure-order plan actions, smoke coverage, and side-by-side slice-70 parity evidence.
 - The seventy-first modernized vertical slice implements encounter diagnosis coding readiness with ASP.NET Core encounter detail diagnosis evidence fields, React Encounters Diagnosis Coding rendering, normalized legacy/modernized billing/procedure diagnosis probes, Workbench encounter diagnosis plan actions, smoke coverage, and side-by-side slice-71 parity evidence.
 - The seventy-second modernized vertical slice implements encounter billing linkage mutation readiness with temporary CPT fee-sheet create/render/deactivate/delete behavior, active encounter-linked billing visibility checks, normalized legacy/modernized workflow probes, Workbench encounter billing mutation plan actions, smoke coverage, and side-by-side slice-72 parity evidence.
+- The seventy-third modernized vertical slice implements encounter diagnosis coding mutation readiness with temporary ICD10 fee-sheet diagnosis create/render/deactivate/delete behavior, active encounter-linked diagnosis-coding visibility checks, normalized legacy/modernized workflow probes, Workbench encounter diagnosis mutation plan actions, smoke coverage, and side-by-side slice-73 parity evidence.
