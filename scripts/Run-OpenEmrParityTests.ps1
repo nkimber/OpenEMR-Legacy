@@ -53,6 +53,7 @@ param(
         "workflow-appointment-noshow",
         "workflow-appointment-category",
         "workflow-appointment-pending",
+        "workflow-appointment-provider",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
