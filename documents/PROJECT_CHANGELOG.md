@@ -4581,6 +4581,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 089. Modernized Collections Work Queue Slice 63
+
+Commit: this commit
+Started: `2026-06-20T00:49:30-04:00`
+Finished: `2026-06-20T01:20:15-04:00`
+
+Implemented the sixty-third modernized OpenEMR vertical slice: collections work queue readiness, focused on deriving a deterministic past-due account follow-up queue from the shared billing, payment, and statement population.
+
+Key outcomes:
+
+- Added a modernized collections endpoint at `GET /api/billing/collections/work-queue?limit=5`, returning dataset metadata, queue totals, high-priority count, aging exposure, and ranked account follow-up rows.
+- Ranked accounts by over-90 balance, past-due balance, total balance, oldest open age, and legacy PID so legacy and modernized targets can agree on the same collections queue.
+- Reused generated statement metadata for statement numbers, due dates, open encounter counts, ledger counts, balances, and patient contact readiness.
+- Added deterministic collection tier, recommended action, and contact method derivation for read-only collections readiness without creating persistent collection tasks yet.
+- Added a React Fees `Collections Work Queue` panel with aggregate metrics, account priority rows, recommended actions, contact method metadata, and `Open` actions that load the selected patient account.
+- Added modernized smoke coverage for the collections work queue endpoint shape, dataset as-of date, account totals, high-priority count, first account tier/action, and over-90 exposure.
+- Added the `account-collections-work-queue` parity suite and `slice-63-collections-work-queue-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 63 collections work queue plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing full-population seeded billing, payment, and statement rows; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the collections work queue changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 65 smoke checks, including `anchor collections work queue`.
+- `npm run test:legacy:plan:collections-work-queue -- --reset run` passed with run `2026-06-20T051928-785Z-legacy-openemr-plan-slice-63-collections-work-queue-readiness`.
+- `npm run test:modernized:plan:collections-work-queue -- --reset run` passed with run `2026-06-20T051928-782Z-modernized-openemr-plan-slice-63-collections-work-queue-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-63-collections-work-queue-readiness` matched with comparison `2026-06-20T052010-740Z-legacy-openemr-vs-modernized-openemr-plan-slice-63-collections-work-queue-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-collections-work-queue/account-collections-work-queue.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

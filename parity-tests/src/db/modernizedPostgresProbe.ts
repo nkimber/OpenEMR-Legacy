@@ -25,6 +25,7 @@ import type {
   AccountBalanceSummary,
   AccountAgingSummary,
   AccountLedgerEntry,
+  CollectionsWorkQueueSummary,
   PatientStatementSummary,
   StatementBatchSummary,
   PatientRecord,
@@ -924,6 +925,112 @@ ORDER BY r."pastDueAmount" DESC, r."balanceDueAmount" DESC, r."oldestOpenAgeDays
     };
   }
 
+  async getCollectionsWorkQueue(limit = 5, asOfDate = "2026-06-18"): Promise<CollectionsWorkQueueSummary> {
+    const boundedLimit = Math.max(1, Math.min(100, limit));
+    const safeAsOfDate = escapeSql(asOfDate);
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH charges AS (
+  SELECT pid, encounter, COUNT(*) AS "lineCount", COALESCE(SUM(COALESCE(fee, 0)), 0) AS "chargeAmount",
+    MAX(billing_date) AS "lastBillingDate"
+  FROM billing
+  WHERE activity = 1
+  GROUP BY pid, encounter
+),
+payments AS (
+  SELECT pid, encounter, COUNT(*) AS "paymentCount", COALESCE(SUM(pay_amount), 0) AS "paymentAmount",
+    COALESCE(SUM(adj_amount), 0) AS "adjustmentAmount"
+  FROM payment_activities
+  WHERE deleted IS NULL
+  GROUP BY pid, encounter
+),
+aged AS (
+  SELECT c.pid, c.encounter, c."lineCount", COALESCE(p."paymentCount", 0) AS "paymentCount",
+    c."lastBillingDate",
+    GREATEST(('${safeAsOfDate}'::date - c."lastBillingDate")::int, 0) AS "ageDays",
+    c."chargeAmount" - COALESCE(p."paymentAmount", 0) - COALESCE(p."adjustmentAmount", 0) AS "balanceAmount"
+  FROM charges c
+  LEFT JOIN payments p ON p.pid = c.pid AND p.encounter = c.encounter
+  UNION ALL
+  SELECT p.pid, p.encounter, 0 AS "lineCount", p."paymentCount",
+    '${safeAsOfDate}'::date AS "lastBillingDate", 0 AS "ageDays",
+    0 - p."paymentAmount" - p."adjustmentAmount" AS "balanceAmount"
+  FROM payments p
+  LEFT JOIN charges c ON c.pid = p.pid AND c.encounter = p.encounter
+  WHERE c.encounter IS NULL
+),
+rollup AS (
+  SELECT pid,
+    COUNT(*) FILTER (WHERE "balanceAmount" > 0) AS "openEncounterCount",
+    COALESCE(MAX("ageDays") FILTER (WHERE "balanceAmount" > 0), 0) AS "oldestOpenAgeDays",
+    COALESCE(MIN("lastBillingDate") FILTER (WHERE "balanceAmount" > 0), '${safeAsOfDate}'::date) AS "oldestOpenDate",
+    SUM(CASE WHEN "ageDays" <= 30 THEN "balanceAmount" ELSE 0 END) AS "currentDueAmount",
+    SUM(CASE WHEN "ageDays" > 30 THEN "balanceAmount" ELSE 0 END) AS "pastDueAmount",
+    SUM(CASE WHEN "ageDays" > 90 THEN "balanceAmount" ELSE 0 END) AS "over90Amount",
+    SUM("balanceAmount") AS "balanceDueAmount"
+  FROM aged
+  GROUP BY pid
+  HAVING SUM("balanceAmount") > 0
+)
+SELECT r.pid AS "patientId", p.pubpid, p.first_name AS "firstName", p.last_name AS "lastName",
+  COALESCE(p.preferred_name, '') AS "preferredName", COALESCE(p.email, '') AS email,
+  COALESCE(NULLIF(p.phone_home, ''), NULLIF(p.phone, ''), NULLIF(p.phone_cell, ''), '') AS phone,
+  COALESCE(r."openEncounterCount"::text, '0') AS "openEncounterCount",
+  COALESCE(r."oldestOpenAgeDays"::text, '0') AS "oldestOpenAgeDays",
+  r."oldestOpenDate"::date AS "oldestOpenDate",
+  COALESCE(r."currentDueAmount"::text, '0') AS "currentDueAmount",
+  COALESCE(r."pastDueAmount"::text, '0') AS "pastDueAmount",
+  COALESCE(r."over90Amount"::text, '0') AS "over90Amount",
+  COALESCE(r."balanceDueAmount"::text, '0') AS "balanceDueAmount"
+FROM rollup r
+INNER JOIN patients p ON p.legacy_pid = r.pid
+WHERE r."pastDueAmount" > 0
+ORDER BY r."over90Amount" DESC, r."pastDueAmount" DESC, r."balanceDueAmount" DESC, r."oldestOpenAgeDays" DESC, r.pid;
+`);
+    const topRows = rows.slice(0, boundedLimit);
+    const items: CollectionsWorkQueueSummary["items"] = [];
+    for (const row of topRows) {
+      const statement = await this.getPatientStatementForPatient(Number(row.patientId));
+      if (!statement || Number(statement.pastDueAmount) <= 0) {
+        continue;
+      }
+
+      const over90Amount = formatAmount(Number(row.over90Amount));
+      items.push({
+        patientId: Number(row.patientId),
+        pubpid: row.pubpid,
+        patientDisplayName: row.preferredName.trim()
+          ? `${row.lastName}, ${row.firstName} (${row.preferredName})`
+          : `${row.lastName}, ${row.firstName}`,
+        statementNumber: `STMT-${row.pubpid}-${statement.statementDate.replaceAll("-", "")}`,
+        statementDate: statement.statementDate,
+        dueDate: statement.dueDate,
+        balanceDueAmount: statement.balanceDueAmount,
+        pastDueAmount: statement.pastDueAmount,
+        over90Amount,
+        currentDueAmount: statement.currentDueAmount,
+        openEncounterCount: statement.openEncounterCount,
+        ledgerEntryCount: statement.ledgerEntryCount,
+        oldestOpenAgeDays: statement.oldestOpenAgeDays,
+        oldestOpenDate: statement.oldestOpenDate,
+        collectionTier: collectionTier(statement.oldestOpenAgeDays, Number(over90Amount)),
+        recommendedAction: collectionRecommendedAction(statement.oldestOpenAgeDays, Number(over90Amount)),
+        contactMethod: collectionContactMethod(row.email, row.phone),
+        email: row.email,
+        phone: row.phone
+      });
+    }
+
+    return {
+      asOfDate,
+      accountCount: rows.length,
+      highPriorityCount: rows.filter((row) => collectionTier(Number(row.oldestOpenAgeDays), Number(row.over90Amount)) === "High").length,
+      totalBalanceAmount: formatAmount(rows.reduce((sum, row) => sum + Number(row.balanceDueAmount), 0)),
+      totalPastDueAmount: formatAmount(rows.reduce((sum, row) => sum + Number(row.pastDueAmount), 0)),
+      totalOver90Amount: formatAmount(rows.reduce((sum, row) => sum + Number(row.over90Amount), 0)),
+      items
+    };
+  }
+
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
     const users = await this.queryRows<Record<string, string>>(`
 SELECT s.id, s.username, s.first_name AS "firstName", s.last_name AS "lastName",
@@ -1355,6 +1462,36 @@ function claimStatusLabel(status: number, billProcess: number) {
 
 function formatAmount(value: number) {
   return value.toFixed(2);
+}
+
+function collectionTier(oldestOpenAgeDays: number, over90Amount: number) {
+  if (over90Amount > 0 || oldestOpenAgeDays >= 91) {
+    return "High";
+  }
+  if (oldestOpenAgeDays >= 61) {
+    return "Medium";
+  }
+  return "Early";
+}
+
+function collectionRecommendedAction(oldestOpenAgeDays: number, over90Amount: number) {
+  if (over90Amount > 0 || oldestOpenAgeDays >= 181) {
+    return "Final notice review";
+  }
+  if (oldestOpenAgeDays >= 91) {
+    return "Phone outreach";
+  }
+  if (oldestOpenAgeDays >= 61) {
+    return "Second reminder";
+  }
+  return "First reminder";
+}
+
+function collectionContactMethod(email: string, phone: string) {
+  if (email.trim()) {
+    return "Email-ready";
+  }
+  return phone.trim() ? "Phone" : "Print";
 }
 
 function escapeSql(value: string) {

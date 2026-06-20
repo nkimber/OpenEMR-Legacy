@@ -32,6 +32,7 @@ param(
         "account-statement-pdf",
         "account-statement-batch",
         "account-statement-batch-package",
+        "account-collections-work-queue",
         "admin",
         "reports",
         "reports-export",

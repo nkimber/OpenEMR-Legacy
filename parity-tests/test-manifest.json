@@ -564,6 +564,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-63-collections-work-queue-readiness",
+      "name": "Slice 63 Collections Work Queue Readiness",
+      "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
+      "suites": ["account-collections-work-queue"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-63", "billing", "collections", "aging", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -585,7 +594,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement", "account-statement-generation", "account-statement-pdf", "account-statement-batch", "account-statement-batch-package"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-patient-payments", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement", "account-statement-generation", "account-statement-pdf", "account-statement-batch", "account-statement-batch-package", "account-collections-work-queue"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -787,6 +796,16 @@
       "layer": "parity",
       "path": "tests/account-statement-batch-package",
       "tags": ["slice62", "account-statement-batch-package", "patient-statements", "statement-batch", "statement-export", "billing", "revenue-cycle", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "account-collections-work-queue",
+      "name": "Account Collections Work Queue",
+      "description": "Compares ranked past-due collections work queue rollups and modernized Fees rendering against seeded aging exposure.",
+      "layer": "parity",
+      "path": "tests/account-collections-work-queue",
+      "tags": ["slice63", "account-collections-work-queue", "collections", "aging", "billing", "revenue-cycle", "read-only", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

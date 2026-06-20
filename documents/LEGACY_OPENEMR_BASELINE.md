@@ -206,6 +206,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared statement PDF export plan now runs against the legacy target as the legacy half of Slice 60 side-by-side parity, deriving the same statement number, payment instructions, totals, `Northstar HMO insurance payment`, and `EOB-NSTAR-1000052` facts that the modernized target exports as `STMT-MOD-PAT-0005-20260625.pdf`.
 - Shared statement batch candidate plan now runs against the legacy target as the legacy half of Slice 61 side-by-side parity, ranking positive-balance patient accounts by past-due amount, balance, oldest open age, and legacy PID so the modernized Fees work queue can be checked against the same full-population ledger contract.
 - Shared statement batch package plan now runs against the legacy target as the legacy half of Slice 62 side-by-side parity, deriving the expected package manifest, summary CSV, and included statement PDF filenames from the same ranked statement candidates.
+- Shared collections work queue plan now runs against the legacy target as the legacy half of Slice 63 side-by-side parity, deriving the expected past-due account queue, over-90 exposure, priority tier, recommended action, and contact method from OpenEMR billing and AR activity rows.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 

@@ -1872,7 +1872,7 @@ Acceptance:
 Current limitations:
 
 - This slice identifies candidates for a future statement run; it does not execute a batch, persist a batch record, export a package, deliver statements, archive statements, or create collection follow-up tasks.
-- Statement batch package export readiness is covered by Slice 62. Rich statement batch layout, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
+- Statement batch package export readiness is covered by Slice 62. Collections work queue readiness is covered by Slice 63. Rich statement batch layout, delivery, portal messaging, persisted collection tasks, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 62: Statement Batch Package Export Readiness
 
@@ -1904,7 +1904,40 @@ Acceptance:
 Current limitations:
 
 - This slice exports a deterministic package for the current top candidates; it does not persist a batch record, mark statements as sent, deliver statements, archive statements, or create collection follow-up tasks.
-- Rich statement batch layout, branded PDF design, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
+- Collections work queue readiness is covered by Slice 63. Rich statement batch layout, branded PDF design, delivery, portal messaging, persisted collection tasks, and revenue-cycle audit history remain future billing slices.
+
+### Slice 63: Collections Work Queue Readiness
+
+Status:
+
+- Implemented as a read-only modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-63-collections-work-queue-readiness` plan, which validates deterministic past-due account ranking, priority labels, recommended collection actions, modernized API behavior, and Fees workspace rendering on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing and AR payment population; it does not add permanent gold-data records.
+- Legacy behavior is represented by normalized MariaDB probes that derive past-due account exposure from OpenEMR billing and AR activity rows.
+- ASP.NET Core billing read behavior now exposes `GET /api/billing/collections/work-queue?limit=5`.
+- The work queue ranks positive past-due accounts by over-90 exposure, total past due, total balance, oldest open age, and legacy PID.
+- Each queue row includes patient identity, generated statement number/date/due date, balance/current/past-due/over-90 amounts, open encounter and ledger counts, oldest open age/date, collection tier, recommended action, and contact method.
+- React Fees workspace now shows a `Collections Work Queue` panel below Statement Batch with aggregate queue metrics, top ranked rows, tier pills, recommended actions, and `Open` actions that load the selected patient account.
+- Modernized smoke coverage validates the queue API response, account counts, high-priority count, past-due/over-90 totals, first row tier/action, and first row statement metadata.
+- The `account-collections-work-queue` parity suite and `slice-63-collections-work-queue-readiness` plan verify normalized legacy MariaDB expectations and modernized PostgreSQL/API/UI queue behavior.
+- Workbench-managed Slice 63 collections work queue plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The endpoint returns dataset as-of date `2026-06-18`, total past-due account count, high-priority account count, total balance, total past-due amount, total over-90 amount, and the top five ranked queue rows.
+- Queue ordering is deterministic and matches normalized legacy probes for both targets.
+- High-priority rows expose `High` tier and `Final notice review` when over-90 exposure is present.
+- Contact method is deterministic from email/phone availability.
+- The modernized Fees workspace renders the collections panel with the same top patient, statement number, tier, recommended action, over-90 amount, and patient-open behavior.
+- The side-by-side Slice 63 parity comparison matches.
+
+Current limitations:
+
+- This slice identifies past-due accounts for follow-up; it does not persist collection tasks, send reminders, record phone calls, generate dunning letters, assign staff queues, suppress accounts, or write revenue-cycle audit history.
+- Actual statement delivery, collection task lifecycle, reminder templates, staff assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -2029,3 +2062,4 @@ As of 2026-06-19:
 - The sixtieth modernized vertical slice implements patient statement PDF export readiness with a deterministic ASP.NET Core PDF endpoint, React Fees PDF Export action, normalized legacy/modernized statement-PDF probes, Workbench statement PDF plan actions, smoke coverage, and side-by-side slice-60 parity evidence.
 - The sixty-first modernized vertical slice implements statement batch candidate readiness with a deterministic ranked work queue, ASP.NET Core statement batch endpoint, React Fees Statement Batch panel, normalized legacy/modernized statement-batch probes, Workbench statement batch plan actions, smoke coverage, and side-by-side slice-61 parity evidence.
 - The sixty-second modernized vertical slice implements statement batch package export readiness with a deterministic ASP.NET Core ZIP endpoint, manifest/summary/PDF package content, React Fees Batch Export action, normalized legacy/modernized package probes, Workbench statement batch package plan actions, smoke coverage, and side-by-side slice-62 parity evidence.
+- The sixty-third modernized vertical slice implements collections work queue readiness with full-population past-due account ranking, high-priority and over-90 exposure rollups, recommended collection actions, React Fees Collections Work Queue panel, normalized legacy/modernized queue probes, Workbench collections work queue plan actions, smoke coverage, and side-by-side slice-63 parity evidence.
