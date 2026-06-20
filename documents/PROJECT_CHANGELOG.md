@@ -6892,6 +6892,63 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 130. Modernized Appointment Facility Reassignment Slice 100
+
+Commit: `b430571`
+Started: `2026-06-20T17:49:00-04:00`
+Finished: `2026-06-20T18:04:25-04:00`
+
+Implemented the one-hundredth modernized OpenEMR vertical slice: appointment facility reassignment readiness, proving that a temporary future appointment can be reassigned from facility `10` to facility `11`, rendered through both legacy and modernized scheduling UI paths, cleaned up, and compared side by side.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 298
+- Lines deleted: 40
+- Net lines: 258
+- Total churn: 338
+
+Key outcomes:
+
+- Added the `workflow-appointment-facility` Playwright parity suite for temporary future appointment facility reassignment.
+- Added the `slice-100-appointment-facility-readiness` plan to the parity manifest, package scripts, and PowerShell runner allow-list.
+- Extended the modernized smoke test with an `appointment facility reassignment lifecycle` check that verifies facility `10` to `11` reassignment while preserving provider ownership.
+- Added Workbench managed plan commands/cards for Slice 100 on both legacy and modernized targets.
+- Updated Workbench fallback architecture/progress copy so the modernized target reports Slice 100 readiness.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, and legacy-baseline documents so the current modernization state is Slice 100 with thirty-four read-only slices and sixty-six mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 101 checks, including `appointment facility reassignment lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-100-appointment-facility-readiness -Reset test` passed; run `2026-06-20T220307-293Z-legacy-openemr-plan-slice-100-appointment-facility-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-100-appointment-facility-readiness -Reset test` passed; run `2026-06-20T220336-477Z-modernized-openemr-plan-slice-100-appointment-facility-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-100-appointment-facility-readiness` passed with `status: matched`; comparison `2026-06-20T220359-853Z-legacy-openemr-vs-modernized-openemr-plan-slice-100-appointment-facility-readiness`.
+
+Primary files:
+
+- `parity-tests/tests/workflow-appointment-facility/appointment-facility.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
