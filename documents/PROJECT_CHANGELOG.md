@@ -4887,6 +4887,64 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 094. Modernized Encounter Billing Linkage Slice 68
+
+Commit: this commit
+Started: `2026-06-20T03:02:00-04:00`
+Finished: `2026-06-20T03:32:15.1260000-04:00`
+
+Implemented the sixty-eighth modernized OpenEMR vertical slice: encounter billing linkage readiness, focused on proving that active fee-sheet billing lines linked to a legacy encounter can be surfaced through the modernized Encounter detail API and rendered directly in the modernized Encounters workspace with matching legacy behavior.
+
+Key outcomes:
+
+- Extended the modernized Encounter detail contract with active linked billing line fields for billing id, encounter, billing date, code type, code, modifier, description, fee, justification, units, billed state, and activity state.
+- Added repository logic that loads active fee-sheet rows for the selected encounter after the encounter detail row is read.
+- Added a `Fee Sheet Linkage` section to the React Encounters workspace with linked-code count, total linked fee amount, line cards, billing metadata, justification, and status badges.
+- Added modernized smoke coverage for `MOD-PAT-0001` encounter `1000013` with the two expected active CPT4 fee-sheet rows.
+- Added the `encounter-billing` parity suite and `slice-68-encounter-billing-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 68 encounter billing plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` and its active CPT4 `99214` and `36415` billing rows; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the encounter billing changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 70 smoke checks, including `anchor encounter billing linkage`.
+- Live API check for `http://localhost:5001/api/encounters/1000013` returned two linked billing lines: CPT4 `36415` for `Routine venipuncture` at `$18.00` and CPT4 `99214` for `Established patient office visit` at `$168.00`.
+- `npm run test:legacy:plan:encounter-billing` passed with run `2026-06-20T073126-611Z-legacy-openemr-plan-slice-68-encounter-billing-readiness`.
+- `npm run test:modernized:plan:encounter-billing` passed with run `2026-06-20T073153-369Z-modernized-openemr-plan-slice-68-encounter-billing-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-68-encounter-billing-readiness` matched with comparison `2026-06-20T073215-125Z-legacy-openemr-vs-modernized-openemr-plan-slice-68-encounter-billing-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/encounter-billing/encounter-billing-linkage.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -4894,5 +4952,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage, audit history, and attachments.
+- Broader encounter workflows for templates, sign-off, diagnosis coding, orders, billing linkage updates, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

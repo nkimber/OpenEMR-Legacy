@@ -181,7 +181,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Encounter create, update, and delete workflows are covered by Slice 12 for the focused encounter/vitals/SOAP lifecycle; broader encounter-adjacent workflows such as orders, billing linkage, authorization, and audit history remain deferred.
+- Encounter create, update, and delete workflows are covered by Slice 12 for the focused encounter/vitals/SOAP lifecycle; broader encounter-adjacent workflows such as orders, billing linkage updates, authorization, and audit history remain deferred.
 
 ### Slice 4: Clinical Lists And Medications
 
@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order/billing linkage, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order linkage, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67 and read-only encounter fee-sheet linkage visibility is covered by Slice 68; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2058,6 +2058,34 @@ Current limitations:
 
 - This slice proves read-only encounter-attached document visibility. It does not implement encounter-scoped document upload, scanning, document signing, attachment deletion, template-generated encounter forms, or full multi-form encounter package behavior.
 
+### Slice 68: Encounter Billing Linkage Readiness
+
+Status:
+
+- Implemented as a read-only modernized encounter-billing linkage slice under `modernized-openemr/`.
+- Verification is the shared `slice-68-encounter-billing-readiness` plan, which validates active fee-sheet billing lines linked to the same encounter anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded `MOD-PAT-0001` encounter `1000013` billing anchors; it does not add permanent gold-data records.
+- ASP.NET Core encounter detail responses now include active linked fee-sheet lines with billing id, encounter, billing date, code type, code, modifier, text, fee, justification, units, billed state, and activity state.
+- React Encounters workspace now renders a `Fee Sheet Linkage` section for the selected encounter, including linked-code count, total linked fee amount, line-level code/text, fee, date, units, billed/active state, justification, and modifier/id context.
+- Modernized smoke coverage validates that encounter `1000013` exposes the two expected active fee-sheet lines.
+- The `encounter-billing` parity suite and `slice-68-encounter-billing-readiness` plan verify normalized legacy and modernized database state, legacy fee-sheet rendering, modernized API fields, modernized UI rendering, and side-by-side result matching.
+- Workbench-managed Slice 68 encounter billing plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Encounter detail for `MOD-PAT-0001` encounter `1000013` exposes exactly two active linked fee-sheet lines: CPT4 `99214` for `Established patient office visit` at `$168.00` and CPT4 `36415` for `Routine venipuncture` at `$18.00`.
+- The code types, codes, descriptions, fees, justifications, units, billed state, and active state match between legacy and modernized probes.
+- Legacy OpenEMR renders the linked fee-sheet codes and descriptions for the same encounter.
+- The modernized Encounters workspace renders linked billing lines inside the encounter detail surface without requiring the user to switch to the standalone Fees workspace.
+- The side-by-side Slice 68 parity comparison matches.
+
+Current limitations:
+
+- This slice proves read-only encounter-to-fee-sheet linkage visibility. It does not implement encounter-scoped billing creation, diagnosis association editing, charge correction, modifier changes, claim generation, payment posting, or billing workflow side effects from the encounter screen.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2186,3 +2214,4 @@ As of 2026-06-19:
 - The sixty-fifth modernized vertical slice implements patient message assignment readiness with an ASP.NET Core message assignment endpoint, React Messages reassignment controls, normalized legacy/modernized workflow actions, Workbench message assignment plan actions, smoke coverage, and side-by-side slice-65 parity evidence.
 - The sixty-sixth modernized vertical slice implements patient message content readiness with an ASP.NET Core title/body edit endpoint, React Messages inline edit controls, normalized legacy/modernized workflow actions, Workbench message content plan actions, smoke coverage, and side-by-side slice-66 parity evidence.
 - The sixty-seventh modernized vertical slice implements encounter document attachment readiness with ASP.NET Core encounter detail document fields, React Encounters attached-document rendering, normalized legacy/modernized document probes, Workbench encounter documents plan actions, smoke coverage, and side-by-side slice-67 parity evidence.
+- The sixty-eighth modernized vertical slice implements encounter billing linkage readiness with ASP.NET Core encounter detail billing fields, React Encounters Fee Sheet Linkage rendering, normalized legacy/modernized billing probes, Workbench encounter billing plan actions, smoke coverage, and side-by-side slice-68 parity evidence.

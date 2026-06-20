@@ -15,6 +15,7 @@ param(
         "messages",
         "documents",
         "encounter-documents",
+        "encounter-billing",
         "document-content",
         "document-preview",
         "document-revision",
