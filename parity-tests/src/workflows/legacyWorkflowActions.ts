@@ -386,6 +386,20 @@ export type NewAppointment = {
   room: string;
 };
 
+export type AppointmentUpdate = {
+  providerId: number;
+  title: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  durationSeconds: number;
+  homeText?: string;
+  facilityId: number;
+  billingLocationId: number;
+  room: string;
+  status: string;
+};
+
 export type NewClinicalListEntry = {
   patientId: number;
   type: "allergy" | "medical_problem" | "medication";
@@ -1305,6 +1319,26 @@ LIMIT 1;
     await this.db.execute(`
 UPDATE openemr_postcalendar_events
 SET pc_apptstatus = ${sqlString(status)}, pc_title = ${sqlString(title)}
+WHERE pc_eid = ${integer(legacyId)};
+`);
+  }
+
+  async updateAppointment(id: number | string, input: AppointmentUpdate): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE openemr_postcalendar_events
+SET pc_aid = ${sqlString(String(input.providerId))},
+  pc_title = ${sqlString(input.title)},
+  pc_hometext = ${sqlString(input.homeText ?? "")},
+  pc_eventDate = ${sqlString(input.eventDate)},
+  pc_endDate = ${sqlString(input.eventDate)},
+  pc_duration = ${integer(input.durationSeconds)},
+  pc_startTime = ${sqlString(input.startTime)},
+  pc_endTime = ${sqlString(input.endTime)},
+  pc_apptstatus = ${sqlString(input.status)},
+  pc_facility = ${integer(input.facilityId)},
+  pc_billing_location = ${integer(input.billingLocationId)},
+  pc_room = ${sqlString(input.room)}
 WHERE pc_eid = ${integer(legacyId)};
 `);
   }

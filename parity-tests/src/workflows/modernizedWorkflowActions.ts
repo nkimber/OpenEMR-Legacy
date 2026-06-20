@@ -7,6 +7,7 @@ import type {
   AccessPermissionAssignment,
   AccessPermissionMutation,
   AppointmentRecord,
+  AppointmentUpdate,
   BillingLineCorrection,
   BillingLineRecord,
   ClaimStatusRecord,
@@ -575,6 +576,28 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized appointment status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async updateAppointment(id: number | string, input: AppointmentUpdate): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        providerId: input.providerId,
+        title: input.title,
+        date: input.eventDate,
+        startTime: input.startTime.slice(0, 5),
+        durationMinutes: Math.round(input.durationSeconds / 60),
+        facilityId: input.facilityId,
+        categoryId: 9,
+        room: input.room,
+        status: input.status
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized appointment update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

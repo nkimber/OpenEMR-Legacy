@@ -151,7 +151,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Appointment create, cancel, and delete workflows are covered by Slice 11 for the focused future-appointment lifecycle; recurring appointments, availability validation, reminders, and conversion to encounter workflows remain deferred.
+- Appointment create, cancel, and delete workflows are covered by Slice 11, and appointment date/time/duration/status rescheduling is covered by Slice 93 for the focused future-appointment lifecycle; recurring appointments, availability validation, reminders, check-in/check-out, waitlist flows, and billing/encounter conversion remain deferred.
 
 ### Slice 3: Encounters And Clinical Notes
 
@@ -361,7 +361,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Patient scanned attachment readiness is covered by Slice 92. Saved report definitions, scanner-device ingestion, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Patient scanned attachment readiness is covered by Slice 92. Appointment reschedule/update readiness is covered by Slice 93. Saved report definitions, scanner-device ingestion, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -401,7 +401,7 @@ Scope:
 - ASP.NET Core appointment create, status update, and delete endpoints over the modernized PostgreSQL appointment table.
 - React Calendar controls for creating a future appointment from the scheduler panel and cancelling or deleting the selected appointment from the detail panel.
 - Modernized workflow action adapter methods for appointment create, get, cancel/status update, and delete.
-- Workbench-managed slice-11 appointment mutation parity plan for both legacy and modernized targets.
+- Workbench-managed slice-11 appointment mutation parity plan and slice-93 appointment reschedule parity plan for both legacy and modernized targets.
 - Modernized smoke coverage for a safe create/cancel/delete appointment lifecycle with cleanup.
 
 Acceptance:
@@ -2769,6 +2769,33 @@ Current limitations:
 
 - This slice derives scan readiness from document metadata and notes. It does not implement scanner-device ingestion, OCR text extraction, scan queues, DICOM/TWAIN/WIA integration, multi-page image splitting, barcode routing, or external storage adapters.
 
+### Slice 93: Appointment Reschedule Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized scheduling slice under `modernized-openemr/`.
+- Verification is the shared `slice-93-appointment-reschedule-readiness` plan, which creates a temporary future appointment, updates the schedule fields, renders the changed appointment, deletes it, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core appointment APIs now include a full appointment update endpoint for title, date, start time, duration, facility/category defaults, room, and status.
+- React Calendar appointment detail now exposes reschedule controls using the existing appointment edit panel style.
+- Legacy and modernized parity workflow adapters share an `updateAppointment` action so the same Playwright suite can drive both systems.
+- The modernized smoke test now includes an `appointment reschedule lifecycle` check that creates, updates, verifies, and deletes a temporary appointment.
+- Workbench-managed Slice 93 appointment reschedule plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary appointment for `MOD-PAT-0003` can be created, rescheduled to `2026-10-22` at `14:15` for 45 minutes, marked with status `@`, moved to room `Resched`, rendered, and deleted.
+- Direct database probes normalize the updated date, start/end time, status, and room for both MariaDB and PostgreSQL.
+- The modernized Calendar workspace renders the rescheduled title, date, time, duration, room, and status.
+- Hard-delete cleanup restores the seeded appointment count.
+- The side-by-side Slice 93 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused single-appointment updates. Recurring appointment propagation, provider availability validation, resource conflict checks, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2921,4 +2948,4 @@ As of 2026-06-20:
 - The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.
 - The ninetieth modernized vertical slice implements patient PDF document inline preview readiness with ASP.NET Core PDF inline-preview metadata, a React Documents viewer PDF iframe backed by the download endpoint, normalized legacy/modernized workflow probes, Workbench PDF document preview plan actions, smoke coverage, and side-by-side slice-90 parity evidence.
 - The ninety-first modernized vertical slice implements patient document lifecycle timeline readiness with ASP.NET Core lifecycle event derivation, React Documents card and viewer lifecycle rendering, normalized legacy/modernized workflow probes, Workbench document lifecycle plan actions, smoke coverage, and side-by-side slice-91 parity evidence.
-- The ninety-second modernized vertical slice implements patient scanned attachment readiness with ASP.NET Core scan-readiness derivation, React Documents card and viewer rendering, normalized legacy/modernized workflow probes, Workbench scanned attachment plan actions, smoke coverage, and side-by-side slice-92 parity evidence.
+- The ninety-second modernized vertical slice implements patient scanned attachment readiness with ASP.NET Core scan-readiness derivation, React Documents card and viewer rendering, normalized legacy/modernized workflow probes, Workbench scanned attachment plan actions, smoke coverage, and side-by-side slice-92 parity evidence. The ninety-third modernized vertical slice implements appointment reschedule readiness with ASP.NET Core appointment update endpoints, React Calendar reschedule controls, normalized legacy/modernized workflow actions, Workbench reschedule plan actions, smoke coverage, and side-by-side slice-93 parity evidence.

@@ -6458,6 +6458,63 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 122. Modernized Appointment Reschedule Slice 93
+
+Commit: current slice commit
+Started: `2026-06-20T15:08:20-04:00`
+Finished: `2026-06-20T15:28:20-04:00`
+
+Implemented the ninety-third modernized OpenEMR vertical slice: appointment reschedule readiness, adding full future-appointment update behavior for title, date, start time, duration, status, and room while proving temporary appointment create/update/render/delete parity against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 624
+- Lines deleted: 36
+- Net lines: 588
+- Total churn: 660
+
+Key outcomes:
+
+- Added a full ASP.NET Core appointment update endpoint alongside the existing create, status-update, and delete endpoints.
+- Added modernized Calendar reschedule controls to edit selected appointment title, date, start time, duration, room, and status.
+- Extended the modernized smoke test with an `appointment reschedule lifecycle` check.
+- Added shared legacy and modernized workflow adapter support for `updateAppointment`.
+- Added the `workflow-appointment-reschedule` Playwright parity suite and the `slice-93-appointment-reschedule-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 93 appointment reschedule plan.
+- Updated synchronized project documents so the current modernization state is Slice 93 with thirty-four read-only slices and fifty-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 94 checks, including `appointment reschedule lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-93-appointment-reschedule-readiness -Reset test` passed; run `2026-06-20T192625-633Z-legacy-openemr-plan-slice-93-appointment-reschedule-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-93-appointment-reschedule-readiness -Reset test` passed; run `2026-06-20T192700-288Z-modernized-openemr-plan-slice-93-appointment-reschedule-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-93-appointment-reschedule-readiness` passed with `status: matched`; comparison `2026-06-20T192725-182Z-legacy-openemr-vs-modernized-openemr-plan-slice-93-appointment-reschedule-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-reschedule/appointment-reschedule.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

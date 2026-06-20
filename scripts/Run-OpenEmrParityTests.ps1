@@ -47,6 +47,7 @@ param(
         "workflow-demographics",
         "workflow-registration",
         "workflow-appointments",
+        "workflow-appointment-reschedule",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
