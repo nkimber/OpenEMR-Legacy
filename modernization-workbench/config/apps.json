@@ -96,6 +96,7 @@
         "parityEncounterProcedureOrderEntryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-75-encounter-procedure-order-entry-readiness", "-Reset", "test"],
         "parityEncounterProcedureResultEntryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-76-encounter-procedure-result-entry-readiness", "-Reset", "test"],
         "parityEncounterSignOffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-77-encounter-signoff-readiness", "-Reset", "test"],
+        "parityEncounterDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-78-encounter-document-upload-readiness", "-Reset", "test"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -738,6 +739,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-77-encounter-signoff-readiness.json"
         },
         {
+          "id": "parity-plan-encounter-document-upload",
+          "name": "Slice 78 encounter document upload plan",
+          "description": "Runs the shared encounter-scoped document upload plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentUploadPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-78-encounter-document-upload-readiness.json"
+        },
+        {
           "id": "parity-plan-document-preview",
           "name": "Slice 53 document preview plan",
           "description": "Runs the shared read-only document preview readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -838,7 +847,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 77 target",
+      "stage": "Slice 78 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -922,6 +931,7 @@
         "parityEncounterProcedureOrderEntryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-75-encounter-procedure-order-entry-readiness", "-Reset", "test"],
         "parityEncounterProcedureResultEntryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-76-encounter-procedure-result-entry-readiness", "-Reset", "test"],
         "parityEncounterSignOffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-77-encounter-signoff-readiness", "-Reset", "test"],
+        "parityEncounterDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-78-encounter-document-upload-readiness", "-Reset", "test"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -1488,6 +1498,14 @@
           "layer": "plan",
           "commandName": "parityEncounterSignOffPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-77-encounter-signoff-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-document-upload",
+          "name": "Slice 78 encounter document upload plan",
+          "description": "Runs the shared encounter-scoped document upload plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentUploadPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-78-encounter-document-upload-readiness.json"
         },
         {
           "id": "parity-plan-document-preview",

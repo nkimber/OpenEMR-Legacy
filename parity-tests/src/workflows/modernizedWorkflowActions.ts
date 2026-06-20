@@ -20,6 +20,7 @@ import type {
   NewClaimStatus,
   NewClinicalListEntry,
   NewCollectionsFollowUpTask,
+  NewEncounterDocument,
   NewFacility,
   NewImmunization,
   NewMedication,
@@ -935,6 +936,27 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient document create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async createEncounterDocument(input: NewEncounterDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        content: input.content,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document attach failed with ${response.status}: ${await response.text()}`);
     }
 
     const mutation = (await response.json()) as { id: number };

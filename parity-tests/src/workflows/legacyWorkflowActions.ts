@@ -442,6 +442,17 @@ export type NewPatientDocument = {
   notes: string;
 };
 
+export type NewEncounterDocument = {
+  patientId: number;
+  encounter: number;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  content: string;
+  notes: string;
+};
+
 export type NewPatientInsurance = {
   patientId: number;
   type: string;
@@ -1581,6 +1592,10 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
 `);
 
     return id;
+  }
+
+  async createEncounterDocument(input: NewEncounterDocument): Promise<number> {
+    return this.createPatientDocument(input);
   }
 
   async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {

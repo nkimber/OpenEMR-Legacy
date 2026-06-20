@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, and focused encounter sign-off is covered by Slice 77; scanned upload workflows, full encounter document lifecycle behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
+- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, focused encounter sign-off is covered by Slice 77, and focused encounter-scoped text document upload is covered by Slice 78; scanned upload workflows, binary encounter attachments, full encounter document lifecycle behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2334,6 +2334,33 @@ Current limitations:
 
 - This slice proves focused encounter sign-off/attestation parity. It does not yet enforce role-based signing authorization, full clinical locking semantics, co-signature workflows, amendment history, revocation policy, legal attestation text, or audit-log export.
 
+### Slice 78: Encounter Document Upload Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter-scoped document upload readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-78-encounter-document-upload-readiness` plan, which creates a temporary text document attached to an existing encounter, validates normalized document facts and browser-visible rendering, deletes the document, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The ASP.NET Core encounter API exposes `POST /api/encounters/{encounter}/documents`, deriving the patient from the selected encounter before reusing the existing document persistence behavior.
+- The modernized Encounters workspace now includes an attached-document upload form with category, document date, name, notes, text content, save state, and immediate detail refresh.
+- The modernized smoke test now includes an `encounter document attachment lifecycle` check that creates a temporary text document on `MOD-PAT-0001` encounter `1000013`, verifies returned document facts, deletes it, and verifies cleanup.
+- The parity workflow reuses `MOD-PAT-0001` encounter `1000013`, creates a temporary `Medical Record` text document through target-specific workflow adapters, verifies legacy `documents.encounter_id` or modernized encounter detail post-state, renders the legacy Documents category view or modernized Encounter attached-document panel, and hard-deletes the document.
+- Workbench-managed Slice 78 encounter document upload plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary encounter-scoped text document increases the patient's document count and the selected encounter's attached-document count by one.
+- The created document records category, date, name, notes, encounter id, `text/plain` MIME type, database storage method, text preview, preview kind, and thumbnail label consistently across both targets.
+- The modernized Encounter attached-document panel renders the uploaded document and the upload controls after creation.
+- Hard-delete cleanup restores the seeded patient document count and the seeded encounter-attached document count.
+- The side-by-side Slice 78 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter-scoped text attachment parity from the Encounter workspace. It does not yet implement scanned upload capture, binary encounter attachments, document routing, encounter-specific document signing, full document version history from the encounter screen, authorization, or audit-log export.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2472,3 +2499,4 @@ As of 2026-06-20:
 - The seventy-fifth modernized vertical slice implements focused encounter procedure-order entry readiness with React Encounters pending lab-order controls, existing ASP.NET Core procedure-order API behavior, active encounter procedure-order panel refresh, normalized legacy/modernized workflow probes, Workbench encounter procedure-order entry plan actions, smoke coverage, and side-by-side slice-75 parity evidence.
 - The seventy-sixth modernized vertical slice implements focused encounter procedure-result entry readiness with React Encounters per-order report/result controls, existing ASP.NET Core procedure report/result API behavior, active encounter procedure-order panel refresh, normalized legacy/modernized workflow probes, Workbench encounter procedure-result entry plan actions, smoke coverage, and side-by-side slice-76 parity evidence.
 - The seventy-seventh modernized vertical slice implements encounter sign-off readiness with a normalized encounter-signature table, ASP.NET Core encounter sign/delete endpoints, React Encounters Sign-Off controls, normalized legacy/modernized workflow probes, Workbench encounter sign-off plan actions, smoke coverage, and side-by-side slice-77 parity evidence.
+- The seventy-eighth modernized vertical slice implements encounter document upload readiness with an ASP.NET Core encounter-scoped document endpoint, React Encounters attached-document upload controls, normalized legacy/modernized workflow probes, Workbench encounter document upload plan actions, smoke coverage, and side-by-side slice-78 parity evidence.

@@ -55,6 +55,7 @@ param(
         "workflow-encounter-procedures",
         "workflow-encounter-procedure-results",
         "workflow-encounter-signoff",
+        "workflow-encounter-documents",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

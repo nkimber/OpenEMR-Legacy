@@ -1086,7 +1086,7 @@ ORDER BY FIELD(insd.type, 'primary', 'secondary'), insd.type, insd.id;
     };
   }
 
-  async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {
+  async getPatientDocumentsForPatient(pid: number, includeGenerated = false): Promise<PatientDocumentsSummary> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT d.id,
   CASE
@@ -1114,7 +1114,7 @@ SELECT d.id,
 FROM documents d
 LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
 LEFT JOIN categories c ON c.id = ctd.category_id
-WHERE d.foreign_id = ${pid} AND d.deleted = 0 AND d.id BETWEEN 8000001 AND 8001200
+WHERE d.foreign_id = ${pid} AND d.deleted = 0${includeGenerated ? "" : " AND d.id BETWEEN 8000001 AND 8001200"}
 ORDER BY d.docdate DESC, d.id DESC;
 `);
 
@@ -1152,7 +1152,7 @@ ORDER BY d.docdate DESC, d.id DESC;
   }
 
   async getPatientDocumentsForEncounter(pid: number, encounter: number): Promise<PatientDocumentsSummary> {
-    const documents = await this.getPatientDocumentsForPatient(pid);
+    const documents = await this.getPatientDocumentsForPatient(pid, true);
     return {
       patientId: pid,
       documents: documents.documents.filter((document) => document.encounter === encounter)
