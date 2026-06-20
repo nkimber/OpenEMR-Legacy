@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, focused encounter sign-off is covered by Slice 77, focused encounter-scoped text document upload is covered by Slice 78, focused encounter-scoped PDF/binary upload is covered by Slice 79, and focused encounter-scoped document signing is covered by Slice 80; scanned capture workflows, full encounter document routing, full encounter document version-history behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
+- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, focused encounter sign-off is covered by Slice 77, focused encounter-scoped text document upload is covered by Slice 78, focused encounter-scoped PDF/binary upload is covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81; scanned capture workflows, full encounter document routing, full encounter document version-history behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2359,7 +2359,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped text attachment parity from the Encounter workspace. Binary encounter attachments are covered by Slice 79 and focused encounter-scoped document signing is covered by Slice 80. Scanned upload capture, document routing, full document version history from the encounter screen, authorization, and audit-log export remain future work.
+- This slice proves focused encounter-scoped text attachment parity from the Encounter workspace. Binary encounter attachments are covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81. Scanned upload capture, document routing, full document version history from the encounter screen, authorization, and audit-log export remain future work.
 
 ### Slice 79: Encounter Binary Document Upload Readiness
 
@@ -2387,7 +2387,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80. Scanner integration, image thumbnail generation, external object storage, document routing queues, full version history from the encounter screen, authorization, and audit-log export remain future work.
+- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81. Scanner integration, image thumbnail generation, external object storage, document routing queues, full version history from the encounter screen, authorization, and audit-log export remain future work.
 
 ### Slice 80: Encounter Document Sign-Off Readiness
 
@@ -2416,7 +2416,36 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped document sign-off parity from the Encounter workspace. Denial from the encounter-attached document panel, role-based signing authorization, route queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
+- This slice proves focused encounter-scoped document sign-off parity from the Encounter workspace. Denial from the encounter-attached document panel is covered by Slice 81. Role-based signing authorization, route queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
+
+### Slice 81: Encounter Document Denial Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter-scoped document denial readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-81-encounter-document-denial-readiness` plan, which creates a temporary document attached to an existing encounter, denies it, validates normalized review facts and browser-visible rendering, deletes the document, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The existing ASP.NET Core encounter document review endpoint accepts `reviewStatus = denied` after validating that the selected document belongs to the selected encounter.
+- The modernized frontend API now exposes encounter document denial as a named helper instead of relying on generic document review behavior.
+- The modernized Encounters workspace renders a Deny action beside Sign for attached documents, records denial as `admin`, refreshes the encounter detail, and disables both review actions once the document is reviewed.
+- The modernized smoke test now includes an `encounter document denial lifecycle` check that creates a temporary text document on `MOD-PAT-0001` encounter `1000013`, verifies pending review state, denies it as `admin`, verifies denied review metadata, deletes it, and verifies cleanup.
+- The parity workflow reuses `MOD-PAT-0001` encounter `1000013`, creates a temporary `Medical Record` text document through target-specific workflow adapters, denies it as `admin`, verifies legacy or modernized review facts, renders the legacy Documents category view or modernized Encounter attached-document panel, verifies the modernized Sign and Deny actions are disabled after denial, and hard-deletes the document.
+- Workbench-managed Slice 81 encounter document denial plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary encounter-scoped text document increases the patient's document count and the selected encounter's attached-document count by one.
+- The created document starts with pending review metadata before denial.
+- Denying the encounter-attached document records `denied` review status, reviewer `admin`, and a review timestamp consistently across both targets.
+- The modernized Encounter attached-document panel renders denied state and reviewer metadata, and prevents duplicate review actions for an already reviewed document.
+- Hard-delete cleanup restores the seeded patient document count and the seeded encounter-attached document count.
+- The side-by-side Slice 81 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter-scoped document denial parity from the Encounter workspace. Role-based denial authorization, routing queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
 
 ## Test Strategy
 
@@ -2559,3 +2588,4 @@ As of 2026-06-20:
 - The seventy-eighth modernized vertical slice implements encounter document upload readiness with an ASP.NET Core encounter-scoped document endpoint, React Encounters attached-document upload controls, normalized legacy/modernized workflow probes, Workbench encounter document upload plan actions, smoke coverage, and side-by-side slice-78 parity evidence.
 - The seventy-ninth modernized vertical slice implements encounter binary document upload readiness with an ASP.NET Core encounter-scoped binary document endpoint, React Encounters file upload controls, normalized legacy/modernized workflow probes, Workbench encounter binary document upload plan actions, smoke coverage, download verification, and side-by-side slice-79 parity evidence.
 - The eightieth modernized vertical slice implements encounter document sign-off readiness with an ASP.NET Core encounter-scoped sign endpoint, React Encounters attached-document review controls, normalized legacy/modernized workflow probes, Workbench encounter document sign-off plan actions, smoke coverage, and side-by-side slice-80 parity evidence.
+- The eighty-first modernized vertical slice implements encounter document denial readiness with React Encounters attached-document Deny controls, existing ASP.NET Core encounter-scoped review endpoint support for `denied`, normalized legacy/modernized workflow probes, Workbench encounter document denial plan actions, smoke coverage, and side-by-side slice-81 parity evidence.
