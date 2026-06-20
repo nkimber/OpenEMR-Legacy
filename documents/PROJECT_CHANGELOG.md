@@ -7084,6 +7084,79 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 133. Modernized Appointment Recurrence Metadata Slice 103
+
+Commit: `85fad67`
+Started: `2026-06-20T18:56:25.5402134-04:00`
+Finished: `2026-06-20T19:25:09-04:00`
+
+Implemented the one-hundred-third modernized OpenEMR vertical slice: appointment recurrence metadata readiness, proving that a temporary future appointment can persist regular repeat metadata through legacy `pc_recurrtype` / `pc_recurrspec` / `pc_endDate`, modernized recurrence fields, Calendar repeat controls, cleanup, and side-by-side comparison.
+
+Code changes:
+
+- Files changed: 26
+- Lines added: 17,619
+- Lines deleted: 5,707
+- Net lines: 11,912
+- Total churn: 23,326
+
+Key outcomes:
+
+- Added deterministic regular recurrence anchors to the canonical gold dataset generator and regenerated the tracked canonical dataset plus legacy MariaDB seed SQL with 80 repeat anchors while keeping 2,800 total appointments.
+- Added recurrence columns to the modernized PostgreSQL appointment seed schema and mapped canonical appointment recurrence metadata into the seed adapter.
+- Added recurrence fields and labels to ASP.NET Core appointment DTOs, list/detail queries, create paths, and update paths.
+- Added Calendar create/edit repeat controls, recurrence end-date handling, and selected-appointment recurrence label rendering in the modernized React UI.
+- Added the `workflow-appointment-recurrence` Playwright parity suite and `slice-103-appointment-recurrence-readiness` plan.
+- Extended legacy and modernized workflow adapters so recurrence metadata maps to legacy PHP-serialized `pc_recurrspec` fields and modernized `appointments` recurrence columns.
+- Extended the modernized smoke test with an `appointment recurrence metadata lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 103 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 103 with thirty-four read-only slices and sixty-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `node .\scripts\generate-gold-dataset.mjs` regenerated the shared gold dataset with 80 recurrence anchors and unchanged top-level row counts.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 104 checks, including `appointment recurrence metadata lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-103-appointment-recurrence-readiness -Reset test` passed; run `2026-06-20T232323-868Z-legacy-openemr-plan-slice-103-appointment-recurrence-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-103-appointment-recurrence-readiness -Reset test` passed; run `2026-06-20T232400-707Z-modernized-openemr-plan-slice-103-appointment-recurrence-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-103-appointment-recurrence-readiness` passed with `status: matched`; comparison `2026-06-20T232423-331Z-legacy-openemr-vs-modernized-openemr-plan-slice-103-appointment-recurrence-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-recurrence/appointment-recurrence.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
