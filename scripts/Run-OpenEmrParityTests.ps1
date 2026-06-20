@@ -50,6 +50,7 @@ param(
         "workflow-document-metadata",
         "workflow-document-archive",
         "workflow-document-content-replace",
+        "workflow-document-revision-replace",
         "workflow-insurance",
         "workflow-prescriptions",
         "workflow-immunizations",

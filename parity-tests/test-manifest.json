@@ -492,6 +492,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-55-document-revision-replace-readiness",
+      "name": "Slice 55 Document Replacement Revision Readiness",
+      "description": "Mutation-capable patient-document confidence plan that verifies content replacement updates the current revision timestamp and hash in place.",
+      "suites": ["workflow-document-revision-replace"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-55", "documents", "document-revision", "content-replacement", "patient-files", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -504,7 +513,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -513,7 +522,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -745,6 +754,16 @@
       "layer": "parity",
       "path": "tests/document-revision",
       "tags": ["slice54", "documents", "patient-files", "document-revision", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-document-revision-replace",
+      "name": "Patient Document Replacement Revision Mutation",
+      "description": "Verifies content replacement updates the current document revision timestamp and hash in place while preserving the single current-version contract.",
+      "layer": "workflow",
+      "path": "tests/workflow-document-revision-replace",
+      "tags": ["slice55", "documents", "patient-files", "document-revision", "content-replacement", "mutation", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

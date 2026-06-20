@@ -1656,6 +1656,36 @@ Current limitations:
 - This slice is read-only and models the current legacy document revision row rather than implementing full document version history.
 - Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanned attachment ingestion, OCR, external storage adapters, and document exchange integrations remain future document slices.
 
+### Slice 55: Document Replacement Revision Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient-document slice under `modernized-openemr/`.
+- Verification is the shared `slice-55-document-revision-replace-readiness` plan, which validates that content replacement updates the current document revision timestamp and hash in place on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing temporary text document replacement workflow from Slice 43 and the current revision-readiness fields from Slice 54; it does not add new gold-data records.
+- Legacy behavior updates the current `documents` row by replacing `document_data`, `size`, `hash`, and `revision` without exposing a prior-version row.
+- ASP.NET Core document replacement behavior already updates `patient_documents.content`, `size_bytes`, `hash`, and `uploaded_at`; the revision-readiness DTO fields now make that observable after replacement.
+- React Documents workspace keeps rendering the current version label and no-prior-version state after replacement while showing the replacement payload.
+- Modernized smoke coverage validates the temporary document replacement revision lifecycle.
+- The `workflow-document-revision-replace` parity suite and `slice-55-document-revision-replace-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL replacement revision behavior plus browser-visible modernized Documents rendering.
+- Workbench-managed Slice 55 document replacement revision plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary `Medical Record` text document can be created for `MOD-PAT-0001`, then have its content replaced.
+- Direct probes show the replacement payload is current, the original payload is no longer current, the content hash changes, and the revision hash matches the current stored hash.
+- Direct probes show the current revision timestamp moves forward after replacement while the visible version contract remains `Version 1`, `Current version`, one current history entry, and no prior versions.
+- The modernized Documents workspace renders the replacement payload and the same current-version facts.
+- The side-by-side Slice 55 parity comparison matches.
+
+Current limitations:
+
+- This slice preserves the legacy in-place current-revision behavior rather than adding true prior-version storage.
+- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanned attachment ingestion, OCR, external storage adapters, and document exchange integrations remain future document slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1771,3 +1801,4 @@ As of 2026-06-19:
 - The fifty-second modernized vertical slice implements read-only account statement readiness by deriving recipient, statement-period, due-date, current-due, past-due, oldest-open, and balance-due facts from existing seeded demographics, billing, payment, aging, and ledger rows, adding ASP.NET Core billing statement summaries, React Fees Statement Readiness rendering, Workbench account statement plan action, smoke coverage, and side-by-side slice-52 parity evidence.
 - The fifty-third modernized vertical slice implements read-only patient document preview readiness by deriving preview kind, inline-readiness, thumbnail labels, and thumbnail text from existing seeded document metadata/content rows, adding ASP.NET Core document preview fields, React Documents thumbnail rendering, Workbench document preview plan action, smoke coverage, and side-by-side slice-53 parity evidence.
 - The fifty-fourth modernized vertical slice implements read-only patient document revision readiness by deriving current version, revision timestamp, history count, prior-version state, and revision hash from existing seeded document metadata rows, adding ASP.NET Core document revision fields, React Documents revision rendering, Workbench document revision plan action, smoke coverage, and side-by-side slice-54 parity evidence.
+- The fifty-fifth modernized vertical slice implements patient document replacement revision readiness by proving content replacement updates the current revision timestamp and hash in place while preserving the single-current-version contract, adding a dedicated parity suite, Workbench document replacement revision plan action, smoke coverage, and side-by-side slice-55 parity evidence.

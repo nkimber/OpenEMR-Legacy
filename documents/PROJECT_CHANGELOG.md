@@ -4115,6 +4115,61 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 081. Modernized Document Replacement Revision Slice 55
+
+Commit: this commit
+Started: `2026-06-19T21:00:00-04:00`
+Finished: `2026-06-19T21:22:00-04:00`
+
+Implemented the fifty-fifth modernized OpenEMR vertical slice: patient document replacement revision readiness, focused on proving that content replacement updates the current document revision timestamp and hash in place while preserving OpenEMR's single-current-version behavior.
+
+Key outcomes:
+
+- Added the `workflow-document-revision-replace` parity suite for temporary document create, replace, revision verification, archive, and cleanup.
+- Added the `slice-55-document-revision-replace-readiness` plan for both legacy and modernized targets.
+- Verified legacy `documents.revision` and `documents.hash` advance after replacement without exposing prior-version rows.
+- Verified modernized replacement revision behavior through the existing ASP.NET Core document replacement endpoint and revision DTO fields.
+- Verified browser-visible modernized Documents rendering after replacement, including replacement content, `Version 1 / Current version`, and no-prior-version state.
+- Added modernized smoke coverage for the temporary document replacement revision lifecycle.
+- Added Workbench commands/cards and result paths for the Slice 55 document replacement revision plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused temporary `MOD-PAT-0001` document records; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose up -d postgres api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 57 smoke checks, including `patient document replacement revision lifecycle`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:document-revision-replace` passed with run `2026-06-20T012058-218Z-legacy-openemr-plan-slice-55-document-revision-replace-readiness`.
+- `npm run test:modernized:plan:document-revision-replace` passed with run `2026-06-20T012127-152Z-modernized-openemr-plan-slice-55-document-revision-replace-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-55-document-revision-replace-readiness` matched with comparison `2026-06-20T012149-094Z-legacy-openemr-vs-modernized-openemr-plan-slice-55-document-revision-replace-readiness`.
+
+Primary files:
+
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-revision-replace/document-revision-replace.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
