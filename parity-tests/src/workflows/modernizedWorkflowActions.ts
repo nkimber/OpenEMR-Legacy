@@ -527,7 +527,11 @@ LIMIT 1;
         billingLocationId: input.billingLocationId,
         categoryId: input.categoryId ?? null,
         room: input.room,
-        comments: input.homeText
+        comments: input.homeText,
+        recurrenceType: input.recurrenceType ?? 0,
+        repeatFrequency: input.repeatFrequency ?? null,
+        repeatUnit: input.repeatUnit ?? null,
+        recurrenceEndDate: input.recurrenceEndDate ?? null
       })
     });
 
@@ -545,7 +549,11 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   appointment_date AS "eventDate", start_time AS "startTime",
   (start_time + make_interval(mins => duration_minutes))::time AS "endTime",
   status, facility_id AS "facilityId", billing_location_id AS "billingLocationId", COALESCE(room, '') AS room,
-  COALESCE(category_id, 0) AS "categoryId", COALESCE(comments, '') AS "homeText"
+  COALESCE(category_id, 0) AS "categoryId", COALESCE(comments, '') AS "homeText",
+  COALESCE(recurrence_type, 0) AS "recurrenceType",
+  repeat_frequency AS "repeatFrequency",
+  repeat_unit AS "repeatUnit",
+  recurrence_end_date AS "recurrenceEndDate"
 FROM appointments
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -569,7 +577,11 @@ LIMIT 1;
       room: row.room,
       categoryId: Number(row.categoryId),
       categoryName: appointmentCategoryName(Number(row.categoryId)),
-      homeText: row.homeText
+      homeText: row.homeText,
+      recurrenceType: Number(row.recurrenceType),
+      repeatFrequency: nullableNumber(row.repeatFrequency),
+      repeatUnit: nullableNumber(row.repeatUnit),
+      recurrenceEndDate: row.recurrenceEndDate
     };
   }
 
@@ -600,7 +612,11 @@ LIMIT 1;
         categoryId: input.categoryId ?? null,
         room: input.room,
         status: input.status,
-        comments: input.homeText ?? null
+        comments: input.homeText ?? null,
+        recurrenceType: input.recurrenceType ?? 0,
+        repeatFrequency: input.repeatFrequency ?? null,
+        repeatUnit: input.repeatUnit ?? null,
+        recurrenceEndDate: input.recurrenceEndDate ?? null
       })
     });
 
@@ -2321,6 +2337,10 @@ function sqlString(value: string) {
 
 function normalizeTime(value: string) {
   return value.length === 5 ? `${value}:00` : value;
+}
+
+function nullableNumber(value: unknown) {
+  return value === null || value === undefined ? null : Number(value);
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

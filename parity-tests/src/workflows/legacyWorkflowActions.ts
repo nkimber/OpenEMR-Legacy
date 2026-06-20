@@ -61,6 +61,10 @@ export type AppointmentRecord = {
   categoryId: number;
   categoryName: string;
   homeText: string;
+  recurrenceType: number;
+  repeatFrequency: number | null;
+  repeatUnit: number | null;
+  recurrenceEndDate: string | null;
 };
 
 export type ClinicalListRecord = {
@@ -388,6 +392,10 @@ export type NewAppointment = {
   billingLocationId: number;
   room: string;
   categoryId?: number;
+  recurrenceType?: number;
+  repeatFrequency?: number;
+  repeatUnit?: number;
+  recurrenceEndDate?: string;
 };
 
 export type AppointmentUpdate = {
@@ -403,6 +411,10 @@ export type AppointmentUpdate = {
   room: string;
   status: string;
   categoryId?: number;
+  recurrenceType?: number;
+  repeatFrequency?: number;
+  repeatUnit?: number;
+  recurrenceEndDate?: string;
 };
 
 export type NewClinicalListEntry = {
@@ -1274,16 +1286,17 @@ WHERE id = ${integer(legacyId)};
   }
 
   async createAppointment(input: NewAppointment): Promise<number> {
+    const recurrence = buildAppointmentRecurrence(input);
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO openemr_postcalendar_events
   (uuid, pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext,
    pc_eventDate, pc_endDate, pc_duration, pc_startTime, pc_endTime, pc_eventstatus,
-   pc_sharing, pc_apptstatus, pc_facility, pc_billing_location, pc_room)
+   pc_sharing, pc_apptstatus, pc_facility, pc_billing_location, pc_room, pc_recurrtype, pc_recurrspec)
 VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.categoryId ?? 9)}, 0, ${sqlString(String(input.providerId))}, ${sqlString(String(input.patientId))},
-   ${sqlString(input.title)}, NOW(), ${sqlString(input.homeText)}, ${sqlString(input.eventDate)}, ${sqlString(input.eventDate)},
+   ${sqlString(input.title)}, NOW(), ${sqlString(input.homeText)}, ${sqlString(input.eventDate)}, ${sqlString(recurrence.endDate)},
    ${integer(input.durationSeconds)}, ${sqlString(input.startTime)}, ${sqlString(input.endTime)}, 1, 1, '-',
-   ${integer(input.facilityId)}, ${integer(input.billingLocationId)}, ${sqlString(input.room)});
+   ${integer(input.facilityId)}, ${integer(input.billingLocationId)}, ${sqlString(input.room)}, ${integer(recurrence.type)}, ${sqlString(recurrence.spec)});
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
@@ -1296,7 +1309,8 @@ SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_aid AS providerId, e.pc_title
   DATE(e.pc_eventDate) AS eventDate, e.pc_startTime AS startTime, e.pc_endTime AS endTime,
   e.pc_apptstatus AS status, e.pc_facility AS facilityId, e.pc_billing_location AS billingLocationId,
   e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName,
-  COALESCE(e.pc_hometext, '') AS homeText
+  COALESCE(e.pc_hometext, '') AS homeText, e.pc_recurrtype AS recurrenceType,
+  COALESCE(e.pc_recurrspec, '') AS recurrenceSpec, DATE(e.pc_endDate) AS recurrenceEndDate
 FROM openemr_postcalendar_events e
 LEFT JOIN openemr_postcalendar_categories c ON c.pc_catid = e.pc_catid
 WHERE e.pc_eid = ${integer(legacyId)}
@@ -1320,7 +1334,8 @@ LIMIT 1;
       room: row.room,
       categoryId: Number(row.categoryId),
       categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId)),
-      homeText: row.homeText
+      homeText: row.homeText,
+      ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate)
     };
   }
 
@@ -1335,13 +1350,14 @@ WHERE pc_eid = ${integer(legacyId)};
 
   async updateAppointment(id: number | string, input: AppointmentUpdate): Promise<void> {
     const legacyId = legacyInteger(id);
+    const recurrence = buildAppointmentRecurrence(input);
     await this.db.execute(`
 UPDATE openemr_postcalendar_events
 SET pc_aid = ${sqlString(String(input.providerId))},
   pc_title = ${sqlString(input.title)},
   pc_hometext = ${sqlString(input.homeText ?? "")},
   pc_eventDate = ${sqlString(input.eventDate)},
-  pc_endDate = ${sqlString(input.eventDate)},
+  pc_endDate = ${sqlString(recurrence.endDate)},
   pc_duration = ${integer(input.durationSeconds)},
   pc_startTime = ${sqlString(input.startTime)},
   pc_endTime = ${sqlString(input.endTime)},
@@ -1349,7 +1365,9 @@ SET pc_aid = ${sqlString(String(input.providerId))},
   pc_facility = ${integer(input.facilityId)},
   pc_billing_location = ${integer(input.billingLocationId)},
   pc_room = ${sqlString(input.room)},
-  pc_catid = ${input.categoryId === undefined ? "pc_catid" : integer(input.categoryId)}
+  pc_catid = ${input.categoryId === undefined ? "pc_catid" : integer(input.categoryId)},
+  pc_recurrtype = ${integer(recurrence.type)},
+  pc_recurrspec = ${sqlString(recurrence.spec)}
 WHERE pc_eid = ${integer(legacyId)};
 `);
   }
@@ -2888,6 +2906,55 @@ function appointmentCategoryName(categoryId: number) {
       : categoryId === 13
         ? "Preventive Care Services"
         : `Category ${categoryId}`;
+}
+
+function buildAppointmentRecurrence(input: NewAppointment | AppointmentUpdate) {
+  const type = input.recurrenceType ?? 0;
+  const repeatFrequency = type > 0 ? input.repeatFrequency ?? 1 : null;
+  const repeatUnit = type > 0 ? input.repeatUnit ?? 1 : null;
+  const endDate = type > 0 ? input.recurrenceEndDate ?? input.eventDate : input.eventDate;
+  const spec = serializeAppointmentRecurrence(type, repeatFrequency, repeatUnit);
+  return { type, repeatFrequency, repeatUnit, endDate, spec };
+}
+
+function parseAppointmentRecurrence(typeValue: string, spec: string, endDate: string | null) {
+  const recurrenceType = Number(typeValue || 0);
+  if (recurrenceType <= 0) {
+    return {
+      recurrenceType: 0,
+      repeatFrequency: null,
+      repeatUnit: null,
+      recurrenceEndDate: null
+    };
+  }
+
+  return {
+    recurrenceType,
+    repeatFrequency: numberFromSerializedField(spec, "event_repeat_freq"),
+    repeatUnit: numberFromSerializedField(spec, "event_repeat_freq_type"),
+    recurrenceEndDate: endDate
+  };
+}
+
+function numberFromSerializedField(spec: string, fieldName: string) {
+  const pattern = new RegExp(`s:${fieldName.length}:"${fieldName}";s:\\d+:"([^"]*)"`);
+  const match = pattern.exec(spec);
+  return match && match[1] !== "" ? Number(match[1]) : null;
+}
+
+function serializeAppointmentRecurrence(type: number, repeatFrequency: number | null, repeatUnit: number | null) {
+  const fields = {
+    event_repeat_freq: type > 0 ? String(repeatFrequency ?? 1) : "",
+    event_repeat_freq_type: type > 0 ? String(repeatUnit ?? 1) : "",
+    event_repeat_on_num: "1",
+    event_repeat_on_day: "0",
+    event_repeat_on_freq: "0",
+    exdate: ""
+  };
+  const serialized = Object.entries(fields)
+    .map(([key, value]) => `s:${key.length}:"${key}";s:${value.length}:"${value}";`)
+    .join("");
+  return `a:${Object.keys(fields).length}:{${serialized}}`;
 }
 
 function buildCollectionsFollowUpBody(input: NewCollectionsFollowUpTask) {

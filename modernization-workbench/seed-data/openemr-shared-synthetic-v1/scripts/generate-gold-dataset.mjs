@@ -71,6 +71,22 @@ function timePlusMinutes(dateTimeText, minutesToAdd) {
   return date.toISOString().slice(11, 19);
 }
 
+function serializeAppointmentRecurrence(appointment) {
+  const recurrenceType = appointment.recurrenceType ?? 0;
+  const fields = {
+    event_repeat_freq: recurrenceType > 0 ? String(appointment.repeatFrequency ?? 1) : "",
+    event_repeat_freq_type: recurrenceType > 0 ? String(appointment.repeatUnit ?? 1) : "",
+    event_repeat_on_num: "1",
+    event_repeat_on_day: "0",
+    event_repeat_on_freq: "0",
+    exdate: ""
+  };
+  const serialized = Object.entries(fields)
+    .map(([key, value]) => `s:${key.length}:"${key}";s:${value.length}:"${value}";`)
+    .join("");
+  return `a:${Object.keys(fields).length}:{${serialized}}`;
+}
+
 function uuidHex(key) {
   return crypto.createHash("md5").update(`${datasetId}:${datasetVersion}:${key}`).digest("hex");
 }
@@ -341,6 +357,7 @@ patients.forEach((patient, index) => {
     const dateOffset = sequence === 1 ? -120 + (index % 90) : sequence === 2 ? -15 + (index % 30) : 7 + ((index * 11) % 190);
     const date = index === 0 && sequence === 3 ? baseDate : addDays(baseDate, dateOffset);
     const hour = 8 + ((index + sequence) % 8);
+    const isRecurringAnchor = sequence === 3 && index % 10 === 2;
     appointments.push({
       id: `APPT-${patient.canonicalId}-${sequence}`,
       patientId: patient.canonicalId,
@@ -354,7 +371,11 @@ patients.forEach((patient, index) => {
       title: sequence === 1 ? "New Patient" : sequence === 3 ? "Preventive Care" : "Established Patient",
       status: sequence === 3 ? "-" : index % 17 === 0 ? "x" : index % 13 === 0 ? "?" : "@",
       room: `Room ${1 + (index % 8)}`,
-      comments: `Gold dataset appointment ${patient.canonicalId}-${sequence}: ${sequence === 1 ? "initial intake preparation" : sequence === 3 ? "preventive care checklist" : "follow-up scheduling note"}`
+      comments: `Gold dataset appointment ${patient.canonicalId}-${sequence}: ${sequence === 1 ? "initial intake preparation" : sequence === 3 ? "preventive care checklist" : "follow-up scheduling note"}`,
+      recurrenceType: isRecurringAnchor ? 1 : 0,
+      repeatFrequency: isRecurringAnchor ? 2 : null,
+      repeatUnit: isRecurringAnchor ? 1 : null,
+      recurrenceEndDate: isRecurringAnchor ? addDays(date, 84) : null
     });
   }
 });
@@ -1081,7 +1102,7 @@ function buildLegacySql() {
     };
   }), 200));
 
-  statements.push(insert("openemr_postcalendar_events", ["uuid", "pc_catid", "pc_multiple", "pc_aid", "pc_pid", "pc_title", "pc_time", "pc_hometext", "pc_eventDate", "pc_endDate", "pc_duration", "pc_startTime", "pc_endTime", "pc_eventstatus", "pc_sharing", "pc_apptstatus", "pc_facility", "pc_billing_location", "pc_room"], appointments.map((appointment) => ({
+  statements.push(insert("openemr_postcalendar_events", ["uuid", "pc_catid", "pc_multiple", "pc_aid", "pc_pid", "pc_title", "pc_time", "pc_hometext", "pc_eventDate", "pc_endDate", "pc_duration", "pc_startTime", "pc_endTime", "pc_eventstatus", "pc_sharing", "pc_apptstatus", "pc_facility", "pc_billing_location", "pc_room", "pc_recurrtype", "pc_recurrspec"], appointments.map((appointment) => ({
     uuid: raw(sqlUuid(appointment.id)),
     pc_catid: appointment.categoryId,
     pc_multiple: 0,
@@ -1091,7 +1112,7 @@ function buildLegacySql() {
     pc_time: appointment.start,
     pc_hometext: appointment.comments,
     pc_eventDate: appointment.date,
-    pc_endDate: appointment.date,
+    pc_endDate: appointment.recurrenceEndDate ?? appointment.date,
     pc_duration: appointment.duration,
     pc_startTime: appointment.start.slice(11),
     pc_endTime: timePlusMinutes(appointment.start, appointment.duration / 60),
@@ -1100,7 +1121,9 @@ function buildLegacySql() {
     pc_apptstatus: appointment.status,
     pc_facility: appointment.facilityId,
     pc_billing_location: appointment.facilityId,
-    pc_room: appointment.room
+    pc_room: appointment.room,
+    pc_recurrtype: appointment.recurrenceType ?? 0,
+    pc_recurrspec: serializeAppointmentRecurrence(appointment)
   })), 200));
 
   statements.push(insert("form_encounter", ["id", "uuid", "date", "reason", "facility", "facility_id", "pid", "encounter", "pc_catid", "provider_id", "billing_facility", "class_code"], encounters.map((encounter) => ({
