@@ -7014,6 +7014,76 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 132. Modernized Appointment Comments Slice 102
+
+Commit: `9327266`
+Started: `2026-06-20T18:25:00-04:00`
+Finished: `2026-06-20T18:44:03-04:00`
+
+Implemented the one-hundred-second modernized OpenEMR vertical slice: appointment comments readiness, proving that a temporary future appointment can persist scheduling comments through legacy `pc_hometext` / `form_comments`, modernized appointment `comments`, Calendar create/edit controls, cleanup, and side-by-side comparison.
+
+Code changes:
+
+- Files changed: 26
+- Lines added: 8,776
+- Lines deleted: 5,650
+- Net lines: 3,126
+- Total churn: 14,426
+
+Key outcomes:
+
+- Added first-class appointment comments to the canonical gold dataset generator and regenerated the tracked canonical dataset plus legacy MariaDB seed SQL for 2,800 appointments.
+- Added `comments` to the modernized PostgreSQL appointment seed schema, ASP.NET Core appointment DTOs, list/detail queries, and create/update paths.
+- Added Calendar create/edit comments controls and selected-appointment comments rendering in the modernized React UI.
+- Added the `workflow-appointment-comments` Playwright parity suite and `slice-102-appointment-comments-readiness` plan.
+- Extended legacy and modernized workflow adapters so appointment comments map to legacy `pc_hometext` and modernized `appointments.comments`.
+- Extended the modernized smoke test with an `appointment comments lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 102 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, and legacy-baseline documents so the current modernization state is Slice 102 with thirty-four read-only slices and sixty-eight mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+- `node .\scripts\generate-gold-dataset.mjs` regenerated the shared gold dataset with unchanged row counts and appointment comments populated.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 103 checks, including `appointment comments lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-102-appointment-comments-readiness -Reset test` passed; run `2026-06-20T224206-756Z-legacy-openemr-plan-slice-102-appointment-comments-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-102-appointment-comments-readiness -Reset test` passed; run `2026-06-20T224239-694Z-modernized-openemr-plan-slice-102-appointment-comments-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-102-appointment-comments-readiness` passed with `status: matched`; comparison `2026-06-20T224316-957Z-legacy-openemr-vs-modernized-openemr-plan-slice-102-appointment-comments-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-comments/appointment-comments.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
