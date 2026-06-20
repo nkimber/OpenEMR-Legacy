@@ -4524,6 +4524,63 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 088. Modernized Statement Batch Package Export Slice 62
+
+Commit: this commit
+Started: `2026-06-20T00:21:30-04:00`
+Finished: `2026-06-20T00:49:30-04:00`
+
+Implemented the sixty-second modernized OpenEMR vertical slice: statement batch package export readiness, focused on producing a deterministic read-only ZIP package from the shared statement batch candidate queue.
+
+Key outcomes:
+
+- Added a modernized package endpoint at `GET /api/billing/statements/batch/package.zip?limit=5`, returning `statement-batch-20260618-top5.zip`.
+- Built the package with `manifest.json`, `summary.csv`, and one deterministic generated PDF under `statements/` for each included top statement candidate.
+- Added a React Fees `Batch Export` action on the `Statement Batch` panel that downloads the current five-candidate package.
+- Added modernized smoke coverage for the package status, headers, filename, manifest identity, included PDF count, first statement metadata, and first PDF content.
+- Added the `account-statement-batch-package` parity suite and `slice-62-statement-batch-package-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 62 statement batch package plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing ranked statement candidates and generated statement document logic; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the statement batch package changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 64 smoke checks, including `anchor statement batch package export`.
+- `npm run test:legacy:plan:statement-batch-package -- --reset run` passed with run `2026-06-20T044832-631Z-legacy-openemr-plan-slice-62-statement-batch-package-readiness`.
+- `npm run test:modernized:plan:statement-batch-package -- --reset run` passed with run `2026-06-20T044903-273Z-modernized-openemr-plan-slice-62-statement-batch-package-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-62-statement-batch-package-readiness` matched with comparison `2026-06-20T044930-767Z-legacy-openemr-vs-modernized-openemr-plan-slice-62-statement-batch-package-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-statement-batch-package/account-statement-batch-package.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

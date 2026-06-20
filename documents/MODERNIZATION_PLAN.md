@@ -1808,6 +1808,7 @@ Current limitations:
 - This slice generates a deterministic printable statement document only.
 - Deterministic statement PDF export is covered by Slice 60.
 - Statement batch candidate readiness is covered by Slice 61.
+- Statement batch package export readiness is covered by Slice 62.
 - Actual batch execution, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 60: Statement PDF Export Readiness
@@ -1839,6 +1840,7 @@ Current limitations:
 
 - This slice exports a deterministic one-patient statement PDF from the current generated statement document only.
 - Statement batch candidate readiness is covered by Slice 61.
+- Statement batch package export readiness is covered by Slice 62.
 - Actual batch execution, richer PDF layout/branding, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 61: Statement Batch Candidate Readiness
@@ -1869,8 +1871,40 @@ Acceptance:
 
 Current limitations:
 
-- This slice identifies candidates for a future statement run; it does not execute a batch, persist a batch record, deliver statements, archive statements, or create collection follow-up tasks.
-- Rich statement batch layout, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
+- This slice identifies candidates for a future statement run; it does not execute a batch, persist a batch record, export a package, deliver statements, archive statements, or create collection follow-up tasks.
+- Statement batch package export readiness is covered by Slice 62. Rich statement batch layout, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
+
+### Slice 62: Statement Batch Package Export Readiness
+
+Status:
+
+- Implemented as a read-only modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-62-statement-batch-package-readiness` plan, which validates the deterministic statement package manifest, summary CSV, included PDFs, modernized API behavior, and Fees workspace export link on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing and AR payment population plus the Slice 61 ranked candidate queue; it does not add permanent gold-data records.
+- Legacy behavior is represented by normalized MariaDB probes that derive the same top statement candidates and expected package manifest from OpenEMR billing and AR activity rows.
+- ASP.NET Core billing read behavior now exposes `GET /api/billing/statements/batch/package.zip?limit=5`, returning `application/zip` content named `statement-batch-20260618-top5.zip`.
+- The package contains `manifest.json`, `summary.csv`, and one generated statement PDF under `statements/` for each included candidate.
+- React Fees workspace now shows a `Batch Export` link in the Statement Batch panel with the expected package URL and download filename.
+- Modernized smoke coverage validates the package response, ZIP entries, manifest package ID, included statement count, first PDF content, and download filename.
+- The `account-statement-batch-package` parity suite and `slice-62-statement-batch-package-readiness` plan verify normalized legacy MariaDB expectations and modernized PostgreSQL/API/UI package behavior.
+- Workbench-managed Slice 62 statement batch package plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The package endpoint returns the gold dataset package ID `STMT-BATCH-20260618-TOP5`, as-of date `2026-06-18`, five included statements, and the same all-candidate totals as the Slice 61 statement batch response.
+- `manifest.json` lists each included candidate with pubpid, legacy PID, display name, statement number/status/date, due date, balance/current/past-due amounts, delivery method, and PDF file name.
+- `summary.csv` lists the same statement rows in deterministic candidate order.
+- Each included PDF is the existing deterministic generated patient statement PDF for that candidate.
+- The modernized Fees workspace renders the `Batch Export` link with the expected URL and filename.
+- The side-by-side Slice 62 parity comparison matches.
+
+Current limitations:
+
+- This slice exports a deterministic package for the current top candidates; it does not persist a batch record, mark statements as sent, deliver statements, archive statements, or create collection follow-up tasks.
+- Rich statement batch layout, branded PDF design, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1994,3 +2028,4 @@ As of 2026-06-19:
 - The fifty-ninth modernized vertical slice implements patient statement generation readiness with a deterministic statement document contract, React Fees Patient Statement rendering, normalized legacy/modernized statement-generation probes, Workbench statement generation plan actions, smoke coverage, and side-by-side slice-59 parity evidence.
 - The sixtieth modernized vertical slice implements patient statement PDF export readiness with a deterministic ASP.NET Core PDF endpoint, React Fees PDF Export action, normalized legacy/modernized statement-PDF probes, Workbench statement PDF plan actions, smoke coverage, and side-by-side slice-60 parity evidence.
 - The sixty-first modernized vertical slice implements statement batch candidate readiness with a deterministic ranked work queue, ASP.NET Core statement batch endpoint, React Fees Statement Batch panel, normalized legacy/modernized statement-batch probes, Workbench statement batch plan actions, smoke coverage, and side-by-side slice-61 parity evidence.
+- The sixty-second modernized vertical slice implements statement batch package export readiness with a deterministic ASP.NET Core ZIP endpoint, manifest/summary/PDF package content, React Fees Batch Export action, normalized legacy/modernized package probes, Workbench statement batch package plan actions, smoke coverage, and side-by-side slice-62 parity evidence.

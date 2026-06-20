@@ -80,6 +80,7 @@
         "parityStatementGenerationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-59-statement-generation-readiness", "-Reset", "run"],
         "parityStatementPdfPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-60-statement-pdf-export-readiness", "-Reset", "run"],
         "parityStatementBatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-61-statement-batch-readiness", "-Reset", "run"],
+        "parityStatementBatchPackagePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-62-statement-batch-package-readiness", "-Reset", "run"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -594,6 +595,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-61-statement-batch-readiness.json"
         },
         {
+          "id": "parity-plan-statement-batch-package",
+          "name": "Slice 62 statement batch package plan",
+          "description": "Runs the shared read-only statement batch package export plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityStatementBatchPackagePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-62-statement-batch-package-readiness.json"
+        },
+        {
           "id": "parity-plan-document-preview",
           "name": "Slice 53 document preview plan",
           "description": "Runs the shared read-only document preview readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -694,7 +703,7 @@
     {
       "id": "modernized-openemr",
       "name": "Modernized OpenEMR",
-      "stage": "Slice 61 target",
+      "stage": "Slice 62 target",
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
@@ -762,6 +771,7 @@
         "parityStatementGenerationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-59-statement-generation-readiness", "-Reset", "run"],
         "parityStatementPdfPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-60-statement-pdf-export-readiness", "-Reset", "run"],
         "parityStatementBatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-61-statement-batch-readiness", "-Reset", "run"],
+        "parityStatementBatchPackagePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-62-statement-batch-package-readiness", "-Reset", "run"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -788,7 +798,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter metadata mutation, clinical lists, messages, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
+          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter metadata mutation, clinical lists, messages, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -1200,6 +1210,14 @@
           "layer": "plan",
           "commandName": "parityStatementBatchPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-61-statement-batch-readiness.json"
+        },
+        {
+          "id": "parity-plan-statement-batch-package",
+          "name": "Slice 62 statement batch package plan",
+          "description": "Runs the shared read-only statement batch package export plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityStatementBatchPackagePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-62-statement-batch-package-readiness.json"
         },
         {
           "id": "parity-plan-document-preview",
