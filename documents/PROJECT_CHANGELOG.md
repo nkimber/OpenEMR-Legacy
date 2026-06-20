@@ -6566,6 +6566,57 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 124. Modernized Appointment Check-Out Slice 95
+
+Commit: current slice commit
+Started: `2026-06-20T15:48:28-04:00`
+Finished: `2026-06-20T16:11:09-04:00`
+
+Implemented the ninety-fifth modernized OpenEMR vertical slice: appointment check-out readiness, adding OpenEMR-compatible checked-out status behavior for selected appointments while proving temporary appointment create/arrive/check-out/render/delete parity against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 388
+- Lines deleted: 37
+- Net lines: 351
+- Total churn: 425
+
+Key outcomes:
+
+- Added a modernized Calendar detail action that marks the selected appointment checked out with OpenEMR-compatible `>` status.
+- Kept the action on the existing appointment status endpoint so check-out behavior remains part of the server-side scheduling contract.
+- Extended the modernized smoke test with an `appointment check-out lifecycle` check.
+- Added the `workflow-appointment-checkout` Playwright parity suite and the `slice-95-appointment-checkout-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 95 appointment check-out plan.
+- Updated synchronized project documents so the current modernization state is Slice 95 with thirty-four read-only slices and sixty-one mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 96 checks, including `appointment check-out lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-95-appointment-checkout-readiness -Reset test` passed; run `2026-06-20T201013-937Z-legacy-openemr-plan-slice-95-appointment-checkout-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-95-appointment-checkout-readiness -Reset test` passed; run `2026-06-20T201042-023Z-modernized-openemr-plan-slice-95-appointment-checkout-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-95-appointment-checkout-readiness` passed with `status: matched`; comparison `2026-06-20T201102-459Z-legacy-openemr-vs-modernized-openemr-plan-slice-95-appointment-checkout-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from generated/test-maintained files.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-checkout/appointment-checkout.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
