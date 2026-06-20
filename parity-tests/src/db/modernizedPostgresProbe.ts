@@ -25,6 +25,7 @@ import type {
   AccountBalanceSummary,
   AccountAgingSummary,
   AccountLedgerEntry,
+  PatientStatementSummary,
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
@@ -33,7 +34,11 @@ import type {
   ProcedureResultsSummary,
   TemporalCoverageRow
 } from "./legacyMariaDbProbe.js";
-import { buildAccountLedgerEntries, buildOperationalReportExportRows } from "./legacyMariaDbProbe.js";
+import {
+  buildAccountLedgerEntries,
+  buildOperationalReportExportRows,
+  buildPatientStatementSummary
+} from "./legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import { runCommand } from "../core/command.js";
 
@@ -777,6 +782,29 @@ FROM entries
 ORDER BY "entryDate", encounter, priority, code, description, reference;
 `);
     return buildAccountLedgerEntries(rows);
+  }
+
+  async getPatientStatementForPatient(pid: number): Promise<PatientStatementSummary | null> {
+    const patientRows = await this.queryRows<Record<string, string>>(`
+SELECT legacy_pid AS "patientId", first_name AS "firstName", last_name AS "lastName",
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS "postalCode", COALESCE(email, '') AS email,
+  COALESCE(NULLIF(phone_home, ''), NULLIF(phone, ''), NULLIF(phone_cell, ''), '') AS phone
+FROM patients
+WHERE legacy_pid = ${pid}
+LIMIT 1;
+`);
+    const patient = patientRows[0];
+    if (!patient) {
+      return null;
+    }
+
+    return buildPatientStatementSummary({
+      patient,
+      balances: await this.getAccountBalancesForPatient(pid),
+      aging: await this.getAccountAgingForPatient(pid),
+      ledger: await this.getAccountLedgerForPatient(pid)
+    });
   }
 
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {

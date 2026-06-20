@@ -3926,6 +3926,69 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 078. Modernized Account Statement Slice 52
+
+Commit: this commit
+Started: `2026-06-19T19:48:00-04:00`
+Finished: `2026-06-19T20:08:55-04:00`
+
+Implemented the fifty-second modernized OpenEMR vertical slice: read-only account statement readiness, focused on deriving statement recipient, mailing address, statement period, due date, current-due amount, past-due amount, oldest-open balance age, and balance-due facts from the existing seeded demographics, fee-sheet billing, payment-posting, account aging, and account ledger records.
+
+Key outcomes:
+
+- Added account statement summary DTO fields to the ASP.NET Core billing response.
+- Built canonical statement-readiness facts from the stable `MOD-PAT-0005` billing anchor, including recipient/contact details, open encounter count, ledger count, total charges, total payments, total adjustments, current due, past due, balance due, and statement status.
+- Rendered a Statement Readiness panel in the modernized Fees workspace with status, balance, period, due date, address, phone, current/past due, oldest open balance, and ledger-entry facts.
+- Added modernized smoke coverage for the `MOD-PAT-0005` account statement readiness anchor.
+- Added normalized legacy MariaDB and modernized PostgreSQL account-statement probes.
+- Added the `account-statement` parity suite and `slice-52-account-statement-readiness` plan.
+- Added Workbench commands/cards and result paths for the Slice 52 account statement plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing gold demographics, billing, payment-posting, account aging, and account ledger records; no new seed-data records were required for this slice.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `npm run typecheck` in `parity-tests/`.
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `docker compose build api frontend` in `modernized-openemr/`.
+- `docker compose up -d postgres api frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 54 smoke checks, including `anchor account statement readiness`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:account-statement` passed with run `2026-06-20T000809-690Z-legacy-openemr-plan-slice-52-account-statement-readiness`.
+- `npm run test:modernized:plan:account-statement` passed with run `2026-06-20T000827-804Z-modernized-openemr-plan-slice-52-account-statement-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-52-account-statement-readiness` matched with comparison `2026-06-20T000844-869Z-legacy-openemr-vs-modernized-openemr-plan-slice-52-account-statement-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-statement/account-statement.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

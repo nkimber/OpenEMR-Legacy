@@ -254,6 +254,30 @@ export type AccountLedgerEntry = {
   runningBalanceAmount: string;
 };
 
+export type PatientStatementSummary = {
+  patientId: number;
+  recipientName: string;
+  mailingAddressLine1: string;
+  mailingAddressLine2: string;
+  email: string;
+  phone: string;
+  statementStatus: string;
+  statementPeriodStart: string;
+  statementPeriodEnd: string;
+  statementDate: string;
+  dueDate: string;
+  openEncounterCount: number;
+  ledgerEntryCount: number;
+  oldestOpenAgeDays: number;
+  oldestOpenDate: string;
+  chargeAmount: string;
+  paymentAmount: string;
+  adjustmentAmount: string;
+  currentDueAmount: string;
+  pastDueAmount: string;
+  balanceDueAmount: string;
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -1196,6 +1220,29 @@ ORDER BY \`entryDate\`, encounter, priority, code, description, reference;
     return buildAccountLedgerEntries(rows);
   }
 
+  async getPatientStatementForPatient(pid: number): Promise<PatientStatementSummary | null> {
+    const patientRows = await this.queryRows<Record<string, string>>(`
+SELECT pid AS patientId, fname AS firstName, lname AS lastName,
+  COALESCE(street, '') AS street, COALESCE(city, '') AS city, COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS postalCode, COALESCE(email, '') AS email,
+  COALESCE(NULLIF(phone_home, ''), NULLIF(phone_contact, ''), NULLIF(phone_cell, ''), '') AS phone
+FROM patient_data
+WHERE pid = ${pid}
+LIMIT 1;
+`);
+    const patient = patientRows[0];
+    if (!patient) {
+      return null;
+    }
+
+    return buildPatientStatementSummary({
+      patient,
+      balances: await this.getAccountBalancesForPatient(pid),
+      aging: await this.getAccountAgingForPatient(pid),
+      ledger: await this.getAccountLedgerForPatient(pid)
+    });
+  }
+
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
     const users = await this.queryRows<Record<string, string>>(`
 SELECT u.id, u.username, u.fname AS firstName, u.lname AS lastName,
@@ -1671,6 +1718,72 @@ export function buildAccountLedgerEntries(rows: Record<string, string>[]): Accou
       runningBalanceAmount: runningBalance.toFixed(2)
     };
   });
+}
+
+export function buildPatientStatementSummary({
+  patient,
+  balances,
+  aging,
+  ledger
+}: {
+  patient: Record<string, string>;
+  balances: AccountBalanceSummary[];
+  aging: AccountAgingSummary[];
+  ledger: AccountLedgerEntry[];
+}): PatientStatementSummary {
+  const periodStart = ledger[0]?.entryDate ?? "2026-06-18";
+  const periodEnd = ledger.at(-1)?.entryDate ?? "2026-06-18";
+  const pastDueAmount = aging
+    .filter((row) => row.agingBucket !== "Current")
+    .reduce((sum, row) => sum + Number(row.balanceAmount), 0);
+  const currentDueAmount = aging
+    .filter((row) => row.agingBucket === "Current")
+    .reduce((sum, row) => sum + Number(row.balanceAmount), 0);
+  const balanceDueAmount = ledger.length > 0
+    ? Number(ledger.at(-1)!.runningBalanceAmount)
+    : balances.reduce((sum, row) => sum + Number(row.balanceAmount), 0);
+  const oldestOpen = aging
+    .filter((row) => Number(row.balanceAmount) > 0)
+    .sort((left, right) => right.ageDays - left.ageDays)[0];
+
+  return {
+    patientId: Number(patient.patientId),
+    recipientName: `${patient.firstName} ${patient.lastName}`,
+    mailingAddressLine1: patient.street ?? "",
+    mailingAddressLine2: buildAddressLine2(patient),
+    email: patient.email ?? "",
+    phone: patient.phone ?? "",
+    statementStatus: balanceDueAmount <= 0 ? "No balance due" : pastDueAmount > 0 ? "Past due review" : "Ready for statement",
+    statementPeriodStart: periodStart,
+    statementPeriodEnd: periodEnd,
+    statementDate: periodEnd,
+    dueDate: addDaysIso(periodEnd, 30),
+    openEncounterCount: balances.filter((row) => Number(row.balanceAmount) > 0).length,
+    ledgerEntryCount: ledger.length,
+    oldestOpenAgeDays: oldestOpen?.ageDays ?? 0,
+    oldestOpenDate: oldestOpen?.lastBillingDate ?? periodStart,
+    chargeAmount: formatAmount(ledger.filter((entry) => entry.entryType === "Charge").reduce((sum, entry) => sum + Number(entry.amount), 0)),
+    paymentAmount: formatAmount(ledger.filter((entry) => entry.entryType === "Payment").reduce((sum, entry) => sum + Math.abs(Number(entry.amount)), 0)),
+    adjustmentAmount: formatAmount(ledger.filter((entry) => entry.entryType === "Adjustment").reduce((sum, entry) => sum + Math.abs(Number(entry.amount)), 0)),
+    currentDueAmount: formatAmount(currentDueAmount),
+    pastDueAmount: formatAmount(pastDueAmount),
+    balanceDueAmount: formatAmount(balanceDueAmount)
+  };
+}
+
+function buildAddressLine2(patient: Record<string, string>) {
+  const cityState = [patient.city, patient.state].filter(Boolean).join(", ");
+  return [cityState, patient.postalCode].filter(Boolean).join(" ");
+}
+
+function addDaysIso(value: string, days: number) {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function formatAmount(value: number) {
+  return value.toFixed(2);
 }
 
 function parseTabRows<T extends Record<string, string>>(stdout: string): T[] {

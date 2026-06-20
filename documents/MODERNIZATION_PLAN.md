@@ -1572,6 +1572,34 @@ Current limitations:
 - This slice is read-only and covers ledger visibility only.
 - Patient statement generation, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
 
+### Slice 52: Account Statement Readiness
+
+Status:
+
+- Implemented as a read-only modernized revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-52-account-statement-readiness` plan, which validates statement-ready recipient, period, due-date, current-due, past-due, and balance facts for the stable billing anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses existing `MOD-PAT-0005` demographics, billing, AR payment, account aging, and account ledger facts; it does not add new gold-data records.
+- ASP.NET Core billing read behavior now returns a patient-level statement readiness summary with recipient mailing details, statement period, statement date, due date, open encounter count, oldest open date/age, current due, past due, charges, payments, adjustments, and balance due.
+- React Fees workspace now shows a Statement Readiness panel with status, balance due, recipient/address, period/due-date, current/past due split, and oldest open account facts.
+- Modernized smoke coverage validates the `MOD-PAT-0005` statement readiness summary.
+- The `account-statement` parity suite and `slice-52-account-statement-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL statement readiness rows, plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 52 account statement plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute `MOD-PAT-0005` recipient `Elias Morgan`, mailing address `105 Test Patient Avenue`, `Carlsbad, CA 92008`, statement period `2025-06-22` to `2026-06-25`, statement date `2026-06-25`, due date `2026-07-25`, and status `Past due review`.
+- Direct probes compute 3 open encounters, 10 ledger entries, oldest open date `2025-06-22`, oldest open age 361 days, `$83.75` current due, `$281.00` past due, and `$364.75` balance due.
+- The modernized billing API and Fees workspace render those same statement readiness facts without changing seeded billing, payment, ledger, or demographic rows.
+- The side-by-side Slice 52 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and covers statement readiness only.
+- Printable patient statement generation, statement archival, batch statement runs, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1684,3 +1712,4 @@ As of 2026-06-19:
 - The forty-ninth modernized vertical slice implements read-only account balance visibility by computing charge, payment, adjustment, and balance rollups over existing seeded billing/payment rows, adding ASP.NET Core billing account summaries, React Fees Account Balance rendering, Workbench account balance plan action, smoke coverage, and side-by-side slice-49 parity evidence.
 - The fiftieth modernized vertical slice implements read-only account aging visibility by computing deterministic current, 31-60, 61-90, and over-90 buckets over existing seeded billing/payment rows using the dataset base date, adding ASP.NET Core billing aging summaries, React Fees Aging Summary rendering, Workbench account aging plan action, smoke coverage, and side-by-side slice-50 parity evidence.
 - The fifty-first modernized vertical slice implements read-only account ledger visibility by deriving canonical chronological charge, payment, adjustment, and running-balance entries from existing seeded billing/payment rows, adding ASP.NET Core billing ledger summaries, React Fees Account Ledger rendering, Workbench account ledger plan action, smoke coverage, and side-by-side slice-51 parity evidence.
+- The fifty-second modernized vertical slice implements read-only account statement readiness by deriving recipient, statement-period, due-date, current-due, past-due, oldest-open, and balance-due facts from existing seeded demographics, billing, payment, aging, and ledger rows, adding ASP.NET Core billing statement summaries, React Fees Statement Readiness rendering, Workbench account statement plan action, smoke coverage, and side-by-side slice-52 parity evidence.
