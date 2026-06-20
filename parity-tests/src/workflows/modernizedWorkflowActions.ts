@@ -1128,6 +1128,21 @@ LIMIT 1;
     }
   }
 
+  async moveEncounterDocument(sourceEncounter: number, id: number | string, targetEncounter: number): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(sourceEncounter))}/documents/${encodeURIComponent(String(id))}/move`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ targetEncounter })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document move failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content`, {
       method: "PUT",

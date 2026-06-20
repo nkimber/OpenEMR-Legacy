@@ -60,6 +60,7 @@ param(
         "workflow-encounter-document-signoff",
         "workflow-encounter-document-denial",
         "workflow-encounter-document-metadata",
+        "workflow-encounter-document-move",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

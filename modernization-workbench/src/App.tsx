@@ -976,6 +976,16 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                     : entry.codeChangeStats?.source === "git"
                       ? "Git"
                       : "";
+              const isPlaceholderCommit = ["this commit", "current slice commit"].includes(entry.commit.trim().toLowerCase());
+              const commitLabel = entry.completedCommit ?? (isPlaceholderCommit ? "Unresolved changeset" : entry.commit);
+              const commitTitle =
+                entry.completedCommit && entry.completedCommit !== entry.commit
+                  ? entry.completedCommitSource === "git-inferred"
+                    ? `Resolved from "${entry.commit}" using Git commit subject "${entry.completedCommitSubject}".`
+                    : `Resolved from changelog commit metadata. Git subject: "${entry.completedCommitSubject}".`
+                  : isPlaceholderCommit
+                    ? `The changelog says "${entry.commit}" and no safe Git commit match was found.`
+                    : entry.completedCommitSubject;
 
               return (
                 <article className="changelog-entry" key={`${entry.date}-${entry.id}`}>
@@ -988,7 +998,11 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                         <span className="changelog-date">{formatDateOnly(entry.date)}</span>
                         <h3>{entry.title}</h3>
                       </div>
-                      {entry.commit ? <code className="commit-chip">{entry.commit}</code> : null}
+                      {commitLabel ? (
+                        <code className="commit-chip" title={commitTitle}>
+                          {commitLabel}
+                        </code>
+                      ) : null}
                     </div>
 
                     {entry.summary ? <p>{entry.summary}</p> : null}

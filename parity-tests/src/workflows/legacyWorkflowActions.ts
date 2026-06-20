@@ -1758,6 +1758,26 @@ VALUES (${integer(input.categoryId)}, ${integer(legacyId)});
     await this.updatePatientDocumentMetadata(id, input);
   }
 
+  async moveEncounterDocument(sourceEncounter: number, id: number | string, targetEncounter: number): Promise<void> {
+    const document = await this.getPatientDocument(id);
+    if (!document) {
+      throw new Error(`Legacy encounter document ${id} was not found.`);
+    }
+
+    if (document.encounter !== sourceEncounter) {
+      throw new Error(`Legacy encounter document ${id} is linked to encounter ${document.encounter}, not ${sourceEncounter}.`);
+    }
+
+    await this.updateEncounterDocumentMetadata(sourceEncounter, id, {
+      categoryId: document.categoryId,
+      categoryName: document.categoryName,
+      name: document.name,
+      docDate: document.docDate,
+      encounter: targetEncounter,
+      notes: document.notes
+    });
+  }
+
   async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
     const legacyId = legacyInteger(id);
     const content = `Gold synthetic document ${input.fileName}\n${input.content}`;

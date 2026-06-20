@@ -359,6 +359,8 @@ export type ChangelogEntry = {
   durationMs?: number;
   completedAt?: string;
   completedCommit?: string;
+  completedCommitSource?: "documented" | "git-inferred";
+  completedCommitSubject?: string;
   elapsedSincePreviousMs?: number;
   summary: string;
   keyOutcomes: string[];

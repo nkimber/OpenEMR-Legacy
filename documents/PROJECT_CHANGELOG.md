@@ -12,7 +12,7 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 
 - Add entries in chronological order.
 - Keep each entry concrete: describe what changed, why it matters, and where the evidence or source files live.
-- Reference the relevant commit when available.
+- Reference the relevant commit when available. `Commit: pending` is only for work in progress; after the commit exists, replace placeholders such as `this commit` or `current slice commit` with the real short changeset ID whenever practical.
 - Record `Started:` and `Finished:` timestamps for each new entry using ISO 8601 local time with timezone offset, such as `2026-06-19T13:06:12-04:00`.
 - Treat `Started:` as the time active implementation work for that changelog section began and `Finished:` as the time verification and document updates for that section were complete.
 - Do not manually calculate or write a duration; the Modernization Workbench calculates section duration from `Started:` and `Finished:`.
@@ -28,7 +28,7 @@ Future entries should use this header shape:
 ```markdown
 ### 000. Short Entry Title
 
-Commit: pending
+Commit: current slice commit
 Started: `2026-06-19T13:06:12-04:00`
 Finished: `2026-06-19T13:42:30-04:00`
 
@@ -44,6 +44,8 @@ Code changes:
 ```
 
 Use the local machine clock, for example PowerShell `Get-Date -Format o`, so the Workbench can display actual clock times and calculate elapsed section duration.
+
+Before reporting a completed slice or step, update the entry from `Commit: pending` to the real Git changeset ID. The Workbench can resolve some older placeholder values from Git history, but the durable changelog should still prefer the explicit hash.
 
 ## 2026-06-18
 
@@ -5848,6 +5850,101 @@ Primary files:
 - `documents/MODERNIZATION_PLAN.md`
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
+
+### 111. Project Timeline Resolved Changeset Chips
+
+Commit: pending
+Started: `2026-06-20T10:50:00-04:00`
+Finished: `2026-06-20T10:59:21.6889177-04:00`
+
+Improved the Modernization Workbench Project Timeline so completed entries with legacy `this commit` or `current slice commit` placeholders show the resolved Git changeset ID whenever the local history can be matched safely.
+
+Code changes:
+
+- Files changed: 5
+- Lines added: 100
+- Lines deleted: 10
+- Net lines: 90
+- Total churn: 110
+
+Key outcomes:
+
+- Added independent commit-resolution metadata to changelog entries so the Timeline can show a real changeset ID without depending on the raw changelog `Commit:` text.
+- Reused conservative Git subject matching for older placeholder entries while preserving unresolved status for ambiguous historical records.
+- Changed the Timeline commit chip to prefer the resolved Git hash and to show an unresolved changeset label instead of repeating placeholder text when no safe match exists.
+- Updated the changelog maintenance rule so completed entries should replace `pending` or placeholder commit text with the actual short changeset ID.
+- Updated Workbench documentation to describe resolved and unresolved changeset chip behavior.
+
+Verified test runs:
+
+- `npm run typecheck` in `modernization-workbench/`.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check` passed with only Git line-ending warnings.
+- `/api/changelog` smoke test on `http://127.0.0.1:5174` confirmed 111 total entries, 63 raw placeholder commit entries, 52 placeholder entries with resolved changeset IDs, and 11 ambiguous placeholders left unresolved.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `documents/PROJECT_CHANGELOG.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+
+### 112. Modernized Encounter Document Move Slice 83
+
+Commit: current slice commit
+Started: `2026-06-20T11:16:16.5873436-04:00`
+Finished: `2026-06-20T11:20:43.0249786-04:00`
+
+Implemented the eighty-third modernized OpenEMR vertical slice: focused encounter document move readiness, adding same-patient encounter document movement from the modernized Encounters workspace and proving the same temporary document create/move/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 24
+- Lines added: 825
+- Lines deleted: 62
+- Net lines: 763
+- Total churn: 887
+
+Key outcomes:
+
+- Added a guarded ASP.NET Core encounter document move endpoint that only moves documents attached to the selected source encounter and only to another encounter for the same patient.
+- Added modernized frontend API and Encounter attached-document Move controls, including target encounter entry, source-to-target refresh, and move feedback.
+- Added modernized smoke coverage for the encounter document move lifecycle.
+- Added shared legacy and modernized workflow adapter support for encounter document movement.
+- Added the `workflow-encounter-document-move` Playwright parity suite and the `slice-83-encounter-document-move-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 83 move plan.
+- Updated synchronized project documents so the current modernization state is Slice 83 with thirty-four read-only slices and forty-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 84 checks, including `encounter document move lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-83-encounter-document-move-readiness -Reset test` passed; run `2026-06-20T151847-701Z-legacy-openemr-plan-slice-83-encounter-document-move-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-83-encounter-document-move-readiness -Reset test` passed; run `2026-06-20T151942-557Z-modernized-openemr-plan-slice-83-encounter-document-move-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-83-encounter-document-move-readiness` passed with `status: matched`; comparison `2026-06-20T152019-282Z-legacy-openemr-vs-modernized-openemr-plan-slice-83-encounter-document-move-readiness`.
+- `/api/changelog` smoke test on `http://127.0.0.1:5174` confirmed 112 total entries and documented code-change metrics for entry 112.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-move/encounter-document-move.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
 
 ## Next Expected Entries
 
