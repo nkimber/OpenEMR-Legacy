@@ -2118,6 +2118,14 @@ ORDER BY procedure_result_id;
 
     return { patientId: pid, orders };
   }
+
+  async getProcedureResultsForEncounter(pid: number, encounter: number): Promise<ProcedureResultsSummary> {
+    const procedures = await this.getProcedureResultsForPatient(pid);
+    return {
+      patientId: pid,
+      orders: procedures.orders.filter((order) => order.encounterId === encounter)
+    };
+  }
 }
 
 export function buildOperationalReportExportRows(reports: OperationalReportsSummary): OperationalReportExportRow[] {

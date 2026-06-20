@@ -17,6 +17,7 @@ param(
         "encounter-documents",
         "encounter-billing",
         "encounter-claims",
+        "encounter-procedures",
         "document-content",
         "document-preview",
         "document-revision",

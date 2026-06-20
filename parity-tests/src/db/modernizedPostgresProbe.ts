@@ -1463,6 +1463,14 @@ ORDER BY id;
 
     return { patientId: pid, orders };
   }
+
+  async getProcedureResultsForEncounter(pid: number, encounter: number): Promise<ProcedureResultsSummary> {
+    const procedures = await this.getProcedureResultsForPatient(pid);
+    return {
+      patientId: pid,
+      orders: procedures.orders.filter((order) => order.encounterId === encounter)
+    };
+  }
 }
 
 function parsePostgresRows<T extends Record<string, string>>(stdout: string): T[] {

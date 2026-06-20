@@ -5005,6 +5005,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 096. Modernized Encounter Procedure Order Linkage Slice 70
+
+Commit: this commit
+Started: `2026-06-20T03:54:11-04:00`
+Finished: `2026-06-20T04:27:20.1175217-04:00`
+
+Implemented the seventieth modernized OpenEMR vertical slice: encounter procedure order linkage readiness, focused on proving that lab procedure orders, reports, and result rows linked to a specific encounter can be surfaced through the modernized Encounter detail API and rendered in the modernized Encounters workspace while matching the shared legacy parity contract.
+
+Key outcomes:
+
+- Extended the modernized Encounter detail contract with linked procedure orders, nested reports, and nested lab result rows.
+- Added repository logic that loads `lab_orders`, `lab_reports`, and `lab_results` for the selected encounter and composes them into the Encounter detail read path.
+- Fixed the new repository read path so the lab-order reader is disposed before nested report/result queries run on the same Npgsql connection.
+- Added a `Procedure Orders` section to the React Encounters workspace with linked-order count, result count, order metadata, report review/status metadata, and result value/range cards.
+- Added modernized smoke coverage for `MOD-PAT-0001` encounter `1000011`, procedure order `5000001`, report `6000001`, and four final result rows including `Hemoglobin A1c` value `5.7 %`.
+- Added the `encounter-procedures` parity suite and `slice-70-encounter-procedures-readiness` plan for both legacy and modernized targets.
+- Aligned the legacy UI assertion with OpenEMR's actual procedure-result page rendering, which shows the report accession/result rows rather than the order CPT/procedure code.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 70 encounter procedures plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000011`, procedure order `5000001`, report `6000001`, and seeded result rows; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `git diff --check`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build` in `modernized-openemr/` so the running API and UI containers included the encounter procedure-order changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 72 smoke checks, including `anchor encounter procedure order linkage`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-70-encounter-procedures-readiness -Reset run` passed with run `2026-06-20T082619-586Z-legacy-openemr-plan-slice-70-encounter-procedures-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-70-encounter-procedures-readiness -Reset run` passed with run `2026-06-20T082651-605Z-modernized-openemr-plan-slice-70-encounter-procedures-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-70-encounter-procedures-readiness` matched with comparison `2026-06-20T082712-727Z-legacy-openemr-vs-modernized-openemr-plan-slice-70-encounter-procedures-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/encounter-procedures/encounter-procedure-linkage.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

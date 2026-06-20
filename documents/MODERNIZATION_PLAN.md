@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order linkage, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, and read-only encounter claim-status linkage visibility is covered by Slice 69; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, and read-only encounter procedure-order linkage visibility is covered by Slice 70; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2113,6 +2113,33 @@ Current limitations:
 
 - This slice proves read-only encounter-to-claim-status visibility. It does not implement encounter-scoped claim creation, claim generation, clearing, denial workflow, payer edits, X12 submission, or payment posting from the encounter screen.
 
+### Slice 70: Encounter Procedure Order Linkage Readiness
+
+Status:
+
+- Implemented as a read-only modernized encounter-procedure-order linkage slice under `modernized-openemr/`.
+- Verification is the shared `slice-70-encounter-procedures-readiness` plan, which validates lab procedure orders, reports, and results linked to the same encounter anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded `MOD-PAT-0001` encounter `1000011` procedure-order anchor; it does not add permanent gold-data records.
+- ASP.NET Core encounter detail responses now include linked procedure orders with order id, encounter, provider, order date, priority, code, name, procedure type, diagnosis, instructions, status, reports, and result rows.
+- React Encounters workspace now renders a `Procedure Orders` section for the selected encounter, including linked-order count, result count, order metadata, report review/status metadata, and result value/range cards.
+- Modernized smoke coverage validates that encounter `1000011` exposes order `5000001`, report `6000001`, and four final result rows including `Hemoglobin A1c` value `5.7 %`.
+- The `encounter-procedures` parity suite and `slice-70-encounter-procedures-readiness` plan verify normalized legacy and modernized database state, legacy procedure-result rendering, modernized API fields, modernized UI rendering, and side-by-side result matching.
+- Workbench-managed Slice 70 encounter procedure-order plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Encounter detail for `MOD-PAT-0001` encounter `1000011` exposes exactly one linked procedure order: `5000001`.
+- The linked order has code `83036`, name `Hemoglobin A1c`, order date `2026-02-18`, status `complete`, priority `routine`, diagnosis `E11.9`, one reviewed/complete report `6000001`, and four final result rows.
+- The modernized Encounters workspace renders linked procedure order/report/result detail inside the encounter detail surface without requiring the user to switch to the standalone Procedures workspace.
+- The side-by-side Slice 70 parity comparison matches.
+
+Current limitations:
+
+- This slice proves read-only encounter-to-procedure-order visibility. It does not implement encounter-scoped order creation, order signing, result amendment, specimen collection, external lab interface workflows, or order/result mutation from the encounter screen.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2243,3 +2270,4 @@ As of 2026-06-19:
 - The sixty-seventh modernized vertical slice implements encounter document attachment readiness with ASP.NET Core encounter detail document fields, React Encounters attached-document rendering, normalized legacy/modernized document probes, Workbench encounter documents plan actions, smoke coverage, and side-by-side slice-67 parity evidence.
 - The sixty-eighth modernized vertical slice implements encounter billing linkage readiness with ASP.NET Core encounter detail billing fields, React Encounters Fee Sheet Linkage rendering, normalized legacy/modernized billing probes, Workbench encounter billing plan actions, smoke coverage, and side-by-side slice-68 parity evidence.
 - The sixty-ninth modernized vertical slice implements encounter claim linkage readiness with ASP.NET Core encounter detail claim fields, React Encounters Claim Linkage rendering, normalized legacy/modernized claim probes, Workbench encounter claims plan actions, smoke coverage, and side-by-side slice-69 parity evidence.
+- The seventieth modernized vertical slice implements encounter procedure order linkage readiness with ASP.NET Core encounter detail procedure-order/report/result fields, React Encounters Procedure Orders rendering, normalized legacy/modernized procedure probes, Workbench encounter procedure-order plan actions, smoke coverage, and side-by-side slice-70 parity evidence.
