@@ -7,6 +7,7 @@ import type {
   AccessPermissionAssignment,
   AccessPermissionMutation,
   AppointmentRecord,
+  AppointmentSeriesOccurrence,
   AppointmentUpdate,
   BillingLineCorrection,
   BillingLineRecord,
@@ -583,6 +584,54 @@ LIMIT 1;
       repeatUnit: nullableNumber(row.repeatUnit),
       recurrenceEndDate: row.recurrenceEndDate
     };
+  }
+
+  async getAppointmentSeriesOccurrences(patientId: number | string, fromDate: string): Promise<AppointmentSeriesOccurrence[]> {
+    const params = new URLSearchParams({
+      patientId: String(patientId),
+      from: fromDate,
+      limit: "100"
+    });
+    const response = await fetch(`${this.target.apiBaseUrl}/api/appointments?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Modernized appointment series search failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const payload = (await response.json()) as {
+      appointments: Array<{
+        id: string;
+        seriesRootId: string;
+        patientId: string;
+        legacyPid: number;
+        title: string;
+        date: string;
+        startTime: string;
+        recurrenceType: number;
+        repeatFrequency: number | null;
+        repeatUnit: number | null;
+        recurrenceEndDate: string | null;
+        occurrenceNumber: number | null;
+        isVirtualOccurrence: boolean;
+        isRecurringSeries: boolean;
+      }>;
+    };
+
+    return payload.appointments
+      .filter((appointment) => appointment.isRecurringSeries)
+      .map((appointment) => ({
+        id: appointment.id,
+        seriesRootId: appointment.seriesRootId,
+        patientId: appointment.legacyPid,
+        title: appointment.title,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        recurrenceType: appointment.recurrenceType,
+        repeatFrequency: appointment.repeatFrequency,
+        repeatUnit: appointment.repeatUnit,
+        recurrenceEndDate: appointment.recurrenceEndDate,
+        occurrenceNumber: appointment.occurrenceNumber ?? 1,
+        isVirtualOccurrence: appointment.isVirtualOccurrence
+      }));
   }
 
   async updateAppointmentStatus(id: number | string, status: string, title: string): Promise<void> {

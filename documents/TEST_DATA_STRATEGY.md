@@ -156,7 +156,7 @@ This dataset includes named synthetic personas and workflow data for:
 - Patient creation and demographic editing.
 - Appointments.
 - Seeded OpenEMR appointment categories `9` Established Patient, `10` New Patient, and `13` Preventive Care Services.
-- Appointment comments and regular recurrence metadata anchors.
+- Appointment comments, regular recurrence metadata anchors, and generated recurring-series read expectations.
 - Encounters.
 - Vitals.
 - Notes.

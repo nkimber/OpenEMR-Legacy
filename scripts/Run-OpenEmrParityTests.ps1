@@ -58,6 +58,7 @@ param(
         "workflow-appointment-billing-location",
         "workflow-appointment-comments",
         "workflow-appointment-recurrence",
+        "workflow-appointment-series",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",

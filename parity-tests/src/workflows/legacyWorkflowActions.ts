@@ -67,6 +67,21 @@ export type AppointmentRecord = {
   recurrenceEndDate: string | null;
 };
 
+export type AppointmentSeriesOccurrence = {
+  id: number | string;
+  seriesRootId: number | string;
+  patientId: number;
+  title: string;
+  date: string;
+  startTime: string;
+  recurrenceType: number;
+  repeatFrequency: number | null;
+  repeatUnit: number | null;
+  recurrenceEndDate: string | null;
+  occurrenceNumber: number;
+  isVirtualOccurrence: boolean;
+};
+
 export type ClinicalListRecord = {
   id: number | string;
   patientId: number;
@@ -1337,6 +1352,34 @@ LIMIT 1;
       homeText: row.homeText,
       ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate)
     };
+  }
+
+  async getAppointmentSeriesOccurrences(patientId: number | string, fromDate: string): Promise<AppointmentSeriesOccurrence[]> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_title AS title,
+  DATE(e.pc_eventDate) AS anchorDate, e.pc_startTime AS startTime,
+  e.pc_recurrtype AS recurrenceType, COALESCE(e.pc_recurrspec, '') AS recurrenceSpec,
+  DATE(e.pc_endDate) AS recurrenceEndDate
+FROM openemr_postcalendar_events e
+WHERE e.pc_pid = ${integer(Number(patientId))}
+  AND e.pc_recurrtype > 0
+  AND e.pc_endDate >= ${sqlString(fromDate)}
+ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
+`);
+    return rows.flatMap((row) => {
+      const recurrence = parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate);
+      return expandAppointmentSeriesOccurrences({
+        id: Number(row.id),
+        patientId: Number(row.patientId),
+        title: row.title,
+        anchorDate: row.anchorDate,
+        startTime: row.startTime,
+        recurrenceType: recurrence.recurrenceType,
+        repeatFrequency: recurrence.repeatFrequency,
+        repeatUnit: recurrence.repeatUnit,
+        recurrenceEndDate: recurrence.recurrenceEndDate
+      }, fromDate);
+    });
   }
 
   async updateAppointmentStatus(id: number | string, status: string, title: string): Promise<void> {
@@ -2955,6 +2998,97 @@ function serializeAppointmentRecurrence(type: number, repeatFrequency: number | 
     .map(([key, value]) => `s:${key.length}:"${key}";s:${value.length}:"${value}";`)
     .join("");
   return `a:${Object.keys(fields).length}:{${serialized}}`;
+}
+
+function expandAppointmentSeriesOccurrences(
+  appointment: {
+    id: number | string;
+    patientId: number;
+    title: string;
+    anchorDate: string;
+    startTime: string;
+    recurrenceType: number;
+    repeatFrequency: number | null;
+    repeatUnit: number | null;
+    recurrenceEndDate: string | null;
+  },
+  fromDate: string
+): AppointmentSeriesOccurrence[] {
+  if (appointment.recurrenceType <= 0 || !appointment.recurrenceEndDate) {
+    return [];
+  }
+
+  const from = parseDateOnly(fromDate);
+  const end = parseDateOnly(appointment.recurrenceEndDate);
+  const repeatFrequency = Math.max(1, appointment.repeatFrequency ?? 1);
+  const occurrences: AppointmentSeriesOccurrence[] = [];
+  let current = parseDateOnly(appointment.anchorDate);
+  for (let occurrenceNumber = 1; current <= end && occurrenceNumber <= 366; occurrenceNumber++) {
+    if (current >= from) {
+      occurrences.push({
+        id: occurrenceNumber === 1 ? appointment.id : `${appointment.id}::occurs::${formatDateOnly(current)}`,
+        seriesRootId: appointment.id,
+        patientId: appointment.patientId,
+        title: appointment.title,
+        date: formatDateOnly(current),
+        startTime: appointment.startTime,
+        recurrenceType: appointment.recurrenceType,
+        repeatFrequency: appointment.repeatFrequency,
+        repeatUnit: appointment.repeatUnit,
+        recurrenceEndDate: appointment.recurrenceEndDate,
+        occurrenceNumber,
+        isVirtualOccurrence: occurrenceNumber > 1
+      });
+    }
+
+    const next = getNextSeriesOccurrenceDate(current, repeatFrequency, appointment.repeatUnit);
+    if (next <= current) {
+      break;
+    }
+    current = next;
+  }
+
+  return occurrences;
+}
+
+function parseDateOnly(value: string) {
+  return new Date(`${value}T00:00:00Z`);
+}
+
+function formatDateOnly(value: Date) {
+  return value.toISOString().slice(0, 10);
+}
+
+function getNextSeriesOccurrenceDate(value: Date, repeatFrequency: number, repeatUnit: number | null) {
+  const next = new Date(value.getTime());
+  switch (repeatUnit) {
+    case 0:
+      next.setUTCDate(next.getUTCDate() + repeatFrequency);
+      return next;
+    case 2:
+      next.setUTCMonth(next.getUTCMonth() + repeatFrequency);
+      return next;
+    case 3:
+      next.setUTCFullYear(next.getUTCFullYear() + repeatFrequency);
+      return next;
+    case 4:
+      return addWorkdays(value, repeatFrequency);
+    default:
+      next.setUTCDate(next.getUTCDate() + repeatFrequency * 7);
+      return next;
+  }
+}
+
+function addWorkdays(value: Date, workdays: number) {
+  const next = new Date(value.getTime());
+  let added = 0;
+  while (added < workdays) {
+    next.setUTCDate(next.getUTCDate() + 1);
+    if (next.getUTCDay() !== 0 && next.getUTCDay() !== 6) {
+      added++;
+    }
+  }
+  return next;
 }
 
 function buildCollectionsFollowUpBody(input: NewCollectionsFollowUpTask) {
