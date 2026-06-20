@@ -16,6 +16,7 @@ param(
         "documents",
         "document-content",
         "document-preview",
+        "document-revision",
         "insurance",
         "immunizations",
         "procedures",

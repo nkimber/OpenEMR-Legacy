@@ -36,6 +36,7 @@ import type {
 } from "./legacyMariaDbProbe.js";
 import {
   buildAccountLedgerEntries,
+  buildPatientDocumentRevisionFields,
   buildPatientDocumentPreviewFields,
   buildOperationalReportExportRows,
   buildPatientStatementSummary
@@ -464,6 +465,7 @@ ORDER BY
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
+  uploaded_at AS "revisionAt",
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
   COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
@@ -488,6 +490,7 @@ ORDER BY doc_date DESC, id DESC;
           name: row.name,
           docDate: row.docDate,
           uploadedAt: row.uploadedAt,
+          revisionAt: row.revisionAt,
           mimetype: row.mimetype,
           sizeBytes: Number(row.sizeBytes),
           pages: Number(row.pages),
@@ -502,6 +505,7 @@ ORDER BY doc_date DESC, id DESC;
 
         return {
           ...document,
+          ...buildPatientDocumentRevisionFields(document),
           ...buildPatientDocumentPreviewFields(document)
         };
       })
@@ -512,6 +516,7 @@ ORDER BY doc_date DESC, id DESC;
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
+  uploaded_at AS "revisionAt",
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
   COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
@@ -542,6 +547,7 @@ LIMIT 1;
       name: row.name,
       docDate: row.docDate,
       uploadedAt: row.uploadedAt,
+      revisionAt: row.revisionAt,
       mimetype: row.mimetype,
       fileName: row.fileName,
       sizeBytes: Number(row.sizeBytes),
@@ -561,6 +567,7 @@ LIMIT 1;
 
     return {
       ...document,
+      ...buildPatientDocumentRevisionFields(document),
       ...buildPatientDocumentPreviewFields(document)
     };
   }

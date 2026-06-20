@@ -1626,7 +1626,35 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and derives preview readiness from existing metadata/content rather than generating image thumbnails.
-- Scanned attachment ingestion, rendered PDF/image thumbnails, version history, OCR, external storage adapters, and document exchange integrations remain future document slices.
+- Scanned attachment ingestion, rendered PDF/image thumbnails, multi-version history, OCR, external storage adapters, and document exchange integrations remain future document slices.
+
+### Slice 54: Document Revision Readiness
+
+Status:
+
+- Implemented as a read-only modernized patient-document slice under `modernized-openemr/`.
+- Verification is the shared `slice-54-document-revision-readiness` plan, which validates current revision timestamp, current version label, version-history count, revision hash, and modernized document-card/viewer rendering for the stable document anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses existing `MOD-PAT-0001` patient-document metadata, `documents.revision` facts in legacy MariaDB, and current uploaded/revision timestamps in the modernized PostgreSQL document rows; it does not add new gold-data records.
+- ASP.NET Core document read behavior now returns current revision-readiness fields for every document row: revision timestamp, current version number, version label, version status, history count, prior-version flag, and revision hash.
+- React Documents workspace now shows current revision-readiness facts on each document card and in the document viewer while preserving the existing list, preview, download, metadata, archive, review, external-link, and content-replacement behavior.
+- Modernized smoke coverage validates the `MOD-PAT-0001` seeded document revision readiness facts.
+- The `document-revision` parity suite and `slice-54-document-revision-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL revision-readiness rows, plus browser-visible modernized Documents rendering.
+- Workbench-managed Slice 54 document revision plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute `Primary care intake packet` and `Advance directive acknowledgement` as `Version 1`, `Current version`, one current history entry, no prior versions, and revision hashes matching the stored document hash.
+- Direct probes compute current revision timestamps of `2026-06-10 14:30:00` and `2026-06-12 15:00:00` for the two anchor documents.
+- The modernized document API and Documents workspace render those same revision-readiness facts without changing seeded document rows.
+- The side-by-side Slice 54 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and models the current legacy document revision row rather than implementing full document version history.
+- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanned attachment ingestion, OCR, external storage adapters, and document exchange integrations remain future document slices.
 
 ## Test Strategy
 
@@ -1742,3 +1770,4 @@ As of 2026-06-19:
 - The fifty-first modernized vertical slice implements read-only account ledger visibility by deriving canonical chronological charge, payment, adjustment, and running-balance entries from existing seeded billing/payment rows, adding ASP.NET Core billing ledger summaries, React Fees Account Ledger rendering, Workbench account ledger plan action, smoke coverage, and side-by-side slice-51 parity evidence.
 - The fifty-second modernized vertical slice implements read-only account statement readiness by deriving recipient, statement-period, due-date, current-due, past-due, oldest-open, and balance-due facts from existing seeded demographics, billing, payment, aging, and ledger rows, adding ASP.NET Core billing statement summaries, React Fees Statement Readiness rendering, Workbench account statement plan action, smoke coverage, and side-by-side slice-52 parity evidence.
 - The fifty-third modernized vertical slice implements read-only patient document preview readiness by deriving preview kind, inline-readiness, thumbnail labels, and thumbnail text from existing seeded document metadata/content rows, adding ASP.NET Core document preview fields, React Documents thumbnail rendering, Workbench document preview plan action, smoke coverage, and side-by-side slice-53 parity evidence.
+- The fifty-fourth modernized vertical slice implements read-only patient document revision readiness by deriving current version, revision timestamp, history count, prior-version state, and revision hash from existing seeded document metadata rows, adding ASP.NET Core document revision fields, React Documents revision rendering, Workbench document revision plan action, smoke coverage, and side-by-side slice-54 parity evidence.

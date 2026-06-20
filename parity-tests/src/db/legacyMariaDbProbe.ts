@@ -144,6 +144,13 @@ export type PatientDocumentSummary = {
   name: string;
   docDate: string;
   uploadedAt: string;
+  revisionAt: string;
+  currentVersion: number;
+  versionLabel: string;
+  versionStatus: string;
+  versionHistoryCount: number;
+  hasPriorVersions: boolean;
+  revisionHash: string;
   mimetype: string;
   fileName: string;
   sizeBytes: number;
@@ -181,6 +188,39 @@ export type PatientDocumentPreviewFields = {
   canPreviewInline: boolean;
   canDownload: boolean;
 };
+
+export type PatientDocumentRevisionFields = {
+  revisionAt: string;
+  currentVersion: number;
+  versionLabel: string;
+  versionStatus: string;
+  versionHistoryCount: number;
+  hasPriorVersions: boolean;
+  revisionHash: string;
+};
+
+export function buildPatientDocumentRevisionFields(input: {
+  revisionAt?: string | null;
+  uploadedAt?: string | null;
+  hash?: string | null;
+  currentVersion?: number | null;
+  versionHistoryCount?: number | null;
+}): PatientDocumentRevisionFields {
+  const currentVersion = input.currentVersion && input.currentVersion > 0 ? input.currentVersion : 1;
+  const versionHistoryCount = input.versionHistoryCount && input.versionHistoryCount > 0
+    ? input.versionHistoryCount
+    : currentVersion;
+
+  return {
+    revisionAt: normalizeText(input.revisionAt) || normalizeText(input.uploadedAt),
+    currentVersion,
+    versionLabel: `Version ${currentVersion}`,
+    versionStatus: "Current version",
+    versionHistoryCount,
+    hasPriorVersions: versionHistoryCount > 1,
+    revisionHash: normalizeText(input.hash)
+  };
+}
 
 export function buildPatientDocumentPreviewFields(input: {
   mimetype?: string | null;
@@ -999,6 +1039,7 @@ SELECT d.id,
   d.name,
   DATE(d.docdate) AS docDate,
   d.date AS uploadedAt,
+  d.revision AS revisionAt,
   COALESCE(d.mimetype, '') AS mimetype,
   COALESCE(d.name, '') AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
@@ -1027,6 +1068,7 @@ ORDER BY d.docdate DESC, d.id DESC;
           name: row.name,
           docDate: row.docDate,
           uploadedAt: row.uploadedAt,
+          revisionAt: row.revisionAt,
           mimetype: row.mimetype,
           fileName: row.fileName,
           sizeBytes: Number(row.sizeBytes),
@@ -1041,6 +1083,7 @@ ORDER BY d.docdate DESC, d.id DESC;
 
         return {
           ...document,
+          ...buildPatientDocumentRevisionFields(document),
           ...buildPatientDocumentPreviewFields(document)
         };
       })
@@ -1061,6 +1104,7 @@ SELECT d.id,
   d.name,
   DATE(d.docdate) AS docDate,
   d.date AS uploadedAt,
+  d.revision AS revisionAt,
   COALESCE(d.mimetype, '') AS mimetype,
   COALESCE(d.name, '') AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
@@ -1092,6 +1136,7 @@ LIMIT 1;
       name: row.name,
       docDate: row.docDate,
       uploadedAt: row.uploadedAt,
+      revisionAt: row.revisionAt,
       mimetype: row.mimetype,
       fileName: row.fileName,
       sizeBytes: Number(row.sizeBytes),
@@ -1109,6 +1154,7 @@ LIMIT 1;
 
     return {
       ...document,
+      ...buildPatientDocumentRevisionFields(document),
       ...buildPatientDocumentPreviewFields(document)
     };
   }
