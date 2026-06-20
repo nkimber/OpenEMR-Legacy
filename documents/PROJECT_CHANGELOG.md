@@ -6515,6 +6515,57 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 123. Modernized Appointment Arrival Slice 94
+
+Commit: current slice commit
+Started: `2026-06-20T15:29:00-04:00`
+Finished: `2026-06-20T15:48:27-04:00`
+
+Implemented the ninety-fourth modernized OpenEMR vertical slice: appointment arrival readiness, adding same-day arrival/check-in status behavior for selected appointments while proving temporary appointment create/arrive/render/delete parity against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 378
+- Lines deleted: 39
+- Net lines: 339
+- Total churn: 417
+
+Key outcomes:
+
+- Added a modernized Calendar detail action that marks the selected appointment arrived with OpenEMR-compatible `@` status.
+- Reused the modernized appointment status endpoint so arrival behavior remains part of the server-side scheduling contract.
+- Extended the modernized smoke test with an `appointment arrival lifecycle` check.
+- Added the `workflow-appointment-arrival` Playwright parity suite and the `slice-94-appointment-arrival-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 94 appointment arrival plan.
+- Updated synchronized project documents so the current modernization state is Slice 94 with thirty-four read-only slices and sixty mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 95 checks, including `appointment arrival lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-94-appointment-arrival-readiness -Reset test` passed; run `2026-06-20T194544-259Z-legacy-openemr-plan-slice-94-appointment-arrival-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-94-appointment-arrival-readiness -Reset test` passed; run `2026-06-20T194610-203Z-modernized-openemr-plan-slice-94-appointment-arrival-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-94-appointment-arrival-readiness` passed with `status: matched`; comparison `2026-06-20T194642-254Z-legacy-openemr-vs-modernized-openemr-plan-slice-94-appointment-arrival-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from generated/test-maintained files.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-arrival/appointment-arrival.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

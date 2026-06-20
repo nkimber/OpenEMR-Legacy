@@ -48,6 +48,7 @@ param(
         "workflow-registration",
         "workflow-appointments",
         "workflow-appointment-reschedule",
+        "workflow-appointment-arrival",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
