@@ -1750,6 +1750,14 @@ VALUES (${integer(input.categoryId)}, ${integer(legacyId)});
 `);
   }
 
+  async updateEncounterDocumentMetadata(
+    _encounter: number,
+    id: number | string,
+    input: PatientDocumentMetadataUpdate
+  ): Promise<void> {
+    await this.updatePatientDocumentMetadata(id, input);
+  }
+
   async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
     const legacyId = legacyInteger(id);
     const content = `Gold synthetic document ${input.fileName}\n${input.content}`;

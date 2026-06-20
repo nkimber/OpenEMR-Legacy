@@ -1103,6 +1103,31 @@ LIMIT 1;
     }
   }
 
+  async updateEncounterDocumentMetadata(
+    encounter: number,
+    id: number | string,
+    input: PatientDocumentMetadataUpdate
+  ): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/metadata`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          categoryId: input.categoryId,
+          name: input.name,
+          docDate: input.docDate,
+          encounter: input.encounter,
+          notes: input.notes
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document metadata update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content`, {
       method: "PUT",

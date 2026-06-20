@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, focused encounter sign-off is covered by Slice 77, focused encounter-scoped text document upload is covered by Slice 78, focused encounter-scoped PDF/binary upload is covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81; scanned capture workflows, full encounter document routing, full encounter document version-history behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
+- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, focused encounter sign-off is covered by Slice 77, focused encounter-scoped text document upload is covered by Slice 78, focused encounter-scoped PDF/binary upload is covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, and focused encounter-scoped document metadata refiling is covered by Slice 82; scanned capture workflows, full encounter document routing, full encounter document version-history behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2359,7 +2359,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped text attachment parity from the Encounter workspace. Binary encounter attachments are covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81. Scanned upload capture, document routing, full document version history from the encounter screen, authorization, and audit-log export remain future work.
+- This slice proves focused encounter-scoped text attachment parity from the Encounter workspace. Binary encounter attachments are covered by Slice 79, focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, and focused encounter-scoped document metadata refiling is covered by Slice 82. Scanned upload capture, document routing, full document version history from the encounter screen, authorization, and audit-log export remain future work.
 
 ### Slice 79: Encounter Binary Document Upload Readiness
 
@@ -2387,7 +2387,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, and focused encounter-scoped document denial is covered by Slice 81. Scanner integration, image thumbnail generation, external object storage, document routing queues, full version history from the encounter screen, authorization, and audit-log export remain future work.
+- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, and focused encounter-scoped document metadata refiling is covered by Slice 82. Scanner integration, image thumbnail generation, external object storage, document routing queues, full version history from the encounter screen, authorization, and audit-log export remain future work.
 
 ### Slice 80: Encounter Document Sign-Off Readiness
 
@@ -2416,7 +2416,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped document sign-off parity from the Encounter workspace. Denial from the encounter-attached document panel is covered by Slice 81. Role-based signing authorization, route queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
+- This slice proves focused encounter-scoped document sign-off parity from the Encounter workspace. Denial from the encounter-attached document panel is covered by Slice 81, and metadata refiling from the encounter-attached document panel is covered by Slice 82. Role-based signing authorization, route queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
 
 ### Slice 81: Encounter Document Denial Readiness
 
@@ -2445,7 +2445,35 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped document denial parity from the Encounter workspace. Role-based denial authorization, routing queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
+- This slice proves focused encounter-scoped document denial parity from the Encounter workspace. Encounter document metadata refiling from the encounter-attached document panel is covered by Slice 82. Role-based denial authorization, routing queues, co-signature/amendment policy, full version history from the encounter screen, and audit-log export remain future work.
+
+### Slice 82: Encounter Document Metadata Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter-scoped document metadata readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-82-encounter-document-metadata-readiness` plan, which creates a temporary document attached to an existing encounter, refiles its metadata while keeping it attached to the same encounter, validates normalized document facts and browser-visible rendering, deletes the document, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The ASP.NET Core encounter API exposes `PUT /api/encounters/{encounter}/documents/{documentId}/metadata`, validating that the selected document belongs to the selected encounter and preserving the selected encounter link during the metadata update.
+- The modernized frontend API exposes encounter document metadata updates as a named helper instead of relying only on generic patient-document refiling behavior.
+- The modernized Encounters workspace renders inline Edit controls on attached-document cards for name, category, document date, linked encounter, and notes, refreshes the encounter detail after save, and displays metadata save feedback.
+- The modernized smoke test now includes an `encounter document metadata lifecycle` check that creates a temporary text document on `MOD-PAT-0001` encounter `1000013`, refiles it to `Advance Directive`, verifies updated metadata, deletes it, and verifies cleanup.
+- The parity workflow reuses `MOD-PAT-0001` encounter `1000013`, creates a temporary `Medical Record` text document through target-specific workflow adapters, updates name/category/date/notes while preserving the encounter link, verifies legacy or modernized document facts, renders the legacy Documents category view or modernized Encounter attached-document panel, and hard-deletes the document.
+- Workbench-managed Slice 82 encounter document metadata plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary encounter-scoped text document increases the patient's document count and the selected encounter's attached-document count by one.
+- Refiling the encounter-attached document records updated name, `Advance Directive` category, document date, notes, and preserved encounter id consistently across both targets.
+- The modernized Encounter attached-document panel renders the updated metadata and notes after the inline Save Metadata action.
+- Hard-delete cleanup restores the seeded patient document count and the seeded encounter-attached document count.
+- The side-by-side Slice 82 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter-scoped document metadata refiling parity from the Encounter workspace while keeping the document attached to the selected encounter. Moving documents between encounters, scanner routing, role-based metadata authorization, full version history from the encounter screen, and audit-log export remain future work.
 
 ## Test Strategy
 
@@ -2589,3 +2617,4 @@ As of 2026-06-20:
 - The seventy-ninth modernized vertical slice implements encounter binary document upload readiness with an ASP.NET Core encounter-scoped binary document endpoint, React Encounters file upload controls, normalized legacy/modernized workflow probes, Workbench encounter binary document upload plan actions, smoke coverage, download verification, and side-by-side slice-79 parity evidence.
 - The eightieth modernized vertical slice implements encounter document sign-off readiness with an ASP.NET Core encounter-scoped sign endpoint, React Encounters attached-document review controls, normalized legacy/modernized workflow probes, Workbench encounter document sign-off plan actions, smoke coverage, and side-by-side slice-80 parity evidence.
 - The eighty-first modernized vertical slice implements encounter document denial readiness with React Encounters attached-document Deny controls, existing ASP.NET Core encounter-scoped review endpoint support for `denied`, normalized legacy/modernized workflow probes, Workbench encounter document denial plan actions, smoke coverage, and side-by-side slice-81 parity evidence.
+- The eighty-second modernized vertical slice implements encounter document metadata readiness with an ASP.NET Core encounter-scoped metadata endpoint, React Encounters attached-document Edit controls, normalized legacy/modernized workflow probes, Workbench encounter document metadata plan actions, smoke coverage, and side-by-side slice-82 parity evidence.

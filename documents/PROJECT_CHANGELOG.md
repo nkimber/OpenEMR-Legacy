@@ -5745,6 +5745,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 109. Modernized Encounter Document Metadata Slice 82
+
+Commit: this commit
+Started: `2026-06-20T09:55:00-04:00`
+Finished: `2026-06-20T10:26:19.6833964-04:00`
+
+Implemented the eighty-second modernized OpenEMR vertical slice: focused encounter document metadata readiness, adding encounter-attached document Edit controls to the modernized Encounters workspace and proving the same temporary document create/refile/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 714
+- Lines deleted: 51
+- Net lines: 663
+- Total churn: 765
+
+Key outcomes:
+
+- Added a guarded encounter-scoped metadata update API endpoint that preserves the requested encounter link and rejects mismatched encounter metadata requests.
+- Added a modernized frontend API helper for encounter document metadata updates.
+- Added Encounters attached-document Edit controls for name, category, date, notes, and read-only encounter reference, with save/cancel feedback and refreshed encounter detail rendering.
+- Added modernized smoke coverage for the encounter document metadata lifecycle.
+- Added legacy and modernized workflow adapter methods plus the `workflow-encounter-document-metadata` Playwright parity suite.
+- Added the `slice-82-encounter-document-metadata-readiness` plan, package scripts, runner allow-list, Workbench commands/cards, and architecture/progress status updates.
+- Updated synchronized project documents so the current modernization state is Slice 82 with thirty-four read-only slices and forty-eight mutation-capable slices.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` in `modernized-openemr/backend` passed.
+- `npm run build` in `modernized-openemr/frontend` passed.
+- `npm run build` in `modernization-workbench` passed.
+- `docker compose up -d --build api frontend` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` in `modernized-openemr` passed with 83 checks; artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-82-encounter-document-metadata-readiness -Reset test` passed; run `2026-06-20T142253-217Z-legacy-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-82-encounter-document-metadata-readiness -Reset test` passed; run `2026-06-20T142330-548Z-modernized-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-82-encounter-document-metadata-readiness` passed with `status: matched`; comparison `2026-06-20T142357-413Z-legacy-openemr-vs-modernized-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- `/api/changelog` smoke test on `http://127.0.0.1:5174` confirmed 109 total entries and documented code-change metrics for entry 109.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-metadata/encounter-document-metadata.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
