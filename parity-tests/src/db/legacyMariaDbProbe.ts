@@ -168,6 +168,11 @@ export type PatientDocumentSummary = {
   thumbnailDataUri: string | null;
   canPreviewInline: boolean;
   canDownload: boolean;
+  isScannedAttachment: boolean;
+  scanStatus: string;
+  captureSource: string;
+  scanPageCount: number;
+  ocrStatus: string;
 };
 
 export type PatientDocumentsSummary = {
@@ -189,6 +194,14 @@ export type PatientDocumentPreviewFields = {
   thumbnailDataUri: string | null;
   canPreviewInline: boolean;
   canDownload: boolean;
+};
+
+export type PatientDocumentScanFields = {
+  isScannedAttachment: boolean;
+  scanStatus: string;
+  captureSource: string;
+  scanPageCount: number;
+  ocrStatus: string;
 };
 
 export type PatientDocumentRevisionFields = {
@@ -298,6 +311,35 @@ export function buildPatientDocumentPreviewFields(input: {
   };
 }
 
+export function buildPatientDocumentScanFields(input: {
+  name?: string | null;
+  mimetype?: string | null;
+  storageMethod?: string | null;
+  fileName?: string | null;
+  notes?: string | null;
+  contentPreview?: string | null;
+  pages?: number | null;
+}): PatientDocumentScanFields {
+  const evidence = [
+    normalizeText(input.name),
+    normalizeText(input.mimetype),
+    normalizeText(input.storageMethod),
+    normalizeText(input.fileName),
+    normalizeText(input.notes),
+    normalizeText(input.contentPreview)
+  ].join(" ").toLowerCase();
+  const isScannedAttachment = evidence.includes("scan") || evidence.includes("scanner");
+  const scanPageCount = Math.max(input.pages ?? 0, isScannedAttachment ? 1 : 0);
+
+  return {
+    isScannedAttachment,
+    scanStatus: isScannedAttachment ? "Scanned attachment" : "Not scanned",
+    captureSource: isScannedAttachment ? extractCaptureSource(input.notes) ?? "Document scanner" : "Not captured by scanner",
+    scanPageCount,
+    ocrStatus: isScannedAttachment ? extractOcrStatus(input.notes, input.contentPreview) : "Not applicable"
+  };
+}
+
 function buildThumbnailDataUri(mimetype: string, contentBase64?: string | null): string | null {
   const normalizedContent = normalizeText(contentBase64);
   if (!mimetype.startsWith("image/") || normalizedContent.length === 0) {
@@ -333,6 +375,33 @@ function buildThumbnailLabel(fileName: string, mimetype: string): string {
 function trimThumbnailText(value: string): string {
   const normalized = normalizeText(value);
   return normalized.length <= 90 ? normalized : `${normalized.slice(0, 87)}...`;
+}
+
+function extractCaptureSource(notes?: string | null): string | null {
+  const normalized = normalizeText(notes);
+  const marker = "scan source:";
+  const markerIndex = normalized.toLowerCase().indexOf(marker);
+  if (markerIndex < 0) {
+    return null;
+  }
+
+  const sourceStart = markerIndex + marker.length;
+  const sourceEnd = normalized.indexOf(";", sourceStart);
+  const source = sourceEnd < 0 ? normalized.slice(sourceStart) : normalized.slice(sourceStart, sourceEnd);
+  return normalizeText(source) || null;
+}
+
+function extractOcrStatus(notes?: string | null, contentPreview?: string | null): string {
+  const evidence = `${normalizeText(notes)} ${normalizeText(contentPreview)}`.toLowerCase();
+  if (evidence.includes("ocr complete")) {
+    return "OCR complete";
+  }
+
+  if (evidence.includes("ocr failed")) {
+    return "OCR failed";
+  }
+
+  return evidence.includes("ocr pending") ? "OCR pending" : "OCR not started";
 }
 
 function normalizeText(value?: string | null): string {
@@ -1164,7 +1233,8 @@ ORDER BY d.docdate DESC, d.id DESC;
         return {
           ...document,
           ...buildPatientDocumentRevisionFields(document),
-          ...buildPatientDocumentPreviewFields(document)
+          ...buildPatientDocumentPreviewFields(document),
+          ...buildPatientDocumentScanFields(document)
         };
       })
     };
@@ -1243,7 +1313,8 @@ LIMIT 1;
     return {
       ...document,
       ...buildPatientDocumentRevisionFields(document),
-      ...buildPatientDocumentPreviewFields(document)
+      ...buildPatientDocumentPreviewFields(document),
+      ...buildPatientDocumentScanFields(document)
     };
   }
 

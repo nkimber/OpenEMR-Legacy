@@ -40,6 +40,7 @@ import {
   buildAccountLedgerEntries,
   buildPatientDocumentRevisionFields,
   buildPatientDocumentPreviewFields,
+  buildPatientDocumentScanFields,
   buildOperationalReportExportRows,
   buildPatientStatementSummary
 } from "./legacyMariaDbProbe.js";
@@ -514,7 +515,8 @@ ORDER BY doc_date DESC, id DESC;
         return {
           ...document,
           ...buildPatientDocumentRevisionFields(document),
-          ...buildPatientDocumentPreviewFields(document)
+          ...buildPatientDocumentPreviewFields(document),
+          ...buildPatientDocumentScanFields(document)
         };
       })
     };
@@ -584,7 +586,8 @@ LIMIT 1;
     return {
       ...document,
       ...buildPatientDocumentRevisionFields(document),
-      ...buildPatientDocumentPreviewFields(document)
+      ...buildPatientDocumentPreviewFields(document),
+      ...buildPatientDocumentScanFields(document)
     };
   }
 

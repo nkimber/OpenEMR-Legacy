@@ -110,6 +110,7 @@
         "parityDocumentImageThumbnailPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-89-document-image-thumbnail-readiness", "-Reset", "test"],
         "parityDocumentPdfPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-90-document-pdf-preview-readiness", "-Reset", "test"],
         "parityDocumentLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-91-document-lifecycle-readiness", "-Reset", "test"],
+        "parityDocumentScannedAttachmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-92-document-scanned-attachment-readiness", "-Reset", "test"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -864,6 +865,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-91-document-lifecycle-readiness.json"
         },
         {
+          "id": "parity-plan-document-scanned-attachment",
+          "name": "Slice 92 patient scanned attachment plan",
+          "description": "Runs the shared patient scanned attachment readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentScannedAttachmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-92-document-scanned-attachment-readiness.json"
+        },
+        {
           "id": "parity-plan-document-preview",
           "name": "Slice 53 document preview plan",
           "description": "Runs the shared read-only document preview readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1062,6 +1071,7 @@
         "parityDocumentImageThumbnailPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-89-document-image-thumbnail-readiness", "-Reset", "test"],
         "parityDocumentPdfPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-90-document-pdf-preview-readiness", "-Reset", "test"],
         "parityDocumentLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-91-document-lifecycle-readiness", "-Reset", "test"],
+        "parityDocumentScannedAttachmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-92-document-scanned-attachment-readiness", "-Reset", "test"],
         "parityDocumentPreviewPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-53-document-preview-readiness", "-Reset", "run"],
         "parityDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-54-document-revision-readiness", "-Reset", "run"],
         "parityDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-55-document-revision-replace-readiness", "-Reset", "run"],
@@ -1740,6 +1750,14 @@
           "layer": "plan",
           "commandName": "parityDocumentLifecyclePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-91-document-lifecycle-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-scanned-attachment",
+          "name": "Slice 92 patient scanned attachment plan",
+          "description": "Runs the shared patient scanned attachment readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentScannedAttachmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-92-document-scanned-attachment-readiness.json"
         },
         {
           "id": "parity-plan-document-preview",

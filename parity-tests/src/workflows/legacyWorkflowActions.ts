@@ -1,4 +1,4 @@
-import { escapeSql, type LegacyMariaDbProbe } from "../db/legacyMariaDbProbe.js";
+import { buildPatientDocumentScanFields, escapeSql, type LegacyMariaDbProbe } from "../db/legacyMariaDbProbe.js";
 
 export type PatientContact = {
   pid: number;
@@ -126,6 +126,11 @@ export type PatientDocumentRecord = {
   contentBase64: string;
   contentPreview: string;
   thumbnailDataUri: string | null;
+  isScannedAttachment: boolean;
+  scanStatus: string;
+  captureSource: string;
+  scanPageCount: number;
+  ocrStatus: string;
 };
 
 export type PatientInsuranceRecord = {
@@ -1718,7 +1723,7 @@ LIMIT 1;
 
     const contentBase64 = row.contentBase64.replace(/\\n/g, "").replace(/\s/g, "");
 
-    return {
+    const document = {
       id: Number(row.id),
       patientId: Number(row.patientId),
       documentKey: row.documentKey,
@@ -1740,6 +1745,11 @@ LIMIT 1;
       contentBase64,
       contentPreview: row.contentPreview,
       thumbnailDataUri: buildDocumentThumbnailDataUri(row.mimetype, contentBase64)
+    };
+
+    return {
+      ...document,
+      ...buildPatientDocumentScanFields(document)
     };
   }
 

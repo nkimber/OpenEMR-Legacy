@@ -361,7 +361,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Saved report definitions, scanned attachments, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Patient scanned attachment readiness is covered by Slice 92. Saved report definitions, scanner-device ingestion, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -1655,7 +1655,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and models the current legacy document revision row rather than implementing full document version history.
-- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanned attachment ingestion, OCR, external storage adapters, and document exchange integrations remain future document slices.
+- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and document exchange integrations remain future document slices.
 
 ### Slice 55: Document Replacement Revision Readiness
 
@@ -1685,7 +1685,7 @@ Acceptance:
 Current limitations:
 
 - This slice preserves the legacy in-place current-revision behavior rather than adding true prior-version storage.
-- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanned attachment ingestion, OCR, external storage adapters, and document exchange integrations remain future document slices.
+- Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and document exchange integrations remain future document slices.
 
 ### Slice 56: Payment Posting Mutation Readiness
 
@@ -2741,6 +2741,34 @@ Current limitations:
 
 - This slice exposes a derived patient document lifecycle timeline from current document fields. It is not a comprehensive audit-log export and does not yet model every user action, historical version row, scanner-routing state, authorization decision, route-queue transition, OCR state, or external storage event.
 
+### Slice 92: Patient Scanned Attachment Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient scanned attachment readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-92-document-scanned-attachment-readiness` plan, which creates a temporary scanned PDF patient document, verifies scan-readiness facts, renders them in the modernized Documents workspace, archives and deletes the document, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient document list and content responses now include `isScannedAttachment`, `scanStatus`, `captureSource`, `scanPageCount`, and `ocrStatus` derived from existing document metadata and notes.
+- React Documents cards render scan-readiness details for scanned attachments, and the Document Viewer renders the same status, capture source, page count, and OCR state.
+- Legacy and modernized parity probes normalize the same scan-readiness fields from the temporary document notes and metadata so both targets can be compared without changing permanent seed rows.
+- The modernized smoke test now includes a `patient scanned attachment readiness` check that creates a temporary PDF, verifies list/content scan facts, and deletes the document.
+- Workbench-managed Slice 92 patient scanned attachment plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A newly created temporary patient PDF document is stored on both targets with category `Medical Record`, MIME type `application/pdf`, storage method `database`, pending review state, and active document state.
+- Normalized scan-readiness metadata reports `Scanned attachment`, capture source `front-desk scanner`, one scanned page, and `OCR pending`.
+- The modernized Documents workspace document card and Document Viewer render the same scan-readiness facts.
+- Archiving hides the document from active document counts while preserving the archived row until hard-delete cleanup.
+- Hard-delete cleanup restores the seeded patient document count.
+- The side-by-side Slice 92 parity comparison matches.
+
+Current limitations:
+
+- This slice derives scan readiness from document metadata and notes. It does not implement scanner-device ingestion, OCR text extraction, scan queues, DICOM/TWAIN/WIA integration, multi-page image splitting, barcode routing, or external storage adapters.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2893,3 +2921,4 @@ As of 2026-06-20:
 - The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.
 - The ninetieth modernized vertical slice implements patient PDF document inline preview readiness with ASP.NET Core PDF inline-preview metadata, a React Documents viewer PDF iframe backed by the download endpoint, normalized legacy/modernized workflow probes, Workbench PDF document preview plan actions, smoke coverage, and side-by-side slice-90 parity evidence.
 - The ninety-first modernized vertical slice implements patient document lifecycle timeline readiness with ASP.NET Core lifecycle event derivation, React Documents card and viewer lifecycle rendering, normalized legacy/modernized workflow probes, Workbench document lifecycle plan actions, smoke coverage, and side-by-side slice-91 parity evidence.
+- The ninety-second modernized vertical slice implements patient scanned attachment readiness with ASP.NET Core scan-readiness derivation, React Documents card and viewer rendering, normalized legacy/modernized workflow probes, Workbench scanned attachment plan actions, smoke coverage, and side-by-side slice-92 parity evidence.

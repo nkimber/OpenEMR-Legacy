@@ -1,4 +1,5 @@
 import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
+import { buildPatientDocumentScanFields } from "../db/legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
 import type {
   AccessGroupMembership,
@@ -1085,7 +1086,7 @@ LIMIT 1;
 
     const contentBase64 = Buffer.from(row.contentHex, "hex").toString("base64");
 
-    return {
+    const document = {
       id: Number(row.id),
       patientId: Number(row.patientId),
       documentKey: row.documentKey,
@@ -1107,6 +1108,11 @@ LIMIT 1;
       contentBase64,
       contentPreview: row.contentPreview,
       thumbnailDataUri: buildDocumentThumbnailDataUri(row.mimetype, contentBase64)
+    };
+
+    return {
+      ...document,
+      ...buildPatientDocumentScanFields(document)
     };
   }
 

@@ -6399,12 +6399,71 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 121. Modernized Patient Scanned Attachment Slice 92
+
+Commit: current slice commit
+Started: `2026-06-20T14:43:30-04:00`
+Finished: `2026-06-20T15:06:14.7295955-04:00`
+
+Implemented the ninety-second modernized OpenEMR vertical slice: patient scanned attachment readiness, deriving scanned-attachment status, capture source, scanned page count, and OCR status from existing document metadata/notes while proving temporary scanned PDF patient-document create/render/archive/delete parity against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 24
+- Lines added: 661
+- Lines deleted: 46
+- Net lines: 615
+- Total churn: 707
+
+Key outcomes:
+
+- Added scan-readiness fields to modernized patient document list and content API responses.
+- Rendered scanned attachment status, capture source, scanned page count, and OCR status in modernized Documents cards and the document viewer.
+- Extended modernized smoke coverage with a self-cleaning `patient scanned attachment readiness` check.
+- Extended shared legacy and modernized parity probes/workflow adapters to normalize scan-readiness fields from the same temporary document notes/metadata.
+- Added the `workflow-document-scanned-attachment` Playwright parity suite and the `slice-92-document-scanned-attachment-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 92 patient scanned attachment plan.
+- Updated synchronized project documents so the current modernization state is Slice 92 with thirty-four read-only slices and fifty-eight mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 93 checks, including `patient scanned attachment readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-92-document-scanned-attachment-readiness -Reset test` passed; run `2026-06-20T185618-625Z-legacy-openemr-plan-slice-92-document-scanned-attachment-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-92-document-scanned-attachment-readiness -Reset test` passed; run `2026-06-20T185654-639Z-modernized-openemr-plan-slice-92-document-scanned-attachment-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-92-document-scanned-attachment-readiness` passed with `status: matched`; comparison `2026-06-20T185717-995Z-legacy-openemr-vs-modernized-openemr-plan-slice-92-document-scanned-attachment-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-scanned-attachment/scanned-attachment.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Scanned attachments, full document versioning, external storage adapters, and integration workflows.
+- Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, co-signature/amendment depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.
