@@ -6785,7 +6785,7 @@ Primary files:
 
 ### 128. Workbench Comparison Artifact Viewer
 
-Commit: current slice commit
+Commit: `0a0c520`
 Started: `2026-06-20T17:13:05-04:00`
 Finished: `2026-06-20T17:26:22-04:00`
 
