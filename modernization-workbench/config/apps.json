@@ -130,7 +130,8 @@
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
         "parityMedicationListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-32-medication-list-mutation-readiness", "-Reset", "test"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
-        "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"]
+        "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"],
+        "parityAppointmentBillingLocationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-101-appointment-billing-location-readiness", "-Reset", "test"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -375,6 +376,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentFacilityPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-100-appointment-facility-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-billing-location",
+          "name": "Slice 101 appointment billing-location reassignment plan",
+          "description": "Runs the shared future appointment billing-location reassignment plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentBillingLocationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-101-appointment-billing-location-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1161,7 +1170,8 @@
         "parityImmunizationsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-29-immunizations-readiness", "-Reset", "run"],
         "parityImmunizationMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-30-immunization-mutation-readiness", "-Reset", "test"],
         "parityProblemMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-31-problem-mutation-readiness", "-Reset", "test"],
-        "parityMedicationListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-32-medication-list-mutation-readiness", "-Reset", "test"]
+        "parityMedicationListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-32-medication-list-mutation-readiness", "-Reset", "test"],
+        "parityAppointmentBillingLocationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-101-appointment-billing-location-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1334,6 +1344,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentFacilityPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-100-appointment-facility-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-billing-location",
+          "name": "Slice 101 appointment billing-location reassignment plan",
+          "description": "Runs the shared future appointment billing-location reassignment plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentBillingLocationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-101-appointment-billing-location-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
