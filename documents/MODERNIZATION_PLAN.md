@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, and read-only encounter procedure-order linkage visibility is covered by Slice 70; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding mutation workflows, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, and read-only encounter diagnosis-coding visibility is covered by Slice 71; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2140,6 +2140,33 @@ Current limitations:
 
 - This slice proves read-only encounter-to-procedure-order visibility. It does not implement encounter-scoped order creation, order signing, result amendment, specimen collection, external lab interface workflows, or order/result mutation from the encounter screen.
 
+### Slice 71: Encounter Diagnosis Coding Readiness
+
+Status:
+
+- Implemented as a read-only modernized encounter diagnosis-coding linkage slice under `modernized-openemr/`.
+- Verification is the shared `slice-71-encounter-diagnoses-readiness` plan, which validates encounter diagnosis, fee-sheet justification, and procedure-order diagnosis evidence on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses existing seeded `MOD-PAT-0001` encounter anchors and does not add permanent gold-data records.
+- ASP.NET Core encounter detail responses now include `diagnosisCodes`, a composed diagnosis evidence list with normalized code, description, source labels, linked billing-line count, linked procedure-order count, and supporting billing codes.
+- React Encounters workspace now renders a `Diagnosis Coding` section for the selected encounter, including diagnosis-code cards, source evidence, billing-link count, procedure-order-link count, and supporting fee-sheet codes.
+- Modernized smoke coverage validates encounter `1000013` diagnosis `E78.5` with two fee-sheet justification links and encounter `1000011` diagnosis `E11.9` with one linked procedure-order diagnosis.
+- The `encounter-diagnoses` parity suite and `slice-71-encounter-diagnoses-readiness` plan verify normalized legacy and modernized database facts, legacy encounter/fee-sheet/procedure-result rendering, modernized API fields, modernized UI rendering, and side-by-side result matching.
+- Workbench-managed Slice 71 encounter diagnosis-coding plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Encounter detail for `MOD-PAT-0001` encounter `1000013` exposes diagnosis code `E78.5`, description `Hyperlipidemia, unspecified`, sources `Encounter diagnosis` and `Fee sheet justification`, two billing-line links, and supporting codes `CPT4 99214` and `CPT4 36415`.
+- Encounter detail for `MOD-PAT-0001` encounter `1000011` exposes diagnosis code `E11.9`, description `Type 2 diabetes mellitus without complications`, sources `Encounter diagnosis` and `Procedure order diagnosis`, and one procedure-order link.
+- The modernized Encounters workspace renders diagnosis coding evidence inside the encounter detail surface without requiring the user to switch to the Fees or Procedures workspaces.
+- The side-by-side Slice 71 parity comparison matches.
+
+Current limitations:
+
+- This slice proves read-only encounter diagnosis-coding visibility. It does not implement encounter-scoped diagnosis create/update/delete workflows, coding search, code-system validation, claim-scrubbing rules, or diagnosis changes from the encounter screen.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2271,3 +2298,4 @@ As of 2026-06-19:
 - The sixty-eighth modernized vertical slice implements encounter billing linkage readiness with ASP.NET Core encounter detail billing fields, React Encounters Fee Sheet Linkage rendering, normalized legacy/modernized billing probes, Workbench encounter billing plan actions, smoke coverage, and side-by-side slice-68 parity evidence.
 - The sixty-ninth modernized vertical slice implements encounter claim linkage readiness with ASP.NET Core encounter detail claim fields, React Encounters Claim Linkage rendering, normalized legacy/modernized claim probes, Workbench encounter claims plan actions, smoke coverage, and side-by-side slice-69 parity evidence.
 - The seventieth modernized vertical slice implements encounter procedure order linkage readiness with ASP.NET Core encounter detail procedure-order/report/result fields, React Encounters Procedure Orders rendering, normalized legacy/modernized procedure probes, Workbench encounter procedure-order plan actions, smoke coverage, and side-by-side slice-70 parity evidence.
+- The seventy-first modernized vertical slice implements encounter diagnosis coding readiness with ASP.NET Core encounter detail diagnosis evidence fields, React Encounters Diagnosis Coding rendering, normalized legacy/modernized billing/procedure diagnosis probes, Workbench encounter diagnosis plan actions, smoke coverage, and side-by-side slice-71 parity evidence.

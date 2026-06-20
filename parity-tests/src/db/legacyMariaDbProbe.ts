@@ -629,6 +629,7 @@ export type ProcedureOrderSummary = {
   orderStatus: string;
   procedureCode: string;
   procedureName: string;
+  diagnosis: string;
 };
 
 export type ProcedureResultSummary = {
@@ -1975,7 +1976,8 @@ LIMIT 8;
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
-  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 WHERE po.patient_id = ${pid}
@@ -1993,7 +1995,8 @@ LIMIT 1;
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
       procedureCode: row.procedureCode,
-      procedureName: row.procedureName
+      procedureName: row.procedureName,
+      diagnosis: normalizeDiagnosisCode(row.diagnosis)
     };
   }
 
@@ -2001,7 +2004,8 @@ LIMIT 1;
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
-  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 LEFT JOIN procedure_report pr ON pr.procedure_order_id = po.procedure_order_id
@@ -2023,7 +2027,8 @@ LIMIT 1;
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
       procedureCode: row.procedureCode,
-      procedureName: row.procedureName
+      procedureName: row.procedureName,
+      diagnosis: normalizeDiagnosisCode(row.diagnosis)
     };
   }
 
@@ -2031,7 +2036,8 @@ LIMIT 1;
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
-  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName
+  poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 WHERE po.patient_id = ${pid}
@@ -2045,6 +2051,7 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
       orderStatus: row.orderStatus,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
+      diagnosis: normalizeDiagnosisCode(row.diagnosis),
       reports: []
     }));
 
@@ -2291,6 +2298,14 @@ function collectionContactMethod(email: string, phone: string) {
     return "Email-ready";
   }
   return normalizeText(phone) ? "Phone" : "Print";
+}
+
+function normalizeDiagnosisCode(value: string | undefined) {
+  const normalized = normalizeText(value);
+  if (!normalized) {
+    return "";
+  }
+  return normalized.replace(/^ICD(?:9|10):/i, "").trim();
 }
 
 function parseTabRows<T extends Record<string, string>>(stdout: string): T[] {
