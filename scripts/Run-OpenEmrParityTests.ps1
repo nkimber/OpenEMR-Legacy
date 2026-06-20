@@ -49,6 +49,7 @@ param(
         "workflow-appointments",
         "workflow-encounters",
         "workflow-encounter-metadata",
+        "workflow-encounter-billing",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

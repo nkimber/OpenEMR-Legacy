@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding mutation workflows, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, and read-only encounter diagnosis-coding visibility is covered by Slice 71; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding mutation workflows, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, and temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2167,6 +2167,34 @@ Current limitations:
 
 - This slice proves read-only encounter diagnosis-coding visibility. It does not implement encounter-scoped diagnosis create/update/delete workflows, coding search, code-system validation, claim-scrubbing rules, or diagnosis changes from the encounter screen.
 
+### Slice 72: Encounter Billing Linkage Mutation Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter billing-linkage readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-72-encounter-billing-mutation-readiness` plan, which creates a temporary CPT fee-sheet row, validates encounter-linked rendering, deactivates it, and deletes it on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses `MOD-PAT-0001` encounter `1000013` and does not add permanent gold-data records.
+- The shared parity workflow creates a temporary `CPT4` billing line with code `99499`, fee `$42.00`, and diagnosis justification `E78.5`.
+- Legacy verification opens the encounter Fee Sheet and confirms the temporary code/text render, including the legacy UI's visible `E78.` justification truncation behavior.
+- Modernized verification reads the Encounter detail API, confirms the temporary billing row appears in `billingLines`, confirms the diagnosis evidence includes supporting code `CPT4 99499`, and verifies the Encounters workspace Fee Sheet Linkage and Diagnosis Coding panels.
+- The workflow marks the row billed/inactive, verifies it is hidden from active encounter billing surfaces, hard-deletes it, and proves patient workflow counts return to baseline.
+- Workbench-managed Slice 72 encounter billing linkage mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary fee-sheet line for encounter `1000013` increases the encounter-linked active billing rows by one without changing encounter count.
+- The created `CPT4 99499` row is visible through the legacy Fee Sheet and the modernized Encounter detail API/UI.
+- Diagnosis justification `E78.5` continues to support the modernized diagnosis coding evidence while the legacy Fee Sheet visible-field truncation is treated as an accepted display quirk.
+- Deactivation hides the row from active encounter-linked billing lists, and hard-delete cleanup restores the seeded billing count.
+- The side-by-side Slice 72 parity comparison matches.
+
+Current limitations:
+
+- This slice proves encounter-linked billing mutation visibility through the existing billing-row lifecycle. It does not add a dedicated encounter-scoped billing editor, claim-scrubbing workflow, order-to-charge conversion, charge capture templates, or diagnosis mutation from the encounter screen.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2220,7 +2248,7 @@ A slice is complete when:
 
 ## Current Starting Point
 
-As of 2026-06-19:
+As of 2026-06-20:
 
 - Legacy OpenEMR baseline is implemented, seeded, and testable.
 - Modernization Workbench is implemented.
@@ -2299,3 +2327,4 @@ As of 2026-06-19:
 - The sixty-ninth modernized vertical slice implements encounter claim linkage readiness with ASP.NET Core encounter detail claim fields, React Encounters Claim Linkage rendering, normalized legacy/modernized claim probes, Workbench encounter claims plan actions, smoke coverage, and side-by-side slice-69 parity evidence.
 - The seventieth modernized vertical slice implements encounter procedure order linkage readiness with ASP.NET Core encounter detail procedure-order/report/result fields, React Encounters Procedure Orders rendering, normalized legacy/modernized procedure probes, Workbench encounter procedure-order plan actions, smoke coverage, and side-by-side slice-70 parity evidence.
 - The seventy-first modernized vertical slice implements encounter diagnosis coding readiness with ASP.NET Core encounter detail diagnosis evidence fields, React Encounters Diagnosis Coding rendering, normalized legacy/modernized billing/procedure diagnosis probes, Workbench encounter diagnosis plan actions, smoke coverage, and side-by-side slice-71 parity evidence.
+- The seventy-second modernized vertical slice implements encounter billing linkage mutation readiness with temporary CPT fee-sheet create/render/deactivate/delete behavior, active encounter-linked billing visibility checks, normalized legacy/modernized workflow probes, Workbench encounter billing mutation plan actions, smoke coverage, and side-by-side slice-72 parity evidence.

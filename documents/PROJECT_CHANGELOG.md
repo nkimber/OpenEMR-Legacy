@@ -5129,6 +5129,61 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 098. Modernized Encounter Billing Linkage Mutation Slice 72
+
+Commit: this commit
+Started: `2026-06-20T05:00:00-04:00`
+Finished: `2026-06-20T05:28:14.8256418-04:00`
+
+Implemented the seventy-second modernized OpenEMR vertical slice: encounter billing linkage mutation readiness, focused on creating a temporary CPT fee-sheet row for an existing encounter, proving it appears through encounter-linked billing and diagnosis surfaces, then deactivating and deleting it so the gold dataset returns clean.
+
+Key outcomes:
+
+- Added the `workflow-encounter-billing` Playwright parity suite and `slice-72-encounter-billing-mutation-readiness` plan for both legacy and modernized targets.
+- The shared test creates a temporary `CPT4 99499` row on `MOD-PAT-0001` encounter `1000013`, verifies normalized row state and patient workflow counts, checks legacy Fee Sheet rendering, checks modernized Encounter detail API/UI rendering, then marks the row billed/inactive and hard-deletes it.
+- Captured the legacy Fee Sheet display quirk where stored justification `E78.5` renders visibly as `E78.` while the normalized row value remains `E78.5`.
+- Fixed the modernized Encounter detail `billingLineCount` so it counts active billing rows consistently with the returned `billingLines` collection after a row is deactivated.
+- Extended modernized smoke coverage with `encounter billing linkage mutation visibility`.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 72 encounter billing linkage mutation plan.
+- Updated the parity runner wrapper, package scripts, mutation/full-parity suite lists, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `git diff --check` passed with only Windows line-ending warnings.
+- `docker compose up -d --build` in `modernized-openemr/` so the running API included the active billing-line count fix.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 74 smoke checks, including `encounter billing linkage mutation visibility`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-72-encounter-billing-mutation-readiness -Reset test` passed with run `2026-06-20T092508-965Z-legacy-openemr-plan-slice-72-encounter-billing-mutation-readiness`.
+- Initial modernized Slice 72 parity run `2026-06-20T092545-990Z-modernized-openemr-plan-slice-72-encounter-billing-mutation-readiness` exposed the inactive-row `billingLineCount` mismatch, which was fixed before final verification.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-72-encounter-billing-mutation-readiness -Reset test` passed with run `2026-06-20T092739-195Z-modernized-openemr-plan-slice-72-encounter-billing-mutation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-72-encounter-billing-mutation-readiness` matched with comparison `2026-06-20T092801-812Z-legacy-openemr-vs-modernized-openemr-plan-slice-72-encounter-billing-mutation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-billing/encounter-billing-linkage-mutation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -5136,5 +5191,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, diagnosis mutation, order mutation, billing linkage updates, audit history, and attachments.
+- Broader encounter workflows for templates, sign-off, diagnosis mutation, order mutation, charge-capture expansion, audit history, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.
