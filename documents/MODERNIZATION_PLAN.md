@@ -1600,6 +1600,34 @@ Current limitations:
 - This slice is read-only and covers statement readiness only.
 - Printable patient statement generation, statement archival, batch statement runs, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
 
+### Slice 53: Document Preview Readiness
+
+Status:
+
+- Implemented as a read-only modernized patient-document slice under `modernized-openemr/`.
+- Verification is the shared `slice-53-document-preview-readiness` plan, which validates preview kind, inline-readiness, thumbnail labels, thumbnail text, and modernized document-card preview rendering for the stable document anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses existing `MOD-PAT-0001` patient-document metadata and stored text payload facts; it does not add new gold-data records.
+- ASP.NET Core document read behavior now returns preview-readiness fields for every document row: preview kind, preview status, thumbnail label, thumbnail text, inline preview availability, and download availability.
+- React Documents workspace now shows a compact thumbnail/readiness row for each document card while preserving the existing list, viewer, download, metadata, archive, review, external-link, and content-replacement behavior.
+- Modernized smoke coverage validates the `MOD-PAT-0001` seeded document preview readiness facts.
+- The `document-preview` parity suite and `slice-53-document-preview-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL preview-readiness rows, plus browser-visible modernized Documents rendering.
+- Workbench-managed Slice 53 document preview plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Direct probes compute `Primary care intake packet` and `Advance directive acknowledgement` as `text` preview kind with `Inline text preview` status, `TXT` thumbnail labels, inline preview enabled, and download enabled.
+- Direct probes compute thumbnail text containing `Gold synthetic document DOC-MOD-PAT-0001-1` and `Gold synthetic document DOC-MOD-PAT-0001-2`.
+- The modernized document API and Documents workspace render those same preview-readiness facts without changing seeded document rows.
+- The side-by-side Slice 53 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and derives preview readiness from existing metadata/content rather than generating image thumbnails.
+- Scanned attachment ingestion, rendered PDF/image thumbnails, version history, OCR, external storage adapters, and document exchange integrations remain future document slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1713,3 +1741,4 @@ As of 2026-06-19:
 - The fiftieth modernized vertical slice implements read-only account aging visibility by computing deterministic current, 31-60, 61-90, and over-90 buckets over existing seeded billing/payment rows using the dataset base date, adding ASP.NET Core billing aging summaries, React Fees Aging Summary rendering, Workbench account aging plan action, smoke coverage, and side-by-side slice-50 parity evidence.
 - The fifty-first modernized vertical slice implements read-only account ledger visibility by deriving canonical chronological charge, payment, adjustment, and running-balance entries from existing seeded billing/payment rows, adding ASP.NET Core billing ledger summaries, React Fees Account Ledger rendering, Workbench account ledger plan action, smoke coverage, and side-by-side slice-51 parity evidence.
 - The fifty-second modernized vertical slice implements read-only account statement readiness by deriving recipient, statement-period, due-date, current-due, past-due, oldest-open, and balance-due facts from existing seeded demographics, billing, payment, aging, and ledger rows, adding ASP.NET Core billing statement summaries, React Fees Statement Readiness rendering, Workbench account statement plan action, smoke coverage, and side-by-side slice-52 parity evidence.
+- The fifty-third modernized vertical slice implements read-only patient document preview readiness by deriving preview kind, inline-readiness, thumbnail labels, and thumbnail text from existing seeded document metadata/content rows, adding ASP.NET Core document preview fields, React Documents thumbnail rendering, Workbench document preview plan action, smoke coverage, and side-by-side slice-53 parity evidence.

@@ -154,6 +154,12 @@ export type PatientDocumentSummary = {
   hash: string;
   notes: string;
   contentPreview: string;
+  previewKind: string;
+  previewStatus: string;
+  thumbnailLabel: string;
+  thumbnailText: string;
+  canPreviewInline: boolean;
+  canDownload: boolean;
 };
 
 export type PatientDocumentsSummary = {
@@ -166,6 +172,115 @@ export type PatientDocumentContentSummary = PatientDocumentSummary & {
   contentBase64: string;
   isBinary: boolean;
 };
+
+export type PatientDocumentPreviewFields = {
+  previewKind: string;
+  previewStatus: string;
+  thumbnailLabel: string;
+  thumbnailText: string;
+  canPreviewInline: boolean;
+  canDownload: boolean;
+};
+
+export function buildPatientDocumentPreviewFields(input: {
+  mimetype?: string | null;
+  storageMethod?: string | null;
+  fileName?: string | null;
+  url?: string | null;
+  pages?: number | null;
+  contentPreview?: string | null;
+}): PatientDocumentPreviewFields {
+  const mimetype = normalizeText(input.mimetype).toLowerCase();
+  const storageMethod = normalizeText(input.storageMethod).toLowerCase();
+  const fileName = normalizeText(input.fileName);
+  const url = normalizeText(input.url);
+  const previewText = buildPreviewText(input.contentPreview);
+
+  if (storageMethod === "web_url" && url.length > 0) {
+    return {
+      previewKind: "external-link",
+      previewStatus: "External link",
+      thumbnailLabel: "LINK",
+      thumbnailText: trimThumbnailText(url),
+      canPreviewInline: false,
+      canDownload: true
+    };
+  }
+
+  if (mimetype.startsWith("text/")) {
+    return {
+      previewKind: "text",
+      previewStatus: "Inline text preview",
+      thumbnailLabel: "TXT",
+      thumbnailText: previewText || "Text document",
+      canPreviewInline: true,
+      canDownload: true
+    };
+  }
+
+  if (mimetype === "application/pdf") {
+    return {
+      previewKind: "pdf",
+      previewStatus: "Download preview",
+      thumbnailLabel: "PDF",
+      thumbnailText: input.pages && input.pages > 0 ? `${input.pages} page PDF document` : "PDF document",
+      canPreviewInline: false,
+      canDownload: true
+    };
+  }
+
+  if (mimetype.startsWith("image/")) {
+    return {
+      previewKind: "image",
+      previewStatus: "Image preview pending",
+      thumbnailLabel: "IMG",
+      thumbnailText: fileName ? trimThumbnailText(fileName) : "Image document",
+      canPreviewInline: false,
+      canDownload: true
+    };
+  }
+
+  return {
+    previewKind: "binary",
+    previewStatus: "Download preview",
+    thumbnailLabel: buildThumbnailLabel(fileName, mimetype),
+    thumbnailText: fileName ? trimThumbnailText(fileName) : "Stored document",
+    canPreviewInline: false,
+    canDownload: true
+  };
+}
+
+function buildPreviewText(contentPreview?: string | null): string {
+  const normalized = normalizeText(contentPreview);
+  if (normalized.length === 0) {
+    return "";
+  }
+
+  const firstLine = normalized.replace(/\r/g, "\n").split("\n").map((line) => line.trim()).find(Boolean);
+  return trimThumbnailText(firstLine || normalized);
+}
+
+function buildThumbnailLabel(fileName: string, mimetype: string): string {
+  const extension = fileName.includes(".") ? fileName.split(".").pop() ?? "" : "";
+  if (extension.length > 0 && extension.length <= 4) {
+    return extension.toUpperCase();
+  }
+
+  if (mimetype.includes("json")) {
+    return "JSON";
+  }
+
+  return "FILE";
+}
+
+function trimThumbnailText(value: string): string {
+  const normalized = normalizeText(value);
+  return normalized.length <= 90 ? normalized : `${normalized.slice(0, 87)}...`;
+}
+
+function normalizeText(value?: string | null): string {
+  return value?.trim() ?? "";
+}
 
 export type BillingLineSummary = {
   id: string;
@@ -903,25 +1018,32 @@ ORDER BY d.docdate DESC, d.id DESC;
 
     return {
       patientId: pid,
-      documents: rows.map((row) => ({
-        id: Number(row.id),
-        documentKey: row.documentKey,
-        categoryId: Number(row.categoryId),
-        categoryName: row.categoryName,
-        name: row.name,
-        docDate: row.docDate,
-        uploadedAt: row.uploadedAt,
-        mimetype: row.mimetype,
-        fileName: row.fileName,
-        sizeBytes: Number(row.sizeBytes),
-        pages: Number(row.pages),
-        encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
-        storageMethod: row.storageMethod,
-        url: row.url,
-        hash: row.hash,
-        notes: row.notes,
-        contentPreview: row.contentPreview
-      }))
+      documents: rows.map((row) => {
+        const document = {
+          id: Number(row.id),
+          documentKey: row.documentKey,
+          categoryId: Number(row.categoryId),
+          categoryName: row.categoryName,
+          name: row.name,
+          docDate: row.docDate,
+          uploadedAt: row.uploadedAt,
+          mimetype: row.mimetype,
+          fileName: row.fileName,
+          sizeBytes: Number(row.sizeBytes),
+          pages: Number(row.pages),
+          encounter: Number(row.encounter) > 0 ? Number(row.encounter) : null,
+          storageMethod: row.storageMethod,
+          url: row.url,
+          hash: row.hash,
+          notes: row.notes,
+          contentPreview: row.contentPreview
+        };
+
+        return {
+          ...document,
+          ...buildPatientDocumentPreviewFields(document)
+        };
+      })
     };
   }
 
@@ -962,7 +1084,7 @@ LIMIT 1;
       return null;
     }
 
-    return {
+    const document = {
       id: Number(row.id),
       documentKey: row.documentKey,
       categoryId: Number(row.categoryId),
@@ -983,6 +1105,11 @@ LIMIT 1;
       content: row.content.replaceAll("\\n", "\n"),
       contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
       isBinary: row.mimetype !== "text/plain"
+    };
+
+    return {
+      ...document,
+      ...buildPatientDocumentPreviewFields(document)
     };
   }
 

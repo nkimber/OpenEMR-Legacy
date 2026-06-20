@@ -15,6 +15,7 @@ param(
         "messages",
         "documents",
         "document-content",
+        "document-preview",
         "insurance",
         "immunizations",
         "procedures",

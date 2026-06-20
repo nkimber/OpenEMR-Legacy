@@ -36,6 +36,7 @@ import type {
 } from "./legacyMariaDbProbe.js";
 import {
   buildAccountLedgerEntries,
+  buildPatientDocumentPreviewFields,
   buildOperationalReportExportRows,
   buildPatientStatementSummary
 } from "./legacyMariaDbProbe.js";
@@ -478,25 +479,32 @@ ORDER BY doc_date DESC, id DESC;
 
     return {
       patientId: pid,
-      documents: rows.map((row) => ({
-        id: Number(row.id),
-        documentKey: row.documentKey,
-        categoryId: Number(row.categoryId),
-        categoryName: row.categoryName,
-        name: row.name,
-        docDate: row.docDate,
-        uploadedAt: row.uploadedAt,
-        mimetype: row.mimetype,
-        sizeBytes: Number(row.sizeBytes),
-        pages: Number(row.pages),
-        encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
-        storageMethod: row.storageMethod,
-        fileName: row.fileName,
-        url: row.url,
-        hash: row.hash,
-        notes: row.notes,
-        contentPreview: row.contentPreview
-      }))
+      documents: rows.map((row) => {
+        const document = {
+          id: Number(row.id),
+          documentKey: row.documentKey,
+          categoryId: Number(row.categoryId),
+          categoryName: row.categoryName,
+          name: row.name,
+          docDate: row.docDate,
+          uploadedAt: row.uploadedAt,
+          mimetype: row.mimetype,
+          sizeBytes: Number(row.sizeBytes),
+          pages: Number(row.pages),
+          encounter: nullIfDbNull(row.encounter) === null ? null : Number(row.encounter),
+          storageMethod: row.storageMethod,
+          fileName: row.fileName,
+          url: row.url,
+          hash: row.hash,
+          notes: row.notes,
+          contentPreview: row.contentPreview
+        };
+
+        return {
+          ...document,
+          ...buildPatientDocumentPreviewFields(document)
+        };
+      })
     };
   }
 
@@ -526,7 +534,7 @@ LIMIT 1;
       return null;
     }
 
-    return {
+    const document = {
       id: Number(row.id),
       documentKey: row.documentKey,
       categoryId: Number(row.categoryId),
@@ -549,6 +557,11 @@ LIMIT 1;
         : Buffer.from(row.contentHex, "hex").toString("utf8").replaceAll("\\n", "\n"),
       contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
       isBinary: row.isBinary === "1"
+    };
+
+    return {
+      ...document,
+      ...buildPatientDocumentPreviewFields(document)
     };
   }
 
