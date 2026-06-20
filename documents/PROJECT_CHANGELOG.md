@@ -3215,7 +3215,7 @@ Primary files:
 
 ### 066. Modernized Patient Document Metadata Slice 41
 
-Commit: pending
+Commit: current slice commit
 Started: `2026-06-19T15:12:49-04:00`
 Finished: `2026-06-19T15:17:49-04:00`
 
@@ -6056,6 +6056,60 @@ Primary files:
 - `parity-tests/test-manifest.json`
 - `parity-tests/src/workflows/legacyWorkflowActions.ts`
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
+### 115. Modernized Encounter Document Lifecycle Timeline Slice 86
+
+Commit: current slice commit
+Started: `2026-06-20T12:21:00-04:00`
+Finished: `2026-06-20T12:42:47.8669420-04:00`
+
+Implemented the eighty-sixth modernized OpenEMR vertical slice: encounter document lifecycle timeline readiness, deriving lifecycle events from encounter document state and rendering filed/current-version/review/active/archive facts in the modernized Encounters workspace while proving the same temporary document create/sign/archive/restore/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 690
+- Lines deleted: 40
+- Net lines: 650
+- Total churn: 730
+
+Key outcomes:
+
+- Added encounter document lifecycle events to the ASP.NET Core encounter detail API response.
+- Rendered lifecycle timeline cards on modernized Encounter attached-document cards.
+- Added modernized smoke coverage for the encounter document lifecycle timeline.
+- Added the `workflow-encounter-document-lifecycle` Playwright parity suite and the `slice-86-encounter-document-lifecycle-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 86 lifecycle timeline plan.
+- Updated synchronized project documents so the current modernization state is Slice 86 with thirty-four read-only slices and fifty-two mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 87 checks, including `encounter document lifecycle timeline`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-86-encounter-document-lifecycle-readiness -Reset test` passed; run `2026-06-20T164117-265Z-legacy-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-86-encounter-document-lifecycle-readiness -Reset test` passed; run `2026-06-20T164156-605Z-modernized-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-86-encounter-document-lifecycle-readiness` passed with `status: matched`; comparison `2026-06-20T164235-220Z-legacy-openemr-vs-modernized-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-lifecycle/encounter-document-lifecycle.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
