@@ -6171,6 +6171,62 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 117. Modernized Patient Image Document Preview Slice 88
+
+Commit: current slice commit
+Started: `2026-06-20T13:04:00-04:00`
+Finished: `2026-06-20T13:34:04.0900000-04:00`
+
+Implemented the eighty-eighth modernized OpenEMR vertical slice: patient image document preview readiness, promoting image-backed documents from preview-pending metadata into inline-previewable document cards and viewer content while proving the same temporary SVG patient-document create/render/download/archive/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 441
+- Lines deleted: 42
+- Net lines: 399
+- Total churn: 483
+
+Key outcomes:
+
+- Promoted patient and encounter `image/*` document preview metadata to `Inline image preview` with inline-preview capability.
+- Rendered actual image document content in the modernized Documents viewer through a data URI preview panel.
+- Preserved binary bytes for legacy-created patient documents in the workflow adapter so SVG and other image fixtures are stored without UTF-8 corruption.
+- Added a self-cleaning modernized smoke check for patient image document preview lifecycle behavior.
+- Added the `workflow-document-image-preview` Playwright parity suite and the `slice-88-document-image-preview-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 88 patient image document preview plan.
+- Updated synchronized project documents so the current modernization state is Slice 88 with thirty-four read-only slices and fifty-four mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 89 checks, including `patient image document preview lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-88-document-image-preview-readiness -Reset test` passed; run `2026-06-20T173311-420Z-legacy-openemr-plan-slice-88-document-image-preview-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-88-document-image-preview-readiness -Reset test` passed; run `2026-06-20T173344-079Z-modernized-openemr-plan-slice-88-document-image-preview-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-88-document-image-preview-readiness` passed with `status: matched`; comparison `2026-06-20T173404-089Z-legacy-openemr-vs-modernized-openemr-plan-slice-88-document-image-preview-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-image-preview/image-document-preview.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

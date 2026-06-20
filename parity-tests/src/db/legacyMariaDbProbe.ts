@@ -272,10 +272,10 @@ export function buildPatientDocumentPreviewFields(input: {
   if (mimetype.startsWith("image/")) {
     return {
       previewKind: "image",
-      previewStatus: "Image preview pending",
+      previewStatus: "Inline image preview",
       thumbnailLabel: "IMG",
       thumbnailText: fileName ? trimThumbnailText(fileName) : "Image document",
-      canPreviewInline: false,
+      canPreviewInline: true,
       canDownload: true
     };
   }

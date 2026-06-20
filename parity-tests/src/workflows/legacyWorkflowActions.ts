@@ -1617,7 +1617,9 @@ FROM documents;
 `);
     const id = Number(nextRows[0]?.id);
     const documentKey = `DOC-BINARY-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-    const content = Buffer.from(input.contentBase64, "base64").toString("utf8");
+    const contentBytes = Buffer.from(input.contentBase64, "base64");
+    const contentHex = contentBytes.toString("hex");
+    const pages = input.mimetype === "application/pdf" ? 1 : 0;
 
     await this.db.execute(`
 INSERT INTO documents
@@ -1625,10 +1627,10 @@ INSERT INTO documents
    list_id, name, storagemethod, path_depth, imported, encounter_id, encounter_check,
    audit_master_approval_status, documentationOf, encrypted, document_data, deleted)
 VALUES
-  (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), 'blob', ${integer(Buffer.byteLength(content, "utf8"))}, NOW(),
-   ${sqlString(`gold://documents/${documentKey}/${input.fileName}`)}, ${sqlString(input.mimetype)}, 1, 1, NOW(),
-   ${integer(input.patientId)}, ${sqlString(input.docDate)}, SHA1(${sqlString(content)}), 0, ${sqlString(input.name)},
-   0, 0, 0, ${integer(input.encounter)}, 1, 1, ${sqlString(input.notes)}, 0, ${sqlString(content)}, 0);
+  (${integer(id)}, UNHEX(REPLACE(UUID(), '-', '')), 'blob', ${integer(contentBytes.length)}, NOW(),
+   ${sqlString(`gold://documents/${documentKey}/${input.fileName}`)}, ${sqlString(input.mimetype)}, ${integer(pages)}, 1, NOW(),
+   ${integer(input.patientId)}, ${sqlString(input.docDate)}, SHA1(UNHEX(${sqlString(contentHex)})), 0, ${sqlString(input.name)},
+   0, 0, 0, ${integer(input.encounter)}, 1, 1, ${sqlString(input.notes)}, 0, UNHEX(${sqlString(contentHex)}), 0);
 
 INSERT INTO categories_to_documents (category_id, document_id)
 VALUES (${integer(input.categoryId)}, ${integer(id)});

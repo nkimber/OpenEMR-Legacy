@@ -73,6 +73,7 @@ param(
         "workflow-message-content",
         "workflow-documents",
         "workflow-document-binary",
+        "workflow-document-image-preview",
         "workflow-document-signoff",
         "workflow-document-external-link",
         "workflow-document-denial",
