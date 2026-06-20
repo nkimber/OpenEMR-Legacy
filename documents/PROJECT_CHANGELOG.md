@@ -7157,6 +7157,72 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 134. Modernized Appointment Recurring Series Slice 104
+
+Commit: `0505722`
+Started: `2026-06-20T19:26:00-04:00`
+Finished: `2026-06-20T19:45:07-04:00`
+
+Implemented the one-hundred-fourth modernized OpenEMR vertical slice: appointment recurring-series readiness, proving that seeded regular recurrence anchors can expand into dated virtual occurrences without duplicating appointment rows, while matching the legacy recurrence metadata expansion and rendering generated occurrences in the modernized Calendar.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 616
+- Lines deleted: 78
+- Net lines: 538
+- Total churn: 694
+
+Key outcomes:
+
+- Added API-level recurrence expansion in the modernized appointment search path so stored recurrence metadata can produce dated virtual occurrences.
+- Added validated virtual occurrence IDs for appointment detail lookup and exposed series root, generated-occurrence state, and occurrence number in appointment list/detail responses.
+- Added modernized Calendar rendering for generated occurrence labels and read-only generated occurrence actions.
+- Added an `appointment recurring series expansion` smoke check over the seeded `MOD-PAT-0003` preventive-care recurrence anchor.
+- Added the `workflow-appointment-series` Playwright parity suite and `slice-104-appointment-series-readiness` plan.
+- Extended legacy and modernized workflow adapters so the same seeded recurring-series dates are verified from legacy OpenEMR recurrence metadata and modernized API expansion.
+- Added Workbench managed plan commands/cards for Slice 104 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 104 with thirty-five read-only slices and sixty-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 105 checks, including `appointment recurring series expansion`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-104-appointment-series-readiness -Reset run` passed; run `2026-06-20T234354-178Z-legacy-openemr-plan-slice-104-appointment-series-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-104-appointment-series-readiness -Reset run` passed; run `2026-06-20T234414-265Z-modernized-openemr-plan-slice-104-appointment-series-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-104-appointment-series-readiness` passed with `status: matched`; comparison `2026-06-20T234436-176Z-legacy-openemr-vs-modernized-openemr-plan-slice-104-appointment-series-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-series/appointment-series.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
