@@ -1277,6 +1277,37 @@ ORDER BY c.encounter_id, c.version;
     }));
   }
 
+  async getClaimsForEncounter(pid: number, encounter: number): Promise<ClaimStatusSummary[]> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT c.patient_id AS patientId, c.encounter_id AS encounter, c.version, c.payer_id AS payerId,
+  COALESCE(ic.name, '') AS payerName, c.payer_type AS payerType, c.status, c.bill_process AS billProcess,
+  COALESCE(DATE_FORMAT(c.bill_time, '%Y-%m-%d %H:%i:%s'), '') AS billTime,
+  COALESCE(DATE_FORMAT(c.process_time, '%Y-%m-%d %H:%i:%s'), '') AS processTime,
+  COALESCE(c.process_file, '') AS processFile, COALESCE(c.target, '') AS target,
+  COALESCE(c.submitted_claim, '') AS submittedClaim
+FROM claims c
+LEFT JOIN insurance_companies ic ON ic.id = c.payer_id
+WHERE c.patient_id = ${pid} AND c.encounter_id = ${encounter}
+ORDER BY c.version;
+`);
+    return rows.map((row) => ({
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      version: Number(row.version),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      status: Number(row.status),
+      statusLabel: claimStatusLabel(Number(row.status), Number(row.billProcess)),
+      billProcess: Number(row.billProcess),
+      billTime: row.billTime,
+      processTime: row.processTime,
+      processFile: row.processFile,
+      target: row.target,
+      submittedClaim: row.submittedClaim
+    }));
+  }
+
   async getPaymentPostingsForPatient(pid: number): Promise<PaymentPostingSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT aa.pid AS patientId, aa.encounter, aa.sequence_no AS sequenceNo,

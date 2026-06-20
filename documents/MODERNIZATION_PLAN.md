@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order linkage, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67 and read-only encounter fee-sheet linkage visibility is covered by Slice 68; scanned upload workflows and full encounter document lifecycle behavior remain future work.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order linkage, billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, and read-only encounter claim-status linkage visibility is covered by Slice 69; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2086,6 +2086,33 @@ Current limitations:
 
 - This slice proves read-only encounter-to-fee-sheet linkage visibility. It does not implement encounter-scoped billing creation, diagnosis association editing, charge correction, modifier changes, claim generation, payment posting, or billing workflow side effects from the encounter screen.
 
+### Slice 69: Encounter Claim Linkage Readiness
+
+Status:
+
+- Implemented as a read-only modernized encounter-claim linkage slice under `modernized-openemr/`.
+- Verification is the shared `slice-69-encounter-claims-readiness` plan, which validates claim-status rows linked to the same encounter anchor on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded `MOD-PAT-0001` encounter `1000013` claim anchor; it does not add permanent gold-data records.
+- ASP.NET Core encounter detail responses now include linked claim-status rows with claim id, encounter, version, payer id/name/type, raw status, normalized status label, billing-process state, billing time, process time, process file, target, and submitted-claim payload marker.
+- React Encounters workspace now renders a `Claim Linkage` section for the selected encounter, including linked-claim count, payer/status, version, target, timestamps, payer type, raw status, process file, and claim id/payload context.
+- Modernized smoke coverage validates that encounter `1000013` exposes the expected linked `CLAIM-1000013-1` status row.
+- The `encounter-claims` parity suite and `slice-69-encounter-claims-readiness` plan verify normalized legacy and modernized database state, modernized API fields, modernized UI rendering, and side-by-side result matching.
+- Workbench-managed Slice 69 encounter claims plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Encounter detail for `MOD-PAT-0001` encounter `1000013` exposes exactly one linked claim: `CLAIM-1000013-1`.
+- The linked claim has payer `Acme Health`, payer type `1`, version `1`, raw status `3`, normalized status label `Marked as cleared`, bill process `0`, target `HCFA`, and bill time `2026-06-12 12:00`.
+- The modernized Encounters workspace renders linked claim status inside the encounter detail surface without requiring the user to switch to the standalone Fees workspace.
+- The side-by-side Slice 69 parity comparison matches.
+
+Current limitations:
+
+- This slice proves read-only encounter-to-claim-status visibility. It does not implement encounter-scoped claim creation, claim generation, clearing, denial workflow, payer edits, X12 submission, or payment posting from the encounter screen.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2215,3 +2242,4 @@ As of 2026-06-19:
 - The sixty-sixth modernized vertical slice implements patient message content readiness with an ASP.NET Core title/body edit endpoint, React Messages inline edit controls, normalized legacy/modernized workflow actions, Workbench message content plan actions, smoke coverage, and side-by-side slice-66 parity evidence.
 - The sixty-seventh modernized vertical slice implements encounter document attachment readiness with ASP.NET Core encounter detail document fields, React Encounters attached-document rendering, normalized legacy/modernized document probes, Workbench encounter documents plan actions, smoke coverage, and side-by-side slice-67 parity evidence.
 - The sixty-eighth modernized vertical slice implements encounter billing linkage readiness with ASP.NET Core encounter detail billing fields, React Encounters Fee Sheet Linkage rendering, normalized legacy/modernized billing probes, Workbench encounter billing plan actions, smoke coverage, and side-by-side slice-68 parity evidence.
+- The sixty-ninth modernized vertical slice implements encounter claim linkage readiness with ASP.NET Core encounter detail claim fields, React Encounters Claim Linkage rendering, normalized legacy/modernized claim probes, Workbench encounter claims plan actions, smoke coverage, and side-by-side slice-69 parity evidence.

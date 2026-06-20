@@ -4945,6 +4945,66 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 095. Modernized Encounter Claim Linkage Slice 69
+
+Commit: this commit
+Started: `2026-06-20T03:32:16-04:00`
+Finished: `2026-06-20T03:54:10-04:00`
+
+Implemented the sixty-ninth modernized OpenEMR vertical slice: encounter claim linkage readiness, focused on proving that legacy claim-status rows linked to a specific encounter can be surfaced through the modernized Encounter detail API and rendered in the modernized Encounters workspace while matching the shared legacy parity contract.
+
+Key outcomes:
+
+- Extended the modernized Encounter detail contract with linked claim rows for claim id, encounter, version, payer, payer type, status, status label, bill-process state, billing/process timestamps, process file, target, and submitted-claim marker.
+- Added repository logic that loads claim rows for the selected encounter and normalizes OpenEMR claim status labels in the Encounter detail read path.
+- Added a `Claim Linkage` section to the React Encounters workspace with linked-claim count, payer/version/target details, status badge, processing metadata, and claim identifier fallback.
+- Added modernized smoke coverage for `MOD-PAT-0001` encounter `1000013` with claim `CLAIM-1000013-1`, payer `Acme Health`, status `Marked as cleared`, and target `HCFA`.
+- Added the `encounter-claims` parity suite and `slice-69-encounter-claims-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 69 encounter claims plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` and `CLAIM-1000013-1`; no permanent gold seed-data records were added for this slice.
+- Fixed the modernized smoke script to preserve one-item claim collections as arrays so claim count evidence remains deterministic.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build` in `modernized-openemr/` so the running API and UI containers included the encounter claim changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 71 smoke checks, including `anchor encounter claim linkage` with one linked claim.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-69-encounter-claims-readiness -Reset run` passed with run `2026-06-20T075320-200Z-legacy-openemr-plan-slice-69-encounter-claims-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-69-encounter-claims-readiness -Reset run` passed with run `2026-06-20T075343-479Z-modernized-openemr-plan-slice-69-encounter-claims-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-69-encounter-claims-readiness` matched with comparison `2026-06-20T075403-384Z-legacy-openemr-vs-modernized-openemr-plan-slice-69-encounter-claims-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/encounter-claims/encounter-claim-linkage.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
