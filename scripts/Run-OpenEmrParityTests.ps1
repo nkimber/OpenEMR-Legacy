@@ -60,6 +60,7 @@ param(
         "workflow-billing-modifier",
         "workflow-payment-posting",
         "workflow-claims",
+        "workflow-patient-payments",
         "workflow-procedures",
         "workflow-admin",
         "workflow-admin-users",

@@ -4294,6 +4294,61 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 084. Modernized Patient Payment Capture Slice 58
+
+Commit: this commit
+Started: `2026-06-19T22:28:00-04:00`
+Finished: `2026-06-19T22:54:00-04:00`
+
+Implemented the fifty-eighth modernized OpenEMR vertical slice: patient payment capture readiness, focused on proving a temporary patient-responsibility payment can be created, rendered, voided, and hard-deleted in both legacy OpenEMR and the modernized target.
+
+Key outcomes:
+
+- Updated the modernized ASP.NET Core billing payment-create path to accept patient-responsibility payments with `payer_id = 0` and `payer_type = 0`.
+- Added React Fees source-aware payment posting controls so operators can choose Insurance or Patient payments, while patient payments hide insurance-only adjustment, reason, and payer-claim fields.
+- Added patient-payment display formatting so payer-type-zero rows render as `Patient` in the modernized Fees workspace.
+- Added modernized smoke coverage for the patient payment capture lifecycle, including create, visible active payment, balance impact, void, balance rollback, and hard-delete cleanup.
+- Added the `workflow-patient-payments` parity suite and `slice-58-patient-payment-capture-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and result paths for the Slice 58 patient payment capture plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing `MOD-PAT-0005` billing/payment anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the patient payment capture changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 60 smoke checks, including `patient payment capture lifecycle`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:patient-payment-capture` passed with run `2026-06-20T025257-662Z-legacy-openemr-plan-slice-58-patient-payment-capture-readiness`.
+- `npm run test:modernized:plan:patient-payment-capture` passed with run `2026-06-20T025324-729Z-modernized-openemr-plan-slice-58-patient-payment-capture-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-58-patient-payment-capture-readiness` matched with comparison `2026-06-20T025350-379Z-legacy-openemr-vs-modernized-openemr-plan-slice-58-patient-payment-capture-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-patient-payments/patient-payment-capture.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

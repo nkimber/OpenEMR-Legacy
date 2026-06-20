@@ -1486,7 +1486,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers payment posting visibility only.
-- Full ERA/EOB import, payer adjudication, patient payment capture, patient statements, payment reversal/refund workflows, and revenue-cycle audit history remain future billing slices. Focused manual payment posting create/void/delete behavior is covered by Slice 56.
+- Full ERA/EOB import, payer adjudication, patient statements, payment reversal/refund workflows, and revenue-cycle audit history remain future billing slices. Focused manual payment posting create/void/delete behavior is covered by Slice 56, and focused patient payment capture is covered by Slice 58.
 
 ### Slice 49: Account Balance Readiness
 
@@ -1715,7 +1715,7 @@ Acceptance:
 Current limitations:
 
 - This slice implements manual payment posting lifecycle behavior only.
-- ERA/EOB import, payer remittance reconciliation, patient payment capture, refunds, audit history, batch posting, claim adjudication state transitions, and statement-generation workflows remain future revenue-cycle slices.
+- ERA/EOB import, payer remittance reconciliation, refunds, audit history, batch posting, claim adjudication state transitions, and statement-generation workflows remain future revenue-cycle slices. Focused patient payment capture is covered by Slice 58.
 
 ### Slice 57: Claim Status Mutation Readiness
 
@@ -1746,6 +1746,37 @@ Current limitations:
 
 - This slice implements focused manual claim-status lifecycle behavior only.
 - Full claim generation, payer adjudication, ERA import, rejection handling, statement integration, and revenue-cycle audit history remain future billing slices.
+
+### Slice 58: Patient Payment Capture Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-58-patient-payment-capture-readiness` plan, which validates patient payment capture, browser-visible rendering, voiding, active-row hiding, balance/ledger recalculation, and hard-delete cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The slice uses the existing `MOD-PAT-0005` billing/payment anchor and encounter `1000052`; it does not add permanent gold-data records.
+- Legacy behavior creates one temporary OpenEMR patient payment AR session/activity posting with `payer_id = 0` and `payer_type = 0`, verifies it affects active payment, balance, and ledger views, voids it through `ar_activity.deleted`, and hard-deletes the temporary session/activity cleanup rows.
+- ASP.NET Core billing behavior now accepts patient-responsibility payment postings through the existing payment create/void/delete endpoints.
+- React Fees workspace now lets operators choose Insurance or Patient payment source and renders patient-responsibility postings as `Patient`.
+- Modernized smoke coverage validates the temporary patient payment lifecycle, including visible payment summary changes and balance rollback after void.
+- The `workflow-patient-payments` parity suite and `slice-58-patient-payment-capture-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL mutation behavior plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 58 patient payment capture plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary patient-responsibility payment can be captured for `MOD-PAT-0005` encounter `1000052` with receipt reference `RCPT-PARITY-*`, payment `$35.00`, payment method `credit_card`, and no insurance adjustment or payer claim number.
+- Direct probes show one new payment session and one new active payment activity after create, active payment rows include `payer_type = 0`, account balance decreases by the payment amount, and the account ledger gains one payment entry.
+- Direct probes show voiding the payment marks it deleted, removes it from active payment/balance calculations, and restores the active account balance while preserving the session for audit-like history.
+- Hard-delete cleanup removes the temporary activity/session rows so seeded payment counts return to baseline.
+- The modernized Fees workspace renders the temporary patient payment while active and hides it after void.
+- The side-by-side Slice 58 parity comparison matches.
+
+Current limitations:
+
+- This slice implements focused patient payment capture only.
+- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement generation, collections, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1865,3 +1896,4 @@ As of 2026-06-19:
 - The fifty-fifth modernized vertical slice implements patient document replacement revision readiness by proving content replacement updates the current revision timestamp and hash in place while preserving the single-current-version contract, adding a dedicated parity suite, Workbench document replacement revision plan action, smoke coverage, and side-by-side slice-55 parity evidence.
 - The fifty-sixth modernized vertical slice implements payment posting mutation readiness with ASP.NET Core payment posting create/void/delete endpoints, React Fees payment posting controls, normalized legacy/modernized workflow actions, Workbench payment posting mutation plan actions, smoke coverage, and side-by-side slice-56 parity evidence.
 - The fifty-seventh modernized vertical slice implements claim status mutation readiness with ASP.NET Core claim create/update/delete endpoints, React Fees claim status controls, normalized legacy/modernized workflow actions, Workbench claim status mutation plan actions, smoke coverage, and side-by-side slice-57 parity evidence.
+- The fifty-eighth modernized vertical slice implements patient payment capture readiness with payer-type-zero payment support, React Fees source-aware payment controls, normalized legacy/modernized workflow actions, Workbench patient payment capture plan actions, smoke coverage, and side-by-side slice-58 parity evidence.
