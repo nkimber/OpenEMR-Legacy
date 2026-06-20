@@ -872,6 +872,18 @@ LIMIT 1;
     }
   }
 
+  async updatePatientMessageContent(id: number | string, title: string, body: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/content`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title, body })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message content update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async updatePatientMessageAssignment(id: number | string, assignedTo: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/assignment`, {
       method: "PUT",

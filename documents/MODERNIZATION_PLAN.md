@@ -1937,7 +1937,7 @@ Acceptance:
 Current limitations:
 
 - This slice identifies past-due accounts for follow-up; it does not persist collection tasks, send reminders, record phone calls, generate dunning letters, assign staff queues, suppress accounts, or write revenue-cycle audit history.
-- Collection follow-up task lifecycle is covered by Slice 64. Basic pnotes/message reassignment is covered by Slice 65. Actual statement delivery, reminder templates, richer staff assignment queues beyond pnotes assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
+- Collection follow-up task lifecycle is covered by Slice 64. Basic pnotes/message reassignment is covered by Slice 65. Focused pnotes/message title and body editing is covered by Slice 66. Actual statement delivery, reminder templates, richer staff assignment queues beyond pnotes assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
 
 ### Slice 64: Collections Follow-Up Task Readiness
 
@@ -1968,7 +1968,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice creates a focused pnotes-compatible follow-up task. Basic task reassignment is covered by Slice 65; reminder templates, phone-call disposition tracking, dunning letters, escalation queues, payment-plan negotiation, write-off workflows, suppressions, and revenue-cycle audit history remain future work.
+- This slice creates a focused pnotes-compatible follow-up task. Basic task reassignment is covered by Slice 65, focused task/message content editing is covered by Slice 66, and reminder templates, phone-call disposition tracking, dunning letters, escalation queues, payment-plan negotiation, write-off workflows, suppressions, and revenue-cycle audit history remain future work.
 
 ### Slice 65: Patient Message Assignment Readiness
 
@@ -1999,6 +1999,36 @@ Acceptance:
 Current limitations:
 
 - This slice proves focused single-message reassignment. It does not implement role-aware work queues, assignment notifications, escalation policies, bulk reassignment, user lookup/autocomplete, or assignment audit history.
+
+### Slice 66: Patient Message Content Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient-message slice under `modernized-openemr/`.
+- Verification is the shared `slice-66-message-content-readiness` plan, which validates pnotes/message title and body edits, unchanged message counts, browser-visible legacy pnotes rendering, and modernized Messages `Save Edit` behavior on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded portal-messaging anchor, message lifecycle infrastructure, and temporary pnotes-compatible rows; it does not add permanent gold-data records.
+- Legacy behavior is represented by updating the OpenEMR `pnotes.title` and `pnotes.body` fields for a temporary patient message tied to `MOD-PAT-0004`.
+- ASP.NET Core message behavior now exposes `PUT /api/messages/{messageId}/content` to update title and body for active messages.
+- React Messages workspace now provides inline title/body editing and a `Save Edit` action on each message card.
+- Modernized smoke coverage validates patient-message creation, content update, assignment update, close, archive, and hard-delete cleanup.
+- The `workflow-message-content` parity suite and `slice-66-message-content-readiness` plan verify normalized legacy and modernized database state, count stability, legacy pnotes rendering, modernized UI content editing, cleanup, and side-by-side result matching.
+- Workbench-managed Slice 66 message content plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary patient message can be created for `MOD-PAT-0004`, edited with a new title and body, and kept at the same message count.
+- The edited message remains active with `New` status, the expected assignee, and `deleted = 0`.
+- Legacy OpenEMR renders the edited temporary message through the patient notes surface.
+- The modernized Messages workspace renders editable title/body fields and can save the content update through the visible control.
+- The temporary message can still be reassigned, archived, and hard-deleted so the seeded 1,200-message baseline remains unchanged.
+- The side-by-side Slice 66 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused single-message title/body editing. It does not implement rich-text editing, attachments, threaded replies, read receipts, bulk edits, audit history, or notification side effects.
 
 ## Test Strategy
 
@@ -2126,3 +2156,4 @@ As of 2026-06-19:
 - The sixty-third modernized vertical slice implements collections work queue readiness with full-population past-due account ranking, high-priority and over-90 exposure rollups, recommended collection actions, React Fees Collections Work Queue panel, normalized legacy/modernized queue probes, Workbench collections work queue plan actions, smoke coverage, and side-by-side slice-63 parity evidence.
 - The sixty-fourth modernized vertical slice implements collections follow-up task readiness with a pnotes-compatible ASP.NET Core task create endpoint, React Fees Create Task action, normalized legacy/modernized workflow actions, Workbench collections follow-up plan actions, smoke coverage, and side-by-side slice-64 parity evidence.
 - The sixty-fifth modernized vertical slice implements patient message assignment readiness with an ASP.NET Core message assignment endpoint, React Messages reassignment controls, normalized legacy/modernized workflow actions, Workbench message assignment plan actions, smoke coverage, and side-by-side slice-65 parity evidence.
+- The sixty-sixth modernized vertical slice implements patient message content readiness with an ASP.NET Core title/body edit endpoint, React Messages inline edit controls, normalized legacy/modernized workflow actions, Workbench message content plan actions, smoke coverage, and side-by-side slice-66 parity evidence.

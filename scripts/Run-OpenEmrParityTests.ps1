@@ -49,6 +49,7 @@ param(
         "workflow-medications",
         "workflow-messages",
         "workflow-message-assignment",
+        "workflow-message-content",
         "workflow-documents",
         "workflow-document-binary",
         "workflow-document-signoff",

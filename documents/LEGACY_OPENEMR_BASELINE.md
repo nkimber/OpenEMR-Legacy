@@ -209,6 +209,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared collections work queue plan now runs against the legacy target as the legacy half of Slice 63 side-by-side parity, deriving the expected past-due account queue, over-90 exposure, priority tier, recommended action, and contact method from OpenEMR billing and AR activity rows.
 - Shared collections follow-up task plan now runs against the legacy target as the legacy half of Slice 64 side-by-side parity, creating pnotes-compatible billing follow-up tasks from the collections queue, verifying browser-visible pnotes rendering, closing, archiving, and hard-deleting the temporary rows during cleanup.
 - Shared patient-message assignment plan now runs against the legacy target as the legacy half of Slice 65 side-by-side parity, reassigning temporary pnotes-compatible messages from `admin` to `billing`, verifying browser-visible pnotes rendering, and cleaning up without changing the seeded message count.
+- Shared patient-message content plan now runs against the legacy target as the legacy half of Slice 66 side-by-side parity, editing temporary pnotes-compatible message titles and bodies, verifying browser-visible pnotes rendering, and cleaning up without changing the seeded message count.
 - Full named parity plan passed with database, HTTP, UI, and workflow suites selected.
 - Full legacy parity suite passed after a gold-data run reset.
 
