@@ -1872,7 +1872,7 @@ Acceptance:
 Current limitations:
 
 - This slice identifies candidates for a future statement run; it does not execute a batch, persist a batch record, export a package, deliver statements, archive statements, or create collection follow-up tasks.
-- Statement batch package export readiness is covered by Slice 62. Collections work queue readiness is covered by Slice 63. Rich statement batch layout, delivery, portal messaging, persisted collection tasks, and revenue-cycle audit history remain future billing slices.
+- Statement batch package export readiness is covered by Slice 62. Collections work queue readiness is covered by Slice 63. Collections follow-up task lifecycle is covered by Slice 64. Rich statement batch layout, delivery, portal messaging, recurring collection programs, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 62: Statement Batch Package Export Readiness
 
@@ -1904,7 +1904,7 @@ Acceptance:
 Current limitations:
 
 - This slice exports a deterministic package for the current top candidates; it does not persist a batch record, mark statements as sent, deliver statements, archive statements, or create collection follow-up tasks.
-- Collections work queue readiness is covered by Slice 63. Rich statement batch layout, branded PDF design, delivery, portal messaging, persisted collection tasks, and revenue-cycle audit history remain future billing slices.
+- Collections work queue readiness is covered by Slice 63. Collections follow-up task lifecycle is covered by Slice 64. Rich statement batch layout, branded PDF design, delivery, portal messaging, recurring collection programs, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 63: Collections Work Queue Readiness
 
@@ -1937,7 +1937,38 @@ Acceptance:
 Current limitations:
 
 - This slice identifies past-due accounts for follow-up; it does not persist collection tasks, send reminders, record phone calls, generate dunning letters, assign staff queues, suppress accounts, or write revenue-cycle audit history.
-- Actual statement delivery, collection task lifecycle, reminder templates, staff assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
+- Collection follow-up task lifecycle is covered by Slice 64. Actual statement delivery, reminder templates, staff assignment queues beyond pnotes assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
+
+### Slice 64: Collections Follow-Up Task Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-64-collections-follow-up-readiness` plan, which validates pnotes-compatible collections follow-up task create, render, close, archive, delete, and modernized Fees task action behavior on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing, AR payment, statement, and pnotes/message infrastructure; it does not add permanent gold-data records.
+- Legacy behavior is represented by inserting and mutating an OpenEMR `pnotes` row tied to the selected past-due patient.
+- ASP.NET Core billing behavior now exposes `POST /api/billing/collections/follow-ups`, which creates a patient-message-compatible collections task from a work-queue patient.
+- The follow-up task title is deterministic from the generated statement number, and the body includes patient identity, statement number, recommended action, priority, past-due amount, over-90 amount, total balance, oldest open date/age, due date, and operator note.
+- React Fees workspace now provides a `Create Task` action on each Collections Work Queue row and reports the created task assignment.
+- Modernized smoke coverage validates follow-up task creation from the top queue item, closes it through the existing message status route, verifies patient-message visibility, and removes the temporary row.
+- The `account-collections-follow-up` parity suite and `slice-64-collections-follow-up-readiness` plan verify normalized legacy pnotes behavior, modernized API behavior, modernized UI task creation, cleanup, and side-by-side result matching.
+- Workbench-managed Slice 64 collections follow-up plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A follow-up task can be created from a ranked collections queue item without adding new seed records.
+- The created task is stored in the same patient message/pnotes behavior model used by legacy OpenEMR.
+- The task starts as `New`, is assigned to `billing`, and includes the deterministic statement number, action, priority, past-due amount, and operator note.
+- The task can be closed to `Done`, rendered in the legacy patient notes screen or modernized Messages workspace, soft-deleted/archived, and hard-deleted for cleanup.
+- The modernized Fees workspace can create the same task from a visible queue row.
+- The side-by-side Slice 64 parity comparison matches.
+
+Current limitations:
+
+- This slice creates a focused pnotes-compatible follow-up task. It does not implement reminder templates, phone-call disposition tracking, dunning letters, escalation queues, payment-plan negotiation, write-off workflows, suppressions, or revenue-cycle audit history.
 
 ## Test Strategy
 
@@ -2063,3 +2094,4 @@ As of 2026-06-19:
 - The sixty-first modernized vertical slice implements statement batch candidate readiness with a deterministic ranked work queue, ASP.NET Core statement batch endpoint, React Fees Statement Batch panel, normalized legacy/modernized statement-batch probes, Workbench statement batch plan actions, smoke coverage, and side-by-side slice-61 parity evidence.
 - The sixty-second modernized vertical slice implements statement batch package export readiness with a deterministic ASP.NET Core ZIP endpoint, manifest/summary/PDF package content, React Fees Batch Export action, normalized legacy/modernized package probes, Workbench statement batch package plan actions, smoke coverage, and side-by-side slice-62 parity evidence.
 - The sixty-third modernized vertical slice implements collections work queue readiness with full-population past-due account ranking, high-priority and over-90 exposure rollups, recommended collection actions, React Fees Collections Work Queue panel, normalized legacy/modernized queue probes, Workbench collections work queue plan actions, smoke coverage, and side-by-side slice-63 parity evidence.
+- The sixty-fourth modernized vertical slice implements collections follow-up task readiness with a pnotes-compatible ASP.NET Core task create endpoint, React Fees Create Task action, normalized legacy/modernized workflow actions, Workbench collections follow-up plan actions, smoke coverage, and side-by-side slice-64 parity evidence.

@@ -33,6 +33,7 @@ param(
         "account-statement-batch",
         "account-statement-batch-package",
         "account-collections-work-queue",
+        "account-collections-follow-up",
         "admin",
         "reports",
         "reports-export",

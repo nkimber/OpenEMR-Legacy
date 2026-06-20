@@ -18,6 +18,7 @@ import type {
   NewBillingLine,
   NewClaimStatus,
   NewClinicalListEntry,
+  NewCollectionsFollowUpTask,
   NewFacility,
   NewImmunization,
   NewMedication,
@@ -813,9 +814,30 @@ LIMIT 1;
     return mutation.id;
   }
 
+  async createCollectionsFollowUpTask(input: NewCollectionsFollowUpTask): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/collections/follow-ups`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        assignedTo: input.assignedTo,
+        action: input.action,
+        note: input.note
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized collections follow-up create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
   async getPatientMessage(id: number | string): Promise<PatientMessageRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT id, pid AS "patientId", COALESCE(title, '') AS title, COALESCE(body, '') AS body,
+SELECT id, pid AS "patientId", COALESCE(title, '') AS title,
+  encode(convert_to(COALESCE(body, ''), 'UTF8'), 'hex') AS "bodyHex",
   COALESCE(status, '') AS status, COALESCE(assigned_to, '') AS "assignedTo",
   deleted
 FROM messages
@@ -831,7 +853,7 @@ LIMIT 1;
       id: row.id,
       patientId: Number(row.patientId),
       title: row.title,
-      body: row.body,
+      body: Buffer.from(row.bodyHex, "hex").toString("utf8"),
       status: row.status,
       assignedTo: row.assignedTo,
       deleted: Number(row.deleted)

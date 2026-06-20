@@ -402,6 +402,23 @@ export type NewPatientMessage = {
   assignedTo: string;
 };
 
+export type NewCollectionsFollowUpTask = {
+  patientId: number;
+  pubpid: string;
+  patientDisplayName: string;
+  statementNumber: string;
+  action: string;
+  collectionTier: string;
+  pastDueAmount: string;
+  over90Amount: string;
+  balanceDueAmount: string;
+  oldestOpenDate: string;
+  oldestOpenAgeDays: number;
+  dueDate: string;
+  assignedTo: string;
+  note: string;
+};
+
 export type NewPatientDocument = {
   patientId: number;
   categoryId: number;
@@ -1441,6 +1458,15 @@ VALUES
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
+  }
+
+  async createCollectionsFollowUpTask(input: NewCollectionsFollowUpTask): Promise<number> {
+    return this.createPatientMessage({
+      patientId: input.patientId,
+      title: `Collections follow-up: ${input.statementNumber}`,
+      body: buildCollectionsFollowUpBody(input),
+      assignedTo: input.assignedTo
+    });
   }
 
   async getPatientMessage(id: number | string): Promise<PatientMessageRecord | null> {
@@ -2620,6 +2646,31 @@ function workflowClaimStatusLabel(status: number, billProcess: number) {
             : status === 7
               ? "Denied"
               : "Unsubmitted";
+}
+
+function buildCollectionsFollowUpBody(input: NewCollectionsFollowUpTask) {
+  const lines = [
+    "Collections follow-up created from the work queue.",
+    `Patient: ${input.patientDisplayName} (${input.pubpid})`,
+    `Statement: ${input.statementNumber}`,
+    `Action: ${input.action}`,
+    `Priority: ${input.collectionTier}`,
+    `Past due: ${formatWorkflowMoney(input.pastDueAmount)}`,
+    `Over 90: ${formatWorkflowMoney(input.over90Amount)}`,
+    `Balance: ${formatWorkflowMoney(input.balanceDueAmount)}`,
+    `Oldest open: ${input.oldestOpenDate} (${input.oldestOpenAgeDays} days)`,
+    `Due date: ${input.dueDate}`
+  ];
+
+  if (input.note.trim()) {
+    lines.push(`Note: ${input.note.trim()}`);
+  }
+
+  return lines.join("\n");
+}
+
+function formatWorkflowMoney(value: string | number) {
+  return `$${Number(value).toFixed(2)}`;
 }
 
 function mapUser(row: Record<string, string>): UserRecord {

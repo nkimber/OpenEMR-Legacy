@@ -4642,6 +4642,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 090. Modernized Collections Follow-Up Task Slice 64
+
+Commit: this commit
+Started: `2026-06-20T01:20:15-04:00`
+Finished: `2026-06-20T01:51:09.1471813-04:00`
+
+Implemented the sixty-fourth modernized OpenEMR vertical slice: collections follow-up task readiness, focused on turning deterministic collections queue rows into pnotes-compatible follow-up work that can be created, rendered, closed, archived, deleted, and compared side by side.
+
+Key outcomes:
+
+- Added a modernized billing endpoint at `POST /api/billing/collections/follow-ups` that creates a patient-message-compatible collections task from a past-due work queue patient.
+- Stored created follow-up tasks in the existing modernized `messages` model with OpenEMR-style status, assignment, soft-delete, and hard-delete lifecycle behavior.
+- Built deterministic follow-up task titles and bodies from statement number, patient identity, recommended action, collection tier, past-due amount, over-90 exposure, balance, oldest open date/age, due date, and operator note.
+- Added a React Fees `Create Task` action to each Collections Work Queue row and surfaced success/error feedback while preserving the existing account-open workflow.
+- Added modernized smoke coverage for creating a follow-up task from the queue, closing it through the message status route, reading it through patient messages, and deleting it during cleanup.
+- Added the `account-collections-follow-up` parity suite and `slice-64-collections-follow-up-readiness` plan for both legacy and modernized targets.
+- Added legacy and modernized workflow action adapters for collections follow-up task creation, with legacy using OpenEMR `pnotes` semantics and modernized using the new API.
+- Hardened modernized patient-message parity readback for multiline bodies by hex-encoding message body content in the PostgreSQL probe query before decoding it in TypeScript.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 64 collections follow-up plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing full-population billing, payment, statement, and message infrastructure; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the collections follow-up changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 66 smoke checks, including `collections follow-up task lifecycle`.
+- `npm run test:legacy:plan:collections-follow-up -- --reset test` passed with run `2026-06-20T054620-726Z-legacy-openemr-plan-slice-64-collections-follow-up-readiness`.
+- `npm run test:modernized:plan:collections-follow-up -- --reset test` passed with run `2026-06-20T055015-012Z-modernized-openemr-plan-slice-64-collections-follow-up-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-64-collections-follow-up-readiness` matched with comparison `2026-06-20T055102-343Z-legacy-openemr-vs-modernized-openemr-plan-slice-64-collections-follow-up-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-collections-follow-up/account-collections-follow-up.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
