@@ -5233,6 +5233,58 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 100. Modernized Encounter Fee Sheet Entry Slice 74
+
+Commit: this commit
+Started: `2026-06-20T05:52:30-04:00`
+Finished: `2026-06-20T06:18:52.9889975-04:00`
+
+Implemented the seventy-fourth modernized OpenEMR vertical slice: focused encounter fee-sheet entry readiness, adding dedicated encounter-workspace controls for CPT4 charge rows and ICD10 diagnosis rows while preserving the legacy Fee Sheet behavior and cleanup discipline used by the parity harness.
+
+Key outcomes:
+
+- Added a focused `Encounter fee sheet entry` form to the modernized Encounters workspace with code type, date, code, modifier, description, fee, units, and justification fields.
+- Wired the form through the existing modernized billing-line API so new rows refresh the selected encounter detail and appear in Fee Sheet Linkage and Diagnosis Coding surfaces without a full page reload.
+- Added the `workflow-encounter-fee-sheet` Playwright parity suite and `slice-74-encounter-fee-sheet-entry-readiness` plan for both legacy and modernized targets.
+- The shared test creates temporary CPT4 `99499` and ICD10 `R73.03` rows on `MOD-PAT-0001` encounter `1000013`, verifies legacy Fee Sheet rendering, verifies modernized encounter UI/API rendering, deactivates the rows, and hard-deletes them so the gold dataset returns clean.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 74 encounter fee-sheet entry plan.
+- Updated the parity runner wrapper, package scripts, mutation/full-parity suite lists, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build frontend` in `modernized-openemr/`.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 75 smoke checks.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-74-encounter-fee-sheet-entry-readiness -Reset test` passed with run `2026-06-20T101344-198Z-legacy-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-74-encounter-fee-sheet-entry-readiness -Reset test` passed with run `2026-06-20T101456-188Z-modernized-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-74-encounter-fee-sheet-entry-readiness` matched with comparison `2026-06-20T101652-076Z-legacy-openemr-vs-modernized-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/tests/workflow-encounter-fee-sheet/encounter-fee-sheet-entry.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -5240,5 +5292,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, order mutation, charge-capture expansion, audit history, dedicated encounter-screen coding tools, and attachments.
+- Broader encounter workflows for templates, sign-off, order mutation, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

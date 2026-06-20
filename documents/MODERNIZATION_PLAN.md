@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, and temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73; scanned upload workflows, full encounter document lifecycle behavior, and dedicated encounter-screen coding workflows remain future work.
+- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, and focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74; scanned upload workflows, full encounter document lifecycle behavior, templates, code search, coding validation, claim scrubbing, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2222,6 +2222,33 @@ Current limitations:
 
 - This slice proves encounter diagnosis-coding mutation visibility through the existing billing-row lifecycle. It does not add a dedicated encounter-screen diagnosis editor, code search, code-system validation, claim-scrubbing workflow, or broader diagnosis management workflow.
 
+### Slice 74: Encounter Fee Sheet Entry Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter fee-sheet entry readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-74-encounter-fee-sheet-entry-readiness` plan, which adds temporary CPT and ICD10 rows for an encounter, validates encounter-linked billing and diagnosis rendering, deactivates the rows, and deletes them on both legacy and modernized targets.
+
+Scope:
+
+- The modernized Encounters workspace now includes an `Encounter fee sheet entry` form beside the Fee Sheet Linkage and Diagnosis Coding panels.
+- The form supports focused `CPT4` and `ICD10` entry with date, code, modifier for CPT rows, description, fee, units, and justification fields.
+- The form calls the existing server-side billing line API, then refreshes the selected encounter so the billing and diagnosis panels show the newly linked rows.
+- The parity workflow reuses `MOD-PAT-0001` encounter `1000013`, creates a temporary `CPT4 99499` row and temporary `ICD10 R73.03` row, verifies legacy Fee Sheet rendering, verifies modernized Encounter workspace rendering, marks both rows billed/inactive, and hard-deletes both rows.
+- Workbench-managed Slice 74 encounter fee-sheet entry plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating temporary CPT and ICD10 fee-sheet rows for encounter `1000013` increases active encounter-linked billing rows by two without changing encounter count.
+- The CPT row appears in the modernized Encounter Fee Sheet Linkage panel with fee, units, and justification.
+- The ICD10 row appears in both the Fee Sheet Linkage panel and the Diagnosis Coding panel, with fee-sheet diagnosis and justification evidence.
+- Deactivation hides both rows from active encounter-linked surfaces, and hard-delete cleanup restores the seeded billing count.
+- The side-by-side Slice 74 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter-workspace fee-sheet entry for CPT and ICD10 rows. It does not implement code search, code-system validation, claim-scrubbing workflow, order-to-charge conversion, charge templates, authorization, audit history, or broader encounter coding management.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2356,3 +2383,4 @@ As of 2026-06-20:
 - The seventy-first modernized vertical slice implements encounter diagnosis coding readiness with ASP.NET Core encounter detail diagnosis evidence fields, React Encounters Diagnosis Coding rendering, normalized legacy/modernized billing/procedure diagnosis probes, Workbench encounter diagnosis plan actions, smoke coverage, and side-by-side slice-71 parity evidence.
 - The seventy-second modernized vertical slice implements encounter billing linkage mutation readiness with temporary CPT fee-sheet create/render/deactivate/delete behavior, active encounter-linked billing visibility checks, normalized legacy/modernized workflow probes, Workbench encounter billing mutation plan actions, smoke coverage, and side-by-side slice-72 parity evidence.
 - The seventy-third modernized vertical slice implements encounter diagnosis coding mutation readiness with temporary ICD10 fee-sheet diagnosis create/render/deactivate/delete behavior, active encounter-linked diagnosis-coding visibility checks, normalized legacy/modernized workflow probes, Workbench encounter diagnosis mutation plan actions, smoke coverage, and side-by-side slice-73 parity evidence.
+- The seventy-fourth modernized vertical slice implements focused encounter fee-sheet entry readiness with React Encounters CPT/ICD entry controls, existing ASP.NET Core billing-line API behavior, active encounter billing and diagnosis panel refresh, normalized legacy/modernized workflow probes, Workbench encounter fee-sheet entry plan actions, and side-by-side slice-74 parity evidence.
