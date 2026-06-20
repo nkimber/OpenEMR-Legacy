@@ -30,6 +30,10 @@ The local repository intentionally tracks the modernization workspace, orchestra
 
 The ignored `legacy-openemr/source/` folder is a local checkout of the upstream OpenEMR source for inspection and analysis. It should not be vendored into this parent repository by accident.
 
+## Slice Completion Git Rule
+
+Every modernization slice must end with the completed code, tests, configuration, and synchronized document updates checked into Git. When the configured `origin` remote is reachable, the slice commit should also be pushed to `main` before the slice is reported complete.
+
 ## Remote Connection Command
 
 The remote was connected with:

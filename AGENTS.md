@@ -33,6 +33,7 @@ The modernization target is a modern SPA-style UI, a public backend API, a servi
 - Update `documents/PROJECT_CHANGELOG.md` whenever a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed.
 - Keep project documents concise, explicit, and cross-linked.
 - Prefer small vertical slices over broad rewrites.
+- Treat a modernization slice as complete only after its code, tests, configuration, and document updates have been committed to Git, and pushed to the configured remote when available.
 - Preserve the legacy OpenEMR baseline as a reference system.
 - Treat tests as executable specifications for behavior parity.
 - Record durable decisions in the document set instead of leaving them only in chat history.

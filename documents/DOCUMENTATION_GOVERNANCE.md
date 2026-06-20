@@ -39,6 +39,7 @@ Common update patterns:
 - Update decision records when a durable decision is made or reversed.
 - Update `documents/PROJECT_CHANGELOG.md` when a concrete implementation step, enhancement, verification milestone, or release-note-worthy behavior change is completed, including `Started:` and `Finished:` ISO 8601 local timestamps so the Workbench can calculate section duration.
 - Update `documents/INDEX.md` whenever a new document is added or the purpose of an existing document changes.
+- For modernization slices, commit the completed code, tests, configuration, and document updates to Git before considering the slice closed.
 
 ## Decision Handling
 
@@ -64,6 +65,7 @@ Before finishing a change, check:
 - Was a decision made that future contributors need to know?
 - Did the completed work deserve a new project changelog entry?
 - Does `documents/INDEX.md` still route readers to the right place?
+- If this was a modernization slice, have the completed changes been committed to Git and pushed to the configured remote when available?
 
 If the answer to any of these is yes, update the documents before closing the work.
 

@@ -5810,6 +5810,45 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 110. Slice Completion Git Rule
+
+Commit: this commit
+Started: `2026-06-20T10:28:41.6167266-04:00`
+Finished: `2026-06-20T10:30:03.6384760-04:00`
+
+Documented the project rule that every completed modernization slice must be checked into Git, and pushed to the configured remote when available, before it is reported complete.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 49
+- Lines deleted: 2
+- Net lines: 47
+- Total churn: 51
+
+Key outcomes:
+
+- Added the slice completion Git rule to the agent guide so future Codex sessions treat commits as part of slice completion.
+- Added the rule to documentation governance and the synchronization checklist.
+- Added a GitHub connection section that explains the commit-and-push expectation for completed slices.
+- Added the Git commit/push step to the modernization vertical-slice loop.
+- Updated the document index so future readers can find the Git completion rule.
+
+Verified test runs:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- `/api/changelog` smoke test on `http://127.0.0.1:5174` confirmed 110 total entries and documented code-change metrics for entry 110.
+
+Primary files:
+
+- `AGENTS.md`
+- `documents/DOCUMENTATION_GOVERNANCE.md`
+- `documents/GITHUB_CONNECTION.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

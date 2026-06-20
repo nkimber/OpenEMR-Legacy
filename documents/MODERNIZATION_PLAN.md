@@ -84,6 +84,7 @@ Each slice follows the same loop:
 6. Run the same tests against legacy and modernized targets.
 7. Compare results and document accepted differences.
 8. Update Workbench progress and project docs.
+9. Commit the completed slice to Git, and push to the configured remote when available.
 
 ## Slice Order
 
