@@ -27,7 +27,7 @@ const t = {
   npgsql: tech("npgsql", "Npgsql", "10.0.3", "PostgreSQL data provider used by the modernized API.", "PG", "#336791"),
   postgres: tech("postgres", "PostgreSQL", "17.10", "Modernized target database server version.", "PG", "#336791", devicon("postgresql/postgresql-original.svg")),
   docker: tech("docker", "Docker Compose", "5.0.2", "Local application orchestration version.", "D", "#2496ed", devicon("docker/docker-original.svg")),
-  json: tech("json", "JSON artifacts", "local files", "Workbench state, event, test, seed, and changelog artifacts.", "{}", "#8b5cf6"),
+  json: tech("json", "JSON artifacts", "local files", "Workbench state, event, test, comparison, seed, and changelog artifacts.", "{}", "#8b5cf6"),
   seed: tech("seed", "Gold seed contract", "openemr-shared-synthetic-v1", "Shared deterministic synthetic dataset.", "SD", "#d97706"),
   playwright: tech("playwright", "Playwright", "1.61.0", "Browser parity and UI evidence runner.", "PW", "#45ba4b", devicon("playwright/playwright-original.svg")),
   jest: tech("jest", "Jest", "29.7.0", "Legacy OpenEMR JavaScript native test lane.", "J", "#99425b", devicon("jest/jest-plain.svg")),
@@ -118,14 +118,14 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
         purpose: "Local control surface, evidence viewer, and modernization map.",
         architecturePattern: "React SPA plus local Express API that runs only allowlisted project commands and reads structured artifacts.",
         runtime: "React 19.2.7, TypeScript 5.9.3, Vite 7.3.5, Node.js 24.13.1, Express 5.2.1.",
-        dataOwnership: "Owns Workbench-local JSON artifacts, event history, seed manifest visibility, and parsed project changelog data.",
+        dataOwnership: "Owns Workbench-local JSON artifacts, event history, seed manifest visibility, comparison artifact views, and parsed project changelog data.",
         technologies: [t.reactWorkbench, t.typescriptWorkbench, t.viteWorkbench, t.nodeWorkbench, t.express, t.json, t.seed, t.docker],
         diagram: {
           title: "Workbench Orchestration",
           subtitle: "The Workbench observes and controls the project without becoming the only way to run it.",
           nodes: [
-            { id: "workbench-ui", title: "Workbench UI", subtitle: "React/Vite operator experience with status, tests, progress, seed data, and architecture views.", technologies: [t.reactWorkbench, t.typescriptWorkbench, t.viteWorkbench] },
-            { id: "workbench-api", title: "Local API", subtitle: "Express endpoints expose allowlisted lifecycle, test, seed, log, and metadata operations.", technologies: [t.nodeWorkbench, t.express] },
+            { id: "workbench-ui", title: "Workbench UI", subtitle: "React/Vite operator experience with status, tests, comparison evidence, progress, seed data, and architecture views.", technologies: [t.reactWorkbench, t.typescriptWorkbench, t.viteWorkbench] },
+            { id: "workbench-api", title: "Local API", subtitle: "Express endpoints expose allowlisted lifecycle, test, seed, comparison, log, and metadata operations.", technologies: [t.nodeWorkbench, t.express] },
             { id: "workbench-artifacts", title: "Evidence artifacts", subtitle: "JSON summaries, logs, screenshots, reports, seed results, and parsed changelog entries.", technologies: [t.json, t.seed] },
             { id: "workbench-targets", title: "Managed systems", subtitle: "Starts, stops, health-checks, seeds, and tests the legacy and modernized applications.", technologies: [t.docker, t.openemr, t.postgres] }
           ],
@@ -143,13 +143,13 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
           },
           {
             title: "Project memory made visible",
-            body: "The Workbench turns maintained project documents, changelog entries, seed contracts, lifecycle events, and test results into an operator-facing view of the modernization effort."
+            body: "The Workbench turns maintained project documents, changelog entries, seed contracts, lifecycle events, test results, and side-by-side comparison artifacts into an operator-facing view of the modernization effort."
           }
         ],
         responsibilities: [
           "Show runtime status and lifecycle controls for managed applications.",
           "Run smoke, seed, native, parity, and custom parity commands.",
-          "Display evidence from artifacts instead of inventing private state.",
+          "Display test and comparison evidence from artifacts instead of inventing private state.",
           "Explain architectural differences and project decisions."
         ],
         evidence: [

@@ -70,7 +70,7 @@ The implementation should not preserve legacy technical constraints:
 
 - Modernized OpenEMR becomes a managed application in `modernization-workbench/config/apps.json`.
 - Workbench can start, stop, restart, health-check, seed, and run tests for the modernized target.
-- Workbench comparison views should eventually show legacy-vs-modernized parity status by workflow.
+- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, and artifact paths; deeper run/report drill-ins remain future work.
 
 ## Vertical Slice Strategy
 

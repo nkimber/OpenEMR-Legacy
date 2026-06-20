@@ -85,6 +85,41 @@ export type ParityRunResult = {
   stderrPreview: string;
 };
 
+export type ParityComparisonSide = {
+  target: string;
+  runId: string;
+  path: string;
+  exists: boolean;
+  passed: boolean;
+  selectedSuites: string[];
+  stats: {
+    expected: number;
+    skipped: number;
+    unexpected: number;
+    flaky: number;
+    duration: number;
+  };
+};
+
+export type ParityComparisonReport = {
+  comparisonId: string;
+  status: string;
+  passed: boolean;
+  selectionKind: "suite" | "plan" | string;
+  selectionId: string;
+  left: ParityComparisonSide;
+  right: ParityComparisonSide;
+  differences: unknown[];
+  differenceCount: number;
+  reports: {
+    comparisonJson: string;
+  };
+  artifactDirectory: string;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+};
+
 export type NativeRunResult = {
   name: string;
   passed: boolean;

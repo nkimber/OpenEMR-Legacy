@@ -34,6 +34,7 @@ import type {
   LifecycleEvent,
   NativeJestRunResult,
   NativeRunResult,
+  ParityComparisonReport,
   ParityManifest,
   ParityResetMode,
   ParityRunResult,
@@ -1088,17 +1089,20 @@ function TestsPage({
   apps,
   busy,
   parityManifest,
+  parityComparisons,
   onRunTest,
   onRunCustomParity
 }: {
   apps: AppSnapshot[];
   busy: BusyState;
   parityManifest: ParityManifest | null;
+  parityComparisons: ParityComparisonReport[];
   onRunTest: (appId: string, testId: string) => void;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
   return (
     <div className="page-stack">
+      <ParityComparisonPanel comparisons={parityComparisons} />
       {apps.length ? (
         apps.map((app) => {
           const busyForApp = busy?.appId === app.id;
@@ -1150,6 +1154,112 @@ function TestsPage({
       )}
     </div>
   );
+}
+
+function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonReport[] }) {
+  const visibleComparisons = comparisons.slice(0, 8);
+
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <div className="section-kicker">Side-by-side evidence</div>
+          <h2>
+            <GitBranch size={20} />
+            Comparison Results
+          </h2>
+          <p>Latest parity comparisons between legacy OpenEMR and the modernized target.</p>
+        </div>
+      </div>
+      {visibleComparisons.length ? (
+        <div className="comparison-grid">
+          {visibleComparisons.map((comparison) => {
+            const suites = Array.from(new Set([...comparison.left.selectedSuites, ...comparison.right.selectedSuites]));
+            return (
+              <article className="comparison-card" key={comparison.comparisonId}>
+                <div className="comparison-card-header">
+                  <div>
+                    <div className="architecture-title">
+                      <strong>{comparison.selectionId}</strong>
+                      <StatusPill state={comparison.status} label={comparison.status} />
+                    </div>
+                    <p>{comparison.selectionKind} comparison finished {formatDate(comparison.finishedAt)}</p>
+                  </div>
+                  {comparison.passed ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                </div>
+
+                <div className="comparison-side-grid">
+                  <ComparisonSideSummary side={comparison.left} />
+                  <ComparisonSideSummary side={comparison.right} />
+                </div>
+
+                <div className="evidence-metrics">
+                  <span>{comparison.differenceCount} differences</span>
+                  <span>{comparison.left.stats.expected + comparison.right.stats.expected} checks</span>
+                  <span>{formatDuration(comparison.durationMs)}</span>
+                </div>
+
+                {suites.length ? (
+                  <div className="evidence-selection">
+                    <span>Suites</span>
+                    <code>{suites.join(", ")}</code>
+                  </div>
+                ) : null}
+
+                {comparison.differenceCount ? (
+                  <ul className="comparison-differences">
+                    {comparison.differences.slice(0, 3).map((difference, index) => (
+                      <li key={`${comparison.comparisonId}-difference-${index}`}>{formatComparisonDifference(difference)}</li>
+                    ))}
+                    {comparison.differenceCount > 3 ? <li>{comparison.differenceCount - 3} more differences recorded</li> : null}
+                  </ul>
+                ) : (
+                  <div className="comparison-match-note">No differences recorded.</div>
+                )}
+
+                <code>{comparison.reports.comparisonJson || comparison.artifactDirectory}</code>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState text="No side-by-side comparison artifacts have been recorded yet." />
+      )}
+    </section>
+  );
+}
+
+function ComparisonSideSummary({ side }: { side: ParityComparisonReport["left"] }) {
+  return (
+    <div className="comparison-side">
+      <div className="comparison-side-title">
+        <strong>{side.target}</strong>
+        {side.passed ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+      </div>
+      <span>{side.stats.expected} expected</span>
+      <span>{side.stats.unexpected} unexpected</span>
+      <span>{formatDuration(side.stats.duration)}</span>
+      <code>{side.runId}</code>
+    </div>
+  );
+}
+
+function formatComparisonDifference(difference: unknown) {
+  if (typeof difference === "string") {
+    return difference;
+  }
+  if (difference && typeof difference === "object") {
+    const record = difference as Record<string, unknown>;
+    const path = typeof record.path === "string" ? record.path : undefined;
+    const message = typeof record.message === "string" ? record.message : undefined;
+    if (path && message) {
+      return `${path}: ${message}`;
+    }
+    if (message) {
+      return message;
+    }
+  }
+  return JSON.stringify(difference);
 }
 
 function CustomParityRunPanel({
@@ -1526,6 +1636,7 @@ function PageBody({
   architecture,
   changelog,
   parityManifest,
+  parityComparisons,
   onRunCustomParity
 }: {
   page: PageId;
@@ -1544,6 +1655,7 @@ function PageBody({
   architecture: ArchitectureModel | null;
   changelog: ProjectChangelog | null;
   parityManifest: ParityManifest | null;
+  parityComparisons: ParityComparisonReport[];
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
   if (page === "timeline") {
@@ -1556,7 +1668,7 @@ function PageBody({
     return <ArchitecturePanel architecture={architecture} />;
   }
   if (page === "tests") {
-    return <TestsPage apps={apps} busy={busy} parityManifest={parityManifest} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
+    return <TestsPage apps={apps} busy={busy} parityManifest={parityManifest} parityComparisons={parityComparisons} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
   }
   if (page === "seed-data") {
     return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)} />;
@@ -1608,6 +1720,7 @@ export function App() {
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
+  const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
@@ -1620,13 +1733,14 @@ export function App() {
 
   const loadDashboard = useCallback(async () => {
     setError(null);
-    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, changelogData] = await Promise.all([
+    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, parityComparisonData, changelogData] = await Promise.all([
       api.getApps(),
       api.getArchitecture(),
       api.getProgress(),
       api.getEvents(),
       api.getSeedDatasets(),
       api.getParityManifest(),
+      api.getParityComparisons(),
       api.getChangelog()
     ]);
     setApps(appData.apps);
@@ -1635,6 +1749,7 @@ export function App() {
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);
     setParityManifest(parityManifestData);
+    setParityComparisons(parityComparisonData.comparisons);
     setChangelog(changelogData);
   }, []);
 
@@ -1752,6 +1867,7 @@ export function App() {
           architecture={architecture}
           changelog={changelog}
           parityManifest={parityManifest}
+          parityComparisons={parityComparisons}
           onRunCustomParity={handleRunCustomParity}
         />
       </main>

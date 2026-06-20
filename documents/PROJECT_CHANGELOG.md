@@ -6729,7 +6729,7 @@ Primary files:
 
 ### 127. Modernized Appointment Pending Status Slice 98
 
-Commit: current slice commit
+Commit: `ddaa834`
 Started: `2026-06-20T17:00:10-04:00`
 Finished: `2026-06-20T17:12:22-04:00`
 
@@ -6783,6 +6783,52 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 128. Workbench Comparison Artifact Viewer
+
+Commit: current slice commit
+Started: `2026-06-20T17:13:05-04:00`
+Finished: `2026-06-20T17:26:22-04:00`
+
+Implemented the Workbench comparison artifact viewer so recent legacy-versus-modernized parity comparisons are visible directly on the Test Runs page instead of only living in JSON files.
+
+Code changes:
+
+- Files changed: 11
+- Lines added: 434
+- Lines deleted: 23
+- Net lines: 411
+- Total churn: 457
+
+Key outcomes:
+
+- Added the `/api/parity-comparisons` endpoint to read and normalize bounded `comparison.json` artifacts from `parity-tests/artifacts/comparisons/`.
+- Added shared Workbench types and client API support for parity comparison reports.
+- Added a Test Runs comparison panel that shows matched/different status, selected plan or suite, left/right run IDs, pass/fail status, suite coverage, check counts, durations, difference counts, difference previews, and artifact paths.
+- Updated Workbench architecture/progress fallback data so the UI describes Slice 98 and the new comparison evidence surface.
+- Synchronized project context, Workbench, modernization-plan, index, and test-architecture documents with the new comparison-viewer behavior.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `Invoke-RestMethod -Uri http://127.0.0.1:5174/api/parity-comparisons -TimeoutSec 5` returned 20 comparisons with Slice 98 as the latest matched comparison and `TopDifferenceCount = 0`.
+- `npx --yes --package @playwright/cli playwright-cli -s=workbench-comparison eval ...` verified the Test Runs page renders `Comparison Results`, `slice-98-appointment-pending-readiness`, and `No differences recorded.`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -6791,4 +6837,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, co-signature/amendment depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
-- Workbench comparison views that render matched/different comparison artifacts directly.
+- Workbench comparison drill-ins that link from comparison summaries to individual run artifacts, Playwright reports, screenshots, and historical trend charts.

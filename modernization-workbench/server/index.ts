@@ -192,6 +192,41 @@ type CustomParityRunRequest = {
   grep?: string;
 };
 
+type ParityComparisonSide = {
+  target: string;
+  runId: string;
+  path: string;
+  exists: boolean;
+  passed: boolean;
+  selectedSuites: string[];
+  stats: {
+    expected: number;
+    skipped: number;
+    unexpected: number;
+    flaky: number;
+    duration: number;
+  };
+};
+
+type ParityComparisonReport = {
+  comparisonId: string;
+  status: string;
+  passed: boolean;
+  selectionKind: "suite" | "plan" | string;
+  selectionId: string;
+  left: ParityComparisonSide;
+  right: ParityComparisonSide;
+  differences: unknown[];
+  differenceCount: number;
+  reports: {
+    comparisonJson: string;
+  };
+  artifactDirectory: string;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
@@ -201,6 +236,7 @@ const configPath = path.join(workbenchRoot, "config", "apps.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
+const parityComparisonsRoot = path.join(repoRoot, "parity-tests", "artifacts", "comparisons");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
@@ -942,6 +978,113 @@ async function readJsonIfExists(filePath: string) {
   }
 }
 
+function toNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function toStringArray(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const side = value as Record<string, unknown>;
+  const stats = side.stats && typeof side.stats === "object" ? (side.stats as Record<string, unknown>) : {};
+  return {
+    target: typeof side.target === "string" ? side.target : "unknown",
+    runId: typeof side.runId === "string" ? side.runId : "unknown",
+    path: typeof side.path === "string" ? side.path : "",
+    exists: Boolean(side.exists),
+    passed: Boolean(side.passed),
+    selectedSuites: toStringArray(side.selectedSuites),
+    stats: {
+      expected: toNumber(stats.expected),
+      skipped: toNumber(stats.skipped),
+      unexpected: toNumber(stats.unexpected),
+      flaky: toNumber(stats.flaky),
+      duration: toNumber(stats.duration)
+    }
+  };
+}
+
+function normalizeParityComparison(value: unknown, artifactDirectory: string): ParityComparisonReport | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const comparison = value as Record<string, unknown>;
+  const left = normalizeComparisonSide(comparison.left);
+  const right = normalizeComparisonSide(comparison.right);
+  if (!left || !right || typeof comparison.comparisonId !== "string") {
+    return null;
+  }
+
+  const reports = comparison.reports && typeof comparison.reports === "object" ? (comparison.reports as Record<string, unknown>) : {};
+  const differences = Array.isArray(comparison.differences) ? comparison.differences : [];
+  const startedAt = typeof comparison.startedAt === "string" ? comparison.startedAt : "";
+  const finishedAt = typeof comparison.finishedAt === "string" ? comparison.finishedAt : "";
+  const startedTime = new Date(startedAt).getTime();
+  const finishedTime = new Date(finishedAt).getTime();
+
+  return {
+    comparisonId: comparison.comparisonId,
+    status: typeof comparison.status === "string" ? comparison.status : "unknown",
+    passed: Boolean(comparison.passed),
+    selectionKind: typeof comparison.selectionKind === "string" ? comparison.selectionKind : "unknown",
+    selectionId: typeof comparison.selectionId === "string" ? comparison.selectionId : "unknown",
+    left,
+    right,
+    differences,
+    differenceCount: differences.length,
+    reports: {
+      comparisonJson: typeof reports.comparisonJson === "string" ? reports.comparisonJson : ""
+    },
+    artifactDirectory,
+    startedAt,
+    finishedAt,
+    durationMs: Number.isNaN(startedTime) || Number.isNaN(finishedTime) ? 0 : Math.max(0, finishedTime - startedTime)
+  };
+}
+
+async function readParityComparisons(limit = 20) {
+  try {
+    const entries = await fs.readdir(parityComparisonsRoot, { withFileTypes: true });
+    const candidates = await Promise.all(
+      entries
+        .filter((entry) => entry.isDirectory())
+        .map(async (entry) => {
+          const artifactDirectory = path.join(parityComparisonsRoot, entry.name);
+          const comparisonPath = path.join(artifactDirectory, "comparison.json");
+          const [json, stats] = await Promise.all([
+            readJsonIfExists(comparisonPath),
+            fs.stat(comparisonPath).catch(() => null)
+          ]);
+          const relativeArtifactDirectory = path.relative(repoRoot, artifactDirectory).replaceAll("\\", "/");
+          const comparison = normalizeParityComparison(json, relativeArtifactDirectory);
+          return comparison ? { comparison, modifiedAt: stats?.mtimeMs ?? 0 } : null;
+        })
+    );
+
+    return candidates
+      .filter((candidate): candidate is { comparison: ParityComparisonReport; modifiedAt: number } => candidate !== null)
+      .sort((left, right) => {
+        const rightTime = new Date(right.comparison.finishedAt || right.comparison.startedAt).getTime();
+        const leftTime = new Date(left.comparison.finishedAt || left.comparison.startedAt).getTime();
+        return (Number.isNaN(rightTime) ? right.modifiedAt : rightTime) - (Number.isNaN(leftTime) ? left.modifiedAt : leftTime);
+      })
+      .slice(0, limit)
+      .map((candidate) => candidate.comparison);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
+}
+
 async function readEnvFile(cwd: string) {
   const envPath = path.join(cwd, ".env");
   const text = await fs.readFile(envPath, "utf8");
@@ -1359,6 +1502,14 @@ app.get("/api/parity-manifest", async (_request, response, next) => {
   }
 });
 
+app.get("/api/parity-comparisons", async (_request, response, next) => {
+  try {
+    response.json({ comparisons: await readParityComparisons() });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => {
   try {
     const managedApp = await getManagedApp(request.params.appId);
@@ -1501,7 +1652,22 @@ app.get("/api/architecture", async (_request, response) => {
           "Slice 80 encounter document sign-off parity plan implemented for temporary encounter-scoped document create, approve, render, delete, and cleanup comparison",
           "Slice 81 encounter document denial parity plan implemented for temporary encounter-scoped document create, deny, render, delete, and cleanup comparison",
           "Slice 82 encounter document metadata parity plan implemented for temporary encounter-scoped document create, refile, render, delete, and cleanup comparison",
-          "Slice 83 encounter document move parity plan implemented for temporary encounter-scoped document create, same-patient encounter move, render, delete, and cleanup comparison"
+          "Slice 83 encounter document move parity plan implemented for temporary encounter-scoped document create, same-patient encounter move, render, delete, and cleanup comparison",
+          "Slice 84 encounter document content replacement parity plan implemented for temporary encounter-scoped content replacement comparison",
+          "Slice 85 encounter document archive parity plan implemented for temporary encounter-scoped archive/restore comparison",
+          "Slice 86 encounter document lifecycle parity plan implemented for encounter-scoped document lifecycle timeline comparison",
+          "Slice 87 encounter external-link document parity plan implemented for encounter-scoped external-link attachment comparison",
+          "Slice 88 patient image preview parity plan implemented for image document preview comparison",
+          "Slice 89 patient image thumbnail parity plan implemented for stored-byte thumbnail comparison",
+          "Slice 90 patient PDF inline-preview parity plan implemented for PDF preview/download comparison",
+          "Slice 91 patient document lifecycle parity plan implemented for document lifecycle timeline comparison",
+          "Slice 92 patient scanned attachment parity plan implemented for scanned PDF readiness comparison",
+          "Slice 93 appointment reschedule parity plan implemented for future appointment reschedule comparison",
+          "Slice 94 appointment arrival parity plan implemented for arrived status comparison",
+          "Slice 95 appointment check-out parity plan implemented for checked-out status comparison",
+          "Slice 96 appointment no-show parity plan implemented for no-show status comparison",
+          "Slice 97 appointment category parity plan implemented for scheduling category comparison",
+          "Slice 98 appointment pending-status parity plan implemented for pending status comparison"
         ]
       },
       {
@@ -1516,7 +1682,7 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Slice 83 encounter document move readiness implemented",
+        status: "Slice 98 appointment pending-status readiness implemented",
         stack: ["React 19.2.7 SPA", "TypeScript 6.0.3", "Vite 8.0.16", "ASP.NET Core 10.0.9 API", "PostgreSQL 17.10", "Docker Compose 5.0.2"],
         database: "PostgreSQL",
         businessLogic: "Server-side API owns patient search/chart summary including patient registration and patient demographics update behavior, insurance coverage read and insurance coverage lifecycle behavior, patient contact update behavior, appointment list/detail and appointment lifecycle behavior, encounter list/detail, encounter sign-off behavior, encounter document upload behavior, encounter binary document upload behavior, encounter document sign-off behavior, encounter document denial behavior, encounter document metadata refiling behavior, encounter document move behavior, encounter-attached document read behavior, encounter fee-sheet linkage read, mutation visibility, and encounter-workspace fee-sheet entry behavior, encounter claim-status linkage read behavior, encounter procedure-order/result linkage read behavior, encounter-workspace procedure order and result entry behavior, encounter diagnosis-coding linkage read and mutation visibility behavior, encounter/vitals/SOAP lifecycle behavior, encounter metadata lifecycle behavior, allergy, problem-list, and medication-list clinical-list lifecycle behavior, immunization history read and immunization entered-in-error lifecycle behavior, patient-message lifecycle, content edit, and assignment behavior, patient-document read, text content retrieval, preview readiness, revision readiness, replacement revision behavior, binary content upload, MIME-aware download, lifecycle behavior, document sign-off behavior, document denial behavior, document metadata refiling behavior, document archive restore behavior, document content replacement behavior, and external-link document behavior, prescription lifecycle behavior, billing line, diagnosis coding, charge correction, modifier, payment posting, patient payment capture, and claim status lifecycle behavior, account balance, account aging, account ledger, account statement readiness, patient statement generation and PDF export read behavior, statement batch candidate read behavior, statement batch package export behavior, collections work queue read behavior, and pnotes-compatible collections follow-up task behavior, procedure order/report/result lifecycle behavior, scheduled/reportless procedure-order read behavior, facility administration lifecycle behavior, user administration lifecycle behavior, focused access-control permission assignment behavior, read-only clinical-list behavior, read-only patient-message behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, and operational reporting plus CSV export behavior for implemented slices",
@@ -1536,8 +1702,8 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, denials, metadata refiling, and same-patient encounter moves, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, patient demographics mutation parity, patient registration parity, scheduling parity, encounter SOAP/vitals parity, encounter metadata parity, clinical-list parity, messaging parity, insurance coverage parity, insurance mutation parity, immunization parity, patient-document parity, patient-document content parity, patient-document preview parity, patient-document revision parity, patient-document replacement revision parity, binary patient-document mutation parity, patient-document sign-off parity, patient-document denial parity, patient-document metadata parity, patient-document archive parity, patient-document content replacement parity, patient-document external-link parity, procedure-result parity, pending procedure-order parity, report-export parity, fee-sheet billing parity, claim status parity, claim status mutation parity, payment posting parity, payment posting mutation parity, patient payment capture parity, account balance parity, account aging parity, account ledger parity, account statement parity, patient statement generation parity, patient statement PDF export parity, statement batch candidate parity, statement batch package parity, collections work queue parity, collections follow-up task parity, patient-message assignment parity, patient-message content parity, encounter document attachment parity, encounter document upload parity, encounter binary document upload parity, encounter document sign-off parity, encounter document denial parity, encounter document metadata parity, encounter document move parity, encounter billing linkage parity, encounter billing linkage mutation parity, encounter claim linkage parity, encounter procedure order linkage parity, encounter diagnosis coding parity, encounter diagnosis coding mutation parity, encounter fee-sheet entry parity, encounter procedure-order entry parity, encounter procedure-result entry parity, encounter sign-off parity, administration directory parity, operational reporting parity, patient contact mutation parity, appointment mutation parity, encounter mutation parity, clinical-list mutation parity, problem-list mutation parity, medication-list mutation parity, patient-message mutation parity, patient-document mutation parity, prescription mutation parity, immunization mutation parity, billing mutation parity, billing diagnosis mutation parity, billing correction mutation parity, billing modifier mutation parity, procedure mutation parity, admin facility mutation parity, admin user mutation parity, access-control parity, access-permission mutation parity, user group membership mutation parity, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 83 proves encounter document move readiness by adding same-patient encounter move controls, guarded move persistence, cleanup behavior, smoke coverage, and side-by-side parity evidence." }
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, patient demographics mutation parity, patient registration parity, scheduling parity, encounter SOAP/vitals parity, encounter metadata parity, clinical-list parity, messaging parity, insurance coverage parity, insurance mutation parity, immunization parity, patient-document parity, patient-document content parity, patient-document preview parity, patient-document revision parity, patient-document replacement revision parity, binary patient-document mutation parity, patient-document sign-off parity, patient-document denial parity, patient-document metadata parity, patient-document archive parity, patient-document content replacement parity, patient-document external-link parity, procedure-result parity, pending procedure-order parity, report-export parity, fee-sheet billing parity, claim status parity, claim status mutation parity, payment posting parity, payment posting mutation parity, patient payment capture parity, account balance parity, account aging parity, account ledger parity, account statement parity, patient statement generation parity, patient statement PDF export parity, statement batch candidate parity, statement batch package parity, collections work queue parity, collections follow-up task parity, patient-message assignment parity, patient-message content parity, encounter document attachment parity, encounter document upload parity, encounter binary document upload parity, encounter document sign-off parity, encounter document denial parity, encounter document metadata parity, encounter document move parity, encounter billing linkage parity, encounter billing linkage mutation parity, encounter claim linkage parity, encounter procedure order linkage parity, encounter diagnosis coding parity, encounter diagnosis coding mutation parity, encounter fee-sheet entry parity, encounter procedure-order entry parity, encounter procedure-result entry parity, encounter sign-off parity, administration directory parity, operational reporting parity, patient contact mutation parity, appointment mutation parity, encounter mutation parity, clinical-list mutation parity, problem-list mutation parity, medication-list mutation parity, patient-message mutation parity, patient-document mutation parity, prescription mutation parity, immunization mutation parity, billing mutation parity, billing diagnosis mutation parity, billing correction mutation parity, billing modifier mutation parity, procedure mutation parity, admin facility mutation parity, admin user mutation parity, access-control parity, access-permission mutation parity, user group membership mutation parity, appointment reschedule parity, appointment arrival parity, appointment check-out parity, appointment no-show parity, appointment category parity, appointment pending-status parity, side-by-side comparison artifact rendering, and the future full parity contract." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 98 proves appointment pending-status readiness with OpenEMR-compatible status `~`, cleanup behavior, smoke coverage, side-by-side parity evidence, and Workbench-rendered comparison artifacts." }
     ]
   });
 });
