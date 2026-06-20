@@ -524,7 +524,7 @@ LIMIT 1;
         startTime: input.startTime.slice(0, 5),
         durationMinutes: Math.round(input.durationSeconds / 60),
         facilityId: input.facilityId,
-        categoryId: 9,
+        categoryId: input.categoryId ?? null,
         room: input.room
       })
     });
@@ -542,7 +542,8 @@ LIMIT 1;
 SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   appointment_date AS "eventDate", start_time AS "startTime",
   (start_time + make_interval(mins => duration_minutes))::time AS "endTime",
-  status, facility_id AS "facilityId", facility_id AS "billingLocationId", COALESCE(room, '') AS room
+  status, facility_id AS "facilityId", facility_id AS "billingLocationId", COALESCE(room, '') AS room,
+  COALESCE(category_id, 0) AS "categoryId"
 FROM appointments
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -563,7 +564,9 @@ LIMIT 1;
       status: row.status,
       facilityId: Number(row.facilityId),
       billingLocationId: Number(row.billingLocationId),
-      room: row.room
+      room: row.room,
+      categoryId: Number(row.categoryId),
+      categoryName: appointmentCategoryName(Number(row.categoryId))
     };
   }
 
@@ -590,7 +593,7 @@ LIMIT 1;
         startTime: input.startTime.slice(0, 5),
         durationMinutes: Math.round(input.durationSeconds / 60),
         facilityId: input.facilityId,
-        categoryId: 9,
+        categoryId: input.categoryId ?? null,
         room: input.room,
         status: input.status
       })
@@ -2343,4 +2346,14 @@ function workflowClaimStatusLabel(status: number, billProcess: number) {
             : status === 7
               ? "Denied"
               : "Unsubmitted";
+}
+
+function appointmentCategoryName(categoryId: number) {
+  return categoryId === 9
+    ? "Established Patient"
+    : categoryId === 10
+      ? "New Patient"
+      : categoryId === 13
+        ? "Preventive Care Services"
+        : `Category ${categoryId}`;
 }

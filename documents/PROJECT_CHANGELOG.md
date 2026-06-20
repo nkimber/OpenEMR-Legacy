@@ -6668,6 +6668,65 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 126. Modernized Appointment Category Slice 97
+
+Commit: current slice commit
+Started: `2026-06-20T16:38:03-04:00`
+Finished: `2026-06-20T16:57:58-04:00`
+
+Implemented the ninety-seventh modernized OpenEMR vertical slice: appointment category readiness, preserving seeded OpenEMR appointment category ids and names through create, render, edit, cleanup, and side-by-side legacy/modernized parity.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 402
+- Lines deleted: 58
+- Net lines: 344
+- Total churn: 460
+
+Key outcomes:
+
+- Added `categoryName` to modernized appointment API list/detail responses while preserving stored category ids.
+- Added modernized Calendar category selectors for appointment create and reschedule/edit workflows.
+- Rendered appointment category labels in the Calendar appointment list and detail panel.
+- Extended legacy and modernized workflow adapters to create, update, read, and normalize appointment category ids/names.
+- Added the `workflow-appointment-category` Playwright parity suite and the `slice-97-appointment-category-readiness` plan.
+- Added Workbench plan commands/cards and architecture/progress status updates for Slice 97.
+- Extended the modernized smoke test with an `appointment category lifecycle` check.
+- Updated synchronized project documents so the current modernization state is Slice 97 with thirty-four read-only slices and sixty-three mutation-capable slices.
+
+Verified test runs:
+
+- `where.exe npx` found `npx` and `npx.cmd`.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 98 checks, including `appointment category lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-97-appointment-category-readiness -Reset test` passed; run `2026-06-20T205636-334Z-legacy-openemr-plan-slice-97-appointment-category-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-97-appointment-category-readiness -Reset test` passed; run `2026-06-20T205705-700Z-modernized-openemr-plan-slice-97-appointment-category-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-97-appointment-category-readiness` passed with `status: matched`; comparison `2026-06-20T205732-801Z-legacy-openemr-vs-modernized-openemr-plan-slice-97-appointment-category-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from generated/test-maintained files.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-category/appointment-category.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

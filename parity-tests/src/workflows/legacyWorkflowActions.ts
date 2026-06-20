@@ -58,6 +58,8 @@ export type AppointmentRecord = {
   facilityId: number;
   billingLocationId: number;
   room: string;
+  categoryId: number;
+  categoryName: string;
 };
 
 export type ClinicalListRecord = {
@@ -384,6 +386,7 @@ export type NewAppointment = {
   facilityId: number;
   billingLocationId: number;
   room: string;
+  categoryId?: number;
 };
 
 export type AppointmentUpdate = {
@@ -398,6 +401,7 @@ export type AppointmentUpdate = {
   billingLocationId: number;
   room: string;
   status: string;
+  categoryId?: number;
 };
 
 export type NewClinicalListEntry = {
@@ -1275,7 +1279,7 @@ INSERT INTO openemr_postcalendar_events
    pc_eventDate, pc_endDate, pc_duration, pc_startTime, pc_endTime, pc_eventstatus,
    pc_sharing, pc_apptstatus, pc_facility, pc_billing_location, pc_room)
 VALUES
-  (UNHEX(REPLACE(UUID(), '-', '')), 9, 0, ${sqlString(String(input.providerId))}, ${sqlString(String(input.patientId))},
+  (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.categoryId ?? 9)}, 0, ${sqlString(String(input.providerId))}, ${sqlString(String(input.patientId))},
    ${sqlString(input.title)}, NOW(), ${sqlString(input.homeText)}, ${sqlString(input.eventDate)}, ${sqlString(input.eventDate)},
    ${integer(input.durationSeconds)}, ${sqlString(input.startTime)}, ${sqlString(input.endTime)}, 1, 1, '-',
    ${integer(input.facilityId)}, ${integer(input.billingLocationId)}, ${sqlString(input.room)});
@@ -1287,12 +1291,13 @@ SELECT LAST_INSERT_ID() AS id;
   async getAppointment(id: number | string): Promise<AppointmentRecord | null> {
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT pc_eid AS id, pc_pid AS patientId, pc_aid AS providerId, pc_title AS title,
-  DATE(pc_eventDate) AS eventDate, pc_startTime AS startTime, pc_endTime AS endTime,
-  pc_apptstatus AS status, pc_facility AS facilityId, pc_billing_location AS billingLocationId,
-  pc_room AS room
-FROM openemr_postcalendar_events
-WHERE pc_eid = ${integer(legacyId)}
+SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_aid AS providerId, e.pc_title AS title,
+  DATE(e.pc_eventDate) AS eventDate, e.pc_startTime AS startTime, e.pc_endTime AS endTime,
+  e.pc_apptstatus AS status, e.pc_facility AS facilityId, e.pc_billing_location AS billingLocationId,
+  e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName
+FROM openemr_postcalendar_events e
+LEFT JOIN openemr_postcalendar_categories c ON c.pc_catid = e.pc_catid
+WHERE e.pc_eid = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -1310,7 +1315,9 @@ LIMIT 1;
       status: row.status,
       facilityId: Number(row.facilityId),
       billingLocationId: Number(row.billingLocationId),
-      room: row.room
+      room: row.room,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId))
     };
   }
 
@@ -1338,7 +1345,8 @@ SET pc_aid = ${sqlString(String(input.providerId))},
   pc_apptstatus = ${sqlString(input.status)},
   pc_facility = ${integer(input.facilityId)},
   pc_billing_location = ${integer(input.billingLocationId)},
-  pc_room = ${sqlString(input.room)}
+  pc_room = ${sqlString(input.room)},
+  pc_catid = ${input.categoryId === undefined ? "pc_catid" : integer(input.categoryId)}
 WHERE pc_eid = ${integer(legacyId)};
 `);
   }
@@ -2867,6 +2875,16 @@ function workflowClaimStatusLabel(status: number, billProcess: number) {
             : status === 7
               ? "Denied"
               : "Unsubmitted";
+}
+
+function appointmentCategoryName(categoryId: number) {
+  return categoryId === 9
+    ? "Established Patient"
+    : categoryId === 10
+      ? "New Patient"
+      : categoryId === 13
+        ? "Preventive Care Services"
+        : `Category ${categoryId}`;
 }
 
 function buildCollectionsFollowUpBody(input: NewCollectionsFollowUpTask) {
