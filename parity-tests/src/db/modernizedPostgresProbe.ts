@@ -221,6 +221,7 @@ LIMIT 1;
     const rows = await this.queryRows<{ name: string; value: string }>(`
 SELECT 'appointments' AS name, COUNT(*) AS value FROM appointments WHERE pid = ${pid}
 UNION ALL SELECT 'encounters', COUNT(*) FROM encounters WHERE pid = ${pid}
+UNION ALL SELECT 'encounterSignatures', COUNT(*) FROM encounter_signatures WHERE pid = ${pid}
 UNION ALL SELECT 'vitals', COUNT(*) FROM vitals WHERE pid = ${pid}
 UNION ALL SELECT 'clinicalNotes', COUNT(*) FROM clinical_notes WHERE pid = ${pid}
 UNION ALL SELECT 'problems', COUNT(*) FROM problems WHERE pid = ${pid} AND activity = 1

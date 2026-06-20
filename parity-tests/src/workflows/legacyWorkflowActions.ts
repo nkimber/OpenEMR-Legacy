@@ -187,6 +187,18 @@ export type EncounterRecord = {
   billingNote: string;
 };
 
+export type EncounterSignatureRecord = {
+  id: number;
+  encounterId: number;
+  tableName: string;
+  signerUsername: string;
+  signedAt: string;
+  isLock: boolean;
+  amendment: string;
+  hash: string;
+  signatureHash: string;
+};
+
 export type VitalsRecord = {
   id: number;
   patientId: number;
@@ -527,6 +539,13 @@ export type NewEncounter = {
   externalId?: string | null;
   posCode?: number | null;
   billingNote: string;
+};
+
+export type NewEncounterSignature = {
+  signerUsername: string;
+  signedAt: string;
+  isLock: boolean;
+  amendment: string;
 };
 
 export type EncounterMetadataInput = {
@@ -2000,8 +2019,63 @@ WHERE id = ${integer(id)};
 `);
   }
 
+  async signEncounter(id: number, input: NewEncounterSignature): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO esign_signatures
+  (tid, \`table\`, uid, \`datetime\`, is_lock, amendment, hash, signature_hash)
+SELECT fe.id,
+  'form_encounter',
+  u.id,
+  ${sqlString(input.signedAt)},
+  ${input.isLock ? 1 : 0},
+  ${sqlString(input.amendment)},
+  SHA2(CONCAT(fe.id, '|form_encounter|', u.username, '|', ${sqlString(input.signedAt)}, '|', ${input.isLock ? 1 : 0}, '|', ${sqlString(input.amendment)}), 256),
+  SHA2(CONCAT(u.username, '|', fe.id, '|', ${sqlString(input.signedAt)}), 256)
+FROM form_encounter fe
+INNER JOIN users u ON u.username = ${sqlString(input.signerUsername)}
+WHERE fe.id = ${integer(id)}
+LIMIT 1;
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getEncounterSignature(id: number): Promise<EncounterSignatureRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT es.id, es.tid AS encounterId, es.\`table\` AS tableName, u.username AS signerUsername,
+  DATE_FORMAT(es.datetime, '%Y-%m-%d %H:%i') AS signedAt,
+  es.is_lock AS isLock, COALESCE(es.amendment, '') AS amendment,
+  es.hash, es.signature_hash AS signatureHash
+FROM esign_signatures es
+INNER JOIN users u ON u.id = es.uid
+WHERE es.id = ${integer(id)} AND es.\`table\` = 'form_encounter'
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: Number(row.id),
+      encounterId: Number(row.encounterId),
+      tableName: row.tableName,
+      signerUsername: row.signerUsername,
+      signedAt: row.signedAt,
+      isLock: Number(row.isLock) === 1,
+      amendment: row.amendment,
+      hash: row.hash,
+      signatureHash: row.signatureHash
+    } : null;
+  }
+
+  async deleteEncounterSignature(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM esign_signatures
+WHERE id = ${integer(id)} AND \`table\` = 'form_encounter';
+`);
+  }
+
   async deleteEncounter(id: number): Promise<void> {
     await this.db.execute(`
+DELETE FROM esign_signatures
+WHERE tid = ${integer(id)} AND \`table\` = 'form_encounter';
 DELETE FROM form_encounter
 WHERE id = ${integer(id)};
 `);

@@ -13,6 +13,7 @@ import type {
   ClinicalListRecord,
   EncounterMetadataInput,
   EncounterRecord,
+  EncounterSignatureRecord,
   FacilityRecord,
   ImmunizationRecord,
   NewBillingLine,
@@ -33,6 +34,7 @@ import type {
   NewPatientMessage,
   NewAppointment,
   NewEncounter,
+  NewEncounterSignature,
   NewProcedureOrder,
   NewProcedureReport,
   NewProcedureResult,
@@ -1870,6 +1872,64 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized encounter update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async signEncounter(id: number, input: NewEncounterSignature): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}/sign`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter sign-off failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getEncounterSignature(id: number): Promise<EncounterSignatureRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, encounter AS "encounterId", table_name AS "tableName", signer_username AS "signerUsername",
+  to_char(signed_at, 'YYYY-MM-DD HH24:MI') AS "signedAt",
+  CASE WHEN is_lock THEN '1' ELSE '0' END AS "isLock",
+  COALESCE(amendment, '') AS amendment,
+  hash, signature_hash AS "signatureHash"
+FROM encounter_signatures
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? {
+      id: Number(row.id),
+      encounterId: Number(row.encounterId),
+      tableName: row.tableName,
+      signerUsername: row.signerUsername,
+      signedAt: row.signedAt,
+      isLock: row.isLock === "1",
+      amendment: row.amendment,
+      hash: row.hash,
+      signatureHash: row.signatureHash
+    } : null;
+  }
+
+  async deleteEncounterSignature(id: number): Promise<void> {
+    const signature = await this.getEncounterSignature(id);
+    if (!signature) {
+      return;
+    }
+
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(signature.encounterId))}/signatures/${encodeURIComponent(String(id))}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized encounter signature delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

@@ -5389,6 +5389,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 103. Modernized Encounter Sign-Off Slice 77
+
+Commit: this commit
+Started: `2026-06-20T07:43:21.4963933-04:00`
+Finished: `2026-06-20T07:53:18.7113640-04:00`
+
+Implemented the seventy-seventh modernized OpenEMR vertical slice: focused encounter sign-off readiness, adding encounter attestation storage, API lifecycle behavior, modernized Encounters Sign-Off rendering, and side-by-side legacy/modernized parity evidence.
+
+Key outcomes:
+
+- Added modernized PostgreSQL `encounter_signatures` schema support while keeping the permanent gold dataset free of seeded sign-off rows.
+- Added ASP.NET Core encounter sign and signature-delete endpoints with deterministic hash/signature-hash creation.
+- Added modernized frontend API types/helpers and a Sign-Off panel in the Encounters workspace with signer, signed-at, signed/locked mode, note, signature cards, hash preview, and delete action.
+- Added modernized smoke coverage for the encounter sign-off lifecycle.
+- Added legacy and modernized workflow adapter methods for encounter sign-off, normalized `encounterSignatures` count probes, and the `workflow-encounter-signoff` Playwright parity suite.
+- Added the `slice-77-encounter-signoff-readiness` plan, package scripts, runner allow-list, Workbench commands/cards, and architecture/progress status updates.
+- Updated synchronized project documents so the current modernization state is Slice 77 with thirty-four read-only slices and forty-three mutation-capable slices.
+
+Verified test runs:
+
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` in `modernized-openemr/backend` passed.
+- `npm run build` in `modernized-openemr/frontend` passed.
+- `npm run build` in `modernization-workbench` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` in `modernized-openemr` passed with 78 checks; artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-77-encounter-signoff-readiness -Reset test` passed; run `2026-06-20T115135-176Z-legacy-openemr-plan-slice-77-encounter-signoff-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-77-encounter-signoff-readiness -Reset test` passed; run `2026-06-20T115244-521Z-modernized-openemr-plan-slice-77-encounter-signoff-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-77-encounter-signoff-readiness` passed with `status: matched`; comparison `2026-06-20T115309-183Z-legacy-openemr-vs-modernized-openemr-plan-slice-77-encounter-signoff-readiness`.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-signoff/encounter-signoff.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -5396,5 +5457,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, sign-off, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
+- Broader encounter workflows for templates, co-signature/amendment depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.

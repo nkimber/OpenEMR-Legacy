@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, and focused encounter-workspace procedure result entry is covered by Slice 76; scanned upload workflows, full encounter document lifecycle behavior, templates, code search, coding validation, claim scrubbing, order catalogs, provider sign-off, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
+- Encounter templates, authorization, audit history, broader billing linkage updates, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67, read-only encounter fee-sheet linkage visibility is covered by Slice 68, read-only encounter claim-status linkage visibility is covered by Slice 69, read-only encounter procedure-order linkage visibility is covered by Slice 70, read-only encounter diagnosis-coding visibility is covered by Slice 71, temporary encounter-linked billing create/deactivate/delete visibility is covered by Slice 72, temporary encounter-linked ICD diagnosis coding create/deactivate/delete visibility is covered by Slice 73, focused encounter-workspace CPT/ICD fee-sheet entry is covered by Slice 74, focused encounter-workspace procedure-order entry is covered by Slice 75, focused encounter-workspace procedure result entry is covered by Slice 76, and focused encounter sign-off is covered by Slice 77; scanned upload workflows, full encounter document lifecycle behavior, templates, co-signature/amendment depth, code search, coding validation, claim scrubbing, order catalogs, specimen collection, external lab integration, and richer charge-capture workflows remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2304,7 +2304,35 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-workspace procedure result entry for an existing encounter-linked order. It does not implement order catalogs, multi-result panels in one submit, provider sign-off, specimen collection workflow, external lab integration, authorization, audit history, corrected-result lifecycle, or order-to-charge conversion.
+- This slice proves focused encounter-workspace procedure result entry for an existing encounter-linked order. It does not implement order catalogs, multi-result panels in one submit, specimen collection workflow, external lab integration, authorization, audit history, corrected-result lifecycle, or order-to-charge conversion.
+
+### Slice 77: Encounter Sign-Off Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized encounter sign-off readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-77-encounter-signoff-readiness` plan, which creates a temporary encounter, records a provider/admin attestation, validates persisted signature facts and modernized Encounter workspace rendering, deletes the signature, and removes the encounter on both legacy and modernized targets.
+
+Scope:
+
+- The modernized PostgreSQL seed schema now includes an `encounter_signatures` table mapped to legacy-style encounter e-signature facts without adding permanent seeded signature records.
+- The ASP.NET Core encounter API exposes sign and signature-delete endpoints for selected encounters.
+- The modernized Encounters workspace now includes a Sign-Off panel with signer, signed-at, mode, note, persisted signature cards, hash preview, and delete action.
+- The modernized smoke test now includes an `encounter sign-off lifecycle` check that signs `MOD-PAT-0001` encounter `1000013`, verifies the returned signature facts, deletes the signature, and verifies cleanup.
+- The parity workflow creates a temporary encounter for `MOD-PAT-0002`, signs it as `admin`, verifies legacy `esign_signatures` or modernized `encounter_signatures` post-state, renders the modernized Sign-Off panel, deletes the signature, and deletes the encounter.
+- Workbench-managed Slice 77 encounter sign-off plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary signed encounter increases encounter count and encounter-signature count by one.
+- The signature records table name, signer username, signed-at timestamp, lock mode, amendment/note, hash, and signature hash consistently across both targets.
+- The modernized Encounter Sign-Off panel renders the saved signed state and signature note.
+- Deleting the signature restores the encounter-signature count, and deleting the temporary encounter restores the encounter count.
+- The side-by-side Slice 77 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused encounter sign-off/attestation parity. It does not yet enforce role-based signing authorization, full clinical locking semantics, co-signature workflows, amendment history, revocation policy, legal attestation text, or audit-log export.
 
 ## Test Strategy
 
@@ -2443,3 +2471,4 @@ As of 2026-06-20:
 - The seventy-fourth modernized vertical slice implements focused encounter fee-sheet entry readiness with React Encounters CPT/ICD entry controls, existing ASP.NET Core billing-line API behavior, active encounter billing and diagnosis panel refresh, normalized legacy/modernized workflow probes, Workbench encounter fee-sheet entry plan actions, and side-by-side slice-74 parity evidence.
 - The seventy-fifth modernized vertical slice implements focused encounter procedure-order entry readiness with React Encounters pending lab-order controls, existing ASP.NET Core procedure-order API behavior, active encounter procedure-order panel refresh, normalized legacy/modernized workflow probes, Workbench encounter procedure-order entry plan actions, smoke coverage, and side-by-side slice-75 parity evidence.
 - The seventy-sixth modernized vertical slice implements focused encounter procedure-result entry readiness with React Encounters per-order report/result controls, existing ASP.NET Core procedure report/result API behavior, active encounter procedure-order panel refresh, normalized legacy/modernized workflow probes, Workbench encounter procedure-result entry plan actions, smoke coverage, and side-by-side slice-76 parity evidence.
+- The seventy-seventh modernized vertical slice implements encounter sign-off readiness with a normalized encounter-signature table, ASP.NET Core encounter sign/delete endpoints, React Encounters Sign-Off controls, normalized legacy/modernized workflow probes, Workbench encounter sign-off plan actions, smoke coverage, and side-by-side slice-77 parity evidence.
