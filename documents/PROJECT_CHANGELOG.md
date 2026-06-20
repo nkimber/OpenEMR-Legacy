@@ -6829,6 +6829,69 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 129. Modernized Appointment Provider Reassignment Slice 99
+
+Commit: `b2141d8`
+Started: `2026-06-20T17:34:04-04:00`
+Finished: `2026-06-20T17:47:43-04:00`
+
+Implemented the ninety-ninth modernized OpenEMR vertical slice: appointment provider reassignment readiness, exposing appointment provider/facility IDs through the modernized API and proving that a temporary future appointment can be reassigned to a different provider, rendered, cleaned up, and compared side by side.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 366
+- Lines deleted: 41
+- Net lines: 325
+- Total churn: 407
+
+Key outcomes:
+
+- Added provider and facility IDs to modernized appointment list/detail responses.
+- Added Calendar create/edit provider and facility ID controls plus care-location rendering that shows IDs alongside names.
+- Added the `workflow-appointment-provider` Playwright parity suite for temporary future appointment provider reassignment.
+- Added the `slice-99-appointment-provider-readiness` plan to the parity manifest, package scripts, and PowerShell runner allow-list.
+- Extended the modernized smoke test with an `appointment provider reassignment lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 99 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, and legacy-baseline documents so the current modernization state is Slice 99 with thirty-four read-only slices and sixty-five mutation-capable slices.
+
+Verified test runs:
+
+- `where.exe npx` found `npx` and `npx.cmd`.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 100 checks, including `appointment provider reassignment lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-99-appointment-provider-readiness -Reset test` passed; run `2026-06-20T214623-577Z-legacy-openemr-plan-slice-99-appointment-provider-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-99-appointment-provider-readiness -Reset test` passed; run `2026-06-20T214653-241Z-modernized-openemr-plan-slice-99-appointment-provider-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-99-appointment-provider-readiness` passed with `status: matched`; comparison `2026-06-20T214717-309Z-legacy-openemr-vs-modernized-openemr-plan-slice-99-appointment-provider-readiness`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-provider/appointment-provider.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
