@@ -29,6 +29,7 @@ param(
         "account-ledger",
         "account-statement",
         "account-statement-generation",
+        "account-statement-pdf",
         "admin",
         "reports",
         "reports-export",

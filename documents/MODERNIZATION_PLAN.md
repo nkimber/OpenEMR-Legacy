@@ -1598,7 +1598,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers statement readiness only.
-- Statement archival, batch statement runs, delivery/export workflows, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
+- Statement archival, batch statement runs, delivery workflows, richer export workflows, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59, and deterministic statement PDF export is covered by Slice 60.
 
 ### Slice 53: Document Preview Readiness
 
@@ -1776,7 +1776,7 @@ Acceptance:
 Current limitations:
 
 - This slice implements focused patient payment capture only.
-- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement delivery, collections, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59.
+- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement delivery, collections, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59, and deterministic statement PDF export is covered by Slice 60.
 
 ### Slice 59: Statement Generation Readiness
 
@@ -1806,7 +1806,38 @@ Acceptance:
 Current limitations:
 
 - This slice generates a deterministic printable statement document only.
-- Batch statement runs, PDF rendering/export, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
+- Deterministic statement PDF export is covered by Slice 60.
+- Batch statement runs, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
+
+### Slice 60: Statement PDF Export Readiness
+
+Status:
+
+- Implemented as a read-only modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-60-statement-pdf-export-readiness` plan, which validates deterministic patient statement PDF export, browser-visible download affordance, and parity against the legacy-derived billing ledger on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing `MOD-PAT-0005` billing/payment/account-statement anchor and the Slice 59 generated statement document; it does not add permanent gold-data records.
+- Legacy behavior is represented by the normalized parity probe that derives the same statement number, payment instructions, totals, and line-item facts from OpenEMR patient demographics, account statement readiness facts, and chronological ledger rows.
+- ASP.NET Core billing read behavior now exposes `GET /api/billing/{patientId}/statement.pdf`, returning a deterministic `application/pdf` download named with the generated statement number.
+- React Fees workspace now shows a `PDF Export` action in the Patient Statement panel.
+- Modernized smoke coverage validates the `MOD-PAT-0005` PDF endpoint, response headers, PDF header, payment instructions, EOB-backed payment line, and statement number.
+- The `account-statement-pdf` parity suite and `slice-60-statement-pdf-export-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL/API/UI statement PDF export behavior.
+- Workbench-managed Slice 60 statement PDF export plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The exported file for `MOD-PAT-0005` is named `STMT-MOD-PAT-0005-20260625.pdf`.
+- The modernized endpoint returns `application/pdf` content beginning with `%PDF-1.4`.
+- The PDF source includes `Patient Statement STMT-MOD-PAT-0005-20260625`, payment instructions `Please pay $364.75 by 2026-07-25.`, balance due `$364.75`, `Northstar HMO insurance payment`, and `EOB-NSTAR-1000052`.
+- The modernized Fees workspace renders a visible `PDF Export` link with the expected statement PDF URL and download filename.
+- The side-by-side Slice 60 parity comparison matches.
+
+Current limitations:
+
+- This slice exports a deterministic one-patient statement PDF from the current generated statement document only.
+- Batch statement runs, richer PDF layout/branding, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1927,3 +1958,5 @@ As of 2026-06-19:
 - The fifty-sixth modernized vertical slice implements payment posting mutation readiness with ASP.NET Core payment posting create/void/delete endpoints, React Fees payment posting controls, normalized legacy/modernized workflow actions, Workbench payment posting mutation plan actions, smoke coverage, and side-by-side slice-56 parity evidence.
 - The fifty-seventh modernized vertical slice implements claim status mutation readiness with ASP.NET Core claim create/update/delete endpoints, React Fees claim status controls, normalized legacy/modernized workflow actions, Workbench claim status mutation plan actions, smoke coverage, and side-by-side slice-57 parity evidence.
 - The fifty-eighth modernized vertical slice implements patient payment capture readiness with payer-type-zero payment support, React Fees source-aware payment controls, normalized legacy/modernized workflow actions, Workbench patient payment capture plan actions, smoke coverage, and side-by-side slice-58 parity evidence.
+- The fifty-ninth modernized vertical slice implements patient statement generation readiness with a deterministic statement document contract, React Fees Patient Statement rendering, normalized legacy/modernized statement-generation probes, Workbench statement generation plan actions, smoke coverage, and side-by-side slice-59 parity evidence.
+- The sixtieth modernized vertical slice implements patient statement PDF export readiness with a deterministic ASP.NET Core PDF endpoint, React Fees PDF Export action, normalized legacy/modernized statement-PDF probes, Workbench statement PDF plan actions, smoke coverage, and side-by-side slice-60 parity evidence.

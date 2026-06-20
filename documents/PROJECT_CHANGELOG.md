@@ -4406,6 +4406,63 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 086. Modernized Statement PDF Export Slice 60
+
+Commit: this commit
+Started: `2026-06-19T23:23:00-04:00`
+Finished: `2026-06-19T23:47:17-04:00`
+
+Implemented the sixtieth modernized OpenEMR vertical slice: patient statement PDF export readiness, focused on proving the generated statement document can be exported as deterministic PDF content and launched from the modernized Fees workspace.
+
+Key outcomes:
+
+- Added a modernized billing statement PDF endpoint at `GET /api/billing/{patientId}/statement.pdf`, returning `application/pdf` content named with the generated statement number.
+- Added a React Fees `PDF Export` action in the Patient Statement panel with the expected statement-specific download filename.
+- Added modernized smoke coverage for the anchor statement PDF export response, including response headers, PDF header, statement number, payment instructions, EOB-backed payment line, and PDF filename.
+- Added the `account-statement-pdf` parity suite and `slice-60-statement-pdf-export-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and result paths for the Slice 60 statement PDF export plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing `MOD-PAT-0005` billing/payment/account-statement anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the statement PDF export changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 62 smoke checks, including `anchor patient statement PDF export`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:statement-pdf` passed with run `2026-06-20T034558-283Z-legacy-openemr-plan-slice-60-statement-pdf-export-readiness`.
+- `npm run test:modernized:plan:statement-pdf` passed with run `2026-06-20T034651-650Z-modernized-openemr-plan-slice-60-statement-pdf-export-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-60-statement-pdf-export-readiness` matched with comparison `2026-06-20T034712-054Z-legacy-openemr-vs-modernized-openemr-plan-slice-60-statement-pdf-export-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-statement-pdf/account-statement-pdf.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
