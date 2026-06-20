@@ -57,6 +57,7 @@ param(
         "workflow-encounter-signoff",
         "workflow-encounter-documents",
         "workflow-encounter-binary-documents",
+        "workflow-encounter-document-signoff",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

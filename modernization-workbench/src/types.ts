@@ -364,6 +364,17 @@ export type ChangelogEntry = {
   keyOutcomes: string[];
   primaryFiles: string[];
   metrics: { label: string; value: string }[];
+  codeChangeStats?: {
+    filesChanged: number;
+    linesAdded: number;
+    linesDeleted: number;
+    netLines: number;
+    totalChurn: number;
+    binaryFiles: number;
+    source: "documented" | "git" | "git-inferred";
+    commits: string[];
+    note?: string;
+  };
 };
 
 export type ProjectChangelog = {

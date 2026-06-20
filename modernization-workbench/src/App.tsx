@@ -179,6 +179,15 @@ function formatElapsedDuration(ms?: number) {
   return parts.slice(0, 2).join(" ");
 }
 
+function formatCount(value: number) {
+  return new Intl.NumberFormat().format(value);
+}
+
+function formatSignedCount(value: number) {
+  const prefix = value > 0 ? "+" : "";
+  return `${prefix}${formatCount(value)}`;
+}
+
 function StatusPill({ state, label }: { state: RuntimeState | string; label: string }) {
   return <span className={`status-pill status-${state}`}>{label}</span>;
 }
@@ -950,6 +959,23 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
               } else if (entry.elapsedSincePreviousMs !== undefined) {
                 timingMetrics.push({ label: "Since prior step", value: formatElapsedDuration(entry.elapsedSincePreviousMs) });
               }
+              const codeChangeMetrics = entry.codeChangeStats
+                ? [
+                    { label: "Files", value: formatCount(entry.codeChangeStats.filesChanged) },
+                    { label: "Added", value: `+${formatCount(entry.codeChangeStats.linesAdded)}` },
+                    { label: "Deleted", value: `-${formatCount(entry.codeChangeStats.linesDeleted)}` },
+                    { label: "Net", value: formatSignedCount(entry.codeChangeStats.netLines) },
+                    { label: "Churn", value: formatCount(entry.codeChangeStats.totalChurn) }
+                  ]
+                : [];
+              const codeChangeSource =
+                entry.codeChangeStats?.source === "documented"
+                  ? "Documented"
+                  : entry.codeChangeStats?.source === "git-inferred"
+                    ? "Git inferred"
+                    : entry.codeChangeStats?.source === "git"
+                      ? "Git"
+                      : "";
 
               return (
                 <article className="changelog-entry" key={`${entry.date}-${entry.id}`}>
@@ -974,6 +1000,24 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                             {metric.label} <strong>{metric.value}</strong>
                           </span>
                         ))}
+                      </div>
+                    ) : null}
+
+                    {entry.codeChangeStats ? (
+                      <div className="changelog-code-metrics" title={entry.codeChangeStats.note}>
+                        {codeChangeMetrics.map((metric) => (
+                          <span key={`${entry.id}-code-${metric.label}`}>
+                            {metric.label} <strong>{metric.value}</strong>
+                          </span>
+                        ))}
+                        {entry.codeChangeStats.binaryFiles ? (
+                          <span>
+                            Binary files <strong>{formatCount(entry.codeChangeStats.binaryFiles)}</strong>
+                          </span>
+                        ) : null}
+                        <span>
+                          Source <strong>{codeChangeSource}</strong>
+                        </span>
                       </div>
                     ) : null}
 

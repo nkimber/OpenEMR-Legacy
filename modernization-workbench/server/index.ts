@@ -111,12 +111,28 @@ type ChangelogEntry = {
   keyOutcomes: string[];
   primaryFiles: string[];
   metrics: { label: string; value: string }[];
+  codeChangeStats?: CodeChangeStats;
+};
+
+type CodeChangeStats = {
+  filesChanged: number;
+  linesAdded: number;
+  linesDeleted: number;
+  netLines: number;
+  totalChurn: number;
+  binaryFiles: number;
+  source: "documented" | "git" | "git-inferred";
+  commits: string[];
+  note?: string;
 };
 
 type GitCommitInfo = {
   fullHash: string;
   shortHash: string;
   authoredAt: string;
+  subject: string;
+  changedFiles: string[];
+  codeChangeStats: CodeChangeStats;
 };
 
 type ProjectChangelog = {
@@ -234,6 +250,52 @@ function calculateDurationMs(startedAt?: string, finishedAt?: string) {
   return Number.isNaN(startedTime) || Number.isNaN(finishedTime) ? undefined : Math.max(0, finishedTime - startedTime);
 }
 
+function parseIntegerMetric(value: string) {
+  const normalized = value.replace(/,/g, "").trim();
+  const match = normalized.match(/^([+-]?\d+)/);
+  return match ? Number.parseInt(match[1], 10) : undefined;
+}
+
+function parseDocumentedCodeChangeStats(items: string[]): CodeChangeStats | undefined {
+  if (!items.length) {
+    return undefined;
+  }
+
+  const values = new Map<string, number>();
+  for (const item of items) {
+    const [rawLabel, ...valueParts] = item.split(":");
+    const value = parseIntegerMetric(valueParts.join(":"));
+    if (!rawLabel || value === undefined) {
+      continue;
+    }
+
+    values.set(rawLabel.trim().toLowerCase(), value);
+  }
+
+  const filesChanged = values.get("files changed");
+  const linesAdded = values.get("lines added");
+  const linesDeleted = values.get("lines deleted");
+  const netLines = values.get("net lines") ?? (linesAdded !== undefined && linesDeleted !== undefined ? linesAdded - linesDeleted : undefined);
+  const totalChurn = values.get("total churn") ?? (linesAdded !== undefined && linesDeleted !== undefined ? linesAdded + linesDeleted : undefined);
+  const binaryFiles = values.get("binary files") ?? 0;
+
+  if (filesChanged === undefined || linesAdded === undefined || linesDeleted === undefined || netLines === undefined || totalChurn === undefined) {
+    return undefined;
+  }
+
+  return {
+    filesChanged,
+    linesAdded,
+    linesDeleted,
+    netLines,
+    totalChurn,
+    binaryFiles,
+    source: "documented",
+    commits: [],
+    note: "Read from this changelog entry."
+  };
+}
+
 function parseChangelogEntry(date: string, id: string, title: string, lines: string[]): ChangelogEntry {
   const sections = new Map<string, string[]>();
   const summaryLines: string[] = [];
@@ -293,6 +355,7 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
     const value = valueParts.join(":").trim();
     return label && value ? [{ label: label.trim(), value }] : [];
   });
+  const codeChangeStats = parseDocumentedCodeChangeStats(sections.get("Code changes") ?? []);
 
   return {
     id,
@@ -305,7 +368,8 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
     summary: summaryLines.join(" "),
     keyOutcomes: sections.get("Key outcomes") ?? [],
     primaryFiles,
-    metrics
+    metrics,
+    codeChangeStats
   };
 }
 
@@ -358,7 +422,7 @@ function parseProjectChangelog(text: string): ChangelogEntry[] {
 
 async function readGitCommitInfo(): Promise<GitCommitInfo[]> {
   return await new Promise((resolve) => {
-    const git = spawn("git", ["log", "--all", "--format=%H%x09%h%x09%aI"], {
+    const git = spawn("git", ["log", "--all", "--numstat", "--format=%x1e%H%x1f%h%x1f%aI%x1f%s"], {
       cwd: repoRoot,
       shell: false,
       windowsHide: true
@@ -377,12 +441,56 @@ async function readGitCommitInfo(): Promise<GitCommitInfo[]> {
 
       resolve(
         stdout
-          .split(/\r?\n/)
-          .map((line) => line.trim())
+          .split("\x1e")
+          .map((block) => block.trim())
           .filter(Boolean)
-          .flatMap((line) => {
-            const [fullHash, shortHash, authoredAt] = line.split("\t");
-            return fullHash && shortHash && authoredAt ? [{ fullHash, shortHash, authoredAt }] : [];
+          .flatMap((block) => {
+            const [header, ...numstatLines] = block.split(/\r?\n/);
+            const [fullHash, shortHash, authoredAt, subject] = header.split("\x1f");
+            if (!fullHash || !shortHash || !authoredAt || !subject) {
+              return [];
+            }
+
+            const filePaths = new Set<string>();
+            let linesAdded = 0;
+            let linesDeleted = 0;
+            let binaryFiles = 0;
+
+            for (const line of numstatLines) {
+              const [added, deleted, filePath] = line.split("\t");
+              if (!filePath) {
+                continue;
+              }
+
+              filePaths.add(filePath);
+              if (added === "-" || deleted === "-") {
+                binaryFiles += 1;
+                continue;
+              }
+
+              linesAdded += Number.parseInt(added, 10) || 0;
+              linesDeleted += Number.parseInt(deleted, 10) || 0;
+            }
+
+            return [
+              {
+                fullHash,
+                shortHash,
+                authoredAt,
+                subject,
+                changedFiles: [...filePaths],
+                codeChangeStats: {
+                  filesChanged: filePaths.size,
+                  linesAdded,
+                  linesDeleted,
+                  netLines: linesAdded - linesDeleted,
+                  totalChurn: linesAdded + linesDeleted,
+                  binaryFiles,
+                  source: "git" as const,
+                  commits: [shortHash]
+                }
+              }
+            ];
           })
       );
     });
@@ -400,7 +508,103 @@ function resolveCommitInfo(hash: string, commits: GitCommitInfo[]) {
   );
 }
 
-function enrichChangelogTiming(entries: ChangelogEntry[], commits: GitCommitInfo[]) {
+function aggregateCodeChangeStats(resolvedCommits: GitCommitInfo[], source: CodeChangeStats["source"], note: string): CodeChangeStats | undefined {
+  if (!resolvedCommits.length) {
+    return undefined;
+  }
+
+  const changedFiles = new Set(resolvedCommits.flatMap((commit) => commit.changedFiles));
+  return {
+    filesChanged: changedFiles.size,
+    linesAdded: resolvedCommits.reduce((total, commit) => total + commit.codeChangeStats.linesAdded, 0),
+    linesDeleted: resolvedCommits.reduce((total, commit) => total + commit.codeChangeStats.linesDeleted, 0),
+    netLines: resolvedCommits.reduce((total, commit) => total + commit.codeChangeStats.netLines, 0),
+    totalChurn: resolvedCommits.reduce((total, commit) => total + commit.codeChangeStats.totalChurn, 0),
+    binaryFiles: resolvedCommits.reduce((total, commit) => total + commit.codeChangeStats.binaryFiles, 0),
+    source,
+    commits: resolvedCommits.map((commit) => commit.shortHash),
+    note
+  };
+}
+
+const changelogTitleStopWords = new Set([
+  "a",
+  "add",
+  "added",
+  "and",
+  "for",
+  "implement",
+  "implemented",
+  "modernization",
+  "modernized",
+  "openemr",
+  "parity",
+  "readiness",
+  "record",
+  "slice",
+  "the",
+  "this",
+  "with"
+]);
+
+function tokenizeChangelogText(value: string) {
+  return cleanMarkdownText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !/^\d+$/.test(token) && !changelogTitleStopWords.has(token));
+}
+
+function scoreCommitSubjectForEntry(entry: ChangelogEntry, commit: GitCommitInfo) {
+  const titleTokens = new Set(tokenizeChangelogText(entry.title));
+  const subjectTokens = new Set(tokenizeChangelogText(commit.subject));
+  if (!titleTokens.size || !subjectTokens.size) {
+    return 0;
+  }
+
+  const overlap = [...titleTokens].filter((token) => subjectTokens.has(token)).length;
+  return overlap >= 2 ? overlap / Math.max(titleTokens.size, subjectTokens.size) : 0;
+}
+
+function inferCommitForEntry(entry: ChangelogEntry, commits: GitCommitInfo[]) {
+  const commitLabel = entry.commit.trim().toLowerCase();
+  if (!["this commit", "current slice commit"].includes(commitLabel)) {
+    return undefined;
+  }
+
+  const candidates = commits
+    .map((commit) => ({ commit, score: scoreCommitSubjectForEntry(entry, commit) }))
+    .filter((candidate) => candidate.score >= 0.45)
+    .sort((left, right) => right.score - left.score);
+
+  if (!candidates.length) {
+    return undefined;
+  }
+
+  const [best, second] = candidates;
+  return !second || best.score - second.score >= 0.1 ? best.commit : undefined;
+}
+
+function resolveEntryCodeChangeStats(entry: ChangelogEntry, commits: GitCommitInfo[]) {
+  if (entry.codeChangeStats) {
+    return entry.codeChangeStats;
+  }
+
+  const explicitCommits = extractCommitHashes(entry.commit)
+    .map((hash) => resolveCommitInfo(hash, commits))
+    .filter((commit): commit is GitCommitInfo => Boolean(commit));
+  const explicitStats = aggregateCodeChangeStats(explicitCommits, "git", "Computed from explicit changelog commit hash metadata.");
+  if (explicitStats) {
+    return explicitStats;
+  }
+
+  const inferredCommit = inferCommitForEntry(entry, commits);
+  return inferredCommit
+    ? aggregateCodeChangeStats([inferredCommit], "git-inferred", `Inferred from Git commit subject "${inferredCommit.subject}".`)
+    : undefined;
+}
+
+function enrichChangelogEntries(entries: ChangelogEntry[], commits: GitCommitInfo[]) {
   let previousCompletedAt: string | undefined;
 
   return entries.map((entry) => {
@@ -424,7 +628,8 @@ function enrichChangelogTiming(entries: ChangelogEntry[], commits: GitCommitInfo
       completedAt,
       completedCommit: completionCommit?.shortHash,
       durationMs: entry.durationMs ?? calculateDurationMs(entry.startedAt, entry.finishedAt),
-      elapsedSincePreviousMs
+      elapsedSincePreviousMs,
+      codeChangeStats: resolveEntryCodeChangeStats(entry, commits)
     };
   });
 }
@@ -432,7 +637,7 @@ function enrichChangelogTiming(entries: ChangelogEntry[], commits: GitCommitInfo
 async function readProjectChangelog(): Promise<ProjectChangelog> {
   const text = await fs.readFile(changelogPath, "utf8");
   const stats = await fs.stat(changelogPath);
-  const entries = enrichChangelogTiming(parseProjectChangelog(text), await readGitCommitInfo());
+  const entries = enrichChangelogEntries(parseProjectChangelog(text), await readGitCommitInfo());
   return {
     sourcePath: path.relative(repoRoot, changelogPath).replaceAll("\\", "/"),
     updatedAt: stats.mtime.toISOString(),
@@ -1259,7 +1464,8 @@ app.get("/api/architecture", async (_request, response) => {
           "Slice 76 encounter procedure-result entry parity plan implemented for temporary lab order, reviewed final result, encounter-workspace render, and delete comparison",
           "Slice 77 encounter sign-off parity plan implemented for temporary encounter attestation create, render, delete, and cleanup comparison",
           "Slice 78 encounter document upload parity plan implemented for temporary encounter-scoped text document create, render, delete, and cleanup comparison",
-          "Slice 79 encounter binary document upload parity plan implemented for temporary encounter-scoped PDF document create, render, download, delete, and cleanup comparison"
+          "Slice 79 encounter binary document upload parity plan implemented for temporary encounter-scoped PDF document create, render, download, delete, and cleanup comparison",
+          "Slice 80 encounter document sign-off parity plan implemented for temporary encounter-scoped document create, approve, render, delete, and cleanup comparison"
         ]
       },
       {
@@ -1274,11 +1480,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernized-openemr",
         name: "Modernized OpenEMR",
-        status: "Slice 79 encounter binary document upload readiness implemented",
+        status: "Slice 80 encounter document sign-off readiness implemented",
         stack: ["React 19.2.7 SPA", "TypeScript 6.0.3", "Vite 8.0.16", "ASP.NET Core 10.0.9 API", "PostgreSQL 17.10", "Docker Compose 5.0.2"],
         database: "PostgreSQL",
-        businessLogic: "Server-side API owns patient search/chart summary including patient registration and patient demographics update behavior, insurance coverage read and insurance coverage lifecycle behavior, patient contact update behavior, appointment list/detail and appointment lifecycle behavior, encounter list/detail, encounter sign-off behavior, encounter document upload behavior, encounter binary document upload behavior, encounter-attached document read behavior, encounter fee-sheet linkage read, mutation visibility, and encounter-workspace fee-sheet entry behavior, encounter claim-status linkage read behavior, encounter procedure-order/result linkage read behavior, encounter-workspace procedure order and result entry behavior, encounter diagnosis-coding linkage read and mutation visibility behavior, encounter/vitals/SOAP lifecycle behavior, encounter metadata lifecycle behavior, allergy, problem-list, and medication-list clinical-list lifecycle behavior, immunization history read and immunization entered-in-error lifecycle behavior, patient-message lifecycle, content edit, and assignment behavior, patient-document read, text content retrieval, preview readiness, revision readiness, replacement revision behavior, binary content upload, MIME-aware download, lifecycle behavior, document sign-off behavior, document denial behavior, document metadata refiling behavior, document archive restore behavior, document content replacement behavior, and external-link document behavior, prescription lifecycle behavior, billing line, diagnosis coding, charge correction, modifier, payment posting, patient payment capture, and claim status lifecycle behavior, account balance, account aging, account ledger, account statement readiness, patient statement generation and PDF export read behavior, statement batch candidate read behavior, statement batch package export behavior, collections work queue read behavior, and pnotes-compatible collections follow-up task behavior, procedure order/report/result lifecycle behavior, scheduled/reportless procedure-order read behavior, facility administration lifecycle behavior, user administration lifecycle behavior, focused access-control permission assignment behavior, read-only clinical-list behavior, read-only patient-message behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, and operational reporting plus CSV export behavior for implemented slices",
-        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, insurance coverage, insurance mutation, immunizations, appointment detail, encounter detail, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter billing linkage, encounter billing linkage mutation visibility, encounter claim linkage, encounter procedure order linkage, encounter procedure order entry lifecycle, encounter procedure result entry lifecycle, encounter sign-off lifecycle, encounter diagnosis coding linkage, encounter diagnosis coding mutation visibility, encounter metadata mutation, appointment mutation, encounter mutation, clinical-list allergy mutation, problem-list mutation, medication-list mutation, patient-message mutation, patient-message content update, patient-message assignment update, patient-document content retrieval, patient-document preview readiness, patient-document revision readiness, patient-document replacement revision lifecycle, patient-document mutation, patient-document sign-off, patient-document denial, patient-document metadata refiling, patient-document archive restore, patient-document content replacement, binary patient-document mutation, external-link patient-document mutation, prescription mutation, immunization mutation, billing line mutation, billing diagnosis mutation, billing correction mutation, billing modifier mutation, claim status mutation, payment posting mutation, patient payment capture, collections follow-up task lifecycle, procedure mutation, scheduled procedure orders, facility mutation, user mutation, access control, access permission mutation, user group membership mutation, clinical lists, patient messages, patient documents, procedure results, fee sheet billing, claim status summary, payment posting summary, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, administration directory, operational reports, and operational reports CSV export", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison", "Slice 4 clinical lists readiness plan implemented for problems, allergies, medications, and prescriptions comparison", "Slice 5 messaging readiness plan implemented for portal-enabled patient message comparison", "Slice 6 procedures readiness plan implemented for completed lab result comparison", "Slice 7 billing readiness plan implemented for fee sheet comparison", "Slice 8 admin readiness plan implemented for users and facilities comparison", "Slice 9 reports readiness plan implemented for operational reporting comparison", "Slice 10 contact mutation readiness plan implemented for patient contact update comparison", "Slice 11 appointment mutation readiness plan implemented for future appointment lifecycle comparison", "Slice 12 encounter mutation readiness plan implemented for encounter, vitals, and SOAP lifecycle comparison", "Slice 13 clinical-list mutation readiness plan implemented for allergy lifecycle comparison", "Slice 14 message mutation readiness plan implemented for patient-message lifecycle comparison", "Slice 15 prescription mutation readiness plan implemented for prescription lifecycle comparison", "Slice 16 billing mutation readiness plan implemented for fee-sheet CPT lifecycle comparison", "Slice 17 procedure mutation readiness plan implemented for lab procedure lifecycle comparison", "Slice 18 admin facility mutation readiness plan implemented for facility lifecycle comparison", "Slice 19 admin user mutation readiness plan implemented for user lifecycle comparison", "Slice 20 access-control readiness plan implemented for default ACL group and permission comparison", "Slice 21 access-permission mutation plan implemented for ACL assignment revoke/restore comparison", "Slice 22 user group membership mutation plan implemented for ACL user-to-group assignment comparison", "Slice 23 pending procedure orders plan implemented for scheduled, reportless lab-order comparison", "Slice 24 reports export plan implemented for normalized operational CSV export comparison", "Slice 25 documents readiness plan implemented for patient document metadata and document-list comparison", "Slice 26 document mutation plan implemented for patient document create/render/archive/delete comparison", "Slice 27 document content plan implemented for full stored payload, API retrieval, viewer, and download comparison", "Slice 28 insurance readiness plan implemented for primary and secondary patient coverage comparison", "Slice 29 immunizations readiness plan implemented for pediatric vaccine-history comparison", "Slice 30 immunization mutation plan implemented for create/render/entered-in-error/delete comparison", "Slice 31 problem-list mutation plan implemented for create/render/deactivate/delete comparison", "Slice 32 medication-list mutation plan implemented for create/render/deactivate/delete comparison", "Slice 33 binary patient-document mutation plan implemented for create/render/download/archive/delete comparison", "Slice 34 insurance mutation plan implemented for create/render/update/delete comparison", "Slice 35 encounter metadata mutation plan implemented for create/render/update/delete comparison", "Slice 36 patient demographics mutation plan implemented for update/render/restore comparison", "Slice 37 patient registration plan implemented for create/render/delete comparison", "Slice 38 document sign-off plan implemented for approve/render/archive/delete comparison", "Slice 39 document external-link plan implemented for web-url create/render/archive/delete comparison", "Slice 40 document denial plan implemented for deny/render/archive/delete comparison", "Slice 41 document metadata plan implemented for refile/render/archive/delete comparison", "Slice 42 document archive restore plan implemented for archive/restore/render/delete comparison", "Slice 43 document content replacement plan implemented for replace/render/archive/delete comparison", "Slice 44 billing diagnosis plan implemented for ICD10 create/render/deactivate/delete comparison", "Slice 45 billing correction plan implemented for CPT charge correction/render/deactivate/delete comparison", "Slice 46 billing modifier plan implemented for CPT modifier create/render/deactivate/delete comparison", "Slice 47 claim status plan implemented for read-only revenue-cycle status comparison", "Slice 48 payment posting plan implemented for read-only OpenEMR AR payment comparison", "Slice 49 account balance plan implemented for read-only charge/payment/adjustment/balance comparison", "Slice 50 account aging plan implemented for read-only AR bucket comparison", "Slice 51 account ledger plan implemented for read-only chronological running-balance comparison", "Slice 52 account statement plan implemented for read-only statement readiness comparison", "Slice 53 document preview plan implemented for read-only preview readiness comparison", "Slice 54 document revision plan implemented for read-only current revision readiness comparison", "Slice 55 document replacement revision plan implemented for content replacement current-revision comparison", "Slice 56 payment posting mutation plan implemented for AR payment create/render/void/delete and balance/ledger comparison", "Slice 57 claim status mutation plan implemented for claim create/generate/clear/delete and Fees rendering comparison", "Slice 58 patient payment capture plan implemented for patient payment create/render/void/delete and balance/ledger comparison", "Slice 59 statement generation plan implemented for printable statement number, instructions, generated text, line items, and Fees rendering comparison", "Slice 60 statement PDF export plan implemented for deterministic PDF content and Fees download comparison", "Slice 61 statement batch plan implemented for statement candidate queue API and Fees rendering comparison", "Slice 62 statement batch package plan implemented for package manifest, summary CSV, PDFs, and Fees download comparison", "Slice 63 collections work queue plan implemented for past-due account priority, recommended action, and Fees rendering comparison", "Slice 64 collections follow-up plan implemented for pnotes-compatible create/render/close/archive/delete and Fees action comparison", "Slice 65 message assignment plan implemented for pnotes/message assignment update and modernized Messages reassignment comparison", "Slice 66 message content plan implemented for pnotes/message title and body edit comparison", "Slice 67 encounter documents plan implemented for encounter-attached document comparison", "Slice 68 encounter billing plan implemented for encounter fee-sheet linkage comparison", "Slice 69 encounter claims plan implemented for encounter claim-status linkage comparison", "Slice 70 encounter procedure orders plan implemented for encounter procedure-order/result linkage comparison", "Slice 71 encounter diagnosis coding plan implemented for encounter diagnosis, fee-sheet justification, and procedure-order diagnosis comparison", "Slice 72 encounter billing linkage mutation plan implemented for temporary CPT fee-sheet create/render/deactivate/delete comparison", "Slice 73 encounter diagnosis coding mutation plan implemented for temporary ICD10 fee-sheet diagnosis create/render/deactivate/delete comparison", "Slice 74 encounter fee-sheet entry plan implemented for temporary CPT and ICD10 create/render/deactivate/delete comparison from the Encounter workspace", "Slice 75 encounter procedure-order entry plan implemented for temporary pending lab order create/render/delete comparison from the Encounter workspace", "Slice 76 encounter procedure-result entry plan implemented for temporary lab order reviewed final result create/render/delete comparison from the Encounter workspace", "Slice 77 encounter sign-off plan implemented for temporary encounter attestation create/render/delete comparison from the Encounter workspace", "Slice 78 encounter document upload plan implemented for temporary encounter-scoped text document create/render/delete comparison from the Encounter workspace", "Slice 79 encounter binary document upload plan implemented for temporary encounter-scoped PDF document create/render/download/delete comparison from the Encounter workspace"]
+        businessLogic: "Server-side API owns patient search/chart summary including patient registration and patient demographics update behavior, insurance coverage read and insurance coverage lifecycle behavior, patient contact update behavior, appointment list/detail and appointment lifecycle behavior, encounter list/detail, encounter sign-off behavior, encounter document upload behavior, encounter binary document upload behavior, encounter document sign-off behavior, encounter-attached document read behavior, encounter fee-sheet linkage read, mutation visibility, and encounter-workspace fee-sheet entry behavior, encounter claim-status linkage read behavior, encounter procedure-order/result linkage read behavior, encounter-workspace procedure order and result entry behavior, encounter diagnosis-coding linkage read and mutation visibility behavior, encounter/vitals/SOAP lifecycle behavior, encounter metadata lifecycle behavior, allergy, problem-list, and medication-list clinical-list lifecycle behavior, immunization history read and immunization entered-in-error lifecycle behavior, patient-message lifecycle, content edit, and assignment behavior, patient-document read, text content retrieval, preview readiness, revision readiness, replacement revision behavior, binary content upload, MIME-aware download, lifecycle behavior, document sign-off behavior, document denial behavior, document metadata refiling behavior, document archive restore behavior, document content replacement behavior, and external-link document behavior, prescription lifecycle behavior, billing line, diagnosis coding, charge correction, modifier, payment posting, patient payment capture, and claim status lifecycle behavior, account balance, account aging, account ledger, account statement readiness, patient statement generation and PDF export read behavior, statement batch candidate read behavior, statement batch package export behavior, collections work queue read behavior, and pnotes-compatible collections follow-up task behavior, procedure order/report/result lifecycle behavior, scheduled/reportless procedure-order read behavior, facility administration lifecycle behavior, user administration lifecycle behavior, focused access-control permission assignment behavior, read-only clinical-list behavior, read-only patient-message behavior, read-only fee-sheet billing behavior, read-only administration directory behavior, and operational reporting plus CSV export behavior for implemented slices",
+        tests: ["Modernized smoke test implemented for health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, insurance coverage, insurance mutation, immunizations, appointment detail, encounter detail, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter document sign-off lifecycle, encounter billing linkage, encounter billing linkage mutation visibility, encounter claim linkage, encounter procedure order linkage, encounter procedure order entry lifecycle, encounter procedure result entry lifecycle, encounter sign-off lifecycle, encounter diagnosis coding linkage, encounter diagnosis coding mutation visibility, encounter metadata mutation, appointment mutation, encounter mutation, clinical-list allergy mutation, problem-list mutation, medication-list mutation, patient-message mutation, patient-message content update, patient-message assignment update, patient-document content retrieval, patient-document preview readiness, patient-document revision readiness, patient-document replacement revision lifecycle, patient-document mutation, patient-document sign-off, patient-document denial, patient-document metadata refiling, patient-document archive restore, patient-document content replacement, binary patient-document mutation, external-link patient-document mutation, prescription mutation, immunization mutation, billing line mutation, billing diagnosis mutation, billing correction mutation, billing modifier mutation, claim status mutation, payment posting mutation, patient payment capture, collections follow-up task lifecycle, procedure mutation, scheduled procedure orders, facility mutation, user mutation, access control, access permission mutation, user group membership mutation, clinical lists, patient messages, patient documents, procedure results, fee sheet billing, claim status summary, payment posting summary, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, administration directory, operational reports, and operational reports CSV export", "Slice 1 readiness parity plan implemented for side-by-side legacy comparison", "Slice 2 scheduling readiness plan implemented for future appointment comparison", "Slice 3 encounters readiness plan implemented for SOAP and vitals comparison", "Slice 4 clinical lists readiness plan implemented for problems, allergies, medications, and prescriptions comparison", "Slice 5 messaging readiness plan implemented for portal-enabled patient message comparison", "Slice 6 procedures readiness plan implemented for completed lab result comparison", "Slice 7 billing readiness plan implemented for fee sheet comparison", "Slice 8 admin readiness plan implemented for users and facilities comparison", "Slice 9 reports readiness plan implemented for operational reporting comparison", "Slice 10 contact mutation readiness plan implemented for patient contact update comparison", "Slice 11 appointment mutation readiness plan implemented for future appointment lifecycle comparison", "Slice 12 encounter mutation readiness plan implemented for encounter, vitals, and SOAP lifecycle comparison", "Slice 13 clinical-list mutation readiness plan implemented for allergy lifecycle comparison", "Slice 14 message mutation readiness plan implemented for patient-message lifecycle comparison", "Slice 15 prescription mutation readiness plan implemented for prescription lifecycle comparison", "Slice 16 billing mutation readiness plan implemented for fee-sheet CPT lifecycle comparison", "Slice 17 procedure mutation readiness plan implemented for lab procedure lifecycle comparison", "Slice 18 admin facility mutation readiness plan implemented for facility lifecycle comparison", "Slice 19 admin user mutation readiness plan implemented for user lifecycle comparison", "Slice 20 access-control readiness plan implemented for default ACL group and permission comparison", "Slice 21 access-permission mutation plan implemented for ACL assignment revoke/restore comparison", "Slice 22 user group membership mutation plan implemented for ACL user-to-group assignment comparison", "Slice 23 pending procedure orders plan implemented for scheduled, reportless lab-order comparison", "Slice 24 reports export plan implemented for normalized operational CSV export comparison", "Slice 25 documents readiness plan implemented for patient document metadata and document-list comparison", "Slice 26 document mutation plan implemented for patient document create/render/archive/delete comparison", "Slice 27 document content plan implemented for full stored payload, API retrieval, viewer, and download comparison", "Slice 28 insurance readiness plan implemented for primary and secondary patient coverage comparison", "Slice 29 immunizations readiness plan implemented for pediatric vaccine-history comparison", "Slice 30 immunization mutation plan implemented for create/render/entered-in-error/delete comparison", "Slice 31 problem-list mutation plan implemented for create/render/deactivate/delete comparison", "Slice 32 medication-list mutation plan implemented for create/render/deactivate/delete comparison", "Slice 33 binary patient-document mutation plan implemented for create/render/download/archive/delete comparison", "Slice 34 insurance mutation plan implemented for create/render/update/delete comparison", "Slice 35 encounter metadata mutation plan implemented for create/render/update/delete comparison", "Slice 36 patient demographics mutation plan implemented for update/render/restore comparison", "Slice 37 patient registration plan implemented for create/render/delete comparison", "Slice 38 document sign-off plan implemented for approve/render/archive/delete comparison", "Slice 39 document external-link plan implemented for web-url create/render/archive/delete comparison", "Slice 40 document denial plan implemented for deny/render/archive/delete comparison", "Slice 41 document metadata plan implemented for refile/render/archive/delete comparison", "Slice 42 document archive restore plan implemented for archive/restore/render/delete comparison", "Slice 43 document content replacement plan implemented for replace/render/archive/delete comparison", "Slice 44 billing diagnosis plan implemented for ICD10 create/render/deactivate/delete comparison", "Slice 45 billing correction plan implemented for CPT charge correction/render/deactivate/delete comparison", "Slice 46 billing modifier plan implemented for CPT modifier create/render/deactivate/delete comparison", "Slice 47 claim status plan implemented for read-only revenue-cycle status comparison", "Slice 48 payment posting plan implemented for read-only OpenEMR AR payment comparison", "Slice 49 account balance plan implemented for read-only charge/payment/adjustment/balance comparison", "Slice 50 account aging plan implemented for read-only AR bucket comparison", "Slice 51 account ledger plan implemented for read-only chronological running-balance comparison", "Slice 52 account statement plan implemented for read-only statement readiness comparison", "Slice 53 document preview plan implemented for read-only preview readiness comparison", "Slice 54 document revision plan implemented for read-only current revision readiness comparison", "Slice 55 document replacement revision plan implemented for content replacement current-revision comparison", "Slice 56 payment posting mutation plan implemented for AR payment create/render/void/delete and balance/ledger comparison", "Slice 57 claim status mutation plan implemented for claim create/generate/clear/delete and Fees rendering comparison", "Slice 58 patient payment capture plan implemented for patient payment create/render/void/delete and balance/ledger comparison", "Slice 59 statement generation plan implemented for printable statement number, instructions, generated text, line items, and Fees rendering comparison", "Slice 60 statement PDF export plan implemented for deterministic PDF content and Fees download comparison", "Slice 61 statement batch plan implemented for statement candidate queue API and Fees rendering comparison", "Slice 62 statement batch package plan implemented for package manifest, summary CSV, PDFs, and Fees download comparison", "Slice 63 collections work queue plan implemented for past-due account priority, recommended action, and Fees rendering comparison", "Slice 64 collections follow-up plan implemented for pnotes-compatible create/render/close/archive/delete and Fees action comparison", "Slice 65 message assignment plan implemented for pnotes/message assignment update and modernized Messages reassignment comparison", "Slice 66 message content plan implemented for pnotes/message title and body edit comparison", "Slice 67 encounter documents plan implemented for encounter-attached document comparison", "Slice 68 encounter billing plan implemented for encounter fee-sheet linkage comparison", "Slice 69 encounter claims plan implemented for encounter claim-status linkage comparison", "Slice 70 encounter procedure orders plan implemented for encounter procedure-order/result linkage comparison", "Slice 71 encounter diagnosis coding plan implemented for encounter diagnosis, fee-sheet justification, and procedure-order diagnosis comparison", "Slice 72 encounter billing linkage mutation plan implemented for temporary CPT fee-sheet create/render/deactivate/delete comparison", "Slice 73 encounter diagnosis coding mutation plan implemented for temporary ICD10 fee-sheet diagnosis create/render/deactivate/delete comparison", "Slice 74 encounter fee-sheet entry plan implemented for temporary CPT and ICD10 create/render/deactivate/delete comparison from the Encounter workspace", "Slice 75 encounter procedure-order entry plan implemented for temporary pending lab order create/render/delete comparison from the Encounter workspace", "Slice 76 encounter procedure-result entry plan implemented for temporary lab order reviewed final result create/render/delete comparison from the Encounter workspace", "Slice 77 encounter sign-off plan implemented for temporary encounter attestation create/render/delete comparison from the Encounter workspace", "Slice 78 encounter document upload plan implemented for temporary encounter-scoped text document create/render/delete comparison from the Encounter workspace", "Slice 79 encounter binary document upload plan implemented for temporary encounter-scoped PDF document create/render/download/delete comparison from the Encounter workspace", "Slice 80 encounter document sign-off plan implemented for temporary encounter-scoped document create/approve/render/delete comparison from the Encounter workspace"]
       }
     ]
   });
@@ -1293,9 +1499,9 @@ app.get("/api/progress", async (_request, response) => {
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, procedure-result rendering, report-screen rendering, and administration directory rendering." },
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
-      { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, patient demographics mutation parity, patient registration parity, scheduling parity, encounter SOAP/vitals parity, encounter metadata parity, clinical-list parity, messaging parity, insurance coverage parity, insurance mutation parity, immunization parity, patient-document parity, patient-document content parity, patient-document preview parity, patient-document revision parity, patient-document replacement revision parity, binary patient-document mutation parity, patient-document sign-off parity, patient-document denial parity, patient-document metadata parity, patient-document archive parity, patient-document content replacement parity, patient-document external-link parity, procedure-result parity, pending procedure-order parity, report-export parity, fee-sheet billing parity, claim status parity, claim status mutation parity, payment posting parity, payment posting mutation parity, patient payment capture parity, account balance parity, account aging parity, account ledger parity, account statement parity, patient statement generation parity, patient statement PDF export parity, statement batch candidate parity, statement batch package parity, collections work queue parity, collections follow-up task parity, patient-message assignment parity, patient-message content parity, encounter document attachment parity, encounter document upload parity, encounter binary document upload parity, encounter billing linkage parity, encounter billing linkage mutation parity, encounter claim linkage parity, encounter procedure order linkage parity, encounter diagnosis coding parity, encounter diagnosis coding mutation parity, encounter fee-sheet entry parity, encounter procedure-order entry parity, encounter procedure-result entry parity, encounter sign-off parity, administration directory parity, operational reporting parity, patient contact mutation parity, appointment mutation parity, encounter mutation parity, clinical-list mutation parity, problem-list mutation parity, medication-list mutation parity, patient-message mutation parity, patient-document mutation parity, prescription mutation parity, immunization mutation parity, billing mutation parity, billing diagnosis mutation parity, billing correction mutation parity, billing modifier mutation parity, procedure mutation parity, admin facility mutation parity, admin user mutation parity, access-control parity, access-permission mutation parity, user group membership mutation parity, and the future full parity contract." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 79 proves encounter binary document upload readiness by adding encounter-scoped PDF/binary attachment, download and preview metadata support, modernized Encounter upload controls/rendering, cleanup behavior, and side-by-side parity evidence." }
+      { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented for legacy readiness, isolated workflow mutations, patient chart parity, patient demographics mutation parity, patient registration parity, scheduling parity, encounter SOAP/vitals parity, encounter metadata parity, clinical-list parity, messaging parity, insurance coverage parity, insurance mutation parity, immunization parity, patient-document parity, patient-document content parity, patient-document preview parity, patient-document revision parity, patient-document replacement revision parity, binary patient-document mutation parity, patient-document sign-off parity, patient-document denial parity, patient-document metadata parity, patient-document archive parity, patient-document content replacement parity, patient-document external-link parity, procedure-result parity, pending procedure-order parity, report-export parity, fee-sheet billing parity, claim status parity, claim status mutation parity, payment posting parity, payment posting mutation parity, patient payment capture parity, account balance parity, account aging parity, account ledger parity, account statement parity, patient statement generation parity, patient statement PDF export parity, statement batch candidate parity, statement batch package parity, collections work queue parity, collections follow-up task parity, patient-message assignment parity, patient-message content parity, encounter document attachment parity, encounter document upload parity, encounter binary document upload parity, encounter document sign-off parity, encounter billing linkage parity, encounter billing linkage mutation parity, encounter claim linkage parity, encounter procedure order linkage parity, encounter diagnosis coding parity, encounter diagnosis coding mutation parity, encounter fee-sheet entry parity, encounter procedure-order entry parity, encounter procedure-result entry parity, encounter sign-off parity, administration directory parity, operational reporting parity, patient contact mutation parity, appointment mutation parity, encounter mutation parity, clinical-list mutation parity, problem-list mutation parity, medication-list mutation parity, patient-message mutation parity, patient-document mutation parity, prescription mutation parity, immunization mutation parity, billing mutation parity, billing diagnosis mutation parity, billing correction mutation parity, billing modifier mutation parity, procedure mutation parity, admin facility mutation parity, admin user mutation parity, access-control parity, access-permission mutation parity, user group membership mutation parity, and the future full parity contract." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 80 proves encounter document sign-off readiness by adding encounter-scoped document approval, review metadata rendering, modernized Encounter Sign action, cleanup behavior, and side-by-side parity evidence." }
     ]
   });
 });

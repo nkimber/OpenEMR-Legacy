@@ -1034,6 +1034,30 @@ p {
   color: #173447;
 }
 
+.changelog-code-metrics {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.changelog-code-metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d7e5df;
+  border-radius: 999px;
+  background: #f3faf7;
+  color: #315d4d;
+  padding: 5px 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.changelog-code-metrics strong {
+  color: #113d2f;
+}
+
 .changelog-metrics {
   display: flex;
   gap: 8px;

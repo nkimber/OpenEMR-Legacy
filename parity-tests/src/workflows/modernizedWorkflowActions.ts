@@ -1122,6 +1122,21 @@ LIMIT 1;
     await this.reviewPatientDocument(id, "approved", reviewedBy, "sign-off");
   }
 
+  async signEncounterDocument(encounter: number, id: number | string, reviewedBy = "admin"): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/sign`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reviewStatus: "approved", reviewedBy })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document sign-off failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async denyPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
     await this.reviewPatientDocument(id, "denied", reviewedBy, "denial");
   }

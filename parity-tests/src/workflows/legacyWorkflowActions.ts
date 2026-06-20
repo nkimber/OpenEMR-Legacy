@@ -1779,6 +1779,10 @@ WHERE id = ${integer(legacyId)};
 `);
   }
 
+  async signEncounterDocument(_encounter: number, id: number | string, reviewedBy = "admin"): Promise<void> {
+    await this.signPatientDocument(id, reviewedBy);
+  }
+
   async denyPatientDocument(id: number | string, _reviewedBy = "admin"): Promise<void> {
     const legacyId = legacyInteger(id);
     await this.db.execute(`

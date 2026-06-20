@@ -16,6 +16,8 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 - Record `Started:` and `Finished:` timestamps for each new entry using ISO 8601 local time with timezone offset, such as `2026-06-19T13:06:12-04:00`.
 - Treat `Started:` as the time active implementation work for that changelog section began and `Finished:` as the time verification and document updates for that section were complete.
 - Do not manually calculate or write a duration; the Modernization Workbench calculates section duration from `Started:` and `Finished:`.
+- Record code-change metrics for implementation entries in a `Code changes:` section using files changed, lines added, lines deleted, net lines, and total churn. These values should come from Git whenever a commit is available, for example `git show --shortstat --format= <commit>` and `git show --numstat --format= <commit>`, or from the final scoped diff when the entry is being prepared before commit.
+- Do not record a modified-line count. Git records additions and deletions; an edited line usually appears as one deletion plus one addition.
 - Do not replace the detailed project documents. Link to them or name them when the change belongs to a specific area.
 - If a later change supersedes an earlier entry, add a new entry that says so rather than silently rewriting history.
 
@@ -31,6 +33,14 @@ Started: `2026-06-19T13:06:12-04:00`
 Finished: `2026-06-19T13:42:30-04:00`
 
 One-paragraph summary of what changed and why it matters.
+
+Code changes:
+
+- Files changed: 0
+- Lines added: 0
+- Lines deleted: 0
+- Net lines: 0
+- Total churn: 0
 ```
 
 Use the local machine clock, for example PowerShell `Get-Date -Format o`, so the Workbench can display actual clock times and calculate elapsed section duration.
@@ -5564,6 +5574,113 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
+
+### 106. Modernized Encounter Document Sign-Off Slice 80
+
+Commit: this commit
+Started: `2026-06-20T08:55:00-04:00`
+Finished: `2026-06-20T09:19:21.2404382-04:00`
+
+Implemented the eightieth modernized OpenEMR vertical slice: focused encounter document sign-off readiness, adding encounter-scoped approval/signing behavior for attached documents from the modernized Encounters workspace and side-by-side legacy/modernized parity evidence.
+
+Code changes:
+
+- Files changed: 23
+- Lines added: 546
+- Lines deleted: 36
+- Net lines: 510
+- Total churn: 582
+
+Key outcomes:
+
+- Added encounter detail document review metadata so attached documents expose review status, reviewer, and review timestamp.
+- Added an ASP.NET Core encounter-scoped sign endpoint at `/api/encounters/{encounter}/documents/{documentId}/sign` that validates the document belongs to the selected encounter before reusing patient document review persistence.
+- Added modernized frontend API support and Encounters attached-document Sign controls that render pending/approved review metadata and disable signing once a document is reviewed.
+- Added modernized smoke coverage for the encounter document sign-off lifecycle.
+- Added legacy and modernized workflow adapter methods for encounter-scoped document sign-off plus the `workflow-encounter-document-signoff` Playwright parity suite.
+- Added the `slice-80-encounter-document-signoff-readiness` plan, package scripts, runner allow-list, Workbench commands/cards, and architecture/progress status updates.
+- Updated synchronized project documents so the current modernization state is Slice 80 with thirty-four read-only slices and forty-six mutation-capable slices.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` in `modernized-openemr/backend` passed.
+- `npm run build` in `modernized-openemr/frontend` passed.
+- `npm run build` in `modernization-workbench` passed.
+- `docker compose up -d --build api frontend` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` in `modernized-openemr` passed with 81 checks; artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-80-encounter-document-signoff-readiness -Reset test` passed; run `2026-06-20T130538-565Z-legacy-openemr-plan-slice-80-encounter-document-signoff-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-80-encounter-document-signoff-readiness -Reset test` passed; run `2026-06-20T130613-018Z-modernized-openemr-plan-slice-80-encounter-document-signoff-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-80-encounter-document-signoff-readiness` passed with `status: matched`; comparison `2026-06-20T130635-958Z-legacy-openemr-vs-modernized-openemr-plan-slice-80-encounter-document-signoff-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-signoff/encounter-document-signoff.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 107. Project Timeline Code-Change Metrics
+
+Commit: this commit
+Started: `2026-06-20T09:20:00-04:00`
+Finished: `2026-06-20T09:22:52-04:00`
+
+Enhanced the Modernization Workbench Project Timeline so each changelog entry can show files changed, lines added, lines deleted, net lines, and total churn alongside the existing timing and evidence metadata.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 351
+- Lines deleted: 23
+- Net lines: 328
+- Total churn: 374
+
+Key outcomes:
+
+- Added a durable `Code changes:` changelog convention for future implementation entries.
+- Extended the Workbench changelog parser to read documented code-change metrics when present.
+- Added Git `--numstat` backfill for historical entries that contain resolvable commit hashes.
+- Added conservative commit-subject inference for older entries whose commit field says `this commit` or `current slice commit`.
+- Added Timeline chips for files changed, lines added, lines deleted, net lines, total churn, binary-file count when present, and metric source.
+- Updated project documentation so future changelog entries store code-change metrics without a modified-line count.
+
+Verified test runs:
+
+- `npm run typecheck` in `modernization-workbench/`.
+- `npm run build` in `modernization-workbench/`.
+- `/api/changelog` smoke test on `http://127.0.0.1:5174` confirmed 107 total entries and 94 entries with retroactive code-change metrics from explicit Git hashes or conservative Git subject inference.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/PROJECT_CHANGELOG.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/INDEX.md`
 
 ## Next Expected Entries
 
