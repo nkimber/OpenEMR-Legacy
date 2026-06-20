@@ -61,6 +61,7 @@ param(
         "workflow-encounter-document-denial",
         "workflow-encounter-document-metadata",
         "workflow-encounter-document-move",
+        "workflow-encounter-document-content-replace",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

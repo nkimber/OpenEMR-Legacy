@@ -1158,6 +1158,28 @@ LIMIT 1;
     }
   }
 
+  async replaceEncounterDocumentContent(
+    encounter: number,
+    id: number | string,
+    input: PatientDocumentContentReplacement
+  ): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/content`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          fileName: input.fileName,
+          content: input.content
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter document content replacement failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async signPatientDocument(id: number | string, reviewedBy = "admin"): Promise<void> {
     await this.reviewPatientDocument(id, "approved", reviewedBy, "sign-off");
   }

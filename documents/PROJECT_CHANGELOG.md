@@ -5946,6 +5946,62 @@ Primary files:
 - `modernization-workbench/server/index.ts`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 113. Modernized Encounter Document Content Replacement Slice 84
+
+Commit: current slice commit
+Started: `2026-06-20T11:30:00-04:00`
+Finished: `2026-06-20T11:47:05.2296428-04:00`
+
+Implemented the eighty-fourth modernized OpenEMR vertical slice: encounter document content replacement readiness, adding same-encounter document body replacement from the modernized Encounters workspace and proving the same temporary document create/replace/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 713
+- Lines deleted: 43
+- Net lines: 670
+- Total churn: 756
+
+Key outcomes:
+
+- Added a guarded ASP.NET Core encounter document content replacement endpoint that only replaces documents already attached to the selected encounter.
+- Added encounter document revision-readiness fields so current-version, version-label, status, version-history, and revision hash facts are available from the Encounters API.
+- Added modernized frontend API support and Encounters workspace controls for replacing attached document content while preserving the encounter context.
+- Added modernized smoke coverage for the encounter document content replacement lifecycle.
+- Added shared legacy and modernized workflow adapter support for encounter document content replacement.
+- Added the `workflow-encounter-document-content-replace` Playwright parity suite and the `slice-84-encounter-document-content-replace-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 84 content replacement plan.
+- Updated synchronized project documents so the current modernization state is Slice 84 with thirty-four read-only slices and fifty mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 85 checks, including `encounter document content replacement lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-84-encounter-document-content-replace-readiness -Reset test` passed; run `2026-06-20T154343-784Z-legacy-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-84-encounter-document-content-replace-readiness -Reset test` passed; run `2026-06-20T154428-435Z-modernized-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-84-encounter-document-content-replace-readiness` passed with `status: matched`; comparison `2026-06-20T154502-811Z-legacy-openemr-vs-modernized-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-content-replace/encounter-document-content-replace.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
