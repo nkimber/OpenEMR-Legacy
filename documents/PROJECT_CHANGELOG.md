@@ -4463,6 +4463,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 087. Modernized Statement Batch Candidate Slice 61
+
+Commit: this commit
+Started: `2026-06-20T00:04:17-04:00`
+Finished: `2026-06-20T00:21:30-04:00`
+
+Implemented the sixty-first modernized OpenEMR vertical slice: statement batch candidate readiness, focused on proving the seeded billing/payment population can produce a deterministic ranked statement work queue for both the legacy and modernized targets.
+
+Key outcomes:
+
+- Added a modernized statement batch endpoint at `GET /api/billing/statements/batch?limit=5`, returning dataset metadata, all-candidate counts and totals, and the top ranked positive-balance statement candidates.
+- Ranked candidates by past-due amount, total balance, oldest open age, and legacy PID, then reused the existing generated patient statement contract for statement numbers, due dates, balances, open encounter counts, ledger counts, and delivery method metadata.
+- Added a React Fees `Statement Batch` panel with aggregate totals, top candidate rows, statement status pills, delivery metadata, and `Open` actions that load the selected patient account.
+- Added modernized smoke coverage for the statement batch endpoint shape, dataset as-of date, candidate totals, first-candidate statement number/status/balance, open encounter count, and delivery method.
+- Added the `account-statement-batch` parity suite and `slice-61-statement-batch-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 61 statement batch plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing full-population seeded billing and AR payment rows; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the statement batch changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 63 smoke checks, including `anchor statement batch candidates`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:statement-batch` passed with run `2026-06-20T042012-022Z-legacy-openemr-plan-slice-61-statement-batch-readiness`.
+- `npm run test:modernized:plan:statement-batch` passed with run `2026-06-20T042043-061Z-modernized-openemr-plan-slice-61-statement-batch-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-61-statement-batch-readiness` matched with comparison `2026-06-20T042113-678Z-legacy-openemr-vs-modernized-openemr-plan-slice-61-statement-batch-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-statement-batch/account-statement-batch.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

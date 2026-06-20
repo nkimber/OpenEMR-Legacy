@@ -1598,7 +1598,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers statement readiness only.
-- Statement archival, batch statement runs, delivery workflows, richer export workflows, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59, and deterministic statement PDF export is covered by Slice 60.
+- Statement archival, delivery workflows, richer export workflows, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59, deterministic statement PDF export is covered by Slice 60, and statement batch candidate readiness is covered by Slice 61.
 
 ### Slice 53: Document Preview Readiness
 
@@ -1776,7 +1776,7 @@ Acceptance:
 Current limitations:
 
 - This slice implements focused patient payment capture only.
-- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement delivery, collections, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59, and deterministic statement PDF export is covered by Slice 60.
+- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement delivery, collections, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59, deterministic statement PDF export is covered by Slice 60, and statement batch candidate readiness is covered by Slice 61.
 
 ### Slice 59: Statement Generation Readiness
 
@@ -1807,7 +1807,8 @@ Current limitations:
 
 - This slice generates a deterministic printable statement document only.
 - Deterministic statement PDF export is covered by Slice 60.
-- Batch statement runs, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
+- Statement batch candidate readiness is covered by Slice 61.
+- Actual batch execution, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
 
 ### Slice 60: Statement PDF Export Readiness
 
@@ -1837,7 +1838,39 @@ Acceptance:
 Current limitations:
 
 - This slice exports a deterministic one-patient statement PDF from the current generated statement document only.
-- Batch statement runs, richer PDF layout/branding, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
+- Statement batch candidate readiness is covered by Slice 61.
+- Actual batch execution, richer PDF layout/branding, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
+
+### Slice 61: Statement Batch Candidate Readiness
+
+Status:
+
+- Implemented as a read-only modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-61-statement-batch-readiness` plan, which validates ranked statement batch candidates, aggregate candidate totals, modernized API behavior, and Fees workspace rendering on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded billing and AR payment population; it does not add permanent gold-data records.
+- Legacy behavior is represented by normalized MariaDB probes that derive positive-balance statement candidates from OpenEMR billing and AR activity rows.
+- ASP.NET Core billing read behavior now exposes `GET /api/billing/statements/batch?limit=5`, returning dataset metadata, as-of date, all-candidate count, all-candidate balance totals, and top ranked statement candidates.
+- Ranking is deterministic: past-due amount descending, balance due descending, oldest open age descending, then legacy PID ascending.
+- React Fees workspace now shows a compact Statement Batch work queue with totals, top candidate rows, delivery method metadata, and an `Open` action that loads the selected candidate into the existing Fees detail workflow.
+- Modernized smoke coverage validates the statement batch endpoint shape, candidate count, aggregate totals, first-candidate statement number/status/balance, open encounter count, and delivery method.
+- The `account-statement-batch` parity suite and `slice-61-statement-batch-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL/API/UI statement batch behavior.
+- Workbench-managed Slice 61 statement batch plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The endpoint returns the gold dataset as-of date `2026-06-18`, more than five ready candidates, five top candidates for `limit=5`, and positive total balance, past-due, and current-due amounts.
+- Each top candidate includes patient ID, display name, statement number, statement status, statement date, due date, balance, current/past due, open encounter count, ledger entry count, oldest open age/date, and delivery method.
+- The modernized API response normalizes to the same candidate queue derived directly from the modernized PostgreSQL tables.
+- The modernized Fees workspace renders the Statement Batch panel and lets the operator open a candidate into the patient fee-sheet detail.
+- The side-by-side Slice 61 parity comparison matches.
+
+Current limitations:
+
+- This slice identifies candidates for a future statement run; it does not execute a batch, persist a batch record, deliver statements, archive statements, or create collection follow-up tasks.
+- Rich statement batch layout, delivery, portal messaging, collection queues, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 
@@ -1960,3 +1993,4 @@ As of 2026-06-19:
 - The fifty-eighth modernized vertical slice implements patient payment capture readiness with payer-type-zero payment support, React Fees source-aware payment controls, normalized legacy/modernized workflow actions, Workbench patient payment capture plan actions, smoke coverage, and side-by-side slice-58 parity evidence.
 - The fifty-ninth modernized vertical slice implements patient statement generation readiness with a deterministic statement document contract, React Fees Patient Statement rendering, normalized legacy/modernized statement-generation probes, Workbench statement generation plan actions, smoke coverage, and side-by-side slice-59 parity evidence.
 - The sixtieth modernized vertical slice implements patient statement PDF export readiness with a deterministic ASP.NET Core PDF endpoint, React Fees PDF Export action, normalized legacy/modernized statement-PDF probes, Workbench statement PDF plan actions, smoke coverage, and side-by-side slice-60 parity evidence.
+- The sixty-first modernized vertical slice implements statement batch candidate readiness with a deterministic ranked work queue, ASP.NET Core statement batch endpoint, React Fees Statement Batch panel, normalized legacy/modernized statement-batch probes, Workbench statement batch plan actions, smoke coverage, and side-by-side slice-61 parity evidence.

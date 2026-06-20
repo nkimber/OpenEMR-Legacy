@@ -30,6 +30,7 @@ param(
         "account-statement",
         "account-statement-generation",
         "account-statement-pdf",
+        "account-statement-batch",
         "admin",
         "reports",
         "reports-export",

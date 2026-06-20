@@ -433,6 +433,33 @@ export type PatientStatementSummary = {
   balanceDueAmount: string;
 };
 
+export type StatementBatchCandidate = {
+  patientId: number;
+  pubpid: string;
+  patientDisplayName: string;
+  statementNumber: string;
+  statementStatus: string;
+  statementDate: string;
+  dueDate: string;
+  balanceDueAmount: string;
+  pastDueAmount: string;
+  currentDueAmount: string;
+  openEncounterCount: number;
+  ledgerEntryCount: number;
+  oldestOpenAgeDays: number;
+  oldestOpenDate: string;
+  deliveryMethod: string;
+};
+
+export type StatementBatchSummary = {
+  asOfDate: string;
+  candidateCount: number;
+  totalBalanceAmount: string;
+  totalPastDueAmount: string;
+  totalCurrentDueAmount: string;
+  candidates: StatementBatchCandidate[];
+};
+
 export type AdministrationUserSummary = {
   id: number;
   username: string;
@@ -1414,6 +1441,100 @@ LIMIT 1;
       aging: await this.getAccountAgingForPatient(pid),
       ledger: await this.getAccountLedgerForPatient(pid)
     });
+  }
+
+  async getStatementBatchCandidates(limit = 5, asOfDate = "2026-06-18"): Promise<StatementBatchSummary> {
+    const boundedLimit = Math.max(1, Math.min(100, limit));
+    const safeAsOfDate = escapeSql(asOfDate);
+    const rows = await this.queryRows<Record<string, string>>(`
+WITH charges AS (
+  SELECT pid, encounter, COUNT(*) AS \`lineCount\`, COALESCE(SUM(COALESCE(fee, 0)), 0) AS \`chargeAmount\`,
+    MAX(DATE(\`date\`)) AS \`lastBillingDate\`
+  FROM billing
+  WHERE activity = 1
+  GROUP BY pid, encounter
+),
+payments AS (
+  SELECT pid, encounter, COUNT(*) AS \`paymentCount\`, COALESCE(SUM(pay_amount), 0) AS \`paymentAmount\`,
+    COALESCE(SUM(adj_amount), 0) AS \`adjustmentAmount\`
+  FROM ar_activity
+  WHERE deleted IS NULL
+  GROUP BY pid, encounter
+),
+aged AS (
+  SELECT c.pid, c.encounter, c.\`lineCount\`, COALESCE(p.\`paymentCount\`, 0) AS \`paymentCount\`,
+    c.\`lastBillingDate\`,
+    GREATEST(DATEDIFF('${safeAsOfDate}', c.\`lastBillingDate\`), 0) AS \`ageDays\`,
+    c.\`chargeAmount\` - COALESCE(p.\`paymentAmount\`, 0) - COALESCE(p.\`adjustmentAmount\`, 0) AS \`balanceAmount\`
+  FROM charges c
+  LEFT JOIN payments p ON p.pid = c.pid AND p.encounter = c.encounter
+  UNION ALL
+  SELECT p.pid, p.encounter, 0 AS \`lineCount\`, p.\`paymentCount\`,
+    '${safeAsOfDate}' AS \`lastBillingDate\`, 0 AS \`ageDays\`,
+    0 - p.\`paymentAmount\` - p.\`adjustmentAmount\` AS \`balanceAmount\`
+  FROM payments p
+  LEFT JOIN charges c ON c.pid = p.pid AND c.encounter = p.encounter
+  WHERE c.encounter IS NULL
+),
+rollup AS (
+  SELECT pid,
+    COUNT(CASE WHEN \`balanceAmount\` > 0 THEN 1 END) AS \`openEncounterCount\`,
+    COALESCE(MAX(CASE WHEN \`balanceAmount\` > 0 THEN \`ageDays\` END), 0) AS \`oldestOpenAgeDays\`,
+    COALESCE(MIN(CASE WHEN \`balanceAmount\` > 0 THEN \`lastBillingDate\` END), '${safeAsOfDate}') AS \`oldestOpenDate\`,
+    SUM(CASE WHEN \`ageDays\` <= 30 THEN \`balanceAmount\` ELSE 0 END) AS \`currentDueAmount\`,
+    SUM(CASE WHEN \`ageDays\` > 30 THEN \`balanceAmount\` ELSE 0 END) AS \`pastDueAmount\`,
+    SUM(\`balanceAmount\`) AS \`balanceDueAmount\`
+  FROM aged
+  GROUP BY pid
+  HAVING SUM(\`balanceAmount\`) > 0
+)
+SELECT r.pid AS patientId, pd.pubpid, pd.fname AS firstName, pd.lname AS lastName,
+  COALESCE(pd.email, '') AS email,
+  COALESCE(CAST(r.\`openEncounterCount\` AS CHAR), '0') AS \`openEncounterCount\`,
+  COALESCE(CAST(r.\`oldestOpenAgeDays\` AS CHAR), '0') AS \`oldestOpenAgeDays\`,
+  DATE_FORMAT(r.\`oldestOpenDate\`, '%Y-%m-%d') AS \`oldestOpenDate\`,
+  COALESCE(CAST(r.\`currentDueAmount\` AS CHAR), '0') AS \`currentDueAmount\`,
+  COALESCE(CAST(r.\`pastDueAmount\` AS CHAR), '0') AS \`pastDueAmount\`,
+  COALESCE(CAST(r.\`balanceDueAmount\` AS CHAR), '0') AS \`balanceDueAmount\`
+FROM rollup r
+INNER JOIN patient_data pd ON pd.pid = r.pid
+ORDER BY r.\`pastDueAmount\` DESC, r.\`balanceDueAmount\` DESC, r.\`oldestOpenAgeDays\` DESC, r.pid;
+`);
+    const topRows = rows.slice(0, boundedLimit);
+    const candidates: StatementBatchCandidate[] = [];
+    for (const row of topRows) {
+      const statement = await this.getPatientStatementForPatient(Number(row.patientId));
+      if (!statement || Number(statement.balanceDueAmount) <= 0) {
+        continue;
+      }
+
+      candidates.push({
+        patientId: Number(row.patientId),
+        pubpid: row.pubpid,
+        patientDisplayName: `${row.lastName}, ${row.firstName}`,
+        statementNumber: `STMT-${row.pubpid}-${statement.statementDate.replaceAll("-", "")}`,
+        statementStatus: statement.statementStatus,
+        statementDate: statement.statementDate,
+        dueDate: statement.dueDate,
+        balanceDueAmount: statement.balanceDueAmount,
+        pastDueAmount: statement.pastDueAmount,
+        currentDueAmount: statement.currentDueAmount,
+        openEncounterCount: statement.openEncounterCount,
+        ledgerEntryCount: statement.ledgerEntryCount,
+        oldestOpenAgeDays: statement.oldestOpenAgeDays,
+        oldestOpenDate: statement.oldestOpenDate,
+        deliveryMethod: row.email.trim() ? "Email-ready" : "Print"
+      });
+    }
+
+    return {
+      asOfDate,
+      candidateCount: rows.length,
+      totalBalanceAmount: formatAmount(rows.reduce((sum, row) => sum + Number(row.balanceDueAmount), 0)),
+      totalPastDueAmount: formatAmount(rows.reduce((sum, row) => sum + Number(row.pastDueAmount), 0)),
+      totalCurrentDueAmount: formatAmount(rows.reduce((sum, row) => sum + Number(row.currentDueAmount), 0)),
+      candidates
+    };
   }
 
   async getAdministrationDirectory(): Promise<AdministrationDirectorySummary> {
