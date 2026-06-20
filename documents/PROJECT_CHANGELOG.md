@@ -6949,6 +6949,71 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 131. Modernized Appointment Billing-Location Reassignment Slice 101
+
+Commit: `bd242b6`
+Started: `2026-06-20T18:06:00-04:00`
+Finished: `2026-06-20T18:22:18-04:00`
+
+Implemented the one-hundred-first modernized OpenEMR vertical slice: appointment billing-location reassignment readiness, proving that a temporary future appointment can keep its service facility at `10` while its billing location is reassigned from `10` to `11`, rendered through both legacy and modernized scheduling UI paths, cleaned up, and compared side by side.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 371
+- Lines deleted: 48
+- Net lines: 323
+- Total churn: 419
+
+Key outcomes:
+
+- Added real `billing_location_id` support to the modernized PostgreSQL appointment schema and seed adapter, defaulting seeded records to the service facility.
+- Exposed `billingLocationId` and `billingLocationName` through modernized ASP.NET Core appointment list/detail responses and create/update requests.
+- Added Calendar create/edit billing facility controls plus care-location rendering in the modernized React UI.
+- Added the `workflow-appointment-billing-location` Playwright parity suite for service-facility and billing-location separation.
+- Added the `slice-101-appointment-billing-location-readiness` plan to the parity manifest, package scripts, and PowerShell runner allow-list.
+- Extended the modernized smoke test with an `appointment billing-location reassignment lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 101 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, and legacy-baseline documents so the current modernization state is Slice 101 with thirty-four read-only slices and sixty-seven mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 102 checks, including `appointment billing-location reassignment lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-101-appointment-billing-location-readiness -Reset test` passed; run `2026-06-20T222048-174Z-legacy-openemr-plan-slice-101-appointment-billing-location-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-101-appointment-billing-location-readiness -Reset test` passed; run `2026-06-20T222129-515Z-modernized-openemr-plan-slice-101-appointment-billing-location-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-101-appointment-billing-location-readiness` passed with `status: matched`; comparison `2026-06-20T222151-888Z-legacy-openemr-vs-modernized-openemr-plan-slice-101-appointment-billing-location-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-billing-location/appointment-billing-location.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
