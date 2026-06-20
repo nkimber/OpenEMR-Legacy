@@ -50,6 +50,7 @@ param(
         "workflow-appointment-reschedule",
         "workflow-appointment-arrival",
         "workflow-appointment-checkout",
+        "workflow-appointment-noshow",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",

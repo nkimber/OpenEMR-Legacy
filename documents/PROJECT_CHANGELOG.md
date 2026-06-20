@@ -6617,6 +6617,57 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 125. Modernized Appointment No-Show Slice 96
+
+Commit: current slice commit
+Started: `2026-06-20T16:11:10-04:00`
+Finished: `2026-06-20T16:25:27-04:00`
+
+Implemented the ninety-sixth modernized OpenEMR vertical slice: appointment no-show readiness, adding OpenEMR-compatible no-show status behavior for selected future appointments while proving temporary appointment create/no-show/render/delete parity against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 321
+- Lines deleted: 41
+- Net lines: 280
+- Total churn: 362
+
+Key outcomes:
+
+- Added a modernized Calendar detail action that marks the selected appointment no-show with OpenEMR-compatible `?` status.
+- Kept the action on the existing appointment status endpoint so no-show behavior remains part of the server-side scheduling contract.
+- Extended the modernized smoke test with an `appointment no-show lifecycle` check.
+- Added the `workflow-appointment-noshow` Playwright parity suite and the `slice-96-appointment-noshow-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 96 appointment no-show plan.
+- Updated synchronized project documents so the current modernization state is Slice 96 with thirty-four read-only slices and sixty-two mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 97 checks, including `appointment no-show lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-96-appointment-noshow-readiness -Reset test` passed; run `2026-06-20T202404-519Z-legacy-openemr-plan-slice-96-appointment-noshow-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-96-appointment-noshow-readiness -Reset test` passed; run `2026-06-20T202429-592Z-modernized-openemr-plan-slice-96-appointment-noshow-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-96-appointment-noshow-readiness` passed with `status: matched`; comparison `2026-06-20T202449-472Z-legacy-openemr-vs-modernized-openemr-plan-slice-96-appointment-noshow-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from generated/test-maintained files.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-noshow/appointment-noshow.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

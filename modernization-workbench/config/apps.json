@@ -43,6 +43,7 @@
         "parityAppointmentReschedulePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-93-appointment-reschedule-readiness", "-Reset", "test"],
         "parityAppointmentArrivalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-94-appointment-arrival-readiness", "-Reset", "test"],
         "parityAppointmentCheckoutPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-95-appointment-checkout-readiness", "-Reset", "test"],
+        "parityAppointmentNoShowPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-96-appointment-noshow-readiness", "-Reset", "test"],
         "parityEncounterMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-12-encounter-mutation-readiness", "-Reset", "test"],
         "parityClinicalListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-13-clinical-list-mutation-readiness", "-Reset", "test"],
         "parityMessageMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-14-message-mutation-readiness", "-Reset", "test"],
@@ -330,6 +331,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentCheckoutPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-95-appointment-checkout-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-noshow",
+          "name": "Slice 96 appointment no-show plan",
+          "description": "Runs the shared future appointment no-show plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentNoShowPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-96-appointment-noshow-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1031,6 +1040,7 @@
         "parityAppointmentReschedulePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-93-appointment-reschedule-readiness", "-Reset", "test"],
         "parityAppointmentArrivalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-94-appointment-arrival-readiness", "-Reset", "test"],
         "parityAppointmentCheckoutPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-95-appointment-checkout-readiness", "-Reset", "test"],
+        "parityAppointmentNoShowPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-96-appointment-noshow-readiness", "-Reset", "test"],
         "parityEncounterMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-12-encounter-mutation-readiness", "-Reset", "test"],
         "parityClinicalListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-13-clinical-list-mutation-readiness", "-Reset", "test"],
         "parityMessageMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-14-message-mutation-readiness", "-Reset", "test"],
@@ -1244,6 +1254,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentCheckoutPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-95-appointment-checkout-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-noshow",
+          "name": "Slice 96 appointment no-show plan",
+          "description": "Runs the shared future appointment no-show plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentNoShowPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-96-appointment-noshow-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
