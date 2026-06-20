@@ -6229,7 +6229,7 @@ Primary files:
 
 ### 118. Modernized Patient Image Document Thumbnail Slice 89
 
-Commit: current slice commit
+Commit: `ff8af03`
 Started: `2026-06-20T13:34:05-04:00`
 Finished: `2026-06-20T13:47:31.5410000-04:00`
 
@@ -6282,6 +6282,66 @@ Primary files:
 - `parity-tests/src/db/modernizedPostgresProbe.ts`
 - `parity-tests/src/workflows/legacyWorkflowActions.ts`
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
+### 119. Modernized Patient PDF Document Preview Slice 90
+
+Commit: current slice commit
+Started: `2026-06-20T13:48:30-04:00`
+Finished: `2026-06-20T14:19:23.3532441-04:00`
+
+Implemented the ninetieth modernized OpenEMR vertical slice: patient PDF document inline preview readiness, promoting PDF-backed patient documents from download-only preview metadata into inline-previewable document cards and viewer content while proving the same temporary PDF patient-document create/render/download/archive/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 382
+- Lines deleted: 39
+- Net lines: 343
+- Total churn: 421
+
+Key outcomes:
+
+- Updated patient and encounter PDF preview metadata from `Download preview` to `Inline PDF preview` with `canPreviewInline = true`.
+- Rendered patient PDF documents in the modernized Documents viewer through an iframe backed by `/api/documents/{id}/download`.
+- Extended modernized smoke coverage with a self-cleaning `patient PDF inline preview readiness` check.
+- Extended shared legacy and modernized parity probes to normalize PDF inline-preview metadata consistently.
+- Added the `workflow-document-pdf-preview` Playwright parity suite and the `slice-90-document-pdf-preview-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 90 patient PDF document preview plan.
+- Updated the Slice 79 encounter binary-document upload expectations so shared PDF preview metadata continues to match across legacy and modernized targets.
+- Updated synchronized project documents so the current modernization state is Slice 90 with thirty-four read-only slices and fifty-six mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 91 checks, including `patient PDF inline preview readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-90-document-pdf-preview-readiness -Reset test` passed; run `2026-06-20T180422-702Z-legacy-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-90-document-pdf-preview-readiness -Reset test` passed; run `2026-06-20T180455-443Z-modernized-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-90-document-pdf-preview-readiness` passed with `status: matched`; comparison `2026-06-20T180520-920Z-legacy-openemr-vs-modernized-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- Regression `slice-79-encounter-binary-document-upload-readiness` passed on legacy; run `2026-06-20T180529-943Z-legacy-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- Regression `slice-79-encounter-binary-document-upload-readiness` passed on modernized; run `2026-06-20T180555-265Z-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- Regression comparison for `slice-79-encounter-binary-document-upload-readiness` passed with `status: matched`; comparison `2026-06-20T180616-666Z-legacy-openemr-vs-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-pdf-preview/pdf-document-preview.spec.ts`
+- `parity-tests/tests/workflow-encounter-binary-documents/encounter-binary-document-upload.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
 - `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`

@@ -2388,7 +2388,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, focused encounter-scoped document metadata refiling is covered by Slice 82, focused same-patient encounter document movement is covered by Slice 83, focused encounter-scoped content replacement is covered by Slice 84, focused encounter-scoped archive/restore is covered by Slice 85, focused encounter-scoped lifecycle timeline readiness is covered by Slice 86, focused encounter-scoped external-link attachment is covered by Slice 87, patient image inline preview readiness is covered by Slice 88, and patient image thumbnail readiness is covered by Slice 89. Scanner integration, generated PDF thumbnails, external object storage, document routing queues, full version history from the encounter screen, authorization, and comprehensive audit-log export remain future work.
+- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, focused encounter-scoped document metadata refiling is covered by Slice 82, focused same-patient encounter document movement is covered by Slice 83, focused encounter-scoped content replacement is covered by Slice 84, focused encounter-scoped archive/restore is covered by Slice 85, focused encounter-scoped lifecycle timeline readiness is covered by Slice 86, focused encounter-scoped external-link attachment is covered by Slice 87, patient image inline preview readiness is covered by Slice 88, patient image thumbnail readiness is covered by Slice 89, and patient PDF inline preview readiness is covered by Slice 90. Scanner integration, generated PDF thumbnails, external object storage, document routing queues, full version history from the encounter screen, authorization, and comprehensive audit-log export remain future work.
 
 ### Slice 80: Encounter Document Sign-Off Readiness
 
@@ -2635,7 +2635,7 @@ Scope:
 - ASP.NET Core document preview metadata now treats `image/*` documents as `previewKind = image`, `previewStatus = Inline image preview`, thumbnail label `IMG`, and `canPreviewInline = true`.
 - Encounter document preview metadata uses the same image inline-readiness contract so encounter-attached image rows do not regress from the patient-document preview rule.
 - The modernized Documents viewer renders image document content as an inline `<img>` from the API-provided base64 payload while preserving the existing download action and file/MIME metadata.
-- The frontend keeps binary/PDF behavior unchanged: non-image binary documents still show download-focused metadata, while image documents show the actual preview.
+- The frontend keeps non-image binary behavior unchanged: generic binary documents still show download-focused metadata, while image documents show the actual preview. PDF inline preview is covered by Slice 90.
 - The modernized smoke test now includes a `patient image document preview lifecycle` check that creates a temporary `image/svg+xml` document on `MOD-PAT-0001`, verifies `IMG` thumbnail metadata, inline preview readiness, content retrieval, download content type, byte-for-byte payload preservation, and cleanup.
 - The parity workflow creates an equivalent temporary patient image document on both targets, verifies direct-row/content facts, checks legacy document-category rendering or modernized inline image rendering, archives the record, and hard-deletes it.
 - Workbench-managed Slice 88 patient image document preview plan actions are available for both legacy and modernized targets.
@@ -2652,7 +2652,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves inline image preview readiness for temporary patient image documents and aligns encounter image-preview metadata. It does not yet generate raster thumbnails, render PDF pages inline, integrate scanners, implement OCR, route document work queues, or add external object-storage adapters.
+- This slice proves inline image preview readiness for temporary patient image documents and aligns encounter image-preview metadata. It does not yet generate raster thumbnails, integrate scanners, implement OCR, route document work queues, or add external object-storage adapters. PDF inline preview is covered by Slice 90.
 
 ### Slice 89: Patient Image Document Thumbnail Readiness
 
@@ -2680,6 +2680,37 @@ Acceptance:
 Current limitations:
 
 - This slice proves byte-backed image thumbnails for small database-backed patient image documents. It does not yet generate raster thumbnails for PDFs, resize very large images, integrate scanner/OCR pipelines, add document routing queues, or introduce external object-storage adapters.
+
+### Slice 90: Patient PDF Document Inline Preview Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient PDF document inline-preview readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-90-document-pdf-preview-readiness` plan, which creates a temporary PDF document, verifies normalized inline-preview metadata, renders the modernized PDF viewer iframe, downloads the original bytes, archives it, deletes it, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient and encounter document preview metadata now treats `application/pdf` documents as `previewKind = pdf`, `previewStatus = Inline PDF preview`, thumbnail label `PDF`, and `canPreviewInline = true`.
+- The modernized Documents viewer renders PDF documents in a browser-visible iframe backed by the same byte-preserving `/api/documents/{id}/download` endpoint used by the download action.
+- The viewer keeps the PDF file name, preview status, generated binary preview text, byte size, and MIME metadata visible below the iframe.
+- Legacy and modernized parity probes normalize the same PDF inline-preview facts for temporary database-backed PDF documents.
+- The modernized smoke test now includes a `patient PDF inline preview readiness` check that proves both list and content responses expose the PDF inline-preview contract.
+- Workbench-managed Slice 90 patient PDF document preview plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A newly created temporary patient PDF document is stored on both targets with category `Medical Record`, MIME type `application/pdf`, storage method `database`, pending review state, active document state, and matching content bytes.
+- Normalized preview metadata reports `pdf`, `Inline PDF preview`, `PDF`, `canPreviewInline = true`, and `canDownload = true`.
+- The modernized Documents workspace document card renders PDF preview readiness, and the Document Viewer renders an accessible PDF iframe whose `src` points at the document download endpoint.
+- Download returns the original PDF bytes with a PDF MIME type.
+- Archiving hides the document from active document counts while preserving the archived row until hard-delete cleanup.
+- Hard-delete cleanup restores the seeded patient document count.
+- The side-by-side Slice 90 parity comparison matches.
+- The existing Slice 79 encounter binary-document upload plan still matches after the shared PDF preview metadata changes from `Download preview` to `Inline PDF preview`.
+
+Current limitations:
+
+- This slice proves browser-native inline PDF preview for database-backed patient PDF documents. It does not yet generate raster page thumbnails, implement OCR, integrate scanner capture pipelines, add document routing queues, support PDF annotations, or introduce external object-storage adapters.
 
 ## Test Strategy
 
@@ -2831,3 +2862,4 @@ As of 2026-06-20:
 - The eighty-seventh modernized vertical slice implements encounter external-link document readiness with an ASP.NET Core encounter-scoped external-link endpoint, React Encounters URL attach controls, normalized legacy/modernized workflow probes, Workbench encounter external-link document plan actions, smoke coverage, and side-by-side slice-87 parity evidence.
 - The eighty-eighth modernized vertical slice implements patient image document preview readiness with inline image preview metadata, React Documents viewer image rendering, byte-preserving image content/download checks, normalized legacy/modernized workflow probes, Workbench image document preview plan actions, smoke coverage, and side-by-side slice-88 parity evidence.
 - The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.
+- The ninetieth modernized vertical slice implements patient PDF document inline preview readiness with ASP.NET Core PDF inline-preview metadata, a React Documents viewer PDF iframe backed by the download endpoint, normalized legacy/modernized workflow probes, Workbench PDF document preview plan actions, smoke coverage, and side-by-side slice-90 parity evidence.

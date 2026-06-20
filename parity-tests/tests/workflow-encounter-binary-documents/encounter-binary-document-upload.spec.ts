@@ -75,8 +75,9 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
         mimetype: "application/pdf",
         fileName,
         previewKind: "pdf",
-        previewStatus: "Download preview",
+        previewStatus: "Inline PDF preview",
         thumbnailLabel: "PDF",
+        canPreviewInline: true,
         canDownload: true
       });
 
@@ -95,8 +96,9 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
           categoryName: "Medical Record",
           mimetype: "application/pdf",
           previewKind: "pdf",
-          previewStatus: "Download preview",
+          previewStatus: "Inline PDF preview",
           thumbnailLabel: "PDF",
+          canPreviewInline: true,
           canDownload: true
         });
 
@@ -118,7 +120,7 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
         const attachments = page.getByRole("region", { name: "Encounter attached documents" });
         await expect(attachments).toContainText(fileName);
         await expect(attachments).toContainText("application/pdf");
-        await expect(attachments).toContainText("Download preview");
+        await expect(attachments).toContainText("Inline PDF preview");
         await expect(attachments).toContainText("PDF");
         await expect(attachments.locator('form[aria-label="Encounter binary document upload"]')).toBeVisible();
       }

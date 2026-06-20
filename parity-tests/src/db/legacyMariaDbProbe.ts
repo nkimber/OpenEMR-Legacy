@@ -266,11 +266,11 @@ export function buildPatientDocumentPreviewFields(input: {
   if (mimetype === "application/pdf") {
     return {
       previewKind: "pdf",
-      previewStatus: "Download preview",
+      previewStatus: "Inline PDF preview",
       thumbnailLabel: "PDF",
       thumbnailText: input.pages && input.pages > 0 ? `${input.pages} page PDF document` : "PDF document",
       thumbnailDataUri: null,
-      canPreviewInline: false,
+      canPreviewInline: true,
       canDownload: true
     };
   }
