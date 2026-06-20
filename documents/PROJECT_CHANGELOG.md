@@ -28,7 +28,7 @@ Future entries should use this header shape:
 ```markdown
 ### 000. Short Entry Title
 
-Commit: current slice commit
+Commit: pending
 Started: `2026-06-19T13:06:12-04:00`
 Finished: `2026-06-19T13:42:30-04:00`
 
@@ -6288,7 +6288,7 @@ Primary files:
 
 ### 119. Modernized Patient PDF Document Preview Slice 90
 
-Commit: current slice commit
+Commit: `29e2b6a`
 Started: `2026-06-20T13:48:30-04:00`
 Finished: `2026-06-20T14:19:23.3532441-04:00`
 
@@ -6342,6 +6342,59 @@ Primary files:
 - `parity-tests/test-manifest.json`
 - `parity-tests/package.json`
 - `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
+### 120. Modernized Patient Document Lifecycle Timeline Slice 91
+
+Commit: current slice commit
+Started: `2026-06-20T14:20:10-04:00`
+Finished: `2026-06-20T14:42:08.4106862-04:00`
+
+Implemented the ninety-first modernized OpenEMR vertical slice: patient document lifecycle timeline readiness, deriving filed/current-version/review/active/archive lifecycle events from existing document fields and proving the temporary patient document create/sign/archive/restore/render/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 639
+- Lines deleted: 39
+- Net lines: 600
+- Total churn: 678
+
+Key outcomes:
+
+- Added patient document lifecycle events to modernized document list and content API responses.
+- Rendered lifecycle events on modernized Documents cards and in the document viewer.
+- Extended modernized smoke coverage with a self-cleaning `patient document lifecycle timeline` check that exercises create, sign, archive, restore, viewer retrieval, and hard-delete cleanup.
+- Added the `workflow-document-lifecycle` Playwright parity suite and the `slice-91-document-lifecycle-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 91 patient document lifecycle timeline plan.
+- Updated synchronized project documents so the current modernization state is Slice 91 with thirty-four read-only slices and fifty-seven mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 92 checks, including `patient document lifecycle timeline`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-91-document-lifecycle-readiness -Reset test` passed; run `2026-06-20T183202-481Z-legacy-openemr-plan-slice-91-document-lifecycle-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-91-document-lifecycle-readiness -Reset test` passed; run `2026-06-20T183241-267Z-modernized-openemr-plan-slice-91-document-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-91-document-lifecycle-readiness` passed with `status: matched`; comparison `2026-06-20T183306-533Z-legacy-openemr-vs-modernized-openemr-plan-slice-91-document-lifecycle-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-lifecycle/document-lifecycle.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
 - `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`

@@ -2712,6 +2712,35 @@ Current limitations:
 
 - This slice proves browser-native inline PDF preview for database-backed patient PDF documents. It does not yet generate raster page thumbnails, implement OCR, integrate scanner capture pipelines, add document routing queues, support PDF annotations, or introduce external object-storage adapters.
 
+### Slice 91: Patient Document Lifecycle Timeline Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient document lifecycle timeline readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-91-document-lifecycle-readiness` plan, which creates a temporary patient document, verifies derived lifecycle events, signs it, archives it, restores it, renders lifecycle events in the modernized Documents workspace, deletes it, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient document list and content responses now include `lifecycleEvents` derived from existing filed, current-version, review, and active/archive fields.
+- React Documents cards and the Document Viewer render the same lifecycle event grid used by encounter-attached documents.
+- Lifecycle events currently include `filed`, `current-version`, `review-pending` or `review-approved` or `review-denied`, and `active` or `archived`.
+- The modernized smoke test now includes a `patient document lifecycle timeline` check that proves list and viewer responses expose the expected event transitions.
+- Workbench-managed Slice 91 patient document lifecycle plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A newly created temporary patient document is stored on both targets with category `Medical Record`, pending review state, active document state, and matching content preview.
+- Initial lifecycle events report filed/current-version/review-pending/active.
+- Signing the document as `admin` changes the lifecycle to review-approved while preserving active state.
+- Archiving changes the lifecycle to archived and removes the document from active counts while preserving it in archived list views.
+- Restoring changes the lifecycle back to active and the modernized Documents workspace card and viewer render the lifecycle labels.
+- Hard-delete cleanup restores the seeded patient document count.
+- The side-by-side Slice 91 parity comparison matches.
+
+Current limitations:
+
+- This slice exposes a derived patient document lifecycle timeline from current document fields. It is not a comprehensive audit-log export and does not yet model every user action, historical version row, scanner-routing state, authorization decision, route-queue transition, OCR state, or external storage event.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2863,3 +2892,4 @@ As of 2026-06-20:
 - The eighty-eighth modernized vertical slice implements patient image document preview readiness with inline image preview metadata, React Documents viewer image rendering, byte-preserving image content/download checks, normalized legacy/modernized workflow probes, Workbench image document preview plan actions, smoke coverage, and side-by-side slice-88 parity evidence.
 - The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.
 - The ninetieth modernized vertical slice implements patient PDF document inline preview readiness with ASP.NET Core PDF inline-preview metadata, a React Documents viewer PDF iframe backed by the download endpoint, normalized legacy/modernized workflow probes, Workbench PDF document preview plan actions, smoke coverage, and side-by-side slice-90 parity evidence.
+- The ninety-first modernized vertical slice implements patient document lifecycle timeline readiness with ASP.NET Core lifecycle event derivation, React Documents card and viewer lifecycle rendering, normalized legacy/modernized workflow probes, Workbench document lifecycle plan actions, smoke coverage, and side-by-side slice-91 parity evidence.

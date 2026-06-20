@@ -76,6 +76,7 @@ param(
         "workflow-document-image-preview",
         "workflow-document-image-thumbnail",
         "workflow-document-pdf-preview",
+        "workflow-document-lifecycle",
         "workflow-document-signoff",
         "workflow-document-external-link",
         "workflow-document-denial",
