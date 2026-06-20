@@ -474,6 +474,10 @@ SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_
   COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
   COALESCE(notes, '') AS notes,
   case
+    when content_bytes is not null then encode(content_bytes, 'hex')
+    else ''
+  end AS "contentHex",
+  case
     when content_bytes is not null then left(coalesce(content, ''), 260)
     else left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260)
   end AS "contentPreview"
@@ -503,6 +507,7 @@ ORDER BY doc_date DESC, id DESC;
           url: row.url,
           hash: row.hash,
           notes: row.notes,
+          contentBase64: row.contentHex ? Buffer.from(row.contentHex, "hex").toString("base64") : "",
           contentPreview: row.contentPreview
         };
 

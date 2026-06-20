@@ -125,6 +125,7 @@ export type PatientDocumentRecord = {
   notes: string;
   contentBase64: string;
   contentPreview: string;
+  thumbnailDataUri: string | null;
 };
 
 export type PatientInsuranceRecord = {
@@ -1715,6 +1716,8 @@ LIMIT 1;
       return null;
     }
 
+    const contentBase64 = row.contentBase64.replace(/\\n/g, "").replace(/\s/g, "");
+
     return {
       id: Number(row.id),
       patientId: Number(row.patientId),
@@ -1734,8 +1737,9 @@ LIMIT 1;
       reviewedBy: row.reviewedBy,
       reviewedAt: row.reviewedAt,
       notes: row.notes,
-      contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
-      contentPreview: row.contentPreview
+      contentBase64,
+      contentPreview: row.contentPreview,
+      thumbnailDataUri: buildDocumentThumbnailDataUri(row.mimetype, contentBase64)
     };
   }
 
@@ -2844,6 +2848,16 @@ function buildCollectionsFollowUpBody(input: NewCollectionsFollowUpTask) {
 
 function formatWorkflowMoney(value: string | number) {
   return `$${Number(value).toFixed(2)}`;
+}
+
+function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {
+  const normalizedMimetype = mimetype.trim().toLowerCase();
+  const normalizedContent = contentBase64.trim();
+  if (!normalizedMimetype.startsWith("image/") || normalizedContent.length === 0) {
+    return null;
+  }
+
+  return `data:${normalizedMimetype};base64,${normalizedContent}`;
 }
 
 function mapUser(row: Record<string, string>): UserRecord {

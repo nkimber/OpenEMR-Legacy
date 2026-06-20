@@ -2388,7 +2388,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, focused encounter-scoped document metadata refiling is covered by Slice 82, focused same-patient encounter document movement is covered by Slice 83, focused encounter-scoped content replacement is covered by Slice 84, focused encounter-scoped archive/restore is covered by Slice 85, focused encounter-scoped lifecycle timeline readiness is covered by Slice 86, focused encounter-scoped external-link attachment is covered by Slice 87, and patient image inline preview readiness is covered by Slice 88. Scanner integration, generated PDF thumbnails, external object storage, document routing queues, full version history from the encounter screen, authorization, and comprehensive audit-log export remain future work.
+- This slice proves focused encounter-scoped PDF/binary attachment parity from the Encounter workspace. Focused encounter-scoped document signing is covered by Slice 80, focused encounter-scoped document denial is covered by Slice 81, focused encounter-scoped document metadata refiling is covered by Slice 82, focused same-patient encounter document movement is covered by Slice 83, focused encounter-scoped content replacement is covered by Slice 84, focused encounter-scoped archive/restore is covered by Slice 85, focused encounter-scoped lifecycle timeline readiness is covered by Slice 86, focused encounter-scoped external-link attachment is covered by Slice 87, patient image inline preview readiness is covered by Slice 88, and patient image thumbnail readiness is covered by Slice 89. Scanner integration, generated PDF thumbnails, external object storage, document routing queues, full version history from the encounter screen, authorization, and comprehensive audit-log export remain future work.
 
 ### Slice 80: Encounter Document Sign-Off Readiness
 
@@ -2654,6 +2654,33 @@ Current limitations:
 
 - This slice proves inline image preview readiness for temporary patient image documents and aligns encounter image-preview metadata. It does not yet generate raster thumbnails, render PDF pages inline, integrate scanners, implement OCR, route document work queues, or add external object-storage adapters.
 
+### Slice 89: Patient Image Document Thumbnail Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient image document thumbnail readiness slice under `modernized-openemr/`.
+- Verification is the shared `slice-89-document-image-thumbnail-readiness` plan, which creates a temporary image document, verifies normalized thumbnail data URI facts, renders the modernized document-card thumbnail, archives it, deletes it, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core patient document list responses now include `thumbnailDataUri` for database-backed `image/*` documents with stored content bytes while leaving text, PDF, external-link, and generic binary documents as label-based thumbnails.
+- React Documents cards render a real `<img>` thumbnail when `thumbnailDataUri` is available, preserving the existing fixed thumbnail square and fallback label behavior for other document types.
+- Legacy and modernized parity probes/workflow adapters now normalize the same image thumbnail data URI from stored bytes for temporary image documents.
+- The modernized smoke test now includes a `patient image document thumbnail readiness` check that proves the created image document list row carries the expected data URI.
+- Workbench-managed Slice 89 patient image document thumbnail plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A newly created temporary patient image document is stored on both targets with matching image bytes and normalized `thumbnailDataUri = data:image/svg+xml;base64,...`.
+- The modernized Documents workspace document card renders an accessible thumbnail image whose `src` exactly matches the normalized data URI.
+- Non-image document thumbnail behavior remains unchanged.
+- Archiving and hard-delete cleanup restore the seeded patient document count.
+- The side-by-side Slice 89 parity comparison matches.
+
+Current limitations:
+
+- This slice proves byte-backed image thumbnails for small database-backed patient image documents. It does not yet generate raster thumbnails for PDFs, resize very large images, integrate scanner/OCR pipelines, add document routing queues, or introduce external object-storage adapters.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2803,3 +2830,4 @@ As of 2026-06-20:
 - The eighty-sixth modernized vertical slice implements encounter document lifecycle timeline readiness with ASP.NET Core lifecycle event derivation, React Encounters lifecycle timeline rendering, normalized legacy/modernized workflow probes, Workbench encounter document lifecycle plan actions, smoke coverage, and side-by-side slice-86 parity evidence.
 - The eighty-seventh modernized vertical slice implements encounter external-link document readiness with an ASP.NET Core encounter-scoped external-link endpoint, React Encounters URL attach controls, normalized legacy/modernized workflow probes, Workbench encounter external-link document plan actions, smoke coverage, and side-by-side slice-87 parity evidence.
 - The eighty-eighth modernized vertical slice implements patient image document preview readiness with inline image preview metadata, React Documents viewer image rendering, byte-preserving image content/download checks, normalized legacy/modernized workflow probes, Workbench image document preview plan actions, smoke coverage, and side-by-side slice-88 parity evidence.
+- The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.

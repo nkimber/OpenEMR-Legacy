@@ -1083,6 +1083,8 @@ LIMIT 1;
       return null;
     }
 
+    const contentBase64 = Buffer.from(row.contentHex, "hex").toString("base64");
+
     return {
       id: Number(row.id),
       patientId: Number(row.patientId),
@@ -1102,8 +1104,9 @@ LIMIT 1;
       reviewedBy: row.reviewedBy,
       reviewedAt: row.reviewedAt,
       notes: row.notes,
-      contentBase64: Buffer.from(row.contentHex, "hex").toString("base64"),
-      contentPreview: row.contentPreview
+      contentBase64,
+      contentPreview: row.contentPreview,
+      thumbnailDataUri: buildDocumentThumbnailDataUri(row.mimetype, contentBase64)
     };
   }
 
@@ -2281,6 +2284,16 @@ function sqlString(value: string) {
 
 function normalizeTime(value: string) {
   return value.length === 5 ? `${value}:00` : value;
+}
+
+function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {
+  const normalizedMimetype = mimetype.trim().toLowerCase();
+  const normalizedContent = contentBase64.trim();
+  if (!normalizedMimetype.startsWith("image/") || normalizedContent.length === 0) {
+    return null;
+  }
+
+  return `data:${normalizedMimetype};base64,${normalizedContent}`;
 }
 
 function workflowClaimStatusLabel(status: number, billProcess: number) {

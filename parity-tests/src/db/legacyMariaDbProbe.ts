@@ -165,6 +165,7 @@ export type PatientDocumentSummary = {
   previewStatus: string;
   thumbnailLabel: string;
   thumbnailText: string;
+  thumbnailDataUri: string | null;
   canPreviewInline: boolean;
   canDownload: boolean;
 };
@@ -185,6 +186,7 @@ export type PatientDocumentPreviewFields = {
   previewStatus: string;
   thumbnailLabel: string;
   thumbnailText: string;
+  thumbnailDataUri: string | null;
   canPreviewInline: boolean;
   canDownload: boolean;
 };
@@ -229,6 +231,7 @@ export function buildPatientDocumentPreviewFields(input: {
   url?: string | null;
   pages?: number | null;
   contentPreview?: string | null;
+  contentBase64?: string | null;
 }): PatientDocumentPreviewFields {
   const mimetype = normalizeText(input.mimetype).toLowerCase();
   const storageMethod = normalizeText(input.storageMethod).toLowerCase();
@@ -242,6 +245,7 @@ export function buildPatientDocumentPreviewFields(input: {
       previewStatus: "External link",
       thumbnailLabel: "LINK",
       thumbnailText: trimThumbnailText(url),
+      thumbnailDataUri: null,
       canPreviewInline: false,
       canDownload: true
     };
@@ -253,6 +257,7 @@ export function buildPatientDocumentPreviewFields(input: {
       previewStatus: "Inline text preview",
       thumbnailLabel: "TXT",
       thumbnailText: previewText || "Text document",
+      thumbnailDataUri: null,
       canPreviewInline: true,
       canDownload: true
     };
@@ -264,6 +269,7 @@ export function buildPatientDocumentPreviewFields(input: {
       previewStatus: "Download preview",
       thumbnailLabel: "PDF",
       thumbnailText: input.pages && input.pages > 0 ? `${input.pages} page PDF document` : "PDF document",
+      thumbnailDataUri: null,
       canPreviewInline: false,
       canDownload: true
     };
@@ -275,6 +281,7 @@ export function buildPatientDocumentPreviewFields(input: {
       previewStatus: "Inline image preview",
       thumbnailLabel: "IMG",
       thumbnailText: fileName ? trimThumbnailText(fileName) : "Image document",
+      thumbnailDataUri: buildThumbnailDataUri(mimetype, input.contentBase64),
       canPreviewInline: true,
       canDownload: true
     };
@@ -285,9 +292,19 @@ export function buildPatientDocumentPreviewFields(input: {
     previewStatus: "Download preview",
     thumbnailLabel: buildThumbnailLabel(fileName, mimetype),
     thumbnailText: fileName ? trimThumbnailText(fileName) : "Stored document",
+    thumbnailDataUri: null,
     canPreviewInline: false,
     canDownload: true
   };
+}
+
+function buildThumbnailDataUri(mimetype: string, contentBase64?: string | null): string | null {
+  const normalizedContent = normalizeText(contentBase64);
+  if (!mimetype.startsWith("image/") || normalizedContent.length === 0) {
+    return null;
+  }
+
+  return `data:${mimetype};base64,${normalizedContent}`;
 }
 
 function buildPreviewText(contentPreview?: string | null): string {
@@ -1110,6 +1127,7 @@ SELECT d.id,
   COALESCE(d.url, '') AS url,
   COALESCE(d.hash, '') AS hash,
   COALESCE(d.documentationOf, '') AS notes,
+  TO_BASE64(COALESCE(d.document_data, '')) AS contentBase64,
   LEFT(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), 260) AS contentPreview
 FROM documents d
 LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
@@ -1139,6 +1157,7 @@ ORDER BY d.docdate DESC, d.id DESC;
           url: row.url,
           hash: row.hash,
           notes: row.notes,
+          contentBase64: row.contentBase64.replace(/\\n/g, "").replace(/\s/g, ""),
           contentPreview: row.contentPreview
         };
 

@@ -6227,12 +6227,71 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 118. Modernized Patient Image Document Thumbnail Slice 89
+
+Commit: current slice commit
+Started: `2026-06-20T13:34:05-04:00`
+Finished: `2026-06-20T13:47:31.5410000-04:00`
+
+Implemented the eighty-ninth modernized OpenEMR vertical slice: patient image document thumbnail readiness, adding byte-backed image thumbnail data URIs to patient document list rows and rendering those thumbnails on modernized Documents cards while proving the same temporary SVG patient-document create/render/thumbnail/archive/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 24
+- Lines added: 401
+- Lines deleted: 36
+- Net lines: 365
+- Total churn: 437
+
+Key outcomes:
+
+- Added `thumbnailDataUri` to the patient document list contract for small database-backed `image/*` documents.
+- Rendered real image thumbnails in the modernized Documents card thumbnail square while preserving label thumbnails for text, PDF, external-link, and generic binary records.
+- Extended modernized smoke coverage with a self-cleaning `patient image document thumbnail readiness` check.
+- Extended legacy and modernized parity probes/workflow adapters to normalize thumbnail data URIs from stored image bytes.
+- Added the `workflow-document-image-thumbnail` Playwright parity suite and the `slice-89-document-image-thumbnail-readiness` plan.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 89 patient image document thumbnail plan.
+- Updated synchronized project documents so the current modernization state is Slice 89 with thirty-four read-only slices and fifty-five mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 90 checks, including `patient image document thumbnail readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-89-document-image-thumbnail-readiness -Reset test` passed; run `2026-06-20T174636-986Z-legacy-openemr-plan-slice-89-document-image-thumbnail-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-89-document-image-thumbnail-readiness -Reset test` passed; run `2026-06-20T174710-027Z-modernized-openemr-plan-slice-89-document-image-thumbnail-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-89-document-image-thumbnail-readiness` passed with `status: matched`; comparison `2026-06-20T174731-540Z-legacy-openemr-vs-modernized-openemr-plan-slice-89-document-image-thumbnail-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-document-image-thumbnail/image-document-thumbnail.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Scanned attachments, document thumbnails, full document versioning, external storage adapters, and integration workflows.
+- Scanned attachments, full document versioning, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, co-signature/amendment depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison views that render matched/different comparison artifacts directly.
