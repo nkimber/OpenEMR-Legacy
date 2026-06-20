@@ -8,12 +8,15 @@ import type {
   AppointmentRecord,
   BillingLineCorrection,
   BillingLineRecord,
+  ClaimStatusRecord,
+  ClaimStatusUpdate,
   ClinicalListRecord,
   EncounterMetadataInput,
   EncounterRecord,
   FacilityRecord,
   ImmunizationRecord,
   NewBillingLine,
+  NewClaimStatus,
   NewClinicalListEntry,
   NewFacility,
   NewImmunization,
@@ -1358,6 +1361,102 @@ LIMIT 1;
     }
   }
 
+  async createClaimStatus(input: NewClaimStatus): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        encounter: input.encounter,
+        payerId: input.payerId,
+        payerName: input.payerName,
+        payerType: input.payerType,
+        status: input.status,
+        billProcess: input.billProcess,
+        billTime: input.billTime,
+        processTime: input.processTime ?? null,
+        processFile: input.processFile,
+        target: input.target,
+        x12PartnerId: input.x12PartnerId,
+        submittedClaim: input.submittedClaim
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized claim status create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getClaimStatus(id: number | string): Promise<ClaimStatusRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", encounter, version, payer_id AS "payerId",
+  COALESCE(payer_name, '') AS "payerName", payer_type AS "payerType", status,
+  bill_process AS "billProcess", COALESCE(to_char(bill_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "billTime",
+  COALESCE(to_char(process_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "processTime",
+  COALESCE(process_file, '') AS "processFile", COALESCE(target, '') AS target,
+  x12_partner_id AS "x12PartnerId", COALESCE(submitted_claim, '') AS "submittedClaim"
+FROM claims
+WHERE id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      version: Number(row.version),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      status: Number(row.status),
+      statusLabel: workflowClaimStatusLabel(Number(row.status), Number(row.billProcess)),
+      billProcess: Number(row.billProcess),
+      billTime: row.billTime,
+      processTime: row.processTime,
+      processFile: row.processFile,
+      target: row.target,
+      x12PartnerId: Number(row.x12PartnerId),
+      submittedClaim: row.submittedClaim
+    };
+  }
+
+  async updateClaimStatus(id: number | string, input: ClaimStatusUpdate): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims/${encodeURIComponent(String(id))}/status`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        status: input.status,
+        billProcess: input.billProcess,
+        processTime: input.processTime ?? null,
+        processFile: input.processFile,
+        target: input.target,
+        x12PartnerId: input.x12PartnerId,
+        submittedClaim: input.submittedClaim
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized claim status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteClaimStatus(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized claim status delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async createPaymentPosting(input: NewPaymentPosting): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments`, {
       method: "POST",
@@ -1890,4 +1989,24 @@ function sqlString(value: string) {
 
 function normalizeTime(value: string) {
   return value.length === 5 ? `${value}:00` : value;
+}
+
+function workflowClaimStatusLabel(status: number, billProcess: number) {
+  if (billProcess !== 0) {
+    return "Queued for billing";
+  }
+
+  return status === 1
+    ? "Re-opened"
+    : status === 2 || status === 3
+      ? "Marked as cleared"
+      : status === 4
+        ? "Closed"
+        : status === 5
+          ? "Canceled"
+          : status === 6
+            ? "Forwarded"
+            : status === 7
+              ? "Denied"
+              : "Unsubmitted";
 }

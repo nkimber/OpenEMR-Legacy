@@ -1717,6 +1717,36 @@ Current limitations:
 - This slice implements manual payment posting lifecycle behavior only.
 - ERA/EOB import, payer remittance reconciliation, patient payment capture, refunds, audit history, batch posting, claim adjudication state transitions, and statement-generation workflows remain future revenue-cycle slices.
 
+### Slice 57: Claim Status Mutation Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-57-claim-status-mutation-readiness` plan, which validates temporary claim create, generated-file state, cleared state, browser-visible rendering, and hard-delete cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The slice uses the existing `MOD-PAT-0005` billing anchor and encounter `1000052`; it does not add permanent gold-data records.
+- Legacy behavior creates one temporary OpenEMR `claims` row, moves it from queued to generated and cleared status, verifies the composite claim key, and hard-deletes the temporary row during cleanup.
+- ASP.NET Core billing behavior now exposes claim-status create, update, and delete endpoints over the modernized `claims` table.
+- React Fees workspace now includes a Claim Status form plus row-level Generate, Clear, and Delete controls for claim rows.
+- Modernized smoke coverage validates the temporary claim status lifecycle, including queued, generated, cleared, and cleanup states.
+- The `workflow-claims` parity suite and `slice-57-claim-status-mutation-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL mutation behavior plus browser-visible modernized Fees rendering.
+- Workbench-managed Slice 57 claim status mutation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary primary-payer claim can be created for `MOD-PAT-0005` encounter `1000052` with payer `Northstar HMO`, target `HCFA`, queued status, and a new version number.
+- Direct probes show one new claim row after create, generated state stores an X12 target and `837P` process file, and cleared state removes the process file while preserving the claim version.
+- Hard-delete cleanup removes the temporary claim row so seeded claim counts return to baseline.
+- The modernized Fees workspace renders the temporary queued, generated, and cleared states with payer, target, version, and claim-file details.
+- The side-by-side Slice 57 parity comparison matches.
+
+Current limitations:
+
+- This slice implements focused manual claim-status lifecycle behavior only.
+- Full claim generation, payer adjudication, ERA import, rejection handling, statement integration, and revenue-cycle audit history remain future billing slices.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -1834,3 +1864,4 @@ As of 2026-06-19:
 - The fifty-fourth modernized vertical slice implements read-only patient document revision readiness by deriving current version, revision timestamp, history count, prior-version state, and revision hash from existing seeded document metadata rows, adding ASP.NET Core document revision fields, React Documents revision rendering, Workbench document revision plan action, smoke coverage, and side-by-side slice-54 parity evidence.
 - The fifty-fifth modernized vertical slice implements patient document replacement revision readiness by proving content replacement updates the current revision timestamp and hash in place while preserving the single-current-version contract, adding a dedicated parity suite, Workbench document replacement revision plan action, smoke coverage, and side-by-side slice-55 parity evidence.
 - The fifty-sixth modernized vertical slice implements payment posting mutation readiness with ASP.NET Core payment posting create/void/delete endpoints, React Fees payment posting controls, normalized legacy/modernized workflow actions, Workbench payment posting mutation plan actions, smoke coverage, and side-by-side slice-56 parity evidence.
+- The fifty-seventh modernized vertical slice implements claim status mutation readiness with ASP.NET Core claim create/update/delete endpoints, React Fees claim status controls, normalized legacy/modernized workflow actions, Workbench claim status mutation plan actions, smoke coverage, and side-by-side slice-57 parity evidence.

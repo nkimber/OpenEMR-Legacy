@@ -223,6 +223,25 @@ export type BillingLineRecord = {
   billed: number;
 };
 
+export type ClaimStatusRecord = {
+  id: number | string;
+  patientId: number;
+  encounter: number;
+  version: number;
+  payerId: number;
+  payerName: string;
+  payerType: number;
+  status: number;
+  statusLabel: string;
+  billProcess: number;
+  billTime: string;
+  processTime: string;
+  processFile: string;
+  target: string;
+  x12PartnerId: number;
+  submittedClaim: string;
+};
+
 export type PaymentPostingRecord = {
   id: number | string;
   patientId: number;
@@ -543,6 +562,32 @@ export type BillingLineCorrection = {
   fee: string;
   units: number;
   justify: string;
+};
+
+export type NewClaimStatus = {
+  patientId: number;
+  encounter: number;
+  payerId: number;
+  payerName: string;
+  payerType: number;
+  status: number;
+  billProcess: number;
+  billTime: string;
+  processTime?: string;
+  processFile: string;
+  target: string;
+  x12PartnerId: number;
+  submittedClaim: string;
+};
+
+export type ClaimStatusUpdate = {
+  status: number;
+  billProcess: number;
+  processTime?: string;
+  processFile: string;
+  target: string;
+  x12PartnerId: number;
+  submittedClaim: string;
 };
 
 export type NewPaymentPosting = {
@@ -2093,6 +2138,94 @@ WHERE id = ${legacyInteger(id)};
 `);
   }
 
+  async createClaimStatus(input: NewClaimStatus): Promise<string> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+SET @version := (
+  SELECT COALESCE(MAX(version), 0) + 1
+  FROM claims
+  WHERE patient_id = ${integer(input.patientId)} AND encounter_id = ${integer(input.encounter)}
+);
+INSERT INTO claims
+  (patient_id, encounter_id, version, payer_id, status, payer_type, bill_process,
+   bill_time, process_time, process_file, target, x12_partner_id, submitted_claim)
+VALUES
+  (${integer(input.patientId)}, ${integer(input.encounter)}, @version, ${integer(input.payerId)},
+   ${integer(input.status)}, ${integer(input.payerType)}, ${integer(input.billProcess)},
+   ${sqlString(input.billTime)}, ${nullableSqlString(input.processTime)}, ${sqlString(input.processFile)},
+   ${sqlString(input.target)}, ${integer(input.x12PartnerId)}, ${sqlString(input.submittedClaim)});
+SELECT CONCAT(${integer(input.patientId)}, ':', ${integer(input.encounter)}, ':', @version) AS id;
+`);
+    return rows[0]?.id ?? `${input.patientId}:${input.encounter}:0`;
+  }
+
+  async getClaimStatus(id: number | string): Promise<ClaimStatusRecord | null> {
+    const key = claimStatusKey(id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT c.patient_id AS patientId, c.encounter_id AS encounter, c.version, c.payer_id AS payerId,
+  COALESCE(ic.name, '') AS payerName, c.payer_type AS payerType, c.status, c.bill_process AS billProcess,
+  COALESCE(DATE_FORMAT(c.bill_time, '%Y-%m-%d %H:%i:%s'), '') AS billTime,
+  COALESCE(DATE_FORMAT(c.process_time, '%Y-%m-%d %H:%i:%s'), '') AS processTime,
+  COALESCE(c.process_file, '') AS processFile, COALESCE(c.target, '') AS target,
+  c.x12_partner_id AS x12PartnerId, COALESCE(c.submitted_claim, '') AS submittedClaim
+FROM claims c
+LEFT JOIN insurance_companies ic ON ic.id = c.payer_id
+WHERE c.patient_id = ${integer(key.patientId)}
+  AND c.encounter_id = ${integer(key.encounter)}
+  AND c.version = ${integer(key.version)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: `${row.patientId}:${row.encounter}:${row.version}`,
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      version: Number(row.version),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      status: Number(row.status),
+      statusLabel: workflowClaimStatusLabel(Number(row.status), Number(row.billProcess)),
+      billProcess: Number(row.billProcess),
+      billTime: row.billTime,
+      processTime: row.processTime,
+      processFile: row.processFile,
+      target: row.target,
+      x12PartnerId: Number(row.x12PartnerId),
+      submittedClaim: row.submittedClaim
+    };
+  }
+
+  async updateClaimStatus(id: number | string, input: ClaimStatusUpdate): Promise<void> {
+    const key = claimStatusKey(id);
+    await this.db.execute(`
+UPDATE claims
+SET status = ${integer(input.status)},
+    bill_process = ${integer(input.billProcess)},
+    process_time = ${nullableSqlString(input.processTime)},
+    process_file = ${sqlString(input.processFile)},
+    target = ${sqlString(input.target)},
+    x12_partner_id = ${integer(input.x12PartnerId)},
+    submitted_claim = ${sqlString(input.submittedClaim)}
+WHERE patient_id = ${integer(key.patientId)}
+  AND encounter_id = ${integer(key.encounter)}
+  AND version = ${integer(key.version)};
+`);
+  }
+
+  async deleteClaimStatus(id: number | string): Promise<void> {
+    const key = claimStatusKey(id);
+    await this.db.execute(`
+DELETE FROM claims
+WHERE patient_id = ${integer(key.patientId)}
+  AND encounter_id = ${integer(key.encounter)}
+  AND version = ${integer(key.version)};
+`);
+  }
+
   async createPaymentPosting(input: NewPaymentPosting): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 SET @session_id := (SELECT COALESCE(MAX(session_id), 1200000) + 1 FROM ar_session);
@@ -2434,6 +2567,19 @@ function nullableInteger(value: number | null | undefined) {
   return value === null || value === undefined ? "NULL" : integer(value);
 }
 
+function claimStatusKey(value: number | string) {
+  const parts = String(value).split(":").map((part) => Number(part));
+  if (parts.length !== 3 || parts.some((part) => !Number.isInteger(part))) {
+    throw new Error(`Expected claim status key patient:encounter:version, received ${value}.`);
+  }
+
+  return {
+    patientId: parts[0],
+    encounter: parts[1],
+    version: parts[2]
+  };
+}
+
 function legacyInteger(value: number | string) {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isInteger(parsed)) {
@@ -2454,6 +2600,26 @@ function dbNullToNull(value: string | undefined) {
     return null;
   }
   return value;
+}
+
+function workflowClaimStatusLabel(status: number, billProcess: number) {
+  if (billProcess !== 0) {
+    return "Queued for billing";
+  }
+
+  return status === 1
+    ? "Re-opened"
+    : status === 2 || status === 3
+      ? "Marked as cleared"
+      : status === 4
+        ? "Closed"
+        : status === 5
+          ? "Canceled"
+          : status === 6
+            ? "Forwarded"
+            : status === 7
+              ? "Denied"
+              : "Unsubmitted";
 }
 
 function mapUser(row: Record<string, string>): UserRecord {

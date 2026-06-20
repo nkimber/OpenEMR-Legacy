@@ -510,6 +510,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-57-claim-status-mutation-readiness",
+      "name": "Slice 57 Claim Status Mutation Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that creates, generates, clears, renders, and removes a temporary claim status row.",
+      "suites": ["workflow-claims"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-57", "billing", "claims", "claim-status", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "legacy-readiness",
       "name": "Legacy Readiness",
       "description": "Read-only baseline confidence plan for the currently seeded legacy application.",
@@ -522,7 +531,7 @@
       "id": "mutation-isolated",
       "name": "Isolated Workflow Mutations",
       "description": "Mutation-heavy workflow plan that reseeds before every test for strongest isolation.",
-      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
+      "suites": ["workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships"],
       "resetMode": "test",
       "tags": ["workflow", "mutation", "isolated"],
       "targets": ["legacy-openemr"]
@@ -531,7 +540,7 @@
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
-      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement"],
+      "suites": ["database", "http", "ui", "workflow", "workflow-contact", "workflow-demographics", "workflow-registration", "workflow-appointments", "workflow-encounters", "workflow-encounter-metadata", "workflow-clinical-lists", "workflow-problems", "workflow-medications", "workflow-messages", "workflow-documents", "workflow-document-binary", "workflow-document-signoff", "workflow-document-external-link", "workflow-document-denial", "workflow-document-metadata", "workflow-document-archive", "workflow-document-content-replace", "workflow-document-revision-replace", "workflow-insurance", "workflow-prescriptions", "workflow-immunizations", "workflow-billing", "workflow-billing-diagnosis", "workflow-billing-correction", "workflow-billing-modifier", "workflow-payment-posting", "workflow-claims", "workflow-procedures", "workflow-admin", "workflow-admin-users", "workflow-admin-access", "workflow-admin-memberships", "admin-access-control", "procedure-pending-orders", "reports-export", "documents", "document-content", "document-preview", "document-revision", "insurance", "immunizations", "claims", "payments", "account-balance", "account-aging", "account-ledger", "account-statement"],
       "resetMode": "run",
       "tags": ["parity", "full", "comparison-ready"],
       "targets": ["legacy-openemr"]
@@ -1103,6 +1112,16 @@
       "layer": "workflow",
       "path": "tests/workflow-payment-posting",
       "tags": ["slice56", "workflow", "mutation", "billing", "payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claims",
+      "name": "Claim Status Mutation",
+      "description": "Creates, generates, clears, renders, and removes a temporary claim status row through the same revenue-cycle workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claims",
+      "tags": ["slice57", "workflow", "mutation", "billing", "claims", "claim-status", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

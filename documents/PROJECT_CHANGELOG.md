@@ -4232,6 +4232,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 083. Modernized Claim Status Mutation Slice 57
+
+Commit: this commit
+Started: `2026-06-19T22:00:00-04:00`
+Finished: `2026-06-19T22:27:00-04:00`
+
+Implemented the fifty-seventh modernized OpenEMR vertical slice: claim status mutation readiness, focused on proving a temporary claim can be created, rendered, moved through generated and cleared states, and hard-deleted in both legacy OpenEMR and the modernized target.
+
+Key outcomes:
+
+- Added claim status create, status update, and delete endpoints to the modernized ASP.NET Core billing API.
+- Added modernized claim identifiers to billing DTOs so individual claim rows can be mutated safely.
+- Added a React Fees Claim Status form plus row-level Generate, Clear, and Delete controls.
+- Added legacy and modernized workflow action adapters for temporary claim create/read/update/delete behavior.
+- Added the `workflow-claims` parity suite and `slice-57-claim-status-mutation-readiness` plan for both legacy and modernized targets.
+- Verified queued claim creation, generated X12/file state, cleared HCFA/no-file state, browser-visible modernized Fees rendering, and cleanup back to seeded claim counts.
+- Added modernized smoke coverage for the claim status mutation lifecycle.
+- Added Workbench commands/cards and result paths for the Slice 57 claim status mutation plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing `MOD-PAT-0005` billing/claim anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API container included the new claim endpoints.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 59 smoke checks, including `claim status mutation lifecycle`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:claim-status-mutation` passed with run `2026-06-20T022609-664Z-legacy-openemr-plan-slice-57-claim-status-mutation-readiness`.
+- `npm run test:modernized:plan:claim-status-mutation` passed with run `2026-06-20T022633-706Z-modernized-openemr-plan-slice-57-claim-status-mutation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-57-claim-status-mutation-readiness` matched with comparison `2026-06-20T022655-945Z-legacy-openemr-vs-modernized-openemr-plan-slice-57-claim-status-mutation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-claims/claim-status-mutation.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
