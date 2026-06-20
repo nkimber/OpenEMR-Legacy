@@ -151,7 +151,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Appointment create, cancel, and delete workflows are covered by Slice 11, appointment date/time/duration/status rescheduling is covered by Slice 93, appointment arrival/check-in status is covered by Slice 94, appointment check-out status is covered by Slice 95, appointment no-show status is covered by Slice 96, and appointment category preservation/rendering is covered by Slice 97 for the focused future-appointment lifecycle; recurring appointments, availability validation, reminders, waitlist flows, and billing/encounter conversion remain deferred.
+- Appointment create, cancel, and delete workflows are covered by Slice 11, appointment date/time/duration/status rescheduling is covered by Slice 93, appointment arrival/check-in status is covered by Slice 94, appointment check-out status is covered by Slice 95, appointment no-show status is covered by Slice 96, appointment category preservation/rendering is covered by Slice 97, and appointment pending status is covered by Slice 98 for the focused future-appointment lifecycle; recurring appointments, availability validation, reminders, waitlist flows, and billing/encounter conversion remain deferred.
 
 ### Slice 3: Encounters And Clinical Notes
 
@@ -361,7 +361,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Patient scanned attachment readiness is covered by Slice 92. Appointment reschedule/update readiness is covered by Slice 93, appointment arrival/check-in readiness is covered by Slice 94, appointment check-out readiness is covered by Slice 95, appointment no-show readiness is covered by Slice 96, and appointment category readiness is covered by Slice 97. Saved report definitions, scanner-device ingestion, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
+- CSV export generation is covered by Slice 24. Read-only patient document visibility is covered by Slice 25. Focused binary patient-document upload/download lifecycle behavior is covered by Slice 33. Patient scanned attachment readiness is covered by Slice 92. Appointment reschedule/update readiness is covered by Slice 93, appointment arrival/check-in readiness is covered by Slice 94, appointment check-out readiness is covered by Slice 95, appointment no-show readiness is covered by Slice 96, appointment category readiness is covered by Slice 97, and appointment pending-status readiness is covered by Slice 98. Saved report definitions, scanner-device ingestion, fax/SMS integrations, CCDA/export workflows, and external integration adapters remain deferred to later reports/documents/integrations slices.
 
 ### Slice 10: Patient Contact Mutation
 
@@ -413,7 +413,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a single future appointment lifecycle only.
-- Appointment reschedule/update readiness is covered by Slice 93, appointment arrival/check-in readiness is covered by Slice 94, appointment check-out readiness is covered by Slice 95, appointment no-show readiness is covered by Slice 96, and seeded OpenEMR appointment category preservation/rendering is covered by Slice 97. Recurring appointments, provider availability validation, resource scheduling, appointment category administration beyond the seeded categories, reminders, waitlist flows, and billing/encounter conversion remain deferred to later scheduling slices.
+- Appointment reschedule/update readiness is covered by Slice 93, appointment arrival/check-in readiness is covered by Slice 94, appointment check-out readiness is covered by Slice 95, appointment no-show readiness is covered by Slice 96, seeded OpenEMR appointment category preservation/rendering is covered by Slice 97, and pending-status update/rendering is covered by Slice 98. Recurring appointments, provider availability validation, resource scheduling, appointment category administration beyond the seeded categories, reminders, waitlist flows, and billing/encounter conversion remain deferred to later scheduling slices.
 
 ### Slice 12: Encounter Mutation
 
@@ -2904,7 +2904,34 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers explicit category preservation and rendering only. Recurring appointment propagation, provider availability validation, resource conflict checks, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
+- This slice covers explicit category preservation and rendering only. Pending-status update/rendering is covered by Slice 98; recurring appointment propagation, provider availability validation, resource conflict checks, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
+
+### Slice 98: Appointment Pending Status Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized scheduling slice under `modernized-openemr/`.
+- Verification is the shared `slice-98-appointment-pending-readiness` plan, which creates a temporary future appointment, updates it to OpenEMR-compatible pending status `~`, renders the pending appointment, deletes it, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The modernized Calendar reschedule/edit form already exposes the OpenEMR-compatible `Pending` status option with persisted value `~`.
+- The shared parity suite drives the modernized Calendar edit form, verifies the legacy `form_apptstatus` dropdown, checks normalized database facts, and deletes the temporary appointment.
+- The modernized smoke test now includes an `appointment pending-status lifecycle` check that creates, updates to pending, verifies, and deletes a temporary appointment.
+- Workbench-managed Slice 98 appointment pending-status plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary appointment for `MOD-PAT-0003` can be created for `2026-11-26` at `10:45`, updated to pending status `~`, rendered in room `Pending`, and deleted.
+- Direct database probes normalize the pending title, date, start/end time, status, and room for both MariaDB and PostgreSQL.
+- The legacy appointment edit form shows `form_apptstatus = ~` after update.
+- The modernized Calendar workspace renders the selected appointment, exposes the `Pending` status option in the edit form, saves status `~`, and shows the pending title/status.
+- Hard-delete cleanup restores the seeded appointment count.
+- The side-by-side Slice 98 parity comparison matches.
+
+Current limitations:
+
+- This slice covers the focused appointment pending-status transition only. Recurring appointment propagation, provider availability validation, resource conflict checks, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
 
 ## Test Strategy
 
@@ -3058,4 +3085,4 @@ As of 2026-06-20:
 - The eighty-ninth modernized vertical slice implements patient image document thumbnail readiness with ASP.NET Core image thumbnail data URIs, React Documents card image thumbnails, normalized legacy/modernized workflow probes, Workbench image document thumbnail plan actions, smoke coverage, and side-by-side slice-89 parity evidence.
 - The ninetieth modernized vertical slice implements patient PDF document inline preview readiness with ASP.NET Core PDF inline-preview metadata, a React Documents viewer PDF iframe backed by the download endpoint, normalized legacy/modernized workflow probes, Workbench PDF document preview plan actions, smoke coverage, and side-by-side slice-90 parity evidence.
 - The ninety-first modernized vertical slice implements patient document lifecycle timeline readiness with ASP.NET Core lifecycle event derivation, React Documents card and viewer lifecycle rendering, normalized legacy/modernized workflow probes, Workbench document lifecycle plan actions, smoke coverage, and side-by-side slice-91 parity evidence.
-- The ninety-second modernized vertical slice implements patient scanned attachment readiness with ASP.NET Core scan-readiness derivation, React Documents card and viewer rendering, normalized legacy/modernized workflow probes, Workbench scanned attachment plan actions, smoke coverage, and side-by-side slice-92 parity evidence. The ninety-third modernized vertical slice implements appointment reschedule readiness with ASP.NET Core appointment update endpoints, React Calendar reschedule controls, normalized legacy/modernized workflow actions, Workbench reschedule plan actions, smoke coverage, and side-by-side slice-93 parity evidence. The ninety-fourth modernized vertical slice implements appointment arrival readiness with a React Calendar Mark arrived action, normalized legacy/modernized workflow probes, Workbench appointment arrival plan actions, smoke coverage, and side-by-side slice-94 parity evidence. The ninety-fifth modernized vertical slice implements appointment check-out readiness with a React Calendar Mark checked out action, normalized legacy/modernized workflow probes, Workbench appointment check-out plan actions, smoke coverage, and side-by-side slice-95 parity evidence. The ninety-sixth modernized vertical slice implements appointment no-show readiness with a React Calendar Mark no-show action, normalized legacy/modernized workflow probes, Workbench appointment no-show plan actions, smoke coverage, and side-by-side slice-96 parity evidence. The ninety-seventh modernized vertical slice implements appointment category readiness with ASP.NET Core category labels, React Calendar category selectors/rendering, normalized legacy/modernized workflow probes, Workbench appointment category plan actions, smoke coverage, and side-by-side slice-97 parity evidence.
+- The ninety-second modernized vertical slice implements patient scanned attachment readiness with ASP.NET Core scan-readiness derivation, React Documents card and viewer rendering, normalized legacy/modernized workflow probes, Workbench scanned attachment plan actions, smoke coverage, and side-by-side slice-92 parity evidence. The ninety-third modernized vertical slice implements appointment reschedule readiness with ASP.NET Core appointment update endpoints, React Calendar reschedule controls, normalized legacy/modernized workflow actions, Workbench reschedule plan actions, smoke coverage, and side-by-side slice-93 parity evidence. The ninety-fourth modernized vertical slice implements appointment arrival readiness with a React Calendar Mark arrived action, normalized legacy/modernized workflow probes, Workbench appointment arrival plan actions, smoke coverage, and side-by-side slice-94 parity evidence. The ninety-fifth modernized vertical slice implements appointment check-out readiness with a React Calendar Mark checked out action, normalized legacy/modernized workflow probes, Workbench appointment check-out plan actions, smoke coverage, and side-by-side slice-95 parity evidence. The ninety-sixth modernized vertical slice implements appointment no-show readiness with a React Calendar Mark no-show action, normalized legacy/modernized workflow probes, Workbench appointment no-show plan actions, smoke coverage, and side-by-side slice-96 parity evidence. The ninety-seventh modernized vertical slice implements appointment category readiness with ASP.NET Core category labels, React Calendar category selectors/rendering, normalized legacy/modernized workflow probes, Workbench appointment category plan actions, smoke coverage, and side-by-side slice-97 parity evidence. The ninety-eighth modernized vertical slice implements appointment pending-status readiness with the React Calendar edit status selector, OpenEMR-compatible pending status `~`, normalized legacy/modernized workflow probes, Workbench appointment pending-status plan actions, smoke coverage, and side-by-side slice-98 parity evidence.

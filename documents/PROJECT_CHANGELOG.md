@@ -6727,6 +6727,62 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 127. Modernized Appointment Pending Status Slice 98
+
+Commit: current slice commit
+Started: `2026-06-20T17:00:10-04:00`
+Finished: `2026-06-20T17:12:22-04:00`
+
+Implemented the ninety-eighth modernized OpenEMR vertical slice: appointment pending-status readiness, preserving OpenEMR-compatible appointment status `~` through create, edit, render, cleanup, and side-by-side legacy/modernized parity.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 370
+- Lines deleted: 119
+- Net lines: 251
+- Total churn: 489
+
+Key outcomes:
+
+- Added the `workflow-appointment-pending` Playwright parity suite for temporary future appointment pending-status transitions.
+- Added the `slice-98-appointment-pending-readiness` plan to the parity manifest, package scripts, and PowerShell runner allow-list.
+- Extended the modernized smoke test with an `appointment pending-status lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 98 on both legacy and modernized targets.
+- Updated architecture/progress evidence and synchronized project documents so the current modernization state is Slice 98 with thirty-four read-only slices and sixty-four mutation-capable slices.
+- Cleaned the legacy baseline document's shared-plan terminology while adding the Slice 98 baseline notes.
+
+Verified test runs:
+
+- `where.exe npx` found `npx` and `npx.cmd`.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 99 checks, including `appointment pending-status lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-98-appointment-pending-readiness -Reset test` passed; run `2026-06-20T211104-435Z-legacy-openemr-plan-slice-98-appointment-pending-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-98-appointment-pending-readiness -Reset test` passed; run `2026-06-20T211133-265Z-modernized-openemr-plan-slice-98-appointment-pending-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-98-appointment-pending-readiness` passed with `status: matched`; comparison `2026-06-20T211154-534Z-legacy-openemr-vs-modernized-openemr-plan-slice-98-appointment-pending-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from generated/test-maintained files.
+
+Primary files:
+
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-pending/appointment-pending.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

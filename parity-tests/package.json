@@ -34,6 +34,7 @@
     "test:modernized:plan:appointment-checkout": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-95-appointment-checkout-readiness",
     "test:modernized:plan:appointment-noshow": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-96-appointment-noshow-readiness",
     "test:modernized:plan:appointment-category": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-97-appointment-category-readiness",
+    "test:modernized:plan:appointment-pending": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-98-appointment-pending-readiness",
     "test:modernized:plan:encounter-mutation": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-12-encounter-mutation-readiness",
     "test:modernized:plan:clinical-list-mutation": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-13-clinical-list-mutation-readiness",
     "test:modernized:plan:message-mutation": "tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-14-message-mutation-readiness",
