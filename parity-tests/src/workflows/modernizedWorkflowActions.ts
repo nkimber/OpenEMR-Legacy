@@ -872,6 +872,18 @@ LIMIT 1;
     }
   }
 
+  async updatePatientMessageAssignment(id: number | string, assignedTo: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/assignment`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ assignedTo })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message assignment update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async softDeletePatientMessage(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/soft-delete`, {
       method: "PUT"

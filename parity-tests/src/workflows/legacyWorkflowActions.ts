@@ -1502,6 +1502,15 @@ WHERE id = ${integer(legacyId)};
 `);
   }
 
+  async updatePatientMessageAssignment(id: number | string, assignedTo: string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE pnotes
+SET assigned_to = ${sqlString(assignedTo)}, update_by = 1, update_date = NOW()
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
   async softDeletePatientMessage(id: number | string): Promise<void> {
     const legacyId = legacyInteger(id);
     await this.db.execute(`

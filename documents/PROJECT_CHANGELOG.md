@@ -4704,6 +4704,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 091. Modernized Patient Message Assignment Slice 65
+
+Commit: this commit
+Started: `2026-06-20T01:52:00-04:00`
+Finished: `2026-06-20T02:17:18.4006980-04:00`
+
+Implemented the sixty-fifth modernized OpenEMR vertical slice: patient message assignment readiness, focused on proving that pnotes-compatible patient messages can be reassigned without changing message counts and with matching browser-visible behavior on both the legacy and modernized targets.
+
+Key outcomes:
+
+- Added a modernized message assignment endpoint at `PUT /api/messages/{messageId}/assignment`.
+- Added a React Messages inline `Assign To` field and `Reassign` action on message cards.
+- Extended the modernized smoke test to create a temporary patient message, reassign it to `billing`, then continue the close/archive/delete cleanup path.
+- Added the `workflow-message-assignment` parity suite and `slice-65-message-assignment-readiness` plan for both legacy and modernized targets.
+- Added legacy and modernized workflow action adapters for patient-message reassignment, with legacy updating OpenEMR `pnotes.assigned_to` and modernized using the new API.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 65 message assignment plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing `MOD-PAT-0004` portal-message anchor and temporary pnotes-compatible rows; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `git diff --check`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the message assignment changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 67 smoke checks, including `patient message assignment update`.
+- `npm run test:legacy:plan:message-assignment -- --reset test` passed with run `2026-06-20T061620-936Z-legacy-openemr-plan-slice-65-message-assignment-readiness`.
+- `npm run test:modernized:plan:message-assignment -- --reset test` passed with run `2026-06-20T061648-475Z-modernized-openemr-plan-slice-65-message-assignment-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-65-message-assignment-readiness` matched with comparison `2026-06-20T061710-329Z-legacy-openemr-vs-modernized-openemr-plan-slice-65-message-assignment-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/MessageRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/MessageDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-message-assignment/message-assignment.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

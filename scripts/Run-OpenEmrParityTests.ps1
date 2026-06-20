@@ -48,6 +48,7 @@ param(
         "workflow-problems",
         "workflow-medications",
         "workflow-messages",
+        "workflow-message-assignment",
         "workflow-documents",
         "workflow-document-binary",
         "workflow-document-signoff",
