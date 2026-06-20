@@ -18,6 +18,7 @@ import type {
   NewFacility,
   NewImmunization,
   NewMedication,
+  NewPaymentPosting,
   NewPatientBinaryDocument,
   NewPatientDocument,
   NewPatientExternalLinkDocument,
@@ -41,6 +42,7 @@ import type {
   PatientDocumentRecord,
   PatientInsuranceRecord,
   PatientMessageRecord,
+  PaymentPostingRecord,
   MedicationRecord,
   ProblemRecord,
   ProcedureOrderRecord,
@@ -1353,6 +1355,118 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized billing line delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async createPaymentPosting(input: NewPaymentPosting): Promise<string> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        encounter: input.encounter,
+        payerId: input.payerId,
+        payerName: input.payerName,
+        payerType: input.payerType,
+        reference: input.reference,
+        postDate: input.postDate,
+        checkDate: input.postDate,
+        depositDate: input.postDate,
+        paymentType: input.paymentType,
+        paymentMethod: input.paymentMethod,
+        codeType: input.codeType,
+        code: input.code,
+        modifier: input.modifier ?? "",
+        memo: input.memo,
+        payAmount: Number(input.payAmount),
+        adjustmentAmount: Number(input.adjustmentAmount),
+        accountCode: input.accountCode,
+        reasonCode: input.reasonCode,
+        payerClaimNumber: input.payerClaimNumber
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized payment posting create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: string };
+    return mutation.id;
+  }
+
+  async getPaymentPosting(id: number | string): Promise<PaymentPostingRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pa.id, pa.pid AS "patientId", pa.encounter, pa.sequence_no AS "sequenceNo",
+  pa.session_id AS "sessionId", ps.payer_id AS "payerId", COALESCE(ps.payer_name, '') AS "payerName",
+  pa.payer_type AS "payerType", COALESCE(ps.reference, '') AS reference,
+  COALESCE(ps.payment_type, '') AS "paymentType", COALESCE(ps.payment_method, '') AS "paymentMethod",
+  COALESCE(ps.check_date::text, '') AS "checkDate",
+  COALESCE(ps.deposit_date::text, '') AS "depositDate",
+  COALESCE(pa.post_date::text, '') AS "postDate",
+  COALESCE(to_char(pa.post_time, 'YYYY-MM-DD HH24:MI:SS'), '') AS "postTime",
+  COALESCE(pa.code_type, '') AS "codeType", COALESCE(pa.code, '') AS code,
+  COALESCE(pa.modifier, '') AS modifier, COALESCE(pa.memo, '') AS memo,
+  COALESCE(pa.pay_amount::text, '0') AS "payAmount",
+  COALESCE(pa.adj_amount::text, '0') AS "adjustmentAmount",
+  COALESCE(pa.account_code, '') AS "accountCode", COALESCE(pa.reason_code, '') AS "reasonCode",
+  COALESCE(pa.payer_claim_number, '') AS "payerClaimNumber",
+  COALESCE(to_char(pa.deleted, 'YYYY-MM-DD HH24:MI:SS'), '') AS deleted
+FROM payment_activities pa
+INNER JOIN payment_sessions ps ON ps.id = pa.session_id
+WHERE pa.id = ${sqlString(String(id))}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      sequenceNo: Number(row.sequenceNo),
+      sessionId: Number(row.sessionId),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      reference: row.reference,
+      paymentType: row.paymentType,
+      paymentMethod: row.paymentMethod,
+      checkDate: row.checkDate,
+      depositDate: row.depositDate,
+      postDate: row.postDate,
+      postTime: row.postTime,
+      codeType: row.codeType,
+      code: row.code,
+      modifier: row.modifier,
+      memo: row.memo,
+      payAmount: Number(row.payAmount).toFixed(2),
+      adjustmentAmount: Number(row.adjustmentAmount).toFixed(2),
+      accountCode: row.accountCode,
+      reasonCode: row.reasonCode,
+      payerClaimNumber: row.payerClaimNumber,
+      deleted: row.deleted
+    };
+  }
+
+  async voidPaymentPosting(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments/${encodeURIComponent(String(id))}/void`, {
+      method: "PUT"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized payment posting void failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deletePaymentPosting(id: number | string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized payment posting delete failed with ${response.status}: ${await response.text()}`);
     }
   }
 

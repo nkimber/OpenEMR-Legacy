@@ -58,6 +58,7 @@ param(
         "workflow-billing-diagnosis",
         "workflow-billing-correction",
         "workflow-billing-modifier",
+        "workflow-payment-posting",
         "workflow-procedures",
         "workflow-admin",
         "workflow-admin-users",

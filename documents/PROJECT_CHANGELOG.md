@@ -4170,6 +4170,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 082. Modernized Payment Posting Mutation Slice 56
+
+Commit: this commit
+Started: `2026-06-19T21:23:00-04:00`
+Finished: `2026-06-19T21:58:18-04:00`
+
+Implemented the fifty-sixth modernized OpenEMR vertical slice: payment posting mutation readiness, focused on proving a temporary AR payment posting can be created, rendered, voided, removed from active balance/ledger calculations, and hard-deleted in both legacy OpenEMR and the modernized target.
+
+Key outcomes:
+
+- Added payment posting create, void, and delete endpoints to the modernized ASP.NET Core billing API.
+- Added modernized PostgreSQL payment activity identifiers to billing DTOs so active payment rows can be mutated safely.
+- Added a React Fees Payment Posting form plus active-row Void and Delete controls.
+- Added legacy and modernized workflow action adapters for temporary AR payment posting create/read/void/delete behavior.
+- Added the `workflow-payment-posting` parity suite and `slice-56-payment-posting-mutation-readiness` plan for both legacy and modernized targets.
+- Verified account balance and account ledger effects after create, verified active-row hiding and balance rollback after void, and verified cleanup returns payment session/activity counts to baseline.
+- Added modernized smoke coverage for the payment posting mutation lifecycle.
+- Added Workbench commands/cards and result paths for the Slice 56 payment posting mutation plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+- Reused the existing `MOD-PAT-0005` billing/payment anchor; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API container included the new payment endpoints.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 58 smoke checks, including `payment posting mutation lifecycle`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:payment-posting-mutation` passed with run `2026-06-20T014543-567Z-legacy-openemr-plan-slice-56-payment-posting-mutation-readiness`.
+- `npm run test:modernized:plan:payment-posting-mutation` passed with run `2026-06-20T014608-516Z-modernized-openemr-plan-slice-56-payment-posting-mutation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-56-payment-posting-mutation-readiness` matched with comparison `2026-06-20T014648-029Z-legacy-openemr-vs-modernized-openemr-plan-slice-56-payment-posting-mutation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-payment-posting/payment-posting-mutation.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

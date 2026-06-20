@@ -223,6 +223,34 @@ export type BillingLineRecord = {
   billed: number;
 };
 
+export type PaymentPostingRecord = {
+  id: number | string;
+  patientId: number;
+  encounter: number;
+  sequenceNo: number;
+  sessionId: number;
+  payerId: number;
+  payerName: string;
+  payerType: number;
+  reference: string;
+  paymentType: string;
+  paymentMethod: string;
+  checkDate: string;
+  depositDate: string;
+  postDate: string;
+  postTime: string;
+  codeType: string;
+  code: string;
+  modifier: string;
+  memo: string;
+  payAmount: string;
+  adjustmentAmount: string;
+  accountCode: string;
+  reasonCode: string;
+  payerClaimNumber: string;
+  deleted: string;
+};
+
 export type ProcedureOrderRecord = {
   id: number;
   patientId: number;
@@ -515,6 +543,27 @@ export type BillingLineCorrection = {
   fee: string;
   units: number;
   justify: string;
+};
+
+export type NewPaymentPosting = {
+  patientId: number;
+  encounter: number;
+  payerId: number;
+  payerName: string;
+  payerType: number;
+  reference: string;
+  postDate: string;
+  paymentType: string;
+  paymentMethod: string;
+  codeType: string;
+  code: string;
+  modifier?: string;
+  memo: string;
+  payAmount: string;
+  adjustmentAmount: string;
+  accountCode: string;
+  reasonCode: string;
+  payerClaimNumber: string;
 };
 
 export type NewProcedureOrder = {
@@ -2041,6 +2090,114 @@ WHERE id = ${legacyInteger(id)};
     await this.db.execute(`
 DELETE FROM billing
 WHERE id = ${legacyInteger(id)};
+`);
+  }
+
+  async createPaymentPosting(input: NewPaymentPosting): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+SET @session_id := (SELECT COALESCE(MAX(session_id), 1200000) + 1 FROM ar_session);
+SET @sequence_no := (
+  SELECT COALESCE(MAX(sequence_no), 0) + 1
+  FROM ar_activity
+  WHERE pid = ${integer(input.patientId)} AND encounter = ${integer(input.encounter)}
+);
+INSERT INTO ar_session
+  (session_id, payer_id, user_id, closed, reference, check_date, deposit_date, pay_total,
+   created_time, modified_time, global_amount, payment_type, description, adjustment_code,
+   post_to_date, patient_id, payment_method)
+VALUES
+  (@session_id, ${integer(input.payerId)}, 119, 1, ${sqlString(input.reference)}, ${sqlString(input.postDate)},
+   ${sqlString(input.postDate)}, ${decimal(Number(input.payAmount))}, ${sqlString(`${input.postDate} 10:45:00`)},
+   ${sqlString(`${input.postDate} 10:45:00`)}, 0, ${sqlString(input.paymentType)}, ${sqlString(input.memo)},
+   ${sqlString(Number(input.adjustmentAmount) > 0 ? "contractual_adjustment" : "")}, ${sqlString(input.postDate)},
+   ${integer(input.patientId)}, ${sqlString(input.paymentMethod)});
+INSERT INTO ar_activity
+  (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user,
+   session_id, memo, pay_amount, adj_amount, modified_time, follow_up, follow_up_note,
+   account_code, reason_code, deleted, post_date, payer_claim_number)
+VALUES
+  (${integer(input.patientId)}, ${integer(input.encounter)}, @sequence_no, ${sqlString(input.codeType)},
+   ${sqlString(input.code)}, ${sqlString(input.modifier ?? "")}, ${integer(input.payerType)},
+   ${sqlString(`${input.postDate} 10:45:00`)}, 119, @session_id, ${sqlString(input.memo)},
+   ${decimal(Number(input.payAmount))}, ${decimal(Number(input.adjustmentAmount))},
+   ${sqlString(`${input.postDate} 10:45:00`)}, '', '', ${sqlString(input.accountCode)},
+   ${sqlString(input.reasonCode)}, NULL, ${sqlString(input.postDate)}, ${sqlString(input.payerClaimNumber)});
+SELECT @session_id AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getPaymentPosting(id: number | string): Promise<PaymentPostingRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT s.session_id AS id, aa.pid AS patientId, aa.encounter, aa.sequence_no AS sequenceNo,
+  s.session_id AS sessionId, s.payer_id AS payerId, COALESCE(ic.name, '') AS payerName,
+  aa.payer_type AS payerType, COALESCE(s.reference, '') AS reference,
+  COALESCE(s.payment_type, '') AS paymentType, COALESCE(s.payment_method, '') AS paymentMethod,
+  COALESCE(DATE_FORMAT(s.check_date, '%Y-%m-%d'), '') AS checkDate,
+  COALESCE(DATE_FORMAT(s.deposit_date, '%Y-%m-%d'), '') AS depositDate,
+  COALESCE(DATE_FORMAT(aa.post_date, '%Y-%m-%d'), '') AS postDate,
+  COALESCE(DATE_FORMAT(aa.post_time, '%Y-%m-%d %H:%i:%s'), '') AS postTime,
+  COALESCE(aa.code_type, '') AS codeType, COALESCE(aa.code, '') AS code,
+  COALESCE(aa.modifier, '') AS modifier, COALESCE(aa.memo, '') AS memo,
+  COALESCE(CAST(aa.pay_amount AS CHAR), '0') AS payAmount,
+  COALESCE(CAST(aa.adj_amount AS CHAR), '0') AS adjustmentAmount,
+  COALESCE(aa.account_code, '') AS accountCode, COALESCE(aa.reason_code, '') AS reasonCode,
+  COALESCE(aa.payer_claim_number, '') AS payerClaimNumber,
+  COALESCE(DATE_FORMAT(aa.deleted, '%Y-%m-%d %H:%i:%s'), '') AS deleted
+FROM ar_activity aa
+INNER JOIN ar_session s ON s.session_id = aa.session_id
+LEFT JOIN insurance_companies ic ON ic.id = s.payer_id
+WHERE s.session_id = ${legacyInteger(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      encounter: Number(row.encounter),
+      sequenceNo: Number(row.sequenceNo),
+      sessionId: Number(row.sessionId),
+      payerId: Number(row.payerId),
+      payerName: row.payerName,
+      payerType: Number(row.payerType),
+      reference: row.reference,
+      paymentType: row.paymentType,
+      paymentMethod: row.paymentMethod,
+      checkDate: row.checkDate,
+      depositDate: row.depositDate,
+      postDate: row.postDate,
+      postTime: row.postTime,
+      codeType: row.codeType,
+      code: row.code,
+      modifier: row.modifier,
+      memo: row.memo,
+      payAmount: Number(row.payAmount).toFixed(2),
+      adjustmentAmount: Number(row.adjustmentAmount).toFixed(2),
+      accountCode: row.accountCode,
+      reasonCode: row.reasonCode,
+      payerClaimNumber: row.payerClaimNumber,
+      deleted: row.deleted
+    };
+  }
+
+  async voidPaymentPosting(id: number | string): Promise<void> {
+    await this.db.execute(`
+UPDATE ar_activity
+SET deleted = NOW(), modified_time = NOW()
+WHERE session_id = ${legacyInteger(id)};
+`);
+  }
+
+  async deletePaymentPosting(id: number | string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM ar_activity
+WHERE session_id = ${legacyInteger(id)};
+DELETE FROM ar_session
+WHERE session_id = ${legacyInteger(id)};
 `);
   }
 
