@@ -353,7 +353,8 @@ patients.forEach((patient, index) => {
       categoryId: sequence === 1 ? 10 : sequence === 3 ? 13 : 9,
       title: sequence === 1 ? "New Patient" : sequence === 3 ? "Preventive Care" : "Established Patient",
       status: sequence === 3 ? "-" : index % 17 === 0 ? "x" : index % 13 === 0 ? "?" : "@",
-      room: `Room ${1 + (index % 8)}`
+      room: `Room ${1 + (index % 8)}`,
+      comments: `Gold dataset appointment ${patient.canonicalId}-${sequence}: ${sequence === 1 ? "initial intake preparation" : sequence === 3 ? "preventive care checklist" : "follow-up scheduling note"}`
     });
   }
 });
@@ -1088,7 +1089,7 @@ function buildLegacySql() {
     pc_pid: String(appointment.pid),
     pc_title: appointment.title,
     pc_time: appointment.start,
-    pc_hometext: `Gold dataset appointment ${appointment.id}`,
+    pc_hometext: appointment.comments,
     pc_eventDate: appointment.date,
     pc_endDate: appointment.date,
     pc_duration: appointment.duration,

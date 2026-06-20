@@ -3016,7 +3016,36 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused appointment billing-location reassignment only. Billing rules, facility availability validation, resource conflict checks, recurring appointment propagation, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
+- This slice covers focused appointment billing-location reassignment only. Appointment comments are covered by Slice 102; billing rules, facility availability validation, resource conflict checks, recurring appointment propagation, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
+
+### Slice 102: Appointment Comments Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized scheduling slice under `modernized-openemr/`.
+- Verification is the shared `slice-102-appointment-comments-readiness` plan, which creates a temporary future appointment, updates its scheduling comments, renders those comments, deletes the appointment, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The canonical gold dataset generator now treats appointment comments as a first-class appointment property, and the modernized PostgreSQL appointment seed schema maps that value into an appointment `comments` column.
+- The modernized appointment APIs return `comments` in list and detail responses, and accept `comments` in create/update requests.
+- The modernized Calendar create/edit forms expose comments controls, and the schedule detail panel renders the saved comments.
+- The shared parity suite verifies the legacy `form_comments` control on the OpenEMR appointment edit screen, the modernized `Edit appointment comments` control, normalized appointment facts, and hard-delete cleanup.
+- The modernized smoke test now includes an `appointment comments lifecycle` check that creates, updates, verifies, and deletes a temporary appointment.
+- Workbench-managed Slice 102 appointment comments plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating or loading an appointment returns scheduling comments when present.
+- Updating a future appointment can change comments while preserving patient, provider, facility, billing location, category, status, date/time, and cleanup behavior.
+- The modernized Calendar workspace renders the selected appointment, exposes the editable comments control, saves the updated comments, and shows the updated comments in the detail panel.
+- The legacy parity path verifies the `form_comments` field for the same temporary appointment.
+- Hard-delete cleanup restores the seeded appointment count.
+- The side-by-side Slice 102 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused appointment comments only. Comment history, billing rules, facility availability validation, resource conflict checks, recurring appointment propagation, waitlist behavior, reminders, and encounter/billing conversion remain deferred.
 
 ## Test Strategy
 

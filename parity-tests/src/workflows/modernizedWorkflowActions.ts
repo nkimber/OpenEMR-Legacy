@@ -526,7 +526,8 @@ LIMIT 1;
         facilityId: input.facilityId,
         billingLocationId: input.billingLocationId,
         categoryId: input.categoryId ?? null,
-        room: input.room
+        room: input.room,
+        comments: input.homeText
       })
     });
 
@@ -544,7 +545,7 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   appointment_date AS "eventDate", start_time AS "startTime",
   (start_time + make_interval(mins => duration_minutes))::time AS "endTime",
   status, facility_id AS "facilityId", billing_location_id AS "billingLocationId", COALESCE(room, '') AS room,
-  COALESCE(category_id, 0) AS "categoryId"
+  COALESCE(category_id, 0) AS "categoryId", COALESCE(comments, '') AS "homeText"
 FROM appointments
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -567,7 +568,8 @@ LIMIT 1;
       billingLocationId: Number(row.billingLocationId),
       room: row.room,
       categoryId: Number(row.categoryId),
-      categoryName: appointmentCategoryName(Number(row.categoryId))
+      categoryName: appointmentCategoryName(Number(row.categoryId)),
+      homeText: row.homeText
     };
   }
 
@@ -597,7 +599,8 @@ LIMIT 1;
         billingLocationId: input.billingLocationId,
         categoryId: input.categoryId ?? null,
         room: input.room,
-        status: input.status
+        status: input.status,
+        comments: input.homeText ?? null
       })
     });
 

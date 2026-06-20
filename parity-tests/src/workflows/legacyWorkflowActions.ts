@@ -60,6 +60,7 @@ export type AppointmentRecord = {
   room: string;
   categoryId: number;
   categoryName: string;
+  homeText: string;
 };
 
 export type ClinicalListRecord = {
@@ -1294,7 +1295,8 @@ SELECT LAST_INSERT_ID() AS id;
 SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_aid AS providerId, e.pc_title AS title,
   DATE(e.pc_eventDate) AS eventDate, e.pc_startTime AS startTime, e.pc_endTime AS endTime,
   e.pc_apptstatus AS status, e.pc_facility AS facilityId, e.pc_billing_location AS billingLocationId,
-  e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName
+  e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName,
+  COALESCE(e.pc_hometext, '') AS homeText
 FROM openemr_postcalendar_events e
 LEFT JOIN openemr_postcalendar_categories c ON c.pc_catid = e.pc_catid
 WHERE e.pc_eid = ${integer(legacyId)}
@@ -1317,7 +1319,8 @@ LIMIT 1;
       billingLocationId: Number(row.billingLocationId),
       room: row.room,
       categoryId: Number(row.categoryId),
-      categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId))
+      categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId)),
+      homeText: row.homeText
     };
   }
 

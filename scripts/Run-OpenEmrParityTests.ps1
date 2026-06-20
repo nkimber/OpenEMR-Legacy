@@ -56,6 +56,7 @@ param(
         "workflow-appointment-provider",
         "workflow-appointment-facility",
         "workflow-appointment-billing-location",
+        "workflow-appointment-comments",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
