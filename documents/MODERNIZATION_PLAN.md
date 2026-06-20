@@ -547,7 +547,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter-scoped CPT billing line lifecycle only.
-- Claim generation, payer/insurance adjudication, remittance import, payment posting mutation, modifier validation rules, diagnosis pointer validation, charge corrections, void history, statement generation, and audit history remain deferred to later revenue-cycle workflow slices.
+- Claim generation, payer/insurance adjudication, remittance import, payment posting mutation, modifier validation rules, diagnosis pointer validation, charge corrections, void history, statement delivery, and audit history remain deferred to later revenue-cycle workflow slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 17: Procedure Mutation
 
@@ -1397,7 +1397,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused fee-sheet charge correction only.
-- Claim generation, payer adjudication, remittance import, payment posting mutation, charge correction history, statement generation, and revenue-cycle audit history remain future billing slices.
+- Claim generation, payer adjudication, remittance import, payment posting mutation, charge correction history, statement delivery, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 46: Fee-Sheet Modifier Mutation
 
@@ -1426,7 +1426,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused CPT fee-sheet modifier behavior only.
-- Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, remittance import, payment posting mutation, statement generation, and revenue-cycle audit history remain future billing slices.
+- Modifier validation catalogs, modifier compatibility rules, claim generation, payer adjudication, remittance import, payment posting mutation, statement delivery, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 47: Claim Status Readiness
 
@@ -1456,7 +1456,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers claim status visibility only.
-- Legacy billing-report UI steering, claim generation, payer adjudication, remittance import, payment posting mutation, statement generation, and revenue-cycle audit history remain future billing slices.
+- Legacy billing-report UI steering, claim generation, payer adjudication, remittance import, payment posting mutation, statement delivery, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 48: Payment Posting Readiness
 
@@ -1486,7 +1486,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers payment posting visibility only.
-- Full ERA/EOB import, payer adjudication, patient statements, payment reversal/refund workflows, and revenue-cycle audit history remain future billing slices. Focused manual payment posting create/void/delete behavior is covered by Slice 56, and focused patient payment capture is covered by Slice 58.
+- Full ERA/EOB import, payer adjudication, statement delivery, payment reversal/refund workflows, and revenue-cycle audit history remain future billing slices. Focused manual payment posting create/void/delete behavior is covered by Slice 56, focused patient payment capture is covered by Slice 58, and printable patient statement generation is covered by Slice 59.
 
 ### Slice 49: Account Balance Readiness
 
@@ -1514,7 +1514,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers balance visibility only.
-- Patient statement generation, collection workflows, payment mutation/reversal behavior, claim adjudication, payer remittance import, and revenue-cycle audit history remain future billing slices.
+- Statement delivery, collection workflows, payment mutation/reversal behavior, claim adjudication, payer remittance import, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 50: Account Aging Readiness
 
@@ -1542,7 +1542,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers aging visibility only.
-- Patient statement generation, collection work queues, dunning rules, write-off workflows, payment mutation/reversal behavior, payer remittance import, and revenue-cycle audit history remain future billing slices.
+- Statement delivery, collection work queues, dunning rules, write-off workflows, payment mutation/reversal behavior, payer remittance import, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 51: Account Ledger Readiness
 
@@ -1570,7 +1570,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers ledger visibility only.
-- Patient statement generation, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
+- Statement delivery, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59.
 
 ### Slice 52: Account Statement Readiness
 
@@ -1598,7 +1598,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and covers statement readiness only.
-- Printable patient statement generation, statement archival, batch statement runs, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices.
+- Statement archival, batch statement runs, delivery/export workflows, collection work queues, payment mutation/reversal behavior, payer remittance import, write-off workflows, and revenue-cycle audit history remain future billing slices. Deterministic printable statement generation is covered by Slice 59.
 
 ### Slice 53: Document Preview Readiness
 
@@ -1715,7 +1715,7 @@ Acceptance:
 Current limitations:
 
 - This slice implements manual payment posting lifecycle behavior only.
-- ERA/EOB import, payer remittance reconciliation, refunds, audit history, batch posting, claim adjudication state transitions, and statement-generation workflows remain future revenue-cycle slices. Focused patient payment capture is covered by Slice 58.
+- ERA/EOB import, payer remittance reconciliation, refunds, audit history, batch posting, claim adjudication state transitions, and statement delivery workflows remain future revenue-cycle slices. Focused patient payment capture is covered by Slice 58, and printable patient statement generation is covered by Slice 59.
 
 ### Slice 57: Claim Status Mutation Readiness
 
@@ -1776,7 +1776,37 @@ Acceptance:
 Current limitations:
 
 - This slice implements focused patient payment capture only.
-- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement generation, collections, and revenue-cycle audit history remain future billing slices.
+- Refunds, payment reversal workflows beyond voiding, receipt printing, online card processing integration, statement delivery, collections, and revenue-cycle audit history remain future billing slices. Printable patient statement generation is covered by Slice 59.
+
+### Slice 59: Statement Generation Readiness
+
+Status:
+
+- Implemented as a read-only modernized billing/revenue-cycle slice under `modernized-openemr/`.
+- Verification is the shared `slice-59-statement-generation-readiness` plan, which validates deterministic printable statement generation, browser-visible rendering, and parity against the legacy-derived billing ledger on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing `MOD-PAT-0005` billing/payment/account-statement anchor; it does not add permanent gold-data records.
+- Legacy behavior is represented by the normalized parity probe that derives a printable statement document from OpenEMR patient demographics, account statement readiness facts, and chronological ledger rows.
+- ASP.NET Core billing read behavior now returns a `statementDocument` with statement number, title, status, period, statement date, due date, recipient/address, payment instructions, generated text, totals, and normalized statement line items.
+- React Fees workspace now shows a Patient Statement panel with statement number, recipient, due date, balance due, payment instructions, generated text, and line-item rows for charges, payments, adjustments, and running balance.
+- Modernized smoke coverage validates the `MOD-PAT-0005` statement document.
+- The `account-statement-generation` parity suite and `slice-59-statement-generation-readiness` plan verify normalized legacy MariaDB and modernized PostgreSQL/API/UI statement generation behavior.
+- Workbench-managed Slice 59 statement generation plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The generated statement number for `MOD-PAT-0005` is `STMT-MOD-PAT-0005-20260625`.
+- Direct probes and API responses produce payment instructions `Please pay $364.75 by 2026-07-25.`, balance due `$364.75`, 10 statement line items, charges `$635.00`, payments `$206.00`, and adjustments `$64.25`.
+- The first statement line is the `2025-06-22` routine venipuncture charge for encounter `1000051`, and the final line is the `2026-06-25` contractual adjustment for encounter `1000053` with balance `$364.75`.
+- The modernized Fees workspace renders the statement number, payment instructions, generated text, and EOB-backed line-item references.
+- The side-by-side Slice 59 parity comparison matches.
+
+Current limitations:
+
+- This slice generates a deterministic printable statement document only.
+- Batch statement runs, PDF rendering/export, statement delivery, portal delivery, collections work queues, and revenue-cycle audit history remain future billing slices.
 
 ## Test Strategy
 

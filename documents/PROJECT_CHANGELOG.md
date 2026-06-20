@@ -4349,6 +4349,63 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 085. Modernized Statement Generation Slice 59
+
+Commit: this commit
+Started: `2026-06-19T22:55:00-04:00`
+Finished: `2026-06-19T23:22:00-04:00`
+
+Implemented the fifty-ninth modernized OpenEMR vertical slice: statement generation readiness, focused on proving a deterministic printable patient statement can be generated from the same legacy and modernized billing ledger facts.
+
+Key outcomes:
+
+- Added a modernized billing `statementDocument` contract with statement number, title, status, period, statement date, due date, recipient/address, payment instructions, generated text, totals, and normalized line items.
+- Derived the statement document from the existing `MOD-PAT-0005` statement readiness summary and chronological billing ledger, with no permanent gold-data additions.
+- Added React Fees workspace rendering for the Patient Statement panel, payment instructions, generated statement text, and statement line-item rows.
+- Added modernized smoke coverage for the anchor patient statement generation document.
+- Added the `account-statement-generation` parity suite and `slice-59-statement-generation-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and result paths for the Slice 59 statement generation plan.
+- Updated the parity runner wrapper, package scripts, Workbench progress/architecture status, and synchronized project documents.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests/`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the statement generation changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1 -ApiBaseUrl http://localhost:5001` passed 61 smoke checks, including `anchor patient statement generation`.
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`.
+- `npm run test:legacy:plan:statement-generation` passed with run `2026-06-20T032023-648Z-legacy-openemr-plan-slice-59-statement-generation-readiness`.
+- `npm run test:modernized:plan:statement-generation` passed with run `2026-06-20T032044-765Z-modernized-openemr-plan-slice-59-statement-generation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-59-statement-generation-readiness` matched with comparison `2026-06-20T032106-276Z-legacy-openemr-vs-modernized-openemr-plan-slice-59-statement-generation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/BillingDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/account-statement-generation/account-statement-generation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

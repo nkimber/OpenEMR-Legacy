@@ -28,6 +28,7 @@ param(
         "account-aging",
         "account-ledger",
         "account-statement",
+        "account-statement-generation",
         "admin",
         "reports",
         "reports-export",
