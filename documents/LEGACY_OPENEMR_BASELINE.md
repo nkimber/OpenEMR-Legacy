@@ -1,7 +1,7 @@
 # Legacy OpenEMR Baseline
 
 Created: 2026-06-18
-Last verified: 2026-06-18
+Last verified: 2026-06-20
 
 ## Purpose
 
@@ -182,6 +182,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared patient documents plan now runs against the legacy target as the legacy half of Slice 25 side-by-side parity, covering seeded patient documents through OpenEMR's document list controller.
 - Shared patient document mutation plan now runs against the legacy target as the legacy half of Slice 26 side-by-side parity, covering temporary database-backed text document create/render/archive/delete behavior through OpenEMR's document tables and document list controller.
 - Shared patient document content plan now runs against the legacy target as the legacy half of Slice 27 side-by-side parity, covering full seeded document payload comparison for the `MOD-PAT-0001` primary-care intake packet.
+- Shared encounter documents plan now runs against the legacy target as the legacy half of Slice 67 side-by-side parity, covering the two active documents linked to `MOD-PAT-0001` encounter `1000013` and their document-category rendering in OpenEMR.
 - Shared binary patient-document mutation plan now runs against the legacy target as the legacy half of Slice 33 side-by-side parity, creating a temporary PDF-style document for `MOD-PAT-0001`, verifying document-list rendering, soft-deleting it, and hard-deleting it during cleanup.
 - Shared insurance coverage plan now runs against the legacy target as the legacy half of Slice 28 side-by-side parity, covering primary and secondary seeded coverage comparison for `MOD-PAT-0005`.
 - Shared immunizations plan now runs against the legacy target as the legacy half of Slice 29 side-by-side parity, covering seeded pediatric vaccine-history comparison for `MOD-PAT-0007` through OpenEMR's native Immunizations page.

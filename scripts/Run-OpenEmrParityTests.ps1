@@ -14,6 +14,7 @@ param(
         "clinical-lists",
         "messages",
         "documents",
+        "encounter-documents",
         "document-content",
         "document-preview",
         "document-revision",

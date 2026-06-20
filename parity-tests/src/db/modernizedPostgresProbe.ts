@@ -514,6 +514,14 @@ ORDER BY doc_date DESC, id DESC;
     };
   }
 
+  async getPatientDocumentsForEncounter(pid: number, encounter: number): Promise<PatientDocumentsSummary> {
+    const documents = await this.getPatientDocumentsForPatient(pid);
+    return {
+      patientId: pid,
+      documents: documents.documents.filter((document) => document.encounter === encounter)
+    };
+  }
+
   async getPatientDocumentContent(documentId: number): Promise<PatientDocumentContentSummary | null> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",

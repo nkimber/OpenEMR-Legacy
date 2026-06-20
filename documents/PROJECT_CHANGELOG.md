@@ -4826,6 +4826,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 093. Modernized Encounter Document Attachment Slice 67
+
+Commit: this commit
+Started: `2026-06-20T02:41:10-04:00`
+Finished: `2026-06-20T03:01:33.7576652-04:00`
+
+Implemented the sixty-seventh modernized OpenEMR vertical slice: encounter document attachment readiness, focused on proving that documents linked to a legacy encounter can be surfaced through the modernized Encounter detail API and rendered directly in the modernized Encounters workspace with matching legacy behavior.
+
+Key outcomes:
+
+- Extended the modernized Encounter detail contract with linked document attachment fields for document key, category, dates, MIME type, file name, storage method, size, hash, notes, preview status, thumbnail label/text, inline preview readiness, and download capability.
+- Added repository logic that loads active document links for the selected encounter after the encounter detail row is read.
+- Added an `Attached Documents` section to the React Encounters workspace with document cards, metadata, preview text, document references, and download/open actions.
+- Added modernized smoke coverage for `MOD-PAT-0001` encounter `1000013` with the two expected active linked documents.
+- Added normalized legacy and modernized database probe methods for documents linked to a specific encounter.
+- Added the `encounter-documents` parity suite and `slice-67-encounter-documents-readiness` plan for both legacy and modernized targets.
+- Added Workbench commands/cards and architecture/progress status updates for the Slice 67 encounter documents plan.
+- Updated the parity runner wrapper, package scripts, full-parity suite list, and synchronized project documents.
+- Reused the existing `MOD-PAT-0001` encounter `1000013` and its two active linked documents; no permanent gold seed-data records were added for this slice.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx`.
+- `npm run typecheck` in `parity-tests/`.
+- `npm run build` in `modernized-openemr/frontend/`.
+- `npm run build` in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` in `modernized-openemr/` so the running API and UI containers included the encounter document changes.
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`.
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` passed 69 smoke checks, including `anchor encounter document attachments`.
+- Live API check for `http://localhost:5001/api/encounters/1000013` returned two linked documents: `Advance directive acknowledgement` and `Primary care intake packet`.
+- `npm run test:legacy:plan:encounter-documents` passed with run `2026-06-20T065818-227Z-legacy-openemr-plan-slice-67-encounter-documents-readiness`.
+- `npm run test:modernized:plan:encounter-documents` passed with run `2026-06-20T065842-287Z-modernized-openemr-plan-slice-67-encounter-documents-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-67-encounter-documents-readiness` matched with comparison `2026-06-20T065905-339Z-legacy-openemr-vs-modernized-openemr-plan-slice-67-encounter-documents-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/encounter-documents/encounter-document-attachments.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

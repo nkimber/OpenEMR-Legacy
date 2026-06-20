@@ -439,7 +439,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused encounter summary plus vitals/SOAP lifecycle only.
-- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order/billing linkage, document attachment, and multi-form encounter packages remain deferred to later clinical workflow slices.
+- Encounter templates, sign-off, authorization, audit history, diagnosis coding workflows, order/billing linkage, and multi-form encounter packages remain deferred to later clinical workflow slices. Read-only encounter-attached document visibility is covered by Slice 67; scanned upload workflows and full encounter document lifecycle behavior remain future work.
 
 ### Slice 13: Clinical List Allergy Mutation
 
@@ -2030,6 +2030,34 @@ Current limitations:
 
 - This slice proves focused single-message title/body editing. It does not implement rich-text editing, attachments, threaded replies, read receipts, bulk edits, audit history, or notification side effects.
 
+### Slice 67: Encounter Document Attachment Readiness
+
+Status:
+
+- Implemented as a read-only modernized encounter-document slice under `modernized-openemr/`.
+- Verification is the shared `slice-67-encounter-documents-readiness` plan, which validates encounter-attached document facts, browser-visible legacy document categories, modernized Encounter detail API document fields, and Encounters workspace rendering on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded `MOD-PAT-0001` encounter `1000013` document anchors; it does not add permanent gold-data records.
+- ASP.NET Core encounter detail responses now include linked document attachments with document key, category, title, document date, upload timestamp, MIME type, file name, storage method, size, hash, notes, preview kind/status, thumbnail label/text, inline-preview readiness, and download capability.
+- React Encounters workspace now renders an `Attached Documents` section for the selected encounter, including category/date metadata, inline text preview state, document reference, and download/open actions where supported.
+- Modernized smoke coverage validates that encounter `1000013` exposes the two expected attached documents.
+- The `encounter-documents` parity suite and `slice-67-encounter-documents-readiness` plan verify normalized legacy and modernized database state, legacy document-category rendering, modernized API fields, modernized UI rendering, and side-by-side result matching.
+- Workbench-managed Slice 67 encounter documents plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Encounter detail for `MOD-PAT-0001` encounter `1000013` exposes exactly two active linked documents: `Primary care intake packet` and `Advance directive acknowledgement`.
+- The document categories, document keys, dates, MIME types, storage methods, preview kind, preview status, and thumbnail labels match between legacy and modernized probes.
+- Legacy OpenEMR renders the linked documents under the expected document categories.
+- The modernized Encounters workspace renders the linked documents in the encounter detail surface without requiring the user to switch to the standalone Documents workspace.
+- The side-by-side Slice 67 parity comparison matches.
+
+Current limitations:
+
+- This slice proves read-only encounter-attached document visibility. It does not implement encounter-scoped document upload, scanning, document signing, attachment deletion, template-generated encounter forms, or full multi-form encounter package behavior.
+
 ## Test Strategy
 
 Modernization testing uses the existing layers:
@@ -2157,3 +2185,4 @@ As of 2026-06-19:
 - The sixty-fourth modernized vertical slice implements collections follow-up task readiness with a pnotes-compatible ASP.NET Core task create endpoint, React Fees Create Task action, normalized legacy/modernized workflow actions, Workbench collections follow-up plan actions, smoke coverage, and side-by-side slice-64 parity evidence.
 - The sixty-fifth modernized vertical slice implements patient message assignment readiness with an ASP.NET Core message assignment endpoint, React Messages reassignment controls, normalized legacy/modernized workflow actions, Workbench message assignment plan actions, smoke coverage, and side-by-side slice-65 parity evidence.
 - The sixty-sixth modernized vertical slice implements patient message content readiness with an ASP.NET Core title/body edit endpoint, React Messages inline edit controls, normalized legacy/modernized workflow actions, Workbench message content plan actions, smoke coverage, and side-by-side slice-66 parity evidence.
+- The sixty-seventh modernized vertical slice implements encounter document attachment readiness with ASP.NET Core encounter detail document fields, React Encounters attached-document rendering, normalized legacy/modernized document probes, Workbench encounter documents plan actions, smoke coverage, and side-by-side slice-67 parity evidence.
