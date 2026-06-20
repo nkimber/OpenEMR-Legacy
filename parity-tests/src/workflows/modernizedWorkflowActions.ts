@@ -22,6 +22,7 @@ import type {
   NewCollectionsFollowUpTask,
   NewEncounterBinaryDocument,
   NewEncounterDocument,
+  NewEncounterExternalLinkDocument,
   NewFacility,
   NewImmunization,
   NewMedication,
@@ -981,6 +982,27 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized binary encounter document attach failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async createEncounterExternalLinkDocument(input: NewEncounterExternalLinkDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents/external-link`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        url: input.url,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized external-link encounter document attach failed with ${response.status}: ${await response.text()}`);
     }
 
     const mutation = (await response.json()) as { id: number };

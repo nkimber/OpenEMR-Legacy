@@ -64,6 +64,7 @@ param(
         "workflow-encounter-document-content-replace",
         "workflow-encounter-document-archive",
         "workflow-encounter-document-lifecycle",
+        "workflow-encounter-document-external-link",
         "workflow-clinical-lists",
         "workflow-problems",
         "workflow-medications",

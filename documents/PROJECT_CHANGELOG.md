@@ -6113,6 +6113,64 @@ Primary files:
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/src/architectureModel.ts`
 
+### 116. Modernized Encounter External-Link Document Slice 87
+
+Commit: current slice commit
+Started: `2026-06-20T12:43:00-04:00`
+Finished: `2026-06-20T13:03:56.0560000-04:00`
+
+Implemented the eighty-seventh modernized OpenEMR vertical slice: encounter external-link document readiness, adding encounter-scoped URL-backed document attachment from the modernized Encounters workspace and proving the same temporary web URL document create/render/archive/delete lifecycle against both legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 725
+- Lines deleted: 124
+- Net lines: 601
+- Total churn: 849
+
+Key outcomes:
+
+- Added an ASP.NET Core encounter external-link document attach endpoint that resolves the selected encounter's patient server-side and reuses the existing `web_url` patient-document storage contract.
+- Added modernized frontend API typing and Encounters workspace URL attach controls for category, date, name, URL, and notes.
+- Reused existing attached-document card rendering for external-link preview state, URL display, `Open Link` action, disabled replacement, and lifecycle timeline facts.
+- Added modernized smoke coverage for the encounter external-link document lifecycle.
+- Added shared legacy and modernized workflow adapter support for encounter external-link document creation.
+- Added the `workflow-encounter-document-external-link` Playwright parity suite and the `slice-87-encounter-document-external-link-readiness` plan.
+- Added Workbench commands/cards and architecture/status updates for the Slice 87 encounter external-link document plan.
+- Updated synchronized project documents so the current modernization state is Slice 87 with thirty-four read-only slices and fifty-three mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with 88 checks, including `encounter external-link document lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-87-encounter-document-external-link-readiness -Reset test` passed; run `2026-06-20T170257-817Z-legacy-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-87-encounter-document-external-link-readiness -Reset test` passed; run `2026-06-20T170332-294Z-modernized-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-87-encounter-document-external-link-readiness` passed with `status: matched`; comparison `2026-06-20T170356-055Z-legacy-openemr-vs-modernized-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-external-link/encounter-document-external-link.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/src/architectureModel.ts`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

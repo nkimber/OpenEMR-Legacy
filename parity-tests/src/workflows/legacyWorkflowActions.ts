@@ -489,6 +489,8 @@ export type NewPatientExternalLinkDocument = {
   notes: string;
 };
 
+export type NewEncounterExternalLinkDocument = NewPatientExternalLinkDocument;
+
 export type PatientDocumentMetadataUpdate = {
   categoryId: number;
   categoryName: string;
@@ -1602,6 +1604,10 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
 
   async createEncounterBinaryDocument(input: NewEncounterBinaryDocument): Promise<number> {
     return this.createPatientBinaryDocument(input);
+  }
+
+  async createEncounterExternalLinkDocument(input: NewEncounterExternalLinkDocument): Promise<number> {
+    return this.createPatientExternalLinkDocument(input);
   }
 
   async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {
