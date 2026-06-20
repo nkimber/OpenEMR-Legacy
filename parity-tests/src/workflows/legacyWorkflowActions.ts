@@ -476,6 +476,8 @@ export type NewPatientBinaryDocument = {
   notes: string;
 };
 
+export type NewEncounterBinaryDocument = NewPatientBinaryDocument;
+
 export type NewPatientExternalLinkDocument = {
   patientId: number;
   categoryId: number;
@@ -1596,6 +1598,10 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
 
   async createEncounterDocument(input: NewEncounterDocument): Promise<number> {
     return this.createPatientDocument(input);
+  }
+
+  async createEncounterBinaryDocument(input: NewEncounterBinaryDocument): Promise<number> {
+    return this.createPatientBinaryDocument(input);
   }
 
   async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {

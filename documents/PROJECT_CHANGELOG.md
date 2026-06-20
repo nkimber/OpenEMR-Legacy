@@ -5508,6 +5508,63 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 105. Modernized Encounter Binary Document Upload Slice 79
+
+Commit: this commit
+Started: `2026-06-20T08:29:00-04:00`
+Finished: `2026-06-20T08:50:18.1459818-04:00`
+
+Implemented the seventy-ninth modernized OpenEMR vertical slice: focused encounter binary document upload readiness, adding an encounter-scoped PDF/binary attachment workflow from the modernized Encounters workspace and side-by-side legacy/modernized parity evidence.
+
+Key outcomes:
+
+- Added an ASP.NET Core `POST /api/encounters/{encounter}/documents/binary` endpoint that validates the selected encounter, derives the patient, reuses binary document persistence, and returns a refreshed encounter detail response.
+- Added modernized frontend API types/helpers and an Encounters binary upload form with category, date, name, file selection, notes, save state, and immediate attached-document rendering.
+- Added modernized smoke coverage for the encounter binary document attachment lifecycle, including preview metadata and download content verification.
+- Added legacy and modernized workflow adapter methods for encounter-scoped binary document creation plus the `workflow-encounter-binary-documents` Playwright parity suite.
+- Added the `slice-79-encounter-binary-document-upload-readiness` plan, package scripts, runner allow-list, Workbench commands/cards, and architecture/progress status updates.
+- Updated synchronized project documents so the current modernization state is Slice 79 with thirty-four read-only slices and forty-five mutation-capable slices.
+
+Verified test runs:
+
+- JSON validation for `modernization-workbench/config/apps.json`, `parity-tests/test-manifest.json`, and `parity-tests/package.json`.
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build .\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` in `modernized-openemr/backend` passed.
+- `npm run build` in `modernized-openemr/frontend` passed.
+- `npm run build` in `modernization-workbench` passed.
+- `docker compose up -d --build api frontend` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` in `modernized-openemr` passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` in `modernized-openemr` passed with 80 checks; artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-79-encounter-binary-document-upload-readiness -Reset test` passed; run `2026-06-20T124225-482Z-legacy-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-79-encounter-binary-document-upload-readiness -Reset test` passed; run `2026-06-20T124256-469Z-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-79-encounter-binary-document-upload-readiness` passed with `status: matched`; comparison `2026-06-20T124318-833Z-legacy-openemr-vs-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-binary-documents/encounter-binary-document-upload.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

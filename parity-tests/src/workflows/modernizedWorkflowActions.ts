@@ -20,6 +20,7 @@ import type {
   NewClaimStatus,
   NewClinicalListEntry,
   NewCollectionsFollowUpTask,
+  NewEncounterBinaryDocument,
   NewEncounterDocument,
   NewFacility,
   NewImmunization,
@@ -957,6 +958,29 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized encounter document attach failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async createEncounterBinaryDocument(input: NewEncounterBinaryDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents/binary`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        fileName: input.fileName,
+        mimetype: input.mimetype,
+        contentBase64: input.contentBase64,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized binary encounter document attach failed with ${response.status}: ${await response.text()}`);
     }
 
     const mutation = (await response.json()) as { id: number };
