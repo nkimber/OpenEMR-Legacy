@@ -48,6 +48,11 @@ test.describe("admin login audit readiness parity @workflow-admin-login-audit @s
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
 
+    const loginPanel = page.locator('form[aria-label="Login readiness"]');
+    await loginPanel.getByLabel("Username").fill(target.credentials.username);
+    await loginPanel.getByLabel("Password").fill(target.credentials.password);
+    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
+
     const auditPanel = page.locator('[aria-label="Login audit events"]');
     await expect(auditPanel).toBeVisible();
     await expect(auditPanel).toContainText("Login Audit");
@@ -133,6 +138,7 @@ type ModernizedLoginResponse = {
   authenticated: boolean;
   username: string;
   failureReason?: string | null;
+  sessionId?: string | null;
 };
 
 async function legacyLogin(target: RuntimeTarget, password: string) {
