@@ -7719,6 +7719,59 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 143. Modernized Appointment Recurrence Unit Matrix Slice 113
+
+Commit: `8904b83c`
+Started: `2026-06-20T23:04:00.0000000-04:00`
+Finished: `2026-06-20T23:22:37.7793224-04:00`
+
+Implemented the one-hundred-thirteenth modernized OpenEMR vertical slice: appointment recurrence unit matrix readiness, proving that temporary daily, workday, and yearly recurring appointments can be created, expanded, rendered through both legacy and modernized workflows, and removed cleanly with matched side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 342
+- Lines deleted: 4
+- Net lines: 338
+- Total churn: 346
+
+Key outcomes:
+
+- Added the `workflow-appointment-recurrence-unit-matrix` Playwright parity suite and `slice-113-appointment-recurrence-unit-matrix-readiness` plan.
+- The shared parity workflow creates temporary `MOD-PAT-0003` daily, workday, and yearly recurring appointments and verifies generated dates `2026-12-07`, `2026-12-09`, `2026-12-11`, `2026-12-13`; `2026-12-11`, `2026-12-14`, `2026-12-15`, `2026-12-16`; and `2026-06-30`, `2027-06-30`, `2028-06-30`.
+- The legacy path verifies OpenEMR repeat controls for repeat frequency, repeat unit, and recurrence end date in the appointment editor.
+- The modernized path verifies Calendar repeat labels, edit controls, generated occurrence cards, and generated occurrence detail rendering for the new recurrence unit matrix.
+- Extended the modernized smoke test with an `appointment recurrence unit matrix lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 113 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 113 with thirty-six read-only slices and seventy-seven mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-113-appointment-recurrence-unit-matrix-readiness -Reset test` passed; run `2026-06-21T031133-153Z-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-113-appointment-recurrence-unit-matrix-readiness -Reset test` passed; run `2026-06-21T031157-684Z-legacy-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-113-appointment-recurrence-unit-matrix-readiness` passed with `status: matched`; comparison `2026-06-21T031354-471Z-legacy-openemr-vs-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 114 checks, including `appointment recurrence unit matrix lifecycle`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-recurrence-unit-matrix/appointment-recurrence-unit-matrix.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
