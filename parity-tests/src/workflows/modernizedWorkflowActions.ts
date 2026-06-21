@@ -554,7 +554,8 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   COALESCE(recurrence_type, 0) AS "recurrenceType",
   repeat_frequency AS "repeatFrequency",
   repeat_unit AS "repeatUnit",
-  recurrence_end_date AS "recurrenceEndDate"
+  recurrence_end_date AS "recurrenceEndDate",
+  COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
 FROM appointments
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -582,7 +583,8 @@ LIMIT 1;
       recurrenceType: Number(row.recurrenceType),
       repeatFrequency: nullableNumber(row.repeatFrequency),
       repeatUnit: nullableNumber(row.repeatUnit),
-      recurrenceEndDate: row.recurrenceEndDate
+      recurrenceEndDate: row.recurrenceEndDate,
+      recurrenceExdates: splitDateList(row.recurrenceExdates)
     };
   }
 
@@ -610,6 +612,8 @@ LIMIT 1;
         repeatFrequency: number | null;
         repeatUnit: number | null;
         recurrenceEndDate: string | null;
+        recurrenceExdates: string[];
+        recurrenceExceptionCount: number;
         occurrenceNumber: number | null;
         isVirtualOccurrence: boolean;
         isRecurringSeries: boolean;
@@ -629,6 +633,8 @@ LIMIT 1;
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
         recurrenceEndDate: appointment.recurrenceEndDate,
+        recurrenceExdates: appointment.recurrenceExdates ?? [],
+        recurrenceExceptionCount: appointment.recurrenceExceptionCount ?? 0,
         occurrenceNumber: appointment.occurrenceNumber ?? 1,
         isVirtualOccurrence: appointment.isVirtualOccurrence
       }));
@@ -2390,6 +2396,18 @@ function normalizeTime(value: string) {
 
 function nullableNumber(value: unknown) {
   return value === null || value === undefined ? null : Number(value);
+}
+
+function splitDateList(value: string | null | undefined) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(/[,\s;]+/)
+    .map((entry) => entry.trim())
+    .filter((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry))
+    .sort();
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

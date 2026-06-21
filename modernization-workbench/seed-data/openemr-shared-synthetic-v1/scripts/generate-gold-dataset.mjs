@@ -73,13 +73,14 @@ function timePlusMinutes(dateTimeText, minutesToAdd) {
 
 function serializeAppointmentRecurrence(appointment) {
   const recurrenceType = appointment.recurrenceType ?? 0;
+  const recurrenceExdates = recurrenceType > 0 ? (appointment.recurrenceExdates ?? []).join(",") : "";
   const fields = {
     event_repeat_freq: recurrenceType > 0 ? String(appointment.repeatFrequency ?? 1) : "",
     event_repeat_freq_type: recurrenceType > 0 ? String(appointment.repeatUnit ?? 1) : "",
     event_repeat_on_num: "1",
     event_repeat_on_day: "0",
     event_repeat_on_freq: "0",
-    exdate: ""
+    exdate: recurrenceExdates
   };
   const serialized = Object.entries(fields)
     .map(([key, value]) => `s:${key.length}:"${key}";s:${value.length}:"${value}";`)
@@ -375,7 +376,8 @@ patients.forEach((patient, index) => {
       recurrenceType: isRecurringAnchor ? 1 : 0,
       repeatFrequency: isRecurringAnchor ? 2 : null,
       repeatUnit: isRecurringAnchor ? 1 : null,
-      recurrenceEndDate: isRecurringAnchor ? addDays(date, 84) : null
+      recurrenceEndDate: isRecurringAnchor ? addDays(date, 84) : null,
+      ...(isRecurringAnchor && patient.canonicalId === "MOD-PAT-0013" ? { recurrenceExdates: [addDays(date, 42)] } : {})
     });
   }
 });

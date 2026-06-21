@@ -65,6 +65,7 @@ export type AppointmentRecord = {
   repeatFrequency: number | null;
   repeatUnit: number | null;
   recurrenceEndDate: string | null;
+  recurrenceExdates: string[];
 };
 
 export type AppointmentSeriesOccurrence = {
@@ -78,6 +79,8 @@ export type AppointmentSeriesOccurrence = {
   repeatFrequency: number | null;
   repeatUnit: number | null;
   recurrenceEndDate: string | null;
+  recurrenceExdates: string[];
+  recurrenceExceptionCount: number;
   occurrenceNumber: number;
   isVirtualOccurrence: boolean;
 };
@@ -1377,7 +1380,8 @@ ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
         recurrenceType: recurrence.recurrenceType,
         repeatFrequency: recurrence.repeatFrequency,
         repeatUnit: recurrence.repeatUnit,
-        recurrenceEndDate: recurrence.recurrenceEndDate
+        recurrenceEndDate: recurrence.recurrenceEndDate,
+        recurrenceExdates: recurrence.recurrenceExdates
       }, fromDate);
     });
   }
@@ -2967,7 +2971,8 @@ function parseAppointmentRecurrence(typeValue: string, spec: string, endDate: st
       recurrenceType: 0,
       repeatFrequency: null,
       repeatUnit: null,
-      recurrenceEndDate: null
+      recurrenceEndDate: null,
+      recurrenceExdates: []
     };
   }
 
@@ -2975,7 +2980,8 @@ function parseAppointmentRecurrence(typeValue: string, spec: string, endDate: st
     recurrenceType,
     repeatFrequency: numberFromSerializedField(spec, "event_repeat_freq"),
     repeatUnit: numberFromSerializedField(spec, "event_repeat_freq_type"),
-    recurrenceEndDate: endDate
+    recurrenceEndDate: endDate,
+    recurrenceExdates: dateListFromSerializedField(spec, "exdate")
   };
 }
 
@@ -2983,6 +2989,25 @@ function numberFromSerializedField(spec: string, fieldName: string) {
   const pattern = new RegExp(`s:${fieldName.length}:"${fieldName}";s:\\d+:"([^"]*)"`);
   const match = pattern.exec(spec);
   return match && match[1] !== "" ? Number(match[1]) : null;
+}
+
+function dateListFromSerializedField(spec: string, fieldName: string) {
+  const rawValue = stringFromSerializedField(spec, fieldName);
+  if (!rawValue) {
+    return [];
+  }
+
+  return rawValue
+    .split(/[,\s;]+/)
+    .map((value) => value.trim())
+    .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))
+    .sort();
+}
+
+function stringFromSerializedField(spec: string, fieldName: string) {
+  const pattern = new RegExp(`s:${fieldName.length}:"${fieldName}";s:\\d+:"([^"]*)"`);
+  const match = pattern.exec(spec);
+  return match?.[1] ?? "";
 }
 
 function serializeAppointmentRecurrence(type: number, repeatFrequency: number | null, repeatUnit: number | null) {
@@ -3011,6 +3036,7 @@ function expandAppointmentSeriesOccurrences(
     repeatFrequency: number | null;
     repeatUnit: number | null;
     recurrenceEndDate: string | null;
+    recurrenceExdates?: string[];
   },
   fromDate: string
 ): AppointmentSeriesOccurrence[] {
@@ -3020,22 +3046,26 @@ function expandAppointmentSeriesOccurrences(
 
   const from = parseDateOnly(fromDate);
   const end = parseDateOnly(appointment.recurrenceEndDate);
+  const exdates = new Set(appointment.recurrenceExdates ?? []);
   const repeatFrequency = Math.max(1, appointment.repeatFrequency ?? 1);
   const occurrences: AppointmentSeriesOccurrence[] = [];
   let current = parseDateOnly(appointment.anchorDate);
   for (let occurrenceNumber = 1; current <= end && occurrenceNumber <= 366; occurrenceNumber++) {
-    if (current >= from) {
+    const currentDate = formatDateOnly(current);
+    if (current >= from && !exdates.has(currentDate)) {
       occurrences.push({
         id: occurrenceNumber === 1 ? appointment.id : `${appointment.id}::occurs::${formatDateOnly(current)}`,
         seriesRootId: appointment.id,
         patientId: appointment.patientId,
         title: appointment.title,
-        date: formatDateOnly(current),
+        date: currentDate,
         startTime: appointment.startTime,
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
         recurrenceEndDate: appointment.recurrenceEndDate,
+        recurrenceExdates: appointment.recurrenceExdates ?? [],
+        recurrenceExceptionCount: appointment.recurrenceExdates?.length ?? 0,
         occurrenceNumber,
         isVirtualOccurrence: occurrenceNumber > 1
       });
