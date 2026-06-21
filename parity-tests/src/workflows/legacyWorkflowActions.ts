@@ -226,6 +226,8 @@ export type PatientMessageRecord = {
   body: string;
   status: string;
   assignedTo: string;
+  portalRelation: string;
+  isEncrypted: boolean;
   deleted: number;
 };
 
@@ -2016,6 +2018,8 @@ SELECT LAST_INSERT_ID() AS id;
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS patientId, title, body, message_status AS status, assigned_to AS assignedTo,
+  COALESCE(portal_relation, '') AS portalRelation,
+  COALESCE(is_msg_encrypted, 0) AS isEncrypted,
   COALESCE(deleted, 0) AS deleted
 FROM pnotes
 WHERE id = ${integer(legacyId)}
@@ -2032,6 +2036,8 @@ LIMIT 1;
       body: row.body,
       status: row.status,
       assignedTo: row.assignedTo,
+      portalRelation: row.portalRelation,
+      isEncrypted: row.isEncrypted === "1",
       deleted: Number(row.deleted)
     };
   }

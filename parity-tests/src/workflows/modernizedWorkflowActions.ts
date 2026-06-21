@@ -1080,6 +1080,8 @@ LIMIT 1;
 SELECT id, pid AS "patientId", COALESCE(title, '') AS title,
   encode(convert_to(COALESCE(body, ''), 'UTF8'), 'hex') AS "bodyHex",
   COALESCE(status, '') AS status, COALESCE(assigned_to, '') AS "assignedTo",
+  COALESCE(portal_relation, '') AS "portalRelation",
+  CASE WHEN is_encrypted THEN '1' ELSE '0' END AS "isEncrypted",
   deleted
 FROM messages
 WHERE id = ${sqlString(String(id))}
@@ -1097,6 +1099,8 @@ LIMIT 1;
       body: Buffer.from(row.bodyHex, "hex").toString("utf8"),
       status: row.status,
       assignedTo: row.assignedTo,
+      portalRelation: row.portalRelation,
+      isEncrypted: row.isEncrypted === "1",
       deleted: Number(row.deleted)
     };
   }

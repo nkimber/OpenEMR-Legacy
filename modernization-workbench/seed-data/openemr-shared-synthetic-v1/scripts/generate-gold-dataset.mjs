@@ -589,7 +589,10 @@ patients.forEach((patient, index) => {
       date: at(addDays(baseDate, -45 + ((index + sequence) % 40)), 10 + (sequence % 5)),
       title: sequence === 1 ? "Care team follow-up" : "Portal message",
       body: sequence === 1 ? `Follow-up message for ${patient.fname} ${patient.lname}.` : "Patient portal question about medications.",
-      status: sequence === 1 ? "New" : "Done"
+      status: sequence === 1 ? "New" : "Done",
+      assignedTo: "admin",
+      portalRelation: sequence === 1 ? null : `portal:${patient.canonicalId}`,
+      isEncrypted: false
     });
   }
 });
@@ -1308,7 +1311,7 @@ function buildLegacySql() {
     encounter_id: immunization.encounter
   })), 200));
 
-  statements.push(insert("pnotes", ["date", "body", "pid", "user", "groupname", "activity", "authorized", "title", "assigned_to", "message_status"], messages.map((message) => ({
+  statements.push(insert("pnotes", ["date", "body", "pid", "user", "groupname", "activity", "authorized", "title", "assigned_to", "message_status", "portal_relation", "is_msg_encrypted"], messages.map((message) => ({
     date: message.date,
     body: message.body,
     pid: message.pid,
@@ -1317,8 +1320,10 @@ function buildLegacySql() {
     activity: 1,
     authorized: 1,
     title: message.title,
-    assigned_to: "admin",
-    message_status: message.status
+    assigned_to: message.assignedTo,
+    message_status: message.status,
+    portal_relation: message.portalRelation,
+    is_msg_encrypted: message.isEncrypted
   })), 200));
 
   statements.push(insert("documents", ["id", "uuid", "type", "size", "date", "url", "mimetype", "pages", "owner", "revision", "foreign_id", "docdate", "hash", "list_id", "name", "storagemethod", "path_depth", "imported", "encounter_id", "encounter_check", "audit_master_approval_status", "documentationOf", "encrypted", "document_data", "deleted"], patientDocuments.map((document) => ({

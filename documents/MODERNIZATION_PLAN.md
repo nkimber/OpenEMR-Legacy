@@ -245,7 +245,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Message create, status update, soft-delete, hard-delete, assignment, content edit, and basic reply-append workflows are covered by Slices 14, 65, 66, and 156 for the focused patient-message lifecycle; full portal reply threading, attachments, routing queues, notification delivery, and richer task assignment remain deferred.
+- Message create, status update, soft-delete, hard-delete, assignment, content edit, basic reply-append, and portal metadata readiness workflows are covered by Slices 14, 65, 66, 156, and 157 for the focused patient-message lifecycle; full portal reply threading, attachments, routing queues, notification delivery, and richer task assignment remain deferred.
 
 ### Slice 6: Labs And Procedure Results
 
@@ -1281,6 +1281,33 @@ Acceptance:
 Current limitations:
 
 - This slice proves focused same-message reply body appending only. It does not implement full portal thread objects, separate inbound/outbound message records, patient-authored portal replies, attachments, read receipts, notification delivery, routing queues, or audit history.
+
+### Slice 157: Patient Message Portal Metadata Readiness
+
+Status:
+
+- Implemented as a read-only modernized patient-message metadata slice under `modernized-openemr/`.
+- Verification is the shared `slice-157-message-portal-metadata-readiness` plan, which validates legacy `pnotes.portal_relation` and `pnotes.is_msg_encrypted` facts against modernized PostgreSQL message metadata and modernized Messages card rendering.
+
+Scope:
+
+- The shared gold dataset now assigns patient messages to `admin`, sets deterministic `portal:{canonicalId}` relations on seeded `Portal message` rows, and keeps `isEncrypted` false because seeded bodies remain plaintext.
+- The legacy seed maps those facts to `pnotes.assigned_to`, `pnotes.portal_relation`, and `pnotes.is_msg_encrypted`; the modernized seed maps the same facts to `messages.assigned_to`, `messages.portal_relation`, and `messages.is_encrypted`.
+- ASP.NET Core patient-message responses now expose `portalRelation` and `isEncrypted`.
+- React Messages cards now render compact portal-relation and plaintext/encrypted metadata chips.
+- The `message-portal-metadata` parity suite and `slice-157-message-portal-metadata-readiness` plan verify seeded database facts on both targets and modernized UI metadata rendering for `MOD-PAT-0004`.
+- Workbench-managed Slice 157 message portal metadata plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The seeded `MOD-PAT-0004` `Portal message` has portal relation `portal:MOD-PAT-0004` and `isEncrypted = false` on both targets.
+- The seeded `Care team follow-up` message has no portal relation and `isEncrypted = false`.
+- The modernized Messages workspace renders `Portal relation portal:MOD-PAT-0004` and `Plain text message`.
+- The side-by-side Slice 157 parity comparison matches.
+
+Current limitations:
+
+- This slice preserves and renders portal metadata only. It does not implement encrypted body storage, full portal thread objects, patient-authored portal replies, attachments, notification delivery, routing queues, read receipts, or audit history.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4373,3 +4400,4 @@ As of 2026-06-20:
 - The one-hundred-fifty-fourth modernized vertical slice implements procedure report reopen review readiness with a modernized reopen endpoint, Procedures report-card `Reopen Review` action, normalized legacy/modernized signed-to-received queue probes, Workbench reopen review plan actions, cleanup deletion, and side-by-side slice-154 parity evidence.
 - The one-hundred-fifty-fifth project slice implements Workbench comparison report links by enriching side-by-side comparison drill-ins with direct run JSON, Playwright JSON, JUnit XML, and HTML report links through the safe artifact endpoint.
 - The one-hundred-fifty-sixth modernized vertical slice implements patient message reply readiness with an ASP.NET Core reply endpoint, React Messages reply controls, normalized legacy/modernized pnotes reply append workflow actions, Workbench message reply plan actions, smoke coverage, and side-by-side slice-156 parity evidence.
+- The one-hundred-fifty-seventh modernized vertical slice implements patient message portal metadata readiness with shared gold-data `portal_relation`/`is_msg_encrypted` facts, modernized PostgreSQL/API/UI metadata rendering, Workbench message portal metadata plan actions, smoke coverage, and side-by-side slice-157 parity evidence.

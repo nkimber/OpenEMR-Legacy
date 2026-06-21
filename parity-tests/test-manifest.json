@@ -816,6 +816,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-157-message-portal-metadata-readiness",
+      "name": "Slice 157 Message Portal Metadata Readiness",
+      "description": "Read-only patient-message confidence plan that verifies pnotes portal relation and encryption metadata and renders the modernized message card metadata.",
+      "suites": ["message-portal-metadata"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-157", "messages", "pnotes", "portal", "metadata", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-67-encounter-documents-readiness",
       "name": "Slice 67 Encounter Documents Readiness",
       "description": "Read-only encounter document confidence plan that verifies documents attached to a shared encounter anchor and renders them on the modernized encounter detail surface.",
@@ -2422,6 +2431,16 @@
       "tags": ["slice156", "workflow", "mutation", "messages", "pnotes", "reply", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
+    },
+    {
+      "id": "message-portal-metadata",
+      "name": "Patient Message Portal Metadata",
+      "description": "Verifies seeded pnotes portal relation and encryption flags and renders the metadata in the modernized message card.",
+      "layer": "workflow",
+      "path": "tests/message-portal-metadata",
+      "tags": ["slice157", "workflow", "read-only", "messages", "pnotes", "portal", "metadata", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
     },
     {
       "id": "workflow-documents",

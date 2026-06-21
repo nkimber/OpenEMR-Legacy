@@ -114,6 +114,8 @@ export type PatientMessageSummary = {
   body: string;
   status: string;
   date: string;
+  portalRelation: string;
+  isEncrypted: boolean;
 };
 
 export type PatientMessagesSummary = {
@@ -1280,6 +1282,8 @@ ORDER BY i.administered_date DESC, i.id;
   async getPatientMessagesForPatient(pid: number): Promise<PatientMessagesSummary> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT pn.title, pn.body, COALESCE(pn.message_status, '') AS status, DATE(pn.date) AS date,
+  COALESCE(pn.portal_relation, '') AS portalRelation,
+  COALESCE(pn.is_msg_encrypted, 0) AS isEncrypted,
   pd.allow_patient_portal AS portalEnabled
 FROM pnotes pn
 INNER JOIN patient_data pd ON pd.pid = pn.pid
@@ -1294,7 +1298,9 @@ ORDER BY pn.date DESC, pn.id DESC;
         title: row.title,
         body: row.body,
         status: row.status,
-        date: row.date
+        date: row.date,
+        portalRelation: row.portalRelation,
+        isEncrypted: row.isEncrypted === "1"
       }))
     };
   }

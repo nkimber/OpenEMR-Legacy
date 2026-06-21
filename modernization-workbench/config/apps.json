@@ -117,6 +117,7 @@
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
         "parityMessageReplyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-156-message-reply-readiness", "-Reset", "test"],
+        "parityMessagePortalMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-157-message-portal-metadata-readiness", "-Reset", "run"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
@@ -1138,6 +1139,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-156-message-reply-readiness.json"
         },
         {
+          "id": "parity-plan-message-portal-metadata",
+          "name": "Slice 157 message portal metadata plan",
+          "description": "Runs the shared read-only patient-message portal metadata plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessagePortalMetadataPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-157-message-portal-metadata-readiness.json"
+        },
+        {
           "id": "parity-plan-encounter-documents",
           "name": "Slice 67 encounter documents plan",
           "description": "Runs the shared read-only encounter document attachment plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1591,6 +1600,7 @@
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
         "parityMessageReplyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-156-message-reply-readiness", "-Reset", "test"],
+        "parityMessagePortalMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-157-message-portal-metadata-readiness", "-Reset", "run"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
@@ -2536,6 +2546,14 @@
           "layer": "plan",
           "commandName": "parityMessageReplyPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-156-message-reply-readiness.json"
+        },
+        {
+          "id": "parity-plan-message-portal-metadata",
+          "name": "Slice 157 message portal metadata plan",
+          "description": "Runs the shared read-only patient-message portal metadata plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessagePortalMetadataPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-157-message-portal-metadata-readiness.json"
         },
         {
           "id": "parity-plan-encounter-documents",
