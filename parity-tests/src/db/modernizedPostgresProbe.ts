@@ -1336,7 +1336,9 @@ LIMIT 8;
   async getLatestProcedureOrderForPatient(pid: number): Promise<ProcedureOrderSummary | null> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter AS "encounterId", order_date AS "dateOrdered",
-  order_status AS "orderStatus", code AS "procedureCode", name AS "procedureName", COALESCE(diagnosis, '') AS diagnosis
+  order_status AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
+  code AS "procedureCode", name AS "procedureName", COALESCE(procedure_type, '') AS "procedureType",
+  COALESCE(diagnosis, '') AS diagnosis, COALESCE(instructions, '') AS instructions
 FROM lab_orders
 WHERE pid = ${pid}
 ORDER BY order_date DESC, id DESC
@@ -1352,17 +1354,21 @@ LIMIT 1;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      diagnosis: row.diagnosis
+      procedureType: row.procedureType,
+      diagnosis: row.diagnosis,
+      instructions: row.instructions
     };
   }
 
   async getFutureScheduledProcedureOrderForPatient(pid: number, afterDate: string): Promise<ProcedureOrderSummary | null> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT lo.id, lo.pid AS "patientId", lo.encounter AS "encounterId", lo.order_date AS "dateOrdered",
-  lo.order_status AS "orderStatus", lo.code AS "procedureCode", lo.name AS "procedureName",
-  COALESCE(lo.diagnosis, '') AS diagnosis
+  lo.order_status AS "orderStatus", COALESCE(lo.order_priority, '') AS "orderPriority",
+  lo.code AS "procedureCode", lo.name AS "procedureName", COALESCE(lo.procedure_type, '') AS "procedureType",
+  COALESCE(lo.diagnosis, '') AS diagnosis, COALESCE(lo.instructions, '') AS instructions
 FROM lab_orders lo
 LEFT JOIN lab_reports lr ON lr.order_id = lo.id
 WHERE lo.pid = ${pid}
@@ -1382,16 +1388,21 @@ LIMIT 1;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      diagnosis: row.diagnosis
+      procedureType: row.procedureType,
+      diagnosis: row.diagnosis,
+      instructions: row.instructions
     };
   }
 
   async getProcedureResultsForPatient(pid: number): Promise<ProcedureResultsSummary> {
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter AS "encounterId", order_date AS "dateOrdered",
-  order_status AS "orderStatus", code AS "procedureCode", name AS "procedureName", COALESCE(diagnosis, '') AS diagnosis
+  order_status AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
+  code AS "procedureCode", name AS "procedureName", COALESCE(procedure_type, '') AS "procedureType",
+  COALESCE(diagnosis, '') AS diagnosis, COALESCE(instructions, '') AS instructions
 FROM lab_orders
 WHERE pid = ${pid}
 ORDER BY order_date DESC, id DESC;
@@ -1402,9 +1413,12 @@ ORDER BY order_date DESC, id DESC;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
+      procedureType: row.procedureType,
       diagnosis: row.diagnosis,
+      instructions: row.instructions,
       specimens: [],
       reports: []
     }));

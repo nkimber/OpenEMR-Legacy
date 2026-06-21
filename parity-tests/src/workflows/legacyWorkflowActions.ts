@@ -333,11 +333,14 @@ export type ProcedureOrderRecord = {
   id: number;
   patientId: number;
   encounterId: number;
+  dateOrdered: string;
   orderStatus: string;
   orderPriority: string;
   procedureCode: string;
   procedureName: string;
   procedureType: string;
+  diagnosis: string;
+  instructions: string;
 };
 
 export type ProcedureReportRecord = {
@@ -774,6 +777,17 @@ export type NewProcedureOrder = {
   patientId: number;
   providerId: number;
   encounterId: number;
+  dateOrdered: string;
+  priority: string;
+  status: string;
+  procedureCode: string;
+  procedureName: string;
+  procedureType: string;
+  diagnosis: string;
+  instructions: string;
+};
+
+export type ProcedureOrderUpdate = {
   dateOrdered: string;
   priority: string;
   status: string;
@@ -2887,7 +2901,9 @@ VALUES
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
+  DATE(po.date_ordered) AS dateOrdered,
   po.order_status AS orderStatus, po.order_priority AS orderPriority,
+  po.order_diagnosis AS diagnosis, po.patient_instructions AS instructions,
   poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName, poc.procedure_type AS procedureType
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
@@ -2902,12 +2918,36 @@ LIMIT 1;
       id: Number(row.id),
       patientId: Number(row.patientId),
       encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
       orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      procedureType: row.procedureType
+      procedureType: row.procedureType,
+      diagnosis: row.diagnosis,
+      instructions: row.instructions
     };
+  }
+
+  async updateProcedureOrder(id: number, input: ProcedureOrderUpdate): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_order
+SET date_ordered = ${sqlString(input.dateOrdered)},
+    order_priority = ${sqlString(input.priority)},
+    order_status = ${sqlString(input.status)},
+    patient_instructions = ${sqlString(input.instructions)},
+    order_diagnosis = ${sqlString(input.diagnosis)}
+WHERE procedure_order_id = ${integer(id)};
+
+UPDATE procedure_order_code
+SET procedure_code = ${sqlString(input.procedureCode)},
+    procedure_name = ${sqlString(input.procedureName)},
+    diagnoses = ${sqlString(input.diagnosis)},
+    procedure_order_title = ${sqlString(input.procedureName)},
+    procedure_type = ${sqlString(input.procedureType)}
+WHERE procedure_order_id = ${integer(id)}
+  AND procedure_order_seq = 1;
+`);
   }
 
   async updateProcedureOrderStatus(id: number, status: string): Promise<void> {

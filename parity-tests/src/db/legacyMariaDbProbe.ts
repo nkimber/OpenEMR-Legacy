@@ -713,9 +713,12 @@ export type ProcedureOrderSummary = {
   encounterId: number;
   dateOrdered: string;
   orderStatus: string;
+  orderPriority: string;
   procedureCode: string;
   procedureName: string;
+  procedureType: string;
   diagnosis: string;
+  instructions: string;
 };
 
 export type ProcedureResultSummary = {
@@ -2089,8 +2092,11 @@ LIMIT 8;
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  COALESCE(po.order_priority, '') AS orderPriority,
   poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
-  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
+  COALESCE(poc.procedure_type, '') AS procedureType,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis,
+  COALESCE(po.patient_instructions, '') AS instructions
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 WHERE po.patient_id = ${pid}
@@ -2107,9 +2113,12 @@ LIMIT 1;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      diagnosis: normalizeDiagnosisCode(row.diagnosis)
+      procedureType: row.procedureType,
+      diagnosis: normalizeDiagnosisCode(row.diagnosis),
+      instructions: row.instructions
     };
   }
 
@@ -2117,8 +2126,11 @@ LIMIT 1;
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  COALESCE(po.order_priority, '') AS orderPriority,
   poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
-  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
+  COALESCE(poc.procedure_type, '') AS procedureType,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis,
+  COALESCE(po.patient_instructions, '') AS instructions
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 LEFT JOIN procedure_report pr ON pr.procedure_order_id = po.procedure_order_id
@@ -2139,9 +2151,12 @@ LIMIT 1;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      diagnosis: normalizeDiagnosisCode(row.diagnosis)
+      procedureType: row.procedureType,
+      diagnosis: normalizeDiagnosisCode(row.diagnosis),
+      instructions: row.instructions
     };
   }
 
@@ -2149,8 +2164,11 @@ LIMIT 1;
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id AS encounterId,
   DATE(po.date_ordered) AS dateOrdered, po.order_status AS orderStatus,
+  COALESCE(po.order_priority, '') AS orderPriority,
   poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName,
-  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis
+  COALESCE(poc.procedure_type, '') AS procedureType,
+  COALESCE(NULLIF(po.order_diagnosis, ''), COALESCE(poc.diagnoses, '')) AS diagnosis,
+  COALESCE(po.patient_instructions, '') AS instructions
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
 WHERE po.patient_id = ${pid}
@@ -2162,9 +2180,12 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
       encounterId: Number(row.encounterId),
       dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
+      orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
+      procedureType: row.procedureType,
       diagnosis: normalizeDiagnosisCode(row.diagnosis),
+      instructions: row.instructions,
       specimens: [],
       reports: []
     }));

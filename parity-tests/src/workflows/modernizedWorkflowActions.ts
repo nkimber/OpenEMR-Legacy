@@ -60,6 +60,7 @@ import type {
   MedicationRecord,
   ProblemRecord,
   ProcedureOrderRecord,
+  ProcedureOrderUpdate,
   ProcedureReportRecord,
   ProcedureResultRecord,
   ProcedureSpecimenRecord,
@@ -2108,10 +2109,11 @@ LIMIT 1;
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT id, pid AS "patientId", encounter AS "encounterId",
+SELECT id, pid AS "patientId", encounter AS "encounterId", order_date::date AS "dateOrdered",
   COALESCE(order_status, '') AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
   COALESCE(code, '') AS "procedureCode", COALESCE(name, '') AS "procedureName",
-  COALESCE(procedure_type, '') AS "procedureType"
+  COALESCE(procedure_type, '') AS "procedureType", COALESCE(diagnosis, '') AS diagnosis,
+  COALESCE(instructions, '') AS instructions
 FROM lab_orders
 WHERE id = ${integer(id)}
 LIMIT 1;
@@ -2125,12 +2127,36 @@ LIMIT 1;
       id: Number(row.id),
       patientId: Number(row.patientId),
       encounterId: Number(row.encounterId),
+      dateOrdered: row.dateOrdered,
       orderStatus: row.orderStatus,
       orderPriority: row.orderPriority,
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
-      procedureType: row.procedureType
+      procedureType: row.procedureType,
+      diagnosis: row.diagnosis,
+      instructions: row.instructions
     };
+  }
+
+  async updateProcedureOrder(id: number, input: ProcedureOrderUpdate): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        dateOrdered: input.dateOrdered,
+        priority: input.priority,
+        status: input.status,
+        procedureCode: input.procedureCode,
+        procedureName: input.procedureName,
+        procedureType: input.procedureType,
+        diagnosis: input.diagnosis,
+        instructions: input.instructions
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order update failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async updateProcedureOrderStatus(id: number, status: string): Promise<void> {
