@@ -8398,6 +8398,50 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 155. Workbench Artifact Links Slice 125
+
+Commit: `3d29d336`
+Started: `2026-06-21T03:31:00.0000000-04:00`
+Finished: `2026-06-21T03:37:09.7851440-04:00`
+
+Implemented the one-hundred-twenty-fifth project slice: safe Workbench artifact links, focused on opening comparison and run JSON evidence directly from Test Runs drill-ins.
+
+Code changes:
+
+- Files changed: 3
+- Lines added: 110
+- Lines deleted: 7
+- Net lines: 103
+- Total churn: 117
+
+Key outcomes:
+
+- Added `/api/artifacts/file`, a read-only artifact endpoint restricted to known artifact roots under `parity-tests/artifacts/`, `legacy-openemr/artifacts/`, `modernized-openemr/artifacts/`, and `modernization-workbench/artifacts/`.
+- Added artifact path validation that rejects empty, null-byte, non-artifact, and directory paths.
+- Added icon links from Workbench comparison drill-ins to legacy run artifacts, modernized run artifacts, and comparison JSON artifacts.
+- Kept artifact paths ellipsized with stable icon hit targets in the Test Runs UI.
+- Updated Workbench architecture/progress metadata so the app reports Slice 125 artifact links.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `GET /api/artifacts/file` returned HTTP 200 and `application/json` for a real Slice 123 comparison artifact and parsed to `slice-123-encounter-document-revision-replace-readiness`.
+- `GET /api/artifacts/file` returned HTTP 403 for `documents/PROJECT_CONTEXT.md`, proving non-artifact paths are rejected.
+- Playwright browser verification opened the Workbench Test Runs page, expanded a comparison card, verified an `Open ... comparison JSON` link, opened the artifact in a new tab, and confirmed the JSON body included `selectionId` and a `slice-...` value.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -8406,4 +8450,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench comparison links from drill-ins to individual run artifacts, Playwright reports, screenshots, normalized probe detail, and historical trend charts.
+- Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.

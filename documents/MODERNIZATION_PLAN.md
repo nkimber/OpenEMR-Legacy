@@ -70,7 +70,7 @@ The implementation should not preserve legacy technical constraints:
 
 - Modernized OpenEMR becomes a managed application in `modernization-workbench/config/apps.json`.
 - Workbench can start, stop, restart, health-check, seed, and run tests for the modernized target.
-- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, and Slice 124 expandable drill-ins for run artifacts, selected suites, comparison JSON paths, artifact directories, and full difference lists; direct Playwright report/screenshot links and trend charts remain future work.
+- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, Slice 124 expandable drill-ins, and Slice 125 safe links to run/comparison artifact files; direct Playwright report/screenshot deep links, normalized probe views, and trend charts remain future work.
 
 ## Vertical Slice Strategy
 
@@ -3549,3 +3549,4 @@ As of 2026-06-20:
 - The one-hundred-twenty-second modernized vertical slice implements encounter document revision readiness with seeded encounter attachment current-version facts, revision timestamp/hash parity, modernized attachment-card revision rendering, smoke coverage, Workbench document revision plan actions, and side-by-side slice-122 parity evidence.
 - The one-hundred-twenty-third modernized vertical slice implements encounter document replacement revision readiness with a temporary encounter-attached document, replacement payload mutation, current revision hash/timestamp verification, modernized attachment-card/API rendering, cleanup deletion, Workbench replacement-revision plan actions, and side-by-side slice-123 parity evidence.
 - The one-hundred-twenty-fourth project slice implements Workbench comparison drill-ins on the Test Runs page, expanding comparison cards into legacy/modernized run artifact paths, comparison JSON and artifact-directory paths, selected suites, complete difference details, matched-state confirmation, responsive styling, and refreshed Workbench architecture/progress metadata.
+- The one-hundred-twenty-fifth project slice implements safe Workbench artifact links by adding a constrained `/api/artifacts/file` route for known artifact roots and icon links from comparison drill-ins to legacy run, modernized run, and comparison JSON artifacts.
