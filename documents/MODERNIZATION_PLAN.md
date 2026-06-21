@@ -1309,6 +1309,36 @@ Current limitations:
 
 - This slice preserves and renders portal metadata only. It does not implement encrypted body storage, full portal thread objects, patient-authored portal replies, attachments, notification delivery, routing queues, read receipts, or audit history.
 
+### Slice 158: Patient Message Update Metadata Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient-message metadata slice under `modernized-openemr/`.
+- Verification is the shared `slice-158-message-update-metadata-readiness` plan, which validates legacy `pnotes.update_by` / `pnotes.update_date` behavior against modernized PostgreSQL message metadata, API responses, and modernized Messages card rendering.
+
+Scope:
+
+- The modernized `messages` table now carries `updated_by` and `updated_at` fields equivalent to legacy `pnotes.update_by` and `pnotes.update_date`.
+- Patient-message create keeps update metadata blank, matching legacy pnotes insert behavior for newly created temporary messages.
+- Patient-message status, title/body, assignment, reply, and archive mutations now stamp `updated_by = 1` and `updated_at = now()` on the modernized side, matching the legacy workflow helper's OpenEMR-compatible pnotes update behavior.
+- ASP.NET Core patient-message responses now expose `updatedBy` and `updatedAt`.
+- React Messages cards now render the update user and timestamp after an edit while leaving untouched seeded messages visually unchanged.
+- The `workflow-message-update-metadata` parity suite and `slice-158-message-update-metadata-readiness` plan verify temporary message create/edit/update-metadata behavior on both targets, modernized UI rendering, cleanup, and side-by-side result matching.
+- Workbench-managed Slice 158 message update metadata plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary patient message can be created for `MOD-PAT-0004` with blank update metadata on both targets.
+- Editing the title/body stamps `updatedBy = 1` and a normalized timestamp on both targets without changing active message counts.
+- Legacy OpenEMR renders the edited temporary message through the patient notes surface.
+- The modernized Messages workspace can perform the edit through the visible `Save Edit` control and renders `Updated by user 1`.
+- The temporary message can still be archived and hard-deleted so the seeded 1,200-message baseline remains unchanged.
+- The side-by-side Slice 158 parity comparison matches.
+
+Current limitations:
+
+- This slice preserves the latest-update metadata only. It does not implement full historical audit rows, portal thread objects, encrypted body storage, patient-authored portal replies, attachments, notification delivery, routing queues, or read receipts.
+
 ### Slice 18: Administration Facility Mutation
 
 Status:
@@ -4401,3 +4431,4 @@ As of 2026-06-20:
 - The one-hundred-fifty-fifth project slice implements Workbench comparison report links by enriching side-by-side comparison drill-ins with direct run JSON, Playwright JSON, JUnit XML, and HTML report links through the safe artifact endpoint.
 - The one-hundred-fifty-sixth modernized vertical slice implements patient message reply readiness with an ASP.NET Core reply endpoint, React Messages reply controls, normalized legacy/modernized pnotes reply append workflow actions, Workbench message reply plan actions, smoke coverage, and side-by-side slice-156 parity evidence.
 - The one-hundred-fifty-seventh modernized vertical slice implements patient message portal metadata readiness with shared gold-data `portal_relation`/`is_msg_encrypted` facts, modernized PostgreSQL/API/UI metadata rendering, Workbench message portal metadata plan actions, smoke coverage, and side-by-side slice-157 parity evidence.
+- The one-hundred-fifty-eighth modernized vertical slice implements patient message update metadata readiness with modernized `messages.updated_by`/`updated_at`, ASP.NET Core update-stamping behavior, React Messages update metadata rendering, normalized legacy/modernized workflow probes, Workbench message update metadata plan actions, smoke coverage, and side-by-side slice-158 parity evidence.

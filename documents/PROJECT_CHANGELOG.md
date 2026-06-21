@@ -10445,6 +10445,72 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 188. Patient Message Update Metadata Readiness Slice 158
+
+Commit: `bfbaf5cb`
+Started: `2026-06-21T17:40:00.0000000-04:00`
+Finished: `2026-06-21T18:05:11.0000000-04:00`
+
+Implemented the one-hundred-fifty-eighth project slice and latest modernized OpenEMR workflow slice: patient message update metadata readiness, preserving pnotes-compatible latest-update metadata across modernized PostgreSQL, API responses, the modernized Messages UI, Workbench plan actions, smoke coverage, and side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 257
+- Lines deleted: 18
+- Net lines: +239
+- Total churn: 275
+
+Key outcomes:
+
+- Added `messages.updated_by` and `messages.updated_at` to the modernized PostgreSQL seed schema as direct counterparts to legacy `pnotes.update_by` and `pnotes.update_date`.
+- Kept newly created messages unstamped, matching legacy pnotes insert behavior for temporary message rows.
+- Stamped modernized message status, title/body, assignment, reply, and archive mutations with `updated_by = 1` and `updated_at = now()`.
+- Exposed `updatedBy` and `updatedAt` through the modernized patient-message API and React API types.
+- Rendered update user/timestamp metadata on modernized Messages cards after a mutation while leaving untouched seeded messages visually unchanged.
+- Added normalized legacy and modernized workflow/probe fields for message update metadata.
+- Added the `workflow-message-update-metadata` Playwright parity suite and `slice-158-message-update-metadata-readiness` plan.
+- Added Workbench-managed Slice 158 plan actions for both legacy and modernized targets.
+- Updated the modernized smoke script with a `patient message update metadata` check and advanced the messaging/portal progress estimate from 47% to 48%.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded the updated modernized message schema with 1,200 seeded messages.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-158-message-update-metadata-readiness -Reset test` passed: run `2026-06-21T214840-365Z-legacy-openemr-plan-slice-158-message-update-metadata-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-158-message-update-metadata-readiness -Reset test` passed: run `2026-06-21T214936-843Z-modernized-openemr-plan-slice-158-message-update-metadata-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-158-message-update-metadata-readiness` passed with comparison `2026-06-21T215015-548Z-legacy-openemr-vs-modernized-openemr-plan-slice-158-message-update-metadata-readiness`, `status: matched`, and no differences.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 129 checks, including `patient message update metadata`.
+- `npm run build` passed in `modernization-workbench/`.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/MessageRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/MessageDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-message-update-metadata/message-update-metadata.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
