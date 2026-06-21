@@ -214,7 +214,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, procedure order catalog seed/read behavior, and lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, procedure order catalog seed/read and focused lifecycle behavior, and lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -228,19 +228,19 @@
         },
         {
           "label": "Procedure order catalog",
-          "detail": "Permanent gold-data procedure order catalog rows, provider groups, orderable panel rows, and modernized Reports rendering are covered.",
-          "evidence": ["slice-145-procedure-order-catalog-readiness"]
+          "detail": "Permanent gold-data procedure order catalog rows, provider groups, orderable panel rows, modernized Reports rendering, and temporary catalog item create/update/deactivate/delete lifecycle behavior are covered.",
+          "evidence": ["slice-145-procedure-order-catalog-readiness", "slice-147-procedure-order-catalog-lifecycle-readiness"]
         }
       ],
       "outstanding": [
-        "Order catalog administration/mutation, compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "Vendor compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
         "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and role-specific authorization."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 58,
-      "estimateRationale": "Procedure lifecycle, review queues, providers, configuration, address-book linkage, and order catalog reads are covered; external lab operations remain."
+      "completionEstimatePercent": 60,
+      "estimateRationale": "Procedure lifecycle, review queues, providers, configuration, address-book linkage, and order catalog reads/lifecycle mutations are covered; external lab operations remain."
     },
     {
       "id": "admin-security-audit",

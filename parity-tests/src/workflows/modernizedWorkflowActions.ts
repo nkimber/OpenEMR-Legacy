@@ -38,6 +38,7 @@ import type {
   NewProblem,
   NewProcedureLabProvider,
   NewProcedureLabProviderAddressBookOrganization,
+  NewProcedureOrderCatalogItem,
   NewUser,
   NewPatientMessage,
   NewAppointment,
@@ -60,6 +61,7 @@ import type {
   PatientMessageRecord,
   PaymentPostingRecord,
   MedicationRecord,
+  ProcedureOrderCatalogItemRecord,
   ProblemRecord,
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
@@ -2271,6 +2273,108 @@ LIMIT 1;
     if (!response.ok && response.status !== 404) {
       throw new Error(`Modernized procedure lab provider address book delete failed with ${response.status}: ${await response.text()}`);
     }
+  }
+
+  async createProcedureOrderCatalogItem(input: NewProcedureOrderCatalogItem): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        parentId: input.parentId ?? null,
+        labId: input.labId ?? null,
+        name: input.name,
+        code: input.code ?? "",
+        itemType: input.itemType ?? "ord",
+        procedureTypeName: input.procedureTypeName ?? "laboratory",
+        description: input.description ?? "",
+        specimen: input.specimen ?? "",
+        standardCode: input.standardCode ?? "",
+        sequence: input.sequence ?? 0,
+        active: input.active ?? true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order catalog create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async updateProcedureOrderCatalogItem(id: number, input: NewProcedureOrderCatalogItem): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        parentId: input.parentId ?? null,
+        labId: input.labId ?? null,
+        name: input.name,
+        code: input.code ?? "",
+        itemType: input.itemType ?? "ord",
+        procedureTypeName: input.procedureTypeName ?? "laboratory",
+        description: input.description ?? "",
+        specimen: input.specimen ?? "",
+        standardCode: input.standardCode ?? "",
+        sequence: input.sequence ?? 0,
+        active: input.active ?? true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order catalog update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async deleteProcedureOrderCatalogItem(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized procedure order catalog delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getProcedureOrderCatalogItem(id: number): Promise<ProcedureOrderCatalogItemRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT loc.id,
+  COALESCE(loc.parent_id, 0) AS "parentId",
+  COALESCE(loc.lab_id, 0) AS "labId",
+  loc.name,
+  COALESCE(loc.code, '') AS code,
+  loc.item_type AS "itemType",
+  COALESCE(loc.procedure_type_name, '') AS "procedureTypeName",
+  COALESCE(loc.description, '') AS description,
+  COALESCE(loc.specimen, '') AS specimen,
+  COALESCE(loc.standard_code, '') AS "standardCode",
+  loc.seq AS sequence,
+  CASE WHEN loc.active THEN '1' ELSE '0' END AS active,
+  (SELECT COUNT(*) FROM lab_order_catalog child WHERE child.parent_id = loc.id) AS "childCount"
+FROM lab_order_catalog loc
+WHERE loc.id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      parentId: Number(row.parentId),
+      labId: Number(row.labId),
+      name: row.name,
+      code: row.code,
+      itemType: row.itemType,
+      procedureTypeName: row.procedureTypeName,
+      description: row.description,
+      specimen: row.specimen,
+      standardCode: row.standardCode,
+      sequence: Number(row.sequence),
+      active: row.active === "1",
+      childCount: Number(row.childCount)
+    };
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {

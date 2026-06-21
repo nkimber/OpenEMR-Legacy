@@ -141,6 +141,7 @@ param(
         "workflow-procedure-report-review-queue-provider-filters",
         "workflow-procedure-report-review-queue-lab-filters",
         "workflow-procedure-order-catalog",
+        "workflow-procedure-order-catalog-lifecycle",
         "workflow-procedure-lab-provider-catalog",
         "workflow-procedure-lab-provider-directory",
         "workflow-procedure-lab-provider-lifecycle",

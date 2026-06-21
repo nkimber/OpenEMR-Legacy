@@ -343,6 +343,36 @@ export type ProcedureOrderRecord = {
   instructions: string;
 };
 
+export type NewProcedureOrderCatalogItem = {
+  parentId?: number;
+  labId?: number;
+  name: string;
+  code?: string;
+  itemType?: string;
+  procedureTypeName?: string;
+  description?: string;
+  specimen?: string;
+  standardCode?: string;
+  sequence?: number;
+  active?: boolean;
+};
+
+export type ProcedureOrderCatalogItemRecord = {
+  id: number;
+  parentId: number;
+  labId: number;
+  name: string;
+  code: string;
+  itemType: string;
+  procedureTypeName: string;
+  description: string;
+  specimen: string;
+  standardCode: string;
+  sequence: number;
+  active: boolean;
+  childCount: number;
+};
+
 export type ProcedureReportRecord = {
   id: number;
   orderId: number;
@@ -3104,6 +3134,92 @@ SELECT LAST_INSERT_ID() AS id;
 DELETE FROM users
 WHERE id = ${integer(id)};
 `);
+  }
+
+  async createProcedureOrderCatalogItem(input: NewProcedureOrderCatalogItem): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO procedure_type
+  (parent, name, lab_id, procedure_code, procedure_type, procedure_type_name,
+   body_site, specimen, route_admin, laterality, description, units, \`range\`,
+   standard_code, related_code, seq, activity, notes)
+VALUES
+  (${integer(input.parentId ?? 0)}, ${sqlString(input.name)}, ${integer(input.labId ?? 0)},
+   ${sqlString(input.code ?? "")}, ${sqlString(input.itemType ?? "ord")},
+   ${sqlString(input.procedureTypeName ?? "laboratory")}, '', ${sqlString(input.specimen ?? "")},
+   '', '', ${sqlString(input.description ?? "")}, '', '', ${sqlString(input.standardCode ?? "")},
+   '', ${integer(input.sequence ?? 0)}, ${input.active === false ? 0 : 1}, '');
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async updateProcedureOrderCatalogItem(id: number, input: NewProcedureOrderCatalogItem): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_type
+SET parent = ${integer(input.parentId ?? 0)},
+    name = ${sqlString(input.name)},
+    lab_id = ${integer(input.labId ?? 0)},
+    procedure_code = ${sqlString(input.code ?? "")},
+    procedure_type = ${sqlString(input.itemType ?? "ord")},
+    procedure_type_name = ${sqlString(input.procedureTypeName ?? "laboratory")},
+    specimen = ${sqlString(input.specimen ?? "")},
+    description = ${sqlString(input.description ?? "")},
+    standard_code = ${sqlString(input.standardCode ?? "")},
+    seq = ${integer(input.sequence ?? 0)},
+    activity = ${input.active === false ? 0 : 1}
+WHERE procedure_type_id = ${integer(id)};
+`);
+  }
+
+  async deleteProcedureOrderCatalogItem(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE pt
+FROM procedure_type pt
+LEFT JOIN procedure_type child ON child.parent = pt.procedure_type_id
+WHERE pt.procedure_type_id = ${integer(id)}
+  AND child.procedure_type_id IS NULL;
+`);
+  }
+
+  async getProcedureOrderCatalogItem(id: number): Promise<ProcedureOrderCatalogItemRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pt.procedure_type_id AS id,
+  pt.parent AS parentId,
+  pt.lab_id AS labId,
+  pt.name,
+  pt.procedure_code AS code,
+  pt.procedure_type AS itemType,
+  COALESCE(pt.procedure_type_name, '') AS procedureTypeName,
+  pt.description,
+  pt.specimen,
+  pt.standard_code AS standardCode,
+  pt.seq AS sequence,
+  pt.activity AS active,
+  (SELECT COUNT(*) FROM procedure_type child WHERE child.parent = pt.procedure_type_id) AS childCount
+FROM procedure_type pt
+WHERE pt.procedure_type_id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      parentId: Number(row.parentId),
+      labId: Number(row.labId),
+      name: row.name,
+      code: row.code,
+      itemType: row.itemType,
+      procedureTypeName: row.procedureTypeName,
+      description: row.description,
+      specimen: row.specimen,
+      standardCode: row.standardCode,
+      sequence: Number(row.sequence),
+      active: row.active === "1",
+      childCount: Number(row.childCount)
+    };
   }
 
   private async getProcedureLabProviderAddressBookOrganizationName(id: number): Promise<string> {
