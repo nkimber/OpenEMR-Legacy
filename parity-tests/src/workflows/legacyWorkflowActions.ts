@@ -586,6 +586,12 @@ export type PatientDocumentContentReplacement = {
   content: string;
 };
 
+export type PatientDocumentBinaryContentReplacement = {
+  fileName: string;
+  mimetype: string;
+  contentBase64: string;
+};
+
 export type NewPrescription = {
   patientId: number;
   providerId: number;
@@ -2046,12 +2052,52 @@ WHERE id = ${integer(legacyId)} AND COALESCE(deleted, 0) = 0;
 `);
   }
 
+  async replacePatientDocumentBinaryContent(
+    id: number | string,
+    input: PatientDocumentBinaryContentReplacement
+  ): Promise<void> {
+    const legacyId = legacyInteger(id);
+    const contentBytes = Buffer.from(input.contentBase64, "base64");
+    if (contentBytes.length === 0) {
+      throw new Error("Replacement binary document content cannot be empty.");
+    }
+
+    const contentHex = contentBytes.toString("hex");
+    const pages = input.mimetype === "application/pdf" ? 1 : 0;
+
+    await this.db.execute(`
+UPDATE documents
+SET type = 'blob',
+    size = ${integer(contentBytes.length)},
+    date = NOW(),
+    mimetype = ${sqlString(input.mimetype)},
+    pages = ${integer(pages)},
+    revision = NOW(),
+    hash = SHA1(UNHEX(${sqlString(contentHex)})),
+    storagemethod = 0,
+    url = CASE
+      WHEN COALESCE(url, '') LIKE 'gold://documents/%' THEN CONCAT(SUBSTRING_INDEX(url, '/', 4), '/', ${sqlString(input.fileName)})
+      ELSE url
+    END,
+    document_data = UNHEX(${sqlString(contentHex)})
+WHERE id = ${integer(legacyId)} AND COALESCE(deleted, 0) = 0;
+`);
+  }
+
   async replaceEncounterDocumentContent(
     _encounter: number,
     id: number | string,
     input: PatientDocumentContentReplacement
   ): Promise<void> {
     await this.replacePatientDocumentContent(id, input);
+  }
+
+  async replaceEncounterDocumentBinaryContent(
+    _encounter: number,
+    id: number | string,
+    input: PatientDocumentBinaryContentReplacement
+  ): Promise<void> {
+    await this.replacePatientDocumentBinaryContent(id, input);
   }
 
   async softDeleteEncounterDocument(_encounter: number, id: number | string): Promise<void> {

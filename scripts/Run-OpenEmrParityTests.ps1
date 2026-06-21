@@ -93,6 +93,7 @@ param(
         "workflow-encounter-document-metadata",
         "workflow-encounter-document-move",
         "workflow-encounter-document-content-replace",
+        "workflow-encounter-document-binary-content-replace",
         "workflow-encounter-document-revision-replace",
         "workflow-encounter-document-archive",
         "workflow-encounter-document-lifecycle",

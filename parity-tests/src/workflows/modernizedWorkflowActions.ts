@@ -49,6 +49,7 @@ import type {
   NewVitals,
   PatientContact,
   PatientDemographics,
+  PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
@@ -1430,6 +1431,38 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized encounter document content replacement failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async replacePatientDocumentBinaryContent(id: number | string, input: PatientDocumentBinaryContentReplacement): Promise<void> {
+    const document = await this.getPatientDocument(id);
+    if (!document || !document.encounter) {
+      throw new Error(`Modernized patient document ${id} is not linked to an encounter for binary replacement.`);
+    }
+
+    await this.replaceEncounterDocumentBinaryContent(document.encounter, id, input);
+  }
+
+  async replaceEncounterDocumentBinaryContent(
+    encounter: number,
+    id: number | string,
+    input: PatientDocumentBinaryContentReplacement
+  ): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/content/binary`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          fileName: input.fileName,
+          mimetype: input.mimetype,
+          contentBase64: input.contentBase64
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized encounter binary document content replacement failed with ${response.status}: ${await response.text()}`);
     }
   }
 
