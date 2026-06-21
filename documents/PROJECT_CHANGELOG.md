@@ -10095,20 +10095,21 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
-### 182. Workbench Weighted Progress Forecast Slice 154
+### 182. Workbench Weighted Progress Forecast Slice 152
 
 Commit: `8c7c5e64`
 Started: `2026-06-21T15:11:00.0000000-04:00`
 Finished: `2026-06-21T15:39:09.3667825-04:00`
+Duration: 28m 09s
 
-Implemented the one-hundred-fifty-fourth project slice and latest Workbench-specific slice: weighted overall modernization progress, committed progress history, and rough remaining-time forecasting on the Progress page.
+Implemented the one-hundred-fifty-second project slice and latest Workbench-specific slice: weighted overall modernization progress, committed progress history, and rough remaining-time forecasting on the Progress page.
 
 Code changes:
 
 - Files changed: 9
 - Lines added: 655
 - Lines deleted: 19
-- Net lines: 636
+- Net lines: +636
 - Total churn: 674
 
 Key outcomes:
@@ -10121,7 +10122,7 @@ Key outcomes:
 
 Verified test runs:
 
-- `Get-Content modernization-workbench\config\functionality-progress.json -Raw | ConvertFrom-Json` parsed version `0.3.0`, 11 areas, total scope weight `100`, simple average `53.2%`, and weighted completion `53.5%` before local in-flight Slice 152 bulk-signoff scope.
+- `Get-Content modernization-workbench\config\functionality-progress.json -Raw | ConvertFrom-Json` parsed version `0.3.0`, 11 areas, total scope weight `100`, simple average `53.2%`, and weighted completion `53.5%` before the subsequent Slice 153 bulk-signoff scope.
 - Live Workbench `/api/progress` smoke returned weighted completion, simple average, remaining percent, 17 committed progress history points, and rough active-time forecast fields.
 - `npm run typecheck` passed in `modernization-workbench/`.
 - `npm run build` passed in `modernization-workbench/`.
@@ -10139,12 +10140,76 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 183. Procedure Report Bulk Sign-Off Readiness Slice 153
+
+Commit: `66d88d52`
+Started: `2026-06-21T15:39:15.0000000-04:00`
+Finished: `2026-06-21T15:51:17.9569010-04:00`
+Duration: 12m 02s
+
+Implemented the one-hundred-fifty-third project slice and latest modernized OpenEMR workflow slice: procedure report bulk sign-off readiness, proving that two temporary unreviewed lab reports can be signed as `admin` in one operation, move together into reviewed queue state, render on both targets, and clean up.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 530
+- Lines deleted: 42
+- Net lines: +488
+- Total churn: 572
+
+Key outcomes:
+
+- Added `PUT /api/procedures/reports/bulk-sign` with request/response DTOs and repository logic that signs multiple unreviewed modernized lab reports while leaving already reviewed rows untouched.
+- Added the Reports workspace `Sign visible` action to bulk-sign the current unreviewed procedure report queue result set and refresh into reviewed queue state.
+- Added legacy and modernized workflow adapter bulk-sign actions so both targets can perform the same normalized reviewed-state transition.
+- Added the `workflow-procedure-report-bulk-signoff` Playwright parity suite and `slice-153-procedure-report-bulk-signoff-readiness` plan.
+- Added Workbench-managed Slice 153 plan actions for both targets, refreshed Labs And Procedures progress evidence, and synchronized the project context, modernization plan, test architecture, test data, Workbench, index, and legacy-baseline documents.
+- Corrected the durable document trail so the Workbench weighted progress forecast is Slice 152 and this procedure report bulk sign-off work is Slice 153.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check` passed with only Git line-ending warnings.
+- `docker compose up -d --build` passed for `modernized-openemr/`; `docker compose up -d` passed for `legacy-openemr/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-153-procedure-report-bulk-signoff-readiness -Reset test` passed: run `2026-06-21T194905-452Z-legacy-openemr-plan-slice-153-procedure-report-bulk-signoff-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-153-procedure-report-bulk-signoff-readiness -Reset test` passed: run `2026-06-21T194951-509Z-modernized-openemr-plan-slice-153-procedure-report-bulk-signoff-readiness`, 1 expected, 0 unexpected.
+- `npx tsx src/cli/compare-runs.ts --plan slice-153-procedure-report-bulk-signoff-readiness` passed with comparison `2026-06-21T195026-342Z-legacy-openemr-vs-modernized-openemr-plan-slice-153-procedure-report-bulk-signoff-readiness`, `status: matched`, and no differences.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-procedure-report-bulk-signoff/procedure-report-bulk-signoff.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
-- Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
+- Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy/history depth, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.
