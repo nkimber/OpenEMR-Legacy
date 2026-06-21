@@ -3692,6 +3692,23 @@ WHERE pr.procedure_report_id = ${integer(id)};
 `);
   }
 
+  async bulkSignProcedureReports(ids: number[], input: ProcedureReportSignOff): Promise<void> {
+    const reportIds = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
+    if (reportIds.length === 0) {
+      return;
+    }
+
+    await this.db.execute(`
+UPDATE procedure_report pr
+INNER JOIN users u ON u.username = ${sqlString(input.reviewedBy)}
+SET pr.review_status = 'reviewed',
+    pr.source = u.id,
+    pr.date_report = ${sqlString(input.reviewedAt)}
+WHERE pr.procedure_report_id IN (${reportIds.map((id) => integer(id)).join(", ")})
+  AND COALESCE(pr.review_status, '') <> 'reviewed';
+`);
+  }
+
   async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_specimen

@@ -228,7 +228,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, procedure order catalog seed/read/lifecycle/import behavior, and lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, procedure order catalog seed/read/lifecycle/import behavior, and lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -237,8 +237,8 @@
         },
         {
           "label": "Review queues and lab providers",
-          "detail": "Clinical order queue, order transmit readiness, report review queue, patient/date/provider/lab filters, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
-          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-149-procedure-order-queue-readiness", "slice-151-procedure-order-transmit-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness", "slice-144-procedure-lab-provider-address-book-readiness"]
+          "detail": "Clinical order queue, order transmit readiness, report review queue, patient/date/provider/lab filters, two-report bulk sign-off, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
+          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-149-procedure-order-queue-readiness", "slice-151-procedure-order-transmit-readiness", "slice-153-procedure-report-bulk-signoff-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness", "slice-144-procedure-lab-provider-address-book-readiness"]
         },
         {
           "label": "Procedure order catalog",
@@ -247,16 +247,16 @@
         }
       ],
       "outstanding": [
-        "Bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "Reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
         "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and role-specific authorization."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 63,
+      "completionEstimatePercent": 64,
       "estimatedScopeWeight": 12,
       "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
-      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, and focused vendor compendium import are covered; external lab operations remain."
+      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, and focused vendor compendium import are covered; external lab operations remain."
     },
     {
       "id": "admin-security-audit",

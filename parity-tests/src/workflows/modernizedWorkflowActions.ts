@@ -2594,6 +2594,22 @@ LIMIT 1;
     }
   }
 
+  async bulkSignProcedureReports(ids: number[], input: ProcedureReportSignOff): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/bulk-sign`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        reportIds: ids,
+        reviewedBy: input.reviewedBy,
+        reviewedAt: input.reviewedAt
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report bulk sign-off failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/specimens`, {
       method: "POST",

@@ -60,6 +60,7 @@
         "parityProcedureOrderCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-132-procedure-order-correction-readiness", "-Reset", "test"],
         "parityProcedureReportCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-133-procedure-report-correction-readiness", "-Reset", "test"],
         "parityProcedureReportSignoffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-134-procedure-report-signoff-readiness", "-Reset", "test"],
+        "parityProcedureReportBulkSignoffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-153-procedure-report-bulk-signoff-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-135-procedure-report-review-queue-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueueFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-136-procedure-report-review-queue-filters-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueueProviderFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-137-procedure-report-review-queue-provider-filters-readiness", "-Reset", "test"],
@@ -677,6 +678,14 @@
           "layer": "plan",
           "commandName": "parityProcedureReportSignoffPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-134-procedure-report-signoff-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-report-bulk-signoff",
+          "name": "Slice 153 procedure report bulk sign-off plan",
+          "description": "Runs the shared two-report bulk sign-off plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureReportBulkSignoffPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-153-procedure-report-bulk-signoff-readiness.json"
         },
         {
           "id": "parity-plan-procedure-report-review-queue",
@@ -1507,6 +1516,7 @@
         "parityProcedureOrderCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-132-procedure-order-correction-readiness", "-Reset", "test"],
         "parityProcedureReportCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-133-procedure-report-correction-readiness", "-Reset", "test"],
         "parityProcedureReportSignoffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-134-procedure-report-signoff-readiness", "-Reset", "test"],
+        "parityProcedureReportBulkSignoffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-153-procedure-report-bulk-signoff-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-135-procedure-report-review-queue-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueueFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-136-procedure-report-review-queue-filters-readiness", "-Reset", "test"],
         "parityProcedureReportReviewQueueProviderFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-137-procedure-report-review-queue-provider-filters-readiness", "-Reset", "test"],
@@ -2050,6 +2060,14 @@
           "layer": "plan",
           "commandName": "parityProcedureReportSignoffPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-134-procedure-report-signoff-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-report-bulk-signoff",
+          "name": "Slice 153 procedure report bulk sign-off plan",
+          "description": "Runs the shared two-report bulk sign-off plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureReportBulkSignoffPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-153-procedure-report-bulk-signoff-readiness.json"
         },
         {
           "id": "parity-plan-procedure-report-review-queue",

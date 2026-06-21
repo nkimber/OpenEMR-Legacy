@@ -776,7 +776,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused report review queue visibility and queue-state transition only. It does not implement reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused report review queue visibility and queue-state transition only. Procedure report bulk sign-off is covered by Slice 153. It does not implement reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 136: Procedure Report Review Queue Filters Readiness
 
@@ -806,7 +806,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused patient/date filtering for the report review queue only. Provider filtering is covered by Slice 137. It does not implement saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused patient/date filtering for the report review queue only. Provider filtering is covered by Slice 137, and procedure report bulk sign-off is covered by Slice 153. It does not implement saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 137: Procedure Report Review Queue Provider Filters Readiness
 
@@ -836,7 +836,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused provider filtering for the report review queue only. Lab filtering through `form_lab_search` / `procedure_order.lab_id` is covered by Slice 138. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused provider filtering for the report review queue only. Lab filtering through `form_lab_search` / `procedure_order.lab_id` is covered by Slice 138, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 138: Procedure Report Review Queue Lab Filters Readiness
 
@@ -866,7 +866,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs are covered by Slice 139. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs are covered by Slice 139, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 139: Procedure Lab Provider Catalog Readiness
 
@@ -896,7 +896,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice makes the lab-provider catalog permanent in the gold dataset. Directory-level lab-provider list behavior is covered by Slice 140. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice makes the lab-provider catalog permanent in the gold dataset. Directory-level lab-provider list behavior is covered by Slice 140, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 140: Procedure Lab Provider Directory Readiness
 
@@ -1146,7 +1146,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers clinical order queue visibility and queue-state transition into reported status only. Procedure order transmit readiness is covered by Slice 151. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, bulk report sign-off, or audit export.
+- This slice covers clinical order queue visibility and queue-state transition into reported status only. Procedure order transmit readiness is covered by Slice 151 and procedure report bulk sign-off is covered by Slice 153. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, or audit export.
 
 ### Slice 151: Procedure Order Transmit Readiness
 
@@ -1172,7 +1172,34 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves the OpenEMR-compatible `date_transmitted` state transition only. It does not generate HL7 payloads, write outbound files, call SFTP/filesystem/web-service transports, model external lab acknowledgements, implement retry/failure queues, queue notifications, reviewer assignment, bulk transmit, bulk report sign-off, or audit export.
+- This slice proves the OpenEMR-compatible `date_transmitted` state transition only. Procedure report bulk sign-off is covered by Slice 153. It does not generate HL7 payloads, write outbound files, call SFTP/filesystem/web-service transports, model external lab acknowledgements, implement retry/failure queues, queue notifications, reviewer assignment, bulk transmit, or audit export.
+
+### Slice 153: Procedure Report Bulk Sign-Off Readiness
+
+Status:
+
+- Implemented.
+
+Scope:
+
+- The modernized procedures API exposes `PUT /api/procedures/reports/bulk-sign` for signing multiple unreviewed procedure reports in one request while preserving reviewed reports that were already signed.
+- The modernized Reports workspace Procedure Report Review Queue panel adds a compact `Sign visible` action for the current unreviewed queue result set and refreshes into reviewed queue state.
+- Legacy and modernized workflow adapters can bulk-sign a shared set of temporary procedure reports with normalized reviewer/timestamp facts.
+- The shared `workflow-procedure-report-bulk-signoff` suite and `slice-153-procedure-report-bulk-signoff-readiness` plan create two temporary unreviewed lab reports for `MOD-PAT-0009`, sign both in one operation, verify reviewed queue membership, and clean up.
+- Workbench-managed Slice 153 procedure report bulk sign-off plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Two temporary unreviewed lab reports appear in the unreviewed procedure report queue on both targets with matching patient, order, report, specimen, status, and notes facts.
+- A single bulk sign operation marks both reports reviewed as `admin` at `2026-06-21 11:25:00`.
+- The reports disappear from the unreviewed queue and appear in the reviewed queue on both targets with normalized `2026-06-21 11:25` review time.
+- Legacy OpenEMR `interface/orders/list_reports.php` renders the reviewed reports through option `2`, while the modernized Reports workspace renders the same reports through the reviewed queue filter.
+- Cleanup deletes both temporary procedure order trees and the temporary encounter, returning patient workflow counts to their pre-test values.
+- The side-by-side Slice 153 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused bulk report sign-off only. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4257,3 +4284,8 @@ As of 2026-06-20:
 - The one-hundred-forty-sixth project slice implements Workbench progress completion estimates with curated per-area completion percentages, rationale text, typed `/api/progress` support, aggregate estimated-complete rendering, and per-area meter cards on the Progress page.
 - The one-hundred-forty-seventh modernized vertical slice implements procedure order catalog lifecycle readiness with focused modernized catalog create/update/delete endpoints, Reports workspace catalog item controls, normalized legacy/modernized workflow actions, Workbench procedure order catalog lifecycle plan actions, cleanup deletion, and side-by-side slice-147 parity evidence.
 - The one-hundred-forty-eighth modernized vertical slice implements procedure vendor compendium import readiness with a focused modernized import endpoint, Reports workspace compendium import controls, normalized legacy/modernized import workflow actions, temporary catalog subtree cleanup, Workbench vendor compendium import plan actions, and side-by-side slice-148 parity evidence.
+- The one-hundred-forty-ninth modernized vertical slice implements procedure order queue readiness with temporary reportless order queue membership, reported queue transition after report attachment, modernized Reports order queue rendering, normalized legacy/modernized queue probes, Workbench procedure order queue plan actions, cleanup deletion, and side-by-side slice-149 parity evidence.
+- The one-hundred-fiftieth project slice implements Workbench Architecture source inventory statistics with generated file/line/schema-signal snapshots for the legacy baseline, Workbench, and modernized target.
+- The one-hundred-fifty-first modernized vertical slice implements procedure order transmit readiness with OpenEMR-compatible `date_transmitted` state, a modernized transmit endpoint and Reports queue action, normalized legacy/modernized transmitted-pending queue probes, Workbench procedure order transmit plan actions, cleanup deletion, and side-by-side slice-151 parity evidence.
+- The one-hundred-fifty-second project slice implements Workbench weighted progress analytics with area scope weights, weighted overall completion, Git-backed committed progress history, and rough active-time forecasting.
+- The one-hundred-fifty-third modernized vertical slice implements procedure report bulk sign-off readiness with a bulk report sign endpoint, Reports queue `Sign visible` action, normalized legacy/modernized two-report bulk review probes, Workbench bulk sign-off plan actions, cleanup deletion, and side-by-side slice-153 parity evidence.
