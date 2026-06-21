@@ -369,6 +369,8 @@ Slice 128 adds patient binary document content replacement coverage by creating 
 
 Slice 129 adds procedure result correction coverage by creating a temporary encounter, lab order, report, and result for `MOD-PAT-0009`, correcting the same result row in place to a `118` value with `70-110` range, `borderline` abnormal flag, and `corrected` status, verifying legacy and modernized database/API/UI facts, and deleting the temporary order tree and encounter so procedure and encounter counts return to baseline. The parity workflow uses compact temporary external IDs so the same fixture shape works against legacy OpenEMR field lengths and the modernized PostgreSQL schema.
 
+Slice 130 adds procedure specimen coverage by extending the modernized gold seed projection with report collected date and specimen number, then creating a temporary `MOD-PAT-0009` encounter, lab order, report, and result with a compact `SPC*` specimen number. The shared plan verifies report collected date, report date, specimen number, status, review status, browser-visible specimen rendering, and result linkage on both targets, then deletes the temporary order tree and encounter so procedure and encounter counts return to baseline.
+
 The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation anchor. The plan creates a temporary encounter on `2026-06-18`, records vitals, records a SOAP note, verifies encounter/vitals/clinical-note counts increase, updates the encounter reason and billing note, verifies browser-visible updated reason, blood pressure, billing note, and SOAP assessment, deletes the temporary encounter and child rows, and verifies the counts return to the seeded baseline.
 
 ### Level 3: Extended Synthetic Population

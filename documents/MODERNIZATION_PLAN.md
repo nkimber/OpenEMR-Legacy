@@ -272,8 +272,8 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129.
-- Result correction, amendment/versioning, external lab integration, specimen handling, order catalog management, review queues, and audit history remain deferred to later lab/procedure slices.
+- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129. Focused report collected-date/specimen-number readiness is covered by Slice 130.
+- Amendment/versioning, external lab integration, specimen chain-of-custody beyond collected date and specimen number, order catalog management, review queues, and audit history remain deferred to later lab/procedure slices.
 
 ### Slice 7: Billing And Fee Sheet
 
@@ -575,7 +575,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused lab procedure lifecycle only.
-- Amendment/versioning, external electronic lab interfaces, specimen collection/tracking, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129.
+- Amendment/versioning, external electronic lab interfaces, specimen chain-of-custody tracking beyond report collected date and specimen number, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129 and focused report specimen metadata is covered by Slice 130.
 
 ### Slice 129: Procedure Result Correction Readiness
 
@@ -604,6 +604,35 @@ Acceptance:
 Current limitations:
 
 - This slice proves focused in-place correction only. It does not implement lab amendment history, prior-result versioning, HL7 inbound correction reconciliation, reviewer notification workflow, authorization policy, audit-log export, or order-to-charge conversion.
+
+### Slice 130: Procedure Specimen Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized lab/procedure report specimen metadata slice under `modernized-openemr/`.
+- Verification is the shared `slice-130-procedure-specimen-readiness` plan, which creates a temporary encounter/order/report/result with collected date and specimen number, validates database/API/UI state, and deletes the temporary procedure tree and encounter on both legacy and modernized targets.
+
+Scope:
+
+- The modernized PostgreSQL seed schema now stores `lab_reports.date_collected` and `lab_reports.specimen_number`, populated from the existing gold dataset report date and legacy-style `SP-{report id}` specimen number.
+- The procedure and encounter repositories now read report collected date and specimen number, and procedure report creation persists the submitted values.
+- The React Procedures workspace and Encounter procedure report cards render collected date and specimen number alongside report date, review status, status, and notes.
+- Legacy and modernized workflow/database probes now include collected date and specimen number for procedure reports.
+- The modernized smoke test procedure lifecycle checks now fail if report collected date or specimen number is missing from the API response.
+- Workbench-managed Slice 130 procedure specimen plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared plan creates a temporary lab workflow for `MOD-PAT-0009` with a deterministic compact specimen number and collected date.
+- The legacy Procedure Results screen renders the specimen number for the temporary report.
+- The modernized Procedures workspace renders both `Collected 2026-06-18 12:30` and the specimen number for the temporary report.
+- Normalized database probes on both targets report the same collected date, report date, specimen number, report status, review status, and result row.
+- Hard-delete cleanup restores procedure counts and removes the temporary encounter/order/report/result rows.
+- The side-by-side Slice 130 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused report-level collected date and specimen number parity only. It does not implement specimen container tracking, specimen source/body-site catalogs, chain-of-custody events, label printing, accessioning, external lab pickup, HL7 specimen reconciliation, or full specimen workflow audit history.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3670,3 +3699,4 @@ As of 2026-06-20:
 - The one-hundred-twenty-seventh modernized vertical slice implements encounter binary document content replacement readiness with an encounter-scoped binary replacement endpoint, React Encounters `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-127 parity evidence.
 - The one-hundred-twenty-eighth modernized vertical slice implements patient binary document content replacement readiness with a patient-document binary replacement endpoint, React Documents `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench patient binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-128 parity evidence.
 - The one-hundred-twenty-ninth modernized vertical slice implements procedure result correction readiness with a focused result update endpoint, React Procedures and Encounter correction controls, normalized legacy/modernized result probes, Workbench procedure result correction plan actions, smoke coverage, cleanup deletion, and side-by-side slice-129 parity evidence.
+- The one-hundred-thirtieth modernized vertical slice implements procedure specimen readiness with report collected date/specimen number columns, API/DTO propagation, React Procedures and Encounter report rendering, normalized legacy/modernized specimen probes, Workbench procedure specimen plan actions, smoke coverage, cleanup deletion, and side-by-side slice-130 parity evidence.
