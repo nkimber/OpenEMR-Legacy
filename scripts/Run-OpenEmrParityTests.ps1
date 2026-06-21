@@ -74,6 +74,7 @@ param(
         "workflow-appointment-provider-overlap",
         "workflow-appointment-patient-overlap",
         "workflow-appointment-room-overlap",
+        "workflow-appointment-reminders",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",

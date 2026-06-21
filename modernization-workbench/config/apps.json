@@ -149,7 +149,8 @@
         "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"],
         "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"],
         "parityAppointmentPatientOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-118-appointment-patient-overlap-readiness", "-Reset", "test"],
-        "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"]
+        "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"],
+        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -546,6 +547,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentRoomOverlapPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-119-appointment-room-overlap-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminders",
+          "name": "Slice 120 appointment reminders plan",
+          "description": "Runs the shared appointment reminder readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentRemindersPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-120-appointment-reminders-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1351,7 +1360,8 @@
         "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"],
         "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"],
         "parityAppointmentPatientOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-118-appointment-patient-overlap-readiness", "-Reset", "test"],
-        "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"]
+        "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"],
+        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1676,6 +1686,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentRoomOverlapPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-119-appointment-room-overlap-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminders",
+          "name": "Slice 120 appointment reminders plan",
+          "description": "Runs the shared appointment reminder readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentRemindersPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-120-appointment-reminders-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
