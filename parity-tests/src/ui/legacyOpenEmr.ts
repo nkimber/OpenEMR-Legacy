@@ -108,7 +108,8 @@ export async function openProcedureReportReviewQueueDirect(
   fromDate: string,
   toDate: string,
   reviewOption: "2" | "3",
-  providerId?: number | string
+  providerId?: number | string,
+  labId?: number | string
 ) {
   await openPatientSummaryDirect(page, target, pid);
   await page.goto(`${target.publicUrl}/interface/orders/list_reports.php`);
@@ -119,6 +120,9 @@ export async function openProcedureReportReviewQueueDirect(
   await page.locator('select[name="form_reviewed"]').selectOption(reviewOption);
   if (providerId !== undefined) {
     await page.locator('select[name="form_provider"]').selectOption(String(providerId));
+  }
+  if (labId !== undefined) {
+    await page.locator('select[name="form_lab_search"]').selectOption(String(labId));
   }
   await page.getByRole("button", { name: /Filter/i }).click();
   await expectRenderedText(page, /Procedure Orders and Reports/i);

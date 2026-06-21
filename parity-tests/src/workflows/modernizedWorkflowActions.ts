@@ -36,6 +36,7 @@ import type {
   NewPatientInsurance,
   NewPatientRegistration,
   NewProblem,
+  NewProcedureLabProvider,
   NewUser,
   NewPatientMessage,
   NewAppointment,
@@ -2089,6 +2090,7 @@ LIMIT 1;
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
+        labId: input.labId,
         encounterId: input.encounterId,
         dateOrdered: input.dateOrdered,
         priority: input.priority,
@@ -2107,6 +2109,28 @@ LIMIT 1;
 
     const mutation = (await response.json()) as { id: number };
     return mutation.id;
+  }
+
+  async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+WITH next_lab_provider AS (
+  SELECT COALESCE(MAX(id), 0) + 1 AS id
+  FROM lab_providers
+)
+INSERT INTO lab_providers (id, name, npi, active)
+SELECT id, ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, true
+FROM next_lab_provider
+RETURNING id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async deleteProcedureLabProvider(id: number): Promise<void> {
+    await this.db.queryRows<Record<string, string>>(`
+DELETE FROM lab_providers
+WHERE id = ${integer(id)}
+RETURNING id::text;
+`);
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {

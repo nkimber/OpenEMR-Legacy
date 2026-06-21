@@ -1566,6 +1566,7 @@ ORDER BY id;
     const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
     const patientFilter = filters.patientId?.trim();
     const providerFilter = filters.providerId === undefined || filters.providerId === null ? "" : String(filters.providerId).trim();
+    const labFilter = filters.labId === undefined || filters.labId === null ? "" : String(filters.labId).trim();
     const fromDate = filters.fromDate?.trim();
     const toDate = filters.toDate?.trim();
     const whereFilters = [
@@ -1573,6 +1574,7 @@ ORDER BY id;
         ? `AND (LOWER(p.canonical_id) = LOWER('${escapeSql(patientFilter)}') OR LOWER(p.pubpid) = LOWER('${escapeSql(patientFilter)}') OR p.legacy_pid::text = '${escapeSql(patientFilter)}')`
         : "",
       providerFilter && /^\d+$/u.test(providerFilter) ? `AND lo.provider_id = ${providerFilter}` : "",
+      labFilter && /^\d+$/u.test(labFilter) ? `AND lo.lab_id = ${labFilter}` : "",
       fromDate ? `AND lo.order_date >= '${escapeSql(fromDate)}'` : "",
       toDate ? `AND lo.order_date <= '${escapeSql(toDate)}'` : ""
     ].filter(Boolean).join("\n  ");
@@ -1597,6 +1599,8 @@ SELECT lr.id AS "reportId", lo.id AS "orderId", lo.pid AS "patientId",
   TRIM(CONCAT(p.last_name, ', ', p.first_name)) AS "patientDisplayName",
   lo.order_date AS "orderDate",
   COALESCE(lo.provider_id, 0) AS "providerId",
+  COALESCE(lo.lab_id, 0) AS "labId",
+  COALESCE(lp.name, '') AS "labName",
   COALESCE(lo.code, '') AS "procedureCode",
   COALESCE(lo.name, '') AS "procedureName",
   to_char(lr.report_date, 'YYYY-MM-DD HH24:MI') AS "reportDate",
@@ -1609,6 +1613,7 @@ SELECT lr.id AS "reportId", lo.id AS "orderId", lo.pid AS "patientId",
 FROM lab_reports lr
 INNER JOIN lab_orders lo ON lo.id = lr.order_id
 INNER JOIN patients p ON p.legacy_pid = lo.pid
+LEFT JOIN lab_providers lp ON lp.id = lo.lab_id
 WHERE 1 = 1
   ${whereFilters}
   ${whereStatus}
@@ -1621,6 +1626,7 @@ LIMIT 100;
       statusFilter,
       patientFilter: patientFilter ?? "",
       providerFilter,
+      labFilter,
       fromDate: fromDate ?? "",
       toDate: toDate ?? "",
       totalReports: Number(countRow.totalReports),
@@ -1634,6 +1640,8 @@ LIMIT 100;
         patientDisplayName: row.patientDisplayName,
         orderDate: row.orderDate,
         providerId: Number(row.providerId),
+        labId: Number(row.labId),
+        labName: row.labName,
         procedureCode: row.procedureCode,
         procedureName: row.procedureName,
         reportDate: row.reportDate,

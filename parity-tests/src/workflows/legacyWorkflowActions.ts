@@ -779,6 +779,7 @@ export type NewPaymentPosting = {
 export type NewProcedureOrder = {
   patientId: number;
   providerId: number;
+  labId?: number;
   encounterId: number;
   dateOrdered: string;
   priority: string;
@@ -788,6 +789,11 @@ export type NewProcedureOrder = {
   procedureType: string;
   diagnosis: string;
   instructions: string;
+};
+
+export type NewProcedureLabProvider = {
+  name: string;
+  npi?: string;
 };
 
 export type ProcedureOrderUpdate = {
@@ -2894,12 +2900,12 @@ WHERE session_id = ${legacyInteger(id)};
   async createProcedureOrder(input: NewProcedureOrder): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_order
-  (uuid, provider_id, patient_id, encounter_id, date_ordered, order_priority, order_status,
+  (uuid, provider_id, patient_id, encounter_id, lab_id, date_ordered, order_priority, order_status,
    patient_instructions, activity, control_id, specimen_type, clinical_hx, order_diagnosis,
    procedure_order_type, order_intent, location_id)
 VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.providerId)}, ${integer(input.patientId)}, ${integer(input.encounterId)},
-   ${sqlString(input.dateOrdered)}, ${sqlString(input.priority)}, ${sqlString(input.status)},
+   ${integer(input.labId ?? 0)}, ${sqlString(input.dateOrdered)}, ${sqlString(input.priority)}, ${sqlString(input.status)},
    ${sqlString(input.instructions)}, 1, ${sqlString(`PARITY-${Date.now()}`)}, 'blood',
    'Parity workflow clinical history', ${sqlString(input.diagnosis)}, 'laboratory_test', 'order', ${integer(input.providerId)});
 SELECT LAST_INSERT_ID() AS id;
@@ -2913,6 +2919,24 @@ VALUES
    ${sqlString(input.diagnosis)}, ${sqlString(input.procedureName)}, ${sqlString(input.procedureType)});
 `);
     return orderId;
+  }
+
+  async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO procedure_providers
+  (uuid, name, npi, active)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, 1);
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async deleteProcedureLabProvider(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM procedure_providers
+WHERE ppid = ${integer(id)};
+`);
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
