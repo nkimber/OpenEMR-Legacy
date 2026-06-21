@@ -348,6 +348,53 @@ export type ArchitectureDecision = {
   detail: string;
 };
 
+export type SourceInventoryTotals = {
+  files: number;
+  totalLines: number;
+  nonBlankLines: number;
+  blankLines: number;
+};
+
+export type SourceInventoryComponent = SourceInventoryTotals & {
+  id: string;
+  label: string;
+  layer: string;
+  description: string;
+  roots: string[];
+  extensions?: string[];
+  fileNames?: string[];
+  samplePaths: string[];
+  warnings: string[];
+};
+
+export type SourceInventoryMetric = {
+  id: string;
+  label: string;
+  detail: string;
+  value: number;
+  files: number;
+  warnings: string[];
+};
+
+export type SourceInventorySystem = {
+  systemId: string;
+  summary: string;
+  totals: SourceInventoryTotals;
+  components: SourceInventoryComponent[];
+  metrics: SourceInventoryMetric[];
+  warnings: string[];
+};
+
+export type SourceInventory = {
+  version: string;
+  lastUpdated: string;
+  generatedAt: string;
+  durationMs?: number;
+  method: string;
+  systems: SourceInventorySystem[];
+  warnings: string[];
+};
+
 export type ArchitectureSystemSummary = {
   id: string;
   name: string;
@@ -375,6 +422,7 @@ export type ArchitectureModel = {
   layers: ArchitectureLayer[];
   topology: ArchitectureDiagram;
   decisions: ArchitectureDecision[];
+  sourceInventory: SourceInventory;
 };
 
 export type ProgressSlice = {

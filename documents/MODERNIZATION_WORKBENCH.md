@@ -33,7 +33,7 @@ Workbench URLs:
 - UI: `http://127.0.0.1:5173`
 - API: `http://127.0.0.1:5174`
 
-The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, render recent side-by-side comparison artifacts with expandable drill-ins and safe artifact links, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline with timing and code-change metrics, and show architecture/progress views. The Progress page now renders both delivery milestone rows and a curated functionality progress ledger that separates completed, outstanding, and deferred project scope by domain area, with scope-adjusted completion estimates for each area. The Architecture page now presents a tabbed model with a versioned stack matrix, project topology map, architecture decisions, and per-system detail views for the legacy baseline, Workbench, and modernized target.
+The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, render recent side-by-side comparison artifacts with expandable drill-ins and safe artifact links, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline with timing and code-change metrics, and show architecture/progress views. The Progress page now renders both delivery milestone rows and a curated functionality progress ledger that separates completed, outstanding, and deferred project scope by domain area, with scope-adjusted completion estimates for each area. The Architecture page now presents a tabbed model with a versioned stack matrix, project topology map, architecture decisions, source inventory statistics, and per-system detail views for the legacy baseline, Workbench, and modernized target.
 
 Current pages:
 
@@ -65,7 +65,7 @@ Completion estimates are planning signals, not contractual pass/fail measurement
 
 When scope changes, update `functionality-progress.json` in the same work item as the related implementation or planning change. Keep the entries concise and product-facing: the ledger should answer what the modernization can do, what remains, and which evidence supports the completed claims. It should not replace `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, or `PROJECT_CHANGELOG.md`; it summarizes them for Workbench operators.
 
-The Architecture page now uses sub-tabs. The Overview tab shows a versioned technology-stack matrix for the three project systems: legacy OpenEMR, the Modernization Workbench, and modernized OpenEMR. The matrix groups technologies by UI, server-side runtime, data stores, local runtime/orchestration, and tests/evidence, with logo-style technology chips and explicit versions where the repository or running containers provide them. The Overview tab also includes a project topology diagram and architecture-decision notes. Each system tab provides a focused architecture diagram, runtime summary, data ownership summary, business-logic narrative, responsibilities, and evidence notes.
+The Architecture page now uses sub-tabs. The Overview tab shows a versioned technology-stack matrix for the three project systems: legacy OpenEMR, the Modernization Workbench, and modernized OpenEMR. The matrix groups technologies by UI, server-side runtime, data stores, local runtime/orchestration, and tests/evidence, with logo-style technology chips and explicit versions where the repository or running containers provide them. The Overview tab also includes architecture-size source inventory, a project topology diagram, and architecture-decision notes. Each system tab provides source/code/schema statistics, a focused architecture diagram, runtime summary, data ownership summary, business-logic narrative, responsibilities, and evidence notes.
 
 The legacy app launch link opens `http://localhost:8080` because that is the browser-friendly local URL. The OpenEMR HTTPS endpoint remains available at `https://localhost:9443`, but it uses a self-signed local certificate and browsers will show a privacy warning unless the certificate is trusted or manually bypassed. The Workbench backend supports both `http` and `https` health URLs, still uses `https://localhost:9443/meta/health/readyz` for the legacy health check, and is configured to tolerate the self-signed certificate only for HTTPS internal checks.
 
@@ -78,7 +78,7 @@ Verified behavior:
 - Production build passes with `npm run build`.
 - The UI renders in desktop and mobile viewports.
 - The UI includes a left navigation shell with separate pages for dashboard, applications, timeline, progress, architecture, tests, and seed data.
-- The Architecture page renders a versioned visual stack matrix, project topology diagram, architecture-decision notes, and detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
+- The Architecture page renders a versioned visual stack matrix, source inventory statistics, project topology diagram, architecture-decision notes, and detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
 - The API can read legacy OpenEMR status.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
@@ -411,13 +411,22 @@ Architecture comparison views should show:
 - Legacy, Workbench, and modernized technology stack and runtime components.
 - Version numbers for key technologies, images, frameworks, and runtime components when they are pinned or observable from the repo or running containers.
 - Data stores used by each system.
+- Physical source-line, non-blank-line, file-count, and schema-signal statistics by source component.
 - API boundaries and integration points.
 - Where business logic lives in each system.
 - Authentication and authorization model differences.
 - Test coverage by layer for each system.
 - Migration status by workflow, table, API, or domain area.
 
-This information currently comes from curated Workbench UI metadata, project documents, package manifests, Docker Compose configuration, and verified running-container versions. Over time, more of it may be generated from repository scans, build metadata, service health endpoints, or test manifests.
+This information currently comes from curated Workbench UI metadata, project documents, package manifests, Docker Compose configuration, verified running-container versions, and the source inventory snapshot. Over time, more of it may be generated from repository scans, build metadata, service health endpoints, or test manifests.
+
+Slice 150 adds the Architecture source inventory. The inventory contract lives at `modernization-workbench/config/source-inventory.json`; the generated snapshot used by `/api/architecture` lives at `modernization-workbench/config/source-inventory.snapshot.json`. Refresh it from `modernization-workbench/` with:
+
+```powershell
+npm run generate:source-inventory
+```
+
+The inventory counts physical source lines and non-blank lines from configured roots. It intentionally excludes dependency folders, generated output, runtime artifacts, local environment files, static-analysis baselines, and other noisy directories defined by the config. The numbers should be treated as architecture scale indicators, not as feature-completeness or complexity scores. For database comparisons, the Workbench shows DDL/script line counts plus schema signals such as `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, and database routine patterns where applicable.
 
 ## Progress Model
 

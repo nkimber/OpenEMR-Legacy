@@ -251,6 +251,59 @@ type ParityComparisonReport = {
   durationMs: number;
 };
 
+type SourceInventoryConfig = {
+  version: string;
+  lastUpdated: string;
+  method: string;
+};
+
+type SourceInventoryTotals = {
+  files: number;
+  totalLines: number;
+  nonBlankLines: number;
+  blankLines: number;
+};
+
+type SourceInventoryComponent = SourceInventoryTotals & {
+  id: string;
+  label: string;
+  layer: string;
+  description: string;
+  roots: string[];
+  extensions?: string[];
+  fileNames?: string[];
+  samplePaths: string[];
+  warnings: string[];
+};
+
+type SourceInventoryMetric = {
+  id: string;
+  label: string;
+  detail: string;
+  value: number;
+  files: number;
+  warnings: string[];
+};
+
+type SourceInventorySystem = {
+  systemId: string;
+  summary: string;
+  totals: SourceInventoryTotals;
+  components: SourceInventoryComponent[];
+  metrics: SourceInventoryMetric[];
+  warnings: string[];
+};
+
+type SourceInventory = {
+  version: string;
+  lastUpdated: string;
+  generatedAt: string;
+  durationMs?: number;
+  method: string;
+  systems: SourceInventorySystem[];
+  warnings: string[];
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
@@ -258,6 +311,8 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const functionalityProgressPath = path.join(workbenchRoot, "config", "functionality-progress.json");
+const sourceInventoryPath = path.join(workbenchRoot, "config", "source-inventory.json");
+const sourceInventorySnapshotPath = path.join(workbenchRoot, "config", "source-inventory.snapshot.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
@@ -266,6 +321,8 @@ const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
+const sourceInventoryCacheMs = 10 * 1000;
+let sourceInventoryCache: { expiresAt: number; inventory: SourceInventory } | null = null;
 const readableArtifactRoots = [
   path.join(repoRoot, "parity-tests", "artifacts"),
   path.join(repoRoot, "legacy-openemr", "artifacts"),
@@ -321,6 +378,11 @@ async function readFunctionalityProgress(): Promise<FunctionalityProgressConfig>
   return JSON.parse(text) as FunctionalityProgressConfig;
 }
 
+async function readSourceInventoryConfig(): Promise<SourceInventoryConfig> {
+  const text = await fs.readFile(sourceInventoryPath, "utf8");
+  return JSON.parse(text) as SourceInventoryConfig;
+}
+
 async function readSeedDataManifest(): Promise<SeedDataManifest> {
   const text = await fs.readFile(seedDataManifestPath, "utf8");
   return JSON.parse(text) as SeedDataManifest;
@@ -329,6 +391,32 @@ async function readSeedDataManifest(): Promise<SeedDataManifest> {
 async function readParityManifest(): Promise<ParityManifest> {
   const text = await fs.readFile(parityManifestPath, "utf8");
   return JSON.parse(text) as ParityManifest;
+}
+
+async function readSourceInventory(): Promise<SourceInventory> {
+  const now = Date.now();
+  if (sourceInventoryCache && sourceInventoryCache.expiresAt > now) {
+    return sourceInventoryCache.inventory;
+  }
+
+  let inventory: SourceInventory;
+  try {
+    inventory = JSON.parse(await fs.readFile(sourceInventorySnapshotPath, "utf8")) as SourceInventory;
+  } catch (error) {
+    const config = await readSourceInventoryConfig();
+    inventory = {
+      version: config.version,
+      lastUpdated: config.lastUpdated,
+      generatedAt: "",
+      method: config.method,
+      systems: [],
+      warnings: [
+        `Source inventory snapshot is unavailable. Run npm run generate:source-inventory in modernization-workbench/. ${error instanceof Error ? error.message : String(error)}`
+      ]
+    };
+  }
+  sourceInventoryCache = { expiresAt: now + sourceInventoryCacheMs, inventory };
+  return inventory;
 }
 
 function cleanMarkdownText(text: string) {
@@ -1639,7 +1727,22 @@ app.get("/api/changelog", async (_request, response, next) => {
 });
 
 app.get("/api/architecture", async (_request, response) => {
+  let sourceInventory: SourceInventory;
+  try {
+    sourceInventory = await readSourceInventory();
+  } catch (error) {
+    sourceInventory = {
+      version: "unavailable",
+      lastUpdated: "",
+      generatedAt: new Date().toISOString(),
+      method: "Source inventory unavailable.",
+      systems: [],
+      warnings: [error instanceof Error ? error.message : String(error)]
+    };
+  }
+
   response.json({
+    sourceInventory,
     systems: [
       {
         id: "legacy-openemr",

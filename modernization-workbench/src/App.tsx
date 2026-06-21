@@ -45,7 +45,8 @@ import type {
   ProjectChangelog,
   RuntimeState,
   SeedDataset,
-  SmokeResult
+  SmokeResult,
+  SourceInventorySystem
 } from "./types";
 
 type BusyState = {
@@ -867,6 +868,167 @@ function ArchitectureMatrix({ architecture }: { architecture: ArchitectureModel 
   );
 }
 
+function findSourceInventory(architecture: ArchitectureModel, systemId: string) {
+  return architecture.sourceInventory.systems.find((system) => system.systemId === systemId);
+}
+
+function SourceInventoryOverview({ architecture }: { architecture: ArchitectureModel }) {
+  const inventory = architecture.sourceInventory;
+  const inventorySystems = architecture.systems
+    .map((system) => ({ system, inventory: findSourceInventory(architecture, system.id) }))
+    .filter((item): item is { system: ArchitectureSystem; inventory: SourceInventorySystem } => Boolean(item.inventory));
+  const totalLines = inventorySystems.reduce((total, item) => total + item.inventory.totals.totalLines, 0);
+  const totalFiles = inventorySystems.reduce((total, item) => total + item.inventory.totals.files, 0);
+
+  return (
+    <section className="panel architecture-panel">
+      <div className="panel-header">
+        <div>
+          <div className="section-kicker">Source inventory</div>
+          <h2>
+            <Database size={20} />
+            Architecture Size
+          </h2>
+          <p>{inventory.method}</p>
+        </div>
+        <div className="panel-status">
+          <span className="quiet-chip">v{inventory.version}</span>
+          {inventory.generatedAt ? <span className="quiet-chip">Generated {formatDate(inventory.generatedAt)}</span> : null}
+        </div>
+      </div>
+
+      {inventorySystems.length ? (
+        <>
+          <div className="source-inventory-metrics">
+            <Metric label="Tracked Systems" value={inventorySystems.length} />
+            <Metric label="Tracked Files" value={formatCount(totalFiles)} />
+            <Metric label="Physical Lines" value={formatCount(totalLines)} detail="Includes comments and blank lines" />
+            <Metric label="Non-Blank Lines" value={formatCount(inventorySystems.reduce((total, item) => total + item.inventory.totals.nonBlankLines, 0))} />
+          </div>
+
+          <div className="source-inventory-system-grid">
+            {inventorySystems.map(({ system, inventory: systemInventory }) => (
+              <div className="source-inventory-system" key={system.id}>
+                <div className="source-inventory-system-header">
+                  <div>
+                    <strong>{system.name}</strong>
+                    <p>{systemInventory.summary}</p>
+                  </div>
+                  <span>{formatCount(systemInventory.totals.totalLines)} lines</span>
+                </div>
+                <div className="source-inventory-stat-row">
+                  <span>{formatCount(systemInventory.totals.files)} files</span>
+                  <span>{formatCount(systemInventory.totals.nonBlankLines)} non-blank</span>
+                  <span>{systemInventory.components.length} components</span>
+                </div>
+                <div className="source-inventory-mini-list">
+                  {systemInventory.components.slice(0, 4).map((component) => (
+                    <div key={component.id}>
+                      <span>{component.label}</span>
+                      <strong>{formatCount(component.totalLines)}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <EmptyState text="Source inventory is not available." />
+      )}
+
+      {inventory.warnings.length ? <SourceInventoryWarnings warnings={inventory.warnings} /> : null}
+    </section>
+  );
+}
+
+function SourceInventoryWarnings({ warnings }: { warnings: string[] }) {
+  return (
+    <div className="source-inventory-warnings">
+      {warnings.slice(0, 3).map((warning) => (
+        <span key={warning}>{warning}</span>
+      ))}
+    </div>
+  );
+}
+
+function SourceInventoryDetail({ inventory }: { inventory?: SourceInventorySystem }) {
+  if (!inventory) {
+    return (
+      <section className="panel architecture-panel">
+        <EmptyState text="Source inventory is not configured for this system." />
+      </section>
+    );
+  }
+
+  return (
+    <section className="panel architecture-panel">
+      <div className="panel-header">
+        <div>
+          <div className="section-kicker">Source inventory</div>
+          <h2>
+            <Database size={20} />
+            Code And Schema Scale
+          </h2>
+          <p>{inventory.summary}</p>
+        </div>
+      </div>
+
+      <div className="source-inventory-metrics">
+        <Metric label="Tracked Files" value={formatCount(inventory.totals.files)} />
+        <Metric label="Physical Lines" value={formatCount(inventory.totals.totalLines)} detail="Includes comments and blank lines" />
+        <Metric label="Non-Blank Lines" value={formatCount(inventory.totals.nonBlankLines)} />
+        <Metric label="Blank Lines" value={formatCount(inventory.totals.blankLines)} />
+      </div>
+
+      <div className="source-component-grid">
+        {inventory.components.map((component) => (
+          <div className="source-component-card" key={component.id}>
+            <div className="source-component-heading">
+              <div>
+                <span>{component.layer}</span>
+                <strong>{component.label}</strong>
+              </div>
+              <strong>{formatCount(component.totalLines)}</strong>
+            </div>
+            <p>{component.description}</p>
+            <div className="source-inventory-stat-row">
+              <span>{formatCount(component.files)} files</span>
+              <span>{formatCount(component.nonBlankLines)} non-blank</span>
+              <span>{formatCount(component.blankLines)} blank</span>
+            </div>
+            {component.samplePaths.length ? (
+              <div className="source-path-list">
+                {component.samplePaths.map((samplePath) => (
+                  <code key={samplePath}>{samplePath}</code>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+
+      {inventory.metrics.length ? (
+        <div className="source-schema-metrics">
+          <h3>Data Store Signals</h3>
+          <div className="source-schema-grid">
+            {inventory.metrics.map((metric) => (
+              <div className="source-schema-metric" key={metric.id}>
+                <span>{metric.label}</span>
+                <strong>{formatCount(metric.value)}</strong>
+                <p>{metric.detail}</p>
+                <small>{formatCount(metric.files)} scanned files</small>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {inventory.warnings.length ? <SourceInventoryWarnings warnings={inventory.warnings} /> : null}
+    </section>
+  );
+}
+
 function ArchitectureOverview({ architecture }: { architecture: ArchitectureModel }) {
   return (
     <>
@@ -883,6 +1045,8 @@ function ArchitectureOverview({ architecture }: { architecture: ArchitectureMode
         </div>
         <ArchitectureMatrix architecture={architecture} />
       </section>
+
+      <SourceInventoryOverview architecture={architecture} />
 
       <section className="panel architecture-panel">
         <div className="panel-header">
@@ -918,7 +1082,7 @@ function ArchitectureOverview({ architecture }: { architecture: ArchitectureMode
   );
 }
 
-function ArchitectureSystemDetail({ system }: { system: ArchitectureSystem }) {
+function ArchitectureSystemDetail({ system, sourceInventory }: { system: ArchitectureSystem; sourceInventory?: SourceInventorySystem }) {
   return (
     <>
       <section className="panel architecture-panel">
@@ -952,6 +1116,8 @@ function ArchitectureSystemDetail({ system }: { system: ArchitectureSystem }) {
           </dl>
         </div>
       </section>
+
+      <SourceInventoryDetail inventory={sourceInventory} />
 
       <section className="panel architecture-panel">
         <div className="panel-header compact">
@@ -1030,7 +1196,15 @@ function ArchitecturePanel({ architecture }: { architecture: ArchitectureModel |
           ))}
         </div>
       </section>
-      <div role="tabpanel">{activeTab === "overview" ? <ArchitectureOverview architecture={architecture} /> : activeSystem ? <ArchitectureSystemDetail system={activeSystem} /> : <ArchitectureOverview architecture={architecture} />}</div>
+      <div role="tabpanel">
+        {activeTab === "overview" ? (
+          <ArchitectureOverview architecture={architecture} />
+        ) : activeSystem ? (
+          <ArchitectureSystemDetail system={activeSystem} sourceInventory={findSourceInventory(architecture, activeSystem.id)} />
+        ) : (
+          <ArchitectureOverview architecture={architecture} />
+        )}
+      </div>
     </div>
   );
 }

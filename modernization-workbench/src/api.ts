@@ -10,7 +10,8 @@ import type {
   ParityRunResult,
   ProgressResponse,
   ProjectChangelog,
-  SeedDataset
+  SeedDataset,
+  SourceInventory
 } from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
@@ -60,8 +61,8 @@ export const api = {
     return requestJson<{ events: LifecycleEvent[] }>("/api/events");
   },
   async getArchitecture() {
-    const data = await requestJson<{ systems: ArchitectureSystemSummary[] }>("/api/architecture");
-    return buildArchitectureModel(data.systems);
+    const data = await requestJson<{ systems: ArchitectureSystemSummary[]; sourceInventory: SourceInventory }>("/api/architecture");
+    return buildArchitectureModel(data.systems, data.sourceInventory);
   },
   async getProgress() {
     return requestJson<ProgressResponse>("/api/progress");

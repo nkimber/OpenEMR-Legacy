@@ -1,0 +1,250 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-06-21",
+  "method": "Physical source lines counted from configured source roots. Dependency folders, generated output, runtime artifacts, and local environment files are excluded. Counts include comments; non-blank lines are shown separately in the UI.",
+  "excludeDirectoryNames": [
+    ".git",
+    ".phpstan",
+    "artifacts",
+    "bin",
+    "ci",
+    "contrib",
+    "dist",
+    "Documentation",
+    "node_modules",
+    "obj",
+    "sites",
+    "vendor"
+  ],
+  "excludePathIncludes": [
+    "/public/assets/",
+    "/portal/assets/",
+    "/generated/"
+  ],
+  "systems": [
+    {
+      "systemId": "legacy-openemr",
+      "summary": "The legacy system is a PHP monolith with server-rendered interface screens, separate browser assets/templates, MariaDB DDL scripts, native tests, and local Docker/PowerShell orchestration.",
+      "components": [
+        {
+          "id": "legacy-interface-php",
+          "label": "Interface PHP screens",
+          "layer": "UI",
+          "description": "Legacy OpenEMR screens under interface/. These files mix page routing, PHP workflow logic, emitted HTML, and embedded browser behavior, so they are counted as the legacy screen surface.",
+          "roots": ["legacy-openemr/source/interface"],
+          "extensions": [".php", ".inc"]
+        },
+        {
+          "id": "legacy-interface-browser-assets",
+          "label": "Browser assets and templates",
+          "layer": "UI",
+          "description": "Legacy interface HTML, templates, JavaScript, TypeScript, CSS, and Sass. This includes AngularJS-era/browser behavior where it exists in source files.",
+          "roots": ["legacy-openemr/source/interface"],
+          "extensions": [".html", ".htm", ".tpl", ".twig", ".js", ".jsx", ".ts", ".tsx", ".css", ".scss"]
+        },
+        {
+          "id": "legacy-php-services",
+          "label": "Reusable PHP services and libraries",
+          "layer": "Server",
+          "description": "Legacy PHP classes, library helpers, API routes, and core application entry points outside the interface screen tree.",
+          "roots": ["legacy-openemr/source"],
+          "extensions": [".php", ".inc"],
+          "excludePathIncludes": ["/legacy-openemr/source/interface/"]
+        },
+        {
+          "id": "legacy-mariadb-ddl",
+          "label": "MariaDB DDL and upgrade scripts",
+          "layer": "Data",
+          "description": "Legacy SQL schema and upgrade scripts that define or mutate the MariaDB database shape.",
+          "roots": ["legacy-openemr/source/sql", "legacy-openemr/source/interface/forms"],
+          "extensions": [".sql"]
+        },
+        {
+          "id": "legacy-native-tests",
+          "label": "Native PHPUnit and Jest tests",
+          "layer": "Tests",
+          "description": "OpenEMR-native PHP and JavaScript tests retained with the legacy source tree.",
+          "roots": ["legacy-openemr/source/tests"],
+          "extensions": [".php", ".js", ".ts", ".json", ".xml", ".yml", ".yaml"]
+        },
+        {
+          "id": "legacy-ops-scripts",
+          "label": "Local runtime and seed scripts",
+          "layer": "Runtime",
+          "description": "Project-owned scripts and Docker Compose files used to run, seed, and test the legacy baseline.",
+          "roots": ["legacy-openemr"],
+          "extensions": [".ps1", ".yml", ".yaml"],
+          "fileNames": ["docker-compose.yml"],
+          "excludePathIncludes": ["/legacy-openemr/source/"]
+        }
+      ],
+      "metricRules": [
+        {
+          "id": "legacy-create-table",
+          "label": "CREATE TABLE statements",
+          "detail": "Approximate DDL surface found in legacy SQL/PHP schema scripts.",
+          "roots": ["legacy-openemr/source"],
+          "extensions": [".sql", ".php", ".inc"],
+          "pattern": "\\bcreate\\s+table\\b",
+          "flags": "gi"
+        },
+        {
+          "id": "legacy-alter-table",
+          "label": "ALTER TABLE statements",
+          "detail": "Approximate schema migration/mutation surface in legacy SQL/PHP scripts.",
+          "roots": ["legacy-openemr/source"],
+          "extensions": [".sql", ".php", ".inc"],
+          "pattern": "\\balter\\s+table\\b",
+          "flags": "gi"
+        },
+        {
+          "id": "legacy-indexes",
+          "label": "CREATE INDEX statements",
+          "detail": "Approximate explicit index DDL in legacy schema scripts.",
+          "roots": ["legacy-openemr/source"],
+          "extensions": [".sql", ".php", ".inc"],
+          "pattern": "\\bcreate\\s+index\\b",
+          "flags": "gi"
+        },
+        {
+          "id": "legacy-db-routines",
+          "label": "Views, triggers, procedures, functions",
+          "detail": "Approximate database-programming surface in legacy scripts.",
+          "roots": ["legacy-openemr/source"],
+          "extensions": [".sql", ".php", ".inc"],
+          "pattern": "\\bcreate\\s+(view|trigger|procedure|function)\\b",
+          "flags": "gi"
+        }
+      ]
+    },
+    {
+      "systemId": "modernization-workbench",
+      "summary": "The Workbench is a React operator UI plus a local Express orchestration API, configuration contracts, and the shared parity/evidence harness it surfaces.",
+      "components": [
+        {
+          "id": "workbench-ui",
+          "label": "React/TypeScript operator UI",
+          "layer": "UI",
+          "description": "Workbench source for the dashboard, architecture, progress, timeline, test-run, and seed-data screens.",
+          "roots": ["modernization-workbench/src"],
+          "extensions": [".ts", ".tsx", ".css"]
+        },
+        {
+          "id": "workbench-api",
+          "label": "Express orchestration API",
+          "layer": "Server",
+          "description": "Local-only API that reads project state, runs allowlisted commands, and serves Workbench metadata.",
+          "roots": ["modernization-workbench/server"],
+          "extensions": [".ts", ".js", ".json"]
+        },
+        {
+          "id": "workbench-config",
+          "label": "Workbench config contracts",
+          "layer": "Data",
+          "description": "Managed application, architecture inventory, source inventory, and functionality progress contracts.",
+          "roots": ["modernization-workbench/config"],
+          "extensions": [".json"],
+          "excludePathIncludes": ["/modernization-workbench/config/source-inventory.snapshot.json"]
+        },
+        {
+          "id": "workbench-seed-contract",
+          "label": "Gold seed contract scripts",
+          "layer": "Data",
+          "description": "Project-owned scripts and manifests that generate the shared synthetic dataset contract.",
+          "roots": ["modernization-workbench/seed-data"],
+          "extensions": [".mjs", ".json", ".md"],
+          "excludePathIncludes": ["/modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/"]
+        },
+        {
+          "id": "workbench-parity-harness",
+          "label": "Parity and comparison harness",
+          "layer": "Tests",
+          "description": "Shared Playwright parity suites, workflow adapters, database probes, and comparison utilities surfaced by the Workbench.",
+          "roots": ["parity-tests"],
+          "extensions": [".ts", ".tsx", ".js", ".json"],
+          "excludePathIncludes": ["/parity-tests/artifacts/"]
+        },
+        {
+          "id": "workbench-ops-scripts",
+          "label": "Local Workbench runtime scripts",
+          "layer": "Runtime",
+          "description": "Scripts and package configuration used to run, build, and operate the Workbench.",
+          "roots": ["modernization-workbench"],
+          "extensions": [".ps1"],
+          "fileNames": ["package.json", "vite.config.ts", "tsconfig.json"],
+          "excludePathIncludes": ["/modernization-workbench/src/", "/modernization-workbench/server/", "/modernization-workbench/node_modules/", "/modernization-workbench/dist/", "/modernization-workbench/artifacts/"]
+        }
+      ],
+      "metricRules": []
+    },
+    {
+      "systemId": "modernized-openemr",
+      "summary": "The modernized target is a React/TypeScript SPA, ASP.NET Core API, PostgreSQL seed/schema generator, parity evidence, and Docker/PowerShell runtime scripts.",
+      "components": [
+        {
+          "id": "modernized-frontend",
+          "label": "React/TypeScript frontend",
+          "layer": "UI",
+          "description": "Modernized OpenEMR SPA screens and styling.",
+          "roots": ["modernized-openemr/frontend/src"],
+          "extensions": [".ts", ".tsx", ".css"]
+        },
+        {
+          "id": "modernized-backend",
+          "label": "ASP.NET Core backend",
+          "layer": "Server",
+          "description": "Modernized workflow APIs, repositories, DTOs, and API project configuration.",
+          "roots": ["modernized-openemr/backend/src"],
+          "extensions": [".cs", ".csproj", ".json"]
+        },
+        {
+          "id": "modernized-postgres-schema",
+          "label": "PostgreSQL schema and seed scripts",
+          "layer": "Data",
+          "description": "Scripts that generate and load the PostgreSQL schema and shared gold dataset mapping.",
+          "roots": ["modernized-openemr/scripts"],
+          "extensions": [".mjs", ".ps1", ".sql"]
+        },
+        {
+          "id": "modernized-ops-scripts",
+          "label": "Modernized runtime scripts",
+          "layer": "Runtime",
+          "description": "Docker Compose, smoke-test, seed, and local runtime scripts for the modernized target.",
+          "roots": ["modernized-openemr"],
+          "extensions": [".ps1", ".yml", ".yaml"],
+          "fileNames": ["docker-compose.yml"],
+          "excludePathIncludes": ["/modernized-openemr/frontend/src/", "/modernized-openemr/backend/src/", "/modernized-openemr/scripts/", "/modernized-openemr/artifacts/"]
+        }
+      ],
+      "metricRules": [
+        {
+          "id": "modernized-create-table",
+          "label": "CREATE TABLE statements",
+          "detail": "PostgreSQL table definitions emitted by the modernized seed/schema generator.",
+          "roots": ["modernized-openemr"],
+          "extensions": [".mjs", ".sql", ".cs", ".ps1"],
+          "pattern": "\\bcreate\\s+table\\b",
+          "flags": "gi"
+        },
+        {
+          "id": "modernized-indexes",
+          "label": "CREATE INDEX statements",
+          "detail": "PostgreSQL index definitions emitted by the modernized seed/schema generator.",
+          "roots": ["modernized-openemr"],
+          "extensions": [".mjs", ".sql", ".cs", ".ps1"],
+          "pattern": "\\bcreate\\s+index\\b",
+          "flags": "gi"
+        },
+        {
+          "id": "modernized-db-routines",
+          "label": "Views, triggers, procedures, functions",
+          "detail": "Database-programming objects in the modernized schema scripts.",
+          "roots": ["modernized-openemr"],
+          "extensions": [".mjs", ".sql", ".cs", ".ps1"],
+          "pattern": "\\bcreate\\s+(view|trigger|procedure|function)\\b",
+          "flags": "gi"
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@
     "dev:api": "tsx watch server/index.ts",
     "dev:ui": "vite --host 127.0.0.1 --port 5173",
     "generate:seed-data": "node seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs",
+    "generate:source-inventory": "node scripts/update-source-inventory.mjs",
     "build": "tsc && vite build",
     "start": "npm run dev",
     "typecheck": "tsc --noEmit"

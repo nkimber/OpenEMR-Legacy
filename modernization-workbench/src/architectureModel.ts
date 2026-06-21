@@ -1,4 +1,4 @@
-import type { ArchitectureModel, ArchitectureSystemSummary, ArchitectureTechnology } from "./types";
+import type { ArchitectureModel, ArchitectureSystemSummary, ArchitectureTechnology, SourceInventory } from "./types";
 
 const devicon = (path: string) => `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${path}`;
 
@@ -38,7 +38,16 @@ function summaryFor(summaries: ArchitectureSystemSummary[], id: string, fallback
   return summaries.find((system) => system.id === id) ?? fallback;
 }
 
-export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): ArchitectureModel {
+const emptySourceInventory: SourceInventory = {
+  version: "unavailable",
+  lastUpdated: "",
+  generatedAt: "",
+  method: "Source inventory unavailable.",
+  systems: [],
+  warnings: []
+};
+
+export function buildArchitectureModel(summaries: ArchitectureSystemSummary[], sourceInventory: SourceInventory = emptySourceInventory): ArchitectureModel {
   const legacy = summaryFor(summaries, "legacy-openemr", {
     id: "legacy-openemr",
     name: "Legacy OpenEMR",
@@ -296,6 +305,7 @@ export function buildArchitectureModel(summaries: ArchitectureSystemSummary[]): 
         title: "Treat evidence as architecture",
         detail: "Smoke tests, native tests, seed validation, Playwright flows, and side-by-side parity plans are part of the system design because they define what modernization success means."
       }
-    ]
+    ],
+    sourceInventory
   };
 }

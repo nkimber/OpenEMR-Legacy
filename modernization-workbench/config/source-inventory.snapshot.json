@@ -1,0 +1,545 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-06-21",
+  "generatedAt": "2026-06-21T18:56:04.919Z",
+  "durationMs": 16340,
+  "method": "Physical source lines counted from configured source roots. Dependency folders, generated output, runtime artifacts, and local environment files are excluded. Counts include comments; non-blank lines are shown separately in the UI.",
+  "systems": [
+    {
+      "systemId": "legacy-openemr",
+      "summary": "The legacy system is a PHP monolith with server-rendered interface screens, separate browser assets/templates, MariaDB DDL scripts, native tests, and local Docker/PowerShell orchestration.",
+      "totals": {
+        "files": 5163,
+        "totalLines": 1423370,
+        "nonBlankLines": 1284668,
+        "blankLines": 138702
+      },
+      "components": [
+        {
+          "id": "legacy-interface-php",
+          "label": "Interface PHP screens",
+          "layer": "UI",
+          "description": "Legacy OpenEMR screens under interface/. These files mix page routing, PHP workflow logic, emitted HTML, and embedded browser behavior, so they are counted as the legacy screen surface.",
+          "roots": [
+            "legacy-openemr/source/interface"
+          ],
+          "extensions": [
+            ".php",
+            ".inc"
+          ],
+          "files": 1000,
+          "totalLines": 277296,
+          "nonBlankLines": 251014,
+          "blankLines": 26282,
+          "samplePaths": [
+            "/legacy-openemr/source/interface/batchcom/batchEmail.php",
+            "/legacy-openemr/source/interface/batchcom/batchPhoneList.php",
+            "/legacy-openemr/source/interface/batchcom/batch_navigation.php",
+            "/legacy-openemr/source/interface/batchcom/batch_reminders.php"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "legacy-interface-browser-assets",
+          "label": "Browser assets and templates",
+          "layer": "UI",
+          "description": "Legacy interface HTML, templates, JavaScript, TypeScript, CSS, and Sass. This includes AngularJS-era/browser behavior where it exists in source files.",
+          "roots": [
+            "legacy-openemr/source/interface"
+          ],
+          "extensions": [
+            ".html",
+            ".htm",
+            ".tpl",
+            ".twig",
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx",
+            ".css",
+            ".scss"
+          ],
+          "files": 355,
+          "totalLines": 125372,
+          "nonBlankLines": 109759,
+          "blankLines": 15613,
+          "samplePaths": [
+            "/legacy-openemr/source/interface/clickmap/template/css/clickmap.css",
+            "/legacy-openemr/source/interface/clickmap/template/general_new.html",
+            "/legacy-openemr/source/interface/forms/CAMOS/CAMOS.css",
+            "/legacy-openemr/source/interface/forms/CAMOS/help.html"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "legacy-php-services",
+          "label": "Reusable PHP services and libraries",
+          "layer": "Server",
+          "description": "Legacy PHP classes, library helpers, API routes, and core application entry points outside the interface screen tree.",
+          "roots": [
+            "legacy-openemr/source"
+          ],
+          "extensions": [
+            ".php",
+            ".inc"
+          ],
+          "excludePathIncludes": [
+            "/legacy-openemr/source/interface/"
+          ],
+          "files": 3271,
+          "totalLines": 830978,
+          "nonBlankLines": 755172,
+          "blankLines": 75806,
+          "samplePaths": [
+            "/legacy-openemr/source/_rest_routes.inc.php",
+            "/legacy-openemr/source/acl_upgrade.php",
+            "/legacy-openemr/source/admin.php",
+            "/legacy-openemr/source/apis/dispatch.php"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "legacy-mariadb-ddl",
+          "label": "MariaDB DDL and upgrade scripts",
+          "layer": "Data",
+          "description": "Legacy SQL schema and upgrade scripts that define or mutate the MariaDB database shape.",
+          "roots": [
+            "legacy-openemr/source/sql",
+            "legacy-openemr/source/interface/forms"
+          ],
+          "extensions": [
+            ".sql"
+          ],
+          "files": 73,
+          "totalLines": 58130,
+          "nonBlankLines": 50704,
+          "blankLines": 7426,
+          "samplePaths": [
+            "/legacy-openemr/source/interface/forms/CAMOS/table.sql",
+            "/legacy-openemr/source/interface/forms/CAMOS/table_no_data.sql",
+            "/legacy-openemr/source/interface/forms/aftercare_plan/table.sql",
+            "/legacy-openemr/source/interface/forms/ankleinjury/table.sql"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "legacy-native-tests",
+          "label": "Native PHPUnit and Jest tests",
+          "layer": "Tests",
+          "description": "OpenEMR-native PHP and JavaScript tests retained with the legacy source tree.",
+          "roots": [
+            "legacy-openemr/source/tests"
+          ],
+          "extensions": [
+            ".php",
+            ".js",
+            ".ts",
+            ".json",
+            ".xml",
+            ".yml",
+            ".yaml"
+          ],
+          "files": 458,
+          "totalLines": 130432,
+          "nonBlankLines": 116997,
+          "blankLines": 13435,
+          "samplePaths": [
+            "/legacy-openemr/source/tests/PHPStan/Rules/ForbidDirectSessionWriteRule.php",
+            "/legacy-openemr/source/tests/PHPStan/Rules/ForbiddenCatchTypeRule.php",
+            "/legacy-openemr/source/tests/PHPStan/Rules/ForbiddenClassesRule.php",
+            "/legacy-openemr/source/tests/PHPStan/Rules/ForbiddenCoversRule.php"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "legacy-ops-scripts",
+          "label": "Local runtime and seed scripts",
+          "layer": "Runtime",
+          "description": "Project-owned scripts and Docker Compose files used to run, seed, and test the legacy baseline.",
+          "roots": [
+            "legacy-openemr"
+          ],
+          "extensions": [
+            ".ps1",
+            ".yml",
+            ".yaml"
+          ],
+          "fileNames": [
+            "docker-compose.yml"
+          ],
+          "excludePathIncludes": [
+            "/legacy-openemr/source/"
+          ],
+          "files": 6,
+          "totalLines": 1162,
+          "nonBlankLines": 1022,
+          "blankLines": 140,
+          "samplePaths": [
+            "/legacy-openemr/docker-compose.yml",
+            "/legacy-openemr/scripts/Seed-LegacyExampleData.ps1",
+            "/legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1",
+            "/legacy-openemr/scripts/Test-LegacyBaseline.ps1"
+          ],
+          "warnings": []
+        }
+      ],
+      "metrics": [
+        {
+          "id": "legacy-create-table",
+          "label": "CREATE TABLE statements",
+          "detail": "Approximate DDL surface found in legacy SQL/PHP schema scripts.",
+          "value": 637,
+          "files": 4364,
+          "warnings": []
+        },
+        {
+          "id": "legacy-alter-table",
+          "label": "ALTER TABLE statements",
+          "detail": "Approximate schema migration/mutation surface in legacy SQL/PHP scripts.",
+          "value": 1313,
+          "files": 4364,
+          "warnings": []
+        },
+        {
+          "id": "legacy-indexes",
+          "label": "CREATE INDEX statements",
+          "detail": "Approximate explicit index DDL in legacy schema scripts.",
+          "value": 23,
+          "files": 4364,
+          "warnings": []
+        },
+        {
+          "id": "legacy-db-routines",
+          "label": "Views, triggers, procedures, functions",
+          "detail": "Approximate database-programming surface in legacy scripts.",
+          "value": 2,
+          "files": 4364,
+          "warnings": []
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "systemId": "modernization-workbench",
+      "summary": "The Workbench is a React operator UI plus a local Express orchestration API, configuration contracts, and the shared parity/evidence harness it surfaces.",
+      "totals": {
+        "files": 187,
+        "totalLines": 50217,
+        "nonBlankLines": 46202,
+        "blankLines": 4015
+      },
+      "components": [
+        {
+          "id": "workbench-ui",
+          "label": "React/TypeScript operator UI",
+          "layer": "UI",
+          "description": "Workbench source for the dashboard, architecture, progress, timeline, test-run, and seed-data screens.",
+          "roots": [
+            "modernization-workbench/src"
+          ],
+          "extensions": [
+            ".ts",
+            ".tsx",
+            ".css"
+          ],
+          "files": 6,
+          "totalLines": 5334,
+          "nonBlankLines": 4847,
+          "blankLines": 487,
+          "samplePaths": [
+            "/modernization-workbench/src/App.tsx",
+            "/modernization-workbench/src/api.ts",
+            "/modernization-workbench/src/architectureModel.ts",
+            "/modernization-workbench/src/main.tsx"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "workbench-api",
+          "label": "Express orchestration API",
+          "layer": "Server",
+          "description": "Local-only API that reads project state, runs allowlisted commands, and serves Workbench metadata.",
+          "roots": [
+            "modernization-workbench/server"
+          ],
+          "extensions": [
+            ".ts",
+            ".js",
+            ".json"
+          ],
+          "files": 1,
+          "totalLines": 1938,
+          "nonBlankLines": 1775,
+          "blankLines": 163,
+          "samplePaths": [
+            "/modernization-workbench/server/index.ts"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "workbench-config",
+          "label": "Workbench config contracts",
+          "layer": "Data",
+          "description": "Managed application, architecture inventory, source inventory, and functionality progress contracts.",
+          "roots": [
+            "modernization-workbench/config"
+          ],
+          "extensions": [
+            ".json"
+          ],
+          "excludePathIncludes": [
+            "/modernization-workbench/config/source-inventory.snapshot.json"
+          ],
+          "files": 3,
+          "totalLines": 3389,
+          "nonBlankLines": 3389,
+          "blankLines": 0,
+          "samplePaths": [
+            "/modernization-workbench/config/apps.json",
+            "/modernization-workbench/config/functionality-progress.json",
+            "/modernization-workbench/config/source-inventory.json"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "workbench-seed-contract",
+          "label": "Gold seed contract scripts",
+          "layer": "Data",
+          "description": "Project-owned scripts and manifests that generate the shared synthetic dataset contract.",
+          "roots": [
+            "modernization-workbench/seed-data"
+          ],
+          "extensions": [
+            ".mjs",
+            ".json",
+            ".md"
+          ],
+          "excludePathIncludes": [
+            "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/"
+          ],
+          "files": 4,
+          "totalLines": 1748,
+          "nonBlankLines": 1635,
+          "blankLines": 113,
+          "samplePaths": [
+            "/modernization-workbench/seed-data/manifest.json",
+            "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md",
+            "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/personas/golden-patients.json",
+            "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "workbench-parity-harness",
+          "label": "Parity and comparison harness",
+          "layer": "Tests",
+          "description": "Shared Playwright parity suites, workflow adapters, database probes, and comparison utilities surfaced by the Workbench.",
+          "roots": [
+            "parity-tests"
+          ],
+          "extensions": [
+            ".ts",
+            ".tsx",
+            ".js",
+            ".json"
+          ],
+          "excludePathIncludes": [
+            "/parity-tests/artifacts/"
+          ],
+          "files": 170,
+          "totalLines": 37733,
+          "nonBlankLines": 34482,
+          "blankLines": 3251,
+          "samplePaths": [
+            "/parity-tests/config/targets.json",
+            "/parity-tests/package-lock.json",
+            "/parity-tests/package.json",
+            "/parity-tests/playwright.config.ts"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "workbench-ops-scripts",
+          "label": "Local Workbench runtime scripts",
+          "layer": "Runtime",
+          "description": "Scripts and package configuration used to run, build, and operate the Workbench.",
+          "roots": [
+            "modernization-workbench"
+          ],
+          "extensions": [
+            ".ps1"
+          ],
+          "fileNames": [
+            "package.json",
+            "vite.config.ts",
+            "tsconfig.json"
+          ],
+          "excludePathIncludes": [
+            "/modernization-workbench/src/",
+            "/modernization-workbench/server/",
+            "/modernization-workbench/node_modules/",
+            "/modernization-workbench/dist/",
+            "/modernization-workbench/artifacts/"
+          ],
+          "files": 3,
+          "totalLines": 75,
+          "nonBlankLines": 74,
+          "blankLines": 1,
+          "samplePaths": [
+            "/modernization-workbench/package.json",
+            "/modernization-workbench/tsconfig.json",
+            "/modernization-workbench/vite.config.ts"
+          ],
+          "warnings": []
+        }
+      ],
+      "metrics": [],
+      "warnings": []
+    },
+    {
+      "systemId": "modernized-openemr",
+      "summary": "The modernized target is a React/TypeScript SPA, ASP.NET Core API, PostgreSQL seed/schema generator, parity evidence, and Docker/PowerShell runtime scripts.",
+      "totals": {
+        "files": 34,
+        "totalLines": 47716,
+        "nonBlankLines": 43947,
+        "blankLines": 3769
+      },
+      "components": [
+        {
+          "id": "modernized-frontend",
+          "label": "React/TypeScript frontend",
+          "layer": "UI",
+          "description": "Modernized OpenEMR SPA screens and styling.",
+          "roots": [
+            "modernized-openemr/frontend/src"
+          ],
+          "extensions": [
+            ".ts",
+            ".tsx",
+            ".css"
+          ],
+          "files": 5,
+          "totalLines": 22220,
+          "nonBlankLines": 20587,
+          "blankLines": 1633,
+          "samplePaths": [
+            "/modernized-openemr/frontend/src/App.css",
+            "/modernized-openemr/frontend/src/App.tsx",
+            "/modernized-openemr/frontend/src/api.ts",
+            "/modernized-openemr/frontend/src/index.css"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "modernized-backend",
+          "label": "ASP.NET Core backend",
+          "layer": "Server",
+          "description": "Modernized workflow APIs, repositories, DTOs, and API project configuration.",
+          "roots": [
+            "modernized-openemr/backend/src"
+          ],
+          "extensions": [
+            ".cs",
+            ".csproj",
+            ".json"
+          ],
+          "files": 25,
+          "totalLines": 16851,
+          "nonBlankLines": 15291,
+          "blankLines": 1560,
+          "samplePaths": [
+            "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs",
+            "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs",
+            "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/BillingRepository.cs",
+            "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ClinicalListRepository.cs"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "modernized-postgres-schema",
+          "label": "PostgreSQL schema and seed scripts",
+          "layer": "Data",
+          "description": "Scripts that generate and load the PostgreSQL schema and shared gold dataset mapping.",
+          "roots": [
+            "modernized-openemr/scripts"
+          ],
+          "extensions": [
+            ".mjs",
+            ".ps1",
+            ".sql"
+          ],
+          "files": 3,
+          "totalLines": 8604,
+          "nonBlankLines": 8031,
+          "blankLines": 573,
+          "samplePaths": [
+            "/modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1",
+            "/modernized-openemr/scripts/Test-ModernizedBaseline.ps1",
+            "/modernized-openemr/scripts/generate-postgres-seed.mjs"
+          ],
+          "warnings": []
+        },
+        {
+          "id": "modernized-ops-scripts",
+          "label": "Modernized runtime scripts",
+          "layer": "Runtime",
+          "description": "Docker Compose, smoke-test, seed, and local runtime scripts for the modernized target.",
+          "roots": [
+            "modernized-openemr"
+          ],
+          "extensions": [
+            ".ps1",
+            ".yml",
+            ".yaml"
+          ],
+          "fileNames": [
+            "docker-compose.yml"
+          ],
+          "excludePathIncludes": [
+            "/modernized-openemr/frontend/src/",
+            "/modernized-openemr/backend/src/",
+            "/modernized-openemr/scripts/",
+            "/modernized-openemr/artifacts/"
+          ],
+          "files": 1,
+          "totalLines": 41,
+          "nonBlankLines": 38,
+          "blankLines": 3,
+          "samplePaths": [
+            "/modernized-openemr/docker-compose.yml"
+          ],
+          "warnings": []
+        }
+      ],
+      "metrics": [
+        {
+          "id": "modernized-create-table",
+          "label": "CREATE TABLE statements",
+          "detail": "PostgreSQL table definitions emitted by the modernized seed/schema generator.",
+          "value": 32,
+          "files": 24,
+          "warnings": []
+        },
+        {
+          "id": "modernized-indexes",
+          "label": "CREATE INDEX statements",
+          "detail": "PostgreSQL index definitions emitted by the modernized seed/schema generator.",
+          "value": 29,
+          "files": 24,
+          "warnings": []
+        },
+        {
+          "id": "modernized-db-routines",
+          "label": "Views, triggers, procedures, functions",
+          "detail": "Database-programming objects in the modernized schema scripts.",
+          "value": 0,
+          "files": 24,
+          "warnings": []
+        }
+      ],
+      "warnings": []
+    }
+  ],
+  "warnings": []
+}

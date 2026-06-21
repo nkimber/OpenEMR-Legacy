@@ -9982,6 +9982,57 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 180. Workbench Architecture Source Inventory Slice 150
+
+Commit: pending
+Started: `2026-06-21T14:30:00.0000000-04:00`
+Finished: `2026-06-21T15:01:00.9586547-04:00`
+
+Implemented the one-hundred-fiftieth project slice and latest Workbench-specific slice: Architecture page source inventory statistics so operators can compare code and schema scale across the legacy OpenEMR baseline, the Modernization Workbench, and the modernized OpenEMR target.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 1,636
+- Lines deleted: 19
+- Net lines: 1,617
+- Total churn: 1,655
+
+Key outcomes:
+
+- Added a configurable source inventory contract at `modernization-workbench/config/source-inventory.json`.
+- Added `npm run generate:source-inventory`, which generates `modernization-workbench/config/source-inventory.snapshot.json` from the configured source roots.
+- Extended `/api/architecture` to return source inventory statistics from the generated snapshot without walking the repository during page load.
+- Updated the Architecture overview with an Architecture Size section showing tracked systems, tracked files, physical lines, non-blank lines, and per-system component summaries.
+- Updated each Architecture system tab with Code And Schema Scale details, including component-level files, physical lines, non-blank lines, sample paths, and data-store signal counts.
+- Documented that the inventory counts physical source lines and schema signals, not feature completeness or semantic complexity.
+
+Verified test runs:
+
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and generated a 3-system snapshot in 16.3 seconds.
+- Source inventory snapshot parse showed legacy OpenEMR at 5,163 files / 1,423,370 physical lines, the Workbench at 187 files / 50,217 physical lines, and modernized OpenEMR at 34 files / 47,716 physical lines.
+- Live Workbench `/api/architecture` smoke returned the generated source inventory snapshot in 0.26 seconds with no inventory warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Playwright verified the Architecture overview source inventory panel and the Legacy OpenEMR per-system Code And Schema Scale panel rendered the expected counts and schema-signal cards.
+
+Primary files:
+
+- `modernization-workbench/config/source-inventory.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `modernization-workbench/scripts/update-source-inventory.mjs`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/architectureModel.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/package.json`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
