@@ -748,6 +748,32 @@ export type ProcedureReportSummary = {
   results: ProcedureResultSummary[];
 };
 
+export type ProcedureReportReviewQueueItem = {
+  reportId: number;
+  orderId: number;
+  patientId: number;
+  pubpid: string;
+  patientDisplayName: string;
+  orderDate: string;
+  procedureCode: string;
+  procedureName: string;
+  reportDate: string;
+  reportStatus: string;
+  reviewStatus: string;
+  reviewedBy: string;
+  reviewedAt: string;
+  specimenNumber: string;
+  notes: string;
+};
+
+export type ProcedureReportReviewQueueSummary = {
+  statusFilter: string;
+  totalReports: number;
+  reviewedReports: number;
+  unreviewedReports: number;
+  reports: ProcedureReportReviewQueueItem[];
+};
+
 export type ProcedureSpecimenSummary = {
   id: number;
   orderId: number;
@@ -2329,6 +2355,71 @@ ORDER BY procedure_result_id;
       orders: procedures.orders.filter((order) => order.encounterId === encounter)
     };
   }
+
+  async getProcedureReportReviewQueue(status = "unreviewed"): Promise<ProcedureReportReviewQueueSummary> {
+    const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
+    const counts = await this.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS totalReports,
+  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS reviewedReports,
+  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS unreviewedReports
+FROM procedure_report;
+`);
+    const whereStatus = statusFilter === "reviewed"
+      ? "AND COALESCE(pr.review_status, '') = 'reviewed'"
+      : statusFilter === "unreviewed"
+        ? "AND COALESCE(pr.review_status, '') != 'reviewed'"
+        : "";
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pr.procedure_report_id AS reportId, po.procedure_order_id AS orderId, po.patient_id AS patientId,
+  pd.pubpid,
+  TRIM(CONCAT(pd.lname, ', ', pd.fname)) AS patientDisplayName,
+  DATE(po.date_ordered) AS orderDate,
+  COALESCE(pc.procedure_code, '') AS procedureCode,
+  COALESCE(pc.procedure_name, '') AS procedureName,
+  DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') AS reportDate,
+  COALESCE(pr.report_status, '') AS reportStatus,
+  COALESCE(pr.review_status, '') AS reviewStatus,
+  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  COALESCE(pr.specimen_num, '') AS specimenNumber,
+  COALESCE(pr.report_notes, '') AS notes
+FROM procedure_report pr
+INNER JOIN procedure_order po ON po.procedure_order_id = pr.procedure_order_id
+LEFT JOIN procedure_order_code pc ON pc.procedure_order_id = po.procedure_order_id
+  AND pc.procedure_order_seq = pr.procedure_order_seq
+LEFT JOIN patient_data pd ON pd.pid = po.patient_id
+LEFT JOIN users u ON u.id = pr.source
+WHERE 1 = 1
+  ${whereStatus}
+ORDER BY pr.date_report DESC, pr.procedure_report_id DESC, pd.lname, pd.fname, po.procedure_order_id
+LIMIT 100;
+`);
+
+    const countRow = counts[0] ?? { totalReports: "0", reviewedReports: "0", unreviewedReports: "0" };
+    return {
+      statusFilter,
+      totalReports: Number(countRow.totalReports),
+      reviewedReports: Number(countRow.reviewedReports),
+      unreviewedReports: Number(countRow.unreviewedReports),
+      reports: rows.map((row) => ({
+        reportId: Number(row.reportId),
+        orderId: Number(row.orderId),
+        patientId: Number(row.patientId),
+        pubpid: row.pubpid,
+        patientDisplayName: row.patientDisplayName,
+        orderDate: row.orderDate,
+        procedureCode: row.procedureCode,
+        procedureName: row.procedureName,
+        reportDate: row.reportDate,
+        reportStatus: row.reportStatus,
+        reviewStatus: row.reviewStatus,
+        reviewedBy: row.reviewedBy,
+        reviewedAt: row.reviewedAt,
+        specimenNumber: row.specimenNumber,
+        notes: row.notes
+      }))
+    };
+  }
 }
 
 export function buildOperationalReportExportRows(reports: OperationalReportsSummary): OperationalReportExportRow[] {
@@ -2535,6 +2626,14 @@ function claimStatusLabel(status: number, billProcess: number) {
   if (status === 6) return "Forwarded";
   if (status === 7) return "Denied";
   return "Unsubmitted";
+}
+
+function normalizeProcedureReportReviewQueueStatus(status: string) {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "all" || normalized === "reviewed") {
+    return normalized;
+  }
+  return "unreviewed";
 }
 
 export function escapeSql(value: string) {

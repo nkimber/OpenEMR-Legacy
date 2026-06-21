@@ -31,6 +31,7 @@ import type {
   PatientRecord,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
+  ProcedureReportReviewQueueSummary,
   ProcedureReportSummary,
   ProcedureResultSummary,
   ProcedureSpecimenSummary,
@@ -1556,6 +1557,68 @@ ORDER BY id;
       orders: procedures.orders.filter((order) => order.encounterId === encounter)
     };
   }
+
+  async getProcedureReportReviewQueue(status = "unreviewed"): Promise<ProcedureReportReviewQueueSummary> {
+    const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
+    const counts = await this.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS "totalReports",
+  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS "reviewedReports",
+  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS "unreviewedReports"
+FROM lab_reports;
+`);
+    const whereStatus = statusFilter === "reviewed"
+      ? "AND COALESCE(lr.review_status, '') = 'reviewed'"
+      : statusFilter === "unreviewed"
+        ? "AND COALESCE(lr.review_status, '') != 'reviewed'"
+        : "";
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT lr.id AS "reportId", lo.id AS "orderId", lo.pid AS "patientId",
+  p.pubpid,
+  TRIM(CONCAT(p.last_name, ', ', p.first_name)) AS "patientDisplayName",
+  lo.order_date AS "orderDate",
+  COALESCE(lo.code, '') AS "procedureCode",
+  COALESCE(lo.name, '') AS "procedureName",
+  to_char(lr.report_date, 'YYYY-MM-DD HH24:MI') AS "reportDate",
+  COALESCE(lr.status, '') AS "reportStatus",
+  COALESCE(lr.review_status, '') AS "reviewStatus",
+  COALESCE(lr.reviewed_by, '') AS "reviewedBy",
+  COALESCE(to_char(lr.reviewed_at, 'YYYY-MM-DD HH24:MI'), '') AS "reviewedAt",
+  COALESCE(lr.specimen_number, '') AS "specimenNumber",
+  COALESCE(lr.notes, '') AS notes
+FROM lab_reports lr
+INNER JOIN lab_orders lo ON lo.id = lr.order_id
+INNER JOIN patients p ON p.legacy_pid = lo.pid
+WHERE 1 = 1
+  ${whereStatus}
+ORDER BY lr.report_date DESC, lr.id DESC, p.last_name, p.first_name, lo.id
+LIMIT 100;
+`);
+
+    const countRow = counts[0] ?? { totalReports: "0", reviewedReports: "0", unreviewedReports: "0" };
+    return {
+      statusFilter,
+      totalReports: Number(countRow.totalReports),
+      reviewedReports: Number(countRow.reviewedReports),
+      unreviewedReports: Number(countRow.unreviewedReports),
+      reports: rows.map((row) => ({
+        reportId: Number(row.reportId),
+        orderId: Number(row.orderId),
+        patientId: Number(row.patientId),
+        pubpid: row.pubpid,
+        patientDisplayName: row.patientDisplayName,
+        orderDate: row.orderDate,
+        procedureCode: row.procedureCode,
+        procedureName: row.procedureName,
+        reportDate: row.reportDate,
+        reportStatus: row.reportStatus,
+        reviewStatus: row.reviewStatus,
+        reviewedBy: row.reviewedBy,
+        reviewedAt: row.reviewedAt,
+        specimenNumber: row.specimenNumber,
+        notes: row.notes
+      }))
+    };
+  }
 }
 
 function parsePostgresRows<T extends Record<string, string>>(stdout: string): T[] {
@@ -1589,6 +1652,14 @@ function claimStatusLabel(status: number, billProcess: number) {
   if (status === 6) return "Forwarded";
   if (status === 7) return "Denied";
   return "Unsubmitted";
+}
+
+function normalizeProcedureReportReviewQueueStatus(status: string) {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "all" || normalized === "reviewed") {
+    return normalized;
+  }
+  return "unreviewed";
 }
 
 function formatAmount(value: number) {

@@ -101,6 +101,25 @@ export async function openProcedureOrdersAndReportsForPatient(
   await expectRenderedText(page, /Procedure Orders and Reports/i);
 }
 
+export async function openProcedureReportReviewQueueDirect(
+  page: Page,
+  target: RuntimeTarget,
+  pid: number,
+  fromDate: string,
+  toDate: string,
+  reviewOption: "2" | "3"
+) {
+  await openPatientSummaryDirect(page, target, pid);
+  await page.goto(`${target.publicUrl}/interface/orders/list_reports.php`);
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+  await page.locator('input[name="form_from_date"]').fill(fromDate);
+  await page.locator('input[name="form_to_date"]').fill(toDate);
+  await page.locator('input[name="form_patient"]').check();
+  await page.locator('select[name="form_reviewed"]').selectOption(reviewOption);
+  await page.getByRole("button", { name: /Filter/i }).click();
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+}
+
 export async function openUserAdministrationDirect(page: Page, target: RuntimeTarget) {
   await page.goto(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
   await expectRenderedText(page, /Users|Add User/i);
