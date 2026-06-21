@@ -1431,6 +1431,16 @@ WHERE pc_eid = ${integer(legacyId)};
     await this.setAppointmentRecurrenceExdates(id, nextExdates);
   }
 
+  async restoreAppointmentRecurrenceException(id: number | string, occurrenceDate: string): Promise<void> {
+    const appointment = await this.getAppointment(id);
+    if (!appointment) {
+      throw new Error(`Expected appointment ${id} to exist before restoring a recurrence exception.`);
+    }
+
+    const nextExdates = appointment.recurrenceExdates.filter((date) => date !== occurrenceDate);
+    await this.setAppointmentRecurrenceExdates(id, nextExdates);
+  }
+
   async setAppointmentRecurrenceExdates(id: number | string, recurrenceExdates: string[]): Promise<void> {
     const legacyId = legacyInteger(id);
     const appointment = await this.getAppointment(legacyId);

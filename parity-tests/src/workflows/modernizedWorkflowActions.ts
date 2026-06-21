@@ -701,6 +701,18 @@ LIMIT 1;
     }
   }
 
+  async restoreAppointmentRecurrenceException(id: number | string, occurrenceDate: string): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}/recurrence-exceptions/${encodeURIComponent(occurrenceDate)}/restore`,
+      {
+        method: "POST"
+      });
+
+    if (!response.ok) {
+      throw new Error(`Modernized appointment occurrence restore failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async setAppointmentRecurrenceExdates(id: number | string, recurrenceExdates: string[]): Promise<void> {
     await this.db.queryRows<{ id: string }>(`
 UPDATE appointments
