@@ -8354,6 +8354,50 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 154. Workbench Comparison Drill-In Slice 124
+
+Commits: `8690ced6`, `91651f53`
+Started: `2026-06-21T03:13:00.0000000-04:00`
+Finished: `2026-06-21T03:29:24.7985323-04:00`
+
+Implemented the one-hundred-twenty-fourth project slice: Workbench comparison drill-ins, focused on making side-by-side parity artifacts inspectable directly from the Test Runs page.
+
+Code changes:
+
+- Files changed: 3
+- Lines added: 156
+- Lines deleted: 8
+- Net lines: 148
+- Total churn: 164
+
+Key outcomes:
+
+- Added an icon-driven expand/collapse control to each Workbench comparison card.
+- Added comparison detail panels showing legacy and modernized run artifact paths, the comparison JSON path, artifact directory, selected suites, and full difference detail.
+- Added matched-state confirmation for comparisons with no differences.
+- Added responsive styling so comparison side summaries and drill-in detail grids collapse cleanly on narrow viewports.
+- Updated Workbench architecture/progress metadata so the app reports Slice 124 comparison drill-ins and the current Slice 123 modernized OpenEMR workflow state.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/` after the React/CSS implementation.
+- `npm run build` passed in `modernization-workbench/`.
+- Playwright desktop verification against `http://127.0.0.1:5173` opened Test Runs, expanded a comparison card, and verified `Legacy artifact`, `Modernized artifact`, `Selected suites`, and matched/difference detail rendering.
+- Playwright mobile verification at `390x900` opened Test Runs, expanded a comparison card, and verified the drill-in artifact details remained visible.
+- `npm run typecheck` passed again in `modernization-workbench/` after the Workbench metadata update.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -8362,4 +8406,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench comparison drill-ins that link from comparison summaries to individual run artifacts, Playwright reports, screenshots, and historical trend charts.
+- Workbench comparison links from drill-ins to individual run artifacts, Playwright reports, screenshots, normalized probe detail, and historical trend charts.

@@ -1370,7 +1370,7 @@ The Workbench runs only allowlisted commands. It displays latest evidence per te
 
 The Test Runs page also includes a custom parity run builder for each managed app. The Workbench API exposes `parity-tests/test-manifest.json`, and the UI lets an operator choose suite or plan, a specific suite or plan id, reset mode, headed mode, and an optional Playwright grep filter. The backend validates those choices against the manifest before it constructs the existing `scripts/Run-OpenEmrParityTests.ps1` command. This gives the project a real test manager for targeted runs while keeping command execution local and constrained.
 
-The Workbench Test Runs page also renders recent side-by-side comparison artifacts. Its `/api/parity-comparisons` route reads bounded `comparison.json` summaries from `parity-tests/artifacts/comparisons/`, normalizes left/right run metadata, exposes difference counts and previews, and leaves command execution to the existing runner/compare scripts. Operators can now review matched/different comparison evidence from the Workbench without manually opening the artifact directory.
+The Workbench Test Runs page also renders recent side-by-side comparison artifacts. Its `/api/parity-comparisons` route reads bounded `comparison.json` summaries from `parity-tests/artifacts/comparisons/`, normalizes left/right run metadata, exposes difference counts and previews, and leaves command execution to the existing runner/compare scripts. Slice 124 adds expandable card drill-ins so operators can review legacy/modernized run artifact paths, comparison JSON paths, artifact directories, selected suites, full difference detail, and matched-state confirmation from the Workbench without manually opening the artifact directory.
 
 ## Modernized Target Parity Path
 
@@ -1389,6 +1389,6 @@ Next parity steps:
 1. Add additional modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
 2. Add modernized UI helpers behind the same browser workflow intent for each new mutation slice.
 3. Add additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
-4. Expand the Workbench comparison artifact viewer with drill-in links to run-level Playwright reports and normalized probe details.
+4. Expand the Workbench comparison artifact drill-ins with direct links to run-level Playwright reports, screenshots, normalized probe details, and historical trend charts.
 
 The test code should continue to assert observable behavior and normalized domain state, not identical implementation details.
