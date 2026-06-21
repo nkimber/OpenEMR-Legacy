@@ -7496,6 +7496,66 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 139. Modernized Appointment Recurrence Exception Edit Slice 109
+
+Commit: `b55d1f4`
+Started: `2026-06-20T21:26:44.6388000-04:00`
+Finished: `2026-06-20T21:46:47.7115301-04:00`
+
+Implemented the one-hundred-ninth modernized OpenEMR vertical slice: appointment recurrence exception-list edit readiness, proving that a recurring appointment root can persist an edited skipped-date list, that the generated occurrence expansion responds to that edit, and that legacy and modernized behavior match side by side while restoring the seeded gold-data exception list.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 221
+- Lines deleted: 5
+- Net lines: 216
+- Total churn: 226
+
+Key outcomes:
+
+- Added a modernized Calendar `Skipped dates` edit field for recurring appointment roots.
+- Updated the root appointment update path so recurrence exception dates are parsed from comma, semicolon, or whitespace separated `YYYY-MM-DD` values and sent through the appointment update API.
+- Added a modernized smoke-test check for appointment recurrence exception-list editing and cleanup restoration.
+- Added the `workflow-appointment-recurrence-exception-edit` Playwright parity suite and `slice-109-appointment-recurrence-exception-edit-readiness` plan.
+- Added Workbench managed plan commands/cards for Slice 109 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 109 with thirty-six read-only slices and seventy-three mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment recurrence exception-list edit`.
+- A direct modernized API read confirmed the seeded recurrence exception list was restored to `2026-12-16` and generated occurrence `2026-12-30` returned after mutation cleanup.
+- `docker compose up -d` passed for the legacy OpenEMR stack.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-109-appointment-recurrence-exception-edit-readiness -Reset test` passed; run `2026-06-21T013345-859Z-legacy-openemr-plan-slice-109-appointment-recurrence-exception-edit-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-109-appointment-recurrence-exception-edit-readiness -Reset test` passed; run `2026-06-21T013345-854Z-modernized-openemr-plan-slice-109-appointment-recurrence-exception-edit-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-109-appointment-recurrence-exception-edit-readiness` passed with `status: matched`; comparison `2026-06-21T013430-355Z-legacy-openemr-vs-modernized-openemr-plan-slice-109-appointment-recurrence-exception-edit-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-recurrence-exception-edit/appointment-recurrence-exception-edit.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
