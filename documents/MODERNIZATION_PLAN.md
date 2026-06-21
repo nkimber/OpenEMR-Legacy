@@ -272,7 +272,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129. Focused report collected-date/specimen-number readiness is covered by Slice 130. Focused order-level specimen detail is covered by Slice 131. Focused procedure order metadata correction is covered by Slice 132. Focused procedure report metadata correction is covered by Slice 133. Focused procedure report review/sign-off readiness is covered by Slice 134. Focused report review queue readiness is covered by Slice 135. Focused review queue patient/date filtering is covered by Slice 136.
+- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129. Focused report collected-date/specimen-number readiness is covered by Slice 130. Focused order-level specimen detail is covered by Slice 131. Focused procedure order metadata correction is covered by Slice 132. Focused procedure report metadata correction is covered by Slice 133. Focused procedure report review/sign-off readiness is covered by Slice 134. Focused report review queue readiness is covered by Slice 135. Focused review queue patient/date filtering is covered by Slice 136. Focused review queue provider filtering is covered by Slice 137.
 - Amendment/versioning, external lab integration, specimen chain-of-custody beyond order-level specimen detail, order catalog management, broader review queue workflow operations, and audit history remain deferred to later lab/procedure slices.
 
 ### Slice 7: Billing And Fee Sheet
@@ -575,7 +575,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused lab procedure lifecycle only.
-- Amendment/versioning, external electronic lab interfaces, specimen chain-of-custody tracking beyond report metadata and order-level specimen detail, order catalogs, clinical review queue workflow actions beyond the focused queue view/sign-off path, authorization policy, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129, focused report specimen metadata is covered by Slice 130, focused order-level specimen detail is covered by Slice 131, focused order metadata correction is covered by Slice 132, focused report metadata correction is covered by Slice 133, focused report review/sign-off is covered by Slice 134, focused report review queue readiness is covered by Slice 135, and focused review queue patient/date filtering is covered by Slice 136.
+- Amendment/versioning, external electronic lab interfaces, specimen chain-of-custody tracking beyond report metadata and order-level specimen detail, order catalogs, clinical review queue workflow actions beyond the focused queue view/sign-off path, authorization policy, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129, focused report specimen metadata is covered by Slice 130, focused order-level specimen detail is covered by Slice 131, focused order metadata correction is covered by Slice 132, focused report metadata correction is covered by Slice 133, focused report review/sign-off is covered by Slice 134, focused report review queue readiness is covered by Slice 135, focused review queue patient/date filtering is covered by Slice 136, and focused review queue provider filtering is covered by Slice 137.
 
 ### Slice 129: Procedure Result Correction Readiness
 
@@ -806,7 +806,37 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused patient/date filtering for the report review queue only. It does not implement saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused patient/date filtering for the report review queue only. Provider filtering is covered by Slice 137. It does not implement saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+
+### Slice 137: Procedure Report Review Queue Provider Filters Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized lab/procedure report review queue provider filter slice under `modernized-openemr/`.
+- Verification is the shared `slice-137-procedure-report-review-queue-provider-filters-readiness` plan, which creates a temporary received report with a known provider, verifies provider-filtered unreviewed queue inclusion, verifies outside-provider exclusion, signs the report, verifies filtered reviewed queue membership, and deletes the temporary procedure tree and encounter on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core extends `GET /api/procedures/report-review-queue` with optional `providerId` filtering while preserving status, patient, and date filters.
+- `ProcedureRepository.GetReportReviewQueueAsync` applies the provider filter against `lab_orders.provider_id`, matching the legacy `list_reports.php` `form_provider` / `procedure_order.provider_id` semantics.
+- The React Reports workspace renders a Provider number control in the procedure report review queue filter grid and displays provider IDs on queue cards.
+- Legacy and modernized database probes now share normalized provider-filtered procedure report review queue facts.
+- The modernized smoke test validates provider-filtered queue inclusion, outside-provider exclusion, and filtered reviewed queue membership during the procedure mutation lifecycle.
+- Workbench-managed Slice 137 procedure report review queue provider filters plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared plan creates a temporary lab workflow for `MOD-PAT-0009`, stores the report as `received`, and verifies provider-filtered membership in the unreviewed queue.
+- An outside provider filter excludes the temporary report from the unreviewed queue.
+- The legacy `Procedure Orders and Reports` screen is exercised through OpenEMR `list_reports.php` provider filter parameters.
+- The modernized Reports workspace applies the Provider control to the same queue endpoint and renders matching inclusion/exclusion behavior.
+- After `admin` sign-off, the provider-filtered reviewed queue contains the same report with normalized reviewer metadata.
+- Hard-delete cleanup restores procedure counts and removes the temporary encounter/order/report rows.
+- The side-by-side Slice 137 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused provider filtering for the report review queue only. Legacy lab filtering through `form_lab_search` remains deferred because the modernized schema and gold-data mapping do not yet model `procedure_order.lab_id`. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3880,3 +3910,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-fourth modernized vertical slice implements procedure report sign-off readiness with modernized report review metadata, a focused report sign endpoint, React Procedures sign controls, normalized legacy/modernized signed report probes, Workbench procedure report sign-off plan actions, smoke coverage, cleanup deletion, and side-by-side slice-134 parity evidence.
 - The one-hundred-thirty-fifth modernized vertical slice implements procedure report review queue readiness with a filtered Reports workspace queue, a focused review-queue API endpoint, normalized legacy/modernized queue probes, Workbench procedure report review queue plan actions, smoke coverage, cleanup deletion, and side-by-side slice-135 parity evidence.
 - The one-hundred-thirty-sixth modernized vertical slice implements procedure report review queue patient/date filtering with API/query-string filters, Reports workspace filter controls, normalized legacy/modernized filtered queue probes, Workbench procedure report review queue filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-136 parity evidence.
+- The one-hundred-thirty-seventh modernized vertical slice implements procedure report review queue provider filtering with API/query-string provider filters, Reports workspace Provider controls, normalized legacy/modernized provider-filtered queue probes, Workbench procedure report review queue provider filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-137 parity evidence.
