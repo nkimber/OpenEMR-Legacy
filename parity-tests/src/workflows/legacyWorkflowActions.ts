@@ -793,6 +793,7 @@ export type NewProcedureOrder = {
 
 export type NewProcedureLabProvider = {
   name: string;
+  labDirectorId?: number;
   npi?: string;
   protocol?: string;
   usage?: string;
@@ -810,9 +811,19 @@ export type NewProcedureLabProvider = {
   active?: boolean;
 };
 
+export type NewProcedureLabProviderAddressBookOrganization = {
+  organization: string;
+  type?: string;
+  active?: boolean;
+  npi?: string;
+};
+
 export type ProcedureLabProviderRecord = {
   id: number;
   name: string;
+  labDirectorId: number;
+  labDirectorName: string;
+  labDirectorType: string;
   npi: string;
   protocol: string;
   usage: string;
@@ -2956,12 +2967,16 @@ VALUES
   }
 
   async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
+    const providerName = input.labDirectorId
+      ? await this.getProcedureLabProviderAddressBookOrganizationName(input.labDirectorId)
+      : input.name;
+
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_providers
-  (uuid, name, npi, send_app_id, send_fac_id, recv_app_id, recv_fac_id, DorP, direction, protocol,
+  (uuid, name, lab_director, npi, send_app_id, send_fac_id, recv_app_id, recv_fac_id, DorP, direction, protocol,
    remote_host, login, password, orders_path, results_path, notes, active)
 VALUES
-  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")},
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(providerName)}, ${integer(input.labDirectorId ?? 0)}, ${sqlString(input.npi ?? "")},
    ${sqlString(input.sendApplicationId ?? "")}, ${sqlString(input.sendFacilityId ?? "")},
    ${sqlString(input.receiveApplicationId ?? "")}, ${sqlString(input.receiveFacilityId ?? "")},
    ${sqlString(input.usage ?? "D")}, ${sqlString(input.direction ?? "B")}, ${sqlString(input.protocol ?? "DL")},
@@ -2974,9 +2989,14 @@ SELECT LAST_INSERT_ID() AS id;
   }
 
   async updateProcedureLabProvider(id: number, input: NewProcedureLabProvider): Promise<void> {
+    const providerName = input.labDirectorId
+      ? await this.getProcedureLabProviderAddressBookOrganizationName(input.labDirectorId)
+      : input.name;
+
     await this.db.execute(`
 UPDATE procedure_providers
-SET name = ${sqlString(input.name)},
+SET name = ${sqlString(providerName)},
+  lab_director = ${integer(input.labDirectorId ?? 0)},
   npi = ${sqlString(input.npi ?? "")},
   send_app_id = ${sqlString(input.sendApplicationId ?? "")},
   send_fac_id = ${sqlString(input.sendFacilityId ?? "")},
@@ -3005,25 +3025,29 @@ WHERE ppid = ${integer(id)};
 
   async getProcedureLabProvider(id: number): Promise<ProcedureLabProviderRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT ppid AS id,
-  name,
-  COALESCE(npi, '') AS npi,
-  COALESCE(protocol, '') AS protocol,
-  COALESCE(DorP, '') AS "usage",
-  COALESCE(direction, '') AS direction,
-  COALESCE(send_app_id, '') AS "sendApplicationId",
-  COALESCE(send_fac_id, '') AS "sendFacilityId",
-  COALESCE(recv_app_id, '') AS "receiveApplicationId",
-  COALESCE(recv_fac_id, '') AS "receiveFacilityId",
-  COALESCE(remote_host, '') AS "remoteHost",
-  COALESCE(login, '') AS login,
-  COALESCE(password, '') AS password,
-  COALESCE(orders_path, '') AS "ordersPath",
-  COALESCE(results_path, '') AS "resultsPath",
-  COALESCE(notes, '') AS notes,
-  active
-FROM procedure_providers
-WHERE ppid = ${integer(id)}
+SELECT pp.ppid AS id,
+  pp.name,
+  COALESCE(pp.lab_director, 0) AS "labDirectorId",
+  COALESCE(u.organization, '') AS "labDirectorName",
+  COALESCE(u.abook_type, '') AS "labDirectorType",
+  COALESCE(pp.npi, '') AS npi,
+  COALESCE(pp.protocol, '') AS protocol,
+  COALESCE(pp.DorP, '') AS "usage",
+  COALESCE(pp.direction, '') AS direction,
+  COALESCE(pp.send_app_id, '') AS "sendApplicationId",
+  COALESCE(pp.send_fac_id, '') AS "sendFacilityId",
+  COALESCE(pp.recv_app_id, '') AS "receiveApplicationId",
+  COALESCE(pp.recv_fac_id, '') AS "receiveFacilityId",
+  COALESCE(pp.remote_host, '') AS "remoteHost",
+  COALESCE(pp.login, '') AS login,
+  COALESCE(pp.password, '') AS password,
+  COALESCE(pp.orders_path, '') AS "ordersPath",
+  COALESCE(pp.results_path, '') AS "resultsPath",
+  COALESCE(pp.notes, '') AS notes,
+  pp.active
+FROM procedure_providers pp
+LEFT JOIN users u ON u.id = pp.lab_director
+WHERE pp.ppid = ${integer(id)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -3034,6 +3058,9 @@ LIMIT 1;
     return {
       id: Number(row.id),
       name: row.name,
+      labDirectorId: Number(row.labDirectorId),
+      labDirectorName: row.labDirectorName,
+      labDirectorType: row.labDirectorType,
       npi: row.npi,
       protocol: row.protocol,
       usage: row.usage,
@@ -3050,6 +3077,49 @@ LIMIT 1;
       notes: row.notes,
       active: row.active === "1"
     };
+  }
+
+  async createProcedureLabProviderAddressBookOrganization(
+    input: NewProcedureLabProviderAddressBookOrganization
+  ): Promise<number> {
+    const username = `parity-${input.organization.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 28)}-${Date.now()}`;
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO users
+  (uuid, username, password, authorized, fname, lname, facility, facility_id, see_auth,
+   active, npi, title, specialty, email, calendar, taxonomy, abook_type, organization,
+   main_menu_role, patient_menu_role, billing_facility_id)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(username)}, '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',
+   0, '', '', (SELECT name FROM facility WHERE id = 10 LIMIT 1), 10, 1,
+   ${input.active === false ? 0 : 1}, ${sqlString(input.npi ?? "")}, '',
+   ${sqlString(input.type ?? "ord_lab")}, ${sqlString(`${username}@example.test`)}, 0, '207Q00000X',
+   ${sqlString(input.type ?? "ord_lab")}, ${sqlString(input.organization)}, 'standard', 'standard', 10);
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async deleteProcedureLabProviderAddressBookOrganization(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM users
+WHERE id = ${integer(id)};
+`);
+  }
+
+  private async getProcedureLabProviderAddressBookOrganizationName(id: number): Promise<string> {
+    const rows = await this.db.queryRows<{ organization: string }>(`
+SELECT organization
+FROM users
+WHERE id = ${integer(id)}
+  AND abook_type LIKE 'ord_%'
+LIMIT 1;
+`);
+    const organization = rows[0]?.organization;
+    if (!organization) {
+      throw new Error(`Legacy procedure lab provider address book organization ${id} was not found.`);
+    }
+
+    return organization;
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {

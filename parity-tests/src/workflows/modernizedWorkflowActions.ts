@@ -37,6 +37,7 @@ import type {
   NewPatientRegistration,
   NewProblem,
   NewProcedureLabProvider,
+  NewProcedureLabProviderAddressBookOrganization,
   NewUser,
   NewPatientMessage,
   NewAppointment,
@@ -2118,6 +2119,7 @@ LIMIT 1;
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         name: input.name,
+        labDirectorId: input.labDirectorId ?? null,
         npi: input.npi ?? "",
         protocol: input.protocol ?? "DL",
         usage: input.usage ?? "D",
@@ -2150,6 +2152,7 @@ LIMIT 1;
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         name: input.name,
+        labDirectorId: input.labDirectorId ?? null,
         npi: input.npi ?? "",
         protocol: input.protocol ?? "DL",
         usage: input.usage ?? "D",
@@ -2185,25 +2188,29 @@ LIMIT 1;
 
   async getProcedureLabProvider(id: number): Promise<ProcedureLabProviderRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT id,
-  name,
-  COALESCE(npi, '') AS npi,
-  COALESCE(NULLIF(TRIM(protocol), ''), 'DL') AS protocol,
-  COALESCE(NULLIF(TRIM(usage), ''), 'D') AS "usage",
-  COALESCE(NULLIF(TRIM(direction), ''), 'B') AS direction,
-  COALESCE(send_app_id, '') AS "sendApplicationId",
-  COALESCE(send_fac_id, '') AS "sendFacilityId",
-  COALESCE(recv_app_id, '') AS "receiveApplicationId",
-  COALESCE(recv_fac_id, '') AS "receiveFacilityId",
-  COALESCE(remote_host, '') AS "remoteHost",
-  COALESCE(login, '') AS login,
-  COALESCE(password, '') AS password,
-  COALESCE(orders_path, '') AS "ordersPath",
-  COALESCE(results_path, '') AS "resultsPath",
-  COALESCE(notes, '') AS notes,
-  CASE WHEN active THEN '1' ELSE '0' END AS active
-FROM lab_providers
-WHERE id = ${integer(id)}
+SELECT lp.id,
+  lp.name,
+  COALESCE(lab_director_id, 0) AS "labDirectorId",
+  COALESCE(abo.organization, '') AS "labDirectorName",
+  COALESCE(abo.type, '') AS "labDirectorType",
+  COALESCE(lp.npi, '') AS npi,
+  COALESCE(NULLIF(TRIM(lp.protocol), ''), 'DL') AS protocol,
+  COALESCE(NULLIF(TRIM(lp.usage), ''), 'D') AS "usage",
+  COALESCE(NULLIF(TRIM(lp.direction), ''), 'B') AS direction,
+  COALESCE(lp.send_app_id, '') AS "sendApplicationId",
+  COALESCE(lp.send_fac_id, '') AS "sendFacilityId",
+  COALESCE(lp.recv_app_id, '') AS "receiveApplicationId",
+  COALESCE(lp.recv_fac_id, '') AS "receiveFacilityId",
+  COALESCE(lp.remote_host, '') AS "remoteHost",
+  COALESCE(lp.login, '') AS login,
+  COALESCE(lp.password, '') AS password,
+  COALESCE(lp.orders_path, '') AS "ordersPath",
+  COALESCE(lp.results_path, '') AS "resultsPath",
+  COALESCE(lp.notes, '') AS notes,
+  CASE WHEN lp.active THEN '1' ELSE '0' END AS active
+FROM lab_providers lp
+LEFT JOIN lab_provider_address_book abo ON abo.id = lp.lab_director_id
+WHERE lp.id = ${integer(id)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -2214,6 +2221,9 @@ LIMIT 1;
     return {
       id: Number(row.id),
       name: row.name,
+      labDirectorId: Number(row.labDirectorId),
+      labDirectorName: row.labDirectorName,
+      labDirectorType: row.labDirectorType,
       npi: row.npi,
       protocol: row.protocol,
       usage: row.usage,
@@ -2230,6 +2240,37 @@ LIMIT 1;
       notes: row.notes,
       active: row.active === "1"
     };
+  }
+
+  async createProcedureLabProviderAddressBookOrganization(
+    input: NewProcedureLabProviderAddressBookOrganization
+  ): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-provider-address-book`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        organization: input.organization,
+        type: input.type ?? "ord_lab",
+        active: input.active ?? true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure lab provider address book create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async deleteProcedureLabProviderAddressBookOrganization(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-provider-address-book/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized procedure lab provider address book delete failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
