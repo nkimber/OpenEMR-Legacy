@@ -7954,6 +7954,66 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 147. Modernized Appointment Provider Overlap Slice 117
+
+Commit: `d7a79031`
+Started: `2026-06-21T00:50:00.0000000-04:00`
+Finished: `2026-06-21T01:04:52.0000000-04:00`
+
+Implemented the one-hundred-seventeenth modernized OpenEMR vertical slice: appointment provider overlap readiness, proving that legacy-compatible same-provider, same-time appointment double-booking remains allowed while the modernized API and Calendar surface non-blocking overlap detail for operators.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 455
+- Lines deleted: 10
+- Net lines: 445
+- Total churn: 465
+
+Key outcomes:
+
+- Added the `workflow-appointment-provider-overlap` Playwright parity suite and `slice-117-appointment-provider-overlap-readiness` plan.
+- The shared parity workflow creates two temporary appointments for `MOD-PAT-0003` and `MOD-PAT-0004` with provider `102` at `2026-12-04 09:00`, verifies both targets allow and render the overlapping appointments, and hard-deletes both during cleanup.
+- The modernized appointment API now returns `providerOverlapCount` and `providerOverlapAppointmentIds` on appointment search/detail responses.
+- The modernized Calendar detail panel renders `Provider overlaps`, while appointment result cards display provider-overlap badges without blocking scheduling behavior.
+- Extended the modernized smoke test with an `appointment provider overlap tolerance` check that verifies reciprocal overlap IDs and deletes the temporary appointments.
+- Added Workbench managed plan commands/cards for Slice 117 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 117 with thirty-six read-only slices and eighty-one mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment provider overlap tolerance`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-117-appointment-provider-overlap-readiness -Reset test` passed; run `2026-06-21T050311-271Z-modernized-openemr-plan-slice-117-appointment-provider-overlap-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-117-appointment-provider-overlap-readiness -Reset test` passed; run `2026-06-21T050342-078Z-legacy-openemr-plan-slice-117-appointment-provider-overlap-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-117-appointment-provider-overlap-readiness` passed with `status: matched`; comparison `2026-06-21T050415-549Z-legacy-openemr-vs-modernized-openemr-plan-slice-117-appointment-provider-overlap-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-provider-overlap/appointment-provider-overlap.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
