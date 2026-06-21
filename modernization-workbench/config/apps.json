@@ -143,7 +143,8 @@
         "parityAppointmentSeriesRootUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-110-appointment-series-root-update-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-111-appointment-series-root-metadata-readiness", "-Reset", "test"],
         "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"],
-        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"]
+        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"],
+        "parityAppointmentDaysOfWeekRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-114-appointment-days-of-week-recurrence-readiness", "-Reset", "test"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -492,6 +493,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentRecurrenceUnitMatrixPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-days-of-week-recurrence",
+          "name": "Slice 114 appointment days-of-week recurrence plan",
+          "description": "Runs the shared selected-weekday recurring appointment mutation and expansion plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentDaysOfWeekRecurrencePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-114-appointment-days-of-week-recurrence-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1291,7 +1300,8 @@
         "parityAppointmentSeriesRootUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-110-appointment-series-root-update-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-111-appointment-series-root-metadata-readiness", "-Reset", "test"],
         "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"],
-        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"]
+        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"],
+        "parityAppointmentDaysOfWeekRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-114-appointment-days-of-week-recurrence-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1568,6 +1578,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentRecurrenceUnitMatrixPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-days-of-week-recurrence",
+          "name": "Slice 114 appointment days-of-week recurrence plan",
+          "description": "Runs the shared selected-weekday recurring appointment mutation and expansion plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentDaysOfWeekRecurrencePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-114-appointment-days-of-week-recurrence-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",

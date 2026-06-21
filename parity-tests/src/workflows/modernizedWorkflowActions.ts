@@ -532,6 +532,7 @@ LIMIT 1;
         recurrenceType: input.recurrenceType ?? 0,
         repeatFrequency: input.repeatFrequency ?? null,
         repeatUnit: input.repeatUnit ?? null,
+        recurrenceDays: input.recurrenceDays ?? null,
         recurrenceEndDate: input.recurrenceEndDate ?? null
       })
     });
@@ -554,6 +555,7 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   COALESCE(recurrence_type, 0) AS "recurrenceType",
   repeat_frequency AS "repeatFrequency",
   repeat_unit AS "repeatUnit",
+  COALESCE(recurrence_days, '') AS "recurrenceDays",
   recurrence_end_date AS "recurrenceEndDate",
   COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
 FROM appointments
@@ -583,6 +585,7 @@ LIMIT 1;
       recurrenceType: Number(row.recurrenceType),
       repeatFrequency: nullableNumber(row.repeatFrequency),
       repeatUnit: nullableNumber(row.repeatUnit),
+      recurrenceDays: splitNumberList(row.recurrenceDays),
       recurrenceEndDate: row.recurrenceEndDate,
       recurrenceExdates: splitDateList(row.recurrenceExdates)
     };
@@ -598,6 +601,7 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   COALESCE(recurrence_type, 0) AS "recurrenceType",
   repeat_frequency AS "repeatFrequency",
   repeat_unit AS "repeatUnit",
+  COALESCE(recurrence_days, '') AS "recurrenceDays",
   recurrence_end_date AS "recurrenceEndDate",
   COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
 FROM appointments
@@ -623,6 +627,7 @@ ORDER BY appointment_date, start_time, id;
       recurrenceType: Number(row.recurrenceType),
       repeatFrequency: nullableNumber(row.repeatFrequency),
       repeatUnit: nullableNumber(row.repeatUnit),
+      recurrenceDays: splitNumberList(row.recurrenceDays),
       recurrenceEndDate: row.recurrenceEndDate,
       recurrenceExdates: splitDateList(row.recurrenceExdates)
     }));
@@ -659,6 +664,7 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: number;
         repeatFrequency: number | null;
         repeatUnit: number | null;
+        recurrenceDays: number[];
         recurrenceEndDate: string | null;
         recurrenceExdates: string[];
         recurrenceExceptionCount: number;
@@ -688,6 +694,7 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
+        recurrenceDays: appointment.recurrenceDays ?? [],
         recurrenceEndDate: appointment.recurrenceEndDate,
         recurrenceExdates: appointment.recurrenceExdates ?? [],
         recurrenceExceptionCount: appointment.recurrenceExceptionCount ?? 0,
@@ -727,6 +734,7 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: input.recurrenceType ?? 0,
         repeatFrequency: input.repeatFrequency ?? null,
         repeatUnit: input.repeatUnit ?? null,
+        recurrenceDays: input.recurrenceDays ?? null,
         recurrenceEndDate: input.recurrenceEndDate ?? null,
         recurrenceExdates: input.recurrenceExdates ?? null
       })
@@ -2483,7 +2491,12 @@ function normalizeTime(value: string) {
 }
 
 function nullableNumber(value: unknown) {
-  return value === null || value === undefined ? null : Number(value);
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function splitDateList(value: string | null | undefined) {
@@ -2496,6 +2509,21 @@ function splitDateList(value: string | null | undefined) {
     .map((entry) => entry.trim())
     .filter((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry))
     .sort();
+}
+
+function splitNumberList(value: string | null | undefined) {
+  if (!value) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .split(/[,\s;]+/)
+        .map((entry) => Number(entry.trim()))
+        .filter((entry) => Number.isInteger(entry) && entry >= 1 && entry <= 7)
+    )
+  ).sort((left, right) => left - right);
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

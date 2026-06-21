@@ -64,6 +64,7 @@ export type AppointmentRecord = {
   recurrenceType: number;
   repeatFrequency: number | null;
   repeatUnit: number | null;
+  recurrenceDays: number[];
   recurrenceEndDate: string | null;
   recurrenceExdates: string[];
 };
@@ -86,6 +87,7 @@ export type AppointmentSeriesOccurrence = {
   recurrenceType: number;
   repeatFrequency: number | null;
   repeatUnit: number | null;
+  recurrenceDays: number[];
   recurrenceEndDate: string | null;
   recurrenceExdates: string[];
   recurrenceExceptionCount: number;
@@ -421,6 +423,7 @@ export type NewAppointment = {
   recurrenceType?: number;
   repeatFrequency?: number;
   repeatUnit?: number;
+  recurrenceDays?: number[];
   recurrenceEndDate?: string;
   recurrenceExdates?: string[];
 };
@@ -441,6 +444,7 @@ export type AppointmentUpdate = {
   recurrenceType?: number;
   repeatFrequency?: number;
   repeatUnit?: number;
+  recurrenceDays?: number[];
   recurrenceEndDate?: string;
   recurrenceExdates?: string[];
 };
@@ -1435,6 +1439,7 @@ ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
         recurrenceType: recurrence.recurrenceType,
         repeatFrequency: recurrence.repeatFrequency,
         repeatUnit: recurrence.repeatUnit,
+        recurrenceDays: recurrence.recurrenceDays,
         recurrenceEndDate: recurrence.recurrenceEndDate,
         recurrenceExdates: recurrence.recurrenceExdates
       }, fromDate);
@@ -1505,7 +1510,8 @@ WHERE pc_eid = ${integer(legacyId)};
       appointment.recurrenceType,
       appointment.repeatFrequency,
       appointment.repeatUnit,
-      recurrenceExdates);
+      recurrenceExdates,
+      appointment.recurrenceDays);
     await this.db.execute(`
 UPDATE openemr_postcalendar_events
 SET pc_recurrspec = ${sqlString(recurrenceSpec)}
@@ -3051,10 +3057,10 @@ function appointmentCategoryName(categoryId: number) {
 
 function buildAppointmentRecurrence(input: NewAppointment | AppointmentUpdate) {
   const type = input.recurrenceType ?? 0;
-  const repeatFrequency = type > 0 ? input.repeatFrequency ?? 1 : null;
-  const repeatUnit = type > 0 ? input.repeatUnit ?? 1 : null;
+  const repeatFrequency = type > 0 && type !== 3 ? input.repeatFrequency ?? 1 : null;
+  const repeatUnit = type === 3 ? 6 : type > 0 ? input.repeatUnit ?? 1 : null;
   const endDate = type > 0 ? input.recurrenceEndDate ?? input.eventDate : input.eventDate;
-  const spec = serializeAppointmentRecurrence(type, repeatFrequency, repeatUnit, input.recurrenceExdates);
+  const spec = serializeAppointmentRecurrence(type, repeatFrequency, repeatUnit, input.recurrenceExdates, input.recurrenceDays);
   return { type, repeatFrequency, repeatUnit, endDate, spec };
 }
 
@@ -3065,8 +3071,20 @@ function parseAppointmentRecurrence(typeValue: string, spec: string, endDate: st
       recurrenceType: 0,
       repeatFrequency: null,
       repeatUnit: null,
+      recurrenceDays: [],
       recurrenceEndDate: null,
       recurrenceExdates: []
+    };
+  }
+
+  if (recurrenceType === 3) {
+    return {
+      recurrenceType,
+      repeatFrequency: null,
+      repeatUnit: 6,
+      recurrenceDays: numberListFromSerializedField(spec, "event_repeat_freq"),
+      recurrenceEndDate: endDate,
+      recurrenceExdates: dateListFromSerializedField(spec, "exdate")
     };
   }
 
@@ -3074,6 +3092,7 @@ function parseAppointmentRecurrence(typeValue: string, spec: string, endDate: st
     recurrenceType,
     repeatFrequency: numberFromSerializedField(spec, "event_repeat_freq"),
     repeatUnit: numberFromSerializedField(spec, "event_repeat_freq_type"),
+    recurrenceDays: [],
     recurrenceEndDate: endDate,
     recurrenceExdates: dateListFromSerializedField(spec, "exdate")
   };
@@ -3098,6 +3117,31 @@ function dateListFromSerializedField(spec: string, fieldName: string) {
     .sort();
 }
 
+function numberListFromSerializedField(spec: string, fieldName: string) {
+  const rawValue = stringFromSerializedField(spec, fieldName);
+  if (!rawValue) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      rawValue
+        .split(/[,\s;]+/)
+        .map((value) => Number(value.trim()))
+        .filter((value) => Number.isInteger(value) && value >= 1 && value <= 7)
+    )
+  ).sort((left, right) => left - right);
+}
+
+function normalizeRecurrenceDays(recurrenceDays: number[] | undefined = undefined) {
+  return Array.from(
+    new Set(
+      (recurrenceDays ?? [])
+        .filter((value) => Number.isInteger(value) && value >= 1 && value <= 7)
+    )
+  ).sort((left, right) => left - right);
+}
+
 function stringFromSerializedField(spec: string, fieldName: string) {
   const pattern = new RegExp(`s:${fieldName.length}:"${fieldName}";s:\\d+:"([^"]*)"`);
   const match = pattern.exec(spec);
@@ -3108,7 +3152,8 @@ function serializeAppointmentRecurrence(
   type: number,
   repeatFrequency: number | null,
   repeatUnit: number | null,
-  recurrenceExdates: string[] | undefined = undefined
+  recurrenceExdates: string[] | undefined = undefined,
+  recurrenceDays: number[] | undefined = undefined
 ) {
   const normalizedExdates = type > 0
     ? Array.from(new Set(recurrenceExdates ?? []))
@@ -3116,9 +3161,10 @@ function serializeAppointmentRecurrence(
       .sort()
       .join(",")
     : "";
+  const normalizedDays = type === 3 ? normalizeRecurrenceDays(recurrenceDays).join(",") : "";
   const fields = {
-    event_repeat_freq: type > 0 ? String(repeatFrequency ?? 1) : "",
-    event_repeat_freq_type: type > 0 ? String(repeatUnit ?? 1) : "",
+    event_repeat_freq: type === 3 ? normalizedDays : type > 0 ? String(repeatFrequency ?? 1) : "",
+    event_repeat_freq_type: type === 3 ? "6" : type > 0 ? String(repeatUnit ?? 1) : "",
     event_repeat_on_num: "1",
     event_repeat_on_day: "0",
     event_repeat_on_freq: "0",
@@ -3148,6 +3194,7 @@ function expandAppointmentSeriesOccurrences(
     recurrenceType: number;
     repeatFrequency: number | null;
     repeatUnit: number | null;
+    recurrenceDays: number[];
     recurrenceEndDate: string | null;
     recurrenceExdates?: string[];
   },
@@ -3163,6 +3210,52 @@ function expandAppointmentSeriesOccurrences(
   const repeatFrequency = Math.max(1, appointment.repeatFrequency ?? 1);
   const occurrences: AppointmentSeriesOccurrence[] = [];
   let current = parseDateOnly(appointment.anchorDate);
+  if (appointment.recurrenceType === 3) {
+    const selectedDays = new Set(normalizeRecurrenceDays(appointment.recurrenceDays));
+    if (selectedDays.size === 0) {
+      return [];
+    }
+
+    let occurrenceNumber = 0;
+    while (current <= end && occurrenceNumber < 366) {
+      const currentDate = formatDateOnly(current);
+      if (selectedDays.has(openEmrWeekday(current))) {
+        occurrenceNumber++;
+        if (current >= from && !exdates.has(currentDate)) {
+          occurrences.push({
+            id: occurrenceNumber === 1 ? appointment.id : `${appointment.id}::occurs::${currentDate}`,
+            seriesRootId: appointment.id,
+            patientId: appointment.patientId,
+            providerId: appointment.providerId,
+            title: appointment.title,
+            date: currentDate,
+            startTime: appointment.startTime,
+            status: appointment.status,
+            facilityId: appointment.facilityId,
+            billingLocationId: appointment.billingLocationId,
+            room: appointment.room,
+            categoryId: appointment.categoryId,
+            categoryName: appointment.categoryName,
+            comments: appointment.comments,
+            recurrenceType: appointment.recurrenceType,
+            repeatFrequency: appointment.repeatFrequency,
+            repeatUnit: appointment.repeatUnit,
+            recurrenceDays: appointment.recurrenceDays,
+            recurrenceEndDate: appointment.recurrenceEndDate,
+            recurrenceExdates: appointment.recurrenceExdates ?? [],
+            recurrenceExceptionCount: appointment.recurrenceExdates?.length ?? 0,
+            occurrenceNumber,
+            isVirtualOccurrence: currentDate !== appointment.anchorDate
+          });
+        }
+      }
+
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+
+    return occurrences;
+  }
+
   for (let occurrenceNumber = 1; current <= end && occurrenceNumber <= 366; occurrenceNumber++) {
     const currentDate = formatDateOnly(current);
     if (current >= from && !exdates.has(currentDate)) {
@@ -3184,6 +3277,7 @@ function expandAppointmentSeriesOccurrences(
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
+        recurrenceDays: appointment.recurrenceDays,
         recurrenceEndDate: appointment.recurrenceEndDate,
         recurrenceExdates: appointment.recurrenceExdates ?? [],
         recurrenceExceptionCount: appointment.recurrenceExdates?.length ?? 0,
@@ -3208,6 +3302,10 @@ function parseDateOnly(value: string) {
 
 function formatDateOnly(value: Date) {
   return value.toISOString().slice(0, 10);
+}
+
+function openEmrWeekday(value: Date) {
+  return value.getUTCDay() + 1;
 }
 
 function getNextSeriesOccurrenceDate(value: Date, repeatFrequency: number, repeatUnit: number | null) {

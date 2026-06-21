@@ -68,6 +68,7 @@ param(
         "workflow-appointment-series-root-metadata",
         "workflow-appointment-monthly-recurrence",
         "workflow-appointment-recurrence-unit-matrix",
+        "workflow-appointment-days-of-week-recurrence",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
