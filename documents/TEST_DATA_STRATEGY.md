@@ -363,6 +363,8 @@ Slice 123 adds encounter document replacement revision coverage by creating a te
 
 Slice 126 adds encounter scanned attachment readiness coverage by creating a temporary PDF document on `MOD-PAT-0001` encounter `1000013`, deriving scan status, capture source, scanned page count, and OCR status from document metadata/notes in both targets, rendering those facts in the modernized Encounter attached-document card, and hard-deleting the row without mutating permanent seed data.
 
+Slice 127 adds encounter binary document content replacement coverage by creating a temporary PDF document on `MOD-PAT-0001` encounter `1000013`, replacing its stored binary payload with a second PDF while preserving the same document and encounter identity, verifying replacement file name, MIME type, size, hash/revision, preview, API/UI, and byte-for-byte download facts, and hard-deleting the row so seeded document counts and encounter document links return to baseline.
+
 The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation anchor. The plan creates a temporary encounter on `2026-06-18`, records vitals, records a SOAP note, verifies encounter/vitals/clinical-note counts increase, updates the encounter reason and billing note, verifies browser-visible updated reason, blood pressure, billing note, and SOAP assessment, deletes the temporary encounter and child rows, and verifies the counts return to the seeded baseline.
 
 ### Level 3: Extended Synthetic Population

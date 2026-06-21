@@ -8502,6 +8502,70 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 157. Encounter Binary Replacement Slice 127
+
+Commit: `d8e5e9b5`
+Started: `2026-06-21T04:03:00.0000000-04:00`
+Finished: `2026-06-21T04:31:20.7034393-04:00`
+
+Implemented the one-hundred-twenty-seventh project slice and latest modernized OpenEMR workflow slice: encounter binary document content replacement readiness, proving that an existing encounter-scoped PDF attachment can have its stored bytes, MIME type, file name, size, hash, revision facts, preview metadata, and download payload replaced in place while preserving document and encounter identity.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 803
+- Lines deleted: 14
+- Net lines: 789
+- Total churn: 817
+
+Key outcomes:
+
+- Added a modernized binary content replacement DTO, repository mutation, and guarded encounter endpoint `PUT /api/encounters/{encounter}/documents/{documentId}/content/binary`.
+- Added a modernized frontend API helper plus Encounters attached-document `Binary File` replacement mode using a file picker and byte-preserving base64 conversion.
+- Added modernized smoke coverage named `encounter binary document content replacement lifecycle`.
+- Added shared legacy and modernized workflow adapter support for encounter binary content replacement.
+- Added the `workflow-encounter-document-binary-content-replace` Playwright parity suite and `slice-127-encounter-document-binary-content-replace-readiness` plan.
+- The shared parity workflow creates a temporary PDF on `MOD-PAT-0001` encounter `1000013`, replaces it with a second PDF, verifies normalized content/download/API/UI/revision facts, and hard-deletes the document.
+- Added Workbench managed plan commands/cards for Slice 127 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 127 with thirty-eight read-only slices and eighty-seven mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1` and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed; `encounter binary document content replacement lifecycle` passed in `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-127-encounter-document-binary-content-replace-readiness -Reset test` passed; run `2026-06-21T082205-650Z-modernized-openemr-plan-slice-127-encounter-document-binary-content-replace-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-127-encounter-document-binary-content-replace-readiness -Reset test` passed; run `2026-06-21T082235-451Z-legacy-openemr-plan-slice-127-encounter-document-binary-content-replace-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-127-encounter-document-binary-content-replace-readiness` passed with `status: matched`; comparison `2026-06-21T082315-342Z-legacy-openemr-vs-modernized-openemr-plan-slice-127-encounter-document-binary-content-replace-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/DocumentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/DocumentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-binary-content-replace/encounter-binary-content-replace.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

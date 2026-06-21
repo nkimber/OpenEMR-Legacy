@@ -139,6 +139,7 @@ Verified behavior:
 - The API can run the shared slice-78 encounter document upload readiness parity plan for both legacy and modernized targets.
 - The API can run the shared slice-79 encounter binary document upload readiness parity plan for both legacy and modernized targets.
 - The API can run the shared slice-126 encounter scanned attachment readiness parity plan for both legacy and modernized targets.
+- The API can run the shared slice-127 encounter binary document content replacement readiness parity plan for both legacy and modernized targets.
 - The API can run the shared slice-80 encounter document sign-off readiness parity plan for both legacy and modernized targets.
 - The API can run the shared slice-81 encounter document denial readiness parity plan for both legacy and modernized targets.
 - The API can run the shared slice-82 encounter document metadata readiness parity plan for both legacy and modernized targets.
