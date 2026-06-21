@@ -65,6 +65,7 @@
         "parityDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-26-document-mutation-readiness", "-Reset", "test"],
         "parityDocumentContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-27-document-content-readiness", "-Reset", "run"],
         "parityBinaryDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-33-binary-document-mutation-readiness", "-Reset", "test"],
+        "parityDocumentBinaryContentReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-128-document-binary-content-replace-readiness", "-Reset", "test"],
         "parityInsurancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-28-insurance-readiness", "-Reset", "run"],
         "parityInsuranceMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-34-insurance-mutation-readiness", "-Reset", "test"],
         "parityEncounterMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-35-encounter-metadata-readiness", "-Reset", "test"],
@@ -698,6 +699,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-33-binary-document-mutation-readiness.json"
         },
         {
+          "id": "parity-plan-document-binary-content-replace",
+          "name": "Slice 128 patient binary content replacement plan",
+          "description": "Runs the shared patient-document binary content replacement plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentBinaryContentReplacePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-128-document-binary-content-replace-readiness.json"
+        },
+        {
           "id": "parity-plan-insurance",
           "name": "Slice 28 insurance plan",
           "description": "Runs the shared patient insurance coverage plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1323,6 +1332,7 @@
         "parityDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-26-document-mutation-readiness", "-Reset", "test"],
         "parityDocumentContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-27-document-content-readiness", "-Reset", "run"],
         "parityBinaryDocumentMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-33-binary-document-mutation-readiness", "-Reset", "test"],
+        "parityDocumentBinaryContentReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-128-document-binary-content-replace-readiness", "-Reset", "test"],
         "parityInsurancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-28-insurance-readiness", "-Reset", "run"],
         "parityInsuranceMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-34-insurance-mutation-readiness", "-Reset", "test"],
         "parityEncounterMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-35-encounter-metadata-readiness", "-Reset", "test"],
@@ -1880,6 +1890,14 @@
           "layer": "plan",
           "commandName": "parityBinaryDocumentMutationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-33-binary-document-mutation-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-binary-content-replace",
+          "name": "Slice 128 patient binary content replacement plan",
+          "description": "Runs the shared patient-document binary content replacement plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentBinaryContentReplacePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-128-document-binary-content-replace-readiness.json"
         },
         {
           "id": "parity-plan-insurance",

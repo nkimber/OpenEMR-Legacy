@@ -106,6 +106,7 @@ param(
         "workflow-message-content",
         "workflow-documents",
         "workflow-document-binary",
+        "workflow-document-binary-content-replace",
         "workflow-document-image-preview",
         "workflow-document-image-thumbnail",
         "workflow-document-pdf-preview",

@@ -1435,12 +1435,22 @@ LIMIT 1;
   }
 
   async replacePatientDocumentBinaryContent(id: number | string, input: PatientDocumentBinaryContentReplacement): Promise<void> {
-    const document = await this.getPatientDocument(id);
-    if (!document || !document.encounter) {
-      throw new Error(`Modernized patient document ${id} is not linked to an encounter for binary replacement.`);
-    }
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content/binary`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          fileName: input.fileName,
+          mimetype: input.mimetype,
+          contentBase64: input.contentBase64
+        })
+      }
+    );
 
-    await this.replaceEncounterDocumentBinaryContent(document.encounter, id, input);
+    if (!response.ok) {
+      throw new Error(`Modernized patient binary document content replacement failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async replaceEncounterDocumentBinaryContent(
