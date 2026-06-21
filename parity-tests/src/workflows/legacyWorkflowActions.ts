@@ -425,6 +425,7 @@ export type ProcedureOrderRecord = {
   procedureType: string;
   diagnosis: string;
   instructions: string;
+  dateTransmitted: string;
 };
 
 export type NewProcedureOrderCatalogItem = {
@@ -3552,6 +3553,7 @@ SELECT po.procedure_order_id AS id, po.patient_id AS patientId, po.encounter_id 
   DATE(po.date_ordered) AS dateOrdered,
   po.order_status AS orderStatus, po.order_priority AS orderPriority,
   po.order_diagnosis AS diagnosis, po.patient_instructions AS instructions,
+  COALESCE(DATE_FORMAT(po.date_transmitted, '%Y-%m-%d %H:%i'), '') AS dateTransmitted,
   poc.procedure_code AS procedureCode, poc.procedure_name AS procedureName, poc.procedure_type AS procedureType
 FROM procedure_order po
 LEFT JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id AND poc.procedure_order_seq = 1
@@ -3573,7 +3575,8 @@ LIMIT 1;
       procedureName: row.procedureName,
       procedureType: row.procedureType,
       diagnosis: row.diagnosis,
-      instructions: row.instructions
+      instructions: row.instructions,
+      dateTransmitted: row.dateTransmitted
     };
   }
 
@@ -3603,6 +3606,20 @@ WHERE procedure_order_id = ${integer(id)}
 UPDATE procedure_order
 SET order_status = ${sqlString(status)}
 WHERE procedure_order_id = ${integer(id)};
+`);
+  }
+
+  async transmitProcedureOrder(id: number, transmittedAt: string): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_order po
+SET date_transmitted = ${sqlString(transmittedAt)}
+WHERE po.procedure_order_id = ${integer(id)}
+  AND po.date_transmitted IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM procedure_report pr
+    WHERE pr.procedure_order_id = po.procedure_order_id
+  );
 `);
   }
 

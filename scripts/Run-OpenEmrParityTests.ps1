@@ -144,6 +144,7 @@ param(
         "workflow-procedure-order-catalog-lifecycle",
         "workflow-procedure-vendor-compendium-import",
         "workflow-procedure-order-queue",
+        "workflow-procedure-order-transmit",
         "workflow-procedure-lab-provider-catalog",
         "workflow-procedure-lab-provider-directory",
         "workflow-procedure-lab-provider-lifecycle",

@@ -134,7 +134,7 @@ export async function openProcedureOrderQueueDirect(
   pid: number,
   fromDate: string,
   toDate: string,
-  queueOption: "3" | "5",
+  queueOption: "3" | "4" | "5",
   providerId?: number | string,
   labId?: number | string
 ) {

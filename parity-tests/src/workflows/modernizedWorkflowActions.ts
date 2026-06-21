@@ -2434,7 +2434,8 @@ SELECT id, pid AS "patientId", encounter AS "encounterId", order_date::date AS "
   COALESCE(order_status, '') AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
   COALESCE(code, '') AS "procedureCode", COALESCE(name, '') AS "procedureName",
   COALESCE(procedure_type, '') AS "procedureType", COALESCE(diagnosis, '') AS diagnosis,
-  COALESCE(instructions, '') AS instructions
+  COALESCE(instructions, '') AS instructions,
+  COALESCE(TO_CHAR(date_transmitted, 'YYYY-MM-DD HH24:MI'), '') AS "dateTransmitted"
 FROM lab_orders
 WHERE id = ${integer(id)}
 LIMIT 1;
@@ -2455,7 +2456,8 @@ LIMIT 1;
       procedureName: row.procedureName,
       procedureType: row.procedureType,
       diagnosis: row.diagnosis,
-      instructions: row.instructions
+      instructions: row.instructions,
+      dateTransmitted: row.dateTransmitted
     };
   }
 
@@ -2489,6 +2491,18 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized procedure order status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async transmitProcedureOrder(id: number, transmittedAt: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}/transmit`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ transmittedAt })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure order transmit failed with ${response.status}: ${await response.text()}`);
     }
   }
 

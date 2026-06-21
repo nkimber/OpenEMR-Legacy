@@ -1685,14 +1685,14 @@ LIMIT 100;
 WITH order_queue AS (
   SELECT lo.id,
     COALESCE(lo.order_status, '') AS "orderStatus",
-    NULL::timestamp AS "dateTransmitted",
+    lo.date_transmitted AS "dateTransmitted",
     COUNT(DISTINCT lr.id) AS "reportCount"
   FROM lab_orders lo
   INNER JOIN patients p ON p.legacy_pid = lo.pid
   LEFT JOIN lab_reports lr ON lr.order_id = lo.id
   WHERE 1 = 1
     ${whereFilters}
-  GROUP BY lo.id, lo.order_status
+  GROUP BY lo.id, lo.order_status, lo.date_transmitted
 )
 SELECT COUNT(*) AS "totalOrders",
   COALESCE(SUM(CASE WHEN "reportCount" = 0 AND "dateTransmitted" IS NULL THEN 1 ELSE 0 END), 0) AS "readyToSendOrders",
@@ -1730,7 +1730,7 @@ FROM (
     COALESCE(lo.procedure_type, '') AS "procedureType",
     COALESCE(lo.order_priority, '') AS "orderPriority",
     COALESCE(lo.order_status, '') AS "orderStatus",
-    '' AS "dateTransmitted",
+    COALESCE(TO_CHAR(lo.date_transmitted, 'YYYY-MM-DD HH24:MI'), '') AS "dateTransmitted",
     COUNT(DISTINCT lr.id) AS "reportCount",
     COUNT(DISTINCT lres.id) AS "resultCount",
     COUNT(DISTINCT ls.id) AS "specimenCount",
@@ -1744,7 +1744,8 @@ FROM (
   WHERE 1 = 1
     ${whereFilters}
   GROUP BY lo.id, lo.pid, p.pubpid, p.last_name, p.first_name, lo.encounter, lo.order_date, lo.provider_id,
-    lo.lab_id, lp.name, lo.code, lo.name, lo.procedure_type, lo.order_priority, lo.order_status, lo.instructions
+    lo.lab_id, lp.name, lo.code, lo.name, lo.procedure_type, lo.order_priority, lo.order_status,
+    lo.date_transmitted, lo.instructions
 ) q
 WHERE 1 = 1
   ${whereStatus}
