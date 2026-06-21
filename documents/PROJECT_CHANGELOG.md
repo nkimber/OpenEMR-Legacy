@@ -7772,6 +7772,70 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 144. Modernized Appointment Days-Of-Week Recurrence Slice 114
+
+Commit: `8e71739d`
+Started: `2026-06-20T23:23:00.0000000-04:00`
+Finished: `2026-06-20T23:53:21.0000000-04:00`
+
+Implemented the one-hundred-fourteenth modernized OpenEMR vertical slice: appointment days-of-week recurrence readiness, proving that OpenEMR `REPEAT_DAYS` style weekday selection can be created, expanded, rendered through both legacy and modernized workflows, and removed cleanly with matched side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 726
+- Lines deleted: 36
+- Net lines: 690
+- Total churn: 762
+
+Key outcomes:
+
+- Added the `workflow-appointment-days-of-week-recurrence` Playwright parity suite and `slice-114-appointment-days-of-week-recurrence-readiness` plan.
+- The shared parity workflow creates a temporary `MOD-PAT-0003` Monday/Wednesday/Friday recurring appointment from `2026-12-07` through `2026-12-18` and verifies generated dates `2026-12-07`, `2026-12-09`, `2026-12-11`, `2026-12-14`, `2026-12-16`, and `2026-12-18`.
+- The legacy path verifies OpenEMR `pc_recurrtype = 3`, repeat unit `6`, weekday serialization, and weekday checkbox rendering in the appointment editor.
+- The modernized backend now stores normalized selected weekdays in `appointments.recurrence_days`, expands only selected OpenEMR weekday values, and exposes recurrence-day metadata in appointment list/detail DTOs.
+- The modernized Calendar now supports create/edit weekday toggles, specific-weekday recurrence labels, generated occurrence cards, and generated occurrence detail rendering.
+- Extended the modernized smoke test with an `appointment days-of-week recurrence lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 114 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 114 with thirty-six read-only slices and seventy-eight mutation-capable slices.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr/backend/src/OpenEmr.Modernized.Api/OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment days-of-week recurrence lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-114-appointment-days-of-week-recurrence-readiness -Reset test` passed; run `2026-06-21T034936-641Z-modernized-openemr-plan-slice-114-appointment-days-of-week-recurrence-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-114-appointment-days-of-week-recurrence-readiness -Reset test` passed; run `2026-06-21T035000-620Z-legacy-openemr-plan-slice-114-appointment-days-of-week-recurrence-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-114-appointment-days-of-week-recurrence-readiness` passed with `status: matched`; comparison `2026-06-21T035042-743Z-legacy-openemr-vs-modernized-openemr-plan-slice-114-appointment-days-of-week-recurrence-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-appointment-days-of-week-recurrence/appointment-days-of-week-recurrence.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
