@@ -1053,7 +1053,7 @@ p {
 
 .progress-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -1076,9 +1076,15 @@ p {
 
 .functionality-card-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.functionality-card-header > div {
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
 .functionality-card-header strong {
@@ -1089,6 +1095,57 @@ p {
 .functionality-card-header p {
   margin-top: 5px;
   font-size: 0.88rem;
+}
+
+.functionality-estimate {
+  display: grid;
+  gap: 7px;
+  border: 1px solid #d7e6e3;
+  border-radius: 8px;
+  background: #f7fbfa;
+  padding: 10px;
+}
+
+.functionality-estimate-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.functionality-estimate-heading span {
+  color: #5b6d78;
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.functionality-estimate-heading strong {
+  color: #174437;
+  font-size: 1rem;
+}
+
+.estimate-bar {
+  overflow: hidden;
+  width: 100%;
+  height: 9px;
+  border-radius: 999px;
+  background: #dfe8eb;
+}
+
+.estimate-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2f8f72;
+}
+
+.functionality-estimate p {
+  margin: 0;
+  color: #536575;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .functionality-section {

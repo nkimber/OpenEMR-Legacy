@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "lastUpdated": "2026-06-21",
   "areas": [
     {
@@ -30,7 +30,9 @@
       ],
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
-      ]
+      ],
+      "completionEstimatePercent": 70,
+      "estimateRationale": "Strong chart, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, validation, and authorization depth remain."
     },
     {
       "id": "scheduling",
@@ -60,7 +62,9 @@
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
-      ]
+      ],
+      "completionEstimatePercent": 74,
+      "estimateRationale": "Appointment lifecycle, recurrence, overlap, and reminder-readiness are broad; advanced availability, waitlists, and delivery/audit remain."
     },
     {
       "id": "encounters-clinical-notes",
@@ -90,7 +94,9 @@
       ],
       "deferred": [
         "Direct scanner integration and full historical encounter document version chains."
-      ]
+      ],
+      "completionEstimatePercent": 66,
+      "estimateRationale": "Core encounter, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and policy depth remain."
     },
     {
       "id": "clinical-lists-medications",
@@ -115,7 +121,9 @@
       ],
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
-      ]
+      ],
+      "completionEstimatePercent": 52,
+      "estimateRationale": "List and focused mutation paths are present; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
     },
     {
       "id": "messaging-portal",
@@ -139,7 +147,9 @@
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
-      ]
+      ],
+      "completionEstimatePercent": 42,
+      "estimateRationale": "Message visibility and lifecycle are covered; portal replies, attachments, routing, notifications, and audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",
@@ -169,7 +179,9 @@
       ],
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
-      ]
+      ],
+      "completionEstimatePercent": 48,
+      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, and collections basics are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",
@@ -194,13 +206,15 @@
       ],
       "deferred": [
         "Fax/SMS attachments and external storage provider adapters."
-      ]
+      ],
+      "completionEstimatePercent": 58,
+      "estimateRationale": "Document read, upload, preview, review, archive, replacement, and revision paths are broad; scanner, OCR, storage, retention, and auth remain."
     },
     {
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, procedure order catalog seed/read behavior, and lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -211,15 +225,22 @@
           "label": "Review queues and lab providers",
           "detail": "Report review queue, patient/date/provider/lab filters, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
           "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness", "slice-144-procedure-lab-provider-address-book-readiness"]
+        },
+        {
+          "label": "Procedure order catalog",
+          "detail": "Permanent gold-data procedure order catalog rows, provider groups, orderable panel rows, and modernized Reports rendering are covered.",
+          "evidence": ["slice-145-procedure-order-catalog-readiness"]
         }
       ],
       "outstanding": [
-        "Order catalogs, compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "Order catalog administration/mutation, compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
         "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and role-specific authorization."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
-      ]
+      ],
+      "completionEstimatePercent": 58,
+      "estimateRationale": "Procedure lifecycle, review queues, providers, configuration, address-book linkage, and order catalog reads are covered; external lab operations remain."
     },
     {
       "id": "admin-security-audit",
@@ -244,7 +265,9 @@
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
-      ]
+      ],
+      "completionEstimatePercent": 28,
+      "estimateRationale": "Directory, lifecycle, ACL, and group basics exist; login, Identity, MFA, authorization policy, facility restrictions, and audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",
@@ -269,7 +292,9 @@
       ],
       "deferred": [
         "Future CI integration and long-term evidence retention policy."
-      ]
+      ],
+      "completionEstimatePercent": 72,
+      "estimateRationale": "Operational reporting, Workbench orchestration, comparisons, drill-ins, links, timeline, architecture, and progress views are substantial; trends and report depth remain."
     },
     {
       "id": "integrations-migration-production",
@@ -289,7 +314,9 @@
       ],
       "deferred": [
         "PHI-bearing test strategy and compliance validation; this repository should continue using synthetic non-PHI data."
-      ]
+      ],
+      "completionEstimatePercent": 12,
+      "estimateRationale": "The synthetic migration contract exists; real extraction, migration rehearsal, deployment, observability, CI/CD, backup, and external integrations remain."
     }
   ]
 }

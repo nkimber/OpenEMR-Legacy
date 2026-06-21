@@ -230,6 +230,14 @@ function Metric({ label, value, detail }: { label: string; value: string | numbe
   );
 }
 
+function normalizePercent(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 function Sidebar({ activePage, onNavigate }: { activePage: PageId; onNavigate: (page: PageId) => void }) {
   const renderNavItem = (item: NavItem) => {
     const Icon = item.icon;
@@ -618,6 +626,10 @@ function FunctionalityProgressPanel({
   const completedCount = areas.reduce((total, area) => total + area.completed.length, 0);
   const outstandingCount = areas.reduce((total, area) => total + area.outstanding.length, 0);
   const deferredCount = areas.reduce((total, area) => total + area.deferred.length, 0);
+  const estimatedCompletePercent = normalizePercent(
+    areas.length ? areas.reduce((total, area) => total + area.completionEstimatePercent, 0) / areas.length : 0
+  );
+  const estimatedRemainingPercent = normalizePercent(100 - estimatedCompletePercent);
 
   return (
     <section className="panel functionality-progress-panel">
@@ -637,6 +649,7 @@ function FunctionalityProgressPanel({
 
       <div className="progress-summary-grid">
         <Metric label="Areas Tracked" value={areas.length} />
+        <Metric label="Estimated Complete" value={`${estimatedCompletePercent}%`} detail={`${estimatedRemainingPercent}% estimated remaining`} />
         <Metric label="Completed Pieces" value={completedCount} />
         <Metric label="Outstanding Pieces" value={outstandingCount} />
         <Metric label="Deferred Pieces" value={deferredCount} />
@@ -644,21 +657,43 @@ function FunctionalityProgressPanel({
 
       {areas.length ? (
         <div className="functionality-grid">
-          {areas.map((area) => (
-            <div className="functionality-card" key={area.id}>
-              <div className="functionality-card-header">
-                <div>
-                  <strong>{area.name}</strong>
-                  <p>{area.summary}</p>
-                </div>
-                <StatusPill state={area.status} label={area.status.replaceAll("-", " ")} />
-              </div>
+          {areas.map((area) => {
+            const estimatePercent = normalizePercent(area.completionEstimatePercent);
 
-              <FunctionalityCompletedList items={area.completed} />
-              <FunctionalityTextList title="Outstanding" items={area.outstanding} tone="outstanding" />
-              <FunctionalityTextList title="Deferred / Watch List" items={area.deferred} tone="deferred" />
-            </div>
-          ))}
+            return (
+              <div className="functionality-card" key={area.id}>
+                <div className="functionality-card-header">
+                  <div>
+                    <strong>{area.name}</strong>
+                    <p>{area.summary}</p>
+                  </div>
+                  <StatusPill state={area.status} label={area.status.replaceAll("-", " ")} />
+                </div>
+
+                <div className="functionality-estimate">
+                  <div className="functionality-estimate-heading">
+                    <span>Estimated Complete</span>
+                    <strong>{estimatePercent}%</strong>
+                  </div>
+                  <div
+                    className="estimate-bar"
+                    role="meter"
+                    aria-label={`${area.name} estimated complete`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={estimatePercent}
+                  >
+                    <span style={{ width: `${estimatePercent}%` }} />
+                  </div>
+                  <p>{area.estimateRationale}</p>
+                </div>
+
+                <FunctionalityCompletedList items={area.completed} />
+                <FunctionalityTextList title="Outstanding" items={area.outstanding} tone="outstanding" />
+                <FunctionalityTextList title="Deferred / Watch List" items={area.deferred} tone="deferred" />
+              </div>
+            );
+          })}
         </div>
       ) : (
         <EmptyState text="Functionality progress is not configured." />

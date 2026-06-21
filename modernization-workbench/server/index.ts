@@ -107,6 +107,8 @@ type FunctionalityProgressArea = {
   name: string;
   status: string;
   summary: string;
+  completionEstimatePercent: number;
+  estimateRationale: string;
   completed: FunctionalityProgressItem[];
   outstanding: string[];
   deferred: string[];
@@ -1806,14 +1808,14 @@ app.get("/api/progress", async (_request, response) => {
   response.json({
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
-      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, Slice 124 comparison drill-ins, and Slice 125 artifact links." },
-      { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed now includes 2,648 immunization rows, 700 claim status rows, and seeded AR payment postings with count/temporal-coverage verification." },
+      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, Slice 124 comparison drill-ins, Slice 125 artifact links, Slice 143 functionality progress ledger, and Slice 146 completion estimates." },
+      { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed now includes 2,648 immunization rows, 700 claim status rows, seeded AR payment postings, and 21 procedure order catalog rows with count/temporal-coverage verification." },
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, procedure-result rendering, report-screen rendering, and administration directory rendering." },
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, denials, metadata refiling, and same-patient encounter moves, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 144 procedure lab provider address-book parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 144 proves procedure lab provider address-book linkage readiness with temporary order-service organizations, derived provider names, legacy and modernized rendering, cleanup, and matched side-by-side comparison evidence. The target now covers forty read-only slices plus one hundred one mutation-capable slices." }
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 145 procedure order catalog parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 145 proves procedure order catalog readiness with permanent procedure_type/lab_order_catalog seed rows, provider groups, orderable panels, legacy and modernized rendering, and matched side-by-side comparison evidence. The target now covers forty-one read-only slices plus one hundred one mutation-capable slices." }
     ],
     functionalityVersion: functionalityProgress.version,
     functionalityLastUpdated: functionalityProgress.lastUpdated,

@@ -395,6 +395,8 @@ export type FunctionalityProgressArea = {
   name: string;
   status: string;
   summary: string;
+  completionEstimatePercent: number;
+  estimateRationale: string;
   completed: FunctionalityProgressItem[];
   outstanding: string[];
   deferred: string[];
