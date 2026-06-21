@@ -28,7 +28,7 @@ Future entries should use this header shape:
 ```markdown
 ### 000. Short Entry Title
 
-Commit: pending
+Commit: `bab45ab1`
 Started: `2026-06-19T13:06:12-04:00`
 Finished: `2026-06-19T13:42:30-04:00`
 
@@ -9603,6 +9603,7 @@ Primary files:
 - `modernization-workbench/src/api.ts`
 - `modernization-workbench/src/types.ts`
 - `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_PLAN.md`
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
@@ -9676,6 +9677,115 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 175. Procedure Order Catalog Slice 145
+
+Commit: `bab45ab1`
+Started: `2026-06-21T12:14:00.0000000-04:00`
+Finished: `2026-06-21T12:40:11.8816874-04:00`
+
+Implemented the one-hundred-forty-fifth project slice and latest modernized OpenEMR workflow slice: procedure order catalog readiness, proving that a permanent shared gold-data order catalog can seed legacy OpenEMR `procedure_type`, seed modernized PostgreSQL `lab_order_catalog`, render in both applications, and match side-by-side.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 1,169
+- Lines deleted: 4
+- Net lines: 1,165
+- Total churn: 1,173
+
+Key outcomes:
+
+- Added 21 permanent shared procedure order catalog rows: one `Gold Lab Order Catalog` root, five provider groups, and 15 orderable panel rows for the three core lab panels across providers `501` through `505`.
+- Seeded the legacy catalog into `procedure_type` IDs `9000` through `9999` and seeded the modernized catalog into `lab_order_catalog`.
+- Added modernized `/api/procedures/order-catalog`, response DTOs, repository query, frontend API types, Reports catalog rendering, and Procedures order-form catalog pick buttons.
+- Added normalized legacy/modernized catalog database probes, a legacy `types.php` helper, and the read-only `workflow-procedure-order-catalog` parity suite.
+- Registered `slice-145-procedure-order-catalog-readiness` in the parity manifest, runner allowlist, aggregate plans, and Workbench managed application actions.
+- Updated seed-count reporting for both legacy and modernized seed scripts so `procedureOrderCatalogItems` is visible and validated where applicable.
+- Synchronized project context, modernization plan, test architecture, test-data strategy, Workbench, legacy baseline, index, and changelog documents in the follow-on documentation checkpoint.
+
+Verified test runs:
+
+- `node modernization-workbench\seed-data\openemr-shared-synthetic-v1\scripts\generate-gold-dataset.mjs` regenerated the canonical dataset with `procedureOrderCatalogItems: 21`.
+- `node modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the PostgreSQL gold seed SQL with `lab_order_catalog`.
+- JSON parse passed for `parity-tests/test-manifest.json`, `gold-dataset.json`, and `summary.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run lint` in `modernized-openemr/frontend/` still fails on existing `react-hooks/set-state-in-effect` findings across `App.tsx`; the catalog slice did not introduce those baseline lint failures.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-145-procedure-order-catalog-readiness -Reset test` passed; run `2026-06-21T163311-612Z-legacy-openemr-plan-slice-145-procedure-order-catalog-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-145-procedure-order-catalog-readiness -Reset test` passed; run `2026-06-21T163339-486Z-modernized-openemr-plan-slice-145-procedure-order-catalog-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-145-procedure-order-catalog-readiness` passed with `status: matched`; comparison `2026-06-21T163415-766Z-legacy-openemr-vs-modernized-openemr-plan-slice-145-procedure-order-catalog-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-procedure-order-catalog/procedure-order-catalog.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
+### 176. Workbench Functionality Completion Estimates Slice 146
+
+Commit: `40822fd8`
+Started: `2026-06-21T12:39:50.7950695-04:00`
+Finished: `2026-06-21T12:50:16.6904514-04:00`
+
+Implemented the one-hundred-forty-sixth project slice and latest Workbench-specific slice: scope-adjusted completion estimates on the Progress page so operators can see a directional percent-complete estimate for the modernization overall and for each functionality area.
+
+Code changes:
+
+- Files changed: 5
+- Lines added: 155
+- Lines deleted: 32
+- Net lines: 123
+- Total churn: 187
+
+Key outcomes:
+
+- Added editable `completionEstimatePercent` and `estimateRationale` fields to the curated functionality progress ledger.
+- Bumped the functionality ledger to version `0.2.0` and populated the initial estimates across all 11 domain areas, producing a current aggregate estimate of 53% complete and 47% remaining.
+- Updated the Progress page summary with an estimated-complete metric and rendered a compact progress bar plus rationale on each functionality card.
+- Documented that completion estimates are planning signals, not exact measurements, and can move up or down as legacy discovery changes the known scope.
+
+Verified test runs:
+
+- `Get-Content modernization-workbench\config\functionality-progress.json -Raw | ConvertFrom-Json` parsed 11 functionality areas, version `0.2.0`, average estimate 53%, minimum estimate 12%, and maximum estimate 74%.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live API smoke for `http://127.0.0.1:5174/api/progress` returned 9 milestone rows, 11 functionality areas, version `0.2.0`, average estimate 53%, Slice 145 test-management detail, forty-one read-only target detail, and first area estimate `Patient Chart And Registration` at 70%.
+- `git diff --check` passed for the touched files with only expected CRLF working-copy warnings.
+
+Primary files:
+
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -9683,5 +9793,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Broader encounter workflows for templates, amendment policy/history depth, order catalog administration, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.

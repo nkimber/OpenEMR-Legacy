@@ -1012,6 +1012,60 @@ Current limitations:
 
 - This slice covers focused address-book linkage semantics only. It does not implement full address-book administration UI, compendium imports, external SFTP/filesystem/web-service execution, credential encryption/rotation policy, linked-provider deletion policy, role-specific authorization, or audit history.
 
+### Slice 145: Procedure Order Catalog Readiness
+
+Status:
+
+- Implemented as a read-only procedure/lab order catalog slice under `modernized-openemr/`, `parity-tests/`, shared gold seed data, and Workbench managed parity actions.
+- Verification is the shared `slice-145-procedure-order-catalog-readiness` plan, which resets each target to the shared gold dataset, verifies the permanent procedure order catalog tree, checks provider groups and orderable panel rows, renders legacy OpenEMR's Configure Orders and Results catalog/AJAX rows, renders the modernized Reports procedure order catalog panel, and compares the two target runs.
+
+Scope:
+
+- The shared gold dataset now includes 21 permanent procedure order catalog items: one `Gold Lab Order Catalog` root, five provider groups for lab providers `501` through `505`, and 15 orderable panel rows for Hemoglobin A1c, comprehensive metabolic panel, and complete blood count under each provider.
+- The legacy seed inserts those rows into OpenEMR `procedure_type` IDs `9000` through `9999` with `grp` and `ord` row types, provider `lab_id`, `procedure_code`, `procedure_type_name`, specimen, standard code, sequence, and active state.
+- The modernized PostgreSQL seed imports the same canonical rows into `lab_order_catalog`, preserving stable IDs, parent relationships, provider links, order codes, order names, specimen, standard code, sequence, and active state.
+- The modernized procedures API exposes `GET /api/procedures/order-catalog` with dataset metadata, aggregate counts, and normalized catalog items.
+- The React Reports workspace renders a read-only Procedure Order Catalog panel with provider groups and orderable panel rows, and the Procedures workspace new-order form exposes catalog pick buttons to fill procedure code/name from the shared catalog.
+- Workbench-managed Slice 145 procedure order catalog plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets expose the same catalog counts: 21 total items, 6 groups, 15 order rows, and 5 lab providers.
+- Both targets preserve the `Gold Lab Order Catalog` root, five provider child groups, and three order rows per provider.
+- The anchor provider group `9040` maps to lab `504` (`Pacific Women's Health Laboratory`) and exposes procedure codes `83036`, `80053`, and `85025` with `laboratory` type and `blood` specimen.
+- Legacy OpenEMR renders the catalog through `interface/orders/types.php` and `types_ajax.php`; the modernized target renders the same normalized facts in the Reports procedure order catalog panel and API.
+- The side-by-side Slice 145 parity comparison matches.
+
+Current limitations:
+
+- This slice covers permanent seed/read catalog behavior only. Full order-catalog administration, catalog mutation, vendor compendium import, external lab reconciliation, role-specific authorization, audit history, and production external lab ordering remain deferred.
+
+### Slice 146: Workbench Progress Completion Estimates
+
+Status:
+
+- Implemented as a Workbench-specific progress-ledger slice under `modernization-workbench/`.
+- Verification is the Workbench production build plus JSON parsing for the progress configuration consumed by `/api/progress`.
+
+Scope:
+
+- The Workbench functionality progress ledger now records `completionEstimatePercent` and `estimateRationale` for each tracked domain area.
+- The `/api/progress` contract and TypeScript UI model expose those estimate fields so the frontend and backend stay aligned with the curated ledger shape.
+- The Progress page now shows an aggregate estimated-complete metric and per-area meter cards with rationale text.
+- The estimate is intentionally directional and scope-adjusted. It is a planning signal for Workbench operators, not a contractual pass/fail measure.
+- The ledger version is updated to `0.2.0` and includes the Slice 145 procedure order catalog evidence in the Labs and Procedures area.
+
+Acceptance:
+
+- The Workbench production build passes.
+- The progress configuration parses successfully and contains estimate/rationale fields for all tracked areas.
+- The Progress page can render overall and per-area estimated completion without changing the existing completed/outstanding/deferred ledger model.
+- Documentation explains that completion estimates may move up or down as legacy discovery changes the known scope.
+
+Current limitations:
+
+- This slice does not attempt to calculate completion automatically from test counts. The estimates remain curated project metadata until enough historical evidence exists to justify a more formal scoring model.
+
 ### Slice 18: Administration Facility Mutation
 
 Status:
@@ -4091,3 +4145,5 @@ As of 2026-06-20:
 - The one-hundred-forty-first modernized vertical slice implements procedure lab provider lifecycle readiness with durable modernized provider protocol state, create/update/delete procedures API endpoints, Reports workspace add/deactivate/delete controls, normalized legacy/modernized provider lifecycle workflow actions, Workbench procedure lab provider lifecycle plan actions, cleanup deletion, and side-by-side slice-141 parity evidence.
 - The one-hundred-forty-second modernized vertical slice implements procedure lab provider configuration readiness with durable modernized provider usage/direction/transport fields, Reports workspace configuration inputs and rendering, normalized legacy/modernized provider configuration workflow actions, Workbench procedure lab provider configuration plan actions, cleanup deletion, and side-by-side slice-142 parity evidence.
 - The one-hundred-forty-fourth modernized vertical slice implements procedure lab provider address-book linkage readiness with modernized order-service address-book storage/API endpoints, `labDirectorId` provider name derivation, Reports workspace linked-organization rendering, normalized legacy/modernized workflow actions, Workbench procedure lab provider address-book plan actions, cleanup deletion, and side-by-side slice-144 parity evidence.
+- The one-hundred-forty-fifth modernized vertical slice implements procedure order catalog readiness with 21 shared gold-data catalog rows, legacy `procedure_type` seeding, modernized `lab_order_catalog` storage, `/api/procedures/order-catalog`, Reports catalog rendering, Procedure order-form catalog picks, Workbench procedure order catalog plan actions, and side-by-side slice-145 parity evidence.
+- The one-hundred-forty-sixth project slice implements Workbench progress completion estimates with curated per-area completion percentages, rationale text, typed `/api/progress` support, aggregate estimated-complete rendering, and per-area meter cards on the Progress page.
