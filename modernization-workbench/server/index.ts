@@ -241,6 +241,12 @@ const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
+const readableArtifactRoots = [
+  path.join(repoRoot, "parity-tests", "artifacts"),
+  path.join(repoRoot, "legacy-openemr", "artifacts"),
+  path.join(repoRoot, "modernized-openemr", "artifacts"),
+  artifactsRoot
+].map((item) => path.resolve(item));
 
 const app = express();
 app.use(cors({ origin: [/^http:\/\/127\.0\.0\.1:\d+$/, /^http:\/\/localhost:\d+$/] }));
@@ -252,6 +258,30 @@ function resolveProjectPath(projectPath: string) {
   const normalized = resolved.toLowerCase();
   if (!allowedRoots.some((root) => normalized === root || normalized.startsWith(root + path.sep))) {
     throw new Error(`Path escapes allowed project roots: ${projectPath}`);
+  }
+  return resolved;
+}
+
+function isPathInside(candidatePath: string, allowedRoot: string) {
+  const normalizedCandidate = path.resolve(candidatePath).toLowerCase();
+  const normalizedRoot = path.resolve(allowedRoot).toLowerCase();
+  return normalizedCandidate === normalizedRoot || normalizedCandidate.startsWith(normalizedRoot + path.sep);
+}
+
+function resolveReadableArtifactPath(projectPath: string) {
+  const cleanedPath = projectPath.replaceAll("\\", "/").trim().replace(/^\/+/, "");
+  if (!cleanedPath || cleanedPath.includes("\0")) {
+    const error = new Error("Artifact path is required.") as Error & { statusCode?: number };
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const candidates = [path.resolve(repoRoot, cleanedPath), path.resolve(workbenchRoot, cleanedPath)];
+  const resolved = candidates.find((candidate) => readableArtifactRoots.some((root) => isPathInside(candidate, root)));
+  if (!resolved) {
+    const error = new Error("Artifact path is outside the readable artifact roots.") as Error & { statusCode?: number };
+    error.statusCode = 403;
+    throw error;
   }
   return resolved;
 }
@@ -1510,6 +1540,32 @@ app.get("/api/parity-comparisons", async (_request, response, next) => {
   }
 });
 
+app.get("/api/artifacts/file", async (request, response, next) => {
+  try {
+    const artifactPath = typeof request.query.path === "string" ? request.query.path : "";
+    const resolvedPath = resolveReadableArtifactPath(artifactPath);
+    const stats = await fs.stat(resolvedPath).catch((error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") {
+        const notFound = new Error("Artifact file was not found.") as Error & { statusCode?: number };
+        notFound.statusCode = 404;
+        throw notFound;
+      }
+      throw error;
+    });
+    if (!stats.isFile()) {
+      const error = new Error("Artifact path does not point to a file.") as Error & { statusCode?: number };
+      error.statusCode = 400;
+      throw error;
+    }
+    if (path.extname(resolvedPath).toLowerCase() === ".json") {
+      response.type("application/json");
+    }
+    response.sendFile(resolvedPath);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => {
   try {
     const managedApp = await getManagedApp(request.params.appId);
@@ -1698,11 +1754,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernization-workbench",
         name: "Modernization Workbench",
-        status: "Slice 124 comparison drill-ins implemented",
+        status: "Slice 125 artifact links implemented",
         stack: ["React 19.2.7", "TypeScript 5.9.3", "Vite 7.3.5", "Express 5.2.1", "Node.js 24.13.1"],
         database: "File-based local artifacts for this version",
         businessLogic: "Local-only orchestration API with allowlisted commands",
-        tests: ["API smoke and UI build verification", "Comparison drill-in UI verified for desktop and mobile Test Runs page"]
+        tests: ["API smoke and UI build verification", "Comparison drill-in UI verified for desktop and mobile Test Runs page", "Artifact file links verified through the safe artifact endpoint"]
       },
       {
         id: "modernized-openemr",
@@ -1721,13 +1777,13 @@ app.get("/api/progress", async (_request, response) => {
   response.json({
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
-      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, and Slice 124 comparison drill-ins." },
+      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, Slice 124 comparison drill-ins, and Slice 125 artifact links." },
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed now includes 2,648 immunization rows, 700 claim status rows, and seeded AR payment postings with count/temporal-coverage verification." },
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, procedure-result rendering, report-screen rendering, and administration directory rendering." },
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, denials, metadata refiling, and same-patient encounter moves, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 123 encounter document replacement revision parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, and Slice 124 expandable comparison drill-ins over run artifacts, selected suites, and difference detail." },
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 123 encounter document replacement revision parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 123 proves encounter document replacement revision readiness with temporary encounter-attached document replacement, revision hash/timestamp parity, modernized attachment-card/API rendering, cleanup, and matched side-by-side comparison evidence." }
     ]
   });

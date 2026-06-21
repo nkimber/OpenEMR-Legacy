@@ -1253,11 +1253,15 @@ function ComparisonDrillIn({ comparison, suites }: { comparison: ParityCompariso
       <div className="comparison-detail-grid">
         <div className="comparison-detail-block">
           <span>Comparison artifact</span>
-          <code>{comparison.reports.comparisonJson || comparison.artifactDirectory}</code>
+          <ArtifactPathValue
+            path={comparison.reports.comparisonJson || comparison.artifactDirectory}
+            linkable={Boolean(comparison.reports.comparisonJson)}
+            label={`${comparison.selectionId} comparison JSON`}
+          />
         </div>
         <div className="comparison-detail-block">
           <span>Artifact directory</span>
-          <code>{comparison.artifactDirectory}</code>
+          <ArtifactPathValue path={comparison.artifactDirectory} linkable={false} label={`${comparison.selectionId} artifact directory`} />
         </div>
       </div>
       <div className="comparison-detail-block">
@@ -1285,10 +1289,23 @@ function ComparisonArtifactDetail({ label, side }: { label: string; side: Parity
     <div className="comparison-detail-block">
       <span>{label}</span>
       <strong>{side.target}</strong>
-      <code>{side.path || "No artifact path recorded"}</code>
+      <ArtifactPathValue path={side.path || "No artifact path recorded"} linkable={Boolean(side.path && side.exists)} label={`${side.target} run artifact`} />
       <small>
         {side.runId} / {side.exists ? "artifact present" : "artifact missing"}
       </small>
+    </div>
+  );
+}
+
+function ArtifactPathValue({ path, linkable, label }: { path: string; linkable: boolean; label: string }) {
+  return (
+    <div className="artifact-path-row">
+      <code>{path}</code>
+      {linkable ? (
+        <a href={`/api/artifacts/file?path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer" title={`Open ${label}`} aria-label={`Open ${label}`}>
+          <ExternalLink size={14} />
+        </a>
+      ) : null}
     </div>
   );
 }

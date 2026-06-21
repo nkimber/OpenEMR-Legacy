@@ -791,6 +791,36 @@ p {
   white-space: nowrap;
 }
 
+.artifact-path-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.artifact-path-row code {
+  min-width: 0;
+}
+
+.artifact-path-row a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d6e0e8;
+  border-radius: 8px;
+  color: #246b73;
+  background: #ffffff;
+  text-decoration: none;
+}
+
+.artifact-path-row a:hover {
+  border-color: #9bb8c2;
+  background: #edf8f7;
+}
+
 .comparison-difference-list {
   display: grid;
   gap: 7px;
