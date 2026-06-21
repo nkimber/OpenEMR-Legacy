@@ -72,6 +72,7 @@
         "parityProcedureOrderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-145-procedure-order-catalog-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-147-procedure-order-catalog-lifecycle-readiness", "-Reset", "test"],
         "parityProcedureVendorCompendiumImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-148-procedure-vendor-compendium-import-readiness", "-Reset", "test"],
+        "parityProcedureOrderQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-149-procedure-order-queue-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -771,6 +772,14 @@
             "layer": "plan",
             "commandName": "parityProcedureVendorCompendiumImportPlan",
             "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+          },
+          {
+            "id": "parity-plan-procedure-order-queue",
+            "name": "Slice 149 procedure order queue plan",
+            "description": "Runs the shared temporary clinical order queue plan against the legacy target for side-by-side comparison with the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureOrderQueuePlan",
+            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-149-procedure-order-queue-readiness.json"
           },
         {
           "id": "parity-plan-admin-facility-mutation",
@@ -1501,6 +1510,7 @@
         "parityProcedureOrderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-145-procedure-order-catalog-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-147-procedure-order-catalog-lifecycle-readiness", "-Reset", "test"],
         "parityProcedureVendorCompendiumImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-148-procedure-vendor-compendium-import-readiness", "-Reset", "test"],
+        "parityProcedureOrderQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-149-procedure-order-queue-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -2126,6 +2136,14 @@
             "layer": "plan",
             "commandName": "parityProcedureVendorCompendiumImportPlan",
             "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+          },
+          {
+            "id": "parity-plan-procedure-order-queue",
+            "name": "Slice 149 procedure order queue plan",
+            "description": "Runs the shared temporary clinical order queue plan against the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureOrderQueuePlan",
+            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-149-procedure-order-queue-readiness.json"
           },
         {
           "id": "parity-plan-admin-facility-mutation",

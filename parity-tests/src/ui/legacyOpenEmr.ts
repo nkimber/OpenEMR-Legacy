@@ -128,6 +128,33 @@ export async function openProcedureReportReviewQueueDirect(
   await expectRenderedText(page, /Procedure Orders and Reports/i);
 }
 
+export async function openProcedureOrderQueueDirect(
+  page: Page,
+  target: RuntimeTarget,
+  pid: number,
+  fromDate: string,
+  toDate: string,
+  queueOption: "3" | "5",
+  providerId?: number | string,
+  labId?: number | string
+) {
+  await openPatientSummaryDirect(page, target, pid);
+  await page.goto(`${target.publicUrl}/interface/orders/list_reports.php`);
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+  await page.locator('input[name="form_from_date"]').fill(fromDate);
+  await page.locator('input[name="form_to_date"]').fill(toDate);
+  await page.locator('input[name="form_patient"]').check();
+  await page.locator('select[name="form_reviewed"]').selectOption(queueOption);
+  if (providerId !== undefined) {
+    await page.locator('select[name="form_provider"]').selectOption(String(providerId));
+  }
+  if (labId !== undefined) {
+    await page.locator('select[name="form_lab_search"]').selectOption(String(labId));
+  }
+  await page.getByRole("button", { name: /Filter/i }).click();
+  await expectRenderedText(page, /Procedure Orders and Reports/i);
+}
+
 export async function openProcedureProvidersDirect(
   page: Page,
   target: RuntimeTarget,

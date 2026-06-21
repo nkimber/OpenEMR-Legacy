@@ -31,6 +31,7 @@ import type {
   PatientRecord,
   ProcedureLabProviderDirectorySummary,
   ProcedureOrderCatalogSummary,
+  ProcedureOrderQueueSummary,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
   ProcedureReportReviewQueueSummary,
@@ -1661,6 +1662,148 @@ LIMIT 100;
     };
   }
 
+  async getProcedureOrderQueue(
+    status = "ready-to-send",
+    filters: ProcedureReportReviewQueueFilters = {}
+  ): Promise<ProcedureOrderQueueSummary> {
+    const statusFilter = normalizeProcedureOrderQueueStatus(status);
+    const patientFilter = filters.patientId?.trim();
+    const providerFilter = filters.providerId === undefined || filters.providerId === null ? "" : String(filters.providerId).trim();
+    const labFilter = filters.labId === undefined || filters.labId === null ? "" : String(filters.labId).trim();
+    const fromDate = filters.fromDate?.trim();
+    const toDate = filters.toDate?.trim();
+    const whereFilters = [
+      patientFilter
+        ? `AND (LOWER(p.canonical_id) = LOWER('${escapeSql(patientFilter)}') OR LOWER(p.pubpid) = LOWER('${escapeSql(patientFilter)}') OR p.legacy_pid::text = '${escapeSql(patientFilter)}')`
+        : "",
+      providerFilter && /^\d+$/u.test(providerFilter) ? `AND lo.provider_id = ${providerFilter}` : "",
+      labFilter && /^\d+$/u.test(labFilter) ? `AND lo.lab_id = ${labFilter}` : "",
+      fromDate ? `AND lo.order_date >= '${escapeSql(fromDate)}'` : "",
+      toDate ? `AND lo.order_date <= '${escapeSql(toDate)}'` : ""
+    ].filter(Boolean).join("\n  ");
+    const counts = await this.queryRows<Record<string, string>>(`
+WITH order_queue AS (
+  SELECT lo.id,
+    COALESCE(lo.order_status, '') AS "orderStatus",
+    NULL::timestamp AS "dateTransmitted",
+    COUNT(DISTINCT lr.id) AS "reportCount"
+  FROM lab_orders lo
+  INNER JOIN patients p ON p.legacy_pid = lo.pid
+  LEFT JOIN lab_reports lr ON lr.order_id = lo.id
+  WHERE 1 = 1
+    ${whereFilters}
+  GROUP BY lo.id, lo.order_status
+)
+SELECT COUNT(*) AS "totalOrders",
+  COALESCE(SUM(CASE WHEN "reportCount" = 0 AND "dateTransmitted" IS NULL THEN 1 ELSE 0 END), 0) AS "readyToSendOrders",
+  COALESCE(SUM(CASE WHEN "reportCount" = 0 AND "dateTransmitted" IS NOT NULL THEN 1 ELSE 0 END), 0) AS "transmittedPendingOrders",
+  COALESCE(SUM(CASE WHEN "reportCount" > 0 THEN 1 ELSE 0 END), 0) AS "reportedOrders",
+  COALESCE(SUM(CASE WHEN "orderStatus" = 'scheduled' THEN 1 ELSE 0 END), 0) AS "scheduledOrders",
+  COALESCE(SUM(CASE WHEN "orderStatus" = 'complete' THEN 1 ELSE 0 END), 0) AS "completedOrders"
+FROM order_queue;
+`);
+    const whereStatus = statusFilter === "ready-to-send"
+      ? `AND q."reportCount" = 0 AND q."dateTransmitted" = ''`
+      : statusFilter === "transmitted-pending"
+        ? `AND q."reportCount" = 0 AND q."dateTransmitted" != ''`
+        : statusFilter === "reported"
+          ? `AND q."reportCount" > 0`
+          : statusFilter === "scheduled"
+            ? `AND q."orderStatus" = 'scheduled'`
+            : statusFilter === "completed"
+              ? `AND q."orderStatus" = 'complete'`
+              : "";
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT *
+FROM (
+  SELECT lo.id AS "orderId",
+    lo.pid AS "patientId",
+    p.pubpid,
+    TRIM(CONCAT(p.last_name, ', ', p.first_name)) AS "patientDisplayName",
+    COALESCE(lo.encounter, 0) AS "encounterId",
+    lo.order_date AS "orderDate",
+    COALESCE(lo.provider_id, 0) AS "providerId",
+    COALESCE(lo.lab_id, 0) AS "labId",
+    COALESCE(lp.name, '') AS "labName",
+    COALESCE(lo.code, '') AS "procedureCode",
+    COALESCE(lo.name, '') AS "procedureName",
+    COALESCE(lo.procedure_type, '') AS "procedureType",
+    COALESCE(lo.order_priority, '') AS "orderPriority",
+    COALESCE(lo.order_status, '') AS "orderStatus",
+    '' AS "dateTransmitted",
+    COUNT(DISTINCT lr.id) AS "reportCount",
+    COUNT(DISTINCT lres.id) AS "resultCount",
+    COUNT(DISTINCT ls.id) AS "specimenCount",
+    COALESCE(lo.instructions, '') AS instructions
+  FROM lab_orders lo
+  INNER JOIN patients p ON p.legacy_pid = lo.pid
+  LEFT JOIN lab_providers lp ON lp.id = lo.lab_id
+  LEFT JOIN lab_reports lr ON lr.order_id = lo.id
+  LEFT JOIN lab_results lres ON lres.report_id = lr.id
+  LEFT JOIN lab_specimens ls ON ls.order_id = lo.id
+  WHERE 1 = 1
+    ${whereFilters}
+  GROUP BY lo.id, lo.pid, p.pubpid, p.last_name, p.first_name, lo.encounter, lo.order_date, lo.provider_id,
+    lo.lab_id, lp.name, lo.code, lo.name, lo.procedure_type, lo.order_priority, lo.order_status, lo.instructions
+) q
+WHERE 1 = 1
+  ${whereStatus}
+ORDER BY q."orderDate" DESC, q."orderId" DESC, q."patientDisplayName", q."patientId"
+LIMIT 100;
+`);
+
+    const countRow = counts[0] ?? {
+      totalOrders: "0",
+      readyToSendOrders: "0",
+      transmittedPendingOrders: "0",
+      reportedOrders: "0",
+      scheduledOrders: "0",
+      completedOrders: "0"
+    };
+    return {
+      statusFilter,
+      patientFilter: patientFilter ?? "",
+      providerFilter,
+      labFilter,
+      fromDate: fromDate ?? "",
+      toDate: toDate ?? "",
+      totalOrders: Number(countRow.totalOrders),
+      readyToSendOrders: Number(countRow.readyToSendOrders),
+      transmittedPendingOrders: Number(countRow.transmittedPendingOrders),
+      reportedOrders: Number(countRow.reportedOrders),
+      scheduledOrders: Number(countRow.scheduledOrders),
+      completedOrders: Number(countRow.completedOrders),
+      orders: rows.map((row) => {
+        const reportCount = Number(row.reportCount);
+        const dateTransmitted = row.dateTransmitted;
+        const queueState = reportCount > 0 ? "reported" : dateTransmitted ? "transmitted-pending" : "ready-to-send";
+        return {
+          orderId: Number(row.orderId),
+          patientId: Number(row.patientId),
+          pubpid: row.pubpid,
+          patientDisplayName: row.patientDisplayName,
+          encounterId: Number(row.encounterId),
+          orderDate: row.orderDate,
+          providerId: Number(row.providerId),
+          labId: Number(row.labId),
+          labName: row.labName,
+          procedureCode: row.procedureCode,
+          procedureName: row.procedureName,
+          procedureType: row.procedureType,
+          orderPriority: row.orderPriority,
+          orderStatus: row.orderStatus,
+          dateTransmitted,
+          reportCount,
+          resultCount: Number(row.resultCount),
+          specimenCount: Number(row.specimenCount),
+          canTransmit: reportCount === 0 && !dateTransmitted,
+          queueState,
+          instructions: row.instructions
+        };
+      })
+    };
+  }
+
   async getProcedureLabProviders(includeInactive = false): Promise<ProcedureLabProviderDirectorySummary> {
     const visibilityFilter = includeInactive ? "" : "AND lp.active";
     const counts = await this.queryRows<Record<string, string>>(`
@@ -1807,6 +1950,20 @@ function normalizeProcedureReportReviewQueueStatus(status: string) {
     return normalized;
   }
   return "unreviewed";
+}
+
+function normalizeProcedureOrderQueueStatus(status: string) {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "all" || normalized === "reported" || normalized === "scheduled") {
+    return normalized;
+  }
+  if (normalized === "complete" || normalized === "completed") {
+    return "completed";
+  }
+  if (normalized === "transmitted" || normalized === "sent" || normalized === "sent-pending" || normalized === "transmitted-pending") {
+    return "transmitted-pending";
+  }
+  return "ready-to-send";
 }
 
 function formatAmount(value: number) {
