@@ -7610,6 +7610,62 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 141. Modernized Appointment Series Root Metadata Slice 111
+
+Commit: `119459b`
+Started: `2026-06-20T22:12:30.0000000-04:00`
+Finished: `2026-06-20T22:33:07.4233762-04:00`
+
+Implemented the one-hundred-eleventh modernized OpenEMR vertical slice: appointment series root metadata readiness, proving that recurring appointment root provider, facility, billing location, category, status, room, and comments updates propagate into generated future occurrences, that the seeded recurrence exception list remains stable, and that legacy and modernized behavior match side by side while restoring the seeded root.
+
+Code changes:
+
+- Files changed: 8
+- Lines added: 403
+- Lines deleted: 6
+- Net lines: 397
+- Total churn: 409
+
+Key outcomes:
+
+- Added the `workflow-appointment-series-root-metadata` Playwright parity suite and `slice-111-appointment-series-root-metadata-readiness` plan.
+- Extended normalized recurring-series workflow probes so both legacy and modernized targets expose provider, facility, billing location, category, status, room, category name, and comments for generated occurrences.
+- The shared parity workflow edits seeded root `APPT-MOD-PAT-0013-3` for `MOD-PAT-0013` from provider `102`, facility `11`, billing location `11`, category `13`, status `-`, and `Room 5` to provider `101`, facility `10`, billing location `10`, category `10`, status `~`, `Series Meta`, and `Slice 111 recurring root metadata propagation check.`, verifies generated dates `2026-11-04`, `2026-11-18`, `2026-12-02`, `2026-12-30`, `2027-01-13`, and `2027-01-27`, preserves occurrence numbers `1`, `2`, `3`, `5`, `6`, and `7`, and restores the original root metadata.
+- The modernized target exercises the Calendar UI edit path for root appointment provider, facility, billing location, category, status, room, and comments, then opens the generated `2026-11-18` occurrence to verify the inherited metadata.
+- Added a modernized smoke-test check for appointment series root metadata propagation and cleanup restoration.
+- Added Workbench managed plan commands/cards for Slice 111 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 111 with thirty-six read-only slices and seventy-five mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-111-appointment-series-root-metadata-readiness -Reset test` passed; run `2026-06-21T022011-529Z-modernized-openemr-plan-slice-111-appointment-series-root-metadata-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-111-appointment-series-root-metadata-readiness -Reset test` passed; run `2026-06-21T022042-350Z-legacy-openemr-plan-slice-111-appointment-series-root-metadata-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-111-appointment-series-root-metadata-readiness` passed with `status: matched`; comparison `2026-06-21T022107-417Z-legacy-openemr-vs-modernized-openemr-plan-slice-111-appointment-series-root-metadata-readiness`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 112 checks, including `appointment series root metadata propagation`.
+- A direct modernized API read confirmed root `APPT-MOD-PAT-0013-3` was restored to the seeded `Preventive Care` metadata: provider `102`, facility `11`, billing location `11`, category `13`, status `-`, room `Room 5`, original comments, and only the seeded `2026-12-16` recurrence exception.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-series-root-metadata/appointment-series-root-metadata.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
