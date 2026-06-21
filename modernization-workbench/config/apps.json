@@ -146,7 +146,8 @@
         "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"],
         "parityAppointmentDaysOfWeekRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-114-appointment-days-of-week-recurrence-readiness", "-Reset", "test"],
         "parityAppointmentMonthlyRepeatOnRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-115-appointment-monthly-repeat-on-recurrence-readiness", "-Reset", "test"],
-        "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"]
+        "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"],
+        "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -519,6 +520,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentSeriesRecurrenceUpdatePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-116-appointment-series-recurrence-update-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-provider-overlap",
+          "name": "Slice 117 appointment provider overlap plan",
+          "description": "Runs the shared same-provider overlapping appointment tolerance plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentProviderOverlapPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-117-appointment-provider-overlap-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1321,7 +1330,8 @@
         "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"],
         "parityAppointmentDaysOfWeekRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-114-appointment-days-of-week-recurrence-readiness", "-Reset", "test"],
         "parityAppointmentMonthlyRepeatOnRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-115-appointment-monthly-repeat-on-recurrence-readiness", "-Reset", "test"],
-        "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"]
+        "parityAppointmentSeriesRecurrenceUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-116-appointment-series-recurrence-update-readiness", "-Reset", "test"],
+        "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1622,6 +1632,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentSeriesRecurrenceUpdatePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-116-appointment-series-recurrence-update-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-provider-overlap",
+          "name": "Slice 117 appointment provider overlap plan",
+          "description": "Runs the shared same-provider overlapping appointment tolerance plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentProviderOverlapPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-117-appointment-provider-overlap-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
