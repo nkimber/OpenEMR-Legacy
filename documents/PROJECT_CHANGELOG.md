@@ -9498,6 +9498,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 172. Procedure Lab Provider Configuration Slice 142
+
+Commit: `2f96767d`
+Started: `2026-06-21T11:12:00-04:00`
+Finished: `2026-06-21T11:35:19.9492207-04:00`
+
+Implemented the one-hundred-forty-second project slice and latest modernized OpenEMR workflow slice: procedure lab provider configuration readiness, proving that temporary lab providers can round-trip protocol, usage, direction, sender/receiver IDs, remote host, login/password, order/result paths, notes, rendering, deletion, and cleanup on both legacy OpenEMR and the modernized Reports workspace/API.
+
+Code changes:
+
+- Files changed: 11
+- Lines added: 636
+- Lines deleted: 14
+- Net lines: 622
+- Total churn: 650
+
+Key outcomes:
+
+- Extended modernized procedure lab provider DTOs, repository SQL, seed schema, and API read/write behavior with legacy-aligned transport/configuration fields.
+- Added targeted PostgreSQL COPY handling for empty-string provider transport defaults so permanent gold-data providers preserve OpenEMR-style not-set values.
+- Extended the modernized Reports workspace Procedure Lab Providers panel with configuration inputs and provider-card rendering for usage, direction, sender/receiver IDs, remote host, login/password state, paths, and notes.
+- Extended legacy and modernized parity workflow adapters with provider configuration fields.
+- Added the mutation-capable `workflow-procedure-lab-provider-configuration` Playwright parity suite and `slice-142-procedure-lab-provider-configuration-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 142 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 142 with forty read-only slices and one hundred mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` regenerated/imported the modernized PostgreSQL gold dataset with `COPY 5` lab providers after the seed adapter fix.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/` with `labProviders` expected/actual `5`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- Direct API smoke for `http://localhost:5001/api/procedures/lab-providers?includeInactive=true` returned five active providers with protocol `DL`, usage `D`, direction `B`, and empty-string transport defaults.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-142-procedure-lab-provider-configuration-readiness -Reset test` passed; run `2026-06-21T152528-520Z-legacy-openemr-plan-slice-142-procedure-lab-provider-configuration-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-142-procedure-lab-provider-configuration-readiness -Reset test` passed; run `2026-06-21T152556-645Z-modernized-openemr-plan-slice-142-procedure-lab-provider-configuration-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-142-procedure-lab-provider-configuration-readiness` passed with `status: matched`; comparison `2026-06-21T152615-513Z-legacy-openemr-vs-modernized-openemr-plan-slice-142-procedure-lab-provider-configuration-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-procedure-lab-provider-configuration/procedure-lab-provider-configuration.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
