@@ -1470,7 +1470,8 @@ ORDER BY collected_date DESC, id DESC;
     const reportRows = await this.queryRows<Record<string, string>>(`
 SELECT id, order_id AS "orderId", date_collected::date AS "dateCollected",
   report_date::date AS "reportDate", COALESCE(specimen_number, '') AS "specimenNumber",
-  COALESCE(status, '') AS status, COALESCE(review_status, status, '') AS "reviewStatus"
+  COALESCE(status, '') AS status, COALESCE(review_status, status, '') AS "reviewStatus",
+  COALESCE(notes, '') AS "reportNotes"
 FROM lab_reports
 WHERE order_id IN (${orderIdList})
 ORDER BY report_date DESC, id DESC;
@@ -1483,6 +1484,7 @@ ORDER BY report_date DESC, id DESC;
       specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
+      reportNotes: row.reportNotes,
       results: []
     }));
 

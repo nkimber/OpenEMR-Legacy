@@ -62,6 +62,7 @@ import type {
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
   ProcedureReportRecord,
+  ProcedureReportUpdate,
   ProcedureResultRecord,
   ProcedureSpecimenRecord,
   PrescriptionRecord,
@@ -2197,7 +2198,7 @@ LIMIT 1;
   async getProcedureReport(id: number): Promise<ProcedureReportRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, order_id AS "orderId", COALESCE(status, '') AS "reportStatus",
-  date_collected::date AS "dateCollected", COALESCE(specimen_number, '') AS "specimenNumber",
+  date_collected::date AS "dateCollected", report_date::date AS "dateReport", COALESCE(specimen_number, '') AS "specimenNumber",
   COALESCE(review_status, '') AS "reviewStatus", COALESCE(notes, '') AS "reportNotes"
 FROM lab_reports
 WHERE id = ${integer(id)}
@@ -2212,11 +2213,31 @@ LIMIT 1;
       id: Number(row.id),
       orderId: Number(row.orderId),
       dateCollected: row.dateCollected,
+      dateReport: row.dateReport,
       specimenNumber: row.specimenNumber,
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
       reportNotes: row.reportNotes
     };
+  }
+
+  async updateProcedureReport(id: number, input: ProcedureReportUpdate): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        dateCollected: input.dateCollected,
+        dateReport: input.dateReport,
+        specimenNumber: input.specimenNumber,
+        reportStatus: input.reportStatus,
+        reviewStatus: input.reviewStatus,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report update failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {

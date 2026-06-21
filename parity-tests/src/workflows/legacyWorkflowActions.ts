@@ -347,6 +347,7 @@ export type ProcedureReportRecord = {
   id: number;
   orderId: number;
   dateCollected: string;
+  dateReport: string;
   specimenNumber: string;
   reportStatus: string;
   reviewStatus: string;
@@ -800,6 +801,15 @@ export type ProcedureOrderUpdate = {
 
 export type NewProcedureReport = {
   orderId: number;
+  dateCollected: string;
+  dateReport: string;
+  specimenNumber: string;
+  reportStatus: string;
+  reviewStatus: string;
+  notes: string;
+};
+
+export type ProcedureReportUpdate = {
   dateCollected: string;
   dateReport: string;
   specimenNumber: string;
@@ -2975,7 +2985,7 @@ SELECT LAST_INSERT_ID() AS id;
   async getProcedureReport(id: number): Promise<ProcedureReportRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT procedure_report_id AS id, procedure_order_id AS orderId, report_status AS reportStatus,
-  DATE(date_collected) AS dateCollected, COALESCE(specimen_num, '') AS specimenNumber,
+  DATE(date_collected) AS dateCollected, DATE(date_report) AS dateReport, COALESCE(specimen_num, '') AS specimenNumber,
   review_status AS reviewStatus, COALESCE(report_notes, '') AS reportNotes
 FROM procedure_report
 WHERE procedure_report_id = ${integer(id)}
@@ -2989,11 +2999,25 @@ LIMIT 1;
       id: Number(row.id),
       orderId: Number(row.orderId),
       dateCollected: row.dateCollected,
+      dateReport: row.dateReport,
       specimenNumber: row.specimenNumber,
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
       reportNotes: row.reportNotes
     };
+  }
+
+  async updateProcedureReport(id: number, input: ProcedureReportUpdate): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_report
+SET date_collected = ${sqlString(input.dateCollected)},
+    date_report = ${sqlString(input.dateReport)},
+    specimen_num = ${sqlString(input.specimenNumber)},
+    report_status = ${sqlString(input.reportStatus)},
+    review_status = ${sqlString(input.reviewStatus)},
+    report_notes = ${sqlString(input.notes)}
+WHERE procedure_report_id = ${integer(id)};
+`);
   }
 
   async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {

@@ -742,6 +742,7 @@ export type ProcedureReportSummary = {
   specimenNumber: string;
   status: string;
   reviewStatus: string;
+  reportNotes: string;
   results: ProcedureResultSummary[];
 };
 
@@ -2238,7 +2239,8 @@ ORDER BY collected_date DESC, procedure_specimen_id DESC;
     const reportRows = await this.queryRows<Record<string, string>>(`
 SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_collected) AS dateCollected,
   DATE(date_report) AS reportDate, COALESCE(specimen_num, '') AS specimenNumber,
-  COALESCE(report_status, '') AS status, COALESCE(review_status, '') AS reviewStatus
+  COALESCE(report_status, '') AS status, COALESCE(review_status, '') AS reviewStatus,
+  COALESCE(report_notes, '') AS reportNotes
 FROM procedure_report
 WHERE procedure_order_id IN (${orderIdList})
 ORDER BY date_report DESC, procedure_report_id DESC;
@@ -2251,6 +2253,7 @@ ORDER BY date_report DESC, procedure_report_id DESC;
       specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
+      reportNotes: row.reportNotes,
       results: []
     }));
 
