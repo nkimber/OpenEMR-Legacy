@@ -755,6 +755,7 @@ export type ProcedureReportReviewQueueItem = {
   pubpid: string;
   patientDisplayName: string;
   orderDate: string;
+  providerId: number;
   procedureCode: string;
   procedureName: string;
   reportDate: string;
@@ -769,6 +770,7 @@ export type ProcedureReportReviewQueueItem = {
 export type ProcedureReportReviewQueueSummary = {
   statusFilter: string;
   patientFilter: string;
+  providerFilter: string;
   fromDate: string;
   toDate: string;
   totalReports: number;
@@ -779,6 +781,7 @@ export type ProcedureReportReviewQueueSummary = {
 
 export type ProcedureReportReviewQueueFilters = {
   patientId?: string;
+  providerId?: string | number;
   fromDate?: string;
   toDate?: string;
 };
@@ -2371,6 +2374,7 @@ ORDER BY procedure_result_id;
   ): Promise<ProcedureReportReviewQueueSummary> {
     const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
     const patientFilter = filters.patientId?.trim();
+    const providerFilter = filters.providerId === undefined || filters.providerId === null ? "" : String(filters.providerId).trim();
     const fromDate = filters.fromDate?.trim();
     const toDate = filters.toDate?.trim();
     const patientFilterSql = patientFilter && /^\d+$/u.test(patientFilter)
@@ -2380,6 +2384,7 @@ ORDER BY procedure_result_id;
       patientFilter
         ? `AND (${patientFilterSql} OR pd.pubpid = '${escapeSql(patientFilter)}')`
         : "",
+      providerFilter && /^\d+$/u.test(providerFilter) ? `AND po.provider_id = ${providerFilter}` : "",
       fromDate ? `AND DATE(po.date_ordered) >= '${escapeSql(fromDate)}'` : "",
       toDate ? `AND DATE(po.date_ordered) <= '${escapeSql(toDate)}'` : ""
     ].filter(Boolean).join("\n  ");
@@ -2403,6 +2408,7 @@ SELECT pr.procedure_report_id AS reportId, po.procedure_order_id AS orderId, po.
   pd.pubpid,
   TRIM(CONCAT(pd.lname, ', ', pd.fname)) AS patientDisplayName,
   DATE(po.date_ordered) AS orderDate,
+  COALESCE(po.provider_id, 0) AS providerId,
   COALESCE(pc.procedure_code, '') AS procedureCode,
   COALESCE(pc.procedure_name, '') AS procedureName,
   DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') AS reportDate,
@@ -2429,6 +2435,7 @@ LIMIT 100;
     return {
       statusFilter,
       patientFilter: patientFilter ?? "",
+      providerFilter,
       fromDate: fromDate ?? "",
       toDate: toDate ?? "",
       totalReports: Number(countRow.totalReports),
@@ -2441,6 +2448,7 @@ LIMIT 100;
         pubpid: row.pubpid,
         patientDisplayName: row.patientDisplayName,
         orderDate: row.orderDate,
+        providerId: Number(row.providerId),
         procedureCode: row.procedureCode,
         procedureName: row.procedureName,
         reportDate: row.reportDate,

@@ -107,7 +107,8 @@ export async function openProcedureReportReviewQueueDirect(
   pid: number,
   fromDate: string,
   toDate: string,
-  reviewOption: "2" | "3"
+  reviewOption: "2" | "3",
+  providerId?: number | string
 ) {
   await openPatientSummaryDirect(page, target, pid);
   await page.goto(`${target.publicUrl}/interface/orders/list_reports.php`);
@@ -116,6 +117,9 @@ export async function openProcedureReportReviewQueueDirect(
   await page.locator('input[name="form_to_date"]').fill(toDate);
   await page.locator('input[name="form_patient"]').check();
   await page.locator('select[name="form_reviewed"]').selectOption(reviewOption);
+  if (providerId !== undefined) {
+    await page.locator('select[name="form_provider"]').selectOption(String(providerId));
+  }
   await page.getByRole("button", { name: /Filter/i }).click();
   await expectRenderedText(page, /Procedure Orders and Reports/i);
 }

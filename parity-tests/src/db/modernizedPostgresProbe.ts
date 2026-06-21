@@ -1565,12 +1565,14 @@ ORDER BY id;
   ): Promise<ProcedureReportReviewQueueSummary> {
     const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
     const patientFilter = filters.patientId?.trim();
+    const providerFilter = filters.providerId === undefined || filters.providerId === null ? "" : String(filters.providerId).trim();
     const fromDate = filters.fromDate?.trim();
     const toDate = filters.toDate?.trim();
     const whereFilters = [
       patientFilter
         ? `AND (LOWER(p.canonical_id) = LOWER('${escapeSql(patientFilter)}') OR LOWER(p.pubpid) = LOWER('${escapeSql(patientFilter)}') OR p.legacy_pid::text = '${escapeSql(patientFilter)}')`
         : "",
+      providerFilter && /^\d+$/u.test(providerFilter) ? `AND lo.provider_id = ${providerFilter}` : "",
       fromDate ? `AND lo.order_date >= '${escapeSql(fromDate)}'` : "",
       toDate ? `AND lo.order_date <= '${escapeSql(toDate)}'` : ""
     ].filter(Boolean).join("\n  ");
@@ -1594,6 +1596,7 @@ SELECT lr.id AS "reportId", lo.id AS "orderId", lo.pid AS "patientId",
   p.pubpid,
   TRIM(CONCAT(p.last_name, ', ', p.first_name)) AS "patientDisplayName",
   lo.order_date AS "orderDate",
+  COALESCE(lo.provider_id, 0) AS "providerId",
   COALESCE(lo.code, '') AS "procedureCode",
   COALESCE(lo.name, '') AS "procedureName",
   to_char(lr.report_date, 'YYYY-MM-DD HH24:MI') AS "reportDate",
@@ -1617,6 +1620,7 @@ LIMIT 100;
     return {
       statusFilter,
       patientFilter: patientFilter ?? "",
+      providerFilter,
       fromDate: fromDate ?? "",
       toDate: toDate ?? "",
       totalReports: Number(countRow.totalReports),
@@ -1629,6 +1633,7 @@ LIMIT 100;
         pubpid: row.pubpid,
         patientDisplayName: row.patientDisplayName,
         orderDate: row.orderDate,
+        providerId: Number(row.providerId),
         procedureCode: row.procedureCode,
         procedureName: row.procedureName,
         reportDate: row.reportDate,
