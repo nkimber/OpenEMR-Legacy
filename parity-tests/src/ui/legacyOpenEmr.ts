@@ -128,6 +128,20 @@ export async function openProcedureReportReviewQueueDirect(
   await expectRenderedText(page, /Procedure Orders and Reports/i);
 }
 
+export async function openProcedureProvidersDirect(
+  page: Page,
+  target: RuntimeTarget,
+  includeInactive = false
+) {
+  await page.goto(`${target.publicUrl}/interface/orders/procedure_provider_list.php`);
+  await expectRenderedText(page, /Procedure Providers|Add New/i);
+
+  if (includeInactive) {
+    await page.locator('input[name="form_inactive"]').check();
+    await expectRenderedText(page, /Procedure Providers|Add New/i);
+  }
+}
+
 export async function openUserAdministrationDirect(page: Page, target: RuntimeTarget) {
   await page.goto(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
   await expectRenderedText(page, /Users|Add User/i);

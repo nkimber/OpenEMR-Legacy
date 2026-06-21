@@ -29,6 +29,7 @@ import type {
   PatientStatementSummary,
   StatementBatchSummary,
   PatientRecord,
+  ProcedureLabProviderDirectorySummary,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
   ProcedureReportReviewQueueSummary,
@@ -1651,6 +1652,52 @@ LIMIT 100;
         reviewedAt: row.reviewedAt,
         specimenNumber: row.specimenNumber,
         notes: row.notes
+      }))
+    };
+  }
+
+  async getProcedureLabProviders(includeInactive = false): Promise<ProcedureLabProviderDirectorySummary> {
+    const visibilityFilter = includeInactive ? "" : "AND lp.active";
+    const counts = await this.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS "totalProviders",
+  COALESCE(SUM(CASE WHEN lp.active THEN 1 ELSE 0 END), 0) AS "activeProviders",
+  COALESCE(SUM(CASE WHEN NOT lp.active THEN 1 ELSE 0 END), 0) AS "inactiveProviders"
+FROM lab_providers lp
+WHERE lp.id BETWEEN 501 AND 505;
+`);
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT lp.id,
+  lp.name,
+  COALESCE(lp.npi, '') AS npi,
+  'DL' AS protocol,
+  CASE WHEN lp.active THEN '1' ELSE '0' END AS active,
+  COUNT(DISTINCT lo.id) AS "orderCount",
+  COUNT(DISTINCT lr.id) AS "reportCount",
+  COUNT(DISTINCT CASE WHEN lo.order_date > '2026-06-18' THEN lo.id END) AS "futureOrderCount"
+FROM lab_providers lp
+LEFT JOIN lab_orders lo ON lo.lab_id = lp.id
+LEFT JOIN lab_reports lr ON lr.order_id = lo.id
+WHERE lp.id BETWEEN 501 AND 505
+  ${visibilityFilter}
+GROUP BY lp.id, lp.name, lp.npi, lp.active
+ORDER BY lp.name, lp.id;
+`);
+
+    const countRow = counts[0] ?? { totalProviders: "0", activeProviders: "0", inactiveProviders: "0" };
+    return {
+      includeInactive,
+      totalProviders: Number(countRow.totalProviders),
+      activeProviders: Number(countRow.activeProviders),
+      inactiveProviders: Number(countRow.inactiveProviders),
+      providers: rows.map((row) => ({
+        id: Number(row.id),
+        name: row.name,
+        npi: row.npi,
+        protocol: row.protocol,
+        active: row.active === "1",
+        orderCount: Number(row.orderCount),
+        reportCount: Number(row.reportCount),
+        futureOrderCount: Number(row.futureOrderCount)
       }))
     };
   }

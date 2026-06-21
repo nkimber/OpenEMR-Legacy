@@ -782,6 +782,25 @@ export type ProcedureReportReviewQueueSummary = {
   reports: ProcedureReportReviewQueueItem[];
 };
 
+export type ProcedureLabProviderDirectoryItem = {
+  id: number;
+  name: string;
+  npi: string;
+  protocol: string;
+  active: boolean;
+  orderCount: number;
+  reportCount: number;
+  futureOrderCount: number;
+};
+
+export type ProcedureLabProviderDirectorySummary = {
+  includeInactive: boolean;
+  totalProviders: number;
+  activeProviders: number;
+  inactiveProviders: number;
+  providers: ProcedureLabProviderDirectoryItem[];
+};
+
 export type ProcedureReportReviewQueueFilters = {
   patientId?: string;
   providerId?: string | number;
@@ -2470,6 +2489,52 @@ LIMIT 100;
         reviewedAt: row.reviewedAt,
         specimenNumber: row.specimenNumber,
         notes: row.notes
+      }))
+    };
+  }
+
+  async getProcedureLabProviders(includeInactive = false): Promise<ProcedureLabProviderDirectorySummary> {
+    const visibilityFilter = includeInactive ? "" : "AND pp.active = 1";
+    const counts = await this.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS totalProviders,
+  COALESCE(SUM(CASE WHEN pp.active = 1 THEN 1 ELSE 0 END), 0) AS activeProviders,
+  COALESCE(SUM(CASE WHEN pp.active <> 1 THEN 1 ELSE 0 END), 0) AS inactiveProviders
+FROM procedure_providers pp
+WHERE pp.ppid BETWEEN 501 AND 505;
+`);
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pp.ppid AS id,
+  pp.name,
+  COALESCE(pp.npi, '') AS npi,
+  COALESCE(pp.protocol, '') AS protocol,
+  pp.active,
+  COUNT(DISTINCT po.procedure_order_id) AS orderCount,
+  COUNT(DISTINCT pr.procedure_report_id) AS reportCount,
+  COUNT(DISTINCT CASE WHEN DATE(po.date_ordered) > '2026-06-18' THEN po.procedure_order_id END) AS futureOrderCount
+FROM procedure_providers pp
+LEFT JOIN procedure_order po ON po.lab_id = pp.ppid
+LEFT JOIN procedure_report pr ON pr.procedure_order_id = po.procedure_order_id
+WHERE pp.ppid BETWEEN 501 AND 505
+  ${visibilityFilter}
+GROUP BY pp.ppid, pp.name, pp.npi, pp.protocol, pp.active
+ORDER BY pp.name, pp.ppid;
+`);
+
+    const countRow = counts[0] ?? { totalProviders: "0", activeProviders: "0", inactiveProviders: "0" };
+    return {
+      includeInactive,
+      totalProviders: Number(countRow.totalProviders),
+      activeProviders: Number(countRow.activeProviders),
+      inactiveProviders: Number(countRow.inactiveProviders),
+      providers: rows.map((row) => ({
+        id: Number(row.id),
+        name: row.name,
+        npi: row.npi,
+        protocol: row.protocol,
+        active: row.active === "1",
+        orderCount: Number(row.orderCount),
+        reportCount: Number(row.reportCount),
+        futureOrderCount: Number(row.futureOrderCount)
       }))
     };
   }
