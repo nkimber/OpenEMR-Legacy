@@ -62,6 +62,7 @@ param(
         "workflow-appointment-recurrence-exceptions",
         "workflow-appointment-occurrence-cancel",
         "workflow-appointment-occurrence-restore",
+        "workflow-appointment-occurrence-reschedule",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",

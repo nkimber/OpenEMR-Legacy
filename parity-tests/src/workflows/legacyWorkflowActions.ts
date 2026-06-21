@@ -1359,6 +1359,39 @@ LIMIT 1;
     };
   }
 
+  async getAppointmentsForPatient(patientId: number | string, fromDate: string): Promise<AppointmentRecord[]> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_aid AS providerId, e.pc_title AS title,
+  DATE(e.pc_eventDate) AS eventDate, e.pc_startTime AS startTime, e.pc_endTime AS endTime,
+  e.pc_apptstatus AS status, e.pc_facility AS facilityId, e.pc_billing_location AS billingLocationId,
+  e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName,
+  COALESCE(e.pc_hometext, '') AS homeText, e.pc_recurrtype AS recurrenceType,
+  COALESCE(e.pc_recurrspec, '') AS recurrenceSpec, DATE(e.pc_endDate) AS recurrenceEndDate
+FROM openemr_postcalendar_events e
+LEFT JOIN openemr_postcalendar_categories c ON c.pc_catid = e.pc_catid
+WHERE e.pc_pid = ${integer(Number(patientId))}
+  AND DATE(e.pc_eventDate) >= ${sqlString(fromDate)}
+ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
+`);
+    return rows.map((row) => ({
+      id: Number(row.id),
+      patientId: Number(row.patientId),
+      providerId: Number(row.providerId),
+      title: row.title,
+      eventDate: row.eventDate,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      status: row.status,
+      facilityId: Number(row.facilityId),
+      billingLocationId: Number(row.billingLocationId),
+      room: row.room,
+      categoryId: Number(row.categoryId),
+      categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId)),
+      homeText: row.homeText,
+      ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate)
+    }));
+  }
+
   async getAppointmentSeriesOccurrences(patientId: number | string, fromDate: string): Promise<AppointmentSeriesOccurrence[]> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_title AS title,

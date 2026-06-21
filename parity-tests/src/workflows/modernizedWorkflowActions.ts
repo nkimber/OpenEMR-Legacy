@@ -588,6 +588,46 @@ LIMIT 1;
     };
   }
 
+  async getAppointmentsForPatient(patientId: number | string, fromDate: string): Promise<AppointmentRecord[]> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, pid AS "patientId", provider_id AS "providerId", title,
+  appointment_date AS "eventDate", start_time AS "startTime",
+  (start_time + make_interval(mins => duration_minutes))::time AS "endTime",
+  status, facility_id AS "facilityId", billing_location_id AS "billingLocationId", COALESCE(room, '') AS room,
+  COALESCE(category_id, 0) AS "categoryId", COALESCE(comments, '') AS "homeText",
+  COALESCE(recurrence_type, 0) AS "recurrenceType",
+  repeat_frequency AS "repeatFrequency",
+  repeat_unit AS "repeatUnit",
+  recurrence_end_date AS "recurrenceEndDate",
+  COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
+FROM appointments
+WHERE pid = ${integer(Number(patientId))}
+  AND appointment_date >= ${sqlString(fromDate)}
+ORDER BY appointment_date, start_time, id;
+`);
+    return rows.map((row) => ({
+      id: row.id,
+      patientId: Number(row.patientId),
+      providerId: Number(row.providerId),
+      title: row.title,
+      eventDate: row.eventDate,
+      startTime: normalizeTime(row.startTime),
+      endTime: normalizeTime(row.endTime),
+      status: row.status,
+      facilityId: Number(row.facilityId),
+      billingLocationId: Number(row.billingLocationId),
+      room: row.room,
+      categoryId: Number(row.categoryId),
+      categoryName: appointmentCategoryName(Number(row.categoryId)),
+      homeText: row.homeText,
+      recurrenceType: Number(row.recurrenceType),
+      repeatFrequency: nullableNumber(row.repeatFrequency),
+      repeatUnit: nullableNumber(row.repeatUnit),
+      recurrenceEndDate: row.recurrenceEndDate,
+      recurrenceExdates: splitDateList(row.recurrenceExdates)
+    }));
+  }
+
   async getAppointmentSeriesOccurrences(patientId: number | string, fromDate: string): Promise<AppointmentSeriesOccurrence[]> {
     const params = new URLSearchParams({
       patientId: String(patientId),

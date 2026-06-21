@@ -137,7 +137,8 @@
         "parityAppointmentSeriesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-104-appointment-series-readiness", "-Reset", "run"],
         "parityAppointmentRecurrenceExceptionsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-105-appointment-recurrence-exceptions-readiness", "-Reset", "run"],
         "parityAppointmentOccurrenceCancelPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-106-appointment-occurrence-cancel-readiness", "-Reset", "test"],
-        "parityAppointmentOccurrenceRestorePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-107-appointment-occurrence-restore-readiness", "-Reset", "test"]
+        "parityAppointmentOccurrenceRestorePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-107-appointment-occurrence-restore-readiness", "-Reset", "test"],
+        "parityAppointmentOccurrenceReschedulePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-108-appointment-occurrence-reschedule-readiness", "-Reset", "test"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -438,6 +439,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentOccurrenceRestorePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-107-appointment-occurrence-restore-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-occurrence-reschedule",
+          "name": "Slice 108 appointment occurrence reschedule plan",
+          "description": "Runs the shared recurring appointment occurrence-reschedule plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentOccurrenceReschedulePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-108-appointment-occurrence-reschedule-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1231,7 +1240,8 @@
         "parityAppointmentSeriesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-104-appointment-series-readiness", "-Reset", "run"],
         "parityAppointmentRecurrenceExceptionsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-105-appointment-recurrence-exceptions-readiness", "-Reset", "run"],
         "parityAppointmentOccurrenceCancelPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-106-appointment-occurrence-cancel-readiness", "-Reset", "test"],
-        "parityAppointmentOccurrenceRestorePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-107-appointment-occurrence-restore-readiness", "-Reset", "test"]
+        "parityAppointmentOccurrenceRestorePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-107-appointment-occurrence-restore-readiness", "-Reset", "test"],
+        "parityAppointmentOccurrenceReschedulePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-108-appointment-occurrence-reschedule-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1460,6 +1470,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentOccurrenceRestorePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-107-appointment-occurrence-restore-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-occurrence-reschedule",
+          "name": "Slice 108 appointment occurrence reschedule plan",
+          "description": "Runs the shared recurring appointment occurrence-reschedule plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentOccurrenceReschedulePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-108-appointment-occurrence-reschedule-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
