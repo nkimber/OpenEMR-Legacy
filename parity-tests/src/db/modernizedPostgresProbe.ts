@@ -1471,6 +1471,8 @@ ORDER BY collected_date DESC, id DESC;
 SELECT id, order_id AS "orderId", date_collected::date AS "dateCollected",
   report_date::date AS "reportDate", COALESCE(specimen_number, '') AS "specimenNumber",
   COALESCE(status, '') AS status, COALESCE(review_status, status, '') AS "reviewStatus",
+  COALESCE(reviewed_by, '') AS "reviewedBy",
+  COALESCE(to_char(reviewed_at, 'YYYY-MM-DD HH24:MI'), '') AS "reviewedAt",
   COALESCE(notes, '') AS "reportNotes"
 FROM lab_reports
 WHERE order_id IN (${orderIdList})
@@ -1484,6 +1486,8 @@ ORDER BY report_date DESC, id DESC;
       specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       reportNotes: row.reportNotes,
       results: []
     }));

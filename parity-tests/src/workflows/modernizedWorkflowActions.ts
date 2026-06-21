@@ -62,6 +62,7 @@ import type {
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
   ProcedureReportRecord,
+  ProcedureReportSignOff,
   ProcedureReportUpdate,
   ProcedureResultRecord,
   ProcedureSpecimenRecord,
@@ -2199,7 +2200,10 @@ LIMIT 1;
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, order_id AS "orderId", COALESCE(status, '') AS "reportStatus",
   date_collected::date AS "dateCollected", report_date::date AS "dateReport", COALESCE(specimen_number, '') AS "specimenNumber",
-  COALESCE(review_status, '') AS "reviewStatus", COALESCE(notes, '') AS "reportNotes"
+  COALESCE(review_status, '') AS "reviewStatus",
+  COALESCE(reviewed_by, '') AS "reviewedBy",
+  COALESCE(to_char(reviewed_at, 'YYYY-MM-DD HH24:MI'), '') AS "reviewedAt",
+  COALESCE(notes, '') AS "reportNotes"
 FROM lab_reports
 WHERE id = ${integer(id)}
 LIMIT 1;
@@ -2217,6 +2221,8 @@ LIMIT 1;
       specimenNumber: row.specimenNumber,
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       reportNotes: row.reportNotes
     };
   }
@@ -2237,6 +2243,21 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized procedure report update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async signProcedureReport(id: number, input: ProcedureReportSignOff): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}/sign`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        reviewedBy: input.reviewedBy,
+        reviewedAt: input.reviewedAt
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report sign-off failed with ${response.status}: ${await response.text()}`);
     }
   }
 

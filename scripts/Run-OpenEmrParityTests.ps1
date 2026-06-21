@@ -135,6 +135,7 @@ param(
         "workflow-procedure-specimen-detail",
         "workflow-procedure-order-correction",
         "workflow-procedure-report-correction",
+        "workflow-procedure-report-signoff",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",

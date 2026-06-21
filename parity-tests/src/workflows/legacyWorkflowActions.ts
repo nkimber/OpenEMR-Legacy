@@ -351,6 +351,8 @@ export type ProcedureReportRecord = {
   specimenNumber: string;
   reportStatus: string;
   reviewStatus: string;
+  reviewedBy: string;
+  reviewedAt: string;
   reportNotes: string;
 };
 
@@ -816,6 +818,11 @@ export type ProcedureReportUpdate = {
   reportStatus: string;
   reviewStatus: string;
   notes: string;
+};
+
+export type ProcedureReportSignOff = {
+  reviewedBy: string;
+  reviewedAt: string;
 };
 
 export type NewProcedureSpecimen = {
@@ -2984,11 +2991,15 @@ SELECT LAST_INSERT_ID() AS id;
 
   async getProcedureReport(id: number): Promise<ProcedureReportRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT procedure_report_id AS id, procedure_order_id AS orderId, report_status AS reportStatus,
-  DATE(date_collected) AS dateCollected, DATE(date_report) AS dateReport, COALESCE(specimen_num, '') AS specimenNumber,
-  review_status AS reviewStatus, COALESCE(report_notes, '') AS reportNotes
-FROM procedure_report
-WHERE procedure_report_id = ${integer(id)}
+SELECT pr.procedure_report_id AS id, pr.procedure_order_id AS orderId, pr.report_status AS reportStatus,
+  DATE(pr.date_collected) AS dateCollected, DATE(pr.date_report) AS dateReport, COALESCE(pr.specimen_num, '') AS specimenNumber,
+  pr.review_status AS reviewStatus,
+  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  COALESCE(pr.report_notes, '') AS reportNotes
+FROM procedure_report pr
+LEFT JOIN users u ON u.id = pr.source
+WHERE pr.procedure_report_id = ${integer(id)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -3003,6 +3014,8 @@ LIMIT 1;
       specimenNumber: row.specimenNumber,
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       reportNotes: row.reportNotes
     };
   }
@@ -3017,6 +3030,17 @@ SET date_collected = ${sqlString(input.dateCollected)},
     review_status = ${sqlString(input.reviewStatus)},
     report_notes = ${sqlString(input.notes)}
 WHERE procedure_report_id = ${integer(id)};
+`);
+  }
+
+  async signProcedureReport(id: number, input: ProcedureReportSignOff): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_report pr
+INNER JOIN users u ON u.username = ${sqlString(input.reviewedBy)}
+SET pr.review_status = 'reviewed',
+    pr.source = u.id,
+    pr.date_report = ${sqlString(input.reviewedAt)}
+WHERE pr.procedure_report_id = ${integer(id)};
 `);
   }
 

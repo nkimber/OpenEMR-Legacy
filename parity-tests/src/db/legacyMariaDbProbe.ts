@@ -742,6 +742,8 @@ export type ProcedureReportSummary = {
   specimenNumber: string;
   status: string;
   reviewStatus: string;
+  reviewedBy: string;
+  reviewedAt: string;
   reportNotes: string;
   results: ProcedureResultSummary[];
 };
@@ -2237,13 +2239,16 @@ ORDER BY collected_date DESC, procedure_specimen_id DESC;
     }));
 
     const reportRows = await this.queryRows<Record<string, string>>(`
-SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_collected) AS dateCollected,
-  DATE(date_report) AS reportDate, COALESCE(specimen_num, '') AS specimenNumber,
-  COALESCE(report_status, '') AS status, COALESCE(review_status, '') AS reviewStatus,
-  COALESCE(report_notes, '') AS reportNotes
-FROM procedure_report
-WHERE procedure_order_id IN (${orderIdList})
-ORDER BY date_report DESC, procedure_report_id DESC;
+SELECT pr.procedure_report_id AS id, pr.procedure_order_id AS orderId, DATE(pr.date_collected) AS dateCollected,
+  DATE(pr.date_report) AS reportDate, COALESCE(pr.specimen_num, '') AS specimenNumber,
+  COALESCE(pr.report_status, '') AS status, COALESCE(pr.review_status, '') AS reviewStatus,
+  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  COALESCE(pr.report_notes, '') AS reportNotes
+FROM procedure_report pr
+LEFT JOIN users u ON u.id = pr.source
+WHERE pr.procedure_order_id IN (${orderIdList})
+ORDER BY pr.date_report DESC, pr.procedure_report_id DESC;
 `);
     const reports: ProcedureReportSummary[] = reportRows.map((row) => ({
       id: Number(row.id),
@@ -2253,6 +2258,8 @@ ORDER BY date_report DESC, procedure_report_id DESC;
       specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
+      reviewedBy: row.reviewedBy,
+      reviewedAt: row.reviewedAt,
       reportNotes: row.reportNotes,
       results: []
     }));
