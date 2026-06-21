@@ -7556,6 +7556,60 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 140. Modernized Appointment Series Root Update Slice 110
+
+Commit: `a042c99`
+Started: `2026-06-20T21:48:12.0000000-04:00`
+Finished: `2026-06-20T22:10:14.6733331-04:00`
+
+Implemented the one-hundred-tenth modernized OpenEMR vertical slice: appointment series root update readiness, proving that a recurring appointment root title and start time update propagates into generated future occurrences, that the seeded recurrence exception list remains stable, and that legacy and modernized behavior match side by side while restoring the seeded root.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 290
+- Lines deleted: 5
+- Net lines: 285
+- Total churn: 295
+
+Key outcomes:
+
+- Added the `workflow-appointment-series-root-update` Playwright parity suite and `slice-110-appointment-series-root-update-readiness` plan.
+- The shared parity workflow edits the seeded `MOD-PAT-0013` recurring root from `Preventive Care` at `15:30` to `Preventive Care Root Update` at `16:15`, verifies generated dates `2026-11-04`, `2026-11-18`, `2026-12-02`, `2026-12-30`, `2027-01-13`, and `2027-01-27`, preserves occurrence numbers `1`, `2`, `3`, `5`, `6`, and `7`, and restores the original root.
+- The modernized target exercises the Calendar UI edit path for the root appointment and verifies the generated `2026-11-18` occurrence reflects the updated title/time.
+- Normalized modernized recurring-series list `startTime` values to match the `HH:mm:ss` shape used by detail records and legacy workflow probes.
+- Added a modernized smoke-test check for appointment series root update propagation and cleanup restoration.
+- Added Workbench managed plan commands/cards for Slice 110 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 110 with thirty-six read-only slices and seventy-four mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-110-appointment-series-root-update-readiness -Reset test` passed; run `2026-06-21T015812-474Z-modernized-openemr-plan-slice-110-appointment-series-root-update-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-110-appointment-series-root-update-readiness -Reset test` passed; run `2026-06-21T015840-154Z-legacy-openemr-plan-slice-110-appointment-series-root-update-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-110-appointment-series-root-update-readiness` passed with `status: matched`; comparison `2026-06-21T015907-808Z-legacy-openemr-vs-modernized-openemr-plan-slice-110-appointment-series-root-update-readiness`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment series root update propagation`.
+- A direct modernized API read confirmed root `APPT-MOD-PAT-0013-3` was restored to `Preventive Care` at `15:30` with only the seeded `2026-12-16` recurrence exception.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-series-root-update/appointment-series-root-update.spec.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
