@@ -866,7 +866,37 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs, saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs are covered by Slice 139. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+
+### Slice 139: Procedure Lab Provider Catalog Readiness
+
+Status:
+
+- Implemented as a read-only gold-data enrichment and parity slice under `modernization-workbench/seed-data/`, `modernized-openemr/`, and `parity-tests/`.
+- Verification is the shared `slice-139-procedure-lab-provider-catalog-readiness` plan, which resets each target to the shared gold dataset, verifies permanent lab-provider ownership for seeded reviewed procedure reports, verifies outside-lab exclusion, and renders the same reviewed queue row through legacy OpenEMR and the modernized Reports workspace.
+
+Scope:
+
+- The shared synthetic gold dataset now includes five permanent lab providers with stable IDs `501` through `505`.
+- All 1,000 seeded lab orders are deterministically assigned to those lab providers, including both the 700 completed/reviewed lab reports and the 300 future/scheduled lab orders.
+- Legacy MariaDB seed SQL inserts the gold lab providers into `procedure_providers` and writes `procedure_order.lab_id` for seeded procedure orders.
+- Modernized PostgreSQL seed generation imports the same catalog into `lab_providers` and writes `lab_orders.lab_id`.
+- The read-only `workflow-procedure-lab-provider-catalog` Playwright parity suite anchors on `MOD-PAT-0009`, order `5000009`, report `6000009`, and lab `504` (`Pacific Women's Health Laboratory`) to prove database and browser-visible reviewed queue behavior.
+- Workbench-managed Slice 139 procedure lab provider catalog plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared seed dataset reports `labProviders: 5`, `labOrders: 1000`, `labReports: 700`, and `labResults: 2400`.
+- The legacy target contains matching `procedure_providers` rows and `procedure_order.lab_id` assignments for seeded procedure orders.
+- The modernized target contains matching `lab_providers` rows and `lab_orders.lab_id` assignments for seeded procedure orders.
+- The reviewed report queue for `MOD-PAT-0009`, lab `504`, and order date `2026-02-26` contains report `6000009` with the normalized lab name, code, specimen number, reviewer, and reviewed timestamp.
+- The same patient/date query with outside lab `501` excludes the anchor report on both targets.
+- The legacy `Procedure Orders and Reports` page and the modernized Reports workspace render the seeded reviewed report row through their lab filters.
+- The side-by-side Slice 139 parity comparison matches.
+
+Current limitations:
+
+- This slice makes the lab-provider catalog permanent in the gold dataset. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3942,3 +3972,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-sixth modernized vertical slice implements procedure report review queue patient/date filtering with API/query-string filters, Reports workspace filter controls, normalized legacy/modernized filtered queue probes, Workbench procedure report review queue filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-136 parity evidence.
 - The one-hundred-thirty-seventh modernized vertical slice implements procedure report review queue provider filtering with API/query-string provider filters, Reports workspace Provider controls, normalized legacy/modernized provider-filtered queue probes, Workbench procedure report review queue provider filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-137 parity evidence.
 - The one-hundred-thirty-eighth modernized vertical slice implements procedure report review queue lab filtering with PostgreSQL lab ownership mapping, API/query-string lab filters, Reports workspace Lab controls, normalized legacy/modernized lab-filtered queue probes, temporary lab-provider workflow actions, Workbench procedure report review queue lab filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-138 parity evidence.
+- The one-hundred-thirty-ninth modernized vertical slice implements permanent procedure lab provider catalog readiness with five shared gold-data lab providers, deterministic legacy `procedure_order.lab_id` and modernized `lab_orders.lab_id` assignments across all seeded lab orders, Workbench procedure lab provider catalog plan actions, read-only browser/database parity coverage, and side-by-side slice-139 parity evidence.

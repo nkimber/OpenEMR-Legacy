@@ -9295,6 +9295,72 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 169. Procedure Lab Provider Catalog Slice 139
+
+Commit: `05dc9973`
+Started: `2026-06-21T09:47:00-04:00`
+Finished: `2026-06-21T10:10:45.3988521-04:00`
+
+Implemented the one-hundred-thirty-ninth project slice and latest modernized OpenEMR workflow slice: procedure lab provider catalog readiness, promoting processing labs into permanent gold-data records and proving that seeded reviewed procedure reports carry the same lab ownership through legacy OpenEMR and the modernized Reports workspace.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 3226
+- Lines deleted: 1009
+- Net lines: 2217
+- Total churn: 4235
+
+Key outcomes:
+
+- Added five permanent gold-data lab providers with stable IDs `501` through `505`.
+- Assigned all 1,000 seeded lab orders to those lab providers while preserving 700 completed/reviewed lab reports and 300 future/scheduled lab orders.
+- Extended legacy seed SQL to insert `procedure_providers` rows and persist `procedure_order.lab_id`.
+- Extended modernized seed generation to import the shared catalog into `lab_providers` and keep `lab_orders.lab_id` aligned with legacy.
+- Extended legacy seed validation with the `labProviders` count.
+- Added the read-only `workflow-procedure-lab-provider-catalog` Playwright parity suite and `slice-139-procedure-lab-provider-catalog-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 139 on both legacy and modernized targets.
+- Anchored the parity proof on `MOD-PAT-0009`, order `5000009`, report `6000009`, and lab `504` (`Pacific Women's Health Laboratory`), including outside-lab exclusion for lab `501`.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 139 with thirty-nine read-only slices and ninety-eight mutation-capable slices.
+- Closed the Slice 138 permanent lab-provider catalog deferral by making lab ownership part of the shared gold dataset.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1`, `legacy-openemr\scripts\Seed-LegacyGoldDataset.ps1`, and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` regenerated/imported the modernized PostgreSQL gold dataset with `COPY 5` lab providers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed with `labProviders` expected/actual `5`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-139-procedure-lab-provider-catalog-readiness -Reset test` passed; run `2026-06-21T140920-667Z-legacy-openemr-plan-slice-139-procedure-lab-provider-catalog-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-139-procedure-lab-provider-catalog-readiness -Reset test` passed; run `2026-06-21T140920-869Z-modernized-openemr-plan-slice-139-procedure-lab-provider-catalog-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-139-procedure-lab-provider-catalog-readiness` passed with `status: matched`; comparison `2026-06-21T140953-972Z-legacy-openemr-vs-modernized-openemr-plan-slice-139-procedure-lab-provider-catalog-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `parity-tests/tests/workflow-procedure-lab-provider-catalog/procedure-lab-provider-catalog.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
