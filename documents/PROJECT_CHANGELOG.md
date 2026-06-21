@@ -10204,6 +10204,67 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 184. Procedure Report Reopen Review Readiness Slice 154
+
+Commit: `42e47bd5`
+Started: `2026-06-21T15:52:00.0000000-04:00`
+Finished: `2026-06-21T16:20:22.9936594-04:00`
+Duration: 28m 23s
+
+Implemented the one-hundred-fifty-fourth project slice and latest modernized OpenEMR workflow slice: procedure report reopen review readiness, proving that a signed temporary lab report can be reopened into received/unreviewed state, lose visible reviewer metadata, move from the reviewed queue back to the unreviewed queue, render on both targets, and clean up.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 425
+- Lines deleted: 34
+- Net lines: +391
+- Total churn: 459
+
+Key outcomes:
+
+- Added `PUT /api/procedures/reports/{reportId}/reopen-review` with repository logic that returns a modernized signed lab report to received/unreviewed state and clears reviewer metadata.
+- Added a Procedures workspace `Reopen Review` action on reviewed report cards, plus the API client wiring and refresh behavior needed to keep Procedures and Reports in sync.
+- Added legacy and modernized workflow adapter reopen actions so both targets can perform the same normalized signed-to-unreviewed transition.
+- Added the `workflow-procedure-report-reopen-review` Playwright parity suite and `slice-154-procedure-report-reopen-review-readiness` plan.
+- Added Workbench-managed Slice 154 plan actions for both targets, updated Labs And Procedures progress evidence, and synchronized the project context, modernization plan, test architecture, test data, Workbench, index, and legacy-baseline documents.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check` passed with only Git line-ending warnings.
+- `docker compose up -d --build` passed for `modernized-openemr/`; `docker compose up -d` passed for `legacy-openemr/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-154-procedure-report-reopen-review-readiness -Reset test` passed: run `2026-06-21T201551-739Z-legacy-openemr-plan-slice-154-procedure-report-reopen-review-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-154-procedure-report-reopen-review-readiness -Reset test` passed: run `2026-06-21T201655-922Z-modernized-openemr-plan-slice-154-procedure-report-reopen-review-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-154-procedure-report-reopen-review-readiness` passed with comparison `2026-06-21T201745-317Z-legacy-openemr-vs-modernized-openemr-plan-slice-154-procedure-report-reopen-review-readiness`, `status: matched`, and no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-procedure-report-reopen-review/procedure-report-reopen-review.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
