@@ -668,7 +668,7 @@ ORDER BY appointment_date, start_time, id;
         patientId: appointment.legacyPid,
         title: appointment.title,
         date: appointment.date,
-        startTime: appointment.startTime,
+        startTime: normalizeTime(appointment.startTime),
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
