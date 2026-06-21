@@ -3,6 +3,8 @@ import {
   CheckCircle2,
   CircleAlert,
   ClipboardList,
+  ChevronDown,
+  ChevronRight,
   Database,
   ExternalLink,
   FileText,
@@ -1158,6 +1160,7 @@ function TestsPage({
 
 function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonReport[] }) {
   const visibleComparisons = comparisons.slice(0, 8);
+  const [expandedComparisonId, setExpandedComparisonId] = useState<string | null>(visibleComparisons[0]?.comparisonId ?? null);
 
   return (
     <section className="panel">
@@ -1175,6 +1178,7 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
         <div className="comparison-grid">
           {visibleComparisons.map((comparison) => {
             const suites = Array.from(new Set([...comparison.left.selectedSuites, ...comparison.right.selectedSuites]));
+            const expanded = expandedComparisonId === comparison.comparisonId;
             return (
               <article className="comparison-card" key={comparison.comparisonId}>
                 <div className="comparison-card-header">
@@ -1185,7 +1189,15 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
                     </div>
                     <p>{comparison.selectionKind} comparison finished {formatDate(comparison.finishedAt)}</p>
                   </div>
-                  {comparison.passed ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                  <div className="comparison-card-actions">
+                    {comparison.passed ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                    <IconButton
+                      title={`${expanded ? "Hide" : "Show"} ${comparison.selectionId} comparison details`}
+                      onClick={() => setExpandedComparisonId(expanded ? null : comparison.comparisonId)}
+                    >
+                      {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    </IconButton>
+                  </div>
                 </div>
 
                 <div className="comparison-side-grid">
@@ -1218,6 +1230,8 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
                 )}
 
                 <code>{comparison.reports.comparisonJson || comparison.artifactDirectory}</code>
+
+                {expanded ? <ComparisonDrillIn comparison={comparison} suites={suites} /> : null}
               </article>
             );
           })}
@@ -1226,6 +1240,56 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
         <EmptyState text="No side-by-side comparison artifacts have been recorded yet." />
       )}
     </section>
+  );
+}
+
+function ComparisonDrillIn({ comparison, suites }: { comparison: ParityComparisonReport; suites: string[] }) {
+  return (
+    <div className="comparison-drill-in" aria-label={`${comparison.selectionId} comparison details`}>
+      <div className="comparison-detail-grid">
+        <ComparisonArtifactDetail label="Legacy artifact" side={comparison.left} />
+        <ComparisonArtifactDetail label="Modernized artifact" side={comparison.right} />
+      </div>
+      <div className="comparison-detail-grid">
+        <div className="comparison-detail-block">
+          <span>Comparison artifact</span>
+          <code>{comparison.reports.comparisonJson || comparison.artifactDirectory}</code>
+        </div>
+        <div className="comparison-detail-block">
+          <span>Artifact directory</span>
+          <code>{comparison.artifactDirectory}</code>
+        </div>
+      </div>
+      <div className="comparison-detail-block">
+        <span>Selected suites</span>
+        <code>{suites.length ? suites.join(", ") : "None recorded"}</code>
+      </div>
+      <div className="comparison-detail-block">
+        <span>Differences</span>
+        {comparison.differenceCount ? (
+          <ol className="comparison-difference-list">
+            {comparison.differences.map((difference, index) => (
+              <li key={`${comparison.comparisonId}-detail-difference-${index}`}>{formatComparisonDifference(difference)}</li>
+            ))}
+          </ol>
+        ) : (
+          <div className="comparison-match-note">Legacy and modernized artifacts match for this selection.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ComparisonArtifactDetail({ label, side }: { label: string; side: ParityComparisonReport["left"] }) {
+  return (
+    <div className="comparison-detail-block">
+      <span>{label}</span>
+      <strong>{side.target}</strong>
+      <code>{side.path || "No artifact path recorded"}</code>
+      <small>
+        {side.runId} / {side.exists ? "artifact present" : "artifact missing"}
+      </small>
+    </div>
   );
 }
 

@@ -677,6 +677,13 @@ p {
   gap: 12px;
 }
 
+.comparison-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .comparison-card-header p {
   margin-top: 4px;
   font-size: 0.86rem;
@@ -736,6 +743,63 @@ p {
   color: #246b51;
   font-size: 0.84rem;
   font-weight: 700;
+}
+
+.comparison-drill-in {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #dce4eb;
+  padding-top: 12px;
+}
+
+.comparison-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.comparison-detail-block {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.comparison-detail-block span {
+  color: #687789;
+  font-size: 0.74rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.comparison-detail-block strong,
+.comparison-detail-block small {
+  min-width: 0;
+  color: #263747;
+}
+
+.comparison-detail-block small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #687789;
+  font-size: 0.78rem;
+}
+
+.comparison-detail-block code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-difference-list {
+  display: grid;
+  gap: 7px;
+  max-height: 220px;
+  margin: 0;
+  overflow: auto;
+  padding-left: 20px;
+  color: #8a3b2f;
+  font-size: 0.84rem;
 }
 
 .custom-run-form {
@@ -1589,6 +1653,8 @@ dd {
   .changelog-stats,
   .custom-run-form,
   .test-run-grid,
+  .comparison-side-grid,
+  .comparison-detail-grid,
   .seed-target-grid,
   .architecture-grid,
   .decision-grid,
