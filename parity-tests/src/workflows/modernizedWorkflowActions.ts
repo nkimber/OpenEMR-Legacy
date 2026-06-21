@@ -2240,6 +2240,27 @@ LIMIT 1;
     };
   }
 
+  async updateProcedureResult(id: number, input: NewProcedureResult): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/results/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        resultCode: input.resultCode,
+        resultText: input.resultText,
+        dateTime: input.dateTime,
+        units: input.units,
+        result: input.result,
+        range: input.range,
+        abnormal: input.abnormal,
+        status: input.status
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure result update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async deleteProcedureOrderCascade(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}`, {
       method: "DELETE"

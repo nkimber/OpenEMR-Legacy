@@ -2952,6 +2952,23 @@ LIMIT 1;
     };
   }
 
+  async updateProcedureResult(id: number, input: NewProcedureResult): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_result
+SET result_code = ${sqlString(input.resultCode)},
+    result_text = ${sqlString(input.resultText)},
+    date = ${sqlString(input.dateTime)},
+    facility = ${sqlString(input.facility)},
+    units = ${sqlString(input.units)},
+    result = ${sqlString(input.result)},
+    \`range\` = ${sqlString(input.range)},
+    abnormal = ${sqlString(input.abnormal)},
+    comments = ${sqlString(input.comments)},
+    result_status = ${sqlString(input.status)}
+WHERE procedure_result_id = ${integer(id)};
+`);
+  }
+
   async deleteProcedureOrderCascade(id: number): Promise<void> {
     await this.db.execute(`
 DELETE pr

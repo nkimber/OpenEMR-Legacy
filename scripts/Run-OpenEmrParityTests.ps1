@@ -130,6 +130,7 @@ param(
         "workflow-claims",
         "workflow-patient-payments",
         "workflow-procedures",
+        "workflow-procedure-result-correction",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",
