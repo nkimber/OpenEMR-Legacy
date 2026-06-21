@@ -924,7 +924,35 @@ Acceptance:
 
 Current limitations:
 
-- This slice is read-only and does not yet implement provider add/edit/delete, protocol setup, compendium imports, address-book organization linking, credential management, external lab ordering integration, or audit history.
+- This slice is read-only. Provider lifecycle add/deactivate/delete behavior is covered by Slice 141; protocol setup beyond default `DL`, compendium imports, address-book organization linking, credential management, external lab ordering integration, and audit history remain deferred.
+
+### Slice 141: Procedure Lab Provider Lifecycle Readiness
+
+Status:
+
+- Implemented as a mutation-capable procedure/lab provider lifecycle slice under `modernized-openemr/`, `parity-tests/`, and Workbench managed parity actions.
+- Verification is the shared `slice-141-procedure-lab-provider-lifecycle-readiness` plan, which resets each target to the shared gold dataset, creates a temporary provider, verifies active-provider rendering, deactivates it, verifies include-inactive rendering, deletes it, and confirms cleanup.
+
+Scope:
+
+- The modernized PostgreSQL `lab_providers` table now stores provider protocol as durable state instead of hardcoding it in API responses.
+- The modernized procedures API exposes `POST /api/procedures/lab-providers`, `PUT /api/procedures/lab-providers/{providerId}`, and `DELETE /api/procedures/lab-providers/{providerId}` for temporary provider lifecycle behavior.
+- The React Reports workspace Procedure Lab Providers panel now supports adding a provider and toggling/deleting visible provider cards while preserving the include-inactive directory view.
+- Legacy and modernized workflow adapters can create, read, update/deactivate, and delete temporary provider rows using each target's native storage/API path.
+- The shared `workflow-procedure-lab-provider-lifecycle` suite proves the lifecycle against both legacy OpenEMR and the modernized target.
+- Workbench-managed Slice 141 procedure lab provider lifecycle plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets can create a temporary active lab provider with the same name, NPI, protocol, and active state.
+- The active provider renders in legacy OpenEMR's `Procedure Providers` page and in the modernized Reports workspace provider directory.
+- Both targets can deactivate the temporary provider and preserve it for include-inactive rendering while hiding it from the default active-provider list.
+- Both targets can delete the temporary provider and confirm it is absent after cleanup.
+- The side-by-side Slice 141 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused temporary-provider lifecycle behavior only. Full legacy address-book organization linking, credential/password fields, remote host/path settings, compendium imports, external lab ordering protocols, linked-provider deletion policies, audit history, and role-specific authorization remain deferred.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4002,3 +4030,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-eighth modernized vertical slice implements procedure report review queue lab filtering with PostgreSQL lab ownership mapping, API/query-string lab filters, Reports workspace Lab controls, normalized legacy/modernized lab-filtered queue probes, temporary lab-provider workflow actions, Workbench procedure report review queue lab filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-138 parity evidence.
 - The one-hundred-thirty-ninth modernized vertical slice implements permanent procedure lab provider catalog readiness with five shared gold-data lab providers, deterministic legacy `procedure_order.lab_id` and modernized `lab_orders.lab_id` assignments across all seeded lab orders, Workbench procedure lab provider catalog plan actions, read-only browser/database parity coverage, and side-by-side slice-139 parity evidence.
 - The one-hundred-fortieth modernized vertical slice implements procedure lab provider directory readiness with a modernized `/api/procedures/lab-providers` endpoint, Reports workspace provider-directory panel, normalized legacy/modernized provider-directory probes, Workbench procedure lab provider directory plan actions, and side-by-side slice-140 parity evidence.
+- The one-hundred-forty-first modernized vertical slice implements procedure lab provider lifecycle readiness with durable modernized provider protocol state, create/update/delete procedures API endpoints, Reports workspace add/deactivate/delete controls, normalized legacy/modernized provider lifecycle workflow actions, Workbench procedure lab provider lifecycle plan actions, cleanup deletion, and side-by-side slice-141 parity evidence.

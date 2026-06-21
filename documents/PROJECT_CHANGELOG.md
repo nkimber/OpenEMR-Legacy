@@ -9430,6 +9430,74 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 171. Procedure Lab Provider Lifecycle Slice 141
+
+Commit: `e242bd4c`
+Started: `2026-06-21T10:43:00-04:00`
+Finished: `2026-06-21T11:10:50.2218778-04:00`
+
+Implemented the one-hundred-forty-first project slice and latest modernized OpenEMR workflow slice: procedure lab provider lifecycle readiness, proving that temporary lab providers can be created, rendered in the active directory, deactivated, rendered through include-inactive behavior, deleted, and cleaned up on both legacy OpenEMR and the modernized Reports workspace/API.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 651
+- Lines deleted: 24
+- Net lines: 627
+- Total churn: 675
+
+Key outcomes:
+
+- Added durable `lab_providers.protocol` state to the modernized PostgreSQL seed schema and provider directory probe path.
+- Added modernized procedure lab provider create, update, and delete DTOs, repository methods, and API endpoints under `/api/procedures/lab-providers`.
+- Extended the modernized Reports workspace Procedure Lab Providers panel with add, activate/deactivate, and delete controls.
+- Extended legacy and modernized parity workflow adapters with provider create/read/update/delete lifecycle methods.
+- Added the mutation-capable `workflow-procedure-lab-provider-lifecycle` Playwright parity suite and `slice-141-procedure-lab-provider-lifecycle-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 141 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 141 with forty read-only slices and ninety-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` regenerated/imported the modernized PostgreSQL gold dataset with `COPY 5` lab providers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/` with `labProviders` expected/actual `5`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- Direct API smoke for `http://localhost:5001/api/procedures/lab-providers?includeInactive=true` returned five active providers, with lab `504` showing NPI `1720123404`, protocol `DL`, `orderCount` `200`, `reportCount` `140`, and `futureOrderCount` `60`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-141-procedure-lab-provider-lifecycle-readiness -Reset test` passed; run `2026-06-21T150903-763Z-legacy-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-141-procedure-lab-provider-lifecycle-readiness -Reset test` passed; run `2026-06-21T150934-376Z-modernized-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-141-procedure-lab-provider-lifecycle-readiness` passed with `status: matched`; comparison `2026-06-21T150959-195Z-legacy-openemr-vs-modernized-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-procedure-lab-provider-lifecycle/procedure-lab-provider-lifecycle.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
