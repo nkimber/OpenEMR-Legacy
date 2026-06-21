@@ -10265,6 +10265,54 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 185. Workbench Comparison Report Links Slice 155
+
+Commit: `230b9163`
+Started: `2026-06-21T16:33:00.0000000-04:00`
+Finished: `2026-06-21T16:36:59.4526026-04:00`
+Duration: 3m 59s
+
+Implemented the one-hundred-fifty-fifth project slice and latest Workbench evidence slice: comparison report links, enriching side-by-side comparison drill-ins from their run summaries so operators can open run JSON, Playwright JSON, JUnit XML, and HTML report evidence directly from the Workbench.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 195
+- Lines deleted: 31
+- Net lines: +164
+- Total churn: 226
+
+Key outcomes:
+
+- Added run-level report metadata to normalized Workbench parity comparison sides.
+- Enriched comparison rows by reading each side's run summary and exposing only report paths that resolve under approved artifact roots.
+- Added a compact comparison drill-in link group for run JSON, Playwright JSON, JUnit XML, and HTML report evidence.
+- Updated the Reports, Workbench, And Evidence progress area to include Slice 155 comparison report links and move direct report links out of future scope.
+- Synchronized the modernization plan, Workbench, test architecture, project context, and index documents so the latest project slice is Slice 155 while the latest modernized workflow slice remains Slice 154.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- JSON parse check passed for `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check` passed with only Git line-ending warnings.
+- `/api/parity-comparisons` returned 20 comparison rows, and the latest Slice 154 comparison exposed run JSON, Playwright JSON, JUnit XML, and HTML report links for both legacy and modernized sides.
+- `/api/artifacts/file` returned `200 application/json` for the linked run JSON and `200 text/html` for the linked HTML report.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -10273,4 +10321,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy/history depth, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.
+- Workbench comparison screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
