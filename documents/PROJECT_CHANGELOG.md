@@ -7666,6 +7666,59 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 142. Modernized Appointment Monthly Recurrence Slice 112
+
+Commit: `689188f`
+Started: `2026-06-20T22:34:00.0000000-04:00`
+Finished: `2026-06-20T23:03:46.8597397-04:00`
+
+Implemented the one-hundred-twelfth modernized OpenEMR vertical slice: appointment monthly recurrence readiness, proving that a temporary monthly recurring appointment can be created, expanded, updated to every two months, rendered through both legacy and modernized workflows, and removed cleanly with matched side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 318
+- Lines deleted: 4
+- Net lines: 314
+- Total churn: 322
+
+Key outcomes:
+
+- Added the `workflow-appointment-monthly-recurrence` Playwright parity suite and `slice-112-appointment-monthly-recurrence-readiness` plan.
+- The shared parity workflow creates a temporary `MOD-PAT-0003` appointment on `2026-12-15`, verifies monthly generated dates through `2027-04-15`, updates the series to every two months through `2027-08-15`, and verifies generated dates `2026-12-15`, `2027-02-15`, `2027-04-15`, `2027-06-15`, and `2027-08-15`.
+- The legacy path verifies OpenEMR repeat controls for repeat frequency, repeat unit `Month`, and recurrence end date in the appointment editor.
+- The modernized path verifies Calendar repeat labels, edit controls, and generated occurrence rendering, including `Generated occurrence 2` on `2027-02-15`.
+- Extended the modernized smoke test with an `appointment monthly recurrence lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 112 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 112 with thirty-six read-only slices and seventy-six mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-112-appointment-monthly-recurrence-readiness -Reset test` passed; run `2026-06-21T024326-672Z-modernized-openemr-plan-slice-112-appointment-monthly-recurrence-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-112-appointment-monthly-recurrence-readiness -Reset test` passed; run `2026-06-21T024352-015Z-legacy-openemr-plan-slice-112-appointment-monthly-recurrence-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-112-appointment-monthly-recurrence-readiness` passed with `status: matched`; comparison `2026-06-21T024425-343Z-legacy-openemr-vs-modernized-openemr-plan-slice-112-appointment-monthly-recurrence-readiness`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 113 checks, including `appointment monthly recurrence lifecycle`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-monthly-recurrence/appointment-monthly-recurrence.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
