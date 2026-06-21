@@ -7362,6 +7362,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 137. Modernized Appointment Occurrence Restore Slice 107
+
+Commit: `255bfd6`
+Started: `2026-06-20T20:34:21.7924987-04:00`
+Finished: `2026-06-20T20:56:24.6665690-04:00`
+
+Implemented the one-hundred-seventh modernized OpenEMR vertical slice: appointment occurrence-restore readiness, proving that a skipped generated recurring appointment occurrence can be restored by removing its recurrence exception date, that occurrence numbering returns to the original series positions, that the modernized Calendar exposes visible `Restore occurrence` controls for skipped dates, and that legacy and modernized behavior match side by side.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 400
+- Lines deleted: 5
+- Net lines: 395
+- Total churn: 405
+
+Key outcomes:
+
+- Added a modernized appointment recurrence-exception restore API that removes a skipped date from `appointments.recurrence_exdates`, validates the restored generated occurrence against the series metadata, normalizes the exception list, and returns the updated series root.
+- Added Calendar skipped-date restore controls so operators can restore individual skipped generated occurrences from the schedule detail panel.
+- Added legacy and modernized workflow adapter helpers for restoring appointment recurrence exceptions.
+- Added the `workflow-appointment-occurrence-restore` Playwright parity suite and `slice-107-appointment-occurrence-restore-readiness` plan.
+- Added a modernized smoke-test check for appointment occurrence restoration.
+- Added Workbench managed plan commands/cards for Slice 107 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 107 with thirty-six read-only slices and seventy-one mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment occurrence restore exception`.
+- A direct modernized PostgreSQL read confirmed the seeded recurrence exception list was restored to `2026-12-16` after mutation cleanup.
+- `docker compose up -d` passed for the legacy OpenEMR stack.
+- `npm run test:legacy:plan:appointment-occurrence-restore -- --reset test` passed; run `2026-06-21T004634-358Z-legacy-openemr-plan-slice-107-appointment-occurrence-restore-readiness`.
+- `npm run test:modernized:plan:appointment-occurrence-restore -- --reset test` passed; run `2026-06-21T004634-410Z-modernized-openemr-plan-slice-107-appointment-occurrence-restore-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-107-appointment-occurrence-restore-readiness` passed with `status: matched`; comparison `2026-06-21T004717-473Z-legacy-openemr-vs-modernized-openemr-plan-slice-107-appointment-occurrence-restore-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-occurrence-restore/appointment-occurrence-restore.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
