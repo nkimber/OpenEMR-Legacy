@@ -66,6 +66,7 @@ param(
         "workflow-appointment-recurrence-exception-edit",
         "workflow-appointment-series-root-update",
         "workflow-appointment-series-root-metadata",
+        "workflow-appointment-monthly-recurrence",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
