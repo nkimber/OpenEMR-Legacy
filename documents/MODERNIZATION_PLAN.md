@@ -272,7 +272,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17.
+- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129.
 - Result correction, amendment/versioning, external lab integration, specimen handling, order catalog management, review queues, and audit history remain deferred to later lab/procedure slices.
 
 ### Slice 7: Billing And Fee Sheet
@@ -575,7 +575,35 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused lab procedure lifecycle only.
-- Result correction, amendment/versioning, external electronic lab interfaces, specimen collection/tracking, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices.
+- Amendment/versioning, external electronic lab interfaces, specimen collection/tracking, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129.
+
+### Slice 129: Procedure Result Correction Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized lab/procedure result correction slice under `modernized-openemr/`.
+- Verification is the shared `slice-129-procedure-result-correction-readiness` plan, which creates a temporary encounter/order/report/result, corrects the result in place, validates database/API/UI state, and deletes the temporary procedure tree and encounter on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core exposes `PUT /api/procedures/results/{resultId}` for focused result correction over the modernized PostgreSQL lab result tables.
+- `ProcedureRepository.UpdateResultAsync` locates the result through report/order context, updates result code/text/date/status/value/units/range/abnormal flag, and returns refreshed patient procedure detail.
+- The React Procedures workspace and Encounter procedure-result cards expose compact `Correct` controls that edit existing result rows without creating a new order or report.
+- Legacy and modernized workflow adapters share a procedure-result correction operation so the same parity test can update the legacy `procedure_result` row and the modernized API route.
+- The modernized smoke test includes a `procedure result correction lifecycle` check that creates a temporary lab workflow on `MOD-PAT-0001`, corrects the result, verifies the refreshed procedure API, and deletes the temporary order tree.
+- Workbench-managed Slice 129 procedure result correction plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared plan creates a temporary lab workflow for `MOD-PAT-0009`, corrects the existing result from a final high glucose value to a corrected borderline value, and preserves order/report/result identity.
+- The corrected result text, value, units, range, abnormal flag, result date, and corrected status are visible in the modernized Procedures workspace and normalized database probes.
+- The legacy Procedure Results screen renders the corrected result after the shared workflow adapter updates the legacy row.
+- Hard-delete cleanup restores procedure counts and removes the temporary encounter/order/report/result rows.
+- The side-by-side Slice 129 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused in-place correction only. It does not implement lab amendment history, prior-result versioning, HL7 inbound correction reconciliation, reviewer notification workflow, authorization policy, audit-log export, or order-to-charge conversion.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -2305,7 +2333,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused encounter-workspace procedure result entry for an existing encounter-linked order. It does not implement order catalogs, multi-result panels in one submit, specimen collection workflow, external lab integration, authorization, audit history, corrected-result lifecycle, or order-to-charge conversion.
+- This slice proves focused encounter-workspace procedure result entry for an existing encounter-linked order. It does not implement order catalogs, multi-result panels in one submit, specimen collection workflow, external lab integration, authorization, audit history, or order-to-charge conversion. Focused in-place procedure result correction is covered by Slice 129.
 
 ### Slice 77: Encounter Sign-Off Readiness
 
@@ -3641,3 +3669,4 @@ As of 2026-06-20:
 - The one-hundred-twenty-sixth modernized vertical slice implements encounter scanned attachment readiness with scan-source/OCR metadata derivation for temporary encounter PDFs, modernized attached-document scan rendering, smoke coverage, Workbench scanned-attachment plan actions, cleanup deletion, and side-by-side slice-126 parity evidence.
 - The one-hundred-twenty-seventh modernized vertical slice implements encounter binary document content replacement readiness with an encounter-scoped binary replacement endpoint, React Encounters `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-127 parity evidence.
 - The one-hundred-twenty-eighth modernized vertical slice implements patient binary document content replacement readiness with a patient-document binary replacement endpoint, React Documents `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench patient binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-128 parity evidence.
+- The one-hundred-twenty-ninth modernized vertical slice implements procedure result correction readiness with a focused result update endpoint, React Procedures and Encounter correction controls, normalized legacy/modernized result probes, Workbench procedure result correction plan actions, smoke coverage, cleanup deletion, and side-by-side slice-129 parity evidence.

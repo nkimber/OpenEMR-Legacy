@@ -8625,6 +8625,70 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 159. Procedure Result Correction Slice 129
+
+Commit: `45f00b93`
+Started: `2026-06-21T05:00:00.0000000-04:00`
+Finished: `2026-06-21T05:17:44.9762129-04:00`
+
+Implemented the one-hundred-twenty-ninth project slice and latest modernized OpenEMR workflow slice: procedure result correction readiness, proving that a temporary lab result can be corrected in place while preserving its order/report/result identity and matching legacy OpenEMR behavior.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 894
+- Lines deleted: 9
+- Net lines: 885
+- Total churn: 903
+
+Key outcomes:
+
+- Added the modernized procedure result update request and `PUT /api/procedures/results/{resultId}` endpoint.
+- Added repository support for correcting result code, text, date, units, value, range, abnormal flag, and status.
+- Added `Correct` controls to modernized Procedures result cards and Encounter procedure result cards.
+- Added legacy and modernized workflow adapter support for updating an existing procedure result.
+- Added the `workflow-procedure-result-correction` Playwright parity suite and `slice-129-procedure-result-correction-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 129 on both legacy and modernized targets.
+- Added modernized smoke coverage named `procedure result correction lifecycle`.
+- Fixed the temporary procedure parity encounter metadata so legacy `form_encounter` field requirements and short external IDs are satisfied.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 129 with thirty-eight read-only slices and eighty-nine mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1` and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed; `procedure result correction lifecycle` passed in `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-129-procedure-result-correction-readiness -Reset test` passed; run `2026-06-21T090955-867Z-legacy-openemr-plan-slice-129-procedure-result-correction-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-129-procedure-result-correction-readiness -Reset test` passed; run `2026-06-21T091035-030Z-modernized-openemr-plan-slice-129-procedure-result-correction-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-129-procedure-result-correction-readiness` passed with `status: matched`; comparison `2026-06-21T091100-522Z-legacy-openemr-vs-modernized-openemr-plan-slice-129-procedure-result-correction-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-procedure-result-correction/procedure-result-correction.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -8632,5 +8696,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.

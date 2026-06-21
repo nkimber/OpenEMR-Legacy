@@ -367,6 +367,8 @@ Slice 127 adds encounter binary document content replacement coverage by creatin
 
 Slice 128 adds patient binary document content replacement coverage by creating a temporary PDF document on `MOD-PAT-0001` with seeded encounter `1000013`, replacing its stored binary payload with a second PDF from the Documents workflow while preserving the same document and patient identity, verifying replacement file name, MIME type, size, hash/revision, preview, API/UI, and byte-for-byte download facts, and hard-deleting the row so seeded patient document counts return to baseline.
 
+Slice 129 adds procedure result correction coverage by creating a temporary encounter, lab order, report, and result for `MOD-PAT-0009`, correcting the same result row in place to a `118` value with `70-110` range, `borderline` abnormal flag, and `corrected` status, verifying legacy and modernized database/API/UI facts, and deleting the temporary order tree and encounter so procedure and encounter counts return to baseline. The parity workflow uses compact temporary external IDs so the same fixture shape works against legacy OpenEMR field lengths and the modernized PostgreSQL schema.
+
 The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation anchor. The plan creates a temporary encounter on `2026-06-18`, records vitals, records a SOAP note, verifies encounter/vitals/clinical-note counts increase, updates the encounter reason and billing note, verifies browser-visible updated reason, blood pressure, billing note, and SOAP assessment, deletes the temporary encounter and child rows, and verifies the counts return to the seeded baseline.
 
 ### Level 3: Extended Synthetic Population
