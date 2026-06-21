@@ -200,7 +200,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, lab-provider catalog/directory/lifecycle/configuration are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, lab-provider catalog/directory/lifecycle/configuration/address-book linkage are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -209,16 +209,16 @@
         },
         {
           "label": "Review queues and lab providers",
-          "detail": "Report review queue, patient/date/provider/lab filters, lab-provider catalog ownership, provider directory, provider lifecycle, and provider transport/configuration fields are covered.",
-          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness"]
+          "detail": "Report review queue, patient/date/provider/lab filters, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
+          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness", "slice-144-procedure-lab-provider-address-book-readiness"]
         }
       ],
       "outstanding": [
         "Order catalogs, compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
-        "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, and role-specific authorization."
+        "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and role-specific authorization."
       ],
       "deferred": [
-        "Linked address-book organization workflow and production external lab ordering interfaces."
+        "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ]
     },
     {

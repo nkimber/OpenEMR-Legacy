@@ -9608,6 +9608,74 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 174. Procedure Lab Provider Address Book Slice 144
+
+Commit: `a72ac543`
+Started: `2026-06-21T11:58:45.0000000-04:00`
+Finished: `2026-06-21T12:13:55.5550417-04:00`
+
+Implemented the one-hundred-forty-fourth project slice and latest modernized OpenEMR workflow slice: procedure lab provider address-book linkage readiness, proving that temporary order-service organizations can be created, linked to procedure lab providers, used to derive provider names, rendered on both targets, updated to a second organization, and cleaned up.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 606
+- Lines deleted: 61
+- Net lines: 545
+- Total churn: 667
+
+Key outcomes:
+
+- Added modernized `lab_provider_address_book` storage and nullable `lab_providers.lab_director_id` to model legacy `users.abook_type LIKE 'ord_%'` plus `procedure_providers.lab_director`.
+- Added modernized address-book list/create/delete endpoints under `/api/procedures/lab-provider-address-book`.
+- Extended modernized lab-provider create/update/read behavior with `labDirectorId`, derived provider names from linked organizations, and linked organization/type response fields.
+- Rendered linked address-book organization and type on modernized Reports provider cards.
+- Extended legacy and modernized workflow adapters with temporary order-service address-book organization lifecycle methods.
+- Added the mutation-capable `workflow-procedure-lab-provider-address-book` Playwright parity suite and `slice-144-procedure-lab-provider-address-book-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 144 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, Workbench functionality ledger, index, and legacy-baseline documents so the current modernization state is Slice 144 with forty read-only slices and one hundred one mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` regenerated/imported the modernized PostgreSQL gold dataset with the empty address-book table and five permanent lab providers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-144-procedure-lab-provider-address-book-readiness -Reset test` passed; run `2026-06-21T160516-332Z-legacy-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-144-procedure-lab-provider-address-book-readiness -Reset test` passed; run `2026-06-21T160558-672Z-modernized-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-144-procedure-lab-provider-address-book-readiness` passed with `status: matched`; comparison `2026-06-21T160623-389Z-legacy-openemr-vs-modernized-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-procedure-lab-provider-address-book/procedure-lab-provider-address-book.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -924,7 +924,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice is read-only. Provider lifecycle add/deactivate/delete behavior is covered by Slice 141; protocol setup beyond default `DL`, compendium imports, address-book organization linking, credential management, external lab ordering integration, and audit history remain deferred.
+- This slice is read-only. Provider lifecycle add/deactivate/delete behavior is covered by Slice 141; protocol setup beyond default `DL` is covered by Slice 142; address-book organization linking is covered by Slice 144. Compendium imports, credential management, external lab ordering integration, and audit history remain deferred.
 
 ### Slice 141: Procedure Lab Provider Lifecycle Readiness
 
@@ -952,7 +952,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused temporary-provider lifecycle behavior only. Provider transport/settings fields are covered by Slice 142. Full legacy address-book organization linking, compendium imports, external lab ordering execution, linked-provider deletion policies, audit history, and role-specific authorization remain deferred.
+- This slice covers focused temporary-provider lifecycle behavior only. Provider transport/settings fields are covered by Slice 142 and address-book organization linking is covered by Slice 144. Compendium imports, external lab ordering execution, linked-provider deletion policies, audit history, and role-specific authorization remain deferred.
 
 ### Slice 142: Procedure Lab Provider Configuration Readiness
 
@@ -980,7 +980,37 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused configuration persistence and rendering only. Lab-director/address-book organization linking, compendium imports, external SFTP/filesystem/web-service execution, credential encryption/rotation policy, role-specific authorization, and audit history remain deferred.
+- This slice covers focused configuration persistence and rendering only. Lab-director/address-book organization linking is covered by Slice 144. Compendium imports, external SFTP/filesystem/web-service execution, credential encryption/rotation policy, role-specific authorization, and audit history remain deferred.
+
+### Slice 144: Procedure Lab Provider Address Book Linkage Readiness
+
+Status:
+
+- Implemented as a mutation-capable procedure/lab provider address-book linkage slice under `modernized-openemr/`, `parity-tests/`, and Workbench managed parity actions.
+- Verification is the shared `slice-144-procedure-lab-provider-address-book-readiness` plan, which resets each target to the shared gold dataset, creates temporary order-service address-book organizations, links a procedure lab provider to those organizations, verifies provider name derivation and rendering, deletes the provider and organizations, and confirms cleanup.
+
+Scope:
+
+- The modernized PostgreSQL seed schema now includes `lab_provider_address_book` plus `lab_providers.lab_director_id` so the target can model OpenEMR's `users.abook_type LIKE 'ord_%'` and `procedure_providers.lab_director` relationship without adding permanent address-book seed rows.
+- The modernized procedures API exposes `GET`, `POST`, and `DELETE` endpoints under `/api/procedures/lab-provider-address-book` for parity-managed temporary order-service organizations.
+- Modernized lab-provider create/update now accepts `labDirectorId`; when provided, the provider name is derived from the linked address-book organization just as legacy OpenEMR copies `users.organization` into `procedure_providers.name`.
+- The React Reports workspace provider cards render linked address-book organization and type alongside the existing provider configuration fields.
+- Legacy and modernized workflow adapters can create/read/update/delete temporary address-book organizations and linked provider rows using each target's native storage/API path.
+- Workbench-managed Slice 144 procedure lab provider address-book plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets can create temporary order-service address-book organizations with type `ord_lab`.
+- Both targets can create a procedure lab provider linked to an address-book organization and derive the provider name from the organization instead of the fallback manual name.
+- Both targets can update the provider to a second address-book organization and update the derived provider name, linked organization ID, linked organization type, NPI, protocol, usage, direction, and browser-visible rendering.
+- The legacy `Procedure Providers` page renders the derived organization name and not the fallback update name.
+- The modernized Reports workspace renders the derived organization name, linked address-book organization, address-book type, NPI, protocol, usage, and direction.
+- Both targets delete the temporary provider and address-book organizations during cleanup.
+- The side-by-side Slice 144 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused address-book linkage semantics only. It does not implement full address-book administration UI, compendium imports, external SFTP/filesystem/web-service execution, credential encryption/rotation policy, linked-provider deletion policy, role-specific authorization, or audit history.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4060,3 +4090,4 @@ As of 2026-06-20:
 - The one-hundred-fortieth modernized vertical slice implements procedure lab provider directory readiness with a modernized `/api/procedures/lab-providers` endpoint, Reports workspace provider-directory panel, normalized legacy/modernized provider-directory probes, Workbench procedure lab provider directory plan actions, and side-by-side slice-140 parity evidence.
 - The one-hundred-forty-first modernized vertical slice implements procedure lab provider lifecycle readiness with durable modernized provider protocol state, create/update/delete procedures API endpoints, Reports workspace add/deactivate/delete controls, normalized legacy/modernized provider lifecycle workflow actions, Workbench procedure lab provider lifecycle plan actions, cleanup deletion, and side-by-side slice-141 parity evidence.
 - The one-hundred-forty-second modernized vertical slice implements procedure lab provider configuration readiness with durable modernized provider usage/direction/transport fields, Reports workspace configuration inputs and rendering, normalized legacy/modernized provider configuration workflow actions, Workbench procedure lab provider configuration plan actions, cleanup deletion, and side-by-side slice-142 parity evidence.
+- The one-hundred-forty-fourth modernized vertical slice implements procedure lab provider address-book linkage readiness with modernized order-service address-book storage/API endpoints, `labDirectorId` provider name derivation, Reports workspace linked-organization rendering, normalized legacy/modernized workflow actions, Workbench procedure lab provider address-book plan actions, cleanup deletion, and side-by-side slice-144 parity evidence.
