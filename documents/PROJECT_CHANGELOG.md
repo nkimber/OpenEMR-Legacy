@@ -9786,6 +9786,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 177. Procedure Order Catalog Lifecycle Slice 147
+
+Commit: ca40822c
+Started: `2026-06-21T12:54:00.0000000-04:00`
+Finished: `2026-06-21T13:20:26.2351710-04:00`
+
+Implemented the one-hundred-forty-seventh project slice and latest modernized OpenEMR workflow slice: procedure order catalog lifecycle readiness, proving that temporary orderable catalog rows can be created, updated, deactivated, rendered, deleted, cleaned up, and matched side-by-side across legacy OpenEMR and the modernized target.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 1,030
+- Lines deleted: 16
+- Net lines: 1,014
+- Total churn: 1,046
+
+Key outcomes:
+
+- Added modernized procedure order catalog mutation DTOs, repository methods, and `/api/procedures/order-catalog` POST/PUT/DELETE endpoints.
+- Extended the modernized Reports Procedure Order Catalog panel with a compact add-item form, active/deactivate controls, delete controls, and stable row-action styling.
+- Added frontend API mutation helpers for procedure order catalog create/update/delete behavior.
+- Added normalized legacy and modernized workflow actions for temporary `procedure_type` / `lab_order_catalog` catalog item create/update/deactivate/delete/readback behavior.
+- Added the `workflow-procedure-order-catalog-lifecycle` Playwright parity suite and the `slice-147-procedure-order-catalog-lifecycle-readiness` plan.
+- Registered Slice 147 in the runner allowlist, mutation/full parity aggregate suites, and Workbench managed application actions for both legacy and modernized targets.
+- Updated the Workbench functionality progress ledger and `/api/progress` milestone text so procedure order catalog lifecycle behavior is reflected in progress reporting.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- JSON parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-147-procedure-order-catalog-lifecycle-readiness -Reset test` passed; run `2026-06-21T171232-635Z-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-147-procedure-order-catalog-lifecycle-readiness -Reset test` passed; run `2026-06-21T171232-634Z-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-147-procedure-order-catalog-lifecycle-readiness` passed with `status: matched`; comparison `2026-06-21T171314-622Z-legacy-openemr-vs-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-procedure-order-catalog-lifecycle/procedure-order-catalog-lifecycle.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -9793,5 +9855,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, order catalog administration, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Broader encounter workflows for templates, amendment policy/history depth, vendor compendium import, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.

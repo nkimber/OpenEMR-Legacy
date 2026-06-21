@@ -1038,7 +1038,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers permanent seed/read catalog behavior only. Full order-catalog administration, catalog mutation, vendor compendium import, external lab reconciliation, role-specific authorization, audit history, and production external lab ordering remain deferred.
+- This slice covers permanent seed/read catalog behavior only. Focused orderable-row catalog lifecycle behavior is covered by Slice 147; vendor compendium import, bulk catalog administration, external lab reconciliation, role-specific authorization, audit history, and production external lab ordering remain deferred.
 
 ### Slice 146: Workbench Progress Completion Estimates
 
@@ -1065,6 +1065,33 @@ Acceptance:
 Current limitations:
 
 - This slice does not attempt to calculate completion automatically from test counts. The estimates remain curated project metadata until enough historical evidence exists to justify a more formal scoring model.
+
+### Slice 147: Procedure Order Catalog Lifecycle Readiness
+
+Status:
+
+- Implemented as a mutation-capable procedure/lab order catalog slice under `modernized-openemr/`, `parity-tests/`, and Workbench managed parity actions.
+- Verification is the shared `slice-147-procedure-order-catalog-lifecycle-readiness` plan, which resets each target to the shared gold dataset, creates a temporary orderable catalog row under the permanent provider group `9040`, updates its code/name/specimen/description/sequence, deactivates it, deletes it, verifies cleanup, and compares the two target runs.
+
+Scope:
+
+- The modernized procedures API now exposes `POST`, `PUT`, and `DELETE` endpoints under `/api/procedures/order-catalog` for focused catalog item lifecycle behavior.
+- The modernized PostgreSQL `lab_order_catalog` table supports temporary orderable item creation without changing the permanent gold catalog contract.
+- The React Reports workspace Procedure Order Catalog panel now includes a compact catalog item creation form plus active-state and delete controls for orderable catalog rows.
+- Legacy and modernized workflow adapters can create, update, deactivate, read, and delete temporary order catalog rows using each target's native storage/API path.
+- Workbench-managed Slice 147 procedure order catalog lifecycle plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets can create a temporary orderable catalog row under provider group `9040` for lab `504`.
+- Both targets can render the temporary row through legacy `types_ajax.php` and the modernized Reports Procedure Order Catalog panel.
+- Both targets can update code, name, specimen, description, standard code, sequence, and active state.
+- Both targets delete the temporary catalog row and confirm it is absent after cleanup.
+- The side-by-side Slice 147 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused orderable-row lifecycle behavior only. Vendor compendium import, bulk catalog administration, clinical order queues, role-specific authorization, audit-log export, and production external lab ordering remain deferred.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4147,3 +4174,4 @@ As of 2026-06-20:
 - The one-hundred-forty-fourth modernized vertical slice implements procedure lab provider address-book linkage readiness with modernized order-service address-book storage/API endpoints, `labDirectorId` provider name derivation, Reports workspace linked-organization rendering, normalized legacy/modernized workflow actions, Workbench procedure lab provider address-book plan actions, cleanup deletion, and side-by-side slice-144 parity evidence.
 - The one-hundred-forty-fifth modernized vertical slice implements procedure order catalog readiness with 21 shared gold-data catalog rows, legacy `procedure_type` seeding, modernized `lab_order_catalog` storage, `/api/procedures/order-catalog`, Reports catalog rendering, Procedure order-form catalog picks, Workbench procedure order catalog plan actions, and side-by-side slice-145 parity evidence.
 - The one-hundred-forty-sixth project slice implements Workbench progress completion estimates with curated per-area completion percentages, rationale text, typed `/api/progress` support, aggregate estimated-complete rendering, and per-area meter cards on the Progress page.
+- The one-hundred-forty-seventh modernized vertical slice implements procedure order catalog lifecycle readiness with focused modernized catalog create/update/delete endpoints, Reports workspace catalog item controls, normalized legacy/modernized workflow actions, Workbench procedure order catalog lifecycle plan actions, cleanup deletion, and side-by-side slice-147 parity evidence.
