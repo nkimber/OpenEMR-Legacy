@@ -137,6 +137,7 @@ param(
         "workflow-procedure-report-correction",
         "workflow-procedure-report-signoff",
         "workflow-procedure-report-bulk-signoff",
+        "workflow-procedure-report-reopen-review",
         "workflow-procedure-report-review-queue",
         "workflow-procedure-report-review-queue-filters",
         "workflow-procedure-report-review-queue-provider-filters",

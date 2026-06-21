@@ -747,7 +747,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused report review/sign-off parity only. It does not implement role-based reviewer authorization, multi-reviewer queues, notification workflow, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused report review/sign-off parity only. Procedure report reopen review is covered by Slice 154. It does not implement role-based reviewer authorization, multi-reviewer queues, notification workflow, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 135: Procedure Report Review Queue Readiness
 
@@ -1199,7 +1199,33 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused bulk report sign-off only. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused bulk report sign-off only. Procedure report reopen review is covered by Slice 154. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+
+### Slice 154: Procedure Report Reopen Review Readiness
+
+Status:
+
+- Implemented.
+
+Scope:
+
+- The modernized procedures API exposes `PUT /api/procedures/reports/{reportId}/reopen-review` for returning a signed procedure report to received/unreviewed queue state and clearing modernized reviewer metadata.
+- The modernized Procedures workspace report card adds a compact `Reopen Review` action for reviewed reports, while the Reports workspace review queue reflects the reopened report in the unreviewed filter.
+- Legacy and modernized workflow adapters can reopen the same temporary signed report with normalized received/unreviewed queue facts.
+- The shared `workflow-procedure-report-reopen-review` suite and `slice-154-procedure-report-reopen-review-readiness` plan create a temporary signed report for `MOD-PAT-0009`, reopen review, verify queue movement, and clean up.
+- Workbench-managed Slice 154 procedure report reopen review plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary final lab report is signed as `admin` at `2026-06-21 12:25:00` and appears in the reviewed queue on both targets.
+- Reopening review changes the normalized review status to `received`, removes visible reviewer/timestamp metadata, removes the report from the reviewed queue, and returns it to the unreviewed queue.
+- Legacy OpenEMR `interface/orders/list_reports.php` renders the reopened report through option `3`, while the modernized Procedures workspace provides the reopen action and the Reports workspace renders the reopened queue row.
+- Cleanup deletes the temporary procedure order tree and encounter, returning patient workflow counts to their pre-test values.
+- The side-by-side Slice 154 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused signed-report reopen behavior only. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4289,3 +4315,4 @@ As of 2026-06-20:
 - The one-hundred-fifty-first modernized vertical slice implements procedure order transmit readiness with OpenEMR-compatible `date_transmitted` state, a modernized transmit endpoint and Reports queue action, normalized legacy/modernized transmitted-pending queue probes, Workbench procedure order transmit plan actions, cleanup deletion, and side-by-side slice-151 parity evidence.
 - The one-hundred-fifty-second project slice implements Workbench weighted progress analytics with area scope weights, weighted overall completion, Git-backed committed progress history, and rough active-time forecasting.
 - The one-hundred-fifty-third modernized vertical slice implements procedure report bulk sign-off readiness with a bulk report sign endpoint, Reports queue `Sign visible` action, normalized legacy/modernized two-report bulk review probes, Workbench bulk sign-off plan actions, cleanup deletion, and side-by-side slice-153 parity evidence.
+- The one-hundred-fifty-fourth modernized vertical slice implements procedure report reopen review readiness with a modernized reopen endpoint, Procedures report-card `Reopen Review` action, normalized legacy/modernized signed-to-received queue probes, Workbench reopen review plan actions, cleanup deletion, and side-by-side slice-154 parity evidence.

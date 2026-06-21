@@ -3692,6 +3692,14 @@ WHERE pr.procedure_report_id = ${integer(id)};
 `);
   }
 
+  async reopenProcedureReportReview(id: number): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_report
+SET review_status = 'received'
+WHERE procedure_report_id = ${integer(id)};
+`);
+  }
+
   async bulkSignProcedureReports(ids: number[], input: ProcedureReportSignOff): Promise<void> {
     const reportIds = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
     if (reportIds.length === 0) {

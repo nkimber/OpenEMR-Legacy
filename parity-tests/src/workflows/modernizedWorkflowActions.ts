@@ -2594,6 +2594,16 @@ LIMIT 1;
     }
   }
 
+  async reopenProcedureReportReview(id: number): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}/reopen-review`, {
+      method: "PUT"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report review reopen failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async bulkSignProcedureReports(ids: number[], input: ProcedureReportSignOff): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/bulk-sign`, {
       method: "PUT",
