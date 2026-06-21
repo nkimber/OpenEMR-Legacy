@@ -83,6 +83,7 @@ param(
         "workflow-encounter-procedures",
         "workflow-encounter-procedure-results",
         "workflow-encounter-signoff",
+        "workflow-encounter-cosignature",
         "workflow-encounter-documents",
         "workflow-encounter-binary-documents",
         "workflow-encounter-document-signoff",
