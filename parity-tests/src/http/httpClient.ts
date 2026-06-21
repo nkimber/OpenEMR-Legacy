@@ -6,6 +6,7 @@ export type HttpTextResponse = {
   headers: http.IncomingHttpHeaders;
   body: string;
   finalUrl: string;
+  cookies: string[];
 };
 
 export async function requestText(
@@ -64,7 +65,8 @@ export async function requestText(
             statusCode,
             headers: response.headers,
             body,
-            finalUrl: url
+            finalUrl: url,
+            cookies: nextCookies
           });
         });
       }

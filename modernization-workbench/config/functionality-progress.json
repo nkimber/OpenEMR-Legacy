@@ -272,7 +272,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, and login-audit basics are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, and login-audit basics are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -293,19 +293,24 @@
           "label": "Admin login audit readiness",
           "detail": "Successful and failed admin login attempts are recorded in a modernized audit table, surfaced through an API and Admin-page audit panel, and compared with legacy OpenEMR login log rows.",
           "evidence": ["slice-160-admin-login-audit-readiness"]
+        },
+        {
+          "label": "Admin session readiness",
+          "detail": "Successful admin login issues a modernized session, current-session validation and logout endpoints are exposed, the Admin page renders session status, and parity compares legacy cookie logout behavior with the modernized session lifecycle.",
+          "evidence": ["slice-161-admin-session-readiness"]
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, session enforcement, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, enforcing session checks across protected APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 32,
+      "completionEstimatePercent": 34,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, and login audit basics exist; Identity, sessions, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, and login audit basics exist; Identity, protected-API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",
