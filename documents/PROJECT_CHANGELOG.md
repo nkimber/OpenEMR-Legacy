@@ -10637,6 +10637,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 191. Admin Session Readiness Slice 161
+
+Commit: `48def3d6`
+Started: `2026-06-21T19:07:20.0000000-04:00`
+Finished: `2026-06-21T19:35:39.1095483-04:00`
+
+Implemented the one-hundred-sixty-first project slice and latest modernized OpenEMR workflow slice: admin session readiness, issuing a durable modernized session on successful admin login, validating and ending that session through API/UI, and comparing the behavior with legacy OpenEMR session-cookie plus logout behavior.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 728
+- Lines deleted: 14
+- Net lines: +714
+- Total churn: 742
+
+Key outcomes:
+
+- Added an empty modernized `auth_sessions` seed table that stores successful-login session evidence without changing canonical gold-data patient, staff, message, procedure, or billing counts.
+- Extended modernized `/api/auth/login` to create session rows and return session id, created-at, and expires-at facts.
+- Added `/api/auth/session` and `/api/auth/logout` so tests and the Admin workspace can validate, touch, and end local admin sessions.
+- Added typed React API support and an Admin Session Readiness panel with session status, source, identifiers, timestamps, validate action, and end-session action.
+- Extended `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` so the smoke check requires successful session issuance, validation, logout, and post-logout invalidation.
+- Added the `workflow-admin-session` Playwright parity suite and `slice-161-admin-session-readiness` plan.
+- Added Workbench-managed Slice 161 plan actions for both legacy and modernized targets.
+- Advanced the administration/security/audit functionality estimate from 32% to 34% while keeping protected-API session enforcement, ASP.NET Core Identity, MFA, authorization policy, password lifecycle, production session hardening, and broader audit export as outstanding scope.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded the updated modernized schema with the empty `auth_sessions` table.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the admin session readiness assertions inside `admin login readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-161-admin-session-readiness -Reset run` passed: run `2026-06-21T232236-967Z-legacy-openemr-plan-slice-161-admin-session-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-161-admin-session-readiness -Reset run` passed: run `2026-06-21T232305-822Z-modernized-openemr-plan-slice-161-admin-session-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-161-admin-session-readiness` passed with comparison `2026-06-21T232333-115Z-legacy-openemr-vs-modernized-openemr-plan-slice-161-admin-session-readiness`, `status: matched`, and no differences.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AuthRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AuthDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/http/httpClient.ts`
+- `parity-tests/tests/workflow-admin-session/session-readiness.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
