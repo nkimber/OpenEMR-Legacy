@@ -7429,6 +7429,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 138. Modernized Appointment Occurrence Reschedule Slice 108
+
+Commit: `478da9d`
+Started: `2026-06-20T20:59:13.4485492-04:00`
+Finished: `2026-06-20T21:19:29.1013926-04:00`
+
+Implemented the one-hundred-eighth modernized OpenEMR vertical slice: appointment occurrence-reschedule readiness, proving that a generated recurring appointment occurrence can be moved into a standalone appointment while the original generated date is skipped through a recurrence exception, that occurrence numbering remains tied to the original series positions, and that legacy and modernized behavior match side by side.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 672
+- Lines deleted: 18
+- Net lines: 654
+- Total churn: 690
+
+Key outcomes:
+
+- Added a transactional modernized appointment occurrence-reschedule API that validates the generated occurrence, appends the original date to `appointments.recurrence_exdates`, inserts a non-recurring standalone appointment, and returns the moved appointment detail.
+- Updated the modernized Calendar edit panel so generated occurrences use a `Reschedule occurrence` action with repeat controls disabled, while root appointment updates continue to use the normal schedule update path.
+- Added legacy and modernized workflow adapter support for listing real appointment rows by patient so parity tests can distinguish generated series expansion from the standalone moved appointment.
+- Added the `workflow-appointment-occurrence-reschedule` Playwright parity suite and `slice-108-appointment-occurrence-reschedule-readiness` plan.
+- Added a modernized smoke-test check for appointment occurrence rescheduling and cleanup restoration.
+- Added Workbench managed plan commands/cards for Slice 108 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 108 with thirty-six read-only slices and seventy-two mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment occurrence reschedule exception`.
+- A direct modernized API read confirmed the seeded recurrence exception list was restored to `2026-12-16` and no standalone `2027-01-06` preventive-care appointment remained after mutation cleanup.
+- `docker compose up -d` passed for the legacy OpenEMR stack.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-108-appointment-occurrence-reschedule-readiness -Reset test` passed; run `2026-06-21T011739-951Z-legacy-openemr-plan-slice-108-appointment-occurrence-reschedule-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-108-appointment-occurrence-reschedule-readiness -Reset test` passed; run `2026-06-21T011739-953Z-modernized-openemr-plan-slice-108-appointment-occurrence-reschedule-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-108-appointment-occurrence-reschedule-readiness` passed with `status: matched`; comparison `2026-06-21T011842-910Z-legacy-openemr-vs-modernized-openemr-plan-slice-108-appointment-occurrence-reschedule-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-occurrence-reschedule/appointment-occurrence-reschedule.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
