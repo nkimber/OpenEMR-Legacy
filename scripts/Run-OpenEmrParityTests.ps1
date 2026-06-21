@@ -72,6 +72,7 @@ param(
         "workflow-appointment-monthly-repeat-on-recurrence",
         "workflow-appointment-series-recurrence-update",
         "workflow-appointment-provider-overlap",
+        "workflow-appointment-patient-overlap",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
