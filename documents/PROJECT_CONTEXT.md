@@ -60,7 +60,7 @@ Recent procedure lab provider lifecycle continuation: Slice 141 follows the dire
 
 Recent procedure lab provider configuration continuation: Slice 142 follows the lifecycle slice by adding mutation-capable temporary lab provider configuration behavior with usage, direction, sender/receiver IDs, remote host, login/password, order/result paths, notes, and protocol rendering on legacy OpenEMR and the modernized Reports workspace/API.
 
-Current update: Slice 142 adds procedure lab provider configuration readiness. The latest Workbench-specific slice remains Slice 125, which adds safe artifact links; the latest modernized OpenEMR workflow slice is Slice 142, and the target now covers forty read-only vertical slices plus one hundred mutation-capable slices through Slice 142.
+Current update: Slice 143 adds a Workbench functionality progress ledger on the Progress page so operators can see completed, outstanding, and deferred modernization scope by domain area. The latest modernized OpenEMR workflow slice remains Slice 142, and the target now covers forty read-only vertical slices plus one hundred mutation-capable slices through Slice 142.
 
 ## Why OpenEMR
 

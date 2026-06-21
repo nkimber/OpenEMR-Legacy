@@ -5853,7 +5853,7 @@ Primary files:
 
 ### 111. Project Timeline Resolved Changeset Chips
 
-Commit: pending
+Commit: `8818dae9`
 Started: `2026-06-20T10:50:00-04:00`
 Finished: `2026-06-20T10:59:21.6889177-04:00`
 
@@ -9562,6 +9562,51 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
+
+### 173. Workbench Functionality Progress Ledger Slice 143
+
+Commit: `8818dae9` and follow-on documentation sync
+Started: `2026-06-21T11:50:18.2251448-04:00`
+Finished: `2026-06-21T11:58:41.7287280-04:00`
+
+Implemented the one-hundred-forty-third project slice and latest Workbench-specific slice: a curated functionality progress ledger on the Progress page so operators can see completed, outstanding, and deferred modernization scope by domain area while the project target continues to evolve.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 614
+- Lines deleted: 6
+- Net lines: 608
+- Total churn: 620
+
+Key outcomes:
+
+- Added `modernization-workbench/config/functionality-progress.json` as the project-maintained source for completed, outstanding, and deferred functionality scope.
+- Extended `/api/progress` to return milestone rows plus functionality ledger version, update date, and area records.
+- Updated the Progress page with a full functionality progress panel, summary counts, domain cards, completed evidence chips, outstanding work, and deferred/watch-list items while keeping the Dashboard progress panel compact.
+- Corrected stale Progress endpoint copy from Slice 123 to Slice 142 for the modernized target and parity test management.
+- Documented the ledger contract and maintenance rules in the Workbench document, index, project context, and changelog.
+
+Verified test runs:
+
+- `Get-Content modernization-workbench\config\functionality-progress.json -Raw | ConvertFrom-Json` parsed 11 functionality areas.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live API smoke for `http://127.0.0.1:5174/api/progress` returned 9 milestone rows, 11 functionality areas, version `0.1.0`, update date `2026-06-21`, and modernized-target detail through Slice 142.
+- `git diff --check` passed for the touched files with only expected CRLF working-copy warnings.
+
+Primary files:
+
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries
 
