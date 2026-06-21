@@ -8136,6 +8136,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 150. Modernized Appointment Reminders Slice 120
+
+Commit: `a0596be9`
+Started: `2026-06-21T02:00:00.0000000-04:00`
+Finished: `2026-06-21T02:16:15.2671480-04:00`
+
+Implemented the one-hundred-twentieth modernized OpenEMR vertical slice: appointment reminder readiness, proving that seeded future appointments can derive deterministic reminder due status, channel, contact, and lead-day facts from the shared gold dataset and patient contact consent.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 512
+- Lines deleted: 27
+- Net lines: 485
+- Total churn: 539
+
+Key outcomes:
+
+- Added reminder fields to modernized appointment list/detail DTOs so appointment responses expose `reminderDue`, `reminderStatus`, `reminderChannel`, `reminderContact`, and `reminderLeadDays`.
+- Extended appointment search/detail queries to derive reminder readiness from dataset base date `2026-06-18`, future appointment date, appointment status, HIPAA SMS/email permissions, phone, and email.
+- The modernized Calendar now renders a `Reminder due` badge in result cards and reminder status, channel, contact, and lead fields in the appointment detail panel.
+- Extended the modernized smoke test with an `appointment reminder readiness` check for `MOD-PAT-0191` appointment `APPT-MOD-PAT-0191-3` on `2026-06-25`.
+- Added the `workflow-appointment-reminders` Playwright parity suite and `slice-120-appointment-reminders-readiness` plan.
+- The shared parity workflow verifies legacy and modernized reminder-readiness facts for `Due now`, `SMS + Email`, `(619) 555-1191 / mod-pat-0191@example.test`, and seven lead days, then verifies browser-visible legacy appointment detail and modernized Calendar reminder rendering.
+- Added Workbench managed plan commands/cards for Slice 120 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 120 with thirty-seven read-only slices and eighty-three mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` and `scripts\Run-OpenEmrParityTests.ps1`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment reminder readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-120-appointment-reminders-readiness -Reset run` passed; run `2026-06-21T061317-212Z-modernized-openemr-plan-slice-120-appointment-reminders-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-120-appointment-reminders-readiness -Reset run` passed; run `2026-06-21T061248-956Z-legacy-openemr-plan-slice-120-appointment-reminders-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-120-appointment-reminders-readiness` passed with `status: matched`; comparison `2026-06-21T061343-861Z-legacy-openemr-vs-modernized-openemr-plan-slice-120-appointment-reminders-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-reminders/appointment-reminders.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
