@@ -73,6 +73,7 @@ param(
         "workflow-appointment-series-recurrence-update",
         "workflow-appointment-provider-overlap",
         "workflow-appointment-patient-overlap",
+        "workflow-appointment-room-overlap",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
