@@ -7900,6 +7900,60 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 146. Modernized Appointment Series Recurrence Update Slice 116
+
+Commit: `7dedb208`
+Started: `2026-06-21T00:31:00.0000000-04:00`
+Finished: `2026-06-21T00:46:06.0000000-04:00`
+
+Implemented the one-hundred-sixteenth modernized OpenEMR vertical slice: appointment series recurrence update readiness, proving that a seeded recurring appointment root can have its recurrence cadence and end date edited, that generated occurrences update accordingly, that skipped dates remain honored, and that the seeded root can be restored with matched side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 318
+- Lines deleted: 4
+- Net lines: 314
+- Total churn: 322
+
+Key outcomes:
+
+- Added the `workflow-appointment-series-recurrence-update` Playwright parity suite and `slice-116-appointment-series-recurrence-update-readiness` plan.
+- The shared parity workflow uses seeded recurring root `APPT-MOD-PAT-0013-3` for `MOD-PAT-0013`, verifies the original every-two-weeks schedule dates `2026-11-04`, `2026-11-18`, `2026-12-02`, `2026-12-30`, `2027-01-13`, and `2027-01-27`, then updates the root to every three weeks through `2027-02-10`.
+- The updated series verifies visible generated dates `2026-11-04`, `2026-11-25`, `2027-01-06`, and `2027-01-27`, preserves occurrence numbers `1`, `2`, `4`, and `5`, and keeps the seeded `2026-12-16` skipped-date exception honored.
+- The legacy path verifies OpenEMR repeat controls after update, including repeat frequency `3`, repeat type `Week`, and end date `2027-02-10`.
+- The modernized Calendar verifies editing the seeded root through the UI, updated recurrence label `Every 3 weeks until 2027-02-10`, removed stale generated dates, new generated occurrence rendering, and the unchanged skipped-date behavior.
+- Extended the modernized smoke test with an `appointment series recurrence update propagation` check.
+- Added Workbench managed plan commands/cards for Slice 116 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 116 with thirty-six read-only slices and eighty mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 117 checks, including `appointment series recurrence update propagation`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-116-appointment-series-recurrence-update-readiness -Reset test` passed; run `2026-06-21T044426-368Z-modernized-openemr-plan-slice-116-appointment-series-recurrence-update-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-116-appointment-series-recurrence-update-readiness -Reset test` passed; run `2026-06-21T044457-674Z-legacy-openemr-plan-slice-116-appointment-series-recurrence-update-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-116-appointment-series-recurrence-update-readiness` passed with `status: matched`; comparison `2026-06-21T044524-939Z-legacy-openemr-vs-modernized-openemr-plan-slice-116-appointment-series-recurrence-update-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-series-recurrence-update/appointment-series-recurrence-update.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
