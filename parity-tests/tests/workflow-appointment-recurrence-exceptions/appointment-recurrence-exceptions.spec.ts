@@ -43,7 +43,7 @@ test.describe("appointment recurrence exception parity @slice105 @workflow-appoi
       await expect(page.locator("body")).toContainText("Skipped dates");
       await expect(page.locator("body")).toContainText(skippedOccurrenceDate);
       await expect(page.getByRole("button", { name: "Save schedule" })).toBeDisabled();
-      await expect(page.getByRole("button", { name: "Delete appointment" })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Skip occurrence" })).toBeEnabled();
     }
   });
 });

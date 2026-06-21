@@ -414,6 +414,7 @@ export type NewAppointment = {
   repeatFrequency?: number;
   repeatUnit?: number;
   recurrenceEndDate?: string;
+  recurrenceExdates?: string[];
 };
 
 export type AppointmentUpdate = {
@@ -433,6 +434,7 @@ export type AppointmentUpdate = {
   repeatFrequency?: number;
   repeatUnit?: number;
   recurrenceEndDate?: string;
+  recurrenceExdates?: string[];
 };
 
 export type NewClinicalListEntry = {
@@ -1415,6 +1417,35 @@ SET pc_aid = ${sqlString(String(input.providerId))},
   pc_catid = ${input.categoryId === undefined ? "pc_catid" : integer(input.categoryId)},
   pc_recurrtype = ${integer(recurrence.type)},
   pc_recurrspec = ${sqlString(recurrence.spec)}
+WHERE pc_eid = ${integer(legacyId)};
+`);
+  }
+
+  async addAppointmentRecurrenceException(id: number | string, occurrenceDate: string): Promise<void> {
+    const appointment = await this.getAppointment(id);
+    if (!appointment) {
+      throw new Error(`Expected appointment ${id} to exist before adding a recurrence exception.`);
+    }
+
+    const nextExdates = Array.from(new Set([...(appointment.recurrenceExdates ?? []), occurrenceDate])).sort();
+    await this.setAppointmentRecurrenceExdates(id, nextExdates);
+  }
+
+  async setAppointmentRecurrenceExdates(id: number | string, recurrenceExdates: string[]): Promise<void> {
+    const legacyId = legacyInteger(id);
+    const appointment = await this.getAppointment(legacyId);
+    if (!appointment || appointment.recurrenceType <= 0) {
+      throw new Error(`Expected recurring appointment ${id} to exist before setting recurrence exceptions.`);
+    }
+
+    const recurrenceSpec = serializeAppointmentRecurrence(
+      appointment.recurrenceType,
+      appointment.repeatFrequency,
+      appointment.repeatUnit,
+      recurrenceExdates);
+    await this.db.execute(`
+UPDATE openemr_postcalendar_events
+SET pc_recurrspec = ${sqlString(recurrenceSpec)}
 WHERE pc_eid = ${integer(legacyId)};
 `);
   }
@@ -2960,7 +2991,7 @@ function buildAppointmentRecurrence(input: NewAppointment | AppointmentUpdate) {
   const repeatFrequency = type > 0 ? input.repeatFrequency ?? 1 : null;
   const repeatUnit = type > 0 ? input.repeatUnit ?? 1 : null;
   const endDate = type > 0 ? input.recurrenceEndDate ?? input.eventDate : input.eventDate;
-  const spec = serializeAppointmentRecurrence(type, repeatFrequency, repeatUnit);
+  const spec = serializeAppointmentRecurrence(type, repeatFrequency, repeatUnit, input.recurrenceExdates);
   return { type, repeatFrequency, repeatUnit, endDate, spec };
 }
 
@@ -3010,14 +3041,25 @@ function stringFromSerializedField(spec: string, fieldName: string) {
   return match?.[1] ?? "";
 }
 
-function serializeAppointmentRecurrence(type: number, repeatFrequency: number | null, repeatUnit: number | null) {
+function serializeAppointmentRecurrence(
+  type: number,
+  repeatFrequency: number | null,
+  repeatUnit: number | null,
+  recurrenceExdates: string[] | undefined = undefined
+) {
+  const normalizedExdates = type > 0
+    ? Array.from(new Set(recurrenceExdates ?? []))
+      .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))
+      .sort()
+      .join(",")
+    : "";
   const fields = {
     event_repeat_freq: type > 0 ? String(repeatFrequency ?? 1) : "",
     event_repeat_freq_type: type > 0 ? String(repeatUnit ?? 1) : "",
     event_repeat_on_num: "1",
     event_repeat_on_day: "0",
     event_repeat_on_freq: "0",
-    exdate: ""
+    exdate: normalizedExdates
   };
   const serialized = Object.entries(fields)
     .map(([key, value]) => `s:${key.length}:"${key}";s:${value.length}:"${value}";`)

@@ -671,7 +671,8 @@ LIMIT 1;
         recurrenceType: input.recurrenceType ?? 0,
         repeatFrequency: input.repeatFrequency ?? null,
         repeatUnit: input.repeatUnit ?? null,
-        recurrenceEndDate: input.recurrenceEndDate ?? null
+        recurrenceEndDate: input.recurrenceEndDate ?? null,
+        recurrenceExdates: input.recurrenceExdates ?? null
       })
     });
 
@@ -688,6 +689,25 @@ LIMIT 1;
     if (!response.ok) {
       throw new Error(`Modernized appointment delete failed with ${response.status}: ${await response.text()}`);
     }
+  }
+
+  async addAppointmentRecurrenceException(id: number | string, occurrenceDate: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(`${String(id)}::occurs::${occurrenceDate}`)}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized appointment occurrence delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async setAppointmentRecurrenceExdates(id: number | string, recurrenceExdates: string[]): Promise<void> {
+    await this.db.queryRows<{ id: string }>(`
+UPDATE appointments
+SET recurrence_exdates = ${recurrenceExdates.length === 0 ? "NULL" : sqlString(Array.from(new Set(recurrenceExdates)).sort().join(","))}
+WHERE id = ${sqlString(String(id))}
+RETURNING id;
+`);
   }
 
   async createClinicalListEntry(input: NewClinicalListEntry): Promise<string> {

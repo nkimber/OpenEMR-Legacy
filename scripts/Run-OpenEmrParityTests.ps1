@@ -59,6 +59,8 @@ param(
         "workflow-appointment-comments",
         "workflow-appointment-recurrence",
         "workflow-appointment-series",
+        "workflow-appointment-recurrence-exceptions",
+        "workflow-appointment-occurrence-cancel",
         "workflow-encounters",
         "workflow-encounter-metadata",
         "workflow-encounter-billing",
