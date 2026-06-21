@@ -10313,6 +10313,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 186. Patient Message Reply Readiness Slice 156
+
+Commit: `4dd8b405`
+Started: `2026-06-21T16:41:10.4986859-04:00`
+Finished: `2026-06-21T17:12:32.3845781-04:00`
+Duration: 31m 22s
+
+Implemented the one-hundred-fifty-sixth project slice and latest modernized OpenEMR workflow slice: patient message reply readiness, proving that a temporary pnotes-compatible patient message can have a visible reply appended while preserving active message counts and matching legacy and modernized behavior.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 410
+- Lines deleted: 49
+- Net lines: +361
+- Total churn: 459
+
+Key outcomes:
+
+- Added `PUT /api/messages/{messageId}/reply` to append timestamped `admin to {assignee}` reply lines to active modernized messages.
+- Added React Messages reply controls with an inline reply text area and `Reply` action on each message card.
+- Added legacy and modernized workflow adapters for pnotes/message reply append behavior.
+- Added the `workflow-message-reply` Playwright parity suite and `slice-156-message-reply-readiness` plan.
+- Added Workbench-managed Slice 156 plan actions for both legacy and modernized targets.
+- Updated the modernized smoke test to cover the reply endpoint inside the patient-message mutation lifecycle.
+- Synchronized the modernization plan, Workbench, test architecture, test data, project context, index, and functionality progress ledger for Slice 156.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-156-message-reply-readiness -Reset test` passed: run `2026-06-21T205456-291Z-legacy-openemr-plan-slice-156-message-reply-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-156-message-reply-readiness -Reset test` passed: run `2026-06-21T205543-611Z-modernized-openemr-plan-slice-156-message-reply-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-156-message-reply-readiness` passed with comparison `2026-06-21T205627-870Z-legacy-openemr-vs-modernized-openemr-plan-slice-156-message-reply-readiness`, `status: matched`, and no differences.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 128 checks, including `patient message reply update`.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/MessageRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/MessageDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-message-reply/message-reply.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
