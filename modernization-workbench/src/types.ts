@@ -99,6 +99,12 @@ export type ParityComparisonSide = {
     flaky: number;
     duration: number;
   };
+  reports: {
+    runJson: string;
+    playwrightJson: string;
+    junit: string;
+    html: string;
+  };
 };
 
 export type ParityComparisonReport = {

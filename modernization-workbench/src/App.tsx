@@ -1760,6 +1760,39 @@ function ComparisonArtifactDetail({ label, side }: { label: string; side: Parity
       <small>
         {side.runId} / {side.exists ? "artifact present" : "artifact missing"}
       </small>
+      <ComparisonReportLinks side={side} />
+    </div>
+  );
+}
+
+function ComparisonReportLinks({ side }: { side: ParityComparisonReport["left"] }) {
+  const reports = side.reports ?? { runJson: "", playwrightJson: "", junit: "", html: "" };
+  const links = [
+    { label: "Run JSON", path: reports.runJson || side.path },
+    { label: "Playwright JSON", path: reports.playwrightJson },
+    { label: "JUnit XML", path: reports.junit },
+    { label: "HTML Report", path: reports.html }
+  ].filter((item) => Boolean(item.path));
+
+  if (!links.length) {
+    return null;
+  }
+
+  return (
+    <div className="comparison-report-links" aria-label={`${side.target} evidence links`}>
+      {links.map((link) => (
+        <a
+          href={`/api/artifacts/file?path=${encodeURIComponent(link.path)}`}
+          key={`${side.runId}-${link.label}`}
+          target="_blank"
+          rel="noreferrer"
+          title={`Open ${side.target} ${link.label}`}
+          aria-label={`Open ${side.target} ${link.label}`}
+        >
+          <ExternalLink size={13} />
+          <span>{link.label}</span>
+        </a>
+      ))}
     </div>
   );
 }

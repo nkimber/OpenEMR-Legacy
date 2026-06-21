@@ -264,6 +264,12 @@ type ParityComparisonSide = {
     flaky: number;
     duration: number;
   };
+  reports: {
+    runJson: string;
+    playwrightJson: string;
+    junit: string;
+    html: string;
+  };
 };
 
 type ParityComparisonReport = {
@@ -1367,6 +1373,42 @@ function toStringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
+function normalizeRunReportLinks(value: unknown) {
+  const reports = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  return {
+    runJson: typeof reports.runJson === "string" ? reports.runJson : "",
+    playwrightJson: typeof reports.playwrightJson === "string" ? reports.playwrightJson : "",
+    junit: typeof reports.junit === "string" ? reports.junit : "",
+    html: typeof reports.html === "string" ? reports.html : ""
+  };
+}
+
+async function getExistingArtifactPath(projectPath: string) {
+  if (!projectPath) {
+    return "";
+  }
+
+  try {
+    const resolvedPath = resolveReadableArtifactPath(projectPath);
+    const stats = await fs.stat(resolvedPath);
+    return stats.isFile() ? projectPath : "";
+  } catch {
+    return "";
+  }
+}
+
+async function normalizeExistingRunReportLinks(value: unknown) {
+  const reports = normalizeRunReportLinks(value);
+  const [runJson, playwrightJson, junit, html] = await Promise.all([
+    getExistingArtifactPath(reports.runJson),
+    getExistingArtifactPath(reports.playwrightJson),
+    getExistingArtifactPath(reports.junit),
+    getExistingArtifactPath(reports.html)
+  ]);
+
+  return { runJson, playwrightJson, junit, html };
+}
+
 function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
   if (!value || typeof value !== "object") {
     return null;
@@ -1374,6 +1416,7 @@ function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
 
   const side = value as Record<string, unknown>;
   const stats = side.stats && typeof side.stats === "object" ? (side.stats as Record<string, unknown>) : {};
+  const reports = side.reports && typeof side.reports === "object" ? side.reports : {};
   return {
     target: typeof side.target === "string" ? side.target : "unknown",
     runId: typeof side.runId === "string" ? side.runId : "unknown",
@@ -1387,11 +1430,30 @@ function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
       unexpected: toNumber(stats.unexpected),
       flaky: toNumber(stats.flaky),
       duration: toNumber(stats.duration)
-    }
+    },
+    reports: normalizeRunReportLinks(reports)
   };
 }
 
-function normalizeParityComparison(value: unknown, artifactDirectory: string): ParityComparisonReport | null {
+async function enrichComparisonSide(side: ParityComparisonSide) {
+  if (!side.exists || !side.path) {
+    return side;
+  }
+
+  try {
+    const runSummaryPath = resolveReadableArtifactPath(side.path);
+    const runSummary = await readJsonIfExists(runSummaryPath);
+    const runSummaryObject = runSummary && typeof runSummary === "object" ? (runSummary as Record<string, unknown>) : {};
+    const reports = runSummaryObject.reports && typeof runSummaryObject.reports === "object"
+      ? await normalizeExistingRunReportLinks(runSummaryObject.reports)
+      : side.reports;
+    return { ...side, reports };
+  } catch {
+    return side;
+  }
+}
+
+async function normalizeParityComparison(value: unknown, artifactDirectory: string): Promise<ParityComparisonReport | null> {
   if (!value || typeof value !== "object") {
     return null;
   }
@@ -1409,6 +1471,7 @@ function normalizeParityComparison(value: unknown, artifactDirectory: string): P
   const finishedAt = typeof comparison.finishedAt === "string" ? comparison.finishedAt : "";
   const startedTime = new Date(startedAt).getTime();
   const finishedTime = new Date(finishedAt).getTime();
+  const [enrichedLeft, enrichedRight] = await Promise.all([enrichComparisonSide(left), enrichComparisonSide(right)]);
 
   return {
     comparisonId: comparison.comparisonId,
@@ -1416,8 +1479,8 @@ function normalizeParityComparison(value: unknown, artifactDirectory: string): P
     passed: Boolean(comparison.passed),
     selectionKind: typeof comparison.selectionKind === "string" ? comparison.selectionKind : "unknown",
     selectionId: typeof comparison.selectionId === "string" ? comparison.selectionId : "unknown",
-    left,
-    right,
+    left: enrichedLeft,
+    right: enrichedRight,
     differences,
     differenceCount: differences.length,
     reports: {
@@ -1444,7 +1507,7 @@ async function readParityComparisons(limit = 20) {
             fs.stat(comparisonPath).catch(() => null)
           ]);
           const relativeArtifactDirectory = path.relative(repoRoot, artifactDirectory).replaceAll("\\", "/");
-          const comparison = normalizeParityComparison(json, relativeArtifactDirectory);
+          const comparison = await normalizeParityComparison(json, relativeArtifactDirectory);
           return comparison ? { comparison, modifiedAt: stats?.mtimeMs ?? 0 } : null;
         })
     );
@@ -2120,11 +2183,11 @@ app.get("/api/architecture", async (_request, response) => {
       {
         id: "modernization-workbench",
         name: "Modernization Workbench",
-        status: "Slice 125 artifact links implemented",
+        status: "Slice 155 comparison report links implemented",
         stack: ["React 19.2.7", "TypeScript 5.9.3", "Vite 7.3.5", "Express 5.2.1", "Node.js 24.13.1"],
         database: "File-based local artifacts for this version",
         businessLogic: "Local-only orchestration API with allowlisted commands",
-        tests: ["API smoke and UI build verification", "Comparison drill-in UI verified for desktop and mobile Test Runs page", "Artifact file links verified through the safe artifact endpoint"]
+        tests: ["API smoke and UI build verification", "Comparison drill-in UI verified for desktop and mobile Test Runs page", "Artifact file links verified through the safe artifact endpoint", "Comparison report links verified for run JSON, Playwright JSON, JUnit XML, and HTML reports"]
       },
       {
         id: "modernized-openemr",
@@ -2150,13 +2213,13 @@ app.get("/api/progress", async (_request, response) => {
   response.json({
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
-      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, Slice 124 comparison drill-ins, Slice 125 artifact links, Slice 143 functionality progress ledger, and Slice 146 completion estimates." },
+      { id: "workbench-v1", name: "Modernization Workbench v1", status: "verified", detail: "Lifecycle control, health checks, smoke tests, logs, architecture overview, comparison artifact cards, Slice 124 comparison drill-ins, Slice 125 artifact links, Slice 143 functionality progress ledger, Slice 146 completion estimates, Slice 152 weighted progress analytics, and Slice 155 comparison report links." },
       { id: "seed-data", name: "Synthetic seed data", status: "verified", detail: "Workbench owns the shared gold dataset; the 1,000-patient legacy seed now includes 2,648 immunization rows, 700 claim status rows, seeded AR payment postings, and 21 procedure order catalog rows with count/temporal-coverage verification." },
       { id: "playwright-ui", name: "Playwright legacy UI suite", status: "verified", detail: "Implemented through the parity-tests UI suite for login, chart, encounter, scheduler appointment, fee sheet billing, procedure-result rendering, report-screen rendering, and administration directory rendering." },
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, denials, metadata refiling, and same-patient encounter moves, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 154 procedure report reopen review parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 154 procedure report reopen review parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, Slice 125 safe links to run/comparison artifacts, and Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML reports from comparison drill-ins." },
       { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 154 proves procedure report reopen review readiness with a signed temporary lab report moving back into received/unreviewed queue state, cleanup, and matched side-by-side comparison evidence. The target now covers forty-one read-only slices plus one hundred seven mutation-capable slices." }
     ],
     functionalityVersion: functionalityProgress.version,

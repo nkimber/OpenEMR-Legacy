@@ -70,7 +70,7 @@ The implementation should not preserve legacy technical constraints:
 
 - Modernized OpenEMR becomes a managed application in `modernization-workbench/config/apps.json`.
 - Workbench can start, stop, restart, health-check, seed, and run tests for the modernized target.
-- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, Slice 124 expandable drill-ins, and Slice 125 safe links to run/comparison artifact files; direct Playwright report/screenshot deep links, normalized probe views, and trend charts remain future work.
+- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, Slice 124 expandable drill-ins, Slice 125 safe links to run/comparison artifact files, and Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML report files; screenshot thumbnails, normalized probe views, and trend charts remain future work.
 
 ## Vertical Slice Strategy
 
@@ -1226,6 +1226,31 @@ Acceptance:
 Current limitations:
 
 - This slice proves focused signed-report reopen behavior only. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+
+### Slice 155: Workbench Comparison Report Links
+
+Status:
+
+- Implemented as a Workbench-specific project slice under `modernization-workbench/`.
+- This slice does not add a modernized OpenEMR workflow; Slice 154 remains the latest modernized workflow slice.
+
+Scope:
+
+- The Workbench `/api/parity-comparisons` route enriches each comparison side by reading the referenced run summary and exposing only existing report paths that resolve under approved artifact roots.
+- Comparison drill-ins now show direct links for the run JSON, Playwright JSON, JUnit XML, and HTML report files when those files are present.
+- The links reuse `/api/artifacts/file`, preserving the existing read-only artifact boundary across `parity-tests/artifacts/`, `legacy-openemr/artifacts/`, `modernized-openemr/artifacts/`, and `modernization-workbench/artifacts/`.
+- The functionality progress ledger records comparison report links as completed Workbench evidence scope.
+
+Acceptance:
+
+- Recent side-by-side comparison cards continue to show matched/different state, run IDs, suite coverage, difference counts, artifact paths, and expandable drill-ins.
+- Each drill-in can open the comparison-side run JSON and run-level Playwright JSON, JUnit XML, and HTML reports directly from the Workbench when those files exist.
+- Missing optional reports are hidden rather than shown as broken links.
+- Non-artifact paths remain rejected by the safe artifact endpoint.
+
+Current limitations:
+
+- This slice improves Workbench evidence navigation only. Screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, historical progress charts, and long-term evidence retention remain future scope.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4316,3 +4341,4 @@ As of 2026-06-20:
 - The one-hundred-fifty-second project slice implements Workbench weighted progress analytics with area scope weights, weighted overall completion, Git-backed committed progress history, and rough active-time forecasting.
 - The one-hundred-fifty-third modernized vertical slice implements procedure report bulk sign-off readiness with a bulk report sign endpoint, Reports queue `Sign visible` action, normalized legacy/modernized two-report bulk review probes, Workbench bulk sign-off plan actions, cleanup deletion, and side-by-side slice-153 parity evidence.
 - The one-hundred-fifty-fourth modernized vertical slice implements procedure report reopen review readiness with a modernized reopen endpoint, Procedures report-card `Reopen Review` action, normalized legacy/modernized signed-to-received queue probes, Workbench reopen review plan actions, cleanup deletion, and side-by-side slice-154 parity evidence.
+- The one-hundred-fifty-fifth project slice implements Workbench comparison report links by enriching side-by-side comparison drill-ins with direct run JSON, Playwright JSON, JUnit XML, and HTML report links through the safe artifact endpoint.
