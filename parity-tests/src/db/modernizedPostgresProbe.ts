@@ -1669,7 +1669,7 @@ WHERE lp.id BETWEEN 501 AND 505;
 SELECT lp.id,
   lp.name,
   COALESCE(lp.npi, '') AS npi,
-  'DL' AS protocol,
+  COALESCE(NULLIF(TRIM(lp.protocol), ''), 'DL') AS protocol,
   CASE WHEN lp.active THEN '1' ELSE '0' END AS active,
   COUNT(DISTINCT lo.id) AS "orderCount",
   COUNT(DISTINCT lr.id) AS "reportCount",
@@ -1679,7 +1679,7 @@ LEFT JOIN lab_orders lo ON lo.lab_id = lp.id
 LEFT JOIN lab_reports lr ON lr.order_id = lo.id
 WHERE lp.id BETWEEN 501 AND 505
   ${visibilityFilter}
-GROUP BY lp.id, lp.name, lp.npi, lp.active
+GROUP BY lp.id, lp.name, lp.npi, lp.protocol, lp.active
 ORDER BY lp.name, lp.id;
 `);
 

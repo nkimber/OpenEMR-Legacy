@@ -62,6 +62,7 @@ import type {
   ProblemRecord,
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
+  ProcedureLabProviderRecord,
   ProcedureReportRecord,
   ProcedureReportSignOff,
   ProcedureReportUpdate,
@@ -2112,25 +2113,75 @@ LIMIT 1;
   }
 
   async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
-    const rows = await this.db.queryRows<{ id: string }>(`
-WITH next_lab_provider AS (
-  SELECT COALESCE(MAX(id), 0) + 1 AS id
-  FROM lab_providers
-)
-INSERT INTO lab_providers (id, name, npi, active)
-SELECT id, ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, true
-FROM next_lab_provider
-RETURNING id;
-`);
-    return Number(rows[0]?.id);
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: input.name,
+        npi: input.npi ?? "",
+        protocol: input.protocol ?? "DL",
+        active: input.active ?? true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure lab provider create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async updateProcedureLabProvider(id: number, input: NewProcedureLabProvider): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers/${encodeURIComponent(String(id))}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: input.name,
+        npi: input.npi ?? "",
+        protocol: input.protocol ?? "DL",
+        active: input.active ?? true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure lab provider update failed with ${response.status}: ${await response.text()}`);
+    }
   }
 
   async deleteProcedureLabProvider(id: number): Promise<void> {
-    await this.db.queryRows<Record<string, string>>(`
-DELETE FROM lab_providers
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers/${encodeURIComponent(String(id))}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Modernized procedure lab provider delete failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getProcedureLabProvider(id: number): Promise<ProcedureLabProviderRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id,
+  name,
+  COALESCE(npi, '') AS npi,
+  COALESCE(NULLIF(TRIM(protocol), ''), 'DL') AS protocol,
+  CASE WHEN active THEN '1' ELSE '0' END AS active
+FROM lab_providers
 WHERE id = ${integer(id)}
-RETURNING id::text;
+LIMIT 1;
 `);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      name: row.name,
+      npi: row.npi,
+      protocol: row.protocol,
+      active: row.active === "1"
+    };
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {

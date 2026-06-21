@@ -66,6 +66,7 @@
         "parityProcedureReportReviewQueueLabFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-138-procedure-report-review-queue-lab-filters-readiness", "-Reset", "test"],
         "parityProcedureLabProviderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-139-procedure-lab-provider-catalog-readiness", "-Reset", "test"],
         "parityProcedureLabProviderDirectoryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-140-procedure-lab-provider-directory-readiness", "-Reset", "test"],
+        "parityProcedureLabProviderLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-141-procedure-lab-provider-lifecycle-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -717,6 +718,14 @@
           "layer": "plan",
           "commandName": "parityProcedureLabProviderDirectoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-140-procedure-lab-provider-directory-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-lab-provider-lifecycle",
+          "name": "Slice 141 procedure lab provider lifecycle plan",
+          "description": "Runs the shared temporary lab provider lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureLabProviderLifecyclePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness.json"
         },
         {
           "id": "parity-plan-admin-facility-mutation",
@@ -1441,6 +1450,7 @@
         "parityProcedureReportReviewQueueLabFiltersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-138-procedure-report-review-queue-lab-filters-readiness", "-Reset", "test"],
         "parityProcedureLabProviderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-139-procedure-lab-provider-catalog-readiness", "-Reset", "test"],
         "parityProcedureLabProviderDirectoryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-140-procedure-lab-provider-directory-readiness", "-Reset", "test"],
+        "parityProcedureLabProviderLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-141-procedure-lab-provider-lifecycle-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -2018,6 +2028,14 @@
           "layer": "plan",
           "commandName": "parityProcedureLabProviderDirectoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-140-procedure-lab-provider-directory-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-lab-provider-lifecycle",
+          "name": "Slice 141 procedure lab provider lifecycle plan",
+          "description": "Runs the shared temporary lab provider lifecycle plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureLabProviderLifecyclePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness.json"
         },
         {
           "id": "parity-plan-admin-facility-mutation",

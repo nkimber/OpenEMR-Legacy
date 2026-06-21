@@ -142,6 +142,7 @@ param(
         "workflow-procedure-report-review-queue-lab-filters",
         "workflow-procedure-lab-provider-catalog",
         "workflow-procedure-lab-provider-directory",
+        "workflow-procedure-lab-provider-lifecycle",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",

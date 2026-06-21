@@ -794,6 +794,16 @@ export type NewProcedureOrder = {
 export type NewProcedureLabProvider = {
   name: string;
   npi?: string;
+  protocol?: string;
+  active?: boolean;
+};
+
+export type ProcedureLabProviderRecord = {
+  id: number;
+  name: string;
+  npi: string;
+  protocol: string;
+  active: boolean;
 };
 
 export type ProcedureOrderUpdate = {
@@ -2924,12 +2934,23 @@ VALUES
   async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_providers
-  (uuid, name, npi, active)
+  (uuid, name, npi, protocol, active)
 VALUES
-  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, 1);
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, ${sqlString(input.protocol ?? "DL")}, ${input.active === false ? 0 : 1});
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
+  }
+
+  async updateProcedureLabProvider(id: number, input: NewProcedureLabProvider): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_providers
+SET name = ${sqlString(input.name)},
+  npi = ${sqlString(input.npi ?? "")},
+  protocol = ${sqlString(input.protocol ?? "DL")},
+  active = ${input.active === false ? 0 : 1}
+WHERE ppid = ${integer(id)};
+`);
   }
 
   async deleteProcedureLabProvider(id: number): Promise<void> {
@@ -2937,6 +2958,31 @@ SELECT LAST_INSERT_ID() AS id;
 DELETE FROM procedure_providers
 WHERE ppid = ${integer(id)};
 `);
+  }
+
+  async getProcedureLabProvider(id: number): Promise<ProcedureLabProviderRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT ppid AS id,
+  name,
+  COALESCE(npi, '') AS npi,
+  COALESCE(protocol, '') AS protocol,
+  active
+FROM procedure_providers
+WHERE ppid = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      name: row.name,
+      npi: row.npi,
+      protocol: row.protocol,
+      active: row.active === "1"
+    };
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {
