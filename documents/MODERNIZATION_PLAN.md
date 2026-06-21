@@ -836,7 +836,37 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused provider filtering for the report review queue only. Legacy lab filtering through `form_lab_search` remains deferred because the modernized schema and gold-data mapping do not yet model `procedure_order.lab_id`. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused provider filtering for the report review queue only. Lab filtering through `form_lab_search` / `procedure_order.lab_id` is covered by Slice 138. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+
+### Slice 138: Procedure Report Review Queue Lab Filters Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized lab/procedure report review queue lab filter slice under `modernized-openemr/`.
+- Verification is the shared `slice-138-procedure-report-review-queue-lab-filters-readiness` plan, which creates temporary lab providers, creates a received report assigned to the matching lab, verifies lab-filtered unreviewed queue inclusion, verifies outside-lab exclusion, signs the report, verifies filtered reviewed queue membership, and deletes the temporary procedure tree, encounter, and lab-provider rows on both legacy and modernized targets.
+
+Scope:
+
+- Modernized PostgreSQL seed generation now includes `lab_orders.lab_id`, an empty `lab_providers` table, and a `lab_id` index so lab ownership can be exercised by temporary parity fixtures without changing permanent gold-data counts.
+- `GET /api/procedures/report-review-queue` accepts optional `labId` filtering and returns `labId` / `labName` facts on queue items.
+- Procedure order creation accepts optional `labId`, allowing parity and smoke flows to create lab-owned temporary orders.
+- The React Reports workspace renders a Lab number control in the procedure report review queue filter grid and displays lab IDs/names on queue cards.
+- Legacy and modernized workflow adapters can create/delete temporary lab providers while leaving the gold dataset stable.
+- The modernized smoke test validates lab-filtered queue inclusion, outside-lab exclusion, and lab-filtered reviewed queue membership during the procedure mutation lifecycle.
+- Workbench-managed Slice 138 procedure report review queue lab filters plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared parity suite proves that legacy `list_reports.php` `form_lab_search` / `procedure_order.lab_id` filtering and modernized `labId` filtering select the same temporary report.
+- The outside-lab filter excludes the temporary report on both targets.
+- The modernized Reports workspace applies the Lab control to the same queue endpoint and renders matching inclusion/exclusion behavior.
+- After `admin` sign-off, the lab-filtered reviewed queue contains the same report with normalized reviewer metadata.
+- Hard-delete cleanup restores procedure counts and removes the temporary encounter/order/report rows and temporary lab-provider rows.
+- The side-by-side Slice 138 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs, saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3911,3 +3941,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-fifth modernized vertical slice implements procedure report review queue readiness with a filtered Reports workspace queue, a focused review-queue API endpoint, normalized legacy/modernized queue probes, Workbench procedure report review queue plan actions, smoke coverage, cleanup deletion, and side-by-side slice-135 parity evidence.
 - The one-hundred-thirty-sixth modernized vertical slice implements procedure report review queue patient/date filtering with API/query-string filters, Reports workspace filter controls, normalized legacy/modernized filtered queue probes, Workbench procedure report review queue filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-136 parity evidence.
 - The one-hundred-thirty-seventh modernized vertical slice implements procedure report review queue provider filtering with API/query-string provider filters, Reports workspace Provider controls, normalized legacy/modernized provider-filtered queue probes, Workbench procedure report review queue provider filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-137 parity evidence.
+- The one-hundred-thirty-eighth modernized vertical slice implements procedure report review queue lab filtering with PostgreSQL lab ownership mapping, API/query-string lab filters, Reports workspace Lab controls, normalized legacy/modernized lab-filtered queue probes, temporary lab-provider workflow actions, Workbench procedure report review queue lab filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-138 parity evidence.
