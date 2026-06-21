@@ -1091,7 +1091,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused orderable-row lifecycle behavior only. Focused vendor compendium import behavior is covered by Slice 148; bulk catalog administration, clinical order queues, role-specific authorization, audit-log export, and production external lab ordering remain deferred.
+- This slice covers focused orderable-row lifecycle behavior only. Focused vendor compendium import behavior is covered by Slice 148, and clinical order queue readiness is covered by Slice 149; bulk catalog administration, role-specific authorization, audit-log export, and production external lab ordering remain deferred.
 
 ### Slice 148: Procedure Vendor Compendium Import Readiness
 
@@ -1120,7 +1120,33 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused order-definition import semantics only. It does not implement uploaded-file storage, asynchronous import jobs, order-entry question imports, OE question option imports, full vendor credential management, external SFTP/filesystem/web-service execution, clinical order queues, audit-log export, or production external lab ordering.
+- This slice covers focused order-definition import semantics only. It does not implement uploaded-file storage, asynchronous import jobs, order-entry question imports, OE question option imports, full vendor credential management, external SFTP/filesystem/web-service execution, audit-log export, or production external lab ordering. Clinical order queue readiness is covered by Slice 149.
+
+### Slice 149: Procedure Order Queue Readiness
+
+Status:
+
+- Implemented.
+
+Scope:
+
+- The modernized procedures API now exposes `GET /api/procedures/order-queue` for OpenEMR-style procedure order worklist behavior.
+- The queue supports ready-to-send/reportless orders, transmitted-pending orders, reported orders, scheduled orders, completed orders, and all orders, with patient, provider, lab, and order-date filters.
+- The modernized Reports workspace now renders a Procedure Order Queue panel with queue counts, segmented queue-state filters, patient/provider/lab/date filters, and order cards showing patient, encounter, lab, provider, report/result/specimen counts, transmit readiness, and instructions.
+- Legacy and modernized database probes now normalize order queue facts from legacy `procedure_order` / `procedure_order_code` / `procedure_report` rows and modernized `lab_orders` / `lab_reports` rows.
+- Workbench-managed Slice 149 procedure order queue plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary reportless lab order appears in the ready-to-send order queue on both targets with the same patient, provider, lab, procedure, priority, status, report count, and transmit-readiness facts.
+- After attaching a report to the temporary order, the order disappears from the ready-to-send queue and appears in the reported queue on both targets.
+- Legacy OpenEMR `interface/orders/list_reports.php` renders the order under the corresponding OpenEMR queue filters, and the modernized Reports workspace renders the same order through the Procedure Order Queue panel.
+- Cleanup deletes the temporary procedure order/report and encounter, returning patient workflow counts to their pre-test values.
+- The side-by-side Slice 149 parity comparison matches.
+
+Current limitations:
+
+- This slice covers clinical order queue visibility and queue-state transition into reported status only. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, bulk report sign-off, or audit export.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -1293,7 +1319,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and focused on scheduled/reportless procedure-order visibility.
-- Order catalogs, clinical order queues, specimen tracking, provider sign-off, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
+- Order catalogs are covered by Slices 145, 147, and 148; clinical order queue readiness is covered by Slice 149. Specimen tracking depth, provider sign-off depth, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
 
 ### Slice 24: Operational Reports CSV Export
 
