@@ -44,6 +44,7 @@ import type {
   NewProcedureOrder,
   NewProcedureReport,
   NewProcedureResult,
+  NewProcedureSpecimen,
   NewPrescription,
   NewSoapNote,
   NewVitals,
@@ -61,6 +62,7 @@ import type {
   ProcedureOrderRecord,
   ProcedureReportRecord,
   ProcedureResultRecord,
+  ProcedureSpecimenRecord,
   PrescriptionRecord,
   SoapNoteRecord,
   UserRecord,
@@ -2188,6 +2190,83 @@ LIMIT 1;
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
       reportNotes: row.reportNotes
+    };
+  }
+
+  async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/specimens`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        orderId: input.orderId,
+        specimenIdentifier: input.specimenIdentifier,
+        accessionIdentifier: input.accessionIdentifier,
+        specimenTypeCode: input.specimenTypeCode,
+        specimenType: input.specimenType,
+        collectionMethodCode: input.collectionMethodCode,
+        collectionMethod: input.collectionMethod,
+        specimenLocationCode: input.specimenLocationCode,
+        specimenLocation: input.specimenLocation,
+        collectedDate: input.collectedDate,
+        volumeValue: Number(input.volumeValue),
+        volumeUnit: input.volumeUnit,
+        conditionCode: input.conditionCode,
+        specimenCondition: input.specimenCondition,
+        comments: input.comments
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure specimen create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
+  async getProcedureSpecimen(id: number): Promise<ProcedureSpecimenRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, order_id AS "orderId",
+  COALESCE(specimen_identifier, '') AS "specimenIdentifier",
+  COALESCE(accession_identifier, '') AS "accessionIdentifier",
+  COALESCE(specimen_type_code, '') AS "specimenTypeCode",
+  COALESCE(specimen_type, '') AS "specimenType",
+  COALESCE(collection_method_code, '') AS "collectionMethodCode",
+  COALESCE(collection_method, '') AS "collectionMethod",
+  COALESCE(specimen_location_code, '') AS "specimenLocationCode",
+  COALESCE(specimen_location, '') AS "specimenLocation",
+  collected_date::date AS "collectedDate",
+  COALESCE(volume_value::text, '') AS "volumeValue",
+  COALESCE(volume_unit, '') AS "volumeUnit",
+  COALESCE(condition_code, '') AS "conditionCode",
+  COALESCE(specimen_condition, '') AS "specimenCondition",
+  COALESCE(comments, '') AS comments
+FROM lab_specimens
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      orderId: Number(row.orderId),
+      specimenIdentifier: row.specimenIdentifier,
+      accessionIdentifier: row.accessionIdentifier,
+      specimenTypeCode: row.specimenTypeCode,
+      specimenType: row.specimenType,
+      collectionMethodCode: row.collectionMethodCode,
+      collectionMethod: row.collectionMethod,
+      specimenLocationCode: row.specimenLocationCode,
+      specimenLocation: row.specimenLocation,
+      collectedDate: row.collectedDate,
+      volumeValue: row.volumeValue,
+      volumeUnit: row.volumeUnit,
+      conditionCode: row.conditionCode,
+      specimenCondition: row.specimenCondition,
+      comments: row.comments
     };
   }
 

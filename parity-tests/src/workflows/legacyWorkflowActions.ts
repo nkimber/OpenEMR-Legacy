@@ -350,6 +350,25 @@ export type ProcedureReportRecord = {
   reportNotes: string;
 };
 
+export type ProcedureSpecimenRecord = {
+  id: number;
+  orderId: number;
+  specimenIdentifier: string;
+  accessionIdentifier: string;
+  specimenTypeCode: string;
+  specimenType: string;
+  collectionMethodCode: string;
+  collectionMethod: string;
+  specimenLocationCode: string;
+  specimenLocation: string;
+  collectedDate: string;
+  volumeValue: string;
+  volumeUnit: string;
+  conditionCode: string;
+  specimenCondition: string;
+  comments: string;
+};
+
 export type ProcedureResultRecord = {
   id: number;
   reportId: number;
@@ -773,6 +792,24 @@ export type NewProcedureReport = {
   reportStatus: string;
   reviewStatus: string;
   notes: string;
+};
+
+export type NewProcedureSpecimen = {
+  orderId: number;
+  specimenIdentifier: string;
+  accessionIdentifier: string;
+  specimenTypeCode: string;
+  specimenType: string;
+  collectionMethodCode: string;
+  collectionMethod: string;
+  specimenLocationCode: string;
+  specimenLocation: string;
+  collectedDate: string;
+  volumeValue: string;
+  volumeUnit: string;
+  conditionCode: string;
+  specimenCondition: string;
+  comments: string;
 };
 
 export type NewProcedureResult = {
@@ -2919,6 +2956,71 @@ LIMIT 1;
     };
   }
 
+  async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO procedure_specimen
+  (uuid, procedure_order_id, procedure_order_seq, specimen_identifier, accession_identifier,
+   specimen_type_code, specimen_type, collection_method_code, collection_method,
+   specimen_location_code, specimen_location, collected_date, volume_value, volume_unit,
+   condition_code, specimen_condition, comments, deleted)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.orderId)}, 1, ${sqlString(input.specimenIdentifier)},
+   ${sqlString(input.accessionIdentifier)}, ${sqlString(input.specimenTypeCode)}, ${sqlString(input.specimenType)},
+   ${sqlString(input.collectionMethodCode)}, ${sqlString(input.collectionMethod)},
+   ${sqlString(input.specimenLocationCode)}, ${sqlString(input.specimenLocation)}, ${sqlString(input.collectedDate)},
+   ${sqlString(input.volumeValue)}, ${sqlString(input.volumeUnit)}, ${sqlString(input.conditionCode)},
+   ${sqlString(input.specimenCondition)}, ${sqlString(input.comments)}, 0);
+SELECT LAST_INSERT_ID() AS id;
+`);
+    return Number(rows[0]?.id);
+  }
+
+  async getProcedureSpecimen(id: number): Promise<ProcedureSpecimenRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT procedure_specimen_id AS id, procedure_order_id AS orderId,
+  COALESCE(specimen_identifier, '') AS specimenIdentifier,
+  COALESCE(accession_identifier, '') AS accessionIdentifier,
+  COALESCE(specimen_type_code, '') AS specimenTypeCode,
+  COALESCE(specimen_type, '') AS specimenType,
+  COALESCE(collection_method_code, '') AS collectionMethodCode,
+  COALESCE(collection_method, '') AS collectionMethod,
+  COALESCE(specimen_location_code, '') AS specimenLocationCode,
+  COALESCE(specimen_location, '') AS specimenLocation,
+  DATE(collected_date) AS collectedDate,
+  COALESCE(volume_value, '') AS volumeValue,
+  COALESCE(volume_unit, '') AS volumeUnit,
+  COALESCE(condition_code, '') AS conditionCode,
+  COALESCE(specimen_condition, '') AS specimenCondition,
+  COALESCE(comments, '') AS comments
+FROM procedure_specimen
+WHERE procedure_specimen_id = ${integer(id)}
+  AND COALESCE(deleted, 0) = 0
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+    return {
+      id: Number(row.id),
+      orderId: Number(row.orderId),
+      specimenIdentifier: row.specimenIdentifier,
+      accessionIdentifier: row.accessionIdentifier,
+      specimenTypeCode: row.specimenTypeCode,
+      specimenType: row.specimenType,
+      collectionMethodCode: row.collectionMethodCode,
+      collectionMethod: row.collectionMethod,
+      specimenLocationCode: row.specimenLocationCode,
+      specimenLocation: row.specimenLocation,
+      collectedDate: row.collectedDate,
+      volumeValue: row.volumeValue,
+      volumeUnit: row.volumeUnit,
+      conditionCode: row.conditionCode,
+      specimenCondition: row.specimenCondition,
+      comments: row.comments
+    };
+  }
+
   async createProcedureResult(input: NewProcedureResult): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_result
@@ -2981,6 +3083,8 @@ FROM procedure_result pr
 INNER JOIN procedure_report rpt ON rpt.procedure_report_id = pr.procedure_report_id
 WHERE rpt.procedure_order_id = ${integer(id)};
 DELETE FROM procedure_report
+WHERE procedure_order_id = ${integer(id)};
+DELETE FROM procedure_specimen
 WHERE procedure_order_id = ${integer(id)};
 DELETE FROM procedure_order_code
 WHERE procedure_order_id = ${integer(id)};

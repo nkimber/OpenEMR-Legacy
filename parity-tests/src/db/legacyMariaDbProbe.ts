@@ -742,7 +742,27 @@ export type ProcedureReportSummary = {
   results: ProcedureResultSummary[];
 };
 
+export type ProcedureSpecimenSummary = {
+  id: number;
+  orderId: number;
+  specimenIdentifier: string;
+  accessionIdentifier: string;
+  specimenTypeCode: string;
+  specimenType: string;
+  collectionMethodCode: string;
+  collectionMethod: string;
+  specimenLocationCode: string;
+  specimenLocation: string;
+  collectedDate: string;
+  volumeValue: string;
+  volumeUnit: string;
+  conditionCode: string;
+  specimenCondition: string;
+  comments: string;
+};
+
 export type ProcedureOrderWithResults = ProcedureOrderSummary & {
+  specimens: ProcedureSpecimenSummary[];
   reports: ProcedureReportSummary[];
 };
 
@@ -2145,6 +2165,7 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
       procedureCode: row.procedureCode,
       procedureName: row.procedureName,
       diagnosis: normalizeDiagnosisCode(row.diagnosis),
+      specimens: [],
       reports: []
     }));
 
@@ -2153,6 +2174,46 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
     }
 
     const orderIdList = orders.map((order) => order.id).join(",");
+    const specimenRows = await this.queryRows<Record<string, string>>(`
+SELECT procedure_specimen_id AS id, procedure_order_id AS orderId,
+  COALESCE(specimen_identifier, '') AS specimenIdentifier,
+  COALESCE(accession_identifier, '') AS accessionIdentifier,
+  COALESCE(specimen_type_code, '') AS specimenTypeCode,
+  COALESCE(specimen_type, '') AS specimenType,
+  COALESCE(collection_method_code, '') AS collectionMethodCode,
+  COALESCE(collection_method, '') AS collectionMethod,
+  COALESCE(specimen_location_code, '') AS specimenLocationCode,
+  COALESCE(specimen_location, '') AS specimenLocation,
+  DATE(collected_date) AS collectedDate,
+  COALESCE(volume_value, '') AS volumeValue,
+  COALESCE(volume_unit, '') AS volumeUnit,
+  COALESCE(condition_code, '') AS conditionCode,
+  COALESCE(specimen_condition, '') AS specimenCondition,
+  COALESCE(comments, '') AS comments
+FROM procedure_specimen
+WHERE procedure_order_id IN (${orderIdList})
+  AND COALESCE(deleted, 0) = 0
+ORDER BY collected_date DESC, procedure_specimen_id DESC;
+`);
+    const specimens: ProcedureSpecimenSummary[] = specimenRows.map((row) => ({
+      id: Number(row.id),
+      orderId: Number(row.orderId),
+      specimenIdentifier: row.specimenIdentifier,
+      accessionIdentifier: row.accessionIdentifier,
+      specimenTypeCode: row.specimenTypeCode,
+      specimenType: row.specimenType,
+      collectionMethodCode: row.collectionMethodCode,
+      collectionMethod: row.collectionMethod,
+      specimenLocationCode: row.specimenLocationCode,
+      specimenLocation: row.specimenLocation,
+      collectedDate: row.collectedDate,
+      volumeValue: row.volumeValue,
+      volumeUnit: row.volumeUnit,
+      conditionCode: row.conditionCode,
+      specimenCondition: row.specimenCondition,
+      comments: row.comments
+    }));
+
     const reportRows = await this.queryRows<Record<string, string>>(`
 SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_collected) AS dateCollected,
   DATE(date_report) AS reportDate, COALESCE(specimen_num, '') AS specimenNumber,
@@ -2208,6 +2269,13 @@ ORDER BY procedure_result_id;
       }
     }
 
+    const specimensByOrder = new Map<number, ProcedureSpecimenSummary[]>();
+    for (const specimen of specimens) {
+      const orderSpecimens = specimensByOrder.get(specimen.orderId) ?? [];
+      orderSpecimens.push(specimen);
+      specimensByOrder.set(specimen.orderId, orderSpecimens);
+    }
+
     const reportsByOrder = new Map<number, ProcedureReportSummary[]>();
     for (const report of reports) {
       const orderReports = reportsByOrder.get(report.orderId) ?? [];
@@ -2216,6 +2284,7 @@ ORDER BY procedure_result_id;
     }
 
     for (const order of orders) {
+      order.specimens = specimensByOrder.get(order.id) ?? [];
       order.reports = reportsByOrder.get(order.id) ?? [];
     }
 
