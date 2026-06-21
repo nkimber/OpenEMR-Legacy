@@ -30,6 +30,7 @@ import type {
   StatementBatchSummary,
   PatientRecord,
   ProcedureLabProviderDirectorySummary,
+  ProcedureOrderCatalogSummary,
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
   ProcedureReportReviewQueueSummary,
@@ -1699,6 +1700,66 @@ ORDER BY lp.name, lp.id;
         reportCount: Number(row.reportCount),
         futureOrderCount: Number(row.futureOrderCount)
       }))
+    };
+  }
+
+  async getProcedureOrderCatalog(): Promise<ProcedureOrderCatalogSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT loc.id,
+  loc.parent_id AS "parentId",
+  loc.lab_id AS "labId",
+  lp.name AS "labName",
+  loc.name,
+  COALESCE(loc.code, '') AS code,
+  loc.item_type AS "itemType",
+  COALESCE(loc.procedure_type_name, '') AS "procedureTypeName",
+  COALESCE(loc.description, '') AS description,
+  COALESCE(loc.specimen, '') AS specimen,
+  COALESCE(loc.standard_code, '') AS "standardCode",
+  loc.seq AS sequence,
+  CASE WHEN loc.active THEN '1' ELSE '0' END AS active,
+  (
+    SELECT COUNT(*)
+    FROM lab_order_catalog child
+    WHERE child.parent_id = loc.id
+  ) AS "childCount"
+FROM lab_order_catalog loc
+LEFT JOIN lab_providers lp ON lp.id = loc.lab_id
+ORDER BY
+  CASE
+    WHEN loc.parent_id IS NULL THEN 0
+    WHEN loc.item_type = 'grp' THEN 1
+    ELSE 2
+  END,
+  loc.parent_id NULLS FIRST,
+  loc.seq,
+  loc.name,
+  loc.id;
+`);
+
+    const items = rows.map((row) => ({
+      id: Number(row.id),
+      parentId: nullIfDbNull(row.parentId) === null ? null : Number(row.parentId),
+      labId: nullIfDbNull(row.labId) === null ? null : Number(row.labId),
+      labName: nullIfDbNull(row.labName),
+      name: row.name,
+      code: row.code,
+      itemType: row.itemType,
+      procedureTypeName: row.procedureTypeName,
+      description: row.description,
+      specimen: row.specimen,
+      standardCode: row.standardCode,
+      sequence: Number(row.sequence),
+      active: row.active === "1",
+      childCount: Number(row.childCount)
+    }));
+
+    return {
+      totalItems: items.length,
+      groupCount: items.filter((item) => item.itemType === "grp").length,
+      orderCount: items.filter((item) => item.itemType === "ord").length,
+      labProviderCount: new Set(items.filter((item) => item.itemType === "ord" && item.labId !== null).map((item) => item.labId)).size,
+      items
     };
   }
 }

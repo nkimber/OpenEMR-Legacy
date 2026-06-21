@@ -801,6 +801,31 @@ export type ProcedureLabProviderDirectorySummary = {
   providers: ProcedureLabProviderDirectoryItem[];
 };
 
+export type ProcedureOrderCatalogItem = {
+  id: number;
+  parentId: number | null;
+  labId: number | null;
+  labName: string | null;
+  name: string;
+  code: string;
+  itemType: string;
+  procedureTypeName: string;
+  description: string;
+  specimen: string;
+  standardCode: string;
+  sequence: number;
+  active: boolean;
+  childCount: number;
+};
+
+export type ProcedureOrderCatalogSummary = {
+  totalItems: number;
+  groupCount: number;
+  orderCount: number;
+  labProviderCount: number;
+  items: ProcedureOrderCatalogItem[];
+};
+
 export type ProcedureReportReviewQueueFilters = {
   patientId?: string;
   providerId?: string | number;
@@ -2536,6 +2561,67 @@ ORDER BY pp.name, pp.ppid;
         reportCount: Number(row.reportCount),
         futureOrderCount: Number(row.futureOrderCount)
       }))
+    };
+  }
+
+  async getProcedureOrderCatalog(): Promise<ProcedureOrderCatalogSummary> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pt.procedure_type_id AS id,
+  CASE WHEN pt.parent = 0 THEN NULL ELSE pt.parent END AS parentId,
+  CASE WHEN pt.lab_id = 0 THEN NULL ELSE pt.lab_id END AS labId,
+  pp.name AS labName,
+  pt.name,
+  COALESCE(pt.procedure_code, '') AS code,
+  COALESCE(pt.procedure_type, '') AS itemType,
+  COALESCE(pt.procedure_type_name, '') AS procedureTypeName,
+  COALESCE(pt.description, '') AS description,
+  COALESCE(pt.specimen, '') AS specimen,
+  COALESCE(pt.standard_code, '') AS standardCode,
+  pt.seq AS sequence,
+  pt.activity AS active,
+  (
+    SELECT COUNT(*)
+    FROM procedure_type child
+    WHERE child.parent = pt.procedure_type_id
+  ) AS childCount
+FROM procedure_type pt
+LEFT JOIN procedure_providers pp ON pp.ppid = pt.lab_id
+WHERE pt.procedure_type_id BETWEEN 9000 AND 9999
+ORDER BY
+  CASE
+    WHEN pt.parent = 0 THEN 0
+    WHEN pt.procedure_type = 'grp' THEN 1
+    ELSE 2
+  END,
+  pt.parent,
+  pt.seq,
+  pt.name,
+  pt.procedure_type_id;
+`);
+
+    const items = rows.map((row) => ({
+      id: Number(row.id),
+      parentId: nullIfDbNull(row.parentId) === null ? null : Number(row.parentId),
+      labId: nullIfDbNull(row.labId) === null ? null : Number(row.labId),
+      labName: nullIfDbNull(row.labName),
+      name: row.name,
+      code: row.code,
+      itemType: row.itemType,
+      procedureTypeName: row.procedureTypeName,
+      description: row.description,
+      specimen: row.specimen,
+      standardCode: row.standardCode,
+      sequence: Number(row.sequence),
+      active: row.active === "1",
+      childCount: Number(row.childCount)
+    }));
+
+    return {
+      totalItems: items.length,
+      groupCount: items.filter((item) => item.itemType === "grp").length,
+      orderCount: items.filter((item) => item.itemType === "ord").length,
+      labProviderCount: new Set(items.filter((item) => item.itemType === "ord" && item.labId !== null).map((item) => item.labId)).size,
+      items
     };
   }
 }

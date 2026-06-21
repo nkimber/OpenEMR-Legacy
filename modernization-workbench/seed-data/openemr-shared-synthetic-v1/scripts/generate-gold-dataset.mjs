@@ -222,6 +222,55 @@ const labProviders = [
   { id: 504, name: "Pacific Women's Health Laboratory", npi: "1720123404", active: true },
   { id: 505, name: "Metro Clinical Labs", npi: "1720123405", active: true }
 ];
+const procedureOrderCatalogRoot = {
+  id: 9000,
+  parentId: 0,
+  labId: 0,
+  name: "Gold Lab Order Catalog",
+  code: "",
+  itemType: "grp",
+  procedureTypeName: "",
+  description: "Shared synthetic procedure order catalog root",
+  specimen: "",
+  standardCode: "",
+  seq: 10,
+  active: true
+};
+const procedureOrderCatalogProviderGroups = labProviders.map((provider, index) => ({
+  id: 9010 + index * 10,
+  parentId: procedureOrderCatalogRoot.id,
+  labId: provider.id,
+  name: provider.name,
+  code: "",
+  itemType: "grp",
+  procedureTypeName: "",
+  description: `Order catalog for ${provider.name}`,
+  specimen: "",
+  standardCode: "",
+  seq: (index + 1) * 10,
+  active: provider.active
+}));
+const procedureOrderCatalogOrders = procedureOrderCatalogProviderGroups.flatMap((group, providerIndex) =>
+  labPanels.map(([code, name], panelIndex) => ({
+    id: group.id + panelIndex + 1,
+    parentId: group.id,
+    labId: labProviders[providerIndex].id,
+    name,
+    code,
+    itemType: "ord",
+    procedureTypeName: "laboratory",
+    description: `${name} orderable through ${labProviders[providerIndex].name}`,
+    specimen: "blood",
+    standardCode: `CPT4:${code}`,
+    seq: (panelIndex + 1) * 10,
+    active: true
+  }))
+);
+const procedureOrderCatalog = [
+  procedureOrderCatalogRoot,
+  ...procedureOrderCatalogProviderGroups,
+  ...procedureOrderCatalogOrders
+];
 const documentCategories = [
   { id: 3, name: "Medical Record", templateName: "Primary care intake packet", mimetype: "text/plain", pages: 4, documentationOf: "patient-record" },
   { id: 2, name: "Lab Report", templateName: "External lab summary", mimetype: "text/plain", pages: 3, documentationOf: "laboratory-result" },
@@ -897,6 +946,7 @@ const dataset = {
   paymentSessions,
   paymentActivities,
   labProviders,
+  procedureOrderCatalog,
   labOrders,
   labReports,
   labResults,
@@ -949,6 +999,7 @@ const summary = {
     paymentSessions: paymentSessions.length,
     paymentActivities: paymentActivities.length,
     labProviders: labProviders.length,
+    procedureOrderCatalogItems: procedureOrderCatalog.length,
     portalPatients: patients.filter((patient) => patient.portalEnabled).length
   },
   temporalCoverage: dataset.temporalCoverage,
@@ -969,6 +1020,7 @@ function buildLegacySql() {
     "DELETE FROM procedure_report;",
     "DELETE FROM procedure_order_code;",
     "DELETE FROM procedure_order;",
+    "DELETE FROM procedure_type WHERE procedure_type_id BETWEEN 9000 AND 9999;",
     "DELETE FROM procedure_providers WHERE ppid BETWEEN 501 AND 505;",
     "DELETE FROM prescriptions;",
     "DELETE FROM immunization_observation WHERE imo_im_id BETWEEN 8500001 AND 8505000 OR imo_pid BETWEEN 100001 AND 101000;",
@@ -1387,6 +1439,27 @@ function buildLegacySql() {
     name: provider.name,
     npi: provider.npi,
     active: provider.active ? 1 : 0
+  })), 200));
+
+  statements.push(insert("procedure_type", ["procedure_type_id", "parent", "name", "lab_id", "procedure_code", "procedure_type", "procedure_type_name", "body_site", "specimen", "route_admin", "laterality", "description", "units", "range", "standard_code", "related_code", "seq", "activity"], procedureOrderCatalog.map((item) => ({
+    procedure_type_id: item.id,
+    parent: item.parentId,
+    name: item.name,
+    lab_id: item.labId,
+    procedure_code: item.code,
+    procedure_type: item.itemType,
+    procedure_type_name: item.procedureTypeName,
+    body_site: "",
+    specimen: item.specimen,
+    route_admin: "",
+    laterality: "",
+    description: item.description,
+    units: "",
+    range: "",
+    standard_code: item.standardCode,
+    related_code: "",
+    seq: item.seq,
+    activity: item.active ? 1 : 0
   })), 200));
 
   statements.push(insert("procedure_order", ["procedure_order_id", "uuid", "provider_id", "patient_id", "encounter_id", "lab_id", "date_collected", "date_ordered", "order_priority", "order_status", "patient_instructions", "activity", "control_id", "specimen_type", "clinical_hx", "order_diagnosis", "procedure_order_type", "order_intent", "location_id"], labOrders.map((order) => ({

@@ -142,6 +142,11 @@ export async function openProcedureProvidersDirect(
   }
 }
 
+export async function openProcedureOrderCatalogDirect(page: Page, target: RuntimeTarget) {
+  await page.goto(`${target.publicUrl}/interface/orders/types.php`);
+  await expectRenderedText(page, /Configure Orders and Results|Order Catalog/i);
+}
+
 export async function openUserAdministrationDirect(page: Page, target: RuntimeTarget) {
   await page.goto(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
   await expectRenderedText(page, /Users|Add User/i);
