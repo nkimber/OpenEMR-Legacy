@@ -215,6 +215,13 @@ const labPanels = [
   ["80053", "Comprehensive metabolic panel", [["2951-2", "Sodium", "mmol/L", "140", "135-145"], ["2823-3", "Potassium", "mmol/L", "4.2", "3.5-5.1"], ["2160-0", "Creatinine", "mg/dL", "0.9", "0.6-1.3"], ["3094-0", "Urea nitrogen", "mg/dL", "14", "7-20"]]],
   ["85025", "Complete blood count", [["789-8", "Erythrocytes", "10*6/uL", "4.6", "4.1-5.9"], ["718-7", "Hemoglobin", "g/dL", "13.8", "12.0-17.5"], ["777-3", "Platelets", "10*3/uL", "245", "150-400"], ["6690-2", "Leukocytes", "10*3/uL", "6.8", "4.0-11.0"]]]
 ];
+const labProviders = [
+  { id: 501, name: "Northstar Diagnostics", npi: "1720123401", active: true },
+  { id: 502, name: "Harbor Reference Laboratory", npi: "1720123402", active: true },
+  { id: 503, name: "Canyon Pathology Partners", npi: "1720123403", active: true },
+  { id: 504, name: "Pacific Women's Health Laboratory", npi: "1720123404", active: true },
+  { id: 505, name: "Metro Clinical Labs", npi: "1720123405", active: true }
+];
 const documentCategories = [
   { id: 3, name: "Medical Record", templateName: "Primary care intake packet", mimetype: "text/plain", pages: 4, documentationOf: "patient-record" },
   { id: 2, name: "Lab Report", templateName: "External lab summary", mimetype: "text/plain", pages: 3, documentationOf: "laboratory-result" },
@@ -707,6 +714,7 @@ const labResults = [];
 patients.slice(0, 700).forEach((patient, index) => {
   const encounter = encounters.find((candidate) => candidate.pid === patient.pid);
   const panel = labPanels[index % labPanels.length];
+  const labProvider = labProviders[index % labProviders.length];
   const orderId = 5000000 + index + 1;
   const reportId = 6000000 + index + 1;
   const orderedDate = addDays(baseDate, -120 + (index % 90));
@@ -716,6 +724,8 @@ patients.slice(0, 700).forEach((patient, index) => {
     pid: patient.pid,
     encounter: encounter.encounter,
     providerId: patient.providerId,
+    labId: labProvider.id,
+    labName: labProvider.name,
     date: at(orderedDate, 11),
     code: panel[0],
     name: panel[1],
@@ -743,6 +753,7 @@ patients.slice(700, 1000).forEach((patient, futureIndex) => {
   const patientIndex = 700 + futureIndex;
   const encounter = encounters.find((candidate) => candidate.pid === patient.pid);
   const panel = labPanels[(patientIndex + 1) % labPanels.length];
+  const labProvider = labProviders[(patientIndex + 1) % labProviders.length];
   const orderId = 5001000 + futureIndex + 1;
   const orderedDate = addDays(baseDate, 7 + ((futureIndex * 11) % 190));
   labOrders.push({
@@ -751,6 +762,8 @@ patients.slice(700, 1000).forEach((patient, futureIndex) => {
     pid: patient.pid,
     encounter: encounter.encounter,
     providerId: patient.providerId,
+    labId: labProvider.id,
+    labName: labProvider.name,
     date: at(orderedDate, 11),
     code: panel[0],
     name: panel[1],
@@ -883,6 +896,7 @@ const dataset = {
   claims,
   paymentSessions,
   paymentActivities,
+  labProviders,
   labOrders,
   labReports,
   labResults,
@@ -934,6 +948,7 @@ const summary = {
     claims: claims.length,
     paymentSessions: paymentSessions.length,
     paymentActivities: paymentActivities.length,
+    labProviders: labProviders.length,
     portalPatients: patients.filter((patient) => patient.portalEnabled).length
   },
   temporalCoverage: dataset.temporalCoverage,
@@ -954,6 +969,7 @@ function buildLegacySql() {
     "DELETE FROM procedure_report;",
     "DELETE FROM procedure_order_code;",
     "DELETE FROM procedure_order;",
+    "DELETE FROM procedure_providers WHERE ppid BETWEEN 501 AND 505;",
     "DELETE FROM prescriptions;",
     "DELETE FROM immunization_observation WHERE imo_im_id BETWEEN 8500001 AND 8505000 OR imo_pid BETWEEN 100001 AND 101000;",
     "DELETE FROM immunizations WHERE id BETWEEN 8500001 AND 8505000 OR patient_id BETWEEN 100001 AND 101000;",
@@ -1365,12 +1381,21 @@ function buildLegacySql() {
     payer_claim_number: activity.payerClaimNumber
   })), 200));
 
-  statements.push(insert("procedure_order", ["procedure_order_id", "uuid", "provider_id", "patient_id", "encounter_id", "date_collected", "date_ordered", "order_priority", "order_status", "patient_instructions", "activity", "control_id", "specimen_type", "clinical_hx", "order_diagnosis", "procedure_order_type", "order_intent", "location_id"], labOrders.map((order) => ({
+  statements.push(insert("procedure_providers", ["ppid", "uuid", "name", "npi", "active"], labProviders.map((provider) => ({
+    ppid: provider.id,
+    uuid: raw(sqlUuid(`lab-provider-${provider.id}`)),
+    name: provider.name,
+    npi: provider.npi,
+    active: provider.active ? 1 : 0
+  })), 200));
+
+  statements.push(insert("procedure_order", ["procedure_order_id", "uuid", "provider_id", "patient_id", "encounter_id", "lab_id", "date_collected", "date_ordered", "order_priority", "order_status", "patient_instructions", "activity", "control_id", "specimen_type", "clinical_hx", "order_diagnosis", "procedure_order_type", "order_intent", "location_id"], labOrders.map((order) => ({
     procedure_order_id: order.id,
     uuid: raw(sqlUuid(`lab-order-${order.id}`)),
     provider_id: order.providerId,
     patient_id: order.pid,
     encounter_id: order.encounter,
+    lab_id: order.labId,
     date_collected: order.date,
     date_ordered: order.date,
     order_priority: order.orderPriority,

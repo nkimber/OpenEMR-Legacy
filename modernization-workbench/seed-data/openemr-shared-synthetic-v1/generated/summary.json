@@ -29,6 +29,7 @@
     "claims": 700,
     "paymentSessions": 420,
     "paymentActivities": 617,
+    "labProviders": 5,
     "portalPatients": 200
   },
   "temporalCoverage": {

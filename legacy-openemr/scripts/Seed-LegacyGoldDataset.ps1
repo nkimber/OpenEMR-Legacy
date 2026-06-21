@@ -84,6 +84,7 @@ UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'paymentSessions', COUNT(*) FROM ar_session
 UNION ALL SELECT 'paymentActivities', COUNT(*) FROM ar_activity WHERE deleted IS NULL
+UNION ALL SELECT 'labProviders', COUNT(*) FROM procedure_providers WHERE ppid BETWEEN 501 AND 505
 UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
 "@
 
