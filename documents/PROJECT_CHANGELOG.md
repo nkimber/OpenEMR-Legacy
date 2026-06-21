@@ -7223,6 +7223,78 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 135. Modernized Appointment Recurrence Exceptions Slice 105
+
+Commit: `3c88bf6`
+Started: `2026-06-20T19:50:49.7130127-04:00`
+Finished: `2026-06-20T20:12:21.2025573-04:00`
+
+Implemented the one-hundred-fifth modernized OpenEMR vertical slice: appointment recurrence-exceptions readiness, proving that seeded OpenEMR recurrence exception dates are preserved from the shared gold dataset, projected into legacy `pc_recurrspec` `exdate` metadata and modernized PostgreSQL recurrence fields, skipped during virtual occurrence expansion, rendered in the modernized Calendar, and matched side by side against the legacy target.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 295
+- Lines deleted: 34
+- Net lines: 261
+- Total churn: 329
+
+Key outcomes:
+
+- Added a deterministic recurrence exception-date anchor to the canonical gold dataset: `APPT-MOD-PAT-0013-3` skips `2026-12-16`.
+- Projected the exception date into legacy MariaDB seed SQL as serialized `pc_recurrspec` `exdate` data and into the modernized PostgreSQL seed as `appointments.recurrence_exdates`.
+- Extended the modernized appointment API to expose recurrence exception dates and exception counts, skip excluded virtual occurrence dates, and reject detail lookup for excluded generated occurrence IDs.
+- Added modernized Calendar rendering for skipped dates and recurring rows with skipped occurrence counts.
+- Added the `workflow-appointment-recurrence-exceptions` Playwright parity suite and `slice-105-appointment-recurrence-exceptions-readiness` plan.
+- Extended legacy and modernized workflow adapters so the same seeded recurrence exception facts are verified against both targets.
+- Extended the modernized smoke test with an `appointment recurrence exception expansion` check.
+- Added Workbench managed plan commands/cards for Slice 105 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 105 with thirty-six read-only slices and sixty-nine mutation-capable slices.
+
+Verified test runs:
+
+- `node scripts/generate-gold-dataset.mjs` regenerated the shared gold dataset and legacy MariaDB seed projection with the `2026-12-16` exception date.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed with the `appointment recurrence exception expansion` check returning `2026-12-02`, `2026-12-30`, `2027-01-13`, and `2027-01-27`, preserving occurrence numbers `3`, `5`, `6`, and `7`.
+- `docker compose up -d` passed for the legacy OpenEMR stack.
+- `npm run test:legacy:plan:appointment-recurrence-exceptions -- --reset run` passed; run `2026-06-21T000342-588Z-legacy-openemr-plan-slice-105-appointment-recurrence-exceptions-readiness`.
+- `npm run test:modernized:plan:appointment-recurrence-exceptions -- --reset run` passed; run `2026-06-21T000410-626Z-modernized-openemr-plan-slice-105-appointment-recurrence-exceptions-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-105-appointment-recurrence-exceptions-readiness` passed with `status: matched`; comparison `2026-06-21T000432-761Z-legacy-openemr-vs-modernized-openemr-plan-slice-105-appointment-recurrence-exceptions-readiness`.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/architectureModel.ts`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-appointment-recurrence-exceptions/appointment-recurrence-exceptions.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
