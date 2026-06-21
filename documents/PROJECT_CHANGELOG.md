@@ -7295,6 +7295,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 136. Modernized Appointment Occurrence Cancel Slice 106
+
+Commit: `7140041`
+Started: `2026-06-20T20:15:18.4030010-04:00`
+Finished: `2026-06-20T20:32:32.8661198-04:00`
+
+Implemented the one-hundred-sixth modernized OpenEMR vertical slice: appointment occurrence-cancel readiness, proving that deleting a generated recurring appointment occurrence appends a recurrence exception date instead of deleting the series root, hides the skipped occurrence from future expansion, preserves original occurrence numbering, exposes a modernized Calendar `Skip occurrence` action, and matches the legacy `pc_recurrspec` `exdate` behavior side by side.
+
+Code changes:
+
+- Files changed: 11
+- Lines added: 322
+- Lines deleted: 13
+- Net lines: 309
+- Total churn: 335
+
+Key outcomes:
+
+- Extended the modernized appointment delete path so root appointment IDs still delete rows, while virtual occurrence IDs append validated dates to `appointments.recurrence_exdates`.
+- Enabled generated occurrence cancellation in the modernized Calendar through a `Skip occurrence` action while keeping broader generated occurrence editing disabled.
+- Added an `appointment occurrence cancellation exception` smoke check that deletes the generated `2026-12-30` occurrence and restores the seeded `2026-12-16` exception list during cleanup.
+- Added legacy and modernized workflow adapter helpers for appending and restoring recurrence exception dates.
+- Added the `workflow-appointment-occurrence-cancel` Playwright parity suite and `slice-106-appointment-occurrence-cancel-readiness` plan.
+- Added Workbench managed plan commands/cards for Slice 106 on both legacy and modernized targets.
+- Updated the Slice 105 recurrence-exceptions UI assertion so generated occurrences now expose the new `Skip occurrence` action.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 106 with thirty-six read-only slices and seventy mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment occurrence cancellation exception` with dates `2026-12-02`, `2027-01-13`, and `2027-01-27`, occurrence numbers `3`, `6`, and `7`, and temporary exception dates `2026-12-16` and `2026-12-30`.
+- A direct modernized PostgreSQL read confirmed the seeded recurrence exception list was restored to `2026-12-16` after mutation cleanup.
+- `docker compose up -d` passed for the legacy OpenEMR stack.
+- `npm run test:legacy:plan:appointment-occurrence-cancel -- --reset test` passed; run `2026-06-21T002457-377Z-legacy-openemr-plan-slice-106-appointment-occurrence-cancel-readiness`.
+- `npm run test:modernized:plan:appointment-occurrence-cancel -- --reset test` passed; run `2026-06-21T002532-434Z-modernized-openemr-plan-slice-106-appointment-occurrence-cancel-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-106-appointment-occurrence-cancel-readiness` passed with `status: matched`; comparison `2026-06-21T002555-204Z-legacy-openemr-vs-modernized-openemr-plan-slice-106-appointment-occurrence-cancel-readiness`.
+- `npm run test:modernized:plan:appointment-recurrence-exceptions -- --reset run` passed after the UI assertion update; run `2026-06-21T002700-487Z-modernized-openemr-plan-slice-105-appointment-recurrence-exceptions-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-occurrence-cancel/appointment-occurrence-cancel.spec.ts`
+- `parity-tests/tests/workflow-appointment-recurrence-exceptions/appointment-recurrence-exceptions.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
