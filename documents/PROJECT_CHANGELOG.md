@@ -9024,6 +9024,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 165. Procedure Report Review Queue Slice 135
+
+Commit: `b7a4f473`
+Started: `2026-06-21T08:00:18-04:00`
+Finished: `2026-06-21T08:16:35.3589163-04:00`
+
+Implemented the one-hundred-thirty-fifth project slice and latest modernized OpenEMR workflow slice: procedure report review queue readiness, proving that a temporary received lab report appears in the unreviewed review queue, moves to the reviewed queue after `admin` sign-off, preserves report/order/patient metadata, and matches legacy `list_reports.php` reviewed/unreviewed filter behavior.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 866
+- Lines deleted: 7
+- Net lines: 859
+- Total churn: 873
+
+Key outcomes:
+
+- Added `GET /api/procedures/report-review-queue` with `unreviewed`, `reviewed`, and `all` filters over modernized lab reports.
+- Added modernized report review queue DTOs and repository projection with queue counts, patient/order/report metadata, specimen notes, reviewer, and review timestamp facts.
+- Added a Reports workspace `Procedure Report Review Queue` panel with Received/unreviewed, Reviewed, and All filters.
+- Extended modernized smoke coverage so an unreviewed temporary report is found before sign-off, then found in the reviewed queue and absent from the unreviewed queue after sign-off.
+- Extended legacy and modernized database probes with normalized report review queue facts.
+- Added a legacy UI helper for OpenEMR `Procedure Orders and Reports` reviewed/unreviewed filtering.
+- Added the `workflow-procedure-report-review-queue` Playwright parity suite and `slice-135-procedure-report-review-queue-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 135 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 135 with thirty-eight read-only slices and ninety-five mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1` and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed; `procedure mutation lifecycle` validated report review queue transition checks in `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-135-procedure-report-review-queue-readiness -Reset test` passed; run `2026-06-21T120422-791Z-legacy-openemr-plan-slice-135-procedure-report-review-queue-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-135-procedure-report-review-queue-readiness -Reset test` passed; run `2026-06-21T120559-660Z-modernized-openemr-plan-slice-135-procedure-report-review-queue-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-135-procedure-report-review-queue-readiness` passed with `status: matched`; comparison `2026-06-21T120629-638Z-legacy-openemr-vs-modernized-openemr-plan-slice-135-procedure-report-review-queue-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-procedure-report-review-queue/procedure-report-review-queue.spec.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
