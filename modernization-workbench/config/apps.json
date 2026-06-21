@@ -142,7 +142,8 @@
         "parityAppointmentRecurrenceExceptionEditPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-109-appointment-recurrence-exception-edit-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-110-appointment-series-root-update-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-111-appointment-series-root-metadata-readiness", "-Reset", "test"],
-        "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"]
+        "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"],
+        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -483,6 +484,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentMonthlyRecurrencePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-112-appointment-monthly-recurrence-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-recurrence-unit-matrix",
+          "name": "Slice 113 appointment recurrence unit matrix plan",
+          "description": "Runs the shared daily, workday, and yearly recurring appointment mutation and expansion plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentRecurrenceUnitMatrixPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -1281,7 +1290,8 @@
         "parityAppointmentRecurrenceExceptionEditPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-109-appointment-recurrence-exception-edit-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootUpdatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-110-appointment-series-root-update-readiness", "-Reset", "test"],
         "parityAppointmentSeriesRootMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-111-appointment-series-root-metadata-readiness", "-Reset", "test"],
-        "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"]
+        "parityAppointmentMonthlyRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-112-appointment-monthly-recurrence-readiness", "-Reset", "test"],
+        "parityAppointmentRecurrenceUnitMatrixPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-113-appointment-recurrence-unit-matrix-readiness", "-Reset", "test"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -1550,6 +1560,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentMonthlyRecurrencePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-112-appointment-monthly-recurrence-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-recurrence-unit-matrix",
+          "name": "Slice 113 appointment recurrence unit matrix plan",
+          "description": "Runs the shared daily, workday, and yearly recurring appointment mutation and expansion plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentRecurrenceUnitMatrixPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
