@@ -896,7 +896,35 @@ Acceptance:
 
 Current limitations:
 
-- This slice makes the lab-provider catalog permanent in the gold dataset. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice makes the lab-provider catalog permanent in the gold dataset. Directory-level lab-provider list behavior is covered by Slice 140. Saved queue filters, reviewer assignment, bulk sign-off, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+
+### Slice 140: Procedure Lab Provider Directory Readiness
+
+Status:
+
+- Implemented as a read-only procedure/lab directory slice under `modernized-openemr/`, `parity-tests/`, and Workbench managed parity actions.
+- Verification is the shared `slice-140-procedure-lab-provider-directory-readiness` plan, which resets each target to the shared gold dataset, verifies the five permanent provider rows, NPI values, active filtering, and balanced order/report/future-order counts, and renders the same directory through legacy OpenEMR and the modernized Reports workspace.
+
+Scope:
+
+- `GET /api/procedures/lab-providers` returns the modernized lab-provider directory with dataset metadata, active/inactive totals, provider identifiers, NPI, protocol, active state, total order count, reviewed report count, and future scheduled order count.
+- The React Reports workspace renders a Procedure Lab Providers panel with an Include inactive providers toggle, active/inactive/total counters, and provider cards matching the seeded gold-data catalog.
+- Legacy browser parity opens `interface/orders/procedure_provider_list.php`, preserving the native `Procedure Providers` page semantics and its default active-provider filter.
+- The shared `workflow-procedure-lab-provider-directory` suite normalizes the legacy `procedure_providers` rows and modernized `lab_providers` rows for stable comparison.
+- Workbench-managed Slice 140 procedure lab provider directory plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets expose exactly the five permanent gold-data providers `501` through `505` in active-provider mode.
+- Each provider has the expected NPI, OpenEMR's default `DL` protocol value, active state, 200 assigned lab orders, 140 reviewed reports, and 60 future scheduled orders.
+- The include-inactive option preserves the same five-provider directory because the current gold catalog has no inactive lab providers.
+- The legacy `Procedure Providers` page renders the seeded provider names and NPI values.
+- The modernized Reports workspace renders the provider directory, active/total counts, NPI values, and order/report/future-order counts.
+- The side-by-side Slice 140 parity comparison matches.
+
+Current limitations:
+
+- This slice is read-only and does not yet implement provider add/edit/delete, protocol setup, compendium imports, address-book organization linking, credential management, external lab ordering integration, or audit history.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3973,3 +4001,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-seventh modernized vertical slice implements procedure report review queue provider filtering with API/query-string provider filters, Reports workspace Provider controls, normalized legacy/modernized provider-filtered queue probes, Workbench procedure report review queue provider filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-137 parity evidence.
 - The one-hundred-thirty-eighth modernized vertical slice implements procedure report review queue lab filtering with PostgreSQL lab ownership mapping, API/query-string lab filters, Reports workspace Lab controls, normalized legacy/modernized lab-filtered queue probes, temporary lab-provider workflow actions, Workbench procedure report review queue lab filter plan actions, smoke coverage, cleanup deletion, and side-by-side slice-138 parity evidence.
 - The one-hundred-thirty-ninth modernized vertical slice implements permanent procedure lab provider catalog readiness with five shared gold-data lab providers, deterministic legacy `procedure_order.lab_id` and modernized `lab_orders.lab_id` assignments across all seeded lab orders, Workbench procedure lab provider catalog plan actions, read-only browser/database parity coverage, and side-by-side slice-139 parity evidence.
+- The one-hundred-fortieth modernized vertical slice implements procedure lab provider directory readiness with a modernized `/api/procedures/lab-providers` endpoint, Reports workspace provider-directory panel, normalized legacy/modernized provider-directory probes, Workbench procedure lab provider directory plan actions, and side-by-side slice-140 parity evidence.
