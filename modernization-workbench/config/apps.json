@@ -95,6 +95,7 @@
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
+        "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
         "parityEncounterBillingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-68-encounter-billing-readiness", "-Reset", "run"],
         "parityEncounterClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-69-encounter-claims-readiness", "-Reset", "run"],
         "parityEncounterProceduresPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-70-encounter-procedures-readiness", "-Reset", "run"],
@@ -935,6 +936,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-122-encounter-document-revision-readiness.json"
         },
         {
+          "id": "parity-plan-encounter-document-revision-replace",
+          "name": "Slice 123 encounter document replacement revision plan",
+          "description": "Runs the shared encounter document replacement-revision plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentRevisionReplacePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-123-encounter-document-revision-replace-readiness.json"
+        },
+        {
           "id": "parity-plan-encounter-billing",
           "name": "Slice 68 encounter billing plan",
           "description": "Runs the shared read-only encounter billing linkage plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1326,6 +1335,7 @@
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
+        "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
         "parityEncounterBillingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-68-encounter-billing-readiness", "-Reset", "run"],
         "parityEncounterClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-69-encounter-claims-readiness", "-Reset", "run"],
         "parityEncounterProceduresPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-70-encounter-procedures-readiness", "-Reset", "run"],
@@ -2090,6 +2100,14 @@
           "layer": "plan",
           "commandName": "parityEncounterDocumentRevisionPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-122-encounter-document-revision-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-document-revision-replace",
+          "name": "Slice 123 encounter document replacement revision plan",
+          "description": "Runs the shared encounter document replacement-revision plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentRevisionReplacePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-123-encounter-document-revision-replace-readiness.json"
         },
         {
           "id": "parity-plan-encounter-billing",
