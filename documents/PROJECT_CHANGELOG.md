@@ -8305,6 +8305,55 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 153. Modernized Encounter Document Replacement Revision Slice 123
+
+Commit: `07ae0b8b`
+Started: `2026-06-21T03:03:00.0000000-04:00`
+Finished: `2026-06-21T03:09:14.9674945-04:00`
+
+Implemented the one-hundred-twenty-third modernized OpenEMR vertical slice: encounter document replacement revision readiness, proving that an encounter-attached document replacement updates the current revision hash/timestamp facts while preserving the single current-version contract and cleaning up temporary data.
+
+Code changes:
+
+- Files changed: 5
+- Lines added: 231
+- Lines deleted: 2
+- Net lines: 229
+- Total churn: 233
+
+Key outcomes:
+
+- Added the `workflow-encounter-document-revision-replace` Playwright parity suite and `slice-123-encounter-document-revision-replace-readiness` plan.
+- The shared workflow creates a temporary text document on `MOD-PAT-0001` encounter `1000013`, captures current Version 1 revision facts, replaces the payload, verifies the active hash changes and still matches `revisionHash`, and hard-deletes the document.
+- The modernized target verifies replacement behavior through the Encounter workspace Replace action, `/api/encounters/1000013`, and attachment-card rendering.
+- Added Workbench managed plan commands/cards for Slice 123 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 123 with thirty-eight read-only slices and eighty-five mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-123-encounter-document-revision-replace-readiness -Reset test` passed; run `2026-06-21T070724-368Z-modernized-openemr-plan-slice-123-encounter-document-revision-replace-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-123-encounter-document-revision-replace-readiness -Reset test` passed; run `2026-06-21T070753-265Z-legacy-openemr-plan-slice-123-encounter-document-revision-replace-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-123-encounter-document-revision-replace-readiness` passed with `status: matched`; comparison `2026-06-21T070825-486Z-legacy-openemr-vs-modernized-openemr-plan-slice-123-encounter-document-revision-replace-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `parity-tests/tests/workflow-encounter-document-revision-replace/encounter-document-revision-replace.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
