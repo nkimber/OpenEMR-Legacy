@@ -109,6 +109,7 @@
         "parityEncounterCoSignaturePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-121-encounter-cosignature-readiness", "-Reset", "test"],
         "parityEncounterDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-78-encounter-document-upload-readiness", "-Reset", "test"],
         "parityEncounterBinaryDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-79-encounter-binary-document-upload-readiness", "-Reset", "test"],
+        "parityEncounterDocumentScannedAttachmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-126-encounter-document-scanned-attachment-readiness", "-Reset", "test"],
         "parityEncounterDocumentSignOffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-80-encounter-document-signoff-readiness", "-Reset", "test"],
         "parityEncounterDocumentDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-81-encounter-document-denial-readiness", "-Reset", "test"],
         "parityEncounterDocumentMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-82-encounter-document-metadata-readiness", "-Reset", "test"],
@@ -1048,6 +1049,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-79-encounter-binary-document-upload-readiness.json"
         },
         {
+          "id": "parity-plan-encounter-document-scanned-attachment",
+          "name": "Slice 126 encounter scanned attachment plan",
+          "description": "Runs the shared encounter-scoped scanned attachment readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentScannedAttachmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-126-encounter-document-scanned-attachment-readiness.json"
+        },
+        {
           "id": "parity-plan-encounter-document-signoff",
           "name": "Slice 80 encounter document sign-off plan",
           "description": "Runs the shared encounter-scoped document sign-off plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1349,6 +1358,7 @@
         "parityEncounterCoSignaturePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-121-encounter-cosignature-readiness", "-Reset", "test"],
         "parityEncounterDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-78-encounter-document-upload-readiness", "-Reset", "test"],
         "parityEncounterBinaryDocumentUploadPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-79-encounter-binary-document-upload-readiness", "-Reset", "test"],
+        "parityEncounterDocumentScannedAttachmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-126-encounter-document-scanned-attachment-readiness", "-Reset", "test"],
         "parityEncounterDocumentSignOffPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-80-encounter-document-signoff-readiness", "-Reset", "test"],
         "parityEncounterDocumentDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-81-encounter-document-denial-readiness", "-Reset", "test"],
         "parityEncounterDocumentMetadataPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-82-encounter-document-metadata-readiness", "-Reset", "test"],
@@ -1408,7 +1418,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter document sign-off lifecycle, encounter document denial lifecycle, encounter billing linkage, encounter claim linkage, encounter procedure order linkage, encounter metadata mutation, clinical lists, messages, patient-message content update, patient-message assignment update, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, image document preview, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, collections follow-up task lifecycle, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
+          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter scanned attachment readiness, encounter document sign-off lifecycle, encounter document denial lifecycle, encounter billing linkage, encounter claim linkage, encounter procedure order linkage, encounter metadata mutation, clinical lists, messages, patient-message content update, patient-message assignment update, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, image document preview, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, collections follow-up task lifecycle, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -2212,6 +2222,14 @@
           "layer": "plan",
           "commandName": "parityEncounterBinaryDocumentUploadPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-document-scanned-attachment",
+          "name": "Slice 126 encounter scanned attachment plan",
+          "description": "Runs the shared encounter-scoped scanned attachment readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterDocumentScannedAttachmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-126-encounter-document-scanned-attachment-readiness.json"
         },
         {
           "id": "parity-plan-encounter-document-signoff",

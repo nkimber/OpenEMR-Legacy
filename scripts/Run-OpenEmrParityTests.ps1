@@ -87,6 +87,7 @@ param(
         "workflow-encounter-cosignature",
         "workflow-encounter-documents",
         "workflow-encounter-binary-documents",
+        "workflow-encounter-document-scanned-attachment",
         "workflow-encounter-document-signoff",
         "workflow-encounter-document-denial",
         "workflow-encounter-document-metadata",
