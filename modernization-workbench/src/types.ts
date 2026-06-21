@@ -444,10 +444,44 @@ export type FunctionalityProgressArea = {
   status: string;
   summary: string;
   completionEstimatePercent: number;
+  estimatedScopeWeight?: number;
+  scopeWeightRationale?: string;
   estimateRationale: string;
   completed: FunctionalityProgressItem[];
   outstanding: string[];
   deferred: string[];
+};
+
+export type FunctionalityProgressSummary = {
+  areaCount: number;
+  simpleAveragePercent: number;
+  weightedAveragePercent: number;
+  estimatedRemainingPercent: number;
+  totalScopeWeight: number;
+  weightedCompletedPoints: number;
+  weightedRemainingPoints: number;
+};
+
+export type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
+  commit: string;
+  fullCommit: string;
+  committedAt: string;
+  subject: string;
+};
+
+export type FunctionalityProgressForecast = {
+  basis: string;
+  confidence: "low" | "medium";
+  completedSliceCount: number;
+  firstSliceCompletedAt?: string;
+  latestSliceCompletedAt?: string;
+  averageCalendarMsPerSlice?: number;
+  averageActiveMsPerSlice?: number;
+  recentAverageActiveMsPerSlice?: number;
+  estimatedRemainingSliceEquivalents?: number;
+  estimatedRemainingActiveMs?: number;
+  estimatedCompletionDate?: string;
+  explanation: string;
 };
 
 export type ProgressResponse = {
@@ -455,6 +489,9 @@ export type ProgressResponse = {
   functionalityVersion: string;
   functionalityLastUpdated: string;
   functionalityAreas: FunctionalityProgressArea[];
+  functionalitySummary: FunctionalityProgressSummary;
+  functionalityHistory: FunctionalityProgressHistoryPoint[];
+  functionalityForecast: FunctionalityProgressForecast;
 };
 
 export type ChangelogEntry = {

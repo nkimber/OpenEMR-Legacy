@@ -1058,6 +1058,104 @@ p {
   margin-bottom: 18px;
 }
 
+.progress-forecast-panel,
+.progress-history-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #d7e4e8;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 14px;
+}
+
+.progress-forecast-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.progress-forecast-panel p {
+  margin: 0;
+  color: #536575;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.progress-history-header,
+.progress-history-caption {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.progress-history-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #182635;
+  font-size: 1rem;
+}
+
+.progress-history-header p {
+  margin-top: 4px;
+  color: #61717c;
+  font-size: 0.84rem;
+}
+
+.progress-history-latest {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.progress-history-latest span {
+  color: #174437;
+  font-size: 1.25rem;
+  font-weight: 820;
+}
+
+.progress-history-latest strong,
+.progress-history-caption {
+  color: #61717c;
+  font-size: 0.78rem;
+}
+
+.progress-history-chart {
+  display: block;
+  width: 100%;
+  aspect-ratio: 720 / 220;
+  overflow: visible;
+}
+
+.chart-grid-line {
+  stroke: #dbe5ea;
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: #667784;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progress-history-line {
+  fill: none;
+  stroke: #2f8f72;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.progress-history-point {
+  fill: #ffffff;
+  stroke: #236d58;
+  stroke-width: 2;
+}
+
 .functionality-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1125,6 +1223,24 @@ p {
   font-size: 1rem;
 }
 
+.functionality-estimate-heading > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.scope-weight-chip {
+  border: 1px solid #cbded8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #386356;
+  padding: 3px 8px;
+  font-size: 0.74rem;
+  font-weight: 760;
+}
+
 .estimate-bar {
   overflow: hidden;
   width: 100%;
@@ -1146,6 +1262,11 @@ p {
   font-size: 0.82rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.functionality-estimate .scope-weight-rationale {
+  color: #667987;
+  font-size: 0.78rem;
 }
 
 .functionality-section {
@@ -2022,6 +2143,8 @@ dd {
 
   .app-header,
   .panel-header,
+  .progress-history-header,
+  .progress-history-caption,
   .lower-grid,
   .two-column {
     grid-template-columns: 1fr;
@@ -2054,6 +2177,10 @@ dd {
 
   .architecture-tabs button {
     flex: 1 1 180px;
+  }
+
+  .progress-history-latest {
+    justify-items: start;
   }
 
   .changelog-entry {

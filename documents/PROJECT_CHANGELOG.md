@@ -10095,6 +10095,50 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 182. Workbench Weighted Progress Forecast Slice 154
+
+Commit: pending
+Started: `2026-06-21T15:11:00.0000000-04:00`
+Finished: `2026-06-21T15:39:09.3667825-04:00`
+
+Implemented the one-hundred-fifty-fourth project slice and latest Workbench-specific slice: weighted overall modernization progress, committed progress history, and rough remaining-time forecasting on the Progress page.
+
+Code changes:
+
+- Files changed: 9
+- Lines added: 655
+- Lines deleted: 19
+- Net lines: 636
+- Total churn: 674
+
+Key outcomes:
+
+- Added `estimatedScopeWeight` and `scopeWeightRationale` fields to the curated functionality progress ledger so larger or more complex areas contribute more to the overall estimate.
+- Extended `/api/progress` with a weighted progress summary, Git-backed progress history reconstructed from committed `functionality-progress.json` snapshots, and a low-confidence active-time forecast based on recent changelog slice durations.
+- Updated the Progress page with weighted overall completion, simple-average comparison, weighted remaining points, rough active time left, slice cadence, projected finish, and a weighted completion line chart.
+- Kept area-level completion estimates editable and made the weight rationale visible on each functionality card.
+- Documented that weighted completion, historical trend, and forecast values are planning signals that may move up or down as newly discovered scope changes the ledger.
+
+Verified test runs:
+
+- `Get-Content modernization-workbench\config\functionality-progress.json -Raw | ConvertFrom-Json` parsed version `0.3.0`, 11 areas, total scope weight `100`, simple average `53.2%`, and weighted completion `53.5%` before local in-flight Slice 152 bulk-signoff scope.
+- Live Workbench `/api/progress` smoke returned weighted completion, simple average, remaining percent, 17 committed progress history points, and rough active-time forecast fields.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Playwright CLI snapshot verified the Progress page rendered Overall Estimated Complete, Estimated Active Time Left, Completed Slices, Weighted Completion History, the SVG line chart, and scope weight chips.
+
+Primary files:
+
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

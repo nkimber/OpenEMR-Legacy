@@ -108,6 +108,8 @@ type FunctionalityProgressArea = {
   status: string;
   summary: string;
   completionEstimatePercent: number;
+  estimatedScopeWeight?: number;
+  scopeWeightRationale?: string;
   estimateRationale: string;
   completed: FunctionalityProgressItem[];
   outstanding: string[];
@@ -118,6 +120,38 @@ type FunctionalityProgressConfig = {
   version: string;
   lastUpdated: string;
   areas: FunctionalityProgressArea[];
+};
+
+type FunctionalityProgressSummary = {
+  areaCount: number;
+  simpleAveragePercent: number;
+  weightedAveragePercent: number;
+  estimatedRemainingPercent: number;
+  totalScopeWeight: number;
+  weightedCompletedPoints: number;
+  weightedRemainingPoints: number;
+};
+
+type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
+  commit: string;
+  fullCommit: string;
+  committedAt: string;
+  subject: string;
+};
+
+type FunctionalityProgressForecast = {
+  basis: string;
+  confidence: "low" | "medium";
+  completedSliceCount: number;
+  firstSliceCompletedAt?: string;
+  latestSliceCompletedAt?: string;
+  averageCalendarMsPerSlice?: number;
+  averageActiveMsPerSlice?: number;
+  recentAverageActiveMsPerSlice?: number;
+  estimatedRemainingSliceEquivalents?: number;
+  estimatedRemainingActiveMs?: number;
+  estimatedCompletionDate?: string;
+  explanation: string;
 };
 
 type ChangelogEntry = {
@@ -322,7 +356,9 @@ const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
 const sourceInventoryCacheMs = 10 * 1000;
+const progressHistoryCacheMs = 30 * 1000;
 let sourceInventoryCache: { expiresAt: number; inventory: SourceInventory } | null = null;
+let progressHistoryCache: { expiresAt: number; history: FunctionalityProgressHistoryPoint[] } | null = null;
 const readableArtifactRoots = [
   path.join(repoRoot, "parity-tests", "artifacts"),
   path.join(repoRoot, "legacy-openemr", "artifacts"),
@@ -609,6 +645,203 @@ function parseProjectChangelog(text: string): ChangelogEntry[] {
 
   flushEntry();
   return entries;
+}
+
+function roundProgressValue(value: number) {
+  return Number.isFinite(value) ? Math.round(value * 10) / 10 : 0;
+}
+
+function getAreaScopeWeight(area: FunctionalityProgressArea) {
+  const configuredWeight = Number(area.estimatedScopeWeight);
+  return Number.isFinite(configuredWeight) && configuredWeight > 0 ? configuredWeight : 1;
+}
+
+function getAreaCompletionPercent(area: FunctionalityProgressArea) {
+  const configuredPercent = Number(area.completionEstimatePercent);
+  return Number.isFinite(configuredPercent) ? Math.max(0, Math.min(100, configuredPercent)) : 0;
+}
+
+function calculateFunctionalityProgressSummary(areas: FunctionalityProgressArea[]): FunctionalityProgressSummary {
+  const areaCount = areas.length;
+  const totalScopeWeight = areas.reduce((total, area) => total + getAreaScopeWeight(area), 0);
+  const weightedCompletedPoints = areas.reduce(
+    (total, area) => total + (getAreaCompletionPercent(area) / 100) * getAreaScopeWeight(area),
+    0
+  );
+  const simpleAveragePercent = areaCount ? areas.reduce((total, area) => total + getAreaCompletionPercent(area), 0) / areaCount : 0;
+  const weightedAveragePercent = totalScopeWeight ? (weightedCompletedPoints / totalScopeWeight) * 100 : 0;
+  const weightedRemainingPoints = Math.max(0, totalScopeWeight - weightedCompletedPoints);
+
+  return {
+    areaCount,
+    simpleAveragePercent: roundProgressValue(simpleAveragePercent),
+    weightedAveragePercent: roundProgressValue(weightedAveragePercent),
+    estimatedRemainingPercent: roundProgressValue(100 - weightedAveragePercent),
+    totalScopeWeight: roundProgressValue(totalScopeWeight),
+    weightedCompletedPoints: roundProgressValue(weightedCompletedPoints),
+    weightedRemainingPoints: roundProgressValue(weightedRemainingPoints)
+  };
+}
+
+function parseFunctionalityProgressSnapshot(text: string) {
+  try {
+    const parsed = JSON.parse(text) as Partial<FunctionalityProgressConfig>;
+    return Array.isArray(parsed.areas) ? parsed.areas : [];
+  } catch {
+    return [];
+  }
+}
+
+async function runGitText(args: string[], timeoutMs = 10000): Promise<string | undefined> {
+  return await new Promise((resolve) => {
+    const git = spawn("git", args, {
+      cwd: repoRoot,
+      shell: false,
+      windowsHide: true
+    });
+    let stdout = "";
+    const timer = setTimeout(() => {
+      git.kill();
+      resolve(undefined);
+    }, timeoutMs);
+
+    git.stdout.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    git.on("error", () => {
+      clearTimeout(timer);
+      resolve(undefined);
+    });
+    git.on("close", (exitCode) => {
+      clearTimeout(timer);
+      resolve(exitCode === 0 ? stdout : undefined);
+    });
+  });
+}
+
+async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[]> {
+  const now = Date.now();
+  if (progressHistoryCache && progressHistoryCache.expiresAt > now) {
+    return progressHistoryCache.history;
+  }
+
+  const progressPath = "modernization-workbench/config/functionality-progress.json";
+  const addCommit = (await runGitText(["log", "--diff-filter=A", "--format=%H", "--", progressPath]))?.trim().split(/\r?\n/)[0];
+  if (!addCommit) {
+    progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history: [] };
+    return [];
+  }
+
+  const commitLog = await runGitText(["log", "--first-parent", "--reverse", "--format=%H%x1f%h%x1f%aI%x1f%s", `${addCommit}^..HEAD`], 15000);
+  if (!commitLog) {
+    progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history: [] };
+    return [];
+  }
+
+  const history: FunctionalityProgressHistoryPoint[] = [];
+  for (const line of commitLog.split(/\r?\n/).filter(Boolean)) {
+    const [fullCommit, commit, committedAt, subject] = line.split("\x1f");
+    if (!fullCommit || !commit || !committedAt || !subject) {
+      continue;
+    }
+
+    const snapshotText = await runGitText(["show", `${fullCommit}:${progressPath}`], 10000);
+    if (!snapshotText) {
+      continue;
+    }
+
+    const areas = parseFunctionalityProgressSnapshot(snapshotText);
+    if (!areas.length) {
+      continue;
+    }
+
+    history.push({
+      commit,
+      fullCommit,
+      committedAt,
+      subject,
+      ...calculateFunctionalityProgressSummary(areas)
+    });
+  }
+
+  progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history };
+  return history;
+}
+
+function extractSliceNumbers(entry: ChangelogEntry) {
+  const text = [entry.title, entry.summary, ...entry.keyOutcomes].join(" ");
+  return [...text.matchAll(/\bSlice\s+(\d+)\b/gi)]
+    .map((match) => Number.parseInt(match[1], 10))
+    .filter((value) => Number.isFinite(value));
+}
+
+async function readChangelogEntriesForForecast() {
+  return parseProjectChangelog(await fs.readFile(changelogPath, "utf8"));
+}
+
+async function buildFunctionalityProgressForecast(summary: FunctionalityProgressSummary): Promise<FunctionalityProgressForecast> {
+  const entries = await readChangelogEntriesForForecast();
+  const slicesByNumber = new Map<number, { completedAt: string; durationMs?: number }>();
+
+  for (const entry of entries) {
+    const sliceNumbers = extractSliceNumbers(entry);
+    if (!sliceNumbers.length || !entry.finishedAt) {
+      continue;
+    }
+
+    for (const sliceNumber of sliceNumbers) {
+      const existing = slicesByNumber.get(sliceNumber);
+      if (!existing || new Date(entry.finishedAt).getTime() > new Date(existing.completedAt).getTime()) {
+        slicesByNumber.set(sliceNumber, { completedAt: entry.finishedAt, durationMs: entry.durationMs });
+      }
+    }
+  }
+
+  const completedSlices = [...slicesByNumber.entries()]
+    .map(([sliceNumber, value]) => ({ sliceNumber, ...value }))
+    .sort((left, right) => new Date(left.completedAt).getTime() - new Date(right.completedAt).getTime());
+  const completedSliceCount = completedSlices.length;
+  const firstSliceCompletedAt = completedSlices[0]?.completedAt;
+  const latestSliceCompletedAt = completedSlices[completedSlices.length - 1]?.completedAt;
+  const firstTime = firstSliceCompletedAt ? new Date(firstSliceCompletedAt).getTime() : Number.NaN;
+  const latestTime = latestSliceCompletedAt ? new Date(latestSliceCompletedAt).getTime() : Number.NaN;
+  const averageCalendarMsPerSlice =
+    completedSliceCount > 1 && !Number.isNaN(firstTime) && !Number.isNaN(latestTime)
+      ? Math.max(0, latestTime - firstTime) / (completedSliceCount - 1)
+      : undefined;
+  const durations = completedSlices
+    .map((slice) => slice.durationMs)
+    .filter((duration): duration is number => duration !== undefined && Number.isFinite(duration) && duration > 0);
+  const recentDurations = durations.slice(-25);
+  const averageActiveMsPerSlice = durations.length ? durations.reduce((total, duration) => total + duration, 0) / durations.length : undefined;
+  const recentAverageActiveMsPerSlice = recentDurations.length
+    ? recentDurations.reduce((total, duration) => total + duration, 0) / recentDurations.length
+    : averageActiveMsPerSlice;
+  const estimatedRemainingSliceEquivalents =
+    summary.weightedAveragePercent > 0 ? completedSliceCount * (summary.estimatedRemainingPercent / summary.weightedAveragePercent) : undefined;
+  const estimatedRemainingActiveMs =
+    estimatedRemainingSliceEquivalents !== undefined && recentAverageActiveMsPerSlice !== undefined
+      ? estimatedRemainingSliceEquivalents * recentAverageActiveMsPerSlice
+      : undefined;
+  const estimatedCompletionDate =
+    estimatedRemainingActiveMs !== undefined ? new Date(Date.now() + estimatedRemainingActiveMs).toISOString() : undefined;
+
+  return {
+    basis: "Weighted remaining scope converted into slice-equivalent work using completed slice count, then multiplied by recent explicit slice durations from the changelog.",
+    confidence: "low",
+    completedSliceCount,
+    firstSliceCompletedAt,
+    latestSliceCompletedAt,
+    averageCalendarMsPerSlice: averageCalendarMsPerSlice ? Math.round(averageCalendarMsPerSlice) : undefined,
+    averageActiveMsPerSlice: averageActiveMsPerSlice ? Math.round(averageActiveMsPerSlice) : undefined,
+    recentAverageActiveMsPerSlice: recentAverageActiveMsPerSlice ? Math.round(recentAverageActiveMsPerSlice) : undefined,
+    estimatedRemainingSliceEquivalents:
+      estimatedRemainingSliceEquivalents !== undefined ? roundProgressValue(estimatedRemainingSliceEquivalents) : undefined,
+    estimatedRemainingActiveMs: estimatedRemainingActiveMs !== undefined ? Math.round(estimatedRemainingActiveMs) : undefined,
+    estimatedCompletionDate,
+    explanation:
+      "This is a planning signal, not a delivery promise. It can move down when slices land and up when newly discovered scope increases the remaining weighted work."
+  };
 }
 
 async function readGitCommitInfo(): Promise<GitCommitInfo[]> {
@@ -1908,6 +2141,12 @@ app.get("/api/architecture", async (_request, response) => {
 
 app.get("/api/progress", async (_request, response) => {
   const functionalityProgress = await readFunctionalityProgress();
+  const functionalitySummary = calculateFunctionalityProgressSummary(functionalityProgress.areas);
+  const [functionalityHistory, functionalityForecast] = await Promise.all([
+    readProgressHistory(),
+    buildFunctionalityProgressForecast(functionalitySummary)
+  ]);
+
   response.json({
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
@@ -1922,7 +2161,10 @@ app.get("/api/progress", async (_request, response) => {
     ],
     functionalityVersion: functionalityProgress.version,
     functionalityLastUpdated: functionalityProgress.lastUpdated,
-    functionalityAreas: functionalityProgress.areas
+    functionalityAreas: functionalityProgress.areas,
+    functionalitySummary,
+    functionalityHistory,
+    functionalityForecast
   });
 });
 

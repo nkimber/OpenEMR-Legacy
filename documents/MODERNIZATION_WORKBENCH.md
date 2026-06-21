@@ -49,19 +49,25 @@ The navigation model supports nested child items so the Workbench can grow into 
 
 The Project Timeline page reads `documents/PROJECT_CHANGELOG.md` as the source of truth for project history. It displays explicit start time, finish time, and duration when entries include `Started:` and `Finished:` metadata. It also displays code-change metrics for files changed, lines added, lines deleted, net lines, and total churn. New changelog entries should record those values in a `Code changes:` section and replace `Commit: pending` with the real Git changeset ID once the commit exists. For older entries, the Workbench backfills code-change metrics and the visible changeset chip from Git when the entry contains a resolvable commit hash, and it uses conservative commit-subject matching for older entries whose commit field says `this commit` or `current slice commit`. If no safe match exists, the chip shows an unresolved changeset instead of repeating the placeholder as though it were a valid commit ID.
 
-Slice 143 adds the functionality progress ledger to the Progress page. Slice 146 adds explicit scope-adjusted completion estimates to that ledger.
+Slice 143 adds the functionality progress ledger to the Progress page. Slice 146 adds explicit scope-adjusted completion estimates to that ledger. Slice 154 adds weighted overall progress, Git-backed progress history, and rough remaining-time forecasting.
 
 The Progress page reads milestone rows and the functionality progress ledger from `/api/progress`. The milestone rows remain an operational summary for baseline, Workbench, test-management, and modernized target delivery state. The functionality progress ledger is a curated JSON artifact at `modernization-workbench/config/functionality-progress.json`; it is intentionally edited by the project, not inferred from raw test names. Each area records:
 
 - `status` - a coarse status such as `in-progress`, `partial`, `verified`, or `not-started`.
 - `summary` - the current product-level interpretation for the domain area.
 - `completionEstimatePercent` - an editable 0-100 estimate for how much of the currently understood scope is complete.
+- `estimatedScopeWeight` - a relative size/complexity weight for the area; the current ledger totals 100 weight points.
+- `scopeWeightRationale` - the short reason the area carries that weight.
 - `estimateRationale` - the short reason for the current estimate, including major covered and remaining work.
 - `completed` - user-facing functionality considered covered, with short detail and related evidence IDs such as slice readiness plans.
 - `outstanding` - work still expected or likely needed before the modernization feels complete in that area.
 - `deferred` - known longer-tail, integration, compliance, or production-hardening items that should stay visible without being confused with the immediate next slice.
 
-Completion estimates are planning signals, not contractual pass/fail measurements. They may move up when new parity evidence lands, or down when legacy discovery reveals more scope inside an area. The Progress page displays a simple average across the area estimates as the overall scope-adjusted estimate, so the number should be treated as directional rather than mathematically precise.
+Completion estimates are planning signals, not contractual pass/fail measurements. They may move up when new parity evidence lands, or down when legacy discovery reveals more scope inside an area. The Progress page now displays the weighted estimate as the main overall completion value and keeps the simple average visible as a comparison signal. The weighted formula is `sum(completionEstimatePercent * estimatedScopeWeight) / sum(estimatedScopeWeight)`.
+
+The `/api/progress` response also reconstructs a committed progress history from Git by reading `modernization-workbench/config/functionality-progress.json` as it existed at each commit after the ledger was introduced. The Progress page renders this as a weighted completion line chart. Commits before scope weights existed fall back to equal weighting for their historical point.
+
+The remaining-time forecast is intentionally rough. It converts the current weighted remaining percent into slice-equivalent work using the number of completed slice numbers in the changelog, then multiplies that by recent explicit slice durations from `Started:` and `Finished:` metadata. This produces an active-work estimate, not a promised calendar delivery date, and it may move up or down as the estimated scope changes.
 
 When scope changes, update `functionality-progress.json` in the same work item as the related implementation or planning change. Keep the entries concise and product-facing: the ledger should answer what the modernization can do, what remains, and which evidence supports the completed claims. It should not replace `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, or `PROJECT_CHANGELOG.md`; it summarizes them for Workbench operators.
 
@@ -432,7 +438,7 @@ The inventory counts physical source lines and non-blank lines from configured r
 
 Workflow progress should be tracked by modernization slice.
 
-The dedicated Progress page also tracks functionality scope by domain area through `modernization-workbench/config/functionality-progress.json`. This ledger is the project-maintained view of completed, outstanding, deferred, and estimated-complete functionality. It may be revised as legacy behavior discovery expands or as the modernization target narrows; both the completed/outstanding lists and the percent-complete estimates can move as the known scope changes. Changes to this ledger should be treated as documentation-affecting project state and reflected in the changelog when they materially change scope.
+The dedicated Progress page also tracks functionality scope by domain area through `modernization-workbench/config/functionality-progress.json`. This ledger is the project-maintained view of completed, outstanding, deferred, estimated-complete, and estimated-size/complexity-weighted functionality. It may be revised as legacy behavior discovery expands or as the modernization target narrows; the completed/outstanding lists, percent-complete estimates, weights, weighted overall estimate, historical trend, and time-remaining forecast can all move as the known scope changes. Changes to this ledger should be treated as documentation-affecting project state and reflected in the changelog when they materially change scope.
 
 Suggested states:
 

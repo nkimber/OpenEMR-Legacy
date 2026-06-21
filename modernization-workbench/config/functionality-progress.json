@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "lastUpdated": "2026-06-21",
   "areas": [
     {
@@ -32,6 +32,8 @@
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
       "completionEstimatePercent": 70,
+      "estimatedScopeWeight": 9,
+      "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
       "estimateRationale": "Strong chart, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, validation, and authorization depth remain."
     },
     {
@@ -64,6 +66,8 @@
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
       "completionEstimatePercent": 74,
+      "estimatedScopeWeight": 8,
+      "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
       "estimateRationale": "Appointment lifecycle, recurrence, overlap, and reminder-readiness are broad; advanced availability, waitlists, and delivery/audit remain."
     },
     {
@@ -96,6 +100,8 @@
         "Direct scanner integration and full historical encounter document version chains."
       ],
       "completionEstimatePercent": 66,
+      "estimatedScopeWeight": 13,
+      "scopeWeightRationale": "Encounters combine clinical notes, documents, billing links, diagnoses, procedure links, sign-off, and policy-heavy clinical behavior.",
       "estimateRationale": "Core encounter, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and policy depth remain."
     },
     {
@@ -123,6 +129,8 @@
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
       "completionEstimatePercent": 52,
+      "estimatedScopeWeight": 7,
+      "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
       "estimateRationale": "List and focused mutation paths are present; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
     },
     {
@@ -149,6 +157,8 @@
         "Patient portal account provisioning and external notification providers."
       ],
       "completionEstimatePercent": 42,
+      "estimatedScopeWeight": 5,
+      "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
       "estimateRationale": "Message visibility and lifecycle are covered; portal replies, attachments, routing, notifications, and audit history remain substantial."
     },
     {
@@ -181,6 +191,8 @@
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
       "completionEstimatePercent": 48,
+      "estimatedScopeWeight": 13,
+      "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
       "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, and collections basics are covered; full revenue-cycle processing remains large."
     },
     {
@@ -208,6 +220,8 @@
         "Fax/SMS attachments and external storage provider adapters."
       ],
       "completionEstimatePercent": 58,
+      "estimatedScopeWeight": 10,
+      "scopeWeightRationale": "Document workflows span storage, previews, reviews, revisions, retention, authorization, scanner/OCR, and patient/encounter contexts.",
       "estimateRationale": "Document read, upload, preview, review, archive, replacement, and revision paths are broad; scanner, OCR, storage, retention, and auth remain."
     },
     {
@@ -240,6 +254,8 @@
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
       "completionEstimatePercent": 63,
+      "estimatedScopeWeight": 12,
+      "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
       "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, and focused vendor compendium import are covered; external lab operations remain."
     },
     {
@@ -267,6 +283,8 @@
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
       "completionEstimatePercent": 28,
+      "estimatedScopeWeight": 10,
+      "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
       "estimateRationale": "Directory, lifecycle, ACL, and group basics exist; login, Identity, MFA, authorization policy, facility restrictions, and audit remain major scope."
     },
     {
@@ -294,6 +312,8 @@
         "Future CI integration and long-term evidence retention policy."
       ],
       "completionEstimatePercent": 72,
+      "estimatedScopeWeight": 5,
+      "scopeWeightRationale": "Workbench evidence is strategically important but smaller than the clinical, billing, document, lab, and production modernization domains.",
       "estimateRationale": "Operational reporting, Workbench orchestration, comparisons, drill-ins, links, timeline, architecture, and progress views are substantial; trends and report depth remain."
     },
     {
@@ -316,6 +336,8 @@
         "PHI-bearing test strategy and compliance validation; this repository should continue using synthetic non-PHI data."
       ],
       "completionEstimatePercent": 12,
+      "estimatedScopeWeight": 8,
+      "scopeWeightRationale": "Migration and production readiness are large remaining concerns, but currently bounded as later-stage scope outside the local parity loop.",
       "estimateRationale": "The synthetic migration contract exists; real extraction, migration rehearsal, deployment, observability, CI/CD, backup, and external integrations remain."
     }
   ]

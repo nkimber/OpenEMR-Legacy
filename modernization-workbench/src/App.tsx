@@ -34,6 +34,9 @@ import type {
   ArchitectureTechnology,
   CustomParityRunRequest,
   FunctionalityProgressArea,
+  FunctionalityProgressForecast,
+  FunctionalityProgressHistoryPoint,
+  FunctionalityProgressSummary,
   LifecycleEvent,
   NativeJestRunResult,
   NativeRunResult,
@@ -237,6 +240,24 @@ function normalizePercent(value: number) {
   }
 
   return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function formatProgressPercent(value?: number) {
+  if (value === undefined || !Number.isFinite(value)) {
+    return "-";
+  }
+
+  const rounded = Math.round(value * 10) / 10;
+  return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)}%`;
+}
+
+function formatScopePoints(value?: number) {
+  if (value === undefined || !Number.isFinite(value)) {
+    return "-";
+  }
+
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
 }
 
 function Sidebar({ activePage, onNavigate }: { activePage: PageId; onNavigate: (page: PageId) => void }) {
@@ -618,19 +639,26 @@ function ProgressPanel({ slices }: { slices: ProgressSlice[] }) {
 function FunctionalityProgressPanel({
   areas,
   version,
-  lastUpdated
+  lastUpdated,
+  summary,
+  history,
+  forecast
 }: {
   areas: FunctionalityProgressArea[];
   version?: string;
   lastUpdated?: string;
+  summary?: FunctionalityProgressSummary;
+  history: FunctionalityProgressHistoryPoint[];
+  forecast?: FunctionalityProgressForecast;
 }) {
   const completedCount = areas.reduce((total, area) => total + area.completed.length, 0);
   const outstandingCount = areas.reduce((total, area) => total + area.outstanding.length, 0);
   const deferredCount = areas.reduce((total, area) => total + area.deferred.length, 0);
-  const estimatedCompletePercent = normalizePercent(
+  const simpleAveragePercent = summary?.simpleAveragePercent ?? (
     areas.length ? areas.reduce((total, area) => total + area.completionEstimatePercent, 0) / areas.length : 0
   );
-  const estimatedRemainingPercent = normalizePercent(100 - estimatedCompletePercent);
+  const weightedCompletePercent = summary?.weightedAveragePercent ?? simpleAveragePercent;
+  const estimatedRemainingPercent = summary?.estimatedRemainingPercent ?? 100 - weightedCompletePercent;
 
   return (
     <section className="panel functionality-progress-panel">
@@ -650,16 +678,23 @@ function FunctionalityProgressPanel({
 
       <div className="progress-summary-grid">
         <Metric label="Areas Tracked" value={areas.length} />
-        <Metric label="Estimated Complete" value={`${estimatedCompletePercent}%`} detail={`${estimatedRemainingPercent}% estimated remaining`} />
+        <Metric label="Overall Estimated Complete" value={formatProgressPercent(weightedCompletePercent)} detail={`${formatProgressPercent(estimatedRemainingPercent)} estimated remaining`} />
+        <Metric label="Simple Average" value={formatProgressPercent(simpleAveragePercent)} detail="Unweighted comparison signal" />
+        <Metric label="Scope Weight" value={formatScopePoints(summary?.totalScopeWeight)} detail={`${formatScopePoints(summary?.weightedRemainingPoints)} weighted points remaining`} />
+        <Metric label="Estimated Active Time Left" value={formatElapsedDuration(forecast?.estimatedRemainingActiveMs)} detail={`${formatScopePoints(forecast?.estimatedRemainingSliceEquivalents)} slice-equivalent units`} />
         <Metric label="Completed Pieces" value={completedCount} />
         <Metric label="Outstanding Pieces" value={outstandingCount} />
         <Metric label="Deferred Pieces" value={deferredCount} />
       </div>
 
+      <ProgressForecastPanel forecast={forecast} />
+      <FunctionalityProgressHistoryChart history={history} />
+
       {areas.length ? (
         <div className="functionality-grid">
           {areas.map((area) => {
             const estimatePercent = normalizePercent(area.completionEstimatePercent);
+            const scopeWeight = area.estimatedScopeWeight;
 
             return (
               <div className="functionality-card" key={area.id}>
@@ -674,7 +709,10 @@ function FunctionalityProgressPanel({
                 <div className="functionality-estimate">
                   <div className="functionality-estimate-heading">
                     <span>Estimated Complete</span>
-                    <strong>{estimatePercent}%</strong>
+                    <div>
+                      {scopeWeight ? <span className="scope-weight-chip">Weight {scopeWeight}</span> : null}
+                      <strong>{estimatePercent}%</strong>
+                    </div>
                   </div>
                   <div
                     className="estimate-bar"
@@ -687,6 +725,7 @@ function FunctionalityProgressPanel({
                     <span style={{ width: `${estimatePercent}%` }} />
                   </div>
                   <p>{area.estimateRationale}</p>
+                  {area.scopeWeightRationale ? <p className="scope-weight-rationale">{area.scopeWeightRationale}</p> : null}
                 </div>
 
                 <FunctionalityCompletedList items={area.completed} />
@@ -700,6 +739,87 @@ function FunctionalityProgressPanel({
         <EmptyState text="Functionality progress is not configured." />
       )}
     </section>
+  );
+}
+
+function ProgressForecastPanel({ forecast }: { forecast?: FunctionalityProgressForecast }) {
+  if (!forecast) {
+    return null;
+  }
+
+  return (
+    <div className="progress-forecast-panel">
+      <div className="progress-forecast-metrics">
+        <Metric label="Completed Slices" value={forecast.completedSliceCount} />
+        <Metric label="Recent Slice Time" value={formatElapsedDuration(forecast.recentAverageActiveMsPerSlice)} detail="Average active duration" />
+        <Metric label="Main Loop Cadence" value={formatElapsedDuration(forecast.averageCalendarMsPerSlice)} detail="Average finish-to-finish span" />
+        <Metric label="Projected Finish" value={forecast.estimatedCompletionDate ? formatDate(forecast.estimatedCompletionDate) : "-"} detail={`${forecast.confidence} confidence`} />
+      </div>
+      <p>{forecast.explanation}</p>
+    </div>
+  );
+}
+
+function FunctionalityProgressHistoryChart({ history }: { history: FunctionalityProgressHistoryPoint[] }) {
+  const points = history.filter((point) => Number.isFinite(point.weightedAveragePercent));
+  if (points.length < 2) {
+    return <EmptyState text="Progress history will appear after more committed progress snapshots are available." />;
+  }
+
+  const width = 720;
+  const height = 220;
+  const paddingX = 42;
+  const paddingY = 24;
+  const chartWidth = width - paddingX * 2;
+  const chartHeight = height - paddingY * 2;
+  const coordinates = points.map((point, index) => {
+    const x = paddingX + (points.length === 1 ? 0 : (index / (points.length - 1)) * chartWidth);
+    const y = paddingY + (1 - Math.max(0, Math.min(100, point.weightedAveragePercent)) / 100) * chartHeight;
+    return { point, x, y };
+  });
+  const linePoints = coordinates.map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`).join(" ");
+  const latest = points[points.length - 1];
+  const first = points[0];
+
+  return (
+    <div className="progress-history-panel">
+      <div className="progress-history-header">
+        <div>
+          <h3>
+            <GitBranch size={17} />
+            Weighted Completion History
+          </h3>
+          <p>{points.length} committed progress snapshots from {first.commit} through {latest.commit}.</p>
+        </div>
+        <div className="progress-history-latest">
+          <span>{formatProgressPercent(latest.weightedAveragePercent)}</span>
+          <strong>{latest.commit}</strong>
+        </div>
+      </div>
+      <svg className="progress-history-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Weighted modernization completion over committed progress snapshots">
+        {[0, 25, 50, 75, 100].map((tick) => {
+          const y = paddingY + (1 - tick / 100) * chartHeight;
+          return (
+            <Fragment key={tick}>
+              <line x1={paddingX} x2={width - paddingX} y1={y} y2={y} className="chart-grid-line" />
+              <text x={paddingX - 10} y={y + 4} className="chart-axis-label" textAnchor="end">
+                {tick}%
+              </text>
+            </Fragment>
+          );
+        })}
+        <polyline className="progress-history-line" points={linePoints} />
+        {coordinates.map(({ point, x, y }) => (
+          <circle className="progress-history-point" key={point.fullCommit} cx={x} cy={y} r={4.5}>
+            <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} - ${point.subject}`}</title>
+          </circle>
+        ))}
+      </svg>
+      <div className="progress-history-caption">
+        <span>{formatDate(first.committedAt)}</span>
+        <span>{formatDate(latest.committedAt)}</span>
+      </div>
+    </div>
   );
 }
 
@@ -751,17 +871,30 @@ function ProgressPage({
   slices,
   functionalityAreas,
   functionalityVersion,
-  functionalityLastUpdated
+  functionalityLastUpdated,
+  functionalitySummary,
+  functionalityHistory,
+  functionalityForecast
 }: {
   slices: ProgressSlice[];
   functionalityAreas: FunctionalityProgressArea[];
   functionalityVersion?: string;
   functionalityLastUpdated?: string;
+  functionalitySummary?: FunctionalityProgressSummary;
+  functionalityHistory: FunctionalityProgressHistoryPoint[];
+  functionalityForecast?: FunctionalityProgressForecast;
 }) {
   return (
     <div className="page-stack">
       <ProgressPanel slices={slices} />
-      <FunctionalityProgressPanel areas={functionalityAreas} version={functionalityVersion} lastUpdated={functionalityLastUpdated} />
+      <FunctionalityProgressPanel
+        areas={functionalityAreas}
+        version={functionalityVersion}
+        lastUpdated={functionalityLastUpdated}
+        summary={functionalitySummary}
+        history={functionalityHistory}
+        forecast={functionalityForecast}
+      />
     </div>
   );
 }
@@ -2050,6 +2183,9 @@ function PageBody({
   functionalityAreas,
   functionalityVersion,
   functionalityLastUpdated,
+  functionalitySummary,
+  functionalityHistory,
+  functionalityForecast,
   events,
   architecture,
   changelog,
@@ -2072,6 +2208,9 @@ function PageBody({
   functionalityAreas: FunctionalityProgressArea[];
   functionalityVersion?: string;
   functionalityLastUpdated?: string;
+  functionalitySummary?: FunctionalityProgressSummary;
+  functionalityHistory: FunctionalityProgressHistoryPoint[];
+  functionalityForecast?: FunctionalityProgressForecast;
   events: LifecycleEvent[];
   architecture: ArchitectureModel | null;
   changelog: ProjectChangelog | null;
@@ -2083,7 +2222,17 @@ function PageBody({
     return <ChangelogPanel changelog={changelog} />;
   }
   if (page === "progress") {
-    return <ProgressPage slices={progress} functionalityAreas={functionalityAreas} functionalityVersion={functionalityVersion} functionalityLastUpdated={functionalityLastUpdated} />;
+    return (
+      <ProgressPage
+        slices={progress}
+        functionalityAreas={functionalityAreas}
+        functionalityVersion={functionalityVersion}
+        functionalityLastUpdated={functionalityLastUpdated}
+        functionalitySummary={functionalitySummary}
+        functionalityHistory={functionalityHistory}
+        functionalityForecast={functionalityForecast}
+      />
+    );
   }
   if (page === "architecture") {
     return <ArchitecturePanel architecture={architecture} />;
@@ -2142,6 +2291,9 @@ export function App() {
   const [functionalityAreas, setFunctionalityAreas] = useState<FunctionalityProgressArea[]>([]);
   const [functionalityVersion, setFunctionalityVersion] = useState<string | undefined>();
   const [functionalityLastUpdated, setFunctionalityLastUpdated] = useState<string | undefined>();
+  const [functionalitySummary, setFunctionalitySummary] = useState<FunctionalityProgressSummary | undefined>();
+  const [functionalityHistory, setFunctionalityHistory] = useState<FunctionalityProgressHistoryPoint[]>([]);
+  const [functionalityForecast, setFunctionalityForecast] = useState<FunctionalityProgressForecast | undefined>();
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
@@ -2173,6 +2325,9 @@ export function App() {
     setFunctionalityAreas(progressData.functionalityAreas);
     setFunctionalityVersion(progressData.functionalityVersion);
     setFunctionalityLastUpdated(progressData.functionalityLastUpdated);
+    setFunctionalitySummary(progressData.functionalitySummary);
+    setFunctionalityHistory(progressData.functionalityHistory);
+    setFunctionalityForecast(progressData.functionalityForecast);
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);
     setParityManifest(parityManifestData);
@@ -2293,6 +2448,9 @@ export function App() {
           functionalityAreas={functionalityAreas}
           functionalityVersion={functionalityVersion}
           functionalityLastUpdated={functionalityLastUpdated}
+          functionalitySummary={functionalitySummary}
+          functionalityHistory={functionalityHistory}
+          functionalityForecast={functionalityForecast}
           events={events}
           architecture={architecture}
           changelog={changelog}
