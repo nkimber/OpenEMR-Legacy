@@ -301,6 +301,8 @@ Slice 119 also does not add permanent seed rows; it creates two temporary same-r
 
 Slice 120 does not add permanent seed rows; it uses existing seeded appointment `APPT-MOD-PAT-0191-3` and legacy note key `MOD-PAT-0191-3` for `MOD-PAT-0191` on `2026-06-25`, exactly seven days after dataset base date `2026-06-18`, plus seeded HIPAA SMS/email consent and contact details. The reminder-readiness contract derives `Due now`, channel `SMS + Email`, contact `(619) 555-1191 / mod-pat-0191@example.test`, and lead `7` days from that same gold dataset anchor.
 
+Slice 121 does not add permanent seed rows; it creates a temporary encounter for `MOD-PAT-0002`, records temporary `admin` and `gold-provider-02` signatures at `2026-06-18 11:20` and `2026-06-18 11:25`, verifies locked co-signature ordering, hash, and amendment/note facts, then deletes the signatures and encounter so encounter and signature counts return clean.
+
 The administration directory slice uses the seeded provider/staff and facility records as stable anchors. Both legacy MariaDB and modernized PostgreSQL probes locate 20 `gold-*` users, 12 provider users with calendar access, and 3 facilities. The current anchor facts include `gold-provider-02` / `Morris, Jordan` as an authorized provider assigned to `North County Clinic`, `gold-billing-01` / `Grant, Drew` as a non-calendar billing user assigned to `Modernization Family Medicine`, and the MAIN/NORTH/EAST facilities. The `slice-8-admin-readiness` plan verifies these facts plus browser-visible Users and Facilities behavior against both targets.
 
 The administration facility mutation slice uses temporary facilities rather than changing the three seeded MAIN/NORTH/EAST anchors. The shared parity workflow creates a temporary facility, verifies direct row state and browser-visible active rendering, updates the facility name and inactive state, verifies the updated inactive row and default hidden-inactive list behavior, and then hard-deletes the temporary facility so facility mutation rows return to the seeded baseline. The `slice-18-admin-facility-mutation-readiness` plan verifies that lifecycle against both legacy MariaDB and modernized PostgreSQL.
@@ -349,6 +351,8 @@ Slice 119 adds room-overlap tolerance coverage by creating overlapping `2026-12-
 
 Slice 120 adds appointment reminder readiness coverage by deriving due/status/channel/contact/lead facts from the seeded `MOD-PAT-0191` appointment on `2026-06-25` and seeded contact-consent values, verifying those facts through the shared side-by-side probes and modernized Calendar rendering without mutating permanent seed data.
 
+Slice 121 adds encounter co-signature readiness coverage by creating a temporary `MOD-PAT-0002` encounter, adding primary and co-signature rows from distinct users, verifying locked co-signature rendering and database order/hash facts, and deleting all temporary rows without mutating permanent seed data.
+
 The encounter mutation slice uses `MOD-PAT-0002` as the shared clinical mutation anchor. The plan creates a temporary encounter on `2026-06-18`, records vitals, records a SOAP note, verifies encounter/vitals/clinical-note counts increase, updates the encounter reason and billing note, verifies browser-visible updated reason, blood pressure, billing note, and SOAP assessment, deletes the temporary encounter and child rows, and verifies the counts return to the seeded baseline.
 
 ### Level 3: Extended Synthetic Population
@@ -381,7 +385,7 @@ Continue expanding reusable modernized parity adapters that consume the gold dat
 - Add additional modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
 - Add PostgreSQL probes for newly implemented domain behavior where normalized database facts are useful.
 - Add Playwright tests for each modernized workflow slice using the existing canonical anchors.
-- Additional encounter mutation tests for templates, co-signature/amendment depth, diagnosis coding edits, order mutations, and billing linkage updates as those modernized workflows are implemented.
+- Additional encounter mutation tests for templates, amendment policy/history depth, diagnosis coding edits, order mutations, and billing linkage updates as those modernized workflows are implemented.
 - Procedure-result mutation, medication reconciliation, billing tests, and deeper messaging workflows as the next workflow slices are selected.
 
 Patient payment capture is now covered by Slice 58, printable patient statement generation is covered by Slice 59, deterministic statement PDF export is covered by Slice 60, statement batch candidate readiness is covered by Slice 61, statement batch package export readiness is covered by Slice 62, collections work queue readiness is covered by Slice 63, and collections follow-up task lifecycle readiness is covered by Slice 64. Future revenue-cycle data work should focus on refunds/reversals beyond simple voiding, statement delivery, receipt printing, recurring collection workflows, ERA/EOB import, richer statement batch delivery/layout, and audit history.

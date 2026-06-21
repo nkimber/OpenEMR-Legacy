@@ -8197,6 +8197,62 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 151. Modernized Encounter Co-Signature Slice 121
+
+Commit: `0524ac88`
+Started: `2026-06-21T02:24:00.0000000-04:00`
+Finished: `2026-06-21T02:37:40.0820174-04:00`
+
+Implemented the one-hundred-twenty-first modernized OpenEMR vertical slice: encounter co-signature readiness, proving that an encounter can carry both a primary signature and a locked co-signature from a second user while preserving normalized legacy and modernized signature facts.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 324
+- Lines deleted: 3
+- Net lines: 321
+- Total churn: 327
+
+Key outcomes:
+
+- Added the `workflow-encounter-cosignature` Playwright parity suite and `slice-121-encounter-cosignature-readiness` plan.
+- The shared workflow creates a temporary encounter for `MOD-PAT-0002`, records an `admin` primary signature and locked `gold-provider-02` co-signature, verifies database order, lock state, hash length, and amendment/note facts, and then deletes the signatures and encounter.
+- The modernized Encounter Sign-Off panel now renders a friendly signature count such as `2 signatures` and displays the locked co-signature ahead of the earlier primary signature.
+- Extended the modernized smoke test with an `encounter co-signature lifecycle` check over the anchor encounter.
+- Added Workbench managed plan commands/cards for Slice 121 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 121 with thirty-seven read-only slices and eighty-four mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` and `scripts\Run-OpenEmrParityTests.ps1`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `encounter co-signature lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-121-encounter-cosignature-readiness -Reset test` passed; run `2026-06-21T063217-309Z-modernized-openemr-plan-slice-121-encounter-cosignature-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-121-encounter-cosignature-readiness -Reset test` passed; run `2026-06-21T063255-003Z-legacy-openemr-plan-slice-121-encounter-cosignature-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-121-encounter-cosignature-readiness` passed with `status: matched`; comparison `2026-06-21T063332-717Z-legacy-openemr-vs-modernized-openemr-plan-slice-121-encounter-cosignature-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-cosignature/encounter-cosignature.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -8204,5 +8260,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, co-signature/amendment depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
+- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
 - Workbench comparison drill-ins that link from comparison summaries to individual run artifacts, Playwright reports, screenshots, and historical trend charts.
