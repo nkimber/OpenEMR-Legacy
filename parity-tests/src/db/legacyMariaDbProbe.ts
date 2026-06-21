@@ -734,7 +734,9 @@ export type ProcedureResultSummary = {
 export type ProcedureReportSummary = {
   id: number;
   orderId: number;
+  dateCollected: string;
   reportDate: string;
+  specimenNumber: string;
   status: string;
   reviewStatus: string;
   results: ProcedureResultSummary[];
@@ -2152,7 +2154,8 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
 
     const orderIdList = orders.map((order) => order.id).join(",");
     const reportRows = await this.queryRows<Record<string, string>>(`
-SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_report) AS reportDate,
+SELECT procedure_report_id AS id, procedure_order_id AS orderId, DATE(date_collected) AS dateCollected,
+  DATE(date_report) AS reportDate, COALESCE(specimen_num, '') AS specimenNumber,
   COALESCE(report_status, '') AS status, COALESCE(review_status, '') AS reviewStatus
 FROM procedure_report
 WHERE procedure_order_id IN (${orderIdList})
@@ -2161,7 +2164,9 @@ ORDER BY date_report DESC, procedure_report_id DESC;
     const reports: ProcedureReportSummary[] = reportRows.map((row) => ({
       id: Number(row.id),
       orderId: Number(row.orderId),
+      dateCollected: row.dateCollected,
       reportDate: row.reportDate,
+      specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
       results: []

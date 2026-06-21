@@ -2169,6 +2169,7 @@ LIMIT 1;
   async getProcedureReport(id: number): Promise<ProcedureReportRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, order_id AS "orderId", COALESCE(status, '') AS "reportStatus",
+  date_collected::date AS "dateCollected", COALESCE(specimen_number, '') AS "specimenNumber",
   COALESCE(review_status, '') AS "reviewStatus", COALESCE(notes, '') AS "reportNotes"
 FROM lab_reports
 WHERE id = ${integer(id)}
@@ -2182,6 +2183,8 @@ LIMIT 1;
     return {
       id: Number(row.id),
       orderId: Number(row.orderId),
+      dateCollected: row.dateCollected,
+      specimenNumber: row.specimenNumber,
       reportStatus: row.reportStatus,
       reviewStatus: row.reviewStatus,
       reportNotes: row.reportNotes

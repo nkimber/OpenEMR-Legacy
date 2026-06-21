@@ -1413,8 +1413,9 @@ ORDER BY order_date DESC, id DESC;
 
     const orderIdList = orders.map((order) => order.id).join(",");
     const reportRows = await this.queryRows<Record<string, string>>(`
-SELECT id, order_id AS "orderId", report_date::date AS "reportDate", COALESCE(status, '') AS status,
-  COALESCE(review_status, status, '') AS "reviewStatus"
+SELECT id, order_id AS "orderId", date_collected::date AS "dateCollected",
+  report_date::date AS "reportDate", COALESCE(specimen_number, '') AS "specimenNumber",
+  COALESCE(status, '') AS status, COALESCE(review_status, status, '') AS "reviewStatus"
 FROM lab_reports
 WHERE order_id IN (${orderIdList})
 ORDER BY report_date DESC, id DESC;
@@ -1422,7 +1423,9 @@ ORDER BY report_date DESC, id DESC;
     const reports: ProcedureReportSummary[] = reportRows.map((row) => ({
       id: Number(row.id),
       orderId: Number(row.orderId),
+      dateCollected: row.dateCollected,
       reportDate: row.reportDate,
+      specimenNumber: row.specimenNumber,
       status: row.status,
       reviewStatus: row.reviewStatus,
       results: []

@@ -131,6 +131,7 @@ param(
         "workflow-patient-payments",
         "workflow-procedures",
         "workflow-procedure-result-correction",
+        "workflow-procedure-specimen",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",
