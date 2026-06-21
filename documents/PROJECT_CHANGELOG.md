@@ -8253,6 +8253,58 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 152. Modernized Encounter Document Revision Slice 122
+
+Commit: `19d34c47`
+Started: `2026-06-21T02:47:00.0000000-04:00`
+Finished: `2026-06-21T02:58:56.3742742-04:00`
+
+Implemented the one-hundred-twenty-second modernized OpenEMR vertical slice: encounter document revision readiness, proving that encounter-attached documents expose deterministic current-version metadata, revision timestamps, and hash parity across the legacy and modernized targets.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 210
+- Lines deleted: 1
+- Net lines: 209
+- Total churn: 211
+
+Key outcomes:
+
+- Added the `encounter-document-revision` Playwright parity suite and `slice-122-encounter-document-revision-readiness` plan.
+- The shared workflow validates seeded documents `DOC-MOD-PAT-0001-1` and `DOC-MOD-PAT-0001-2` on encounter `1000013`, including `Version 1`, `Current version`, one-version history, no prior versions, revision timestamps, and revision-hash parity.
+- The modernized target verifies the same facts through `/api/encounters/1000013` and Encounter workspace attachment-card rendering.
+- Extended the modernized smoke test with an `anchor encounter document revision readiness` check.
+- Added Workbench managed plan commands/cards for Slice 122 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 122 with thirty-eight read-only slices and eighty-four mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` and `scripts\Run-OpenEmrParityTests.ps1`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `anchor encounter document revision readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-122-encounter-document-revision-readiness -Reset run` passed; run `2026-06-21T065248-113Z-modernized-openemr-plan-slice-122-encounter-document-revision-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-122-encounter-document-revision-readiness -Reset run` passed; run `2026-06-21T065311-382Z-legacy-openemr-plan-slice-122-encounter-document-revision-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-122-encounter-document-revision-readiness` passed with `status: matched`; comparison `2026-06-21T065332-935Z-legacy-openemr-vs-modernized-openemr-plan-slice-122-encounter-document-revision-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/encounter-document-revision/encounter-document-revision.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -8260,5 +8312,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, and attachments.
+- Broader encounter workflows for templates, amendment policy/history depth, order catalogs, specimen collection, corrected-result lifecycle, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison drill-ins that link from comparison summaries to individual run artifacts, Playwright reports, screenshots, and historical trend charts.
