@@ -137,6 +137,7 @@ param(
         "workflow-procedure-report-correction",
         "workflow-procedure-report-signoff",
         "workflow-procedure-report-review-queue",
+        "workflow-procedure-report-review-queue-filters",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",

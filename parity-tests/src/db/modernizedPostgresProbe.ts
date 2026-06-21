@@ -32,6 +32,7 @@ import type {
   ProcedureOrderSummary,
   ProcedureOrderWithResults,
   ProcedureReportReviewQueueSummary,
+  ProcedureReportReviewQueueFilters,
   ProcedureReportSummary,
   ProcedureResultSummary,
   ProcedureSpecimenSummary,
@@ -1558,13 +1559,30 @@ ORDER BY id;
     };
   }
 
-  async getProcedureReportReviewQueue(status = "unreviewed"): Promise<ProcedureReportReviewQueueSummary> {
+  async getProcedureReportReviewQueue(
+    status = "unreviewed",
+    filters: ProcedureReportReviewQueueFilters = {}
+  ): Promise<ProcedureReportReviewQueueSummary> {
     const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
+    const patientFilter = filters.patientId?.trim();
+    const fromDate = filters.fromDate?.trim();
+    const toDate = filters.toDate?.trim();
+    const whereFilters = [
+      patientFilter
+        ? `AND (LOWER(p.canonical_id) = LOWER('${escapeSql(patientFilter)}') OR LOWER(p.pubpid) = LOWER('${escapeSql(patientFilter)}') OR p.legacy_pid::text = '${escapeSql(patientFilter)}')`
+        : "",
+      fromDate ? `AND lo.order_date >= '${escapeSql(fromDate)}'` : "",
+      toDate ? `AND lo.order_date <= '${escapeSql(toDate)}'` : ""
+    ].filter(Boolean).join("\n  ");
     const counts = await this.queryRows<Record<string, string>>(`
 SELECT COUNT(*) AS "totalReports",
-  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS "reviewedReports",
-  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS "unreviewedReports"
-FROM lab_reports;
+  COALESCE(SUM(CASE WHEN COALESCE(lr.review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS "reviewedReports",
+  COALESCE(SUM(CASE WHEN COALESCE(lr.review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS "unreviewedReports"
+FROM lab_reports lr
+INNER JOIN lab_orders lo ON lo.id = lr.order_id
+INNER JOIN patients p ON p.legacy_pid = lo.pid
+WHERE 1 = 1
+  ${whereFilters};
 `);
     const whereStatus = statusFilter === "reviewed"
       ? "AND COALESCE(lr.review_status, '') = 'reviewed'"
@@ -1589,6 +1607,7 @@ FROM lab_reports lr
 INNER JOIN lab_orders lo ON lo.id = lr.order_id
 INNER JOIN patients p ON p.legacy_pid = lo.pid
 WHERE 1 = 1
+  ${whereFilters}
   ${whereStatus}
 ORDER BY lr.report_date DESC, lr.id DESC, p.last_name, p.first_name, lo.id
 LIMIT 100;
@@ -1597,6 +1616,9 @@ LIMIT 100;
     const countRow = counts[0] ?? { totalReports: "0", reviewedReports: "0", unreviewedReports: "0" };
     return {
       statusFilter,
+      patientFilter: patientFilter ?? "",
+      fromDate: fromDate ?? "",
+      toDate: toDate ?? "",
       totalReports: Number(countRow.totalReports),
       reviewedReports: Number(countRow.reviewedReports),
       unreviewedReports: Number(countRow.unreviewedReports),

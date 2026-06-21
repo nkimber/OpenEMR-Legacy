@@ -768,10 +768,19 @@ export type ProcedureReportReviewQueueItem = {
 
 export type ProcedureReportReviewQueueSummary = {
   statusFilter: string;
+  patientFilter: string;
+  fromDate: string;
+  toDate: string;
   totalReports: number;
   reviewedReports: number;
   unreviewedReports: number;
   reports: ProcedureReportReviewQueueItem[];
+};
+
+export type ProcedureReportReviewQueueFilters = {
+  patientId?: string;
+  fromDate?: string;
+  toDate?: string;
 };
 
 export type ProcedureSpecimenSummary = {
@@ -2356,13 +2365,33 @@ ORDER BY procedure_result_id;
     };
   }
 
-  async getProcedureReportReviewQueue(status = "unreviewed"): Promise<ProcedureReportReviewQueueSummary> {
+  async getProcedureReportReviewQueue(
+    status = "unreviewed",
+    filters: ProcedureReportReviewQueueFilters = {}
+  ): Promise<ProcedureReportReviewQueueSummary> {
     const statusFilter = normalizeProcedureReportReviewQueueStatus(status);
+    const patientFilter = filters.patientId?.trim();
+    const fromDate = filters.fromDate?.trim();
+    const toDate = filters.toDate?.trim();
+    const patientFilterSql = patientFilter && /^\d+$/u.test(patientFilter)
+      ? `po.patient_id = ${patientFilter}`
+      : "0 = 1";
+    const whereFilters = [
+      patientFilter
+        ? `AND (${patientFilterSql} OR pd.pubpid = '${escapeSql(patientFilter)}')`
+        : "",
+      fromDate ? `AND DATE(po.date_ordered) >= '${escapeSql(fromDate)}'` : "",
+      toDate ? `AND DATE(po.date_ordered) <= '${escapeSql(toDate)}'` : ""
+    ].filter(Boolean).join("\n  ");
     const counts = await this.queryRows<Record<string, string>>(`
 SELECT COUNT(*) AS totalReports,
-  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS reviewedReports,
-  COALESCE(SUM(CASE WHEN COALESCE(review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS unreviewedReports
-FROM procedure_report;
+  COALESCE(SUM(CASE WHEN COALESCE(pr.review_status, '') = 'reviewed' THEN 1 ELSE 0 END), 0) AS reviewedReports,
+  COALESCE(SUM(CASE WHEN COALESCE(pr.review_status, '') != 'reviewed' THEN 1 ELSE 0 END), 0) AS unreviewedReports
+FROM procedure_report pr
+INNER JOIN procedure_order po ON po.procedure_order_id = pr.procedure_order_id
+LEFT JOIN patient_data pd ON pd.pid = po.patient_id
+WHERE 1 = 1
+  ${whereFilters};
 `);
     const whereStatus = statusFilter === "reviewed"
       ? "AND COALESCE(pr.review_status, '') = 'reviewed'"
@@ -2390,6 +2419,7 @@ LEFT JOIN procedure_order_code pc ON pc.procedure_order_id = po.procedure_order_
 LEFT JOIN patient_data pd ON pd.pid = po.patient_id
 LEFT JOIN users u ON u.id = pr.source
 WHERE 1 = 1
+  ${whereFilters}
   ${whereStatus}
 ORDER BY pr.date_report DESC, pr.procedure_report_id DESC, pd.lname, pd.fname, po.procedure_order_id
 LIMIT 100;
@@ -2398,6 +2428,9 @@ LIMIT 100;
     const countRow = counts[0] ?? { totalReports: "0", reviewedReports: "0", unreviewedReports: "0" };
     return {
       statusFilter,
+      patientFilter: patientFilter ?? "",
+      fromDate: fromDate ?? "",
+      toDate: toDate ?? "",
       totalReports: Number(countRow.totalReports),
       reviewedReports: Number(countRow.reviewedReports),
       unreviewedReports: Number(countRow.unreviewedReports),
