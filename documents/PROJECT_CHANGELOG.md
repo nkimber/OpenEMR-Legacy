@@ -10033,6 +10033,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 181. Procedure Order Transmit Readiness Slice 151
+
+Commit: `ea933cbe`
+Started: `2026-06-21T14:32:00.0000000-04:00`
+Finished: `2026-06-21T15:00:59.7203108-04:00`
+Duration: 28m 59s
+
+Implemented the one-hundred-fifty-first project slice and latest modernized OpenEMR workflow slice: procedure order transmit readiness, proving that temporary reportless lab orders can move from ready-to-send into sent-awaiting-results state through the legacy `date_transmitted` behavior and the modernized Reports workspace/API.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 443
+- Lines deleted: 20
+- Net lines: +423
+- Total churn: 463
+
+Key outcomes:
+
+- Added nullable transmitted timestamp support to the modernized PostgreSQL lab order seed generator.
+- Updated the modernized procedure order queue query to return real transmitted timestamps and transmitted-pending queue state.
+- Added `POST /api/procedures/orders/{orderId}/transmit` for eligible reportless, not-yet-transmitted orders.
+- Added a Reports workspace queue-card action for marking ready-to-send orders as sent and refreshing the sent-awaiting-results filter.
+- Added legacy and modernized workflow adapter transmit actions plus modernized database probe support for transmitted-pending queue facts.
+- Added the `workflow-procedure-order-transmit` suite and `slice-151-procedure-order-transmit-readiness` plan.
+- Added Workbench-managed Slice 151 plan actions and progress ledger evidence for both legacy and modernized targets.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run build` passed in `modernization-workbench/`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `docker compose up -d --build` passed for `modernized-openemr/`; `docker compose up -d` passed for `legacy-openemr/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-151-procedure-order-transmit-readiness -Reset test` passed: 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-151-procedure-order-transmit-readiness -Reset test` passed: 1 expected, 0 unexpected.
+- `npx tsx src/cli/compare-runs.ts --plan slice-151-procedure-order-transmit-readiness` passed with `status: matched` and no differences.
+- Live Workbench `/api/progress` smoke returned Slice 151 test-management and modernized-target milestone text, Labs And Procedures estimate `63`, and Slice 151 evidence.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-procedure-order-transmit/procedure-order-transmit.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

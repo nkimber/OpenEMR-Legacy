@@ -1120,7 +1120,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused order-definition import semantics only. It does not implement uploaded-file storage, asynchronous import jobs, order-entry question imports, OE question option imports, full vendor credential management, external SFTP/filesystem/web-service execution, audit-log export, or production external lab ordering. Clinical order queue readiness is covered by Slice 149.
+- This slice covers focused order-definition import semantics only. It does not implement uploaded-file storage, asynchronous import jobs, order-entry question imports, OE question option imports, full vendor credential management, external SFTP/filesystem/web-service execution, audit-log export, or production external lab ordering. Clinical order queue readiness is covered by Slice 149, and procedure order transmit readiness is covered by Slice 151.
 
 ### Slice 149: Procedure Order Queue Readiness
 
@@ -1146,7 +1146,33 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers clinical order queue visibility and queue-state transition into reported status only. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, bulk report sign-off, or audit export.
+- This slice covers clinical order queue visibility and queue-state transition into reported status only. Procedure order transmit readiness is covered by Slice 151. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, bulk report sign-off, or audit export.
+
+### Slice 151: Procedure Order Transmit Readiness
+
+Status:
+
+- Implemented.
+
+Scope:
+
+- The modernized PostgreSQL `lab_orders` seed schema now includes nullable `date_transmitted` state aligned with legacy OpenEMR `procedure_order.date_transmitted`.
+- The modernized procedures API returns real transmitted timestamps in `GET /api/procedures/order-queue` and exposes `POST /api/procedures/orders/{orderId}/transmit` for eligible reportless, not-yet-transmitted orders.
+- The modernized Reports workspace Procedure Order Queue panel can mark ready-to-send orders as sent and refresh into the sent-awaiting-results filter.
+- Legacy and modernized workflow adapters can mark a temporary procedure order transmitted, while database probes normalize ready-to-send and transmitted-pending queue facts for both targets.
+- Workbench-managed Slice 151 procedure order transmit plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary reportless lab order appears in the ready-to-send order queue on both targets with no transmitted timestamp and `canTransmit` true.
+- After transmit marking, the order disappears from the ready-to-send queue and appears in the transmitted-pending/sent-awaiting-results queue on both targets with the same transmitted timestamp, patient, lab, procedure, report count, result count, and cleanup behavior.
+- Legacy OpenEMR `interface/orders/list_reports.php` renders the transmitted order through option `4` (`Sent, not received`), while the modernized Reports workspace renders the same order through the `Sent, awaiting results` filter.
+- Cleanup deletes the temporary procedure order and encounter, returning patient workflow counts to their pre-test values.
+- The side-by-side Slice 151 parity comparison matches.
+
+Current limitations:
+
+- This slice proves the OpenEMR-compatible `date_transmitted` state transition only. It does not generate HL7 payloads, write outbound files, call SFTP/filesystem/web-service transports, model external lab acknowledgements, implement retry/failure queues, queue notifications, reviewer assignment, bulk transmit, bulk report sign-off, or audit export.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -1319,7 +1345,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only and focused on scheduled/reportless procedure-order visibility.
-- Order catalogs are covered by Slices 145, 147, and 148; clinical order queue readiness is covered by Slice 149. Specimen tracking depth, provider sign-off depth, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
+- Order catalogs are covered by Slices 145, 147, and 148; clinical order queue readiness is covered by Slice 149, and procedure order transmit readiness is covered by Slice 151. Specimen tracking depth, provider sign-off depth, result amendment, external lab interfaces, and broader lab workflow state machines remain deferred to later lab/procedure workflow slices.
 
 ### Slice 24: Operational Reports CSV Export
 
