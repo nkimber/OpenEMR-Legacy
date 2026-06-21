@@ -116,6 +116,7 @@
         "parityCollectionsFollowUpPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-64-collections-follow-up-readiness", "-Reset", "test"],
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
+        "parityMessageReplyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-156-message-reply-readiness", "-Reset", "test"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
@@ -1129,6 +1130,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-66-message-content-readiness.json"
         },
         {
+          "id": "parity-plan-message-reply",
+          "name": "Slice 156 message reply plan",
+          "description": "Runs the shared mutation-capable patient-message reply plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessageReplyPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-156-message-reply-readiness.json"
+        },
+        {
           "id": "parity-plan-encounter-documents",
           "name": "Slice 67 encounter documents plan",
           "description": "Runs the shared read-only encounter document attachment plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1581,6 +1590,7 @@
         "parityCollectionsFollowUpPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-64-collections-follow-up-readiness", "-Reset", "test"],
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
         "parityMessageContentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-66-message-content-readiness", "-Reset", "test"],
+        "parityMessageReplyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-156-message-reply-readiness", "-Reset", "test"],
         "parityEncounterDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-67-encounter-documents-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-122-encounter-document-revision-readiness", "-Reset", "run"],
         "parityEncounterDocumentRevisionReplacePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-123-encounter-document-revision-replace-readiness", "-Reset", "test"],
@@ -1658,7 +1668,7 @@
         {
           "id": "smoke",
           "name": "Modernized smoke test",
-          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter binary document content replacement lifecycle, encounter scanned attachment readiness, encounter document sign-off lifecycle, encounter document denial lifecycle, encounter billing linkage, encounter claim linkage, encounter procedure order linkage, encounter metadata mutation, clinical lists, messages, patient-message content update, patient-message assignment update, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, image document preview, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, collections follow-up task lifecycle, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
+          "description": "Checks API health, anchor patient search, chart summary, patient demographics mutation, patient registration lifecycle, scheduling, encounters, encounter document attachments, encounter document upload lifecycle, encounter binary document upload lifecycle, encounter binary document content replacement lifecycle, encounter scanned attachment readiness, encounter document sign-off lifecycle, encounter document denial lifecycle, encounter billing linkage, encounter claim linkage, encounter procedure order linkage, encounter metadata mutation, clinical lists, messages, patient-message content update, patient-message reply update, patient-message assignment update, document lifecycle, document preview readiness, document revision readiness, document replacement revision lifecycle, document sign-off, document denial, document metadata refiling, document archive restore, document content replacement, image document preview, external-link documents, procedure results, procedure mutation, fee sheet billing, claim status summary, claim status mutation lifecycle, payment posting summary, payment posting mutation lifecycle, patient payment capture lifecycle, account balance summary, account aging summary, account ledger summary, account statement readiness, patient statement generation, patient statement PDF export, statement batch candidates, statement batch package export, collections work queue, collections follow-up task lifecycle, billing mutation, billing correction mutation, billing modifier mutation, administration directory, access control, user mutation, facility mutation, operational reports, and operational reports CSV export.",
           "layer": "smoke",
           "commandName": "smokeTest",
           "resultPath": "../modernized-openemr/artifacts/latest-modernized-smoke-test.json"
@@ -2518,6 +2528,14 @@
           "layer": "plan",
           "commandName": "parityMessageContentPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-66-message-content-readiness.json"
+        },
+        {
+          "id": "parity-plan-message-reply",
+          "name": "Slice 156 message reply plan",
+          "description": "Runs the shared mutation-capable patient-message reply plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessageReplyPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-156-message-reply-readiness.json"
         },
         {
           "id": "parity-plan-encounter-documents",

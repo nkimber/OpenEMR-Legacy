@@ -2063,6 +2063,18 @@ WHERE id = ${integer(legacyId)};
 `);
   }
 
+  async replyPatientMessage(id: number | string, body: string, assignedTo: string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE pnotes
+SET body = CONCAT(COALESCE(body, ''), '\n', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'), ' (admin to ', ${sqlString(assignedTo)}, ') ', ${sqlString(body)}),
+  assigned_to = ${sqlString(assignedTo)},
+  update_by = 1,
+  update_date = NOW()
+WHERE id = ${integer(legacyId)};
+`);
+  }
+
   async softDeletePatientMessage(id: number | string): Promise<void> {
     const legacyId = legacyInteger(id);
     await this.db.execute(`

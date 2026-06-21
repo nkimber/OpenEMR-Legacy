@@ -104,6 +104,7 @@ param(
         "workflow-messages",
         "workflow-message-assignment",
         "workflow-message-content",
+        "workflow-message-reply",
         "workflow-documents",
         "workflow-document-binary",
         "workflow-document-binary-content-replace",

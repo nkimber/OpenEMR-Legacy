@@ -245,7 +245,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Message create, status update, soft-delete, hard-delete, and assignment workflows are covered by Slice 14 for the focused patient-message lifecycle; portal replies, attachments, routing queues, notification delivery, and richer task assignment remain deferred.
+- Message create, status update, soft-delete, hard-delete, assignment, content edit, and basic reply-append workflows are covered by Slices 14, 65, 66, and 156 for the focused patient-message lifecycle; full portal reply threading, attachments, routing queues, notification delivery, and richer task assignment remain deferred.
 
 ### Slice 6: Labs And Procedure Results
 
@@ -1232,7 +1232,7 @@ Current limitations:
 Status:
 
 - Implemented as a Workbench-specific project slice under `modernization-workbench/`.
-- This slice does not add a modernized OpenEMR workflow; Slice 154 remains the latest modernized workflow slice.
+- This slice did not add a modernized OpenEMR workflow; at the time Slice 154 remained the latest modernized workflow slice.
 
 Scope:
 
@@ -1251,6 +1251,36 @@ Acceptance:
 Current limitations:
 
 - This slice improves Workbench evidence navigation only. Screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, historical progress charts, and long-term evidence retention remain future scope.
+
+### Slice 156: Patient Message Reply Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient-message slice under `modernized-openemr/`.
+- Verification is the shared `slice-156-message-reply-readiness` plan, which validates pnotes/message reply appending, unchanged message counts, browser-visible legacy pnotes rendering, and modernized Messages `Reply` behavior on both legacy and modernized targets.
+
+Scope:
+
+- The slice reuses the existing seeded `MOD-PAT-0004` portal-messaging anchor and temporary pnotes-compatible message rows; it does not add permanent gold-data records.
+- Legacy behavior is represented by appending a timestamped `admin to {assignee}` reply line to the OpenEMR `pnotes.body` field for a temporary active patient message.
+- ASP.NET Core message behavior now exposes `PUT /api/messages/{messageId}/reply` to append a reply line and preserve active message state.
+- React Messages workspace now provides an inline reply text area and `Reply` action on each message card.
+- Modernized smoke coverage validates patient-message creation, content update, reply update, assignment update, close, archive, and hard-delete cleanup.
+- The `workflow-message-reply` parity suite and `slice-156-message-reply-readiness` plan verify normalized legacy and modernized database state, count stability, legacy pnotes rendering, modernized UI reply submission, cleanup, and side-by-side result matching.
+- Workbench-managed Slice 156 message reply plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- A temporary patient message can be created for `MOD-PAT-0004`, replied to with appended body text, and kept at the same active message count.
+- The replied message remains active with `New` status, the expected assignee, and `deleted = 0`.
+- Legacy OpenEMR renders the replied temporary message through the patient notes surface.
+- The modernized Messages workspace renders the reply text area and can append the reply through the visible control.
+- The temporary message can still be archived and hard-deleted so the seeded 1,200-message baseline remains unchanged.
+- The side-by-side Slice 156 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused same-message reply body appending only. It does not implement full portal thread objects, separate inbound/outbound message records, patient-authored portal replies, attachments, read receipts, notification delivery, routing queues, or audit history.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -2613,7 +2643,7 @@ Acceptance:
 Current limitations:
 
 - This slice identifies past-due accounts for follow-up; it does not persist collection tasks, send reminders, record phone calls, generate dunning letters, assign staff queues, suppress accounts, or write revenue-cycle audit history.
-- Collection follow-up task lifecycle is covered by Slice 64. Basic pnotes/message reassignment is covered by Slice 65. Focused pnotes/message title and body editing is covered by Slice 66. Actual statement delivery, reminder templates, richer staff assignment queues beyond pnotes assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
+- Collection follow-up task lifecycle is covered by Slice 64. Basic pnotes/message reassignment is covered by Slice 65. Focused pnotes/message title and body editing is covered by Slice 66. Basic pnotes/message reply appending is covered by Slice 156. Actual statement delivery, reminder templates, richer staff assignment queues beyond pnotes assignment, payment-plan negotiation, write-off workflows, and audit history remain future billing slices.
 
 ### Slice 64: Collections Follow-Up Task Readiness
 
@@ -2644,7 +2674,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice creates a focused pnotes-compatible follow-up task. Basic task reassignment is covered by Slice 65, focused task/message content editing is covered by Slice 66, and reminder templates, phone-call disposition tracking, dunning letters, escalation queues, payment-plan negotiation, write-off workflows, suppressions, and revenue-cycle audit history remain future work.
+- This slice creates a focused pnotes-compatible follow-up task. Basic task reassignment is covered by Slice 65, focused task/message content editing is covered by Slice 66, basic reply appending is covered by Slice 156, and reminder templates, phone-call disposition tracking, dunning letters, escalation queues, payment-plan negotiation, write-off workflows, suppressions, and revenue-cycle audit history remain future work.
 
 ### Slice 65: Patient Message Assignment Readiness
 
@@ -2704,7 +2734,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused single-message title/body editing. It does not implement rich-text editing, attachments, threaded replies, read receipts, bulk edits, audit history, or notification side effects.
+- This slice proves focused single-message title/body editing. Basic reply body appending is covered by Slice 156. It does not implement rich-text editing, attachments, full threaded portal replies, read receipts, bulk edits, audit history, or notification side effects.
 
 ### Slice 67: Encounter Document Attachment Readiness
 
@@ -4342,3 +4372,4 @@ As of 2026-06-20:
 - The one-hundred-fifty-third modernized vertical slice implements procedure report bulk sign-off readiness with a bulk report sign endpoint, Reports queue `Sign visible` action, normalized legacy/modernized two-report bulk review probes, Workbench bulk sign-off plan actions, cleanup deletion, and side-by-side slice-153 parity evidence.
 - The one-hundred-fifty-fourth modernized vertical slice implements procedure report reopen review readiness with a modernized reopen endpoint, Procedures report-card `Reopen Review` action, normalized legacy/modernized signed-to-received queue probes, Workbench reopen review plan actions, cleanup deletion, and side-by-side slice-154 parity evidence.
 - The one-hundred-fifty-fifth project slice implements Workbench comparison report links by enriching side-by-side comparison drill-ins with direct run JSON, Playwright JSON, JUnit XML, and HTML report links through the safe artifact endpoint.
+- The one-hundred-fifty-sixth modernized vertical slice implements patient message reply readiness with an ASP.NET Core reply endpoint, React Messages reply controls, normalized legacy/modernized pnotes reply append workflow actions, Workbench message reply plan actions, smoke coverage, and side-by-side slice-156 parity evidence.

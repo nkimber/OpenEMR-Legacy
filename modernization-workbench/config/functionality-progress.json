@@ -137,7 +137,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, and content editing are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, and basic reply threading are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -145,21 +145,21 @@
           "evidence": ["slice-5-messaging-readiness"]
         },
         {
-          "label": "Message lifecycle, assignment, and content",
-          "detail": "Create, close, soft-delete, hard-delete, reassignment, title, and body edit behavior are covered.",
-          "evidence": ["slice-14-message-mutation-readiness", "slice-65-message-assignment-readiness", "slice-66-message-content-readiness"]
+          "label": "Message lifecycle, assignment, content, and reply",
+          "detail": "Create, close, soft-delete, hard-delete, reassignment, title/body edit, and pnotes-compatible reply append behavior are covered.",
+          "evidence": ["slice-14-message-mutation-readiness", "slice-65-message-assignment-readiness", "slice-66-message-content-readiness", "slice-156-message-reply-readiness"]
         }
       ],
       "outstanding": [
-        "Portal replies, attachments, routing queues, priority and escalation behavior, notification delivery, and audit history."
+        "Full portal reply threading, attachments, routing queues, priority and escalation behavior, notification delivery, and audit history."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 42,
+      "completionEstimatePercent": 45,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility and lifecycle are covered; portal replies, attachments, routing, notifications, and audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, and basic reply append behavior are covered; full portal threading, attachments, routing, notifications, and audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

@@ -1137,6 +1137,18 @@ LIMIT 1;
     }
   }
 
+  async replyPatientMessage(id: number | string, body: string, assignedTo: string): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/reply`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ body, assignedTo })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient message reply failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async softDeletePatientMessage(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/soft-delete`, {
       method: "PUT"
