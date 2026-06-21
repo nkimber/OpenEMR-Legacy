@@ -7836,6 +7836,70 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 145. Modernized Appointment Monthly Repeat-On Recurrence Slice 115
+
+Commit: `b39df71c`
+Started: `2026-06-21T00:03:00.0000000-04:00`
+Finished: `2026-06-21T00:29:54.0000000-04:00`
+
+Implemented the one-hundred-fifteenth modernized OpenEMR vertical slice: appointment monthly repeat-on recurrence readiness, proving that OpenEMR `REPEAT_ON` style monthly nth-weekday and last-weekday recurrence can be created, expanded, rendered through both legacy and modernized workflows, and removed cleanly with matched side-by-side parity evidence.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 1,019
+- Lines deleted: 38
+- Net lines: 981
+- Total churn: 1,057
+
+Key outcomes:
+
+- Added the `workflow-appointment-monthly-repeat-on-recurrence` Playwright parity suite and `slice-115-appointment-monthly-repeat-on-recurrence-readiness` plan.
+- The shared parity workflow creates two temporary `MOD-PAT-0003` appointments: a second-Tuesday monthly recurrence from `2026-12-08` through `2027-04-13`, and a last-Friday monthly recurrence from `2026-12-25` through `2027-04-30`.
+- The legacy path verifies OpenEMR `pc_recurrtype = 2`, `event_repeat_on_num`, `event_repeat_on_day`, `event_repeat_on_freq`, and appointment-editor repeat types `5` for nth weekday and `6` for last weekday.
+- The modernized backend now stores repeat-on recurrence fields, expands `REPEAT_ON` appointments into generated occurrences, validates virtual occurrence identifiers, and renders labels such as `Every month on the 2nd Tue until 2027-04-30` and `Every month on the Last Fri until 2027-04-30`.
+- The modernized Calendar now supports create/edit controls for monthly repeat-on mode, ordinal weekday selection, month cadence, detail rendering, and generated occurrence cards.
+- Extended the modernized smoke test with an `appointment monthly repeat-on recurrence lifecycle` check.
+- Added Workbench managed plan commands/cards for Slice 115 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 115 with thirty-six read-only slices and seventy-nine mutation-capable slices.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `node modernized-openemr\scripts\generate-postgres-seed.mjs` passed.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed, validating 1,000 patients, 2,800 appointments, and the rest of the seeded gold-data counts.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment monthly repeat-on recurrence lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-115-appointment-monthly-repeat-on-recurrence-readiness -Reset test` passed; run `2026-06-21T042828-126Z-modernized-openemr-plan-slice-115-appointment-monthly-repeat-on-recurrence-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-115-appointment-monthly-repeat-on-recurrence-readiness -Reset test` passed; run `2026-06-21T042856-029Z-legacy-openemr-plan-slice-115-appointment-monthly-repeat-on-recurrence-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-115-appointment-monthly-repeat-on-recurrence-readiness` passed with `status: matched`; comparison `2026-06-21T042925-422Z-legacy-openemr-vs-modernized-openemr-plan-slice-115-appointment-monthly-repeat-on-recurrence-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-appointment-monthly-repeat-on-recurrence/appointment-monthly-repeat-on-recurrence.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
