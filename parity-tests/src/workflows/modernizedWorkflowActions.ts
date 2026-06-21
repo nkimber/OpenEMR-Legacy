@@ -532,6 +532,9 @@ LIMIT 1;
         recurrenceType: input.recurrenceType ?? 0,
         repeatFrequency: input.repeatFrequency ?? null,
         repeatUnit: input.repeatUnit ?? null,
+        repeatOnNum: input.repeatOnNum ?? null,
+        repeatOnDay: input.repeatOnDay ?? null,
+        repeatOnFrequency: input.repeatOnFrequency ?? null,
         recurrenceDays: input.recurrenceDays ?? null,
         recurrenceEndDate: input.recurrenceEndDate ?? null
       })
@@ -555,6 +558,9 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   COALESCE(recurrence_type, 0) AS "recurrenceType",
   repeat_frequency AS "repeatFrequency",
   repeat_unit AS "repeatUnit",
+  repeat_on_num AS "repeatOnNum",
+  repeat_on_day AS "repeatOnDay",
+  repeat_on_frequency AS "repeatOnFrequency",
   COALESCE(recurrence_days, '') AS "recurrenceDays",
   recurrence_end_date AS "recurrenceEndDate",
   COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
@@ -585,6 +591,9 @@ LIMIT 1;
       recurrenceType: Number(row.recurrenceType),
       repeatFrequency: nullableNumber(row.repeatFrequency),
       repeatUnit: nullableNumber(row.repeatUnit),
+      repeatOnNum: nullableNumber(row.repeatOnNum),
+      repeatOnDay: nullableNumber(row.repeatOnDay),
+      repeatOnFrequency: nullableNumber(row.repeatOnFrequency),
       recurrenceDays: splitNumberList(row.recurrenceDays),
       recurrenceEndDate: row.recurrenceEndDate,
       recurrenceExdates: splitDateList(row.recurrenceExdates)
@@ -601,6 +610,9 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   COALESCE(recurrence_type, 0) AS "recurrenceType",
   repeat_frequency AS "repeatFrequency",
   repeat_unit AS "repeatUnit",
+  repeat_on_num AS "repeatOnNum",
+  repeat_on_day AS "repeatOnDay",
+  repeat_on_frequency AS "repeatOnFrequency",
   COALESCE(recurrence_days, '') AS "recurrenceDays",
   recurrence_end_date AS "recurrenceEndDate",
   COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
@@ -627,6 +639,9 @@ ORDER BY appointment_date, start_time, id;
       recurrenceType: Number(row.recurrenceType),
       repeatFrequency: nullableNumber(row.repeatFrequency),
       repeatUnit: nullableNumber(row.repeatUnit),
+      repeatOnNum: nullableNumber(row.repeatOnNum),
+      repeatOnDay: nullableNumber(row.repeatOnDay),
+      repeatOnFrequency: nullableNumber(row.repeatOnFrequency),
       recurrenceDays: splitNumberList(row.recurrenceDays),
       recurrenceEndDate: row.recurrenceEndDate,
       recurrenceExdates: splitDateList(row.recurrenceExdates)
@@ -664,6 +679,9 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: number;
         repeatFrequency: number | null;
         repeatUnit: number | null;
+        repeatOnNum: number | null;
+        repeatOnDay: number | null;
+        repeatOnFrequency: number | null;
         recurrenceDays: number[];
         recurrenceEndDate: string | null;
         recurrenceExdates: string[];
@@ -694,6 +712,9 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
+        repeatOnNum: appointment.repeatOnNum,
+        repeatOnDay: appointment.repeatOnDay,
+        repeatOnFrequency: appointment.repeatOnFrequency,
         recurrenceDays: appointment.recurrenceDays ?? [],
         recurrenceEndDate: appointment.recurrenceEndDate,
         recurrenceExdates: appointment.recurrenceExdates ?? [],
@@ -734,6 +755,9 @@ ORDER BY appointment_date, start_time, id;
         recurrenceType: input.recurrenceType ?? 0,
         repeatFrequency: input.repeatFrequency ?? null,
         repeatUnit: input.repeatUnit ?? null,
+        repeatOnNum: input.repeatOnNum ?? null,
+        repeatOnDay: input.repeatOnDay ?? null,
+        repeatOnFrequency: input.repeatOnFrequency ?? null,
         recurrenceDays: input.recurrenceDays ?? null,
         recurrenceEndDate: input.recurrenceEndDate ?? null,
         recurrenceExdates: input.recurrenceExdates ?? null
