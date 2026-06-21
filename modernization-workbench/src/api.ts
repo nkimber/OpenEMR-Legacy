@@ -8,7 +8,7 @@ import type {
   ParityManifest,
   ParityComparisonReport,
   ParityRunResult,
-  ProgressSlice,
+  ProgressResponse,
   ProjectChangelog,
   SeedDataset
 } from "./types";
@@ -64,7 +64,7 @@ export const api = {
     return buildArchitectureModel(data.systems);
   },
   async getProgress() {
-    return requestJson<{ slices: ProgressSlice[] }>("/api/progress");
+    return requestJson<ProgressResponse>("/api/progress");
   },
   async getSeedDatasets() {
     return requestJson<{ datasets: SeedDataset[] }>("/api/seed-datasets");

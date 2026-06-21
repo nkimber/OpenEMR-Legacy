@@ -96,6 +96,28 @@ type SeedDataManifest = {
   datasets: unknown[];
 };
 
+type FunctionalityProgressItem = {
+  label: string;
+  detail: string;
+  evidence: string[];
+};
+
+type FunctionalityProgressArea = {
+  id: string;
+  name: string;
+  status: string;
+  summary: string;
+  completed: FunctionalityProgressItem[];
+  outstanding: string[];
+  deferred: string[];
+};
+
+type FunctionalityProgressConfig = {
+  version: string;
+  lastUpdated: string;
+  areas: FunctionalityProgressArea[];
+};
+
 type ChangelogEntry = {
   id: string;
   title: string;
@@ -233,6 +255,7 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   ? path.resolve(process.env.WORKBENCH_REPO_ROOT)
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
+const functionalityProgressPath = path.join(workbenchRoot, "config", "functionality-progress.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
@@ -289,6 +312,11 @@ function resolveReadableArtifactPath(projectPath: string) {
 async function readConfig(): Promise<AppConfig> {
   const text = await fs.readFile(configPath, "utf8");
   return JSON.parse(text) as AppConfig;
+}
+
+async function readFunctionalityProgress(): Promise<FunctionalityProgressConfig> {
+  const text = await fs.readFile(functionalityProgressPath, "utf8");
+  return JSON.parse(text) as FunctionalityProgressConfig;
 }
 
 async function readSeedDataManifest(): Promise<SeedDataManifest> {
@@ -1774,6 +1802,7 @@ app.get("/api/architecture", async (_request, response) => {
 });
 
 app.get("/api/progress", async (_request, response) => {
+  const functionalityProgress = await readFunctionalityProgress();
   response.json({
     slices: [
       { id: "legacy-baseline", name: "Legacy OpenEMR baseline", status: "verified", detail: "Installed, running, smoke tested, and connected to GitHub." },
@@ -1783,9 +1812,12 @@ app.get("/api/progress", async (_request, response) => {
       { id: "native-phpunit", name: "Legacy native PHPUnit suite", status: "verified", detail: "Implemented through a containerized stable OpenEMR phpunit-isolated lane with upstream twig and large groups excluded for Windows bind-mount stability." },
       { id: "native-jest", name: "Legacy native Jest suite", status: "verified", detail: "Implemented through OpenEMR's upstream JavaScript Jest suite for CCDA utility and jsPDF compatibility coverage." },
       { id: "workflow-mutations", name: "Legacy workflow mutation suite", status: "verified", detail: "Implemented for demographics, patient registration, insurance coverage, scheduling, encounters with vitals/SOAP details, encounter sign-off attestations, encounter-scoped document uploads, encounter-scoped binary document uploads, encounter-scoped document sign-offs, denials, metadata refiling, and same-patient encounter moves, encounter-linked billing visibility, encounter-linked diagnosis coding visibility, encounter fee-sheet entry visibility, encounter procedure-order entry and result entry visibility, clinical lists, problem lists, medication lists, patient messages, patient-message content edits, patient-message assignment, text/binary/sign-off/denial/metadata/archive/content-replacement/external-link patient documents, prescriptions, immunizations, billing, billing diagnosis coding, billing charge correction, billing modifier, payment posting, claim status, patient payment capture, collections follow-up tasks, and lab procedure lifecycle coverage with pre/post database probes." },
-      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 123 encounter document replacement revision parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
-      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 123 proves encounter document replacement revision readiness with temporary encounter-attached document replacement, revision hash/timestamp parity, modernized attachment-card/API rendering, cleanup, and matched side-by-side comparison evidence." }
-    ]
+      { id: "test-management", name: "Parity test management", status: "verified", detail: "Named run plans are implemented through Slice 142 procedure lab provider configuration parity, with custom target/suite/plan/reset selection, side-by-side comparison artifact rendering, Slice 124 expandable comparison drill-ins, and Slice 125 safe links to run/comparison artifacts." },
+      { id: "modernized-target", name: "Modernized OpenEMR target", status: "in-progress", detail: "Slice 142 proves procedure lab provider configuration readiness with temporary provider transport/settings mutation, legacy and modernized rendering, cleanup, and matched side-by-side comparison evidence. The target now covers forty read-only slices plus one hundred mutation-capable slices." }
+    ],
+    functionalityVersion: functionalityProgress.version,
+    functionalityLastUpdated: functionalityProgress.lastUpdated,
+    functionalityAreas: functionalityProgress.areas
   });
 });
 

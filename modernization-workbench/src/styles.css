@@ -1047,6 +1047,122 @@ p {
   font-size: 0.88rem;
 }
 
+.functionality-progress-panel {
+  border-color: #cbdce3;
+}
+
+.progress-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.functionality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.functionality-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 15px;
+}
+
+.functionality-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.functionality-card-header strong {
+  display: block;
+  color: #172534;
+}
+
+.functionality-card-header p {
+  margin-top: 5px;
+  font-size: 0.88rem;
+}
+
+.functionality-section {
+  display: grid;
+  gap: 8px;
+}
+
+.functionality-section h3 {
+  margin-bottom: 0;
+}
+
+.functionality-section-outstanding h3 svg {
+  color: #9a6720;
+}
+
+.functionality-section-deferred h3 svg {
+  color: #5d6b7b;
+}
+
+.functionality-item-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.functionality-item {
+  min-width: 0;
+  border: 1px solid #e2e9ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.functionality-item strong {
+  display: block;
+  color: #233241;
+  font-size: 0.92rem;
+}
+
+.functionality-item p {
+  margin-top: 4px;
+  font-size: 0.86rem;
+}
+
+.functionality-item.compact {
+  border-left: 3px solid #d7b35b;
+}
+
+.functionality-section-deferred .functionality-item.compact {
+  border-left-color: #a7b1bd;
+}
+
+.evidence-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.evidence-chip-list code {
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid #d7e4df;
+  border-radius: 6px;
+  background: #f4faf7;
+  color: #2d5f4b;
+  padding: 3px 6px;
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .event-main {
   display: flex;
   align-items: flex-start;
@@ -1679,6 +1795,7 @@ dd {
 
   .overview-grid,
   .metric-grid,
+  .progress-summary-grid,
   .data-profile,
   .changelog-stats,
   .custom-run-form,
@@ -1687,6 +1804,7 @@ dd {
   .comparison-detail-grid,
   .seed-target-grid,
   .architecture-grid,
+  .functionality-grid,
   .decision-grid,
   .architecture-story-grid,
   .architecture-lists-grid,

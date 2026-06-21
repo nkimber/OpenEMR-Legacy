@@ -384,6 +384,29 @@ export type ProgressSlice = {
   detail: string;
 };
 
+export type FunctionalityProgressItem = {
+  label: string;
+  detail: string;
+  evidence: string[];
+};
+
+export type FunctionalityProgressArea = {
+  id: string;
+  name: string;
+  status: string;
+  summary: string;
+  completed: FunctionalityProgressItem[];
+  outstanding: string[];
+  deferred: string[];
+};
+
+export type ProgressResponse = {
+  slices: ProgressSlice[];
+  functionalityVersion: string;
+  functionalityLastUpdated: string;
+  functionalityAreas: FunctionalityProgressArea[];
+};
+
 export type ChangelogEntry = {
   id: string;
   title: string;

@@ -33,6 +33,7 @@ import type {
   ArchitectureSystem,
   ArchitectureTechnology,
   CustomParityRunRequest,
+  FunctionalityProgressArea,
   LifecycleEvent,
   NativeJestRunResult,
   NativeRunResult,
@@ -602,6 +603,130 @@ function ProgressPanel({ slices }: { slices: ProgressSlice[] }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function FunctionalityProgressPanel({
+  areas,
+  version,
+  lastUpdated
+}: {
+  areas: FunctionalityProgressArea[];
+  version?: string;
+  lastUpdated?: string;
+}) {
+  const completedCount = areas.reduce((total, area) => total + area.completed.length, 0);
+  const outstandingCount = areas.reduce((total, area) => total + area.outstanding.length, 0);
+  const deferredCount = areas.reduce((total, area) => total + area.deferred.length, 0);
+
+  return (
+    <section className="panel functionality-progress-panel">
+      <div className="panel-header">
+        <div>
+          <h2>
+            <ClipboardList size={20} />
+            Functionality Progress
+          </h2>
+          <p>Curated modernization scope by domain area, showing covered functionality and remaining work.</p>
+        </div>
+        <div className="panel-status">
+          {version ? <span className="quiet-chip">v{version}</span> : null}
+          {lastUpdated ? <span className="quiet-chip">Updated {lastUpdated}</span> : null}
+        </div>
+      </div>
+
+      <div className="progress-summary-grid">
+        <Metric label="Areas Tracked" value={areas.length} />
+        <Metric label="Completed Pieces" value={completedCount} />
+        <Metric label="Outstanding Pieces" value={outstandingCount} />
+        <Metric label="Deferred Pieces" value={deferredCount} />
+      </div>
+
+      {areas.length ? (
+        <div className="functionality-grid">
+          {areas.map((area) => (
+            <div className="functionality-card" key={area.id}>
+              <div className="functionality-card-header">
+                <div>
+                  <strong>{area.name}</strong>
+                  <p>{area.summary}</p>
+                </div>
+                <StatusPill state={area.status} label={area.status.replaceAll("-", " ")} />
+              </div>
+
+              <FunctionalityCompletedList items={area.completed} />
+              <FunctionalityTextList title="Outstanding" items={area.outstanding} tone="outstanding" />
+              <FunctionalityTextList title="Deferred / Watch List" items={area.deferred} tone="deferred" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState text="Functionality progress is not configured." />
+      )}
+    </section>
+  );
+}
+
+function FunctionalityCompletedList({ items }: { items: FunctionalityProgressArea["completed"] }) {
+  return (
+    <div className="functionality-section">
+      <h3>
+        <CheckCircle2 size={16} />
+        Complete
+      </h3>
+      <ul className="functionality-item-list">
+        {items.map((item) => (
+          <li className="functionality-item" key={item.label}>
+            <strong>{item.label}</strong>
+            <p>{item.detail}</p>
+            {item.evidence.length ? (
+              <div className="evidence-chip-list">
+                {item.evidence.map((evidence) => (
+                  <code key={evidence}>{evidence}</code>
+                ))}
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function FunctionalityTextList({ title, items, tone }: { title: string; items: string[]; tone: "outstanding" | "deferred" }) {
+  return (
+    <div className={`functionality-section functionality-section-${tone}`}>
+      <h3>
+        {tone === "outstanding" ? <CircleAlert size={16} /> : <FileText size={16} />}
+        {title}
+      </h3>
+      <ul className="functionality-item-list">
+        {items.map((item) => (
+          <li className="functionality-item compact" key={item}>
+            <p>{item}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ProgressPage({
+  slices,
+  functionalityAreas,
+  functionalityVersion,
+  functionalityLastUpdated
+}: {
+  slices: ProgressSlice[];
+  functionalityAreas: FunctionalityProgressArea[];
+  functionalityVersion?: string;
+  functionalityLastUpdated?: string;
+}) {
+  return (
+    <div className="page-stack">
+      <ProgressPanel slices={slices} />
+      <FunctionalityProgressPanel areas={functionalityAreas} version={functionalityVersion} lastUpdated={functionalityLastUpdated} />
+    </div>
   );
 }
 
@@ -1713,6 +1838,9 @@ function PageBody({
   seedDatasets,
   logs,
   progress,
+  functionalityAreas,
+  functionalityVersion,
+  functionalityLastUpdated,
   events,
   architecture,
   changelog,
@@ -1732,6 +1860,9 @@ function PageBody({
   seedDatasets: SeedDataset[];
   logs: Record<string, string>;
   progress: ProgressSlice[];
+  functionalityAreas: FunctionalityProgressArea[];
+  functionalityVersion?: string;
+  functionalityLastUpdated?: string;
   events: LifecycleEvent[];
   architecture: ArchitectureModel | null;
   changelog: ProjectChangelog | null;
@@ -1743,7 +1874,7 @@ function PageBody({
     return <ChangelogPanel changelog={changelog} />;
   }
   if (page === "progress") {
-    return <ProgressPanel slices={progress} />;
+    return <ProgressPage slices={progress} functionalityAreas={functionalityAreas} functionalityVersion={functionalityVersion} functionalityLastUpdated={functionalityLastUpdated} />;
   }
   if (page === "architecture") {
     return <ArchitecturePanel architecture={architecture} />;
@@ -1799,6 +1930,9 @@ export function App() {
   const [apps, setApps] = useState<AppSnapshot[]>([]);
   const [architecture, setArchitecture] = useState<ArchitectureModel | null>(null);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
+  const [functionalityAreas, setFunctionalityAreas] = useState<FunctionalityProgressArea[]>([]);
+  const [functionalityVersion, setFunctionalityVersion] = useState<string | undefined>();
+  const [functionalityLastUpdated, setFunctionalityLastUpdated] = useState<string | undefined>();
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
@@ -1827,6 +1961,9 @@ export function App() {
     setApps(appData.apps);
     setArchitecture(architectureData);
     setProgress(progressData.slices);
+    setFunctionalityAreas(progressData.functionalityAreas);
+    setFunctionalityVersion(progressData.functionalityVersion);
+    setFunctionalityLastUpdated(progressData.functionalityLastUpdated);
     setEvents(eventData.events);
     setSeedDatasets(seedData.datasets);
     setParityManifest(parityManifestData);
@@ -1944,6 +2081,9 @@ export function App() {
           seedDatasets={seedDatasets}
           logs={logs}
           progress={progress}
+          functionalityAreas={functionalityAreas}
+          functionalityVersion={functionalityVersion}
+          functionalityLastUpdated={functionalityLastUpdated}
           events={events}
           architecture={architecture}
           changelog={changelog}

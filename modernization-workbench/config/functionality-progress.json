@@ -1,0 +1,295 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-06-21",
+  "areas": [
+    {
+      "id": "patient-chart-registration",
+      "name": "Patient Chart And Registration",
+      "status": "in-progress",
+      "summary": "Core patient lookup, chart summary, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative and validation paths still open.",
+      "completed": [
+        {
+          "label": "Patient search and chart summary",
+          "detail": "React chart workspace, patient APIs, PostgreSQL seed mapping, and side-by-side patient-readiness parity are implemented.",
+          "evidence": ["slice-1-readiness"]
+        },
+        {
+          "label": "Patient demographic/contact mutation",
+          "detail": "Contact update, demographics update/restore, and temporary registration lifecycle behavior are covered.",
+          "evidence": ["slice-10-contact-mutation-readiness", "slice-36-patient-demographics-mutation-readiness", "slice-37-patient-registration-readiness"]
+        },
+        {
+          "label": "Insurance and immunization coverage",
+          "detail": "Read and mutation paths for insurance plus pediatric immunization history and entered-in-error workflows are covered.",
+          "evidence": ["slice-28-insurance-readiness", "slice-34-insurance-mutation-readiness", "slice-29-immunizations-readiness", "slice-30-immunization-mutation-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Patient merge, duplicate detection, richer registration validation, guarantor/subscriber detail, and patient history depth.",
+        "Portal account provisioning, patient deactivation policies, address validation catalogs, and authorization enforcement."
+      ],
+      "deferred": [
+        "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
+      ]
+    },
+    {
+      "id": "scheduling",
+      "name": "Scheduling",
+      "status": "in-progress",
+      "summary": "Appointment read, lifecycle, recurrence, reassignment, status, overlap, and reminder-readiness behavior is heavily covered; advanced scheduling policy remains outstanding.",
+      "completed": [
+        {
+          "label": "Appointment read and lifecycle",
+          "detail": "Future appointment search/detail plus create, cancel, delete, reschedule, arrival, check-out, no-show, category, pending status, comments, provider, facility, and billing-location edits are implemented.",
+          "evidence": ["slice-2-scheduling-readiness", "slice-11-appointment-mutation-readiness", "slice-93-appointment-reschedule-readiness", "slice-94-appointment-arrival-readiness", "slice-95-appointment-checkout-readiness", "slice-96-appointment-noshow-readiness"]
+        },
+        {
+          "label": "Recurring appointment behavior",
+          "detail": "Recurring metadata, generated series expansion, exception dates, occurrence cancel/restore/reschedule, recurring root propagation, monthly/day/workday/year units, days-of-week, monthly repeat-on, and series recurrence update are covered.",
+          "evidence": ["slice-103-appointment-recurrence-readiness", "slice-104-appointment-series-readiness", "slice-116-appointment-series-recurrence-update-readiness"]
+        },
+        {
+          "label": "Overlap and reminder readiness",
+          "detail": "Provider, patient, and room overlap tolerance plus seeded reminder due/channel/contact derivation are covered.",
+          "evidence": ["slice-117-appointment-provider-overlap-readiness", "slice-118-appointment-patient-overlap-readiness", "slice-119-appointment-room-overlap-readiness", "slice-120-appointment-reminders-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Stricter provider and facility availability validation, resource conflict enforcement beyond tolerance/readiness reporting, and waitlist flows.",
+        "Reminder delivery, delivery audit, templates, and appointment-to-encounter or appointment-to-billing conversion."
+      ],
+      "deferred": [
+        "Category administration beyond seeded categories and richer scheduling policy configuration."
+      ]
+    },
+    {
+      "id": "encounters-clinical-notes",
+      "name": "Encounters And Clinical Notes",
+      "status": "in-progress",
+      "summary": "Encounter read/write, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
+      "completed": [
+        {
+          "label": "Encounter lifecycle and clinical note facts",
+          "detail": "Encounter search/detail, vitals, SOAP create/update/delete, metadata mutation, sign-off, and co-signature readiness are covered.",
+          "evidence": ["slice-3-encounters-readiness", "slice-12-encounter-mutation-readiness", "slice-35-encounter-metadata-readiness", "slice-77-encounter-signoff-readiness", "slice-121-encounter-cosignature-readiness"]
+        },
+        {
+          "label": "Encounter billing, claim, procedure, and diagnosis linkage",
+          "detail": "Read-only linkages and focused mutation paths for billing, diagnoses, fee-sheet entry, procedure-order entry, and procedure-result entry are covered.",
+          "evidence": ["slice-68-encounter-billing-readiness", "slice-69-encounter-claims-readiness", "slice-70-encounter-procedures-readiness", "slice-71-encounter-diagnoses-readiness", "slice-74-encounter-fee-sheet-entry-readiness", "slice-75-encounter-procedure-order-entry-readiness", "slice-76-encounter-procedure-result-entry-readiness"]
+        },
+        {
+          "label": "Encounter-scoped documents",
+          "detail": "Encounter attachment visibility, upload, binary upload, sign-off, denial, metadata refiling, movement, content replacement, archive/restore, lifecycle timeline, external link, revision, scanned attachment, and binary replacement are covered.",
+          "evidence": ["slice-67-encounter-documents-readiness", "slice-78-encounter-document-upload-readiness", "slice-79-encounter-binary-document-upload-readiness", "slice-122-encounter-document-revision-readiness", "slice-123-encounter-document-revision-replace-readiness", "slice-126-encounter-document-scanned-attachment-readiness", "slice-127-encounter-document-binary-content-replace-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Encounter templates, multi-form encounter packages, authorization rules, amendment policy and history depth.",
+        "Code search, coding validation, claim scrubbing, charge-capture expansion, and comprehensive audit-log export."
+      ],
+      "deferred": [
+        "Direct scanner integration and full historical encounter document version chains."
+      ]
+    },
+    {
+      "id": "clinical-lists-medications",
+      "name": "Clinical Lists, Medications, And Prescriptions",
+      "status": "in-progress",
+      "summary": "Problem, allergy, medication-list, prescription, and immunization basics are parity-covered, while clinical vocabulary and prescribing depth remain future scope.",
+      "completed": [
+        {
+          "label": "Clinical list read model",
+          "detail": "Problems, allergies, medication list entries, and prescriptions render through the modernized Lists module and shared parity plan.",
+          "evidence": ["slice-4-clinical-lists-readiness"]
+        },
+        {
+          "label": "Focused clinical list mutations",
+          "detail": "Allergy, problem-list, medication-list, prescription, and immunization lifecycle behaviors are covered.",
+          "evidence": ["slice-13-clinical-list-mutation-readiness", "slice-31-problem-mutation-readiness", "slice-32-medication-list-mutation-readiness", "slice-15-prescription-mutation-readiness", "slice-30-immunization-mutation-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Vocabulary lookup, duplicate detection, diagnosis interactions, medication reconciliation, structured dose/frequency fields, and audit history.",
+        "Pharmacy routing, refill requests, controlled-substance rules, and broader e-prescribing workflow."
+      ],
+      "deferred": [
+        "External formulary, pharmacy, and vaccine inventory integrations."
+      ]
+    },
+    {
+      "id": "messaging-portal",
+      "name": "Messaging And Portal-Facing Data",
+      "status": "in-progress",
+      "summary": "Patient message visibility, lifecycle, assignment, and content editing are covered; richer communication workflows remain open.",
+      "completed": [
+        {
+          "label": "Patient messages and portal-enabled state",
+          "detail": "Portal flag and patient-message read behavior are covered through the Messages module.",
+          "evidence": ["slice-5-messaging-readiness"]
+        },
+        {
+          "label": "Message lifecycle, assignment, and content",
+          "detail": "Create, close, soft-delete, hard-delete, reassignment, title, and body edit behavior are covered.",
+          "evidence": ["slice-14-message-mutation-readiness", "slice-65-message-assignment-readiness", "slice-66-message-content-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Portal replies, attachments, routing queues, priority and escalation behavior, notification delivery, and audit history."
+      ],
+      "deferred": [
+        "Patient portal account provisioning and external notification providers."
+      ]
+    },
+    {
+      "id": "billing-revenue-cycle",
+      "name": "Billing, AR, Statements, And Collections",
+      "status": "in-progress",
+      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, and collections basics are represented; full revenue-cycle processing remains a large tail.",
+      "completed": [
+        {
+          "label": "Fee sheet and billing mutations",
+          "detail": "Read-only fee-sheet billing plus CPT creation, diagnosis coding, correction, and modifier workflows are covered.",
+          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness"]
+        },
+        {
+          "label": "Claims, payments, ledger, and balances",
+          "detail": "Claim status, payment posting, patient payment capture, account balance, aging, ledger, and statement readiness are covered.",
+          "evidence": ["slice-47-claim-status-readiness", "slice-48-payment-posting-readiness", "slice-49-account-balance-readiness", "slice-50-account-aging-readiness", "slice-51-account-ledger-readiness", "slice-52-account-statement-readiness", "slice-56-payment-posting-mutation-readiness", "slice-57-claim-status-mutation-readiness", "slice-58-patient-payment-capture-readiness"]
+        },
+        {
+          "label": "Statements, batches, and collections",
+          "detail": "Statement generation, statement PDF export, batch candidate/package export, collections work queue, and follow-up task lifecycle are covered.",
+          "evidence": ["slice-59-statement-generation-readiness", "slice-60-statement-pdf-export-readiness", "slice-61-statement-batch-candidate-readiness", "slice-62-statement-batch-package-readiness", "slice-63-collections-work-queue-readiness", "slice-64-collections-follow-up-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Claim generation depth, payer adjudication, ERA/EOB import, remittance workflows, refunds/reversals beyond simple voiding, receipt printing, and statement delivery.",
+        "Audit history, charge templates, diagnosis pointer validation, modifier validation, and richer revenue-cycle exception handling."
+      ],
+      "deferred": [
+        "Production clearinghouse, payer, and payment-provider integrations."
+      ]
+    },
+    {
+      "id": "documents-attachments",
+      "name": "Documents And Attachments",
+      "status": "in-progress",
+      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, and external-link behavior is broadly covered; production document operations remain open.",
+      "completed": [
+        {
+          "label": "Patient document read, retrieval, and mutation",
+          "detail": "Document metadata, text content retrieval/download, text and binary upload, sign-off, denial, metadata refiling, archive/restore, content replacement, replacement revision, binary replacement, and external-link filing are covered.",
+          "evidence": ["slice-25-documents-readiness", "slice-26-document-mutation-readiness", "slice-27-document-content-readiness", "slice-33-binary-document-mutation-readiness", "slice-38-document-signoff-readiness", "slice-39-document-external-link-readiness", "slice-40-document-denial-readiness", "slice-41-document-metadata-readiness", "slice-42-document-archive-readiness", "slice-43-document-content-replace-readiness", "slice-55-document-revision-replace-readiness", "slice-128-document-binary-content-replace-readiness"]
+        },
+        {
+          "label": "Preview, thumbnail, lifecycle, and scanned-readiness",
+          "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, lifecycle timeline, and scanned attachment readiness are covered.",
+          "evidence": ["slice-53-document-preview-readiness", "slice-54-document-revision-readiness", "slice-88-document-image-preview-readiness", "slice-89-document-image-thumbnail-readiness", "slice-90-document-pdf-preview-readiness", "slice-91-document-lifecycle-readiness", "slice-92-document-scanned-attachment-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Direct scanner capture, OCR execution and queueing, generated PDF thumbnails, document routing queues, full historical version rows, role-based document workflow authorization, encryption/key management, and retention policy.",
+        "External object storage, CCDA import/export, patient-portal document access rules, and document delivery integrations."
+      ],
+      "deferred": [
+        "Fax/SMS attachments and external storage provider adapters."
+      ]
+    },
+    {
+      "id": "labs-procedures",
+      "name": "Labs And Procedures",
+      "status": "in-progress",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, review queues, lab-provider catalog/directory/lifecycle/configuration are parity-covered; real external lab operations remain open.",
+      "completed": [
+        {
+          "label": "Procedure order/result lifecycle",
+          "detail": "Completed result read, pending orders, create/complete/report/result/delete, encounter procedure-order/result entry, result correction, specimen metadata/detail, order correction, report correction, and report sign-off are covered.",
+          "evidence": ["slice-6-procedures-readiness", "slice-17-procedure-mutation-readiness", "slice-23-procedure-pending-orders-readiness", "slice-75-encounter-procedure-order-entry-readiness", "slice-76-encounter-procedure-result-entry-readiness", "slice-129-procedure-result-correction-readiness", "slice-130-procedure-specimen-readiness", "slice-131-procedure-specimen-detail-readiness", "slice-132-procedure-order-correction-readiness", "slice-133-procedure-report-correction-readiness", "slice-134-procedure-report-signoff-readiness"]
+        },
+        {
+          "label": "Review queues and lab providers",
+          "detail": "Report review queue, patient/date/provider/lab filters, lab-provider catalog ownership, provider directory, provider lifecycle, and provider transport/configuration fields are covered.",
+          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness"]
+        }
+      ],
+      "outstanding": [
+        "Order catalogs, compendium imports, clinical order queues, bulk review/sign-off, reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, and role-specific authorization."
+      ],
+      "deferred": [
+        "Linked address-book organization workflow and production external lab ordering interfaces."
+      ]
+    },
+    {
+      "id": "admin-security-audit",
+      "name": "Administration, Security, And Audit",
+      "status": "partial",
+      "summary": "Facility, user, and ACL basics are covered, but first-party authentication, policy enforcement, MFA, and audit remain major outstanding scope.",
+      "completed": [
+        {
+          "label": "Administration directory and lifecycle basics",
+          "detail": "Users/facilities directory behavior, facility lifecycle, and user lifecycle are implemented.",
+          "evidence": ["slice-8-admin-readiness", "slice-18-admin-facility-mutation-readiness", "slice-19-admin-user-mutation-readiness"]
+        },
+        {
+          "label": "Focused access-control behavior",
+          "detail": "Default ACL matrix, focused access-permission grant/revoke, and user group membership mutation are covered.",
+          "evidence": ["slice-20-access-control-readiness", "slice-21-access-permission-mutation-readiness", "slice-22-user-group-membership-mutation-readiness"]
+        }
+      ],
+      "outstanding": [
+        "First-party modernized login, ASP.NET Core Identity, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "Comprehensive audit-event logging and audit export across clinical, billing, document, lab, and admin workflows."
+      ],
+      "deferred": [
+        "Production identity-provider integration and security hardening beyond local parity scope."
+      ]
+    },
+    {
+      "id": "reports-workbench-evidence",
+      "name": "Reports, Workbench, And Evidence",
+      "status": "in-progress",
+      "summary": "Operational reports, CSV export, Workbench orchestration, test management, comparison artifacts, drill-ins, and artifact links are implemented; richer evidence exploration remains future scope.",
+      "completed": [
+        {
+          "label": "Operational reporting",
+          "detail": "Gold-dataset operational reports and normalized CSV export behavior are covered.",
+          "evidence": ["slice-9-reports-readiness", "slice-24-reports-export-readiness"]
+        },
+        {
+          "label": "Workbench orchestration and evidence",
+          "detail": "Managed lifecycle controls, seed actions, native tests, parity plans, custom parity runs, side-by-side comparisons, drill-ins, artifact links, timeline, architecture, and progress views are implemented.",
+          "evidence": ["workbench-v1", "slice-124-comparison-drill-ins", "slice-125-artifact-links"]
+        }
+      ],
+      "outstanding": [
+        "Direct links to Playwright reports and screenshots, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.",
+        "Saved report definitions and richer downloadable report formats."
+      ],
+      "deferred": [
+        "Future CI integration and long-term evidence retention policy."
+      ]
+    },
+    {
+      "id": "integrations-migration-production",
+      "name": "Integrations, Migration, And Production Readiness",
+      "status": "not-started",
+      "summary": "The current project is strong as a local parity modernization workbench, but production migration and external integration readiness remain intentionally outside the completed slice set.",
+      "completed": [
+        {
+          "label": "Deterministic synthetic migration contract",
+          "detail": "The shared gold dataset maps to both legacy MariaDB and modernized PostgreSQL for implemented workflows.",
+          "evidence": ["openemr-shared-synthetic-v1", "legacy-openemr seed", "modernized-openemr seed"]
+        }
+      ],
+      "outstanding": [
+        "Legacy data extraction from real OpenEMR instances, migration rehearsal tooling, rollback strategy, production deployment, CI/CD, observability, backup/restore, and security review.",
+        "External integrations for labs, e-prescribing, vaccine registries, portal, fax/SMS, CCDA/export, clearinghouse, payment providers, and document storage."
+      ],
+      "deferred": [
+        "PHI-bearing test strategy and compliance validation; this repository should continue using synthetic non-PHI data."
+      ]
+    }
+  ]
+}
