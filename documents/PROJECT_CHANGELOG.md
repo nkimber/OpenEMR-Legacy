@@ -9848,6 +9848,72 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 178. Procedure Vendor Compendium Import Slice 148
+
+Commit: a28df135
+Started: `2026-06-21T13:23:00.0000000-04:00`
+Finished: `2026-06-21T13:50:41.4448747-04:00`
+
+Implemented the one-hundred-forty-eighth project slice and latest modernized OpenEMR workflow slice: procedure vendor compendium import readiness, proving that temporary catalog groups can import PathGroup-style order/result CSV rows, preserve OpenEMR-compatible deactivate/reactivate semantics on re-import, render imported order rows, clean up the temporary subtree, and match side-by-side across legacy OpenEMR and the modernized target.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 1,260
+- Lines deleted: 27
+- Net lines: 1,233
+- Total churn: 1,287
+
+Key outcomes:
+
+- Added modernized procedure order catalog import DTOs, repository import logic, CSV parsing, catalog import context validation, and `POST /api/procedures/order-catalog/import-compendium`.
+- Extended the modernized Reports Procedure Order Catalog panel with PathGroup / YPMG-DPMG vendor selection, provider-group selection, CSV text import, and import-count feedback.
+- Added frontend API helpers for procedure vendor compendium import behavior.
+- Added normalized legacy and modernized workflow actions for vendor compendium import, catalog row readback by parent/code/type, and temporary catalog subtree cleanup.
+- Added the `workflow-procedure-vendor-compendium-import` Playwright parity suite and the `slice-148-procedure-vendor-compendium-import-readiness` plan.
+- Registered Slice 148 in the runner allowlist, mutation/full parity aggregate suites, and Workbench managed application actions for both legacy and modernized targets.
+- Updated the Workbench functionality progress ledger and `/api/progress` milestone text so procedure vendor compendium import behavior is reflected in progress reporting.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- JSON parse passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build` rebuilt and restarted the modernized API/frontend stack.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-148-procedure-vendor-compendium-import-readiness -Reset test` passed; run `2026-06-21T174032-438Z-legacy-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-148-procedure-vendor-compendium-import-readiness -Reset test` passed; run `2026-06-21T174032-438Z-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness`.
+- `npx tsx src/cli/compare-runs.ts --plan slice-148-procedure-vendor-compendium-import-readiness` passed with `status: matched`; comparison `2026-06-21T174214-100Z-legacy-openemr-vs-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness`.
+- Live Workbench `/api/progress` smoke returned Slice 148 in test-management detail, one hundred three mutation-capable slices in target detail, Labs estimate 61%, and Slice 148 Labs evidence.
+- `git diff --check` passed for the touched files with only expected CRLF working-copy warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-procedure-vendor-compendium-import/procedure-vendor-compendium-import.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/server/index.ts`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -9855,5 +9921,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for reports, broader ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, vendor compendium import, specimen collection, corrected-result amendment/history depth, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Broader encounter workflows for templates, amendment policy/history depth, specimen collection, corrected-result amendment/history depth, clinical lab order queues, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison links from drill-ins to Playwright reports, screenshots, normalized probe detail, and historical trend charts.

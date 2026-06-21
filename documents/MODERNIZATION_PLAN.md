@@ -1038,7 +1038,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers permanent seed/read catalog behavior only. Focused orderable-row catalog lifecycle behavior is covered by Slice 147; vendor compendium import, bulk catalog administration, external lab reconciliation, role-specific authorization, audit history, and production external lab ordering remain deferred.
+- This slice covers permanent seed/read catalog behavior only. Focused orderable-row catalog lifecycle behavior is covered by Slice 147, and focused vendor compendium import behavior is covered by Slice 148; bulk catalog administration, external lab reconciliation, role-specific authorization, audit history, and production external lab ordering remain deferred.
 
 ### Slice 146: Workbench Progress Completion Estimates
 
@@ -1091,7 +1091,36 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused orderable-row lifecycle behavior only. Vendor compendium import, bulk catalog administration, clinical order queues, role-specific authorization, audit-log export, and production external lab ordering remain deferred.
+- This slice covers focused orderable-row lifecycle behavior only. Focused vendor compendium import behavior is covered by Slice 148; bulk catalog administration, clinical order queues, role-specific authorization, audit-log export, and production external lab ordering remain deferred.
+
+### Slice 148: Procedure Vendor Compendium Import Readiness
+
+Status:
+
+- Implemented as a mutation-capable procedure/lab order catalog import slice under `modernized-openemr/`, `parity-tests/`, and Workbench managed parity actions.
+- Verification is the shared `slice-148-procedure-vendor-compendium-import-readiness` plan, which resets each target to the shared gold dataset, creates a temporary catalog group, imports PathGroup-style order/result CSV rows, re-imports a changed CSV to verify legacy-compatible deactivate/reactivate semantics, verifies database and browser-visible behavior, cleans up the temporary subtree, and compares the two target runs.
+
+Scope:
+
+- The modernized procedures API now exposes `POST /api/procedures/order-catalog/import-compendium` for focused vendor compendium imports.
+- The import contract supports PathGroup-style order/result CSV rows and YPMG/DPMG-style order-only CSV rows, matching the legacy OpenEMR `load_compendium.php` order-definition branches at the catalog-storage level.
+- The modernized import marks existing active `ord` rows under the selected group inactive, upserts imported order rows, and for PathGroup rows upserts `res` children under imported orders.
+- The React Reports workspace Procedure Order Catalog panel now includes a compact compendium import form with vendor format, provider group, CSV payload, and import-count feedback.
+- Legacy and modernized workflow adapters can import vendor compendium CSV text, read imported catalog rows back by parent/code/type, and delete temporary catalog subtrees during cleanup.
+- Workbench-managed Slice 148 procedure vendor compendium import plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Both targets can create a temporary catalog group under root group `9000` for lab `504`.
+- Both targets can import two PathGroup-style order rows and two result rows into that temporary group.
+- Both targets can re-import a changed CSV so one order/result pair is updated/reactivated, one previous order is left inactive, and one new order/result pair is created.
+- Legacy OpenEMR renders imported order rows through `types_ajax.php`; the modernized target renders imported order rows in the Reports Procedure Order Catalog panel.
+- Both targets delete the temporary catalog subtree and confirm the permanent 21-row gold catalog remains untouched after cleanup.
+- The side-by-side Slice 148 parity comparison matches.
+
+Current limitations:
+
+- This slice covers focused order-definition import semantics only. It does not implement uploaded-file storage, asynchronous import jobs, order-entry question imports, OE question option imports, full vendor credential management, external SFTP/filesystem/web-service execution, clinical order queues, audit-log export, or production external lab ordering.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -4175,3 +4204,4 @@ As of 2026-06-20:
 - The one-hundred-forty-fifth modernized vertical slice implements procedure order catalog readiness with 21 shared gold-data catalog rows, legacy `procedure_type` seeding, modernized `lab_order_catalog` storage, `/api/procedures/order-catalog`, Reports catalog rendering, Procedure order-form catalog picks, Workbench procedure order catalog plan actions, and side-by-side slice-145 parity evidence.
 - The one-hundred-forty-sixth project slice implements Workbench progress completion estimates with curated per-area completion percentages, rationale text, typed `/api/progress` support, aggregate estimated-complete rendering, and per-area meter cards on the Progress page.
 - The one-hundred-forty-seventh modernized vertical slice implements procedure order catalog lifecycle readiness with focused modernized catalog create/update/delete endpoints, Reports workspace catalog item controls, normalized legacy/modernized workflow actions, Workbench procedure order catalog lifecycle plan actions, cleanup deletion, and side-by-side slice-147 parity evidence.
+- The one-hundred-forty-eighth modernized vertical slice implements procedure vendor compendium import readiness with a focused modernized import endpoint, Reports workspace compendium import controls, normalized legacy/modernized import workflow actions, temporary catalog subtree cleanup, Workbench vendor compendium import plan actions, and side-by-side slice-148 parity evidence.
