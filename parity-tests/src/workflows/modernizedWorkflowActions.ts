@@ -648,6 +648,14 @@ ORDER BY appointment_date, start_time, id;
         title: string;
         date: string;
         startTime: string;
+        status: string | null;
+        room: string | null;
+        categoryId: number | null;
+        categoryName: string | null;
+        providerId: number | null;
+        facilityId: number | null;
+        billingLocationId: number | null;
+        comments: string | null;
         recurrenceType: number;
         repeatFrequency: number | null;
         repeatUnit: number | null;
@@ -666,9 +674,17 @@ ORDER BY appointment_date, start_time, id;
         id: appointment.id,
         seriesRootId: appointment.seriesRootId,
         patientId: appointment.legacyPid,
+        providerId: appointment.providerId,
         title: appointment.title,
         date: appointment.date,
         startTime: normalizeTime(appointment.startTime),
+        status: appointment.status,
+        facilityId: appointment.facilityId,
+        billingLocationId: appointment.billingLocationId,
+        room: appointment.room,
+        categoryId: appointment.categoryId,
+        categoryName: appointment.categoryName,
+        comments: appointment.comments,
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,

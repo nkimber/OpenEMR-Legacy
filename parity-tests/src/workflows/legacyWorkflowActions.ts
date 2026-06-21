@@ -72,9 +72,17 @@ export type AppointmentSeriesOccurrence = {
   id: number | string;
   seriesRootId: number | string;
   patientId: number;
+  providerId: number | null;
   title: string;
   date: string;
   startTime: string;
+  status: string | null;
+  facilityId: number | null;
+  billingLocationId: number | null;
+  room: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  comments: string | null;
   recurrenceType: number;
   repeatFrequency: number | null;
   repeatUnit: number | null;
@@ -1394,11 +1402,15 @@ ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
 
   async getAppointmentSeriesOccurrences(patientId: number | string, fromDate: string): Promise<AppointmentSeriesOccurrence[]> {
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_title AS title,
-  DATE(e.pc_eventDate) AS anchorDate, e.pc_startTime AS startTime,
+SELECT e.pc_eid AS id, e.pc_pid AS patientId, e.pc_aid AS providerId,
+  e.pc_title AS title, DATE(e.pc_eventDate) AS anchorDate, e.pc_startTime AS startTime,
+  e.pc_apptstatus AS status, e.pc_facility AS facilityId, e.pc_billing_location AS billingLocationId,
+  e.pc_room AS room, e.pc_catid AS categoryId, COALESCE(c.pc_catname, '') AS categoryName,
+  e.pc_hometext AS comments,
   e.pc_recurrtype AS recurrenceType, COALESCE(e.pc_recurrspec, '') AS recurrenceSpec,
   DATE(e.pc_endDate) AS recurrenceEndDate
 FROM openemr_postcalendar_events e
+LEFT JOIN openemr_postcalendar_categories c ON c.pc_catid = e.pc_catid
 WHERE e.pc_pid = ${integer(Number(patientId))}
   AND e.pc_recurrtype > 0
   AND e.pc_endDate >= ${sqlString(fromDate)}
@@ -1409,9 +1421,17 @@ ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid;
       return expandAppointmentSeriesOccurrences({
         id: Number(row.id),
         patientId: Number(row.patientId),
+        providerId: Number(row.providerId),
         title: row.title,
         anchorDate: row.anchorDate,
         startTime: row.startTime,
+        status: row.status,
+        facilityId: Number(row.facilityId),
+        billingLocationId: Number(row.billingLocationId),
+        room: row.room,
+        categoryId: Number(row.categoryId),
+        categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId)),
+        comments: row.comments,
         recurrenceType: recurrence.recurrenceType,
         repeatFrequency: recurrence.repeatFrequency,
         repeatUnit: recurrence.repeatUnit,
@@ -3114,9 +3134,17 @@ function expandAppointmentSeriesOccurrences(
   appointment: {
     id: number | string;
     patientId: number;
+    providerId: number | null;
     title: string;
     anchorDate: string;
     startTime: string;
+    status: string | null;
+    facilityId: number | null;
+    billingLocationId: number | null;
+    room: string | null;
+    categoryId: number | null;
+    categoryName: string | null;
+    comments: string | null;
     recurrenceType: number;
     repeatFrequency: number | null;
     repeatUnit: number | null;
@@ -3142,9 +3170,17 @@ function expandAppointmentSeriesOccurrences(
         id: occurrenceNumber === 1 ? appointment.id : `${appointment.id}::occurs::${formatDateOnly(current)}`,
         seriesRootId: appointment.id,
         patientId: appointment.patientId,
+        providerId: appointment.providerId,
         title: appointment.title,
         date: currentDate,
         startTime: appointment.startTime,
+        status: appointment.status,
+        facilityId: appointment.facilityId,
+        billingLocationId: appointment.billingLocationId,
+        room: appointment.room,
+        categoryId: appointment.categoryId,
+        categoryName: appointment.categoryName,
+        comments: appointment.comments,
         recurrenceType: appointment.recurrenceType,
         repeatFrequency: appointment.repeatFrequency,
         repeatUnit: appointment.repeatUnit,
