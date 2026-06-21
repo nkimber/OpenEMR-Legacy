@@ -228,6 +228,8 @@ export type PatientMessageRecord = {
   assignedTo: string;
   portalRelation: string;
   isEncrypted: boolean;
+  updatedBy: string;
+  updatedAt: string;
   deleted: number;
 };
 
@@ -2020,6 +2022,8 @@ SELECT LAST_INSERT_ID() AS id;
 SELECT id, pid AS patientId, title, body, message_status AS status, assigned_to AS assignedTo,
   COALESCE(portal_relation, '') AS portalRelation,
   COALESCE(is_msg_encrypted, 0) AS isEncrypted,
+  COALESCE(CAST(update_by AS CHAR), '') AS updatedBy,
+  COALESCE(DATE_FORMAT(update_date, '%Y-%m-%d %H:%i:%s'), '') AS updatedAt,
   COALESCE(deleted, 0) AS deleted
 FROM pnotes
 WHERE id = ${integer(legacyId)}
@@ -2038,6 +2042,8 @@ LIMIT 1;
       assignedTo: row.assignedTo,
       portalRelation: row.portalRelation,
       isEncrypted: row.isEncrypted === "1",
+      updatedBy: row.updatedBy,
+      updatedAt: row.updatedAt,
       deleted: Number(row.deleted)
     };
   }

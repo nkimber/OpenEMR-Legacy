@@ -1082,6 +1082,8 @@ SELECT id, pid AS "patientId", COALESCE(title, '') AS title,
   COALESCE(status, '') AS status, COALESCE(assigned_to, '') AS "assignedTo",
   COALESCE(portal_relation, '') AS "portalRelation",
   CASE WHEN is_encrypted THEN '1' ELSE '0' END AS "isEncrypted",
+  COALESCE(updated_by::text, '') AS "updatedBy",
+  COALESCE(to_char(updated_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "updatedAt",
   deleted
 FROM messages
 WHERE id = ${sqlString(String(id))}
@@ -1101,6 +1103,8 @@ LIMIT 1;
       assignedTo: row.assignedTo,
       portalRelation: row.portalRelation,
       isEncrypted: row.isEncrypted === "1",
+      updatedBy: row.updatedBy,
+      updatedAt: row.updatedAt,
       deleted: Number(row.deleted)
     };
   }

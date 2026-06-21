@@ -137,7 +137,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, and portal metadata preservation are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, and pnotes-compatible update metadata stamping are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -153,18 +153,23 @@
           "label": "Portal metadata preservation",
           "detail": "Seeded pnotes portal relation and plaintext encryption flags are mirrored into the modernized message schema, API, UI, and parity probes.",
           "evidence": ["slice-157-message-portal-metadata-readiness"]
+        },
+        {
+          "label": "Message update metadata stamping",
+          "detail": "Patient-message edits now preserve pnotes-compatible update_by/update_date behavior through modernized schema, API, UI, parity probes, and shared mutation tests.",
+          "evidence": ["slice-158-message-update-metadata-readiness"]
         }
       ],
       "outstanding": [
-        "Full portal reply threading, encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and audit history."
+        "Full portal reply threading, encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and full audit history."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 47,
+      "completionEstimatePercent": 48,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, and portal metadata preservation are covered; full portal threading, encrypted content, attachments, routing, notifications, and audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, and update metadata stamping are covered; full portal threading, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

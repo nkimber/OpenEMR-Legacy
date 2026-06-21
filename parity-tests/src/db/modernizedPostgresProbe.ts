@@ -426,6 +426,8 @@ ORDER BY administered_at DESC, id;
 SELECT m.title, m.body, COALESCE(m.status, '') AS status, m.message_date AS date,
   COALESCE(m.portal_relation, '') AS "portalRelation",
   CASE WHEN m.is_encrypted THEN '1' ELSE '0' END AS "isEncrypted",
+  COALESCE(m.updated_by::text, '') AS "updatedBy",
+  COALESCE(to_char(m.updated_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "updatedAt",
   CASE WHEN p.portal_enabled THEN 'YES' ELSE 'NO' END AS "portalEnabled"
 FROM messages m
 INNER JOIN patients p ON p.legacy_pid = m.pid
@@ -442,7 +444,9 @@ ORDER BY m.message_date DESC, m.id DESC;
         status: row.status,
         date: row.date,
         portalRelation: row.portalRelation,
-        isEncrypted: row.isEncrypted === "1"
+        isEncrypted: row.isEncrypted === "1",
+        updatedBy: row.updatedBy,
+        updatedAt: row.updatedAt
       }))
     };
   }

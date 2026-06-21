@@ -116,6 +116,8 @@ export type PatientMessageSummary = {
   date: string;
   portalRelation: string;
   isEncrypted: boolean;
+  updatedBy: string;
+  updatedAt: string;
 };
 
 export type PatientMessagesSummary = {
@@ -1284,6 +1286,8 @@ ORDER BY i.administered_date DESC, i.id;
 SELECT pn.title, pn.body, COALESCE(pn.message_status, '') AS status, DATE(pn.date) AS date,
   COALESCE(pn.portal_relation, '') AS portalRelation,
   COALESCE(pn.is_msg_encrypted, 0) AS isEncrypted,
+  COALESCE(CAST(pn.update_by AS CHAR), '') AS updatedBy,
+  COALESCE(DATE_FORMAT(pn.update_date, '%Y-%m-%d %H:%i:%s'), '') AS updatedAt,
   pd.allow_patient_portal AS portalEnabled
 FROM pnotes pn
 INNER JOIN patient_data pd ON pd.pid = pn.pid
@@ -1300,7 +1304,9 @@ ORDER BY pn.date DESC, pn.id DESC;
         status: row.status,
         date: row.date,
         portalRelation: row.portalRelation,
-        isEncrypted: row.isEncrypted === "1"
+        isEncrypted: row.isEncrypted === "1",
+        updatedBy: row.updatedBy,
+        updatedAt: row.updatedAt
       }))
     };
   }
