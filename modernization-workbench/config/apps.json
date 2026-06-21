@@ -81,6 +81,7 @@
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
         "parityAccessPermissionMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-21-access-permission-mutation-readiness", "-Reset", "test"],
         "parityUserGroupMembershipMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-22-user-group-membership-mutation-readiness", "-Reset", "test"],
+        "parityAdminLoginPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-159-admin-login-readiness", "-Reset", "run"],
         "parityProcedurePendingOrdersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-23-procedure-pending-orders-readiness", "-Reset", "run"],
         "parityReportsExportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-24-reports-export-readiness", "-Reset", "run"],
         "parityDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-25-documents-readiness", "-Reset", "run"],
@@ -852,6 +853,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-22-user-group-membership-mutation-readiness.json"
         },
         {
+          "id": "parity-plan-admin-login",
+          "name": "Slice 159 admin login plan",
+          "description": "Runs the shared read-only admin login readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdminLoginPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-159-admin-login-readiness.json"
+        },
+        {
           "id": "parity-plan-procedure-pending-orders",
           "name": "Slice 23 pending procedure orders plan",
           "description": "Runs the shared scheduled, reportless procedure-order plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1573,6 +1582,7 @@
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
         "parityAccessPermissionMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-21-access-permission-mutation-readiness", "-Reset", "test"],
         "parityUserGroupMembershipMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-22-user-group-membership-mutation-readiness", "-Reset", "test"],
+        "parityAdminLoginPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-159-admin-login-readiness", "-Reset", "run"],
         "parityProcedurePendingOrdersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-23-procedure-pending-orders-readiness", "-Reset", "run"],
         "parityReportsExportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-24-reports-export-readiness", "-Reset", "run"],
         "parityDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-25-documents-readiness", "-Reset", "run"],
@@ -2268,6 +2278,14 @@
           "layer": "plan",
           "commandName": "parityUserGroupMembershipMutationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-22-user-group-membership-mutation-readiness.json"
+        },
+        {
+          "id": "parity-plan-admin-login",
+          "name": "Slice 159 admin login plan",
+          "description": "Runs the shared read-only admin login readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdminLoginPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-159-admin-login-readiness.json"
         },
         {
           "id": "parity-plan-procedure-pending-orders",

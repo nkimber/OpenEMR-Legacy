@@ -272,7 +272,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, and ACL basics are covered, but first-party authentication, policy enforcement, MFA, and audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, and demo login-readiness basics are covered, but production identity, policy enforcement, MFA, and audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -283,19 +283,24 @@
           "label": "Focused access-control behavior",
           "detail": "Default ACL matrix, focused access-permission grant/revoke, and user group membership mutation are covered.",
           "evidence": ["slice-20-access-control-readiness", "slice-21-access-permission-mutation-readiness", "slice-22-user-group-membership-mutation-readiness"]
+        },
+        {
+          "label": "Admin login readiness",
+          "detail": "The modernized app seeds a hashed demo admin credential, exposes a login-readiness API, renders an Admin-page verification panel, and compares login success and invalid-password rejection with legacy.",
+          "evidence": ["slice-159-admin-login-readiness"]
         }
       ],
       "outstanding": [
-        "First-party modernized login, ASP.NET Core Identity, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, session enforcement, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 28,
+      "completionEstimatePercent": 30,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, and group basics exist; login, Identity, MFA, authorization policy, facility restrictions, and audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, and demo login readiness basics exist; Identity, sessions, MFA, authorization policy, facility restrictions, and audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

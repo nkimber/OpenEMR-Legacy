@@ -43,6 +43,10 @@
       "envPath": "../modernized-openemr/.env",
       "seedDatasetId": "openemr-shared-synthetic-v1",
       "seedSummaryPath": "../modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json",
+      "defaultCredentials": {
+        "username": "admin",
+        "password": "pass"
+      },
       "database": {
         "kind": "postgres",
         "composeService": "postgres",

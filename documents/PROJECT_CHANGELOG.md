@@ -10511,6 +10511,69 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 189. Admin Login Readiness Slice 159
+
+Commit: `pending`
+Started: `2026-06-21T18:05:15.0000000-04:00`
+Finished: `2026-06-21T18:31:46.0150618-04:00`
+
+Implemented the one-hundred-fifty-ninth project slice and latest modernized OpenEMR workflow slice: admin login readiness, adding a local demo credential contract to the modernized target, verifying successful admin login and invalid-password rejection against both legacy and modernized systems, and exposing the slice through Workbench-managed plan actions.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 482
+- Lines deleted: 24
+- Net lines: +458
+- Total churn: 506
+
+Key outcomes:
+
+- Added a modernized `auth_accounts` seed table with a single local demo `admin` account stored as a deterministic salted SHA-256 hash for password `pass`.
+- Added an ASP.NET Core `AuthRepository`, DTOs, and `/api/auth/login` endpoint that returns authenticated/rejected login readiness results without creating production sessions.
+- Added typed React API support and an Admin-page Login Readiness panel that verifies the seeded credential and displays authenticated role/staff-link status.
+- Added `admin login readiness` to the modernized smoke script.
+- Added the `workflow-admin-login` Playwright parity suite and `slice-159-admin-login-readiness` plan.
+- Added Workbench-managed Slice 159 plan actions for both legacy and modernized targets.
+- Advanced the administration/security/audit functionality estimate from 28% to 30% while keeping Identity, session enforcement, MFA, authorization policy, password lifecycle, and audit as outstanding scope.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `parity-tests/config/targets.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded one `auth_accounts` row.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 130 checks, including `admin login readiness`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-159-admin-login-readiness -Reset run` passed: run `2026-06-21T222239-813Z-legacy-openemr-plan-slice-159-admin-login-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-159-admin-login-readiness -Reset run` passed: run `2026-06-21T222301-096Z-modernized-openemr-plan-slice-159-admin-login-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-159-admin-login-readiness` passed with comparison `2026-06-21T222327-052Z-legacy-openemr-vs-modernized-openemr-plan-slice-159-admin-login-readiness`, `status: matched`, and no differences.
+- `npm run build` passed in `modernization-workbench/`.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AuthRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AuthDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-admin-login/login-readiness.spec.ts`
+- `parity-tests/config/targets.json`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
