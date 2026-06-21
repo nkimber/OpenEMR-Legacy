@@ -795,6 +795,18 @@ export type NewProcedureLabProvider = {
   name: string;
   npi?: string;
   protocol?: string;
+  usage?: string;
+  direction?: string;
+  sendApplicationId?: string;
+  sendFacilityId?: string;
+  receiveApplicationId?: string;
+  receiveFacilityId?: string;
+  remoteHost?: string;
+  login?: string;
+  password?: string;
+  ordersPath?: string;
+  resultsPath?: string;
+  notes?: string;
   active?: boolean;
 };
 
@@ -803,6 +815,18 @@ export type ProcedureLabProviderRecord = {
   name: string;
   npi: string;
   protocol: string;
+  usage: string;
+  direction: string;
+  sendApplicationId: string;
+  sendFacilityId: string;
+  receiveApplicationId: string;
+  receiveFacilityId: string;
+  remoteHost: string;
+  login: string;
+  password: string;
+  ordersPath: string;
+  resultsPath: string;
+  notes: string;
   active: boolean;
 };
 
@@ -2934,9 +2958,16 @@ VALUES
   async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO procedure_providers
-  (uuid, name, npi, protocol, active)
+  (uuid, name, npi, send_app_id, send_fac_id, recv_app_id, recv_fac_id, DorP, direction, protocol,
+   remote_host, login, password, orders_path, results_path, notes, active)
 VALUES
-  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")}, ${sqlString(input.protocol ?? "DL")}, ${input.active === false ? 0 : 1});
+  (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.name)}, ${sqlString(input.npi ?? "")},
+   ${sqlString(input.sendApplicationId ?? "")}, ${sqlString(input.sendFacilityId ?? "")},
+   ${sqlString(input.receiveApplicationId ?? "")}, ${sqlString(input.receiveFacilityId ?? "")},
+   ${sqlString(input.usage ?? "D")}, ${sqlString(input.direction ?? "B")}, ${sqlString(input.protocol ?? "DL")},
+   ${sqlString(input.remoteHost ?? "")}, ${sqlString(input.login ?? "")}, ${sqlString(input.password ?? "")},
+   ${sqlString(input.ordersPath ?? "")}, ${sqlString(input.resultsPath ?? "")}, ${sqlString(input.notes ?? "")},
+   ${input.active === false ? 0 : 1});
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
@@ -2947,7 +2978,19 @@ SELECT LAST_INSERT_ID() AS id;
 UPDATE procedure_providers
 SET name = ${sqlString(input.name)},
   npi = ${sqlString(input.npi ?? "")},
+  send_app_id = ${sqlString(input.sendApplicationId ?? "")},
+  send_fac_id = ${sqlString(input.sendFacilityId ?? "")},
+  recv_app_id = ${sqlString(input.receiveApplicationId ?? "")},
+  recv_fac_id = ${sqlString(input.receiveFacilityId ?? "")},
+  DorP = ${sqlString(input.usage ?? "D")},
+  direction = ${sqlString(input.direction ?? "B")},
   protocol = ${sqlString(input.protocol ?? "DL")},
+  remote_host = ${sqlString(input.remoteHost ?? "")},
+  login = ${sqlString(input.login ?? "")},
+  password = ${sqlString(input.password ?? "")},
+  orders_path = ${sqlString(input.ordersPath ?? "")},
+  results_path = ${sqlString(input.resultsPath ?? "")},
+  notes = ${sqlString(input.notes ?? "")},
   active = ${input.active === false ? 0 : 1}
 WHERE ppid = ${integer(id)};
 `);
@@ -2966,6 +3009,18 @@ SELECT ppid AS id,
   name,
   COALESCE(npi, '') AS npi,
   COALESCE(protocol, '') AS protocol,
+  COALESCE(DorP, '') AS "usage",
+  COALESCE(direction, '') AS direction,
+  COALESCE(send_app_id, '') AS "sendApplicationId",
+  COALESCE(send_fac_id, '') AS "sendFacilityId",
+  COALESCE(recv_app_id, '') AS "receiveApplicationId",
+  COALESCE(recv_fac_id, '') AS "receiveFacilityId",
+  COALESCE(remote_host, '') AS "remoteHost",
+  COALESCE(login, '') AS login,
+  COALESCE(password, '') AS password,
+  COALESCE(orders_path, '') AS "ordersPath",
+  COALESCE(results_path, '') AS "resultsPath",
+  COALESCE(notes, '') AS notes,
   active
 FROM procedure_providers
 WHERE ppid = ${integer(id)}
@@ -2981,6 +3036,18 @@ LIMIT 1;
       name: row.name,
       npi: row.npi,
       protocol: row.protocol,
+      usage: row.usage,
+      direction: row.direction,
+      sendApplicationId: row.sendApplicationId,
+      sendFacilityId: row.sendFacilityId,
+      receiveApplicationId: row.receiveApplicationId,
+      receiveFacilityId: row.receiveFacilityId,
+      remoteHost: row.remoteHost,
+      login: row.login,
+      password: row.password,
+      ordersPath: row.ordersPath,
+      resultsPath: row.resultsPath,
+      notes: row.notes,
       active: row.active === "1"
     };
   }

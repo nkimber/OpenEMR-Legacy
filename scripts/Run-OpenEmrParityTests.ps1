@@ -143,6 +143,7 @@ param(
         "workflow-procedure-lab-provider-catalog",
         "workflow-procedure-lab-provider-directory",
         "workflow-procedure-lab-provider-lifecycle",
+        "workflow-procedure-lab-provider-configuration",
         "workflow-admin",
         "workflow-admin-users",
         "workflow-admin-access",

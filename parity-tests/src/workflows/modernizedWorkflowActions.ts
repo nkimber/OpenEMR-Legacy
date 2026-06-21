@@ -2120,6 +2120,18 @@ LIMIT 1;
         name: input.name,
         npi: input.npi ?? "",
         protocol: input.protocol ?? "DL",
+        usage: input.usage ?? "D",
+        direction: input.direction ?? "B",
+        sendApplicationId: input.sendApplicationId ?? "",
+        sendFacilityId: input.sendFacilityId ?? "",
+        receiveApplicationId: input.receiveApplicationId ?? "",
+        receiveFacilityId: input.receiveFacilityId ?? "",
+        remoteHost: input.remoteHost ?? "",
+        login: input.login ?? "",
+        password: input.password ?? "",
+        ordersPath: input.ordersPath ?? "",
+        resultsPath: input.resultsPath ?? "",
+        notes: input.notes ?? "",
         active: input.active ?? true
       })
     });
@@ -2140,6 +2152,18 @@ LIMIT 1;
         name: input.name,
         npi: input.npi ?? "",
         protocol: input.protocol ?? "DL",
+        usage: input.usage ?? "D",
+        direction: input.direction ?? "B",
+        sendApplicationId: input.sendApplicationId ?? "",
+        sendFacilityId: input.sendFacilityId ?? "",
+        receiveApplicationId: input.receiveApplicationId ?? "",
+        receiveFacilityId: input.receiveFacilityId ?? "",
+        remoteHost: input.remoteHost ?? "",
+        login: input.login ?? "",
+        password: input.password ?? "",
+        ordersPath: input.ordersPath ?? "",
+        resultsPath: input.resultsPath ?? "",
+        notes: input.notes ?? "",
         active: input.active ?? true
       })
     });
@@ -2165,6 +2189,18 @@ SELECT id,
   name,
   COALESCE(npi, '') AS npi,
   COALESCE(NULLIF(TRIM(protocol), ''), 'DL') AS protocol,
+  COALESCE(NULLIF(TRIM(usage), ''), 'D') AS "usage",
+  COALESCE(NULLIF(TRIM(direction), ''), 'B') AS direction,
+  COALESCE(send_app_id, '') AS "sendApplicationId",
+  COALESCE(send_fac_id, '') AS "sendFacilityId",
+  COALESCE(recv_app_id, '') AS "receiveApplicationId",
+  COALESCE(recv_fac_id, '') AS "receiveFacilityId",
+  COALESCE(remote_host, '') AS "remoteHost",
+  COALESCE(login, '') AS login,
+  COALESCE(password, '') AS password,
+  COALESCE(orders_path, '') AS "ordersPath",
+  COALESCE(results_path, '') AS "resultsPath",
+  COALESCE(notes, '') AS notes,
   CASE WHEN active THEN '1' ELSE '0' END AS active
 FROM lab_providers
 WHERE id = ${integer(id)}
@@ -2180,6 +2216,18 @@ LIMIT 1;
       name: row.name,
       npi: row.npi,
       protocol: row.protocol,
+      usage: row.usage,
+      direction: row.direction,
+      sendApplicationId: row.sendApplicationId,
+      sendFacilityId: row.sendFacilityId,
+      receiveApplicationId: row.receiveApplicationId,
+      receiveFacilityId: row.receiveFacilityId,
+      remoteHost: row.remoteHost,
+      login: row.login,
+      password: row.password,
+      ordersPath: row.ordersPath,
+      resultsPath: row.resultsPath,
+      notes: row.notes,
       active: row.active === "1"
     };
   }
