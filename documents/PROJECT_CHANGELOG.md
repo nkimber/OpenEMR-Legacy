@@ -8956,6 +8956,74 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 164. Procedure Report Sign-Off Slice 134
+
+Commit: `6d0343d5`
+Started: `2026-06-21T07:18:00.0000000-04:00`
+Finished: `2026-06-21T07:39:15.6258936-04:00`
+
+Implemented the one-hundred-thirty-fourth project slice and latest modernized OpenEMR workflow slice: procedure report sign-off readiness, proving that a temporary lab report can be signed/reviewed as `admin`, preserve report/result identity, expose normalized reviewer/timestamp facts, and match legacy Procedure Results behavior.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 473
+- Lines deleted: 31
+- Net lines: 442
+- Total churn: 504
+
+Key outcomes:
+
+- Added modernized `lab_reports.reviewed_by` and `lab_reports.reviewed_at` mapping plus `PUT /api/procedures/reports/{reportId}/sign` for focused report review/sign-off.
+- Added a modernized Procedures `Sign Report` action and signed metadata rendering in both Procedures and Encounter procedure report read models.
+- Extended the modernized smoke procedure lifecycle so report sign-off is validated through the refreshed procedure API response.
+- Extended legacy and modernized workflow/database probes with normalized signed reviewer and signed timestamp facts.
+- Added the `workflow-procedure-report-signoff` Playwright parity suite and `slice-134-procedure-report-signoff-readiness` named plan.
+- Added Workbench managed plan commands/cards for Slice 134 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 134 with thirty-eight read-only slices and ninety-four mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1` and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` regenerated the modernized PostgreSQL database with report review columns.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed; `procedure mutation lifecycle` validated signed report metadata in `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-134-procedure-report-signoff-readiness -Reset test` passed; run `2026-06-21T113041-570Z-legacy-openemr-plan-slice-134-procedure-report-signoff-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-134-procedure-report-signoff-readiness -Reset test` passed; run `2026-06-21T113300-190Z-modernized-openemr-plan-slice-134-procedure-report-signoff-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-134-procedure-report-signoff-readiness` passed with `status: matched`; comparison `2026-06-21T113327-948Z-legacy-openemr-vs-modernized-openemr-plan-slice-134-procedure-report-signoff-readiness`.
+- `git diff --cached --check` passed for the implementation commit.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ProcedureRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/ProcedureDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-procedure-report-signoff/procedure-report-signoff.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

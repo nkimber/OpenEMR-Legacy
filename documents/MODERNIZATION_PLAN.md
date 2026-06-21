@@ -272,7 +272,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129. Focused report collected-date/specimen-number readiness is covered by Slice 130. Focused order-level specimen detail is covered by Slice 131. Focused procedure order metadata correction is covered by Slice 132. Focused procedure report metadata correction is covered by Slice 133.
+- Focused procedure order create, completion, report entry, result entry, and cascade-delete workflows are covered by Slice 17. Focused procedure result correction is covered by Slice 129. Focused report collected-date/specimen-number readiness is covered by Slice 130. Focused order-level specimen detail is covered by Slice 131. Focused procedure order metadata correction is covered by Slice 132. Focused procedure report metadata correction is covered by Slice 133. Focused procedure report review/sign-off readiness is covered by Slice 134.
 - Amendment/versioning, external lab integration, specimen chain-of-custody beyond order-level specimen detail, order catalog management, review queues, and audit history remain deferred to later lab/procedure slices.
 
 ### Slice 7: Billing And Fee Sheet
@@ -575,7 +575,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused lab procedure lifecycle only.
-- Amendment/versioning, external electronic lab interfaces, specimen chain-of-custody tracking beyond report metadata and order-level specimen detail, order catalogs, clinical review queues, provider sign-off, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129, focused report specimen metadata is covered by Slice 130, focused order-level specimen detail is covered by Slice 131, focused order metadata correction is covered by Slice 132, and focused report metadata correction is covered by Slice 133.
+- Amendment/versioning, external electronic lab interfaces, specimen chain-of-custody tracking beyond report metadata and order-level specimen detail, order catalogs, clinical review queues beyond the focused report sign-off path, authorization policy, and audit history remain deferred to later lab/procedure workflow slices. Focused in-place result correction is covered by Slice 129, focused report specimen metadata is covered by Slice 130, focused order-level specimen detail is covered by Slice 131, focused order metadata correction is covered by Slice 132, focused report metadata correction is covered by Slice 133, and focused report review/sign-off is covered by Slice 134.
 
 ### Slice 129: Procedure Result Correction Readiness
 
@@ -718,7 +718,36 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused report metadata correction only. It does not implement report amendment history, prior-report versioning, reviewer authorization policy, notification workflow, external lab reconciliation, provider sign-off, or audit-log export.
+- This slice proves focused report metadata correction only. Focused report sign-off is covered by Slice 134. It does not implement report amendment history, prior-report versioning, reviewer authorization policy, notification workflow, external lab reconciliation, or audit-log export.
+
+### Slice 134: Procedure Report Sign-Off Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized lab/procedure report sign-off slice under `modernized-openemr/`.
+- Verification is the shared `slice-134-procedure-report-signoff-readiness` plan, which creates a temporary encounter, procedure order, report, and result, signs/reviews the report, validates database/API/UI state, and deletes the temporary procedure tree and encounter on both legacy and modernized targets.
+
+Scope:
+
+- ASP.NET Core exposes `PUT /api/procedures/reports/{reportId}/sign` for focused report review/sign-off over the modernized PostgreSQL lab report table.
+- The modernized PostgreSQL seed schema now carries `lab_reports.reviewed_by` and `lab_reports.reviewed_at`, while legacy parity normalizes OpenEMR's `procedure_report.source` plus `review_status` representation.
+- The React Procedures workspace exposes a compact `Sign Report` action on procedure report cards and renders `Signed by admin` plus the signed timestamp after the mutation refreshes the patient procedure detail.
+- Procedure report read models in both the Procedures and Encounter workspaces include signed review metadata.
+- Legacy and modernized workflow/database probes share a procedure-report sign-off operation and normalize signed reviewer/timestamp facts.
+- The modernized smoke test includes report sign-off in the procedure mutation lifecycle.
+- Workbench-managed Slice 134 procedure report sign-off plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- The shared plan creates a temporary lab workflow for `MOD-PAT-0009`, signs the existing report as `admin` at `2026-06-19 14:15`, and preserves order/report/result identity.
+- The signed reviewer, signed timestamp, reviewed status, report metadata, and linked result are visible in the modernized Procedures workspace and normalized database/API probes.
+- The legacy Procedure Results screen still renders the signed report/result after the shared workflow adapter updates the legacy `procedure_report` row.
+- Hard-delete cleanup restores procedure counts and removes the temporary encounter/order/report/result rows.
+- The side-by-side Slice 134 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused report review/sign-off parity only. It does not implement role-based reviewer authorization, multi-reviewer queues, notification workflow, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 18: Administration Facility Mutation
 
@@ -3789,3 +3818,4 @@ As of 2026-06-20:
 - The one-hundred-thirty-first modernized vertical slice implements procedure specimen detail readiness with `lab_specimens`, a focused specimen-create endpoint, React Procedures and Encounter specimen rendering/actions, normalized legacy/modernized specimen-detail probes, Workbench procedure specimen detail plan actions, smoke coverage, cleanup deletion, and side-by-side slice-131 parity evidence.
 - The one-hundred-thirty-second modernized vertical slice implements procedure order correction readiness with a focused order update endpoint, React Procedures order correction controls, normalized legacy/modernized order probes, Workbench procedure order correction plan actions, smoke coverage, cleanup deletion, and side-by-side slice-132 parity evidence.
 - The one-hundred-thirty-third modernized vertical slice implements procedure report correction readiness with a focused report update endpoint, React Procedures report correction controls, normalized legacy/modernized report probes, Workbench procedure report correction plan actions, smoke coverage, cleanup deletion, and side-by-side slice-133 parity evidence.
+- The one-hundred-thirty-fourth modernized vertical slice implements procedure report sign-off readiness with modernized report review metadata, a focused report sign endpoint, React Procedures sign controls, normalized legacy/modernized signed report probes, Workbench procedure report sign-off plan actions, smoke coverage, cleanup deletion, and side-by-side slice-134 parity evidence.
