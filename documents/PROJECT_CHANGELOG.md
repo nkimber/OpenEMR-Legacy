@@ -8014,6 +8014,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 
+### 148. Modernized Appointment Patient Overlap Slice 118
+
+Commit: `79e98333`
+Started: `2026-06-21T01:12:00.0000000-04:00`
+Finished: `2026-06-21T01:29:46.0000000-04:00`
+
+Implemented the one-hundred-eighteenth modernized OpenEMR vertical slice: appointment patient overlap readiness, proving that legacy-compatible same-patient, same-time appointment double-booking remains allowed while the modernized API and Calendar surface non-blocking patient-overlap detail for operators.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 425
+- Lines deleted: 21
+- Net lines: 404
+- Total churn: 446
+
+Key outcomes:
+
+- Added patient-overlap fields to modernized appointment list/detail DTOs so appointment responses expose `patientOverlapCount` and reciprocal `patientOverlapAppointmentIds`.
+- Extended appointment search/detail annotation to derive same-patient active appointment overlaps by date and time window while continuing to report provider-overlap detail from Slice 117.
+- The modernized Calendar detail panel now renders `Patient overlaps`, while appointment result cards display patient-overlap badges without blocking scheduling behavior.
+- Extended the modernized smoke test with an `appointment patient overlap tolerance` check that verifies reciprocal overlap IDs and deletes the temporary appointments.
+- Added the `workflow-appointment-patient-overlap` Playwright parity suite and `slice-118-appointment-patient-overlap-readiness` plan.
+- The shared parity workflow creates two temporary same-patient, same-time appointments for `MOD-PAT-0003` at `2026-12-05 09:00` with providers `101` and `102`, verifies both targets allow and render the distinct appointments, verifies modernized patient-overlap detail, and hard-deletes both during cleanup.
+- Added Workbench managed plan commands/cards for Slice 118 on both legacy and modernized targets.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 118 with thirty-six read-only slices and eighty-two mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build OpenEmr.Modernized.slnx` passed in `modernized-openemr/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- PowerShell parse check passed for `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including `appointment patient overlap tolerance`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-118-appointment-patient-overlap-readiness -Reset test` passed; run `2026-06-21T052820-378Z-modernized-openemr-plan-slice-118-appointment-patient-overlap-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-118-appointment-patient-overlap-readiness -Reset test` passed; run `2026-06-21T052855-357Z-legacy-openemr-plan-slice-118-appointment-patient-overlap-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-118-appointment-patient-overlap-readiness` passed with `status: matched`; comparison `2026-06-21T052925-011Z-legacy-openemr-vs-modernized-openemr-plan-slice-118-appointment-patient-overlap-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AppointmentDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-patient-overlap/appointment-patient-overlap.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
