@@ -8442,6 +8442,66 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
 
+### 156. Encounter Scanned Attachment Slice 126
+
+Commit: `e0c5dc78`
+Started: `2026-06-21T03:38:00.0000000-04:00`
+Finished: `2026-06-21T04:02:16.9835456-04:00`
+
+Implemented the one-hundred-twenty-sixth project slice and latest modernized OpenEMR workflow slice: encounter scanned attachment readiness, proving that encounter-scoped PDF attachments can derive and render scan status, capture source, scanned page count, and OCR status consistently across legacy OpenEMR and the modernized target.
+
+Code changes:
+
+- Files changed: 10
+- Lines added: 429
+- Lines deleted: 5
+- Net lines: 424
+- Total churn: 434
+
+Key outcomes:
+
+- Added scan-readiness fields to modernized encounter document attachment DTOs and API responses.
+- Rendered scan readiness on modernized Encounter attached-document cards using the same visual pattern as patient scanned documents.
+- Added the `workflow-encounter-document-scanned-attachment` Playwright parity suite and `slice-126-encounter-document-scanned-attachment-readiness` plan.
+- The shared workflow creates a temporary scanned PDF on `MOD-PAT-0001` encounter `1000013`, verifies database/content/API facts, renders legacy or modernized UI evidence, and hard-deletes the document.
+- Added Workbench managed plan commands/cards for Slice 126 on both legacy and modernized targets.
+- Added a modernized smoke check named `encounter scanned attachment readiness`.
+- Synchronized project context, modernization-plan, test-architecture, test-data, Workbench, index, and legacy-baseline documents so the current modernization state is Slice 126 with thirty-eight read-only slices and eighty-six mutation-capable slices.
+
+Verified test runs:
+
+- JSON manifest parse passed for `parity-tests/test-manifest.json`, `parity-tests/package.json`, and `modernization-workbench/config/apps.json`.
+- PowerShell parse check passed for `scripts\Run-OpenEmrParityTests.ps1` and `modernized-openemr\scripts\Test-ModernizedBaseline.ps1`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`.
+- `dotnet build .\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/src/OpenEmr.Modernized.Api/`.
+- `docker compose up -d --build api frontend` rebuilt and restarted the modernized target containers.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Test-ModernizedBaseline.ps1` passed; `encounter scanned attachment readiness` passed in `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-126-encounter-document-scanned-attachment-readiness -Reset test` passed; run `2026-06-21T075254-099Z-modernized-openemr-plan-slice-126-encounter-document-scanned-attachment-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-126-encounter-document-scanned-attachment-readiness -Reset test` passed; run `2026-06-21T075327-401Z-legacy-openemr-plan-slice-126-encounter-document-scanned-attachment-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-126-encounter-document-scanned-attachment-readiness` passed with `status: matched`; comparison `2026-06-21T075404-038Z-legacy-openemr-vs-modernized-openemr-plan-slice-126-encounter-document-scanned-attachment-readiness`.
+- `git diff --check` passed with only expected LF-to-CRLF warnings from Windows line-ending normalization.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-document-scanned-attachment/encounter-scanned-attachment.spec.ts`
+- `parity-tests/test-manifest.json`
+- `parity-tests/package.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
