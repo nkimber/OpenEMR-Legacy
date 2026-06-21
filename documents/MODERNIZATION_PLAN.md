@@ -1038,7 +1038,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused PDF-style binary document create, active rendering, download, archive, and delete lifecycle only.
-- Scanned-document capture, multi-file uploads, thumbnails, signing, versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and external document-storage adapters remain deferred.
+- Scanned-document capture, multi-file uploads, thumbnails, signing, versioning, encryption/key management, CCDA import/export, patient-portal document access rules, and external document-storage adapters remain deferred. Focused patient binary document content replacement is covered by Slice 128.
 
 ### Slice 34: Patient Insurance Mutation
 
@@ -1343,7 +1343,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers focused active text payload replacement only.
+- This slice covers focused active text payload replacement only. Focused active binary patient document replacement is covered by Slice 128.
 
 ### Slice 44: Fee-Sheet Diagnosis Coding Mutation
 
@@ -1684,7 +1684,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice preserves the legacy in-place current-revision behavior rather than adding true prior-version storage.
+- This slice preserves the legacy in-place current-revision behavior rather than adding true prior-version storage. Slice 128 applies the same current-revision readiness contract to patient-scoped binary document replacement.
 - Prior-version browsing, rollback, diffing, retention-policy enforcement, rendered thumbnails, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and document exchange integrations remain future document slices.
 
 ### Slice 56: Payment Posting Mutation Readiness
@@ -2446,6 +2446,37 @@ Acceptance:
 Current limitations:
 
 - This slice proves focused database-backed binary replacement from the Encounter workspace. True historical version rows, generated PDF thumbnails, external object storage, scanner routing, role-based replacement authorization, document routing queues, and comprehensive audit-log export remain future work.
+
+### Slice 128: Patient Binary Document Content Replacement Readiness
+
+Status:
+
+- Implemented as a mutation-capable modernized patient-document binary replacement slice under `modernized-openemr/`.
+- Verification is the shared `slice-128-document-binary-content-replace-readiness` plan, which creates a temporary PDF on `MOD-PAT-0001`, replaces its stored binary payload in place from the modernized Documents workspace, validates preview/download/revision facts, deletes the document, and verifies cleanup on both legacy and modernized targets.
+
+Scope:
+
+- The ASP.NET Core documents API exposes `PUT /api/documents/{documentId}/content/binary` for active database-backed patient documents.
+- The existing binary replacement repository behavior is now available directly from patient-document workflows, updating MIME type, file name, size, page count, hash, binary bytes, preview text, storage URL, and uploaded/revision timestamp.
+- The modernized frontend API exposes patient binary content replacement as a named helper.
+- The modernized Documents workspace adds a file-picker based `Binary File` replacement mode on patient document cards while preserving the existing text `Replace` action.
+- The modernized workflow adapter now calls the patient-document binary replacement endpoint directly instead of reusing encounter-scoped replacement as a workaround.
+- The shared parity workflow reuses `MOD-PAT-0001` and seeded encounter `1000013`, creates a temporary `Medical Record` PDF, replaces it with a second PDF, verifies byte-for-byte content, MIME type, file name, hash/revision facts, PDF preview facts, download payload, legacy or modernized UI evidence, and hard-delete cleanup.
+- The modernized smoke test includes a `patient binary document content replacement lifecycle` check.
+- Workbench-managed Slice 128 patient binary content replacement plan actions are available for both legacy and modernized targets.
+
+Acceptance:
+
+- Creating a temporary patient-scoped PDF increases the patient's document count by one.
+- Replacing the binary payload preserves the same document id, patient id, document category, document date, encounter link, and review status while updating file name, MIME type, byte size, hash/revision fields, preview facts, and downloadable content.
+- The modernized Documents card renders the replacement filename, PDF preview metadata, and current-version facts.
+- The modernized document download endpoint returns the replacement bytes.
+- Hard-delete cleanup restores the seeded patient document count.
+- The side-by-side Slice 128 parity comparison matches.
+
+Current limitations:
+
+- This slice proves focused database-backed binary replacement from the patient Documents workspace. True historical version rows, generated PDF thumbnails, external object storage, OCR extraction, scanner routing, role-based replacement authorization, patient-portal distribution, document routing queues, and comprehensive audit-log export remain future work.
 
 ### Slice 80: Encounter Document Sign-Off Readiness
 
@@ -3609,3 +3640,4 @@ As of 2026-06-20:
 - The one-hundred-twenty-fifth project slice implements safe Workbench artifact links by adding a constrained `/api/artifacts/file` route for known artifact roots and icon links from comparison drill-ins to legacy run, modernized run, and comparison JSON artifacts.
 - The one-hundred-twenty-sixth modernized vertical slice implements encounter scanned attachment readiness with scan-source/OCR metadata derivation for temporary encounter PDFs, modernized attached-document scan rendering, smoke coverage, Workbench scanned-attachment plan actions, cleanup deletion, and side-by-side slice-126 parity evidence.
 - The one-hundred-twenty-seventh modernized vertical slice implements encounter binary document content replacement readiness with an encounter-scoped binary replacement endpoint, React Encounters `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-127 parity evidence.
+- The one-hundred-twenty-eighth modernized vertical slice implements patient binary document content replacement readiness with a patient-document binary replacement endpoint, React Documents `Binary File` replacement controls, normalized legacy/modernized byte/hash/revision/download probes, Workbench patient binary replacement plan actions, smoke coverage, cleanup deletion, and side-by-side slice-128 parity evidence.
