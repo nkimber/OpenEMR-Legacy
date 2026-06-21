@@ -62,6 +62,8 @@ import type {
   PaymentPostingRecord,
   MedicationRecord,
   ProcedureOrderCatalogItemRecord,
+  ProcedureVendorCompendiumImportInput,
+  ProcedureVendorCompendiumImportResult,
   ProblemRecord,
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
@@ -2375,6 +2377,55 @@ LIMIT 1;
       active: row.active === "1",
       childCount: Number(row.childCount)
     };
+  }
+
+  async getProcedureOrderCatalogItemByCode(
+    parentId: number,
+    code: string,
+    itemType = "ord"
+  ): Promise<ProcedureOrderCatalogItemRecord | null> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM lab_order_catalog
+WHERE parent_id = ${integer(parentId)}
+  AND code = ${sqlString(code)}
+  AND item_type = ${sqlString(itemType)}
+ORDER BY id DESC
+LIMIT 1;
+`);
+    const id = rows[0]?.id;
+    return id ? this.getProcedureOrderCatalogItem(Number(id)) : null;
+  }
+
+  async importProcedureVendorCompendium(
+    input: ProcedureVendorCompendiumImportInput
+  ): Promise<ProcedureVendorCompendiumImportResult> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/import-compendium`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure compendium import failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return (await response.json()) as ProcedureVendorCompendiumImportResult;
+  }
+
+  async deleteProcedureOrderCatalogSubtree(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM lab_order_catalog
+WHERE parent_id IN (
+  SELECT id
+  FROM lab_order_catalog
+  WHERE parent_id = ${integer(id)}
+);
+DELETE FROM lab_order_catalog
+WHERE parent_id = ${integer(id)};
+DELETE FROM lab_order_catalog
+WHERE id = ${integer(id)};
+`);
   }
 
   async getProcedureOrder(id: number): Promise<ProcedureOrderRecord | null> {

@@ -59,6 +59,10 @@ export class ModernizedPostgresProbe {
     return parsePostgresRows<T>(await this.runSql(sql));
   }
 
+  async execute(sql: string): Promise<void> {
+    await this.runSql(sql);
+  }
+
   private async runSql(sql: string): Promise<string> {
     const dbName = this.target.env.POSTGRES_DB || this.target.database.defaultDatabase;
     const dbUser = this.target.env.POSTGRES_USER || this.target.database.defaultUser;

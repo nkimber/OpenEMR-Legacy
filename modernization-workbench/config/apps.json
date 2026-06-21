@@ -71,6 +71,7 @@
         "parityProcedureLabProviderAddressBookPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-144-procedure-lab-provider-address-book-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-145-procedure-order-catalog-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-147-procedure-order-catalog-lifecycle-readiness", "-Reset", "test"],
+        "parityProcedureVendorCompendiumImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-148-procedure-vendor-compendium-import-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -755,14 +756,22 @@
           "commandName": "parityProcedureOrderCatalogPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-145-procedure-order-catalog-readiness.json"
         },
-        {
-          "id": "parity-plan-procedure-order-catalog-lifecycle",
-          "name": "Slice 147 procedure order catalog lifecycle plan",
-          "description": "Runs the shared temporary procedure order catalog lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
-          "layer": "plan",
-          "commandName": "parityProcedureOrderCatalogLifecyclePlan",
-          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
-        },
+          {
+            "id": "parity-plan-procedure-order-catalog-lifecycle",
+            "name": "Slice 147 procedure order catalog lifecycle plan",
+            "description": "Runs the shared temporary procedure order catalog lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureOrderCatalogLifecyclePlan",
+            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
+          },
+          {
+            "id": "parity-plan-procedure-vendor-compendium-import",
+            "name": "Slice 148 procedure vendor compendium import plan",
+            "description": "Runs the shared temporary vendor compendium import plan against the legacy target for side-by-side comparison with the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureVendorCompendiumImportPlan",
+            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+          },
         {
           "id": "parity-plan-admin-facility-mutation",
           "name": "Slice 18 admin facility mutation plan",
@@ -1491,6 +1500,7 @@
         "parityProcedureLabProviderAddressBookPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-144-procedure-lab-provider-address-book-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-145-procedure-order-catalog-readiness", "-Reset", "test"],
         "parityProcedureOrderCatalogLifecyclePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-147-procedure-order-catalog-lifecycle-readiness", "-Reset", "test"],
+        "parityProcedureVendorCompendiumImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-148-procedure-vendor-compendium-import-readiness", "-Reset", "test"],
         "parityAdminFacilityMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-18-admin-facility-mutation-readiness", "-Reset", "test"],
         "parityAdminUserMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-19-admin-user-mutation-readiness", "-Reset", "test"],
         "parityAccessControlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-20-access-control-readiness", "-Reset", "run"],
@@ -2101,14 +2111,22 @@
           "commandName": "parityProcedureOrderCatalogPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-145-procedure-order-catalog-readiness.json"
         },
-        {
-          "id": "parity-plan-procedure-order-catalog-lifecycle",
-          "name": "Slice 147 procedure order catalog lifecycle plan",
-          "description": "Runs the shared temporary procedure order catalog lifecycle plan against the modernized target.",
-          "layer": "plan",
-          "commandName": "parityProcedureOrderCatalogLifecyclePlan",
-          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
-        },
+          {
+            "id": "parity-plan-procedure-order-catalog-lifecycle",
+            "name": "Slice 147 procedure order catalog lifecycle plan",
+            "description": "Runs the shared temporary procedure order catalog lifecycle plan against the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureOrderCatalogLifecyclePlan",
+            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
+          },
+          {
+            "id": "parity-plan-procedure-vendor-compendium-import",
+            "name": "Slice 148 procedure vendor compendium import plan",
+            "description": "Runs the shared temporary vendor compendium import plan against the modernized target.",
+            "layer": "plan",
+            "commandName": "parityProcedureVendorCompendiumImportPlan",
+            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+          },
         {
           "id": "parity-plan-admin-facility-mutation",
           "name": "Slice 18 admin facility mutation plan",

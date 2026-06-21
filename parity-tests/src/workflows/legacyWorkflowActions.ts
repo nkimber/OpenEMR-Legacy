@@ -1,5 +1,89 @@
 import { buildPatientDocumentScanFields, escapeSql, type LegacyMariaDbProbe } from "../db/legacyMariaDbProbe.js";
 
+type ProcedureCompendiumCsvRow = {
+  orderCode: string;
+  orderName: string;
+  resultCode?: string;
+  resultName?: string;
+};
+
+function parseProcedureCompendiumCsv(csvText: string, vendorFormat: "pathgroup" | "ympg-dpmg"): ProcedureCompendiumCsvRow[] {
+  const parsedRows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < csvText.length; index += 1) {
+    const current = csvText[index];
+    if (inQuotes) {
+      if (current === '"') {
+        if (csvText[index + 1] === '"') {
+          field += '"';
+          index += 1;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += current;
+      }
+      continue;
+    }
+
+    if (current === '"') {
+      inQuotes = true;
+      continue;
+    }
+    if (current === ",") {
+      row.push(field);
+      field = "";
+      continue;
+    }
+    if (current === "\r" || current === "\n") {
+      row.push(field);
+      if (row.some((value) => value.trim())) {
+        parsedRows.push(row);
+      }
+      row = [];
+      field = "";
+      if (current === "\r" && csvText[index + 1] === "\n") {
+        index += 1;
+      }
+      continue;
+    }
+
+    field += current;
+  }
+
+  row.push(field);
+  if (row.some((value) => value.trim())) {
+    parsedRows.push(row);
+  }
+
+  const seen = new Set<string>();
+  const rows: ProcedureCompendiumCsvRow[] = [];
+  for (const columns of parsedRows) {
+    const orderCode = columns[0]?.trim();
+    const orderName = columns[1]?.trim();
+    if (!orderCode || orderCode.toLowerCase() === "order code" || !orderName) {
+      continue;
+    }
+    if (vendorFormat === "pathgroup" && columns.length < 4) {
+      continue;
+    }
+
+    const resultCode = vendorFormat === "pathgroup" ? columns[2]?.trim() : undefined;
+    const resultName = vendorFormat === "pathgroup" ? columns[3]?.trim() : undefined;
+    const key = `${orderCode}|${resultCode ?? ""}`.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    rows.push({ orderCode, orderName, resultCode, resultName });
+  }
+
+  return rows;
+}
+
 export type PatientContact = {
   pid: number;
   pubpid: string;
@@ -371,6 +455,39 @@ export type ProcedureOrderCatalogItemRecord = {
   sequence: number;
   active: boolean;
   childCount: number;
+};
+
+export type ProcedureVendorCompendiumImportInput = {
+  vendorFormat: "pathgroup" | "ympg-dpmg";
+  parentId: number;
+  labId: number;
+  csvText: string;
+};
+
+export type ProcedureVendorCompendiumImportItem = {
+  id: number;
+  parentId: number;
+  code: string;
+  name: string;
+  itemType: string;
+  created: boolean;
+  reactivated: boolean;
+};
+
+export type ProcedureVendorCompendiumImportResult = {
+  vendorFormat: string;
+  parentId: number;
+  labId: number;
+  importedOrderCount: number;
+  createdOrderCount: number;
+  updatedOrderCount: number;
+  reactivatedOrderCount: number;
+  deactivatedOrderCount: number;
+  importedResultCount: number;
+  createdResultCount: number;
+  updatedResultCount: number;
+  reactivatedResultCount: number;
+  importedItems: ProcedureVendorCompendiumImportItem[];
 };
 
 export type ProcedureReportRecord = {
@@ -3220,6 +3337,197 @@ LIMIT 1;
       active: row.active === "1",
       childCount: Number(row.childCount)
     };
+  }
+
+  async getProcedureOrderCatalogItemByCode(
+    parentId: number,
+    code: string,
+    itemType = "ord"
+  ): Promise<ProcedureOrderCatalogItemRecord | null> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+SELECT procedure_type_id AS id
+FROM procedure_type
+WHERE parent = ${integer(parentId)}
+  AND procedure_code = ${sqlString(code)}
+  AND procedure_type = ${sqlString(itemType)}
+ORDER BY procedure_type_id DESC
+LIMIT 1;
+`);
+    const id = rows[0]?.id;
+    return id ? this.getProcedureOrderCatalogItem(Number(id)) : null;
+  }
+
+  async importProcedureVendorCompendium(
+    input: ProcedureVendorCompendiumImportInput
+  ): Promise<ProcedureVendorCompendiumImportResult> {
+    const rows = parseProcedureCompendiumCsv(input.csvText, input.vendorFormat);
+    const activeRows = await this.db.queryRows<{ count: string }>(`
+SELECT COUNT(*) AS count
+FROM procedure_type
+WHERE parent = ${integer(input.parentId)}
+  AND procedure_type = 'ord'
+  AND activity = 1;
+`);
+    const deactivatedOrderCount = Number(activeRows[0]?.count ?? 0);
+
+    await this.db.execute(`
+UPDATE procedure_type
+SET activity = 0
+WHERE parent = ${integer(input.parentId)}
+  AND procedure_type = 'ord';
+`);
+
+    let createdOrderCount = 0;
+    let updatedOrderCount = 0;
+    let reactivatedOrderCount = 0;
+    let createdResultCount = 0;
+    let updatedResultCount = 0;
+    let reactivatedResultCount = 0;
+    let importedResultCount = 0;
+    const importedItems: ProcedureVendorCompendiumImportItem[] = [];
+    const resultParentsCleared = new Set<number>();
+
+    for (const row of rows) {
+      const existingOrder = await this.getProcedureOrderCatalogItemByCode(input.parentId, row.orderCode, "ord");
+      let orderId: number;
+      let orderCreated = false;
+      let orderReactivated = false;
+      if (existingOrder) {
+        orderId = existingOrder.id;
+        orderReactivated = !existingOrder.active;
+        updatedOrderCount += 1;
+        if (orderReactivated) {
+          reactivatedOrderCount += 1;
+        }
+        await this.db.execute(`
+UPDATE procedure_type
+SET parent = ${integer(input.parentId)},
+    name = ${sqlString(row.orderName)},
+    lab_id = ${integer(input.labId)},
+    procedure_code = ${sqlString(row.orderCode)},
+    procedure_type = 'ord',
+    activity = 1
+WHERE procedure_type_id = ${integer(orderId)};
+`);
+      } else {
+        orderId = await this.createProcedureOrderCatalogItem({
+          parentId: input.parentId,
+          labId: input.labId,
+          name: row.orderName,
+          code: row.orderCode,
+          itemType: "ord",
+          procedureTypeName: "laboratory",
+          sequence: 0,
+          active: true
+        });
+        orderCreated = true;
+        createdOrderCount += 1;
+      }
+
+      importedItems.push({
+        id: orderId,
+        parentId: input.parentId,
+        code: row.orderCode,
+        name: row.orderName,
+        itemType: "ord",
+        created: orderCreated,
+        reactivated: orderReactivated
+      });
+
+      if (!resultParentsCleared.has(orderId)) {
+        resultParentsCleared.add(orderId);
+        await this.db.execute(`
+UPDATE procedure_type
+SET activity = 0
+WHERE parent = ${integer(orderId)}
+  AND procedure_type = 'res';
+`);
+      }
+
+      if (input.vendorFormat !== "pathgroup" || !row.resultCode || !row.resultName) {
+        continue;
+      }
+
+      importedResultCount += 1;
+      const existingResult = await this.getProcedureOrderCatalogItemByCode(orderId, row.resultCode, "res");
+      let resultId: number;
+      let resultCreated = false;
+      let resultReactivated = false;
+      if (existingResult) {
+        resultId = existingResult.id;
+        resultReactivated = !existingResult.active;
+        updatedResultCount += 1;
+        if (resultReactivated) {
+          reactivatedResultCount += 1;
+        }
+        await this.db.execute(`
+UPDATE procedure_type
+SET parent = ${integer(orderId)},
+    name = ${sqlString(row.resultName)},
+    lab_id = ${integer(input.labId)},
+    procedure_code = ${sqlString(row.resultCode)},
+    procedure_type = 'res',
+    activity = 1
+WHERE procedure_type_id = ${integer(resultId)};
+`);
+      } else {
+        resultId = await this.createProcedureOrderCatalogItem({
+          parentId: orderId,
+          labId: input.labId,
+          name: row.resultName,
+          code: row.resultCode,
+          itemType: "res",
+          procedureTypeName: "",
+          sequence: 0,
+          active: true
+        });
+        resultCreated = true;
+        createdResultCount += 1;
+      }
+
+      importedItems.push({
+        id: resultId,
+        parentId: orderId,
+        code: row.resultCode,
+        name: row.resultName,
+        itemType: "res",
+        created: resultCreated,
+        reactivated: resultReactivated
+      });
+    }
+
+    return {
+      vendorFormat: input.vendorFormat,
+      parentId: input.parentId,
+      labId: input.labId,
+      importedOrderCount: rows.length,
+      createdOrderCount,
+      updatedOrderCount,
+      reactivatedOrderCount,
+      deactivatedOrderCount,
+      importedResultCount,
+      createdResultCount,
+      updatedResultCount,
+      reactivatedResultCount,
+      importedItems
+    };
+  }
+
+  async deleteProcedureOrderCatalogSubtree(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM procedure_type
+WHERE parent IN (
+  SELECT procedure_type_id FROM (
+    SELECT procedure_type_id
+    FROM procedure_type
+    WHERE parent = ${integer(id)}
+  ) AS imported_orders
+);
+DELETE FROM procedure_type
+WHERE parent = ${integer(id)};
+DELETE FROM procedure_type
+WHERE procedure_type_id = ${integer(id)};
+`);
   }
 
   private async getProcedureLabProviderAddressBookOrganizationName(id: number): Promise<string> {
