@@ -12449,6 +12449,61 @@ Primary files:
 - `documents/PROJECT_CONTEXT.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 221. Appointment Mutation Authorization Policy Readiness Slice 189
+
+Commit: `pending`
+Started: `2026-06-22T10:17:30.0000000-04:00`
+Finished: `2026-06-22T10:51:57.0923088-04:00`
+
+Implemented workflow Slice 189: appointment mutation authorization-policy readiness. The modernized appointment API now keeps appointment search/detail reads behind the existing Appointment view gate while requiring Appointment write for schedule create, update, status, recurrence restore, occurrence reschedule, and delete mutations.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 604
+- Lines deleted: 37
+- Net lines: 567
+- Total churn: 641
+
+Key outcomes:
+
+- Added endpoint-level Appointment write authorization filters to appointment create, update, status, recurrence restore, occurrence reschedule, and delete endpoints.
+- Added the `workflow-appointment-mutation-authorization-policy` parity suite and `slice-189-appointment-mutation-authorization-policy-readiness` plan.
+- Added Workbench managed plan actions for Slice 189 on both legacy and modernized targets.
+- Added a modernized smoke check that temporarily downgrades Clinicians from `patients:appt write` to `patients:appt view`, proves read access plus write-level mutation denial, and restores the permanent write grant.
+- Updated the functionality progress ledger and project documents to mark appointment mutation authorization as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` and `scripts/Run-OpenEmrParityTests.ps1`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `appointment mutation authorization` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-189-appointment-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-189-appointment-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-189-appointment-mutation-authorization-policy-readiness` passed with status `matched`.
+- Modernized focused regressions passed for `slice-167-appointment-protection-readiness`, `slice-176-appointment-authorization-policy-readiness`, `slice-11-appointment-mutation-readiness`, `slice-93-appointment-reschedule-readiness`, `slice-107-appointment-occurrence-restore-readiness`, `slice-108-appointment-occurrence-reschedule-readiness`, `slice-20-access-control-readiness`, and `slice-21-access-permission-mutation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-appointment-mutation-authorization-policy/appointment-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
