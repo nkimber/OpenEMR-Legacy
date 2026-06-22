@@ -11224,6 +11224,62 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 214. Patient Mutation Authorization Policy Readiness Slice 184
+
+Commit: `pending`
+Started: `2026-06-22T07:13:00.0000000-04:00`
+Finished: `2026-06-22T07:32:52.4385761-04:00`
+
+Implemented the one-hundred-eighty-fourth project slice and latest modernized OpenEMR workflow slice: patient mutation authorization-policy readiness, separating Demographics add-only registration access from Demographics write-level existing chart mutation authority while comparing the admin/front-desk/clinician ACL matrix with the legacy baseline.
+
+Code changes:
+
+- Files changed: pending
+- Lines added: pending
+- Lines deleted: pending
+- Net lines: pending
+- Total churn: pending
+
+Key outcomes:
+
+- Added endpoint-level authorization filters to patient mutation endpoints so patient registration can use `patients:demo addonly`, while contact edits, demographics edits, insurance create/update/delete, and temporary patient deletion require `patients:demo write`.
+- Added the `workflow-patient-mutation-authorization-policy` suite and `slice-184-patient-mutation-authorization-policy-readiness` plan.
+- Reused the modernized-only `gold-provider-01` Clinicians fixture from Slice 183 plus the existing Demographics ACL matrix, adding no permanent seed rows.
+- Proved the modernized clinician session can read patient chart data and register a temporary `TMP-PAT-REG-*` patient, receives 403 for existing-chart contact/demographics edits and temporary-patient deletion, and allows admin cleanup.
+- Added Workbench-managed Slice 184 plan actions for both legacy and modernized targets and updated the progress ledger for patient chart plus administration/security.
+- Advanced patient chart completion from 74% to 75% and administration/security completion from 77% to 78%, while leaving patient merge, duplicate detection, portal provisioning, broader role/facility policy, production identity, MFA, password lifecycle, and broader audit scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed with 0 warnings.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-184-patient-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T112731-907Z-legacy-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-184-patient-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T113000-379Z-modernized-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-184-patient-mutation-authorization-policy-readiness` passed with comparison `2026-06-22T113023-361Z-legacy-openemr-vs-modernized-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized regressions passed for patient chart authorization (`slice-178-patient-authorization-policy-readiness`, run `2026-06-22T113032-727Z-modernized-openemr-plan-slice-178-patient-authorization-policy-readiness`), patient contact mutation (`slice-10-contact-mutation-readiness`, run `2026-06-22T113058-998Z-modernized-openemr-plan-slice-10-contact-mutation-readiness`), patient demographics mutation (`slice-36-patient-demographics-mutation-readiness`, run `2026-06-22T113123-754Z-modernized-openemr-plan-slice-36-patient-demographics-mutation-readiness`), patient registration (`slice-37-patient-registration-readiness`, run `2026-06-22T113149-808Z-modernized-openemr-plan-slice-37-patient-registration-readiness`), and insurance mutation (`slice-34-insurance-mutation-readiness`, run `2026-06-22T113213-879Z-modernized-openemr-plan-slice-34-insurance-mutation-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `parity-tests/tests/workflow-patient-mutation-authorization-policy/patient-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 211. Billing Authorization Policy Readiness Slice 181
 
 Commit: `ef894f9c`
