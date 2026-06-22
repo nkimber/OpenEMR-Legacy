@@ -10967,6 +10967,74 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 196. Clinical Lists Protection Readiness Slice 166
+
+Commit: `d500765f`
+Started: `2026-06-21T22:05:00.0000000-04:00`
+Finished: `2026-06-21T22:29:29.7716045-04:00`
+Duration: 24 minutes 29 seconds
+
+Implemented the one-hundred-sixty-sixth project slice and latest modernized OpenEMR workflow slice: clinical-list protection readiness, requiring an active modernized session for `/api/clinical-lists/*`, gating Lists workspace lookup and mutation controls until sign-in, and comparing that behavior with legacy OpenEMR patient-summary list facts protected by login.
+
+Code changes:
+
+- Files changed: 18
+- Lines added: 453
+- Lines deleted: 142
+- Net lines: +311
+- Total churn: 595
+
+Key outcomes:
+
+- Protected the modernized `/api/clinical-lists` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Lists Access sign-in gate so patient lookup plus allergy, problem, medication, prescription, and immunization mutation controls only run after session verification.
+- Updated modernized clinical-list API calls, smoke checks, workflow actions, and Playwright UI helpers to pass the active OpenEMR session.
+- Added the `workflow-clinical-list-protection` suite and `slice-166-clinical-list-protection-readiness` plan.
+- Added Workbench-managed Slice 166 plan actions for both legacy and modernized targets.
+- Kept older clinical-list, problem, medication, prescription, and immunization parity suites compatible with authenticated modernized UI/API access.
+- Advanced clinical lists completion from 52% to 54% and administration/security completion from 42% to 44%, while leaving scheduling, encounter, document, billing, procedure, messaging, broader authorization policy, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-166-clinical-list-protection-readiness -Reset run` passed: run `2026-06-22T021604-035Z-legacy-openemr-plan-slice-166-clinical-list-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-166-clinical-list-protection-readiness -Reset run` passed: run `2026-06-22T021735-839Z-modernized-openemr-plan-slice-166-clinical-list-protection-readiness`, 1 expected, 0 unexpected. An earlier modernized run exposed an ambiguous `Lists` heading selector after the Lists Access heading was added; the selector was tightened to an exact heading and rerun.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-166-clinical-list-protection-readiness` passed with comparison `2026-06-22T021800-469Z-legacy-openemr-vs-modernized-openemr-plan-slice-166-clinical-list-protection-readiness`, `status: matched`, and no differences.
+- Modernized compatibility checks passed for clinical-list read (`2026-06-22T021808-350Z-modernized-openemr-plan-slice-4-clinical-lists-readiness`), clinical-list allergy mutation (`2026-06-22T021838-543Z-modernized-openemr-plan-slice-13-clinical-list-mutation-readiness`), problem mutation (`2026-06-22T021905-402Z-modernized-openemr-plan-slice-31-problem-mutation-readiness`), medication mutation (`2026-06-22T021932-319Z-modernized-openemr-plan-slice-32-medication-list-mutation-readiness`), prescription mutation (`2026-06-22T022004-345Z-modernized-openemr-plan-slice-15-prescription-mutation-readiness`), immunization read (`2026-06-22T022037-939Z-modernized-openemr-plan-slice-29-immunizations-readiness`), and immunization mutation (`2026-06-22T022103-116Z-modernized-openemr-plan-slice-30-immunization-mutation-readiness`).
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-clinical-list-protection/clinical-list-protection.spec.ts`
+- `parity-tests/tests/workflow-clinical-lists/clinical-lists.spec.ts`
+- `parity-tests/tests/workflow-problem-list/problem-list.spec.ts`
+- `parity-tests/tests/workflow-medication-list/medication-list.spec.ts`
+- `parity-tests/tests/workflow-prescription/prescription.spec.ts`
+- `parity-tests/tests/workflow-immunizations/immunizations.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
