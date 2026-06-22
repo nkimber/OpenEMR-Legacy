@@ -1,7 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { escapeSql } from "../../src/db/legacyMariaDbProbe.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientNotesDirect } from "../../src/ui/legacyOpenEmr.js";
-import { openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
+import { openAuthenticatedModernizedFees, openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("collections follow-up task parity @slice64 @account-collections-follow-up @billing @mutation", () => {
   test("creates, closes, renders, soft-deletes, and removes a collections follow-up task", async ({
@@ -73,7 +73,7 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
         await expect(page.locator("body")).toContainText("Done");
         await expect(page.locator("body")).toContainText("Assigned to billing");
 
-        await page.getByRole("button", { name: "Fees" }).click();
+        await openAuthenticatedModernizedFees(page, target);
         const queuePanel = page.locator('[aria-label="Collections work queue"]');
         await expect(queuePanel.getByRole("heading", { name: "Collections Work Queue" })).toBeVisible();
         await queuePanel.getByRole("button", { name: "Create Task" }).first().click();

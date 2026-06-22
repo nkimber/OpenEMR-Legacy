@@ -154,6 +154,23 @@ export async function openAuthenticatedModernizedMessages(page: Page, target: Ru
   }
 }
 
+export async function openAuthenticatedModernizedFees(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Fees" }).click();
+  await expect(page.getByRole("heading", { name: "Fees", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Billing access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByRole("button", { name: "Verify Billing Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load fee sheet data");
+
+  if (patientSearch) {
+    await page.getByLabel("Fees patient ID").fill(patientSearch);
+  }
+}
+
 export async function getModernizedAdminSessionHeaders(page: Page, target: RuntimeTarget) {
   const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
     data: target.credentials

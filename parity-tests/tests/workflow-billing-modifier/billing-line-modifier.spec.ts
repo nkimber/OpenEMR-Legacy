@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openEncounterDirect, openFeeSheetDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const billingModifierAnchorPatientId = "MOD-PAT-0001";
@@ -85,10 +86,7 @@ test.describe("fee sheet billing modifier parity @slice46 @workflow-billing-modi
         await expectRenderedText(page, "25");
         await expectRenderedText(page, modifiedText);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Fees" }).click();
-        await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-        await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(modifiedText);
         await expect(page.locator("body")).toContainText("99213:25");

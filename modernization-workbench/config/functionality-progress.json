@@ -200,7 +200,7 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, and collections basics are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, and protected billing access are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
@@ -216,6 +216,11 @@
           "label": "Statements, batches, and collections",
           "detail": "Statement generation, statement PDF export, batch candidate/package export, collections work queue, and follow-up task lifecycle are covered.",
           "evidence": ["slice-59-statement-generation-readiness", "slice-60-statement-pdf-export-readiness", "slice-61-statement-batch-candidate-readiness", "slice-62-statement-batch-package-readiness", "slice-63-collections-work-queue-readiness", "slice-64-collections-follow-up-readiness"]
+        },
+        {
+          "label": "Billing protection readiness",
+          "detail": "The modernized billing API group now requires an active session, the Fees page gates fee sheet, statement, batch, collections, and revenue-cycle mutations until sign-in, and parity compares legacy fee-sheet protection with modernized API/UI protection.",
+          "evidence": ["slice-171-billing-protection-readiness"]
         }
       ],
       "outstanding": [
@@ -225,10 +230,10 @@
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 48,
+      "completionEstimatePercent": 50,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, and collections basics are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, collections basics, and protected billing access are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",
@@ -302,7 +307,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, and protected message APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, and protected billing APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -373,19 +378,24 @@
           "label": "Message protection readiness",
           "detail": "The modernized message API group now requires an active session, the Messages page gates patient-message search and mutations until sign-in, and parity compares legacy patient-notes protection with modernized API/UI protection.",
           "evidence": ["slice-170-message-protection-readiness"]
+        },
+        {
+          "label": "Billing protection readiness",
+          "detail": "The modernized billing API group now requires an active session, the Fees page gates fee-sheet and revenue-cycle data until sign-in, and parity compares legacy fee-sheet protection with modernized API/UI protection.",
+          "evidence": ["slice-171-billing-protection-readiness"]
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, enforcing session checks across the remaining billing and procedure APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, enforcing session checks across the remaining procedure APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 52,
+      "completionEstimatePercent": 54,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, and protected message APIs exist; Identity, remaining billing/procedure API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, and protected billing APIs exist; Identity, remaining procedure API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

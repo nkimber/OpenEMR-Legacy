@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { StatementBatchSummary } from "../../src/db/legacyMariaDbProbe.js";
 
 type ApiStatementBatch = {
@@ -51,14 +52,14 @@ test.describe("statement batch candidate parity @slice61 @account-statement-batc
       return;
     }
 
-    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/statements/batch?limit=5`);
+    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/statements/batch?limit=5`, {
+      headers: await getModernizedAdminSessionHeaders(page, target)
+    });
     expect(response.ok()).toBeTruthy();
     const apiBatch = await response.json() as ApiStatementBatch;
     expect(normalizeApiBatch(apiBatch)).toEqual(expectedBatch);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Fees" }).click();
-    await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
+    await openAuthenticatedModernizedFees(page, target);
     await expect(page.getByRole("heading", { name: "Statement Batch" })).toBeVisible();
 
     const body = page.locator("body");

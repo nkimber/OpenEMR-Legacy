@@ -11100,6 +11100,69 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 201. Billing Protection Readiness Slice 171
+
+Commit: `pending`
+Started: `2026-06-22T00:59:00.0000000-04:00`
+Finished: `2026-06-22T01:40:16.8971879-04:00`
+
+Implemented the one-hundred-seventy-first project slice and latest modernized OpenEMR workflow slice: billing protection readiness, requiring an active modernized OpenEMR session for `/api/billing/*`, gating the Fees workspace fee-sheet, statement, batch, collections, claim, payment, and billing-line controls until sign-in, and comparing that behavior with legacy OpenEMR fee-sheet pages protected by login.
+
+Code changes:
+
+- Files changed: 38
+- Lines added: 725
+- Lines deleted: 262
+- Net lines: +463
+- Total churn: 987
+
+Key outcomes:
+
+- Protected the modernized `/api/billing` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Billing Access sign-in gate so Fees workspace billing search, statements, batches, collections, claims, payments, billing-line edits, and encounter fee-sheet creation only run after session verification.
+- Replaced unauthenticated statement PDF and statement-batch package links with authenticated blob downloads.
+- Updated modernized billing API calls, smoke checks, workflow actions, Playwright UI helpers, and direct API assertions to pass the active OpenEMR session.
+- Added the `workflow-billing-protection` suite and `slice-171-billing-protection-readiness` plan.
+- Added Workbench-managed Slice 171 plan actions for both legacy and modernized targets.
+- Kept older billing, claims, payments, account balance, aging, ledger, statement, statement generation/export, collections, and encounter fee-sheet parity suites compatible with authenticated modernized UI/API access.
+- Advanced billing/revenue-cycle completion from 48% to 50% and administration/security completion from 52% to 54%, while leaving procedure API protection, broader authorization policy depth, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `git diff --check` passed with line-ending warnings only.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor fee-sheet billing check includes unauthenticated billing status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-171-billing-protection-readiness -Reset run` passed: run `2026-06-22T052524-383Z-legacy-openemr-plan-slice-171-billing-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-171-billing-protection-readiness -Reset run` passed: run `2026-06-22T052555-513Z-modernized-openemr-plan-slice-171-billing-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-171-billing-protection-readiness` passed with comparison `2026-06-22T052624-003Z-legacy-openemr-vs-modernized-openemr-plan-slice-171-billing-protection-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for billing read (`slice-7-billing-readiness`), billing mutation (`slice-16-billing-mutation-readiness`), billing diagnosis (`slice-44-billing-diagnosis-readiness`), billing correction (`slice-45-billing-correction-readiness`), billing modifier (`slice-46-billing-modifier-readiness`), claims (`slice-47-claim-status-readiness`, `slice-57-claim-status-mutation-readiness`), payments (`slice-48-payment-posting-readiness`, `slice-56-payment-posting-mutation-readiness`, `slice-58-patient-payment-capture-readiness`), account balance/aging/ledger/statement (`slice-49` through `slice-52`), statement generation/export/batch (`slice-59` through `slice-62`), collections (`slice-63`, `slice-64`), and encounter fee-sheet linkages (`slice-68`, `slice-72`, `slice-74`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-billing-protection/billing-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 200. Patient Message Protection Readiness Slice 170
 
 Commit: `66b0d0cb`

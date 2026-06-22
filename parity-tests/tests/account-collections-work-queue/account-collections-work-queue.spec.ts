@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { CollectionsWorkQueueSummary } from "../../src/db/legacyMariaDbProbe.js";
 
 type ApiCollectionsWorkQueue = {
@@ -52,13 +53,14 @@ test.describe("collections work queue parity @slice63 @account-collections-work-
       return;
     }
 
-    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/collections/work-queue?limit=5`);
+    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/collections/work-queue?limit=5`, {
+      headers: await getModernizedAdminSessionHeaders(page, target)
+    });
     expect(response.ok()).toBeTruthy();
     const apiQueue = await response.json() as ApiCollectionsWorkQueue;
     expect(normalizeApiQueue(apiQueue)).toEqual(expectedQueue);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Fees" }).click();
+    await openAuthenticatedModernizedFees(page, target);
     const queuePanel = page.locator('[aria-label="Collections work queue"]');
     await expect(queuePanel.getByRole("heading", { name: "Collections Work Queue" })).toBeVisible();
     await expect(queuePanel).toContainText(firstItem.patientDisplayName);

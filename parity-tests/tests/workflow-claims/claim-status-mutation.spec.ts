@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 
 const claimMutationAnchorPatientId = "MOD-PAT-0005";
 const claimMutationEncounter = 1000052;
@@ -61,10 +62,7 @@ test.describe("claim status mutation parity @slice57 @workflow-claims @mutation 
       expect(afterCreateClaims.length).toBe(beforeClaims.length + 1);
 
       if (target.type !== "legacy-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Fees" }).click();
-        await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-        await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText("Claim Status");
         await expect(page.locator("body")).toContainText("Queued for billing");

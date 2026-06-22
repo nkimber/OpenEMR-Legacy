@@ -1,5 +1,6 @@
 import { inflateRawSync } from "node:zlib";
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { StatementBatchSummary } from "../../src/db/legacyMariaDbProbe.js";
 
 type PackageManifest = {
@@ -45,7 +46,9 @@ test.describe("statement batch package parity @slice62 @account-statement-batch-
       return;
     }
 
-    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/statements/batch/package.zip?limit=5`);
+    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/statements/batch/package.zip?limit=5`, {
+      headers: await getModernizedAdminSessionHeaders(page, target)
+    });
     expect(response.ok()).toBeTruthy();
     expect(response.headers()["content-type"]).toContain("application/zip");
     expect(response.headers()["content-disposition"]).toContain("statement-batch-20260618-top5.zip");
@@ -72,17 +75,12 @@ test.describe("statement batch package parity @slice62 @account-statement-batch-
     expect(firstPdf).toContain(`Patient Statement ${firstEntry.statementNumber}`);
     expect(firstPdf).toContain(`Balance due ${formatMoney(Number(firstEntry.balanceDueAmount))}`);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Fees" }).click();
+    await openAuthenticatedModernizedFees(page, target);
     await expect(page.getByRole("heading", { name: "Statement Batch" })).toBeVisible();
     await expect(page.locator("body")).toContainText(firstEntry.statementNumber);
-    const batchExportLink = page.getByRole("link", { name: "Batch Export" });
-    await expect(batchExportLink).toBeVisible();
-    await expect(batchExportLink).toHaveAttribute(
-      "href",
-      `${target.apiBaseUrl}/api/billing/statements/batch/package.zip?limit=5`
-    );
-    await expect(batchExportLink).toHaveAttribute("download", "statement-batch-20260618-top5.zip");
+    const batchExportButton = page.getByRole("button", { name: "Batch Export" });
+    await expect(batchExportButton).toBeVisible();
+    await expect(batchExportButton).toBeEnabled();
   });
 });
 

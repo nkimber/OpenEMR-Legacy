@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openEncounterDirect, openFeeSheetDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const billingMutationAnchorPatientId = "MOD-PAT-0001";
@@ -58,10 +59,7 @@ test.describe("billing line mutation parity @slice16 @workflow-billing @mutation
         await expectRenderedText(page, "99213");
         await expectRenderedText(page, codeText);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Fees" }).click();
-        await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-        await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(codeText);
         await expect(page.locator("body")).toContainText("99213");

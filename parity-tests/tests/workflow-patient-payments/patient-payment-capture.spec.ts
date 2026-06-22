@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 
 const patientPaymentAnchorPatientId = "MOD-PAT-0005";
 const patientPaymentEncounter = 1000052;
@@ -107,10 +108,7 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
       );
 
       if (target.type !== "legacy-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Fees" }).click();
-        await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-        await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText("Payment Posting");
         await expect(page.locator("body")).toContainText("Patient /");

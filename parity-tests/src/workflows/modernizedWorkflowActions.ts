@@ -1112,7 +1112,7 @@ LIMIT 1;
   async createCollectionsFollowUpTask(input: NewCollectionsFollowUpTask): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/collections/follow-ups`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         assignedTo: input.assignedTo,
@@ -1871,7 +1871,7 @@ LIMIT 1;
   async createBillingLine(input: NewBillingLine): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
@@ -1927,7 +1927,7 @@ LIMIT 1;
   async updateBillingLine(id: number | string, input: BillingLineCorrection): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         codeText: input.codeText,
         modifier: input.modifier ?? "",
@@ -1945,7 +1945,7 @@ LIMIT 1;
   async updateBillingLineStatus(id: number | string, billed: number, activity: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}/status`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ billed, activity })
     });
 
@@ -1956,7 +1956,8 @@ LIMIT 1;
 
   async deleteBillingLine(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/lines/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1967,7 +1968,7 @@ LIMIT 1;
   async createClaimStatus(input: NewClaimStatus): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         encounter: input.encounter,
@@ -2033,7 +2034,7 @@ LIMIT 1;
   async updateClaimStatus(id: number | string, input: ClaimStatusUpdate): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims/${encodeURIComponent(String(id))}/status`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         status: input.status,
         billProcess: input.billProcess,
@@ -2052,7 +2053,8 @@ LIMIT 1;
 
   async deleteClaimStatus(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/claims/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -2063,7 +2065,7 @@ LIMIT 1;
   async createPaymentPosting(input: NewPaymentPosting): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         encounter: input.encounter,
@@ -2154,7 +2156,8 @@ LIMIT 1;
 
   async voidPaymentPosting(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments/${encodeURIComponent(String(id))}/void`, {
-      method: "PUT"
+      method: "PUT",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -2164,7 +2167,8 @@ LIMIT 1;
 
   async deletePaymentPosting(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {

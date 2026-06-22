@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { AccountLedgerEntry, PatientStatementSummary } from "../../src/db/legacyMariaDbProbe.js";
 
 const statementGenerationAnchorPatientId = "MOD-PAT-0005";
@@ -74,7 +75,9 @@ test.describe("patient statement generation parity @slice59 @account-statement-g
       return;
     }
 
-    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/${patient!.pubpid}`);
+    const response = await page.request.get(`${target.apiBaseUrl}/api/billing/${patient!.pubpid}`, {
+      headers: await getModernizedAdminSessionHeaders(page, target)
+    });
     expect(response.ok()).toBeTruthy();
     const apiBilling = await response.json();
     const apiDocument = apiBilling.statementDocument;
@@ -97,10 +100,7 @@ test.describe("patient statement generation parity @slice59 @account-statement-g
     expect(Number(apiDocument.balanceDueAmount)).toBeCloseTo(364.75, 2);
     expect(Number(apiDocument.lineItems.at(-1).balanceAmount)).toBeCloseTo(364.75, 2);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Fees" }).click();
-    await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-    await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
     const body = page.locator("body");
     await expect(page.getByRole("heading", { name: patient!.lname + ", " + patient!.fname })).toBeVisible();

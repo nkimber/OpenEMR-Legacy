@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { AccountLedgerEntry, PatientStatementSummary } from "../../src/db/legacyMariaDbProbe.js";
 
 const statementPdfAnchorPatientId = "MOD-PAT-0005";
@@ -63,7 +64,9 @@ test.describe("patient statement PDF export parity @slice60 @account-statement-p
       return;
     }
 
-    const pdfResponse = await page.request.get(`${target.apiBaseUrl}/api/billing/${patient!.pubpid}/statement.pdf`);
+    const pdfResponse = await page.request.get(`${target.apiBaseUrl}/api/billing/${patient!.pubpid}/statement.pdf`, {
+      headers: await getModernizedAdminSessionHeaders(page, target)
+    });
     expect(pdfResponse.ok()).toBeTruthy();
     expect(pdfResponse.headers()["content-type"]).toContain("application/pdf");
     expect(pdfResponse.headers()["content-disposition"]).toContain(`${expectedDocument.statementNumber}.pdf`);
@@ -78,22 +81,15 @@ test.describe("patient statement PDF export parity @slice60 @account-statement-p
     expect(pdfText).toContain("Northstar HMO insurance payment");
     expect(pdfText).toContain("EOB-NSTAR-1000052");
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Fees" }).click();
-    await expect(page.getByRole("heading", { name: "Fees" })).toBeVisible();
-    await page.getByLabel("Fees patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
 
-    const pdfExportLink = page.getByRole("link", { name: "PDF Export" });
+    const pdfExportButton = page.getByRole("button", { name: "PDF Export" });
     const body = page.locator("body");
     await expect(page.getByRole("heading", { name: patient!.lname + ", " + patient!.fname })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Patient Statement" })).toBeVisible();
     await expect(body).toContainText(expectedDocument.statementNumber);
-    await expect(pdfExportLink).toBeVisible();
-    await expect(pdfExportLink).toHaveAttribute(
-      "href",
-      `${target.apiBaseUrl}/api/billing/${encodeURIComponent(patient!.pubpid)}/statement.pdf`
-    );
-    await expect(pdfExportLink).toHaveAttribute("download", `${expectedDocument.statementNumber}.pdf`);
+    await expect(pdfExportButton).toBeVisible();
+    await expect(pdfExportButton).toBeEnabled();
   });
 });
 
