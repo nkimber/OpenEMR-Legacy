@@ -12338,6 +12338,61 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 219. Message Mutation Authorization Policy Readiness Slice 187
+
+Commit: `pending`
+Started: `2026-06-22T09:32:30.1815340-04:00`
+Finished: `pending`
+
+Implemented workflow Slice 187: patient message mutation authorization-policy readiness. The modernized message API now keeps patient message read behavior behind the existing Patient Notes view gate while separating message creation from status, content, assignment, reply, archive, and hard-delete authority across `patients:notes addonly` and `patients:notes write`.
+
+Code changes:
+
+- Files changed: pending
+- Lines added: pending
+- Lines deleted: pending
+- Net lines: pending
+- Total churn: pending
+
+Key outcomes:
+
+- Added endpoint-level message mutation authorization filters for patient-message create, status, content, assignment, reply, archive, and delete endpoints.
+- Added the `workflow-message-mutation-authorization-policy` parity suite and `slice-187-message-mutation-authorization-policy-readiness` plan.
+- Added Workbench managed plan actions for Slice 187 on both legacy and modernized targets.
+- Updated the functionality progress ledger and project documents to mark message mutation authorization as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `patient message mutation authorization` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-187-message-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-187-message-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-187-message-mutation-authorization-policy-readiness` passed with status `matched`.
+- Modernized focused regressions passed for `slice-170-message-protection-readiness`, `slice-180-message-authorization-policy-readiness`, `slice-14-message-mutation-readiness`, `slice-65-message-assignment-readiness`, `slice-66-message-content-readiness`, `slice-156-message-reply-readiness`, `slice-158-message-update-metadata-readiness`, and `slice-64-collections-follow-up-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `parity-tests/tests/workflow-message-mutation-authorization-policy/message-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -187,7 +187,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, protected message access, and ACL-authorized patient-notes access are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -218,6 +218,11 @@
           "label": "Message authorization policy readiness",
           "detail": "The modernized message API now enforces mirrored Patient Notes access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-180-message-authorization-policy-readiness"]
+        },
+        {
+          "label": "Message mutation authorization policy readiness",
+          "detail": "The modernized message mutation API now requires Patient Notes add-only for message creation and Patient Notes write for status, content, assignment, reply, archive, and delete changes.",
+          "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
@@ -226,10 +231,10 @@
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 52,
+      "completionEstimatePercent": 55,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, protected message access, and ACL-backed Patient Notes authorization are covered; full portal threading, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full portal threading, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",
@@ -372,7 +377,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -465,6 +470,11 @@
           "evidence": ["slice-180-message-authorization-policy-readiness"]
         },
         {
+          "label": "Patient message mutation authorization policy readiness",
+          "detail": "The modernized message mutation API now requires Patient Notes add-only for clinician-created notes and Patient Notes write for status, content, assignment, reply, archive, and delete operations.",
+          "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
+        },
+        {
           "label": "Billing authorization policy readiness",
           "detail": "The modernized billing API now enforces mirrored Billing access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-181-billing-authorization-policy-readiness"]
@@ -526,16 +536,16 @@
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure mutation ACL gates.",
+        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, procedure, and procedure mutation ACL gates.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 80,
+      "completionEstimatePercent": 81,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",
