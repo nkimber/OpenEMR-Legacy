@@ -5,6 +5,7 @@ import {
   openClinicalReportsDirect,
   openPatientListReportDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("operational reports parity @slice9 @reports", () => {
   test("seeded operational report facts match the gold data contract", async ({ targetDb }) => {
@@ -65,9 +66,7 @@ test.describe("operational reports parity @slice9 @reports", () => {
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Reports" }).click();
-    await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+    await openAuthenticatedModernizedReports(page, target);
 
     await expect(page.locator("body")).toContainText("Operational Reports");
     await expect(page.locator("body")).toContainText("Gold Data Snapshot");

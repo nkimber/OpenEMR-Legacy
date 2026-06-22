@@ -308,19 +308,24 @@
           "label": "Admin directory protection readiness",
           "detail": "The modernized administration API group now requires an active admin session, the Admin page loads user/facility/ACL data only after sign-in, and parity compares legacy admin-page protection with modernized API/UI protection.",
           "evidence": ["slice-163-admin-directory-protection-readiness"]
+        },
+        {
+          "label": "Operational reports protection readiness",
+          "detail": "The modernized operational reports API and CSV export now require an active session, the Reports page gates operational report data until sign-in, and parity compares legacy report-page protection with modernized API/UI protection.",
+          "evidence": ["slice-164-reports-protection-readiness"]
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, enforcing session checks across broader non-admin protected APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, enforcing session checks across the remaining non-admin protected APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 38,
+      "completionEstimatePercent": 40,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, and protected administration APIs exist; Identity, broader non-admin protected-API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, and protected operational reports exist; Identity, remaining non-admin protected-API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

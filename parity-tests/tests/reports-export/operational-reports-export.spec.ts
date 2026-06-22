@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openPatientListReportDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("operational reports export parity @slice24 @reports-export", () => {
   test("normalized operational report export rows match the gold data contract", async ({ targetDb }) => {
@@ -69,15 +70,23 @@ test.describe("operational reports export parity @slice24 @reports-export", () =
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Reports" }).click();
+    await openAuthenticatedModernizedReports(page, target);
 
-    const exportLink = page.getByRole("link", { name: /CSV Export/i });
-    await expect(exportLink).toBeVisible();
-    const href = await exportLink.getAttribute("href");
-    expect(href).toBe(`${target.apiBaseUrl}/api/reports/operational/export`);
+    const exportButton = page.getByRole("button", { name: /CSV Export/i });
+    await expect(exportButton).toBeVisible();
+    await expect(exportButton).toBeEnabled();
 
-    const response = await page.request.get(href!);
+    const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
+      data: target.credentials
+    });
+    expect(loginResponse.ok()).toBeTruthy();
+    const login = await loginResponse.json();
+    expect(login.authenticated).toBe(true);
+    expect(login.sessionId).toBeTruthy();
+
+    const response = await page.request.get(`${target.apiBaseUrl}/api/reports/operational/export`, {
+      headers: { "X-OpenEMR-Session": login.sessionId }
+    });
     expect(response.ok()).toBeTruthy();
     expect(response.headers()["content-type"]).toContain("text/csv");
 

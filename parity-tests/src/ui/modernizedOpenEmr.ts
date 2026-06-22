@@ -13,3 +13,16 @@ export async function openAuthenticatedModernizedAdmin(page: Page, target: Runti
 
   await expect(page.locator("body")).toContainText("Administration Directory");
 }
+
+export async function openAuthenticatedModernizedReports(page: Page, target: RuntimeTarget) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Reports" }).click();
+  await expect(page.getByRole("heading", { name: "Reports", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Reports access"]');
+  await accessPanel.getByLabel("Username").fill(target.credentials.username);
+  await accessPanel.getByLabel("Password").fill(target.credentials.password);
+  await accessPanel.getByRole("button", { name: "Verify Reports Access" }).click();
+
+  await expect(page.locator("body")).toContainText("Gold Data Snapshot");
+}

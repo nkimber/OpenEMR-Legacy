@@ -162,7 +162,8 @@ param(
         "workflow-admin-login-audit",
         "workflow-admin-session",
         "workflow-admin-audit-protection",
-        "workflow-admin-directory-protection"
+        "workflow-admin-directory-protection",
+        "workflow-reports-protection"
     )]
     [string] $Suite = "all",
 
