@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const patientId = "MOD-PAT-0003";
@@ -94,9 +95,7 @@ test.describe("appointment patient overlap parity @slice118 @workflow-appointmen
         await expect(page.locator('input[name="form_title"]')).toHaveValue(secondaryTitle);
         await expect(page.locator("#provd")).toHaveValue(String(secondaryProviderId));
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Calendar" }).click();
-        await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+        await openAuthenticatedModernizedCalendar(page, target);
 
         await openModernizedAppointment(page, patient!.pubpid, primaryTitle);
         await openModernizedAppointment(page, patient!.pubpid, secondaryTitle);

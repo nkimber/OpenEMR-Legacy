@@ -575,7 +575,7 @@ LIMIT 1;
   async createAppointment(input: NewAppointment): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/appointments`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
@@ -713,7 +713,9 @@ ORDER BY appointment_date, start_time, id;
       from: fromDate,
       limit: "100"
     });
-    const response = await fetch(`${this.target.apiBaseUrl}/api/appointments?${params.toString()}`);
+    const response = await fetch(`${this.target.apiBaseUrl}/api/appointments?${params.toString()}`, {
+      headers: await this.getAdminSessionHeaders()
+    });
     if (!response.ok) {
       throw new Error(`Modernized appointment series search failed with ${response.status}: ${await response.text()}`);
     }
@@ -786,7 +788,7 @@ ORDER BY appointment_date, start_time, id;
   async updateAppointmentStatus(id: number | string, status: string, title: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}/status`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ status, title })
     });
 
@@ -798,7 +800,7 @@ ORDER BY appointment_date, start_time, id;
   async updateAppointment(id: number | string, input: AppointmentUpdate): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         providerId: input.providerId,
         title: input.title,
@@ -830,7 +832,8 @@ ORDER BY appointment_date, start_time, id;
 
   async deleteAppointment(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -840,7 +843,8 @@ ORDER BY appointment_date, start_time, id;
 
   async addAppointmentRecurrenceException(id: number | string, occurrenceDate: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(`${String(id)}::occurs::${occurrenceDate}`)}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -852,7 +856,8 @@ ORDER BY appointment_date, start_time, id;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/appointments/${encodeURIComponent(String(id))}/recurrence-exceptions/${encodeURIComponent(occurrenceDate)}/restore`,
       {
-        method: "POST"
+        method: "POST",
+        headers: await this.getAdminSessionHeaders()
       });
 
     if (!response.ok) {

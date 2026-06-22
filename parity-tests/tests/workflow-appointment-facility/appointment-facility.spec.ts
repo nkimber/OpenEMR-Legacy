@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const appointmentAnchorPatientId = "MOD-PAT-0003";
@@ -70,9 +71,7 @@ test.describe("appointment facility reassignment parity @slice100 @workflow-appo
         await expect(page.locator('input[name="form_title"]')).toHaveValue(reassignedTitle);
         await expect(page.locator("#facility")).toHaveValue(String(reassignedFacilityId));
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Calendar" }).click();
-        await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+        await openAuthenticatedModernizedCalendar(page, target);
         await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
         await page.getByLabel("Appointment from date").fill("2026-12-10");
 

@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 
 const appointmentExceptionPatientId = "MOD-PAT-0013";
 const occurrenceSearchDate = "2026-12-02";
@@ -23,9 +24,7 @@ test.describe("appointment occurrence cancel parity @slice106 @workflow-appointm
 
     try {
       if (target.type === "modernized-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Calendar" }).click();
-        await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+        await openAuthenticatedModernizedCalendar(page, target);
         await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
         await page.getByLabel("Appointment from date").fill(occurrenceSearchDate);
 
@@ -36,7 +35,7 @@ test.describe("appointment occurrence cancel parity @slice106 @workflow-appointm
         await expect(page.locator("body")).toContainText("Generated occurrence 5");
 
         await page.getByRole("button", { name: "Skip occurrence" }).click();
-        await expect(page.getByRole("button", { name: /2026-12-30/ })).toHaveCount(0);
+        await expect(page.locator(".appointment-list").getByRole("button", { name: /2026-12-30/ })).toHaveCount(0);
         await expect(page.locator("body")).toContainText("2 skipped");
       } else {
         await workflow.addAppointmentRecurrenceException(occurrenceToCancel!.seriesRootId, cancelledOccurrenceDate);

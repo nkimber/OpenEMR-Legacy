@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 
 const appointmentAnchorPatientId = "MOD-PAT-0003";
 const occurrenceSearchDate = "2026-08-14";
@@ -21,9 +22,7 @@ test.describe("appointment recurring series parity @slice104 @workflow-appointme
     expect(preventiveCareOccurrences[0].isVirtualOccurrence).toBe(true);
 
     if (target.type === "modernized-openemr") {
-      await page.goto(target.publicUrl);
-      await page.getByRole("button", { name: "Calendar" }).click();
-      await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+      await openAuthenticatedModernizedCalendar(page, target);
       await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
       await page.getByLabel("Appointment from date").fill(occurrenceSearchDate);
 
@@ -37,8 +36,8 @@ test.describe("appointment recurring series parity @slice104 @workflow-appointme
       await expect(page.locator("body")).toContainText("Generated occurrence 3");
       await expect(page.locator("body")).toContainText("2026-08-14");
       await expect(page.locator("body")).toContainText("Every 2 weeks until 2026-10-09");
-      await expect(page.getByRole("button", { name: "Save schedule" })).toBeDisabled();
-      await expect(page.getByRole("button", { name: "Delete appointment" })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Reschedule occurrence" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Skip occurrence" })).toBeVisible();
     }
   });
 });

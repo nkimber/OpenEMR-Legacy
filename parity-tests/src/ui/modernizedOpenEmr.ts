@@ -63,3 +63,31 @@ export async function openAuthenticatedModernizedClinicalLists(page: Page, targe
     await page.getByLabel("Clinical lists patient ID").fill(patientSearch);
   }
 }
+
+export async function openAuthenticatedModernizedCalendar(
+  page: Page,
+  target: RuntimeTarget,
+  patientSearch?: string,
+  fromDate?: string
+) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Calendar" }).click();
+  await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Calendar access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByLabel("Username").fill(target.credentials.username);
+    await accessPanel.getByLabel("Password").fill(target.credentials.password);
+    await accessPanel.getByRole("button", { name: "Verify Calendar Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load appointment schedules");
+
+  if (patientSearch) {
+    await page.getByLabel("Appointment patient ID").fill(patientSearch);
+  }
+
+  if (fromDate) {
+    await page.getByLabel("Appointment from date").fill(fromDate);
+  }
+}

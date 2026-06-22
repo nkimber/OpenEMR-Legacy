@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 
 const appointmentExceptionPatientId = "MOD-PAT-0013";
 const occurrenceSearchDate = "2026-12-02";
@@ -32,9 +33,7 @@ test.describe("appointment occurrence reschedule parity @slice108 @workflow-appo
       expect(rootAppointment).not.toBeNull();
 
       if (target.type === "modernized-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Calendar" }).click();
-        await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+        await openAuthenticatedModernizedCalendar(page, target);
         await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
         await page.getByLabel("Appointment from date").fill(occurrenceSearchDate);
 

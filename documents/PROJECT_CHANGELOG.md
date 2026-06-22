@@ -11035,6 +11035,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 197. Appointment Protection Readiness Slice 167
+
+Commit: pending
+Started: `2026-06-21T22:31:00.0000000-04:00`
+Finished: `2026-06-21T23:11:34.2349773-04:00`
+Duration: 40 minutes 34 seconds
+
+Implemented the one-hundred-sixty-seventh project slice and latest modernized OpenEMR workflow slice: appointment protection readiness, requiring an active modernized OpenEMR session for `/api/appointments/*`, gating the Calendar workspace schedule search/detail and mutation controls until sign-in, and comparing that behavior with legacy OpenEMR scheduler pages protected by login.
+
+Code changes:
+
+- Files changed: 48
+- Lines added: 710
+- Lines deleted: 344
+- Net lines: +366
+- Total churn: 1054
+
+Key outcomes:
+
+- Protected the modernized `/api/appointments` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Calendar Access sign-in gate so appointment search, detail loading, creation, status updates, rescheduling, recurring occurrence controls, deletion, and restore actions only run after session verification.
+- Updated modernized appointment API calls, smoke checks, workflow actions, and Playwright Calendar helpers to pass the active OpenEMR session.
+- Added the `workflow-appointment-protection` suite and `slice-167-appointment-protection-readiness` plan.
+- Added Workbench-managed Slice 167 plan actions for both legacy and modernized targets.
+- Kept older appointment read, mutation, recurrence, overlap, occurrence, and reminder parity suites compatible with authenticated modernized UI/API access.
+- Advanced scheduling completion from 74% to 76% and administration/security completion from 44% to 46%, while leaving encounter, document, billing, procedure, messaging, broader authorization policy, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor appointment search check includes unauthenticated appointment search status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-167-appointment-protection-readiness -Reset run` passed: run `2026-06-22T025028-109Z-legacy-openemr-plan-slice-167-appointment-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-167-appointment-protection-readiness -Reset run` passed: run `2026-06-22T025126-884Z-modernized-openemr-plan-slice-167-appointment-protection-readiness`, 1 expected, 0 unexpected. An earlier modernized run exposed an overly broad body-level assertion that matched static category text; the assertion was narrowed to appointment list/detail surfaces and rerun.
+- `npm run compare -- --plan slice-167-appointment-protection-readiness` passed with comparison `2026-06-22T025212-730Z-legacy-openemr-vs-modernized-openemr-plan-slice-167-appointment-protection-readiness`, `status: matched`, and no differences.
+- Modernized compatibility checks passed for scheduling read (`slice-2-scheduling-readiness`), appointment mutation (`slice-11-appointment-mutation-readiness`), appointment recurring-series (`slice-104-appointment-series-readiness`), occurrence cancel (`slice-106-appointment-occurrence-cancel-readiness`), occurrence restore (`slice-107-appointment-occurrence-restore-readiness`), and appointment reminders (`slice-120-appointment-reminders-readiness`). Two stale appointment-suite assertions were tightened after the Calendar gate changed the visible control context, then rerun successfully.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-appointment-protection/appointment-protection.spec.ts`
+- `parity-tests/tests/workflow-appointment-series/appointment-series.spec.ts`
+- `parity-tests/tests/workflow-appointment-occurrence-cancel/appointment-occurrence-cancel.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const appointmentAnchorPatientId = "MOD-PAT-0003";
@@ -128,9 +129,7 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
           await expect(page.locator('input[name="form_enddate"]')).toHaveValue(scenario.endDate);
         }
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Calendar" }).click();
-        await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+        await openAuthenticatedModernizedCalendar(page, target);
         await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
 
         for (const { title, scenario } of createdAppointments) {
