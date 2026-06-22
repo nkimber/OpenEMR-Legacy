@@ -170,6 +170,7 @@ param(
         "workflow-patient-protection",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
+        "workflow-appointment-authorization-policy",
         "workflow-encounter-protection",
         "workflow-document-protection",
         "workflow-message-protection",

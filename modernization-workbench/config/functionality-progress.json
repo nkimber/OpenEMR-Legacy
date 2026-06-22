@@ -45,7 +45,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, and protected schedule access are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, protected schedule access, and ACL-authorized front-desk schedule access are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -66,6 +66,11 @@
           "label": "Appointment protection readiness",
           "detail": "The modernized appointment API now requires an active session, the Calendar page gates appointment search and mutations until sign-in, and parity compares legacy schedule-page protection with modernized API/UI protection.",
           "evidence": ["slice-167-appointment-protection-readiness"]
+        },
+        {
+          "label": "Appointment authorization policy readiness",
+          "detail": "The modernized appointment API now enforces mirrored Appointment ACL access, the seeded front-desk session can retrieve appointment schedules through its Front Office membership, and parity compares that behavior with the legacy ACL matrix.",
+          "evidence": ["slice-176-appointment-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
@@ -75,10 +80,10 @@
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 76,
+      "completionEstimatePercent": 78,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, recurrence, overlap, reminder-readiness, and protected schedule access are broad; advanced availability, waitlists, and delivery/audit remain."
+      "estimateRationale": "Appointment lifecycle, recurrence, overlap, reminder-readiness, protected schedule access, and front-desk ACL-authorized access are broad; advanced availability, waitlists, and delivery/audit remain."
     },
     {
       "id": "encounters-clinical-notes",
@@ -317,7 +322,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, and clinical-list authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, clinical-list, and appointment authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -368,6 +373,11 @@
           "label": "Clinical list authorization policy readiness",
           "detail": "The modernized clinical-list API now enforces mirrored Medical/History access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-175-clinical-list-authorization-policy-readiness"]
+        },
+        {
+          "label": "Appointment authorization policy readiness",
+          "detail": "The modernized appointment API now enforces mirrored Appointment access, seeds the front-desk demo account into the Front Office ACL group, accepts that session for calendar retrieval, and parity compares the policy with the legacy ACL matrix.",
+          "evidence": ["slice-176-appointment-authorization-policy-readiness"]
         },
         {
           "label": "Operational reports protection readiness",
@@ -422,10 +432,10 @@
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 62,
+      "completionEstimatePercent": 64,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, and clinical-list authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, clinical-list, and appointment authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

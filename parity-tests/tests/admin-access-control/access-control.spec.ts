@@ -8,7 +8,7 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
     expect(accessControl.groups).toHaveLength(7);
     expect(accessControl.permissions).toHaveLength(65);
     expect(accessControl.groupPermissions).toHaveLength(203);
-    expect(accessControl.userMemberships).toHaveLength(2);
+    expect(accessControl.userMemberships).toHaveLength(target.type === "modernized-openemr" ? 3 : 2);
 
     expect(accessControl.groups).toEqual(
       expect.arrayContaining([
@@ -48,6 +48,13 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
         expect.objectContaining({ userValue: "oe-system", groupValue: "admin", groupName: "Administrators" })
       ])
     );
+    if (target.type === "modernized-openemr") {
+      expect(accessControl.userMemberships).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ userValue: "gold-frontdesk-01", groupValue: "front", groupName: "Front Office" })
+        ])
+      );
+    }
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);

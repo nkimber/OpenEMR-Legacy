@@ -11100,6 +11100,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 206. Appointment Authorization Policy Readiness Slice 176
+
+Commit: `pending`
+Started: `2026-06-22T03:40:00.0000000-04:00`
+Finished: `2026-06-22T04:15:46.4553343-04:00`
+
+Implemented the one-hundred-seventy-sixth project slice and latest modernized OpenEMR workflow slice: appointment authorization-policy readiness, enforcing mirrored Appointment access for the modernized appointment API and Calendar workspace while comparing front-desk-allowed/admin-allowed behavior with the legacy ACL matrix.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 371
+- Lines deleted: 47
+- Net lines: +324
+- Total churn: 418
+
+Key outcomes:
+
+- Replaced the appointment route group's session-only gate with ACL-backed authorization requiring `patients:appt view` after session validation.
+- Kept OpenEMR's stronger-return-value hierarchy in place so Appointment `write` access satisfies the modernized appointment `view` gate.
+- Added the canonical front-desk account `gold-frontdesk-01` to the PostgreSQL ACL membership seed as a `front` / `Front Office` member backed by staff id `117`.
+- Kept unauthenticated appointment access on the existing `401` contract while proving an authenticated front-desk session can search appointment schedules, load appointment details, and use the Calendar UI.
+- Added a visible Calendar authenticated-state banner so operators can see the ACL identity currently driving schedule access after the access form succeeds.
+- Updated smoke coverage, admin access-control expectations, admin authorization-policy expectations, and the user-group membership lifecycle counts for the third seeded ACL membership.
+- Added the `workflow-appointment-authorization-policy` suite and `slice-176-appointment-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 176 plan actions for both legacy and modernized targets.
+- Advanced scheduling completion from 76% to 78% and administration/security completion from 62% to 64%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`, followed by a targeted frontend rebuild after adding the Calendar authenticated-state banner.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the appointment smoke verifies unauthenticated status `401`, front-desk status `200`, and three ACL user memberships.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-176-appointment-authorization-policy-readiness -Reset run` passed: run `2026-06-22T080937-737Z-legacy-openemr-plan-slice-176-appointment-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-176-appointment-authorization-policy-readiness -Reset run` passed: run `2026-06-22T081201-578Z-modernized-openemr-plan-slice-176-appointment-authorization-policy-readiness`, 1 expected, 0 unexpected. An earlier modernized run exposed that the Calendar success message disappeared when the access form unmounted; the UI now keeps the signed-in identity visible and the plan was rerun successfully.
+- `npm run compare -- --plan slice-176-appointment-authorization-policy-readiness` passed with comparison `2026-06-22T081237-951Z-legacy-openemr-vs-modernized-openemr-plan-slice-176-appointment-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for appointment protection (`slice-167-appointment-protection-readiness`, run `2026-06-22T081325-100Z-modernized-openemr-plan-slice-167-appointment-protection-readiness`), appointment mutation (`slice-11-appointment-mutation-readiness`, run `2026-06-22T081345-509Z-modernized-openemr-plan-slice-11-appointment-mutation-readiness`), administration authorization policy (`slice-173-admin-authorization-policy-readiness`, run `2026-06-22T081408-250Z-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness`), reports authorization policy (`slice-174-reports-authorization-policy-readiness`, run `2026-06-22T081433-269Z-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`), and clinical-list authorization policy (`slice-175-clinical-list-authorization-policy-readiness`, run `2026-06-22T081454-820Z-modernized-openemr-plan-slice-175-clinical-list-authorization-policy-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-appointment-authorization-policy/appointment-authorization-policy.spec.ts`
+- `parity-tests/tests/admin-access-control/access-control.spec.ts`
+- `parity-tests/tests/workflow-admin-authorization-policy/authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 205. Clinical List Authorization Policy Readiness Slice 175
 
 Commit: `4d256ef6`
