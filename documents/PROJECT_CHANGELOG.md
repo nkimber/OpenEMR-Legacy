@@ -12629,6 +12629,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 224. Patient Registration Validation Readiness Slice 192
+
+Commit: pending
+Started: `2026-06-22T12:41:22.0000000-04:00`
+Finished: `2026-06-22T13:07:12.8743107-04:00`
+
+Implemented workflow Slice 192: patient registration validation readiness. The modernized patient registration API now mirrors the focused OpenEMR `PatientValidator` insert rules for identity, last-name length, sex, DOB format, and email syntax, returns structured validation details, and the Patient/Client registration form renders those messages without creating invalid patient rows.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 556
+- Lines deleted: 64
+- Net lines: 492
+- Total churn: 620
+
+Key outcomes:
+
+- Added a structured `PatientRegistrationMutationResult` and `PatientRegistrationValidationIssue` contract for patient registration validation results.
+- Reworked patient registration normalization so invalid public ID, first name, last name, sex, DOB, email, and duplicate-public-ID cases return validation-problem details instead of a generic bad request.
+- Added Patient/Client registration validation rendering that displays API validation messages inline and clears them when the draft changes or the form is cancelled.
+- Added the `workflow-patient-registration-validation` parity suite and `slice-192-patient-registration-validation-readiness` plan.
+- Added Workbench managed plan actions for Slice 192 on both legacy and modernized targets.
+- Extended the modernized smoke test with invalid-registration row-safety evidence and updated project documents plus the functionality progress ledger.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` and `scripts/Run-OpenEmrParityTests.ps1`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `patient registration validation readiness` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-192-patient-registration-validation-readiness -Reset run` passed with 1 expected test; run `2026-06-22T170355-975Z-legacy-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-192-patient-registration-validation-readiness -Reset run` passed with 1 expected test; run `2026-06-22T170425-256Z-modernized-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-192-patient-registration-validation-readiness` passed with status `matched`; comparison `2026-06-22T170454-506Z-legacy-openemr-vs-modernized-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- Modernized focused regressions passed for `slice-37-patient-registration-readiness`, `slice-191-patient-duplicate-detection-readiness`, and `slice-184-patient-mutation-authorization-policy-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-patient-registration-validation/patient-registration-validation.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
