@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 204. Operational Reports Authorization Policy Readiness Slice 174
+
+Commit: pending
+Started: `2026-06-22T02:50:00.0000000-04:00`
+Finished: `2026-06-22T03:14:37.8491941-04:00`
+
+Implemented the one-hundred-seventy-fourth project slice and latest modernized OpenEMR workflow slice: operational reports authorization-policy readiness, enforcing mirrored Patient Report access for the modernized reports API and CSV export while comparing admin-allowed/front-desk-forbidden behavior with the legacy ACL matrix.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 407
+- Lines deleted: 35
+- Net lines: +372
+- Total churn: 442
+
+Key outcomes:
+
+- Replaced the reports route group's session-only gate with ACL-backed authorization requiring `patients:pat_rep view` after session validation.
+- Updated the shared authorization repository so stronger OpenEMR return values satisfy weaker requirements, allowing `write` to satisfy `view` while preserving exact `write` gates for administration.
+- Kept unauthenticated reports access on the existing `401` contract and added structured `403` evidence for authenticated front-desk sessions without Patient Report access.
+- Kept the Reports page operator-friendly after a forbidden report load by keeping the access form and successful sign-in identity visible, so users can immediately retry with an authorized account.
+- Added smoke probes for front-desk `403` behavior on both operational report JSON and CSV export.
+- Added the `workflow-reports-authorization-policy` suite and `slice-174-reports-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 174 plan actions for both legacy and modernized targets.
+- Advanced administration/security completion from 58% to 60%, while leaving ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with line-ending warnings only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`, followed by a targeted frontend rebuild after the Reports UI status fix.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the reports smoke now verifies front-desk status `403` for both operational report JSON and CSV export.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-174-reports-authorization-policy-readiness -Reset run` passed: run `2026-06-22T070722-645Z-legacy-openemr-plan-slice-174-reports-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-174-reports-authorization-policy-readiness -Reset run` passed: run `2026-06-22T071125-661Z-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-174-reports-authorization-policy-readiness` passed with comparison `2026-06-22T071150-593Z-legacy-openemr-vs-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for reports readiness (`slice-9-reports-readiness`), reports CSV export (`slice-24-reports-export-readiness`), reports protection (`slice-164-reports-protection-readiness`), and admin authorization policy (`slice-173-admin-authorization-policy-readiness`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AuthRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-reports-authorization-policy/reports-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 203. Administration Authorization Policy Readiness Slice 173
 
 Commit: `767caac0`
