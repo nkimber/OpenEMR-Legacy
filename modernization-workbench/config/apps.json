@@ -106,6 +106,7 @@
         "parityPatientProviderAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-198-patient-provider-assignment-readiness", "-Reset", "test"],
         "parityPatientCareTeamPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-199-patient-care-team-readiness", "-Reset", "test"],
         "parityPatientCareTeamMembersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-200-patient-care-team-members-readiness", "-Reset", "test"],
+        "parityPatientCareTeamContactPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-201-patient-care-team-contact-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -1094,6 +1095,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-200-patient-care-team-members-readiness.json"
         },
         {
+          "id": "parity-plan-patient-care-team-contact",
+          "name": "Slice 201 patient care team contact plan",
+          "description": "Runs the shared patient-contact care-team readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientCareTeamContactPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-201-patient-care-team-contact-readiness.json"
+        },
+        {
           "id": "parity-plan-document-authorization-policy",
           "name": "Slice 179 patient document authorization policy plan",
           "description": "Runs the shared patient document authorization-policy readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1976,6 +1985,7 @@
         "parityPatientProviderAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-198-patient-provider-assignment-readiness", "-Reset", "test"],
         "parityPatientCareTeamPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-199-patient-care-team-readiness", "-Reset", "test"],
         "parityPatientCareTeamMembersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-200-patient-care-team-members-readiness", "-Reset", "test"],
+        "parityPatientCareTeamContactPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-201-patient-care-team-contact-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -2888,6 +2898,14 @@
           "layer": "plan",
           "commandName": "parityPatientCareTeamMembersPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-200-patient-care-team-members-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-care-team-contact",
+          "name": "Slice 201 patient care team contact plan",
+          "description": "Runs the shared patient-contact care-team readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientCareTeamContactPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-201-patient-care-team-contact-readiness.json"
         },
         {
           "id": "parity-plan-document-authorization-policy",

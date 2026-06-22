@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, single and multi-member care-team membership, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -87,19 +87,24 @@
           "label": "Patient multi-member care-team readiness",
           "detail": "The modernized patient API and Patient/Client chart now update and render multiple OpenEMR-style care-team members through shared provider/facility projection and restore-backed parity coverage.",
           "evidence": ["slice-200-patient-care-team-members-readiness"]
+        },
+        {
+          "label": "Patient contact-backed care-team readiness",
+          "detail": "The modernized patient API and Patient/Client chart now update and render patient-contact care-team members through deterministic related-contact seed rows and restore-backed parity coverage.",
+          "evidence": ["slice-201-patient-care-team-contact-readiness"]
         }
       ],
       "outstanding": [
-        "Patient merge, guarantor/subscriber insurance-party detail, related-person/contact care-team roles, and patient history depth.",
+        "Patient merge, guarantor/subscriber insurance-party detail, and patient history depth.",
         "Portal account provisioning, address validation catalogs, lifecycle audit/history, and broader patient administration policy depth."
       ],
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 85,
+      "completionEstimatePercent": 86,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, single and multi-member care-team membership, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, related-person care-team roles, patient history, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, patient history, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",

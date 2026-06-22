@@ -181,6 +181,7 @@ param(
         "workflow-patient-provider-assignment",
         "workflow-patient-care-team",
         "workflow-patient-care-team-members",
+        "workflow-patient-care-team-contact",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

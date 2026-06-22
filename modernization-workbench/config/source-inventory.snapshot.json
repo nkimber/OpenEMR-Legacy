@@ -1,8 +1,8 @@
 {
   "version": "0.1.0",
   "lastUpdated": "2026-06-22",
-  "generatedAt": "2026-06-22T23:16:04.628Z",
-  "durationMs": 9837,
+  "generatedAt": "2026-06-22T23:54:41.121Z",
+  "durationMs": 8984,
   "method": "Physical source lines counted from configured source roots. Dependency folders, generated output, runtime artifacts, and local environment files are excluded. Counts include comments; non-blank lines are shown separately in the UI.",
   "systems": [
     {
@@ -223,10 +223,10 @@
       "systemId": "modernization-workbench",
       "summary": "The Workbench is a React operator UI plus a local Express orchestration API, configuration contracts, and the shared parity/evidence harness it surfaces.",
       "totals": {
-        "files": 235,
-        "totalLines": 62846,
-        "nonBlankLines": 57765,
-        "blankLines": 5081
+        "files": 236,
+        "totalLines": 63147,
+        "nonBlankLines": 58051,
+        "blankLines": 5096
       },
       "components": [
         {
@@ -291,8 +291,8 @@
             "/modernization-workbench/config/source-inventory.snapshot.json"
           ],
           "files": 3,
-          "totalLines": 4592,
-          "nonBlankLines": 4592,
+          "totalLines": 4615,
+          "nonBlankLines": 4615,
           "blankLines": 0,
           "samplePaths": [
             "/modernization-workbench/config/apps.json",
@@ -318,9 +318,9 @@
             "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/"
           ],
           "files": 4,
-          "totalLines": 1831,
-          "nonBlankLines": 1716,
-          "blankLines": 115,
+          "totalLines": 1911,
+          "nonBlankLines": 1791,
+          "blankLines": 120,
           "samplePaths": [
             "/modernization-workbench/seed-data/manifest.json",
             "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md",
@@ -346,10 +346,10 @@
           "excludePathIncludes": [
             "/parity-tests/artifacts/"
           ],
-          "files": 218,
-          "totalLines": 48285,
-          "nonBlankLines": 44056,
-          "blankLines": 4229,
+          "files": 219,
+          "totalLines": 48483,
+          "nonBlankLines": 44244,
+          "blankLines": 4239,
           "samplePaths": [
             "/parity-tests/config/targets.json",
             "/parity-tests/package-lock.json",
@@ -401,9 +401,9 @@
       "summary": "The modernized target is a React/TypeScript SPA, ASP.NET Core API, PostgreSQL seed/schema generator, parity evidence, and Docker/PowerShell runtime scripts.",
       "totals": {
         "files": 36,
-        "totalLines": 56369,
-        "nonBlankLines": 52031,
-        "blankLines": 4338
+        "totalLines": 56835,
+        "nonBlankLines": 52466,
+        "blankLines": 4369
       },
       "components": [
         {
@@ -420,9 +420,9 @@
             ".css"
           ],
           "files": 5,
-          "totalLines": 26307,
-          "nonBlankLines": 24425,
-          "blankLines": 1882,
+          "totalLines": 26465,
+          "nonBlankLines": 24574,
+          "blankLines": 1891,
           "samplePaths": [
             "/modernized-openemr/frontend/src/App.css",
             "/modernized-openemr/frontend/src/App.tsx",
@@ -445,9 +445,9 @@
             ".json"
           ],
           "files": 27,
-          "totalLines": 19286,
-          "nonBlankLines": 17538,
-          "blankLines": 1748,
+          "totalLines": 19448,
+          "nonBlankLines": 17687,
+          "blankLines": 1761,
           "samplePaths": [
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs",
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs",
@@ -470,9 +470,9 @@
             ".sql"
           ],
           "files": 3,
-          "totalLines": 10735,
-          "nonBlankLines": 10030,
-          "blankLines": 705,
+          "totalLines": 10881,
+          "nonBlankLines": 10167,
+          "blankLines": 714,
           "samplePaths": [
             "/modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1",
             "/modernized-openemr/scripts/Test-ModernizedBaseline.ps1",
@@ -517,7 +517,7 @@
           "id": "modernized-create-table",
           "label": "CREATE TABLE statements",
           "detail": "PostgreSQL table definitions emitted by the modernized seed/schema generator.",
-          "value": 38,
+          "value": 39,
           "files": 26,
           "warnings": []
         },
@@ -525,7 +525,7 @@
           "id": "modernized-indexes",
           "label": "CREATE INDEX statements",
           "detail": "PostgreSQL index definitions emitted by the modernized seed/schema generator.",
-          "value": 31,
+          "value": 32,
           "files": 26,
           "warnings": []
         },

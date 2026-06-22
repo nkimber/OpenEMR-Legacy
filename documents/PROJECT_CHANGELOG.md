@@ -13264,6 +13264,82 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 233. Slice 201 Patient Care Team Contact Readiness
+
+Started: `2026-06-22T19:21:00-04:00`
+Finished: `2026-06-22T19:57:30-04:00`
+Duration: `36m 30s`
+Changeset: `pending`
+
+Implemented workflow Slice 201: patient contact-backed care-team readiness. The modernized target now supports OpenEMR-style care-team members that reference patient contacts through `contactId` / `contact_id`, while preserving provider-backed members and the Slice 199/200 care-team contracts.
+
+Code changes:
+
+- Files changed: 25
+- Lines added: 7026
+- Lines deleted: 95
+- Net lines: 6931
+- Total churn: 7121
+
+Key outcomes:
+
+- Added deterministic related-person/contact seed coverage for every synthetic patient: legacy OpenEMR receives `person`, `contact`, `person_patient_link`, `contact_relation`, and `contact_telecom` rows; the modernized PostgreSQL seed receives matching `patient_related_contacts` rows.
+- Extended the modernized care-team DTOs, repository, API, and Patient/Client Care Team panel so a member row can represent either a provider `userId` or patient contact `contactId`.
+- Added `/api/patients/{patientId}/care-team-options` so the UI can load provider options and patient-scoped contact options before editing care-team members.
+- Updated modernized smoke coverage with a mixed provider/contact care-team lifecycle for `MOD-PAT-0010`, provider `103` / `Alex Chen`, facility `12` / `East County Care Center`, and contact `3200010` / `Casey Brooks`.
+- Extended target-neutral legacy and modernized workflow actions to read, write, compare, and restore provider/contact care-team members.
+- Added the `workflow-patient-care-team-contact` parity suite and `slice-201-patient-care-team-contact-readiness` plan, with the physical spec folder named `tests/workflow-patient-team-contact` to avoid the known care-team path-prefix collision.
+- Added Workbench managed actions for Slice 201 on both legacy and modernized targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to mark contact-backed patient care-team membership as completed and raise Patient Chart modernization readiness to 86%.
+
+Verified test runs:
+
+- `npm run generate:seed-data` passed in `modernization-workbench/` and regenerated the canonical dataset plus legacy MariaDB seed SQL with deterministic related-contact rows.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with `patient_related_contacts` and `patient_care_team_members.contact_id`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, and `modernization-workbench/config/source-inventory.snapshot.json`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` reseeded the modernized PostgreSQL database and loaded 1,000 `patient_related_contacts` rows.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 141 checks and 0 failures, including `patient care team contact lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-201-patient-care-team-contact-readiness -Reset test` passed with 1 expected test; run `2026-06-22T235523-983Z-legacy-openemr-plan-slice-201-patient-care-team-contact-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-201-patient-care-team-contact-readiness -Reset test` passed with 1 expected test; run `2026-06-22T235550-740Z-modernized-openemr-plan-slice-201-patient-care-team-contact-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-201-patient-care-team-contact-readiness` passed with status `matched`; comparison `2026-06-22T235624-515Z-legacy-openemr-vs-modernized-openemr-plan-slice-201-patient-care-team-contact-readiness`.
+- Regression check `slice-200-patient-care-team-members-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-22T234413-597Z-legacy-openemr-vs-modernized-openemr-plan-slice-200-patient-care-team-members-readiness`.
+- Path-collision regression check `slice-199-patient-care-team-readiness` passed on legacy with 1 expected test and selected only `tests\workflow-patient-care-team\patient-care-team.spec.ts`; run `2026-06-22T235635-087Z-legacy-openemr-plan-slice-199-patient-care-team-readiness`.
+- Verification note: the first modernized smoke run exposed an empty contact member name caused by PostgreSQL `concat` preventing fallback to the related-contact display name; the care-team query now uses `NULLIF`/`COALESCE`. The first Slice 201 legacy parity run exposed a `caregiver` versus `Caregiver` role-label mismatch; the workflow role display normalizer now covers caregiver labels.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-team-contact/patient-care-team-contact.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

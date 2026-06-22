@@ -780,6 +780,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-201-patient-care-team-contact-readiness",
+      "name": "Slice 201 Patient Care Team Contact Readiness",
+      "description": "Patient administration confidence plan that updates a care team with a patient-contact member, verifies database/API/UI projection, and restores the original members.",
+      "suites": ["workflow-patient-care-team-contact"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-201", "patients", "demographics", "care-team", "contacts", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3556,6 +3565,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-team-members",
       "tags": ["slice200", "workflow", "mutation", "patients", "demographics", "care-team", "care-team-members", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-care-team-contact",
+      "name": "Patient Care Team Contact Readiness",
+      "description": "Updates a care team with a patient-contact member, verifies database/API/UI surfaces, and restores the original members.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-team-contact",
+      "tags": ["slice201", "workflow", "mutation", "patients", "demographics", "care-team", "contacts", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -680,7 +680,8 @@ SELECT p.legacy_pid AS pid, p.pubpid,
   COALESCE(ct.team_name, '') AS "teamName",
   COALESCE(ct.team_status, '') AS "teamStatus",
   COALESCE(ctm.user_id::text, '') AS "userId",
-  COALESCE(trim(concat(s.first_name, ' ', s.last_name)), '') AS "memberName",
+  COALESCE(ctm.contact_id::text, '') AS "contactId",
+  COALESCE(NULLIF(trim(concat(s.first_name, ' ', s.last_name)), ''), prc.display_name, '') AS "memberName",
   COALESCE(ctm.role, '') AS "role",
   COALESCE(ctm.facility_id::text, '') AS "facilityId",
   COALESCE(f.name, '') AS "facilityName",
@@ -691,6 +692,7 @@ FROM patients p
 LEFT JOIN patient_care_teams ct ON ct.patient_id = p.canonical_id
 LEFT JOIN patient_care_team_members ctm ON ctm.patient_id = ct.patient_id
 LEFT JOIN staff s ON s.id = ctm.user_id
+LEFT JOIN patient_related_contacts prc ON prc.contact_id = ctm.contact_id
 LEFT JOIN facilities f ON f.id = ctm.facility_id
 WHERE p.legacy_pid = ${integer(pid)}
 ORDER BY ctm.id DESC
@@ -750,7 +752,8 @@ SELECT p.legacy_pid AS pid, p.pubpid,
   COALESCE(ct.team_name, '') AS "teamName",
   COALESCE(ct.team_status, '') AS "teamStatus",
   COALESCE(ctm.user_id::text, '') AS "userId",
-  COALESCE(trim(concat(s.first_name, ' ', s.last_name)), '') AS "memberName",
+  COALESCE(ctm.contact_id::text, '') AS "contactId",
+  COALESCE(NULLIF(trim(concat(s.first_name, ' ', s.last_name)), ''), prc.display_name, '') AS "memberName",
   COALESCE(ctm.role, '') AS "role",
   COALESCE(ctm.facility_id::text, '') AS "facilityId",
   COALESCE(f.name, '') AS "facilityName",
@@ -761,6 +764,7 @@ FROM patients p
 LEFT JOIN patient_care_teams ct ON ct.patient_id = p.canonical_id
 LEFT JOIN patient_care_team_members ctm ON ctm.patient_id = ct.patient_id
 LEFT JOIN staff s ON s.id = ctm.user_id
+LEFT JOIN patient_related_contacts prc ON prc.contact_id = ctm.contact_id
 LEFT JOIN facilities f ON f.id = ctm.facility_id
 WHERE p.legacy_pid = ${integer(pid)}
 ORDER BY ctm.id ASC;
@@ -778,12 +782,14 @@ ORDER BY ctm.id ASC;
       teamStatus,
       teamStatusDisplay: careTeamStatusLabel(teamStatus),
       members: rows
-        .filter((row) => row.userId !== "")
+        .filter((row) => row.userId !== "" || row.contactId !== "")
         .map((row) => {
           const role = row.role;
           const memberStatus = row.memberStatus;
+          const contactId = row.contactId === "" ? null : Number(row.contactId);
           return {
-            userId: Number(row.userId),
+            userId: row.userId === "" ? null : Number(row.userId),
+            ...(contactId === null ? {} : { contactId, memberType: "contact" as const }),
             memberName: row.memberName,
             role,
             roleDisplay: careTeamRoleLabel(role),
@@ -807,6 +813,7 @@ ORDER BY ctm.id ASC;
         teamStatus: assignment.teamStatus,
         members: assignment.members.map((member) => ({
           userId: member.userId,
+          contactId: member.contactId ?? null,
           role: member.role,
           facilityId: member.facilityId,
           providerSince: member.providerSince,
@@ -3557,6 +3564,8 @@ function careTeamRoleLabel(value: string) {
       return "Nurse";
     case "case_manager":
       return "Case Manager";
+    case "caregiver":
+      return "Caregiver";
     case "social_worker":
       return "Social Worker";
     case "specialist":

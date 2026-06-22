@@ -1089,6 +1089,12 @@ function buildLegacySql() {
     "DELETE FROM employer_data;",
     "DELETE ctm FROM care_team_member ctm INNER JOIN care_teams ct ON ct.id = ctm.care_team_id WHERE ct.pid BETWEEN 100001 AND 101000;",
     "DELETE FROM care_teams WHERE pid BETWEEN 100001 AND 101000;",
+    "DELETE FROM contact_telecom WHERE contact_id BETWEEN 3200001 AND 3201000;",
+    "DELETE FROM contact_relation WHERE contact_id BETWEEN 3200001 AND 3201000;",
+    "DELETE FROM contact_address WHERE contact_id BETWEEN 3200001 AND 3201000;",
+    "DELETE FROM contact WHERE id BETWEEN 3200001 AND 3201000;",
+    "DELETE FROM person_patient_link WHERE person_id BETWEEN 3100001 AND 3101000 OR patient_id BETWEEN 100001 AND 101000;",
+    "DELETE FROM person WHERE id BETWEEN 3100001 AND 3101000;",
     "DELETE FROM insurance_companies WHERE id BETWEEN 9001 AND 9006;",
     "DELETE FROM patient_data;",
     "DELETE FROM users WHERE id BETWEEN 101 AND 120 OR username LIKE 'gold-%' OR username IN ('davis', 'hamming');",
@@ -1208,6 +1214,80 @@ function buildLegacySql() {
     guardiancountry: patient.guardianCountry,
     guardianworkphone: patient.guardianWorkPhone
   })), 150));
+
+  statements.push(insert("person", ["id", "uuid", "first_name", "middle_name", "last_name", "preferred_name", "gender", "active", "notes", "created_by", "updated_by"], patients.map((patient) => {
+    const [firstName, ...lastParts] = patient.guardianName.split(" ");
+    return {
+      id: 3100000 + (patient.pid - 100000),
+      uuid: raw(sqlUuid(`related-person-${patient.canonicalId}`)),
+      first_name: firstName,
+      middle_name: "",
+      last_name: lastParts.join(" ") || patient.lname,
+      preferred_name: "",
+      gender: patient.guardianSex,
+      active: 1,
+      notes: `Synthetic ${patient.guardianRelationship} contact for ${patient.pubpid}`,
+      created_by: 1,
+      updated_by: 1
+    };
+  }), 150));
+
+  statements.push(insert("contact", ["id", "foreign_table_name", "foreign_id"], patients.map((patient) => ({
+    id: 3200000 + (patient.pid - 100000),
+    foreign_table_name: "person",
+    foreign_id: 3100000 + (patient.pid - 100000)
+  })), 150));
+
+  statements.push(insert("person_patient_link", ["person_id", "patient_id", "link_method", "notes", "active"], patients.map((patient) => ({
+    person_id: 3100000 + (patient.pid - 100000),
+    patient_id: patient.pid,
+    link_method: "gold-dataset",
+    notes: `Synthetic contact link for ${patient.pubpid}`,
+    active: 1
+  })), 150));
+
+  statements.push(insert("contact_relation", ["contact_id", "target_table", "target_id", "active", "role", "relationship", "contact_priority", "is_primary_contact", "is_emergency_contact", "can_make_medical_decisions", "can_receive_medical_info", "start_date", "notes", "created_by", "updated_by"], patients.map((patient) => ({
+    contact_id: 3200000 + (patient.pid - 100000),
+    target_table: "patient_data",
+    target_id: patient.pid,
+    active: 1,
+    role: "guardian",
+    relationship: patient.guardianRelationship,
+    contact_priority: 1,
+    is_primary_contact: 1,
+    is_emergency_contact: patient.cohort === "pediatric" ? 1 : 0,
+    can_make_medical_decisions: patient.guardianRelationship === "parent" || patient.guardianRelationship === "spouse" ? 1 : 0,
+    can_receive_medical_info: 1,
+    start_date: `${patient.registrationDate} 09:00:00`,
+    notes: `Synthetic ${patient.guardianRelationship} contact for ${patient.pubpid}`,
+    created_by: 1,
+    updated_by: 1
+  })), 150));
+
+  statements.push(insert("contact_telecom", ["contact_id", "rank", "system", "use", "value", "status", "is_primary", "created_by", "updated_by"], patients.flatMap((patient) => [
+    {
+      contact_id: 3200000 + (patient.pid - 100000),
+      rank: 1,
+      system: "phone",
+      use: "mobile",
+      value: patient.guardianPhone,
+      status: "A",
+      is_primary: "1",
+      created_by: 1,
+      updated_by: 1
+    },
+    {
+      contact_id: 3200000 + (patient.pid - 100000),
+      rank: 2,
+      system: "email",
+      use: "home",
+      value: patient.guardianEmail,
+      status: "A",
+      is_primary: "0",
+      created_by: 1,
+      updated_by: 1
+    }
+  ]), 300));
 
   statements.push(insert("employer_data", ["uuid", "name", "street", "postal_code", "city", "state", "country", "date", "pid"], patients.map((patient) => ({
     uuid: raw(sqlUuid(`employer-${patient.canonicalId}`)),

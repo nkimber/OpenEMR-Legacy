@@ -178,7 +178,9 @@ export type PatientCareTeamAssignment = {
 };
 
 export type PatientCareTeamMemberAssignment = {
-  userId: number;
+  userId: number | null;
+  contactId?: number | null;
+  memberType?: "provider" | "contact";
   memberName: string;
   role: string;
   roleDisplay: string;
@@ -1798,7 +1800,8 @@ SELECT p.pid, p.pubpid,
   COALESCE(ct.team_name, '') AS teamName,
   COALESCE(ct.status, '') AS teamStatus,
   COALESCE(CAST(ctm.user_id AS CHAR), '') AS userId,
-  COALESCE(CONCAT(u.fname, ' ', u.lname), '') AS memberName,
+  COALESCE(CAST(ctm.contact_id AS CHAR), '') AS contactId,
+  COALESCE(CONCAT(u.fname, ' ', u.lname), NULLIF(TRIM(CONCAT(COALESCE(per.first_name, ''), ' ', COALESCE(per.last_name, ''))), ''), '') AS memberName,
   COALESCE(ctm.role, '') AS role,
   COALESCE(CAST(ctm.facility_id AS CHAR), '') AS facilityId,
   COALESCE(f.name, '') AS facilityName,
@@ -1815,6 +1818,8 @@ LEFT JOIN care_teams ct ON ct.id = (
 )
 LEFT JOIN care_team_member ctm ON ctm.care_team_id = ct.id
 LEFT JOIN users u ON u.id = ctm.user_id
+LEFT JOIN contact c ON c.id = ctm.contact_id
+LEFT JOIN person per ON c.foreign_table_name = 'person' AND per.id = c.foreign_id
 LEFT JOIN facility f ON f.id = ctm.facility_id
 WHERE p.pid = ${integer(pid)}
 ORDER BY ct.id DESC, ctm.id DESC
@@ -1888,7 +1893,8 @@ SELECT p.pid, p.pubpid,
   COALESCE(ct.team_name, '') AS teamName,
   COALESCE(ct.status, '') AS teamStatus,
   COALESCE(CAST(ctm.user_id AS CHAR), '') AS userId,
-  COALESCE(CONCAT(u.fname, ' ', u.lname), '') AS memberName,
+  COALESCE(CAST(ctm.contact_id AS CHAR), '') AS contactId,
+  COALESCE(CONCAT(u.fname, ' ', u.lname), NULLIF(TRIM(CONCAT(COALESCE(per.first_name, ''), ' ', COALESCE(per.last_name, ''))), ''), '') AS memberName,
   COALESCE(ctm.role, '') AS role,
   COALESCE(CAST(ctm.facility_id AS CHAR), '') AS facilityId,
   COALESCE(f.name, '') AS facilityName,
@@ -1899,6 +1905,8 @@ FROM patient_data p
 LEFT JOIN care_teams ct ON ct.pid = p.pid
 LEFT JOIN care_team_member ctm ON ctm.care_team_id = ct.id
 LEFT JOIN users u ON u.id = ctm.user_id
+LEFT JOIN contact c ON c.id = ctm.contact_id
+LEFT JOIN person per ON c.foreign_table_name = 'person' AND per.id = c.foreign_id
 LEFT JOIN facility f ON f.id = ctm.facility_id
 WHERE p.pid = ${integer(pid)}
 ORDER BY ct.id DESC, ctm.id ASC;
@@ -1916,12 +1924,14 @@ ORDER BY ct.id DESC, ctm.id ASC;
       teamStatus,
       teamStatusDisplay: careTeamStatusLabel(teamStatus),
       members: rows
-        .filter((row) => row.userId !== "")
+        .filter((row) => row.userId !== "" || row.contactId !== "")
         .map((row) => {
           const role = row.role;
           const memberStatus = row.memberStatus;
+          const contactId = row.contactId === "" ? null : Number(row.contactId);
           return {
-            userId: Number(row.userId),
+            userId: row.userId === "" ? null : Number(row.userId),
+            ...(contactId === null ? {} : { contactId, memberType: "contact" as const }),
             memberName: row.memberName,
             role,
             roleDisplay: careTeamRoleLabel(role),
@@ -1952,7 +1962,9 @@ WHERE pid = ${integer(assignment.pid)};
 
     const memberValues = assignment.members.map((member) => {
       const facilityId = member.facilityId === null ? "NULL" : integer(member.facilityId);
-      return `(@care_team_id, ${integer(member.userId)}, NULL, ${sqlString(member.role)},
+      const userId = member.userId === null ? "NULL" : integer(member.userId);
+      const contactId = member.contactId == null ? "NULL" : integer(member.contactId);
+      return `(@care_team_id, ${userId}, ${contactId}, ${sqlString(member.role)},
    ${facilityId}, ${nullableSqlString(member.providerSince)}, ${sqlString(member.memberStatus || "active")},
    NOW(), NOW(), 1, 1, ${nullableSqlString(member.note)})`;
     }).join(",\n");
@@ -4957,6 +4969,8 @@ function careTeamRoleLabel(value: string) {
       return "Nurse";
     case "case_manager":
       return "Case Manager";
+    case "caregiver":
+      return "Caregiver";
     case "social_worker":
       return "Social Worker";
     case "specialist":
