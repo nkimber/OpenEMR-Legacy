@@ -177,6 +177,7 @@ param(
         "workflow-patient-guardian-contact",
         "workflow-patient-guardian-details",
         "workflow-patient-social-details",
+        "workflow-patient-employer-core",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

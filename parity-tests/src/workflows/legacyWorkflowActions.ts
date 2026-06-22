@@ -141,6 +141,17 @@ export type PatientGuardianContact = {
   guardianWorkPhone: string;
 };
 
+export type PatientEmployer = {
+  pid: number;
+  pubpid: string;
+  employerName: string;
+  employerStreet: string;
+  employerCity: string;
+  employerState: string;
+  employerPostalCode: string;
+  employerCountry: string;
+};
+
 export type NewPatientRegistration = {
   pubpid: string;
   firstName: string;
@@ -1654,6 +1665,51 @@ SET mothersname = ${sqlString(contact.motherName)},
   guardiancountry = ${sqlString(contact.guardianCountry)},
   guardianworkphone = ${sqlString(contact.guardianWorkPhone)}
 WHERE pid = ${integer(contact.pid)};
+`);
+  }
+
+  async getPatientEmployer(pid: number): Promise<PatientEmployer | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.pid, p.pubpid,
+  COALESCE(e.name, '') AS employerName,
+  COALESCE(e.street, '') AS employerStreet,
+  COALESCE(e.city, '') AS employerCity,
+  COALESCE(e.state, '') AS employerState,
+  COALESCE(e.postal_code, '') AS employerPostalCode,
+  COALESCE(e.country, '') AS employerCountry
+FROM patient_data p
+LEFT JOIN employer_data e ON e.pid = p.pid
+WHERE p.pid = ${integer(pid)}
+ORDER BY e.date DESC, e.id DESC
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      employerName: row.employerName,
+      employerStreet: row.employerStreet,
+      employerCity: row.employerCity,
+      employerState: row.employerState,
+      employerPostalCode: row.employerPostalCode,
+      employerCountry: row.employerCountry
+    };
+  }
+
+  async updatePatientEmployer(employer: PatientEmployer): Promise<void> {
+    await this.db.execute(`
+UPDATE employer_data
+SET name = ${sqlString(employer.employerName)},
+  street = ${sqlString(employer.employerStreet)},
+  city = ${sqlString(employer.employerCity)},
+  state = ${sqlString(employer.employerState)},
+  postal_code = ${sqlString(employer.employerPostalCode)},
+  country = ${sqlString(employer.employerCountry)}
+WHERE pid = ${integer(employer.pid)};
 `);
   }
 

@@ -54,6 +54,7 @@ import type {
   PatientContact,
   PatientDeceasedStatus,
   PatientDemographics,
+  PatientEmployer,
   PatientGuardianContact,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
@@ -577,6 +578,56 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient guardian contact update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientEmployer(pid: number): Promise<PatientEmployer | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  COALESCE(pe.name, '') AS "employerName",
+  COALESCE(pe.street, '') AS "employerStreet",
+  COALESCE(pe.city, '') AS "employerCity",
+  COALESCE(pe.state, '') AS "employerState",
+  COALESCE(pe.postal_code, '') AS "employerPostalCode",
+  COALESCE(pe.country, '') AS "employerCountry"
+FROM patients p
+LEFT JOIN patient_employers pe ON pe.patient_id = p.canonical_id
+WHERE p.legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      employerName: row.employerName,
+      employerStreet: row.employerStreet,
+      employerCity: row.employerCity,
+      employerState: row.employerState,
+      employerPostalCode: row.employerPostalCode,
+      employerCountry: row.employerCountry
+    };
+  }
+
+  async updatePatientEmployer(employer: PatientEmployer): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(employer.pubpid)}/employer`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        employerName: employer.employerName,
+        employerStreet: employer.employerStreet,
+        employerCity: employer.employerCity,
+        employerState: employer.employerState,
+        employerPostalCode: employer.employerPostalCode,
+        employerCountry: employer.employerCountry
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient employer update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

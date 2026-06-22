@@ -12980,6 +12980,81 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 229. Slice 197 Patient Employer Core Readiness
+
+Started: `2026-06-22T16:19:32.0662405-04:00`
+Finished: `2026-06-22T16:47:56.8292265-04:00`
+Duration: `28m 25s`
+Changeset: `pending until commit`
+
+Implemented workflow Slice 197: patient employer core readiness. The shared gold dataset now carries deterministic employer identity/address values for every synthetic patient, and both legacy OpenEMR and the modernized target can mutate, render, restore, and compare the same employer block through the shared parity harness.
+
+Code changes:
+
+- Files changed: 25
+- Lines added: 7778
+- Lines deleted: 54
+- Net lines: 7724
+- Total churn: 7832
+
+Key outcomes:
+
+- Extended the canonical gold dataset with deterministic employer name, street, city, state, postal code, and country fields for all 1,000 patients.
+- Mapped employer seed data into legacy OpenEMR `employer_data` and modernized PostgreSQL `patient_employers`.
+- Added employer fields to modernized patient chart summaries and exposed a write-level `/api/patients/{patientId}/employer` endpoint.
+- Added a Patient/Client Employer panel with edit, save, cancel, and read-only rendering states.
+- Added modernized smoke coverage for the employer mutation lifecycle.
+- Added target-neutral legacy and modernized workflow actions for reading/updating patient employer fields.
+- Added the `workflow-patient-employer-core` parity suite, the `slice-197-patient-employer-core-readiness` plan, runner wiring, and Workbench managed actions for both targets.
+- Updated the Workbench functionality ledger, source inventory, seed-data README, and project documents to reflect completed patient employer readiness.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, and generated seed-data files.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:seed-data` regenerated the canonical dataset and legacy MariaDB seed SQL with employer rows.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with `patient_employers`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` reseeded the modernized PostgreSQL database.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 138 checks and 0 failures, including `patient employer lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-197-patient-employer-core-readiness -Reset test` passed with 1 expected test; run `2026-06-22T204118-154Z-legacy-openemr-plan-slice-197-patient-employer-core-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-197-patient-employer-core-readiness -Reset test` passed with 1 expected test; run `2026-06-22T204240-368Z-modernized-openemr-plan-slice-197-patient-employer-core-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-197-patient-employer-core-readiness` passed with status `matched`; comparison `2026-06-22T204416-633Z-legacy-openemr-vs-modernized-openemr-plan-slice-197-patient-employer-core-readiness`.
+- Regression check `slice-196-patient-social-details-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-22T204709-306Z-legacy-openemr-vs-modernized-openemr-plan-slice-196-patient-social-details-readiness`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-employer-core/patient-employer-core.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

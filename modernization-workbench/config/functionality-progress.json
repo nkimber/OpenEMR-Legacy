@@ -67,6 +67,11 @@
           "label": "Patient social detail readiness",
           "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR race, ethnicity, interpreter, family size, monthly income, homeless, and financial-review fields with restore-backed mutation coverage.",
           "evidence": ["slice-196-patient-social-details-readiness"]
+        },
+        {
+          "label": "Patient employer core readiness",
+          "detail": "The modernized patient API, Patient/Client chart, PostgreSQL employer table, shared gold dataset, and parity harness now mirror OpenEMR employer identity and address fields with restore-backed mutation coverage.",
+          "evidence": ["slice-197-patient-employer-core-readiness"]
         }
       ],
       "outstanding": [
@@ -76,7 +81,7 @@
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 81,
+      "completionEstimatePercent": 82,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
       "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, patient history, lifecycle audit, and broader administration depth remain."

@@ -158,6 +158,7 @@ const cities = [
 const occupations = ["Teacher", "Accountant", "Software Analyst", "Retail Manager", "Nurse", "Driver", "Student", "Retired", "Engineer", "Food Service Manager"];
 const guardianFirstNames = ["Morgan", "Jamie", "Casey", "Riley", "Jordan", "Taylor", "Robin", "Avery"];
 const guardianRelationships = ["parent", "spouse", "sibling", "child", "care_giver"];
+const employerNames = ["Harbor Health Logistics", "Pacific Learning Group", "Civic Analytics", "Sunrise Market", "Coastal Transit", "Mesa Engineering", "Community Foodworks", "Northstar Finance"];
 const insurers = ["Acme Health", "Blue Valley Health", "CommunityCare", "Evergreen PPO", "Northstar HMO", "Harbor Mutual"];
 const insuranceCompanies = insurers.map((name, index) => ({ id: 9001 + index, name }));
 const plans = ["Standard Silver", "Family Choice", "Premier PPO", "Community HMO", "Medicare Advantage", "High Deductible"];
@@ -374,6 +375,8 @@ for (let i = 1; i <= patientCount; i += 1) {
   const monthlyIncome = 2200 + ((i % 70) * 100);
   const homeless = i % 37 === 0 ? "YES" : "NO";
   const financialReviewDate = "2026-01-01";
+  const employerName = employerNames[i % employerNames.length];
+  const employerStreet = `${500 + i} Commerce Parkway`;
   patients.push({
     canonicalId,
     pid,
@@ -412,6 +415,12 @@ for (let i = 1; i <= patientCount; i += 1) {
     monthlyIncome,
     homeless,
     financialReviewDate,
+    employerName,
+    employerStreet,
+    employerCity: city,
+    employerState: state,
+    employerPostalCode: postalCode,
+    employerCountry: "USA",
     providerId: provider.id,
     facilityId: facility.id,
     portalEnabled: i <= 200,
@@ -1077,6 +1086,7 @@ function buildLegacySql() {
     "DELETE FROM openemr_postcalendar_events;",
     "DELETE FROM lists;",
     "DELETE FROM insurance_data;",
+    "DELETE FROM employer_data;",
     "DELETE FROM insurance_companies WHERE id BETWEEN 9001 AND 9006;",
     "DELETE FROM patient_data;",
     "DELETE FROM users WHERE id BETWEEN 101 AND 120 OR username LIKE 'gold-%' OR username IN ('davis', 'hamming');",
@@ -1195,6 +1205,18 @@ function buildLegacySql() {
     guardianpostalcode: patient.guardianPostalCode,
     guardiancountry: patient.guardianCountry,
     guardianworkphone: patient.guardianWorkPhone
+  })), 150));
+
+  statements.push(insert("employer_data", ["uuid", "name", "street", "postal_code", "city", "state", "country", "date", "pid"], patients.map((patient) => ({
+    uuid: raw(sqlUuid(`employer-${patient.canonicalId}`)),
+    name: patient.employerName,
+    street: patient.employerStreet,
+    postal_code: patient.employerPostalCode,
+    city: patient.employerCity,
+    state: patient.employerState,
+    country: patient.employerCountry,
+    date: patient.registrationDate,
+    pid: patient.pid
   })), 150));
 
   statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {
