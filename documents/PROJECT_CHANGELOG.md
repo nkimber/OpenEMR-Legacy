@@ -10765,6 +10765,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 193. Admin Directory Protection Readiness Slice 163
+
+Commit: `a9596bcb`
+Started: `2026-06-21T20:06:00.0000000-04:00`
+Finished: `2026-06-21T20:40:58.0528470-04:00`
+Duration: 34 minutes 58 seconds
+
+Implemented the one-hundred-sixty-third project slice and latest modernized OpenEMR workflow slice: admin directory protection readiness, requiring an active modernized admin session for `/api/administration/*`, loading the Admin directory UI only after sign-in, and comparing that behavior with legacy OpenEMR administration pages protected by login.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 530
+- Lines deleted: 96
+- Net lines: +434
+- Total churn: 626
+
+Key outcomes:
+
+- Protected the modernized `/api/administration` route group behind the active `X-OpenEMR-Session` contract.
+- Updated the React Admin workspace to keep login/session/audit controls visible while loading user/facility/ACL data only after successful Login Readiness.
+- Updated all typed admin API calls and smoke checks to send admin session headers.
+- Added a modernized parity UI helper for authenticated Admin opens and kept older admin/ACL UI mutation suites compatible.
+- Added the `workflow-admin-directory-protection` suite and `slice-163-admin-directory-protection-readiness` plan.
+- Added Workbench-managed Slice 163 plan actions for both targets.
+- Advanced the administration/security/audit functionality estimate from 36% to 38%, while leaving broader non-admin protected APIs, ASP.NET Core Identity, MFA, authorization policy, password lifecycle, production hardening, and broader audit export as outstanding scope.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including protected administration directory access assertions.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-163-admin-directory-protection-readiness -Reset run` passed: run `2026-06-22T001851-006Z-legacy-openemr-plan-slice-163-admin-directory-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-163-admin-directory-protection-readiness -Reset run` passed: run `2026-06-22T001932-980Z-modernized-openemr-plan-slice-163-admin-directory-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-163-admin-directory-protection-readiness` passed with comparison `2026-06-22T001956-262Z-legacy-openemr-vs-modernized-openemr-plan-slice-163-admin-directory-protection-readiness`, `status: matched`, and no differences.
+- `npm run build` passed in `modernization-workbench/`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-8-admin-readiness -Reset run` passed as a compatibility check after Admin sign-in gating: run `2026-06-22T002129-193Z-modernized-openemr-plan-slice-8-admin-readiness`, 3 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-18-admin-facility-mutation-readiness -Reset test` passed as an admin mutation compatibility check after authenticated Admin UI/API access: run `2026-06-22T002710-920Z-modernized-openemr-plan-slice-18-admin-facility-mutation-readiness`, 9 expected, 0 unexpected.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-admin-directory-protection/directory-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
