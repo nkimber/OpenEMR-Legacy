@@ -10897,6 +10897,76 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 195. Patient Chart Protection Readiness Slice 165
+
+Commit: `cc0c6b4a`
+Started: `2026-06-21T21:15:00.0000000-04:00`
+Finished: `2026-06-21T22:00:51.2629656-04:00`
+Duration: 45 minutes 51 seconds
+
+Implemented the one-hundred-sixty-fifth project slice and latest modernized OpenEMR workflow slice: patient chart protection readiness, requiring an active modernized session for `/api/patients/*`, gating Patient/Client search and chart data until sign-in, and comparing that behavior with legacy OpenEMR patient summary pages protected by login.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 464
+- Lines deleted: 141
+- Net lines: +323
+- Total churn: 605
+
+Key outcomes:
+
+- Protected the modernized `/api/patients` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Patient/Client access gate so patient search, chart load, registration, demographics/contact edits, and insurance mutations only run after session verification.
+- Updated modernized patient API calls, smoke checks, HTTP tests, workflow actions, and Playwright UI helpers to pass the active OpenEMR session.
+- Added the `workflow-patient-protection` suite and `slice-165-patient-protection-readiness` plan.
+- Added Workbench-managed Slice 165 plan actions for both legacy and modernized targets.
+- Kept the gold dataset contract aligned by adding `labProviders` and `procedureOrderCatalogItems` to the database probes and the modernized seed-count report.
+- Advanced patient chart/registration completion from 70% to 72% and administration/security completion from 40% to 42%, while leaving broader clinical-list, scheduling, document, billing, procedure, messaging, authorization policy, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run build` passed in `modernization-workbench/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and refreshed the modernized seed result with `labProviders`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including unauthenticated patient search rejection and authenticated patient calls.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-1-readiness -Reset run` passed after the probe count fix: run `2026-06-22T013725-665Z-modernized-openemr-plan-slice-1-readiness`, 7 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-1-readiness -Reset run` passed after the probe count fix: run `2026-06-22T013819-038Z-legacy-openemr-plan-slice-1-readiness`, 7 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Suite http -Reset run` passed with authenticated patient API checks: run `2026-06-22T013904-258Z-modernized-openemr-suite-http`, 3 expected, 2 skipped, 0 unexpected.
+- Modernized compatibility checks passed for patient contact (`2026-06-22T013924-159Z-modernized-openemr-plan-slice-10-contact-mutation-readiness`), demographics (`2026-06-22T014000-544Z-modernized-openemr-plan-slice-36-patient-demographics-mutation-readiness`), registration (`2026-06-22T014033-066Z-modernized-openemr-plan-slice-37-patient-registration-readiness`), insurance read (`2026-06-22T014103-218Z-modernized-openemr-plan-slice-28-insurance-readiness`), and insurance mutation (`2026-06-22T014128-189Z-modernized-openemr-plan-slice-34-insurance-mutation-readiness`).
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-165-patient-protection-readiness -Reset run` passed: run `2026-06-22T014201-610Z-legacy-openemr-plan-slice-165-patient-protection-readiness`, 1 expected, 0 unexpected. An earlier legacy run exposed that the native summary page shows numeric PID rather than the canonical public ID; the assertion was corrected and rerun.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-165-patient-protection-readiness -Reset run` passed: run `2026-06-22T014235-552Z-modernized-openemr-plan-slice-165-patient-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-165-patient-protection-readiness` passed with comparison `2026-06-22T014343-420Z-legacy-openemr-vs-modernized-openemr-plan-slice-165-patient-protection-readiness`, `status: matched`, and no differences.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-protection/patient-protection.spec.ts`
+- `parity-tests/tests/http/legacy-http.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
