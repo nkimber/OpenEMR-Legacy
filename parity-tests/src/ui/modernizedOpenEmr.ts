@@ -137,6 +137,23 @@ export async function openAuthenticatedModernizedDocuments(page: Page, target: R
   }
 }
 
+export async function openAuthenticatedModernizedMessages(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Messages" }).click();
+  await expect(page.getByRole("heading", { name: "Messages", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Messages access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByRole("button", { name: "Verify Messages Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load patient messages");
+
+  if (patientSearch) {
+    await page.getByLabel("Messages patient ID").fill(patientSearch);
+  }
+}
+
 export async function getModernizedAdminSessionHeaders(page: Page, target: RuntimeTarget) {
   const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
     data: target.credentials

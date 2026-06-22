@@ -157,7 +157,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, and pnotes-compatible update metadata stamping are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, and protected message access are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -178,6 +178,11 @@
           "label": "Message update metadata stamping",
           "detail": "Patient-message edits now preserve pnotes-compatible update_by/update_date behavior through modernized schema, API, UI, parity probes, and shared mutation tests.",
           "evidence": ["slice-158-message-update-metadata-readiness"]
+        },
+        {
+          "label": "Message protection readiness",
+          "detail": "The modernized message API now requires an active session, the Messages page gates patient-message search and mutations until sign-in, and parity compares legacy patient-notes protection with modernized API/UI protection.",
+          "evidence": ["slice-170-message-protection-readiness"]
         }
       ],
       "outstanding": [
@@ -186,10 +191,10 @@
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 48,
+      "completionEstimatePercent": 50,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, and update metadata stamping are covered; full portal threading, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, and protected message access are covered; full portal threading, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",
@@ -297,7 +302,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, and protected document APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, and protected message APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -363,19 +368,24 @@
           "label": "Document protection readiness",
           "detail": "The modernized document API group now requires an active session, the Documents page gates document search and mutations until sign-in, and parity compares legacy document-page protection with modernized API/UI protection.",
           "evidence": ["slice-169-document-protection-readiness"]
+        },
+        {
+          "label": "Message protection readiness",
+          "detail": "The modernized message API group now requires an active session, the Messages page gates patient-message search and mutations until sign-in, and parity compares legacy patient-notes protection with modernized API/UI protection.",
+          "evidence": ["slice-170-message-protection-readiness"]
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, enforcing session checks across the remaining billing, procedure, and messaging APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, enforcing session checks across the remaining billing and procedure APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 50,
+      "completionEstimatePercent": 52,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, and protected document APIs exist; Identity, remaining billing/procedure/messaging API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, and protected message APIs exist; Identity, remaining billing/procedure API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

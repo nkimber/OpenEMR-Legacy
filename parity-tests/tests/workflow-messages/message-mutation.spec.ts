@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientNotesDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
 
 const messageMutationAnchorPatientId = "MOD-PAT-0004";
 
@@ -52,10 +53,7 @@ test.describe("patient message mutation parity @slice14 @workflow-messages @muta
         await expectRenderedText(page, title);
         await expectRenderedText(page, closedBody);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Messages" }).click();
-        await expect(page.getByRole("heading", { name: "Messages" })).toBeVisible();
-        await page.getByLabel("Messages patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedMessages(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(title);
         await expect(page.locator("body")).toContainText(closedBody);

@@ -168,7 +168,8 @@ param(
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-encounter-protection",
-        "workflow-document-protection"
+        "workflow-document-protection",
+        "workflow-message-protection"
     )]
     [string] $Suite = "all",
 

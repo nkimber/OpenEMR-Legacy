@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientNotesDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
 
 const messageUpdateMetadataAnchorPatientId = "MOD-PAT-0004";
 
@@ -46,10 +47,7 @@ test.describe("patient message update metadata parity @slice158 @workflow-messag
       if (target.type === "legacy-openemr") {
         await workflow.updatePatientMessageContent(messageId, editedTitle, editedBody);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Messages" }).click();
-        await expect(page.getByRole("heading", { name: "Messages" })).toBeVisible();
-        await page.getByLabel("Messages patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedMessages(page, target, patient!.pubpid);
 
         const messageCard = page.locator(".message-item", { hasText: title });
         await expect(messageCard).toContainText(body);

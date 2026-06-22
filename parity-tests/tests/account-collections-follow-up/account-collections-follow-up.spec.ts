@@ -1,6 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { escapeSql } from "../../src/db/legacyMariaDbProbe.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientNotesDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("collections follow-up task parity @slice64 @account-collections-follow-up @billing @mutation", () => {
   test("creates, closes, renders, soft-deletes, and removes a collections follow-up task", async ({
@@ -66,10 +67,7 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
         await expectRenderedText(page, title);
         await expectRenderedText(page, closeBody);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Messages" }).click();
-        await expect(page.getByRole("heading", { name: "Messages" })).toBeVisible();
-        await page.getByLabel("Messages patient ID").fill(item.pubpid);
+        await openAuthenticatedModernizedMessages(page, target, item.pubpid);
         await expect(page.locator("body")).toContainText(title);
         await expect(page.locator("body")).toContainText(closeBody);
         await expect(page.locator("body")).toContainText("Done");

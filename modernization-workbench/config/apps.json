@@ -192,7 +192,8 @@
         "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"],
         "parityAppointmentPatientOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-118-appointment-patient-overlap-readiness", "-Reset", "test"],
         "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"],
-        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"]
+        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"],
+        "parityMessageProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-170-message-protection-readiness", "-Reset", "run"]
       },
       "services": ["mysql", "openemr"],
       "seeds": [
@@ -790,38 +791,38 @@
           "commandName": "parityProcedureOrderCatalogPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-145-procedure-order-catalog-readiness.json"
         },
-          {
-            "id": "parity-plan-procedure-order-catalog-lifecycle",
-            "name": "Slice 147 procedure order catalog lifecycle plan",
-            "description": "Runs the shared temporary procedure order catalog lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderCatalogLifecyclePlan",
-            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-vendor-compendium-import",
-            "name": "Slice 148 procedure vendor compendium import plan",
-            "description": "Runs the shared temporary vendor compendium import plan against the legacy target for side-by-side comparison with the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureVendorCompendiumImportPlan",
-            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-order-queue",
-            "name": "Slice 149 procedure order queue plan",
-            "description": "Runs the shared temporary clinical order queue plan against the legacy target for side-by-side comparison with the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderQueuePlan",
-            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-149-procedure-order-queue-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-order-transmit",
-            "name": "Slice 151 procedure order transmit plan",
-            "description": "Runs the shared temporary procedure order transmit plan against the legacy target for side-by-side comparison with the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderTransmitPlan",
-            "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-151-procedure-order-transmit-readiness.json"
-          },
+        {
+          "id": "parity-plan-procedure-order-catalog-lifecycle",
+          "name": "Slice 147 procedure order catalog lifecycle plan",
+          "description": "Runs the shared temporary procedure order catalog lifecycle plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderCatalogLifecyclePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-vendor-compendium-import",
+          "name": "Slice 148 procedure vendor compendium import plan",
+          "description": "Runs the shared temporary vendor compendium import plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureVendorCompendiumImportPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-order-queue",
+          "name": "Slice 149 procedure order queue plan",
+          "description": "Runs the shared temporary clinical order queue plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderQueuePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-149-procedure-order-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-order-transmit",
+          "name": "Slice 151 procedure order transmit plan",
+          "description": "Runs the shared temporary procedure order transmit plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderTransmitPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-151-procedure-order-transmit-readiness.json"
+        },
         {
           "id": "parity-plan-admin-facility-mutation",
           "name": "Slice 18 admin facility mutation plan",
@@ -949,6 +950,14 @@
           "layer": "plan",
           "commandName": "parityDocumentProtectionPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-169-document-protection-readiness.json"
+        },
+        {
+          "id": "parity-plan-message-protection",
+          "name": "Slice 170 message protection plan",
+          "description": "Runs the shared patient message protection readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessageProtectionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-170-message-protection-readiness.json"
         },
         {
           "id": "parity-plan-procedure-pending-orders",
@@ -1781,7 +1790,8 @@
         "parityAppointmentProviderOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-117-appointment-provider-overlap-readiness", "-Reset", "test"],
         "parityAppointmentPatientOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-118-appointment-patient-overlap-readiness", "-Reset", "test"],
         "parityAppointmentRoomOverlapPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-119-appointment-room-overlap-readiness", "-Reset", "test"],
-        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"]
+        "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"],
+        "parityMessageProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-170-message-protection-readiness", "-Reset", "run"]
       },
       "services": ["postgres", "api", "frontend"],
       "seeds": [
@@ -2307,38 +2317,38 @@
           "commandName": "parityProcedureOrderCatalogPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-145-procedure-order-catalog-readiness.json"
         },
-          {
-            "id": "parity-plan-procedure-order-catalog-lifecycle",
-            "name": "Slice 147 procedure order catalog lifecycle plan",
-            "description": "Runs the shared temporary procedure order catalog lifecycle plan against the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderCatalogLifecyclePlan",
-            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-vendor-compendium-import",
-            "name": "Slice 148 procedure vendor compendium import plan",
-            "description": "Runs the shared temporary vendor compendium import plan against the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureVendorCompendiumImportPlan",
-            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-order-queue",
-            "name": "Slice 149 procedure order queue plan",
-            "description": "Runs the shared temporary clinical order queue plan against the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderQueuePlan",
-            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-149-procedure-order-queue-readiness.json"
-          },
-          {
-            "id": "parity-plan-procedure-order-transmit",
-            "name": "Slice 151 procedure order transmit plan",
-            "description": "Runs the shared temporary procedure order transmit plan against the modernized target.",
-            "layer": "plan",
-            "commandName": "parityProcedureOrderTransmitPlan",
-            "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-151-procedure-order-transmit-readiness.json"
-          },
+        {
+          "id": "parity-plan-procedure-order-catalog-lifecycle",
+          "name": "Slice 147 procedure order catalog lifecycle plan",
+          "description": "Runs the shared temporary procedure order catalog lifecycle plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderCatalogLifecyclePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-vendor-compendium-import",
+          "name": "Slice 148 procedure vendor compendium import plan",
+          "description": "Runs the shared temporary vendor compendium import plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureVendorCompendiumImportPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-148-procedure-vendor-compendium-import-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-order-queue",
+          "name": "Slice 149 procedure order queue plan",
+          "description": "Runs the shared temporary clinical order queue plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderQueuePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-149-procedure-order-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-order-transmit",
+          "name": "Slice 151 procedure order transmit plan",
+          "description": "Runs the shared temporary procedure order transmit plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityProcedureOrderTransmitPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-151-procedure-order-transmit-readiness.json"
+        },
         {
           "id": "parity-plan-admin-facility-mutation",
           "name": "Slice 18 admin facility mutation plan",
@@ -2466,6 +2476,14 @@
           "layer": "plan",
           "commandName": "parityDocumentProtectionPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-169-document-protection-readiness.json"
+        },
+        {
+          "id": "parity-plan-message-protection",
+          "name": "Slice 170 message protection plan",
+          "description": "Runs the shared patient message protection readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMessageProtectionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-170-message-protection-readiness.json"
         },
         {
           "id": "parity-plan-procedure-pending-orders",

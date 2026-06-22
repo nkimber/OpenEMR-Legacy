@@ -1092,7 +1092,7 @@ LIMIT 1;
   async createPatientMessage(input: NewPatientMessage): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         title: input.title,
@@ -1166,7 +1166,7 @@ LIMIT 1;
   async updatePatientMessageStatus(id: number | string, status: string, body: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/status`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ status, body })
     });
 
@@ -1178,7 +1178,7 @@ LIMIT 1;
   async updatePatientMessageContent(id: number | string, title: string, body: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/content`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ title, body })
     });
 
@@ -1190,7 +1190,7 @@ LIMIT 1;
   async updatePatientMessageAssignment(id: number | string, assignedTo: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/assignment`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ assignedTo })
     });
 
@@ -1202,7 +1202,7 @@ LIMIT 1;
   async replyPatientMessage(id: number | string, body: string, assignedTo: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/reply`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ body, assignedTo })
     });
 
@@ -1213,7 +1213,8 @@ LIMIT 1;
 
   async softDeletePatientMessage(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}/soft-delete`, {
-      method: "PUT"
+      method: "PUT",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1223,7 +1224,8 @@ LIMIT 1;
 
   async deletePatientMessage(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/messages/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {

@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 200. Patient Message Protection Readiness Slice 170
+
+Commit: `pending`
+Started: `2026-06-22T00:32:00.0000000-04:00`
+Finished: `2026-06-22T00:57:04.9603870-04:00`
+
+Implemented the one-hundred-seventieth project slice and latest modernized OpenEMR workflow slice: patient message protection readiness, requiring an active modernized OpenEMR session for `/api/messages/*`, gating the Messages workspace search and mutation controls until sign-in, and comparing that behavior with legacy OpenEMR patient-notes pages protected by login.
+
+Code changes:
+
+- Files changed: 25
+- Lines added: 440
+- Lines deleted: 181
+- Net lines: 259
+- Total churn: 621
+
+Key outcomes:
+
+- Protected the modernized `/api/messages` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Messages Access sign-in gate so patient-message search, create, close, content edit, assignment, reply, archive, and delete flows only run after session verification.
+- Updated modernized message API calls, smoke checks, workflow actions, Playwright UI helpers, and direct API assertions to pass the active OpenEMR session.
+- Added the `workflow-message-protection` suite and `slice-170-message-protection-readiness` plan.
+- Added Workbench-managed Slice 170 plan actions for both legacy and modernized targets.
+- Kept older message read, mutation, assignment, content, reply, portal metadata, update metadata, and collections follow-up parity suites compatible with authenticated modernized UI/API access.
+- Advanced messaging completion from 48% to 50% and administration/security completion from 50% to 52%, while leaving billing, procedure, broader authorization policy depth, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `git diff --check` passed with line-ending warnings only.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor message check includes unauthenticated message search status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-170-message-protection-readiness -Reset run` passed: run `2026-06-22T045101-031Z-legacy-openemr-plan-slice-170-message-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-170-message-protection-readiness -Reset run` passed: run `2026-06-22T045136-568Z-modernized-openemr-plan-slice-170-message-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-170-message-protection-readiness` passed with comparison `2026-06-22T045203-518Z-legacy-openemr-vs-modernized-openemr-plan-slice-170-message-protection-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for message read (`slice-5-messaging-readiness`), message mutation (`slice-14-message-mutation-readiness`), collections follow-up (`slice-64-collections-follow-up-readiness`), message assignment (`slice-65-message-assignment-readiness`), message content (`slice-66-message-content-readiness`), message reply (`slice-156-message-reply-readiness`), message portal metadata (`slice-157-message-portal-metadata-readiness`), and message update metadata (`slice-158-message-update-metadata-readiness`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-message-protection/message-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 199. Document Protection Readiness Slice 169
 
 Commit: `6750badb`
