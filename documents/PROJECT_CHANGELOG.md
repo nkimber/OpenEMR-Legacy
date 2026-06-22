@@ -12985,7 +12985,7 @@ Primary files:
 Started: `2026-06-22T16:19:32.0662405-04:00`
 Finished: `2026-06-22T16:47:56.8292265-04:00`
 Duration: `28m 25s`
-Changeset: `pending until commit`
+Changeset: `e9785eba`
 
 Implemented workflow Slice 197: patient employer core readiness. The shared gold dataset now carries deterministic employer identity/address values for every synthetic patient, and both legacy OpenEMR and the modernized target can mutate, render, restore, and compare the same employer block through the shared parity harness.
 
