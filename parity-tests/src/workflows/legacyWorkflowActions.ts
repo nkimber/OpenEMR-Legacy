@@ -125,6 +125,13 @@ export type PatientGuardianContact = {
   guardianRelationship: string;
   guardianPhone: string;
   guardianEmail: string;
+  guardianSex: string;
+  guardianAddress: string;
+  guardianCity: string;
+  guardianState: string;
+  guardianPostalCode: string;
+  guardianCountry: string;
+  guardianWorkPhone: string;
 };
 
 export type NewPatientRegistration = {
@@ -1568,7 +1575,14 @@ SELECT pid, pubpid,
   COALESCE(guardiansname, '') AS guardianName,
   COALESCE(guardianrelationship, '') AS guardianRelationship,
   COALESCE(guardianphone, '') AS guardianPhone,
-  COALESCE(guardianemail, '') AS guardianEmail
+  COALESCE(guardianemail, '') AS guardianEmail,
+  COALESCE(guardiansex, '') AS guardianSex,
+  COALESCE(guardianaddress, '') AS guardianAddress,
+  COALESCE(guardiancity, '') AS guardianCity,
+  COALESCE(guardianstate, '') AS guardianState,
+  COALESCE(guardianpostalcode, '') AS guardianPostalCode,
+  COALESCE(guardiancountry, '') AS guardianCountry,
+  COALESCE(guardianworkphone, '') AS guardianWorkPhone
 FROM patient_data
 WHERE pid = ${integer(pid)}
 LIMIT 1;
@@ -1585,7 +1599,14 @@ LIMIT 1;
       guardianName: row.guardianName,
       guardianRelationship: row.guardianRelationship,
       guardianPhone: row.guardianPhone,
-      guardianEmail: row.guardianEmail
+      guardianEmail: row.guardianEmail,
+      guardianSex: row.guardianSex,
+      guardianAddress: row.guardianAddress,
+      guardianCity: row.guardianCity,
+      guardianState: row.guardianState,
+      guardianPostalCode: row.guardianPostalCode,
+      guardianCountry: row.guardianCountry,
+      guardianWorkPhone: row.guardianWorkPhone
     };
   }
 
@@ -1596,7 +1617,14 @@ SET mothersname = ${sqlString(contact.motherName)},
   guardiansname = ${sqlString(contact.guardianName)},
   guardianrelationship = ${sqlString(contact.guardianRelationship)},
   guardianphone = ${sqlString(contact.guardianPhone)},
-  guardianemail = ${sqlString(contact.guardianEmail)}
+  guardianemail = ${sqlString(contact.guardianEmail)},
+  guardiansex = ${sqlString(contact.guardianSex)},
+  guardianaddress = ${sqlString(contact.guardianAddress)},
+  guardiancity = ${sqlString(contact.guardianCity)},
+  guardianstate = ${sqlString(contact.guardianState)},
+  guardianpostalcode = ${sqlString(contact.guardianPostalCode)},
+  guardiancountry = ${sqlString(contact.guardianCountry)},
+  guardianworkphone = ${sqlString(contact.guardianWorkPhone)}
 WHERE pid = ${integer(contact.pid)};
 `);
   }

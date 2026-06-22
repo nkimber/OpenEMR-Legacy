@@ -359,7 +359,14 @@ for (let i = 1; i <= patientCount; i += 1) {
   const patientLastName = cohort === "demographic-edge-case" && i % 5 === 0 ? `${lname}-${pick(["Smith", "Garcia", "Lee"])}` : lname;
   const guardianFirstName = guardianFirstNames[i % guardianFirstNames.length];
   const guardianName = `${guardianFirstName} ${patientLastName}`;
-    const guardianRelationship = cohort === "pediatric" ? "parent" : guardianRelationships[i % guardianRelationships.length];
+  const guardianRelationship = cohort === "pediatric" ? "parent" : guardianRelationships[i % guardianRelationships.length];
+  const guardianSex = i % 3 === 0 ? "UNK" : i % 2 === 0 ? "Female" : "Male";
+  const guardianAddress = `${200 + i} Guardian Lane`;
+  const guardianCity = city;
+  const guardianState = state;
+  const guardianPostalCode = postalCode;
+  const guardianCountry = "USA";
+  const guardianWorkPhone = `(619) 555-${pad(4000 + (i % 6000), 4)}`;
   patients.push({
     canonicalId,
     pid,
@@ -382,6 +389,13 @@ for (let i = 1; i <= patientCount; i += 1) {
     guardianRelationship,
     guardianPhone: `(619) 555-${pad(3000 + (i % 7000), 4)}`,
     guardianEmail: `${guardianFirstName.toLowerCase()}.${patientLastName.toLowerCase().replace(/[^a-z0-9]+/g, ".")}@example.test`,
+    guardianSex,
+    guardianAddress,
+    guardianCity,
+    guardianState,
+    guardianPostalCode,
+    guardianCountry,
+    guardianWorkPhone,
     status: i % 4 === 0 ? "single" : i % 4 === 1 ? "married" : i % 4 === 2 ? "partnered" : "widowed",
     occupation: pick(occupations),
     providerId: provider.id,
@@ -1107,7 +1121,7 @@ function buildLegacySql() {
     billing_facility_id: user.facilityId
   }))));
 
-  statements.push(insert("patient_data", ["uuid", "title", "language", "financial", "fname", "lname", "mname", "DOB", "street", "postal_code", "city", "state", "country_code", "ss", "occupation", "phone_home", "phone_biz", "phone_contact", "phone_cell", "status", "contact_relationship", "date", "sex", "referrer", "providerID", "email", "ethnoracial", "race", "ethnicity", "interpreter", "family_size", "monthly_income", "homeless", "financial_review", "pubpid", "pid", "hipaa_mail", "hipaa_voice", "hipaa_notice", "hipaa_message", "hipaa_allowsms", "hipaa_allowemail", "allow_patient_portal", "cmsportal_login", "created_by", "updated_by", "preferred_name", "mothersname", "guardiansname", "guardianrelationship", "guardianphone", "guardianemail"], patients.map((patient, index) => ({
+  statements.push(insert("patient_data", ["uuid", "title", "language", "financial", "fname", "lname", "mname", "DOB", "street", "postal_code", "city", "state", "country_code", "ss", "occupation", "phone_home", "phone_biz", "phone_contact", "phone_cell", "status", "contact_relationship", "date", "sex", "referrer", "providerID", "email", "ethnoracial", "race", "ethnicity", "interpreter", "family_size", "monthly_income", "homeless", "financial_review", "pubpid", "pid", "hipaa_mail", "hipaa_voice", "hipaa_notice", "hipaa_message", "hipaa_allowsms", "hipaa_allowemail", "allow_patient_portal", "cmsportal_login", "created_by", "updated_by", "preferred_name", "mothersname", "guardiansname", "guardianrelationship", "guardianphone", "guardianemail", "guardiansex", "guardianaddress", "guardiancity", "guardianstate", "guardianpostalcode", "guardiancountry", "guardianworkphone"], patients.map((patient, index) => ({
     uuid: raw(sqlUuid(patient.canonicalId)),
     title: patient.sex === "Female" ? "Ms." : "Mr.",
     language: index % 9 === 0 ? "spanish" : "english",
@@ -1159,7 +1173,14 @@ function buildLegacySql() {
     guardiansname: patient.guardianName,
     guardianrelationship: patient.guardianRelationship,
     guardianphone: patient.guardianPhone,
-    guardianemail: patient.guardianEmail
+    guardianemail: patient.guardianEmail,
+    guardiansex: patient.guardianSex,
+    guardianaddress: patient.guardianAddress,
+    guardiancity: patient.guardianCity,
+    guardianstate: patient.guardianState,
+    guardianpostalcode: patient.guardianPostalCode,
+    guardiancountry: patient.guardianCountry,
+    guardianworkphone: patient.guardianWorkPhone
   })), 150));
 
   statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {

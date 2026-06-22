@@ -12829,6 +12829,81 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 227. Patient Guardian Demographic/Address Readiness Slice 195
+
+Commit: `pending`
+Started: `2026-06-22T14:48:12.9005200-04:00`
+Finished: `2026-06-22T15:24:38.0495808-04:00`
+Duration: `36m 25s`
+
+Implemented workflow Slice 195: patient guardian demographic and address readiness. The shared gold dataset now carries deterministic guardian sex, address, city, state, postal code, country, and work-phone values, and both the legacy and modernized targets can mutate, render, restore, and compare those fields through the shared parity harness.
+
+Code changes:
+
+- Files changed: 25
+- Lines added: 8615
+- Lines deleted: 1078
+- Net lines: 7537
+- Total churn: 9693
+
+Key outcomes:
+
+- Extended the canonical gold dataset with deterministic guardian demographic and address fields for all 1,000 synthetic patients.
+- Mapped the new guardian detail fields into legacy OpenEMR `patient_data` seed SQL and the modernized PostgreSQL `patients` seed contract.
+- Extended the modernized patient chart summary and guardian-contact update request/response path with guardian sex, address, city, state, postal code, country, and work phone.
+- Expanded the Patient/Client Guardian Contact panel so users can view and edit the complete guardian contact/detail block.
+- Added restore-backed modernized smoke coverage for the expanded guardian lifecycle.
+- Added target-neutral legacy and modernized workflow actions for reading/updating guardian detail fields.
+- Added the `workflow-patient-guardian-details` parity suite, the `slice-195-patient-guardian-details-readiness` plan, runner wiring, and Workbench managed actions for both targets.
+- Updated the Workbench functionality ledger and project documents to reflect completed patient guardian demographic/address readiness.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, generated seed-data files, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `npm run generate:seed-data` regenerated the canonical dataset and legacy MariaDB seed SQL with guardian detail fields.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with guardian detail columns.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` reseeded the modernized PostgreSQL database.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the expanded `patient guardian contact lifecycle` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-195-patient-guardian-details-readiness -Reset test` passed with 1 expected test; run `2026-06-22T192209-943Z-legacy-openemr-plan-slice-195-patient-guardian-details-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-195-patient-guardian-details-readiness -Reset test` passed with 1 expected test; run `2026-06-22T192245-360Z-modernized-openemr-plan-slice-195-patient-guardian-details-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-195-patient-guardian-details-readiness` passed with status `matched`; comparison `2026-06-22T192312-615Z-legacy-openemr-vs-modernized-openemr-plan-slice-195-patient-guardian-details-readiness`.
+- Regression check `slice-194-patient-guardian-contact-readiness` passed on legacy and modernized targets, and the comparison matched with no differences.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-guardian-details/patient-guardian-details.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

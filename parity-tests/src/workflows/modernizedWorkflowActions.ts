@@ -499,7 +499,14 @@ SELECT legacy_pid AS pid, pubpid,
   COALESCE(guardian_name, '') AS "guardianName",
   COALESCE(guardian_relationship, '') AS "guardianRelationship",
   COALESCE(guardian_phone, '') AS "guardianPhone",
-  COALESCE(guardian_email, '') AS "guardianEmail"
+  COALESCE(guardian_email, '') AS "guardianEmail",
+  COALESCE(guardian_sex, '') AS "guardianSex",
+  COALESCE(guardian_address, '') AS "guardianAddress",
+  COALESCE(guardian_city, '') AS "guardianCity",
+  COALESCE(guardian_state, '') AS "guardianState",
+  COALESCE(guardian_postal_code, '') AS "guardianPostalCode",
+  COALESCE(guardian_country, '') AS "guardianCountry",
+  COALESCE(guardian_work_phone, '') AS "guardianWorkPhone"
 FROM patients
 WHERE legacy_pid = ${integer(pid)}
 LIMIT 1;
@@ -516,7 +523,14 @@ LIMIT 1;
       guardianName: row.guardianName,
       guardianRelationship: row.guardianRelationship,
       guardianPhone: row.guardianPhone,
-      guardianEmail: row.guardianEmail
+      guardianEmail: row.guardianEmail,
+      guardianSex: row.guardianSex,
+      guardianAddress: row.guardianAddress,
+      guardianCity: row.guardianCity,
+      guardianState: row.guardianState,
+      guardianPostalCode: row.guardianPostalCode,
+      guardianCountry: row.guardianCountry,
+      guardianWorkPhone: row.guardianWorkPhone
     };
   }
 
@@ -529,7 +543,14 @@ LIMIT 1;
         guardianName: contact.guardianName,
         guardianRelationship: contact.guardianRelationship,
         guardianPhone: contact.guardianPhone,
-        guardianEmail: contact.guardianEmail
+        guardianEmail: contact.guardianEmail,
+        guardianSex: contact.guardianSex,
+        guardianAddress: contact.guardianAddress,
+        guardianCity: contact.guardianCity,
+        guardianState: contact.guardianState,
+        guardianPostalCode: contact.guardianPostalCode,
+        guardianCountry: contact.guardianCountry,
+        guardianWorkPhone: contact.guardianWorkPhone
       })
     });
 
