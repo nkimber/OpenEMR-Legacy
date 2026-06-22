@@ -13060,7 +13060,7 @@ Primary files:
 Started: `2026-06-22T16:48:10-04:00`
 Finished: `2026-06-22T17:23:52-04:00`
 Duration: `35m 42s`
-Changeset: `pending`
+Changeset: `fd2dc016`
 
 Implemented workflow Slice 198: patient provider assignment readiness. The modernized target now exposes patient primary-provider assignment through the API, Patient/Client UI, smoke coverage, Workbench managed actions, and side-by-side parity against legacy OpenEMR `patient_data.providerID`.
 
