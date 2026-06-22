@@ -156,6 +156,8 @@ const cities = [
   ["Poway", "CA", "92064"]
 ];
 const occupations = ["Teacher", "Accountant", "Software Analyst", "Retail Manager", "Nurse", "Driver", "Student", "Retired", "Engineer", "Food Service Manager"];
+const guardianFirstNames = ["Morgan", "Jamie", "Casey", "Riley", "Jordan", "Taylor", "Robin", "Avery"];
+const guardianRelationships = ["parent", "spouse", "sibling", "child", "care_giver"];
 const insurers = ["Acme Health", "Blue Valley Health", "CommunityCare", "Evergreen PPO", "Northstar HMO", "Harbor Mutual"];
 const insuranceCompanies = insurers.map((name, index) => ({ id: 9001 + index, name }));
 const plans = ["Standard Silver", "Family Choice", "Premier PPO", "Community HMO", "Medicare Advantage", "High Deductible"];
@@ -354,12 +356,16 @@ for (let i = 1; i <= patientCount; i += 1) {
   const provider = staff[i % 12];
   const facility = facilities[i % facilities.length];
   const pid = 100000 + i;
+  const patientLastName = cohort === "demographic-edge-case" && i % 5 === 0 ? `${lname}-${pick(["Smith", "Garcia", "Lee"])}` : lname;
+  const guardianFirstName = guardianFirstNames[i % guardianFirstNames.length];
+  const guardianName = `${guardianFirstName} ${patientLastName}`;
+    const guardianRelationship = cohort === "pediatric" ? "parent" : guardianRelationships[i % guardianRelationships.length];
   patients.push({
     canonicalId,
     pid,
     pubpid: canonicalId,
     fname,
-    lname: cohort === "demographic-edge-case" && i % 5 === 0 ? `${lname}-${pick(["Smith", "Garcia", "Lee"])}` : lname,
+    lname: patientLastName,
     preferredName: i % 8 === 0 ? fname.slice(0, 3) : "",
     sex,
     dob: birthDateFor(i, cohort),
@@ -371,6 +377,11 @@ for (let i = 1; i <= patientCount; i += 1) {
     postalCode,
     email: `${canonicalId.toLowerCase()}@example.test`,
     phone: `(619) 555-${pad(1000 + (i % 9000), 4)}`,
+    motherName: `${guardianFirstNames[(i + 3) % guardianFirstNames.length]} ${patientLastName}`,
+    guardianName,
+    guardianRelationship,
+    guardianPhone: `(619) 555-${pad(3000 + (i % 7000), 4)}`,
+    guardianEmail: `${guardianFirstName.toLowerCase()}.${patientLastName.toLowerCase().replace(/[^a-z0-9]+/g, ".")}@example.test`,
     status: i % 4 === 0 ? "single" : i % 4 === 1 ? "married" : i % 4 === 2 ? "partnered" : "widowed",
     occupation: pick(occupations),
     providerId: provider.id,
@@ -1096,7 +1107,7 @@ function buildLegacySql() {
     billing_facility_id: user.facilityId
   }))));
 
-  statements.push(insert("patient_data", ["uuid", "title", "language", "financial", "fname", "lname", "mname", "DOB", "street", "postal_code", "city", "state", "country_code", "ss", "occupation", "phone_home", "phone_biz", "phone_contact", "phone_cell", "status", "contact_relationship", "date", "sex", "referrer", "providerID", "email", "ethnoracial", "race", "ethnicity", "interpreter", "family_size", "monthly_income", "homeless", "financial_review", "pubpid", "pid", "hipaa_mail", "hipaa_voice", "hipaa_notice", "hipaa_message", "hipaa_allowsms", "hipaa_allowemail", "allow_patient_portal", "cmsportal_login", "created_by", "updated_by", "preferred_name"], patients.map((patient, index) => ({
+  statements.push(insert("patient_data", ["uuid", "title", "language", "financial", "fname", "lname", "mname", "DOB", "street", "postal_code", "city", "state", "country_code", "ss", "occupation", "phone_home", "phone_biz", "phone_contact", "phone_cell", "status", "contact_relationship", "date", "sex", "referrer", "providerID", "email", "ethnoracial", "race", "ethnicity", "interpreter", "family_size", "monthly_income", "homeless", "financial_review", "pubpid", "pid", "hipaa_mail", "hipaa_voice", "hipaa_notice", "hipaa_message", "hipaa_allowsms", "hipaa_allowemail", "allow_patient_portal", "cmsportal_login", "created_by", "updated_by", "preferred_name", "mothersname", "guardiansname", "guardianrelationship", "guardianphone", "guardianemail"], patients.map((patient, index) => ({
     uuid: raw(sqlUuid(patient.canonicalId)),
     title: patient.sex === "Female" ? "Ms." : "Mr.",
     language: index % 9 === 0 ? "spanish" : "english",
@@ -1143,7 +1154,12 @@ function buildLegacySql() {
     cmsportal_login: patient.portalEnabled ? patient.email : "",
     created_by: 1,
     updated_by: 1,
-    preferred_name: patient.preferredName
+    preferred_name: patient.preferredName,
+    mothersname: patient.motherName,
+    guardiansname: patient.guardianName,
+    guardianrelationship: patient.guardianRelationship,
+    guardianphone: patient.guardianPhone,
+    guardianemail: patient.guardianEmail
   })), 150));
 
   statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {

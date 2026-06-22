@@ -54,6 +54,7 @@ import type {
   PatientContact,
   PatientDeceasedStatus,
   PatientDemographics,
+  PatientGuardianContact,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
@@ -488,6 +489,52 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient deceased status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT legacy_pid AS pid, pubpid,
+  COALESCE(mother_name, '') AS "motherName",
+  COALESCE(guardian_name, '') AS "guardianName",
+  COALESCE(guardian_relationship, '') AS "guardianRelationship",
+  COALESCE(guardian_phone, '') AS "guardianPhone",
+  COALESCE(guardian_email, '') AS "guardianEmail"
+FROM patients
+WHERE legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      motherName: row.motherName,
+      guardianName: row.guardianName,
+      guardianRelationship: row.guardianRelationship,
+      guardianPhone: row.guardianPhone,
+      guardianEmail: row.guardianEmail
+    };
+  }
+
+  async updatePatientGuardianContact(contact: PatientGuardianContact): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(contact.pubpid)}/guardian-contact`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        motherName: contact.motherName,
+        guardianName: contact.guardianName,
+        guardianRelationship: contact.guardianRelationship,
+        guardianPhone: contact.guardianPhone,
+        guardianEmail: contact.guardianEmail
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient guardian contact update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

@@ -117,6 +117,16 @@ export type PatientDeceasedStatus = {
   deceasedReason: string;
 };
 
+export type PatientGuardianContact = {
+  pid: number;
+  pubpid: string;
+  motherName: string;
+  guardianName: string;
+  guardianRelationship: string;
+  guardianPhone: string;
+  guardianEmail: string;
+};
+
 export type NewPatientRegistration = {
   pubpid: string;
   firstName: string;
@@ -1548,6 +1558,46 @@ UPDATE patient_data
 SET deceased_date = ${nullableSqlString(status.deceasedDate)},
   deceased_reason = ${sqlString(status.deceasedReason)}
 WHERE pid = ${integer(status.pid)};
+`);
+  }
+
+  async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pid, pubpid,
+  COALESCE(mothersname, '') AS motherName,
+  COALESCE(guardiansname, '') AS guardianName,
+  COALESCE(guardianrelationship, '') AS guardianRelationship,
+  COALESCE(guardianphone, '') AS guardianPhone,
+  COALESCE(guardianemail, '') AS guardianEmail
+FROM patient_data
+WHERE pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      motherName: row.motherName,
+      guardianName: row.guardianName,
+      guardianRelationship: row.guardianRelationship,
+      guardianPhone: row.guardianPhone,
+      guardianEmail: row.guardianEmail
+    };
+  }
+
+  async updatePatientGuardianContact(contact: PatientGuardianContact): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_data
+SET mothersname = ${sqlString(contact.motherName)},
+  guardiansname = ${sqlString(contact.guardianName)},
+  guardianrelationship = ${sqlString(contact.guardianRelationship)},
+  guardianphone = ${sqlString(contact.guardianPhone)},
+  guardianemail = ${sqlString(contact.guardianEmail)}
+WHERE pid = ${integer(contact.pid)};
 `);
   }
 

@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact administration, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -52,19 +52,24 @@
           "label": "Patient deceased status readiness",
           "detail": "The modernized patient API, Patient/Client chart, PostgreSQL seed schema, and parity harness now mirror OpenEMR deceased date and reason fields with restore-backed mutation coverage.",
           "evidence": ["slice-193-patient-deceased-status-readiness"]
+        },
+        {
+          "label": "Patient guardian contact readiness",
+          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR mother and guardian contact fields with restore-backed mutation coverage.",
+          "evidence": ["slice-194-patient-guardian-contact-readiness"]
         }
       ],
       "outstanding": [
-        "Patient merge, guarantor/subscriber detail, and patient history depth.",
+        "Patient merge, guarantor/subscriber insurance-party detail, and patient history depth.",
         "Portal account provisioning, address validation catalogs, lifecycle audit/history, and broader patient administration policy depth."
       ],
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 78,
+      "completionEstimatePercent": 79,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, patient history, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact administration, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, patient history, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
