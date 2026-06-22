@@ -163,6 +163,7 @@ param(
         "workflow-admin-session",
         "workflow-admin-audit-protection",
         "workflow-admin-directory-protection",
+        "workflow-admin-authorization-policy",
         "workflow-reports-protection",
         "workflow-patient-protection",
         "workflow-clinical-list-protection",

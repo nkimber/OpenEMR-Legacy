@@ -11100,6 +11100,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 203. Administration Authorization Policy Readiness Slice 173
+
+Commit: `pending`
+Started: `2026-06-22T02:18:15.0000000-04:00`
+Finished: `2026-06-22T02:44:51.4276340-04:00`
+
+Implemented the one-hundred-seventy-third project slice and latest modernized OpenEMR workflow slice: administration authorization-policy readiness, enforcing the mirrored ACL Administration permission for the modernized administration API and comparing admin-allowed/front-desk-forbidden behavior with the legacy ACL matrix.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 458
+- Lines deleted: 32
+- Net lines: +426
+- Total churn: 490
+
+Key outcomes:
+
+- Added a modernized-only front-desk demo auth account, `gold-frontdesk-01`, tied to staff id `117` with display name `Parker Fleming`, so an authenticated non-admin role can be tested without changing canonical staff counts.
+- Added ACL-backed authorization enforcement for `/api/administration/*`, requiring `admin:acl write` after session validation and returning a structured `403` response for authenticated users without that permission.
+- Kept unauthenticated administration access on the existing `401` session contract while preserving admin-session access to the administration directory and mutations.
+- Updated the Admin UI status/error text to show that administration directory loading now depends on ACL Administration access.
+- Added the `workflow-admin-authorization-policy` suite and `slice-173-admin-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 173 plan actions for both legacy and modernized targets.
+- Advanced administration/security completion from 56% to 58%, while leaving ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with line-ending warnings only.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and imported two auth-account rows.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the admin login smoke now verifies `gold-frontdesk-01` authenticates and receives administration status `403`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-173-admin-authorization-policy-readiness -Reset run` passed: run `2026-06-22T064112-332Z-legacy-openemr-plan-slice-173-admin-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-173-admin-authorization-policy-readiness -Reset run` passed: run `2026-06-22T064145-535Z-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-173-admin-authorization-policy-readiness` passed with comparison `2026-06-22T064206-597Z-legacy-openemr-vs-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for admin login (`slice-159-admin-login-readiness`), admin session (`slice-161-admin-session-readiness`), admin directory protection (`slice-163-admin-directory-protection-readiness`), access-control read model (`slice-20-access-control-readiness`), access-permission mutation (`slice-21-access-permission-mutation-readiness`), and user group membership mutation (`slice-22-user-group-membership-mutation-readiness`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AuthRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/AuthDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-admin-authorization-policy/authorization-policy.spec.ts`
+- `parity-tests/tests/workflow-admin-directory-protection/directory-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 202. Procedure Protection Readiness Slice 172
 
 Commit: `dee947a7`

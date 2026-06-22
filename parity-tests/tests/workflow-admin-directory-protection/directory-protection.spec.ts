@@ -72,7 +72,7 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
       authenticated: false,
       sessionSource: "modernized-openemr"
     });
-    expect(unauthenticatedSession.failureReason).toMatch(/valid admin session/i);
+    expect(unauthenticatedSession.failureReason).toMatch(/valid (admin|OpenEMR) session/i);
 
     const unauthenticatedMutation = await requestText(`${target.apiBaseUrl}/api/administration/facilities`, {
       method: "POST",
