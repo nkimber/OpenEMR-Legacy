@@ -12340,19 +12340,19 @@ Primary files:
 
 ### 219. Message Mutation Authorization Policy Readiness Slice 187
 
-Commit: `pending`
+Commit: `6a2cd61e`
 Started: `2026-06-22T09:32:30.1815340-04:00`
-Finished: `pending`
+Finished: `2026-06-22T09:46:45.9035941-04:00`
 
 Implemented workflow Slice 187: patient message mutation authorization-policy readiness. The modernized message API now keeps patient message read behavior behind the existing Patient Notes view gate while separating message creation from status, content, assignment, reply, archive, and hard-delete authority across `patients:notes addonly` and `patients:notes write`.
 
 Code changes:
 
-- Files changed: pending
-- Lines added: pending
-- Lines deleted: pending
-- Net lines: pending
-- Total churn: pending
+- Files changed: 14
+- Lines added: 561
+- Lines deleted: 39
+- Net lines: 522
+- Total churn: 600
 
 Key outcomes:
 
