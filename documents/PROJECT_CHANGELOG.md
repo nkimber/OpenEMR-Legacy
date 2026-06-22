@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 208. Patient Chart Authorization Policy Readiness Slice 178
+
+Commit: `pending`
+Started: `2026-06-22T04:36:00.0000000-04:00`
+Finished: `2026-06-22T05:04:12.4935891-04:00`
+
+Implemented the one-hundred-seventy-eighth project slice and latest modernized OpenEMR workflow slice: patient chart authorization-policy readiness, enforcing mirrored Demographics access for the modernized patient API and Patient/Client workspace while comparing admin/front-desk patient access behavior with the legacy ACL matrix and patient summary rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 382
+- Lines deleted: 41
+- Net lines: +341
+- Total churn: 423
+
+Key outcomes:
+
+- Replaced the patient route group's session-only gate with ACL-backed authorization requiring `patients:demo view` after session validation.
+- Kept OpenEMR's stronger-return-value hierarchy in place so admin and front-desk `write` access satisfy the modernized patient chart `view` gate.
+- Kept unauthenticated patient access on the existing `401` contract while proving authenticated front-desk patient search and chart retrieval succeed through seeded Front Office Demographics access.
+- Added patient-specific frontend `403` copy so operators see `Patient access` requirements instead of generic failed-status messages.
+- Kept the Patient/Client signed-in identity visible after successful access verification so the access state remains clear after the form unmounts.
+- Added front-desk patient search/chart probes to the modernized smoke test.
+- Added the `workflow-patient-authorization-policy` suite and `slice-178-patient-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 178 plan actions for both legacy and modernized targets.
+- Advanced patient chart/registration completion from 72% to 74% and administration/security completion from 66% to 68%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor patient search check now verifies unauthenticated status `401`, front-desk patient search status `200`, and front-desk chart status `200`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-178-patient-authorization-policy-readiness -Reset run` passed: run `2026-06-22T085938-224Z-legacy-openemr-plan-slice-178-patient-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-178-patient-authorization-policy-readiness -Reset run` passed: run `2026-06-22T085938-189Z-modernized-openemr-plan-slice-178-patient-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-178-patient-authorization-policy-readiness` passed with comparison `2026-06-22T090017-133Z-legacy-openemr-vs-modernized-openemr-plan-slice-178-patient-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for patient protection (`slice-165-patient-protection-readiness`, run `2026-06-22T090032-303Z-modernized-openemr-plan-slice-165-patient-protection-readiness`), contact mutation (`slice-10-contact-mutation-readiness`, run `2026-06-22T090104-861Z-modernized-openemr-plan-slice-10-contact-mutation-readiness`), demographics mutation (`slice-36-patient-demographics-mutation-readiness`, run `2026-06-22T090137-791Z-modernized-openemr-plan-slice-36-patient-demographics-mutation-readiness`), registration (`slice-37-patient-registration-readiness`, run `2026-06-22T090212-782Z-modernized-openemr-plan-slice-37-patient-registration-readiness`), insurance read (`slice-28-insurance-readiness`, run `2026-06-22T090243-759Z-modernized-openemr-plan-slice-28-insurance-readiness`), and insurance mutation (`slice-34-insurance-mutation-readiness`, run `2026-06-22T090312-436Z-modernized-openemr-plan-slice-34-insurance-mutation-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-patient-authorization-policy/patient-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 207. Encounter Authorization Policy Readiness Slice 177
 
 Commit: `2140dc87`
