@@ -12196,7 +12196,7 @@ Primary files:
 
 ### 216. Encounter Mutation Authorization Policy Readiness Slice 185
 
-Commit: pending
+Commit: `95036565`
 Started: `2026-06-22T07:33:00.0000000-04:00`
 Finished: `2026-06-22T08:06:20.9096540-04:00`
 
@@ -12204,11 +12204,11 @@ Implemented Slice 185 encounter mutation authorization-policy readiness. The mod
 
 Code changes:
 
-- Files changed: pending
-- Lines added: pending
-- Lines deleted: pending
-- Net lines: pending
-- Total churn: pending
+- Files changed: 13
+- Lines added: 518
+- Lines deleted: 42
+- Net lines: +476
+- Total churn: 560
 
 Key outcomes:
 
