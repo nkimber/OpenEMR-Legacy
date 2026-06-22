@@ -28,7 +28,7 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 - 3,000 billing line items.
 - 700 claim status rows.
 - 420 payment sessions and 617 payment activity rows.
-- Deterministic mother, guardian contact, and guardian demographic/address fields for every patient.
+- Deterministic mother, guardian contact, guardian demographic/address, and social-detail fields for every patient.
 
 ## Source Layers
 
@@ -51,7 +51,7 @@ The current V1 temporal contract is anchored to `2026-06-18` and includes:
 
 The generated summary includes a `temporalCoverage` section so tests and future Workbench views can assert date coverage as well as row counts. The legacy seed script validates this temporal contract after applying the SQL seed.
 
-Slice 194 adds deterministic mother name, guardian name, guardian relationship, guardian phone, and guardian email values to the canonical patient contract. Slice 195 extends that same contract with guardian sex, address, city, state, postal code, country, and work phone. The same values seed legacy OpenEMR `patient_data` and the modernized PostgreSQL `patients` table so guardian-contact and guardian-detail parity tests can mutate and restore `MOD-PAT-0010` from a shared baseline.
+Slice 194 adds deterministic mother name, guardian name, guardian relationship, guardian phone, and guardian email values to the canonical patient contract. Slice 195 extends that same contract with guardian sex, address, city, state, postal code, country, and work phone. Slice 196 extends it again with race, ethnicity, interpreter, family size, monthly income, homeless status, and financial review date values. The same values seed legacy OpenEMR `patient_data` and the modernized PostgreSQL `patients` table so guardian-contact, guardian-detail, and social-detail parity tests can mutate and restore `MOD-PAT-0010` from a shared baseline.
 
 Generated artifacts:
 

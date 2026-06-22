@@ -404,7 +404,14 @@ SELECT legacy_pid AS pid, pubpid,
   COALESCE(state, '') AS state,
   COALESCE(postal_code, '') AS "postalCode",
   COALESCE(marital_status, '') AS "maritalStatus",
-  COALESCE(occupation, '') AS occupation
+  COALESCE(occupation, '') AS occupation,
+  COALESCE(race, '') AS race,
+  COALESCE(ethnicity, '') AS ethnicity,
+  COALESCE(interpreter, '') AS interpreter,
+  COALESCE(family_size::text, '') AS "familySize",
+  COALESCE(monthly_income::text, '') AS "monthlyIncome",
+  COALESCE(homeless, '') AS homeless,
+  COALESCE(financial_review_date::text, '') AS "financialReviewDate"
 FROM patients
 WHERE legacy_pid = ${integer(pid)}
 LIMIT 1;
@@ -427,7 +434,14 @@ LIMIT 1;
       state: row.state,
       postalCode: row.postalCode,
       maritalStatus: row.maritalStatus,
-      occupation: row.occupation
+      occupation: row.occupation,
+      race: row.race,
+      ethnicity: row.ethnicity,
+      interpreter: row.interpreter,
+      familySize: row.familySize,
+      monthlyIncome: row.monthlyIncome,
+      homeless: row.homeless,
+      financialReviewDate: row.financialReviewDate
     };
   }
 
@@ -446,7 +460,14 @@ LIMIT 1;
         state: demographics.state,
         postalCode: demographics.postalCode,
         maritalStatus: demographics.maritalStatus,
-        occupation: demographics.occupation
+        occupation: demographics.occupation,
+        race: demographics.race,
+        ethnicity: demographics.ethnicity,
+        interpreter: demographics.interpreter,
+        familySize: demographics.familySize,
+        monthlyIncome: demographics.monthlyIncome,
+        homeless: demographics.homeless,
+        financialReviewDate: demographics.financialReviewDate
       })
     });
 

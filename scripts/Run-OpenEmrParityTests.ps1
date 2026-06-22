@@ -176,6 +176,7 @@ param(
         "workflow-patient-deceased-status",
         "workflow-patient-guardian-contact",
         "workflow-patient-guardian-details",
+        "workflow-patient-social-details",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

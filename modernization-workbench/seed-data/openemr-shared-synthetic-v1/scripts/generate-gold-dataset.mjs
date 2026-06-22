@@ -367,6 +367,13 @@ for (let i = 1; i <= patientCount; i += 1) {
   const guardianPostalCode = postalCode;
   const guardianCountry = "USA";
   const guardianWorkPhone = `(619) 555-${pad(4000 + (i % 6000), 4)}`;
+  const race = i % 6 === 0 ? "Asian" : i % 6 === 1 ? "White" : i % 6 === 2 ? "Black or African American" : "";
+  const ethnicity = i % 5 === 0 ? "Hispanic or Latino" : "Not Hispanic or Latino";
+  const interpreter = i % 9 === 0 ? "Spanish interpreter preferred" : "";
+  const familySize = 1 + (i % 5);
+  const monthlyIncome = 2200 + ((i % 70) * 100);
+  const homeless = i % 37 === 0 ? "YES" : "NO";
+  const financialReviewDate = "2026-01-01";
   patients.push({
     canonicalId,
     pid,
@@ -398,6 +405,13 @@ for (let i = 1; i <= patientCount; i += 1) {
     guardianWorkPhone,
     status: i % 4 === 0 ? "single" : i % 4 === 1 ? "married" : i % 4 === 2 ? "partnered" : "widowed",
     occupation: pick(occupations),
+    race,
+    ethnicity,
+    interpreter,
+    familySize,
+    monthlyIncome,
+    homeless,
+    financialReviewDate,
     providerId: provider.id,
     facilityId: facility.id,
     portalEnabled: i <= 200,
@@ -1149,13 +1163,13 @@ function buildLegacySql() {
     providerID: patient.providerId,
     email: patient.email,
     ethnoracial: "",
-    race: index % 6 === 0 ? "Asian" : index % 6 === 1 ? "White" : index % 6 === 2 ? "Black or African American" : "",
-    ethnicity: index % 5 === 0 ? "Hispanic or Latino" : "Not Hispanic or Latino",
-    interpreter: index % 9 === 0 ? "Spanish interpreter preferred" : "",
-    family_size: 1 + (index % 5),
-    monthly_income: 2200 + ((index % 70) * 100),
-    homeless: "NO",
-    financial_review: "2026-01-01 00:00:00",
+    race: patient.race,
+    ethnicity: patient.ethnicity,
+    interpreter: patient.interpreter,
+    family_size: patient.familySize,
+    monthly_income: patient.monthlyIncome,
+    homeless: patient.homeless,
+    financial_review: patient.financialReviewDate,
     pubpid: patient.pubpid,
     pid: patient.pid,
     hipaa_mail: "YES",

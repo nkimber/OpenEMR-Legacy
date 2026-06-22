@@ -108,6 +108,13 @@ export type PatientDemographics = {
   postalCode: string;
   maritalStatus: string;
   occupation: string;
+  race: string;
+  ethnicity: string;
+  interpreter: string;
+  familySize: string;
+  monthlyIncome: string;
+  homeless: string;
+  financialReviewDate: string;
 };
 
 export type PatientDeceasedStatus = {
@@ -1492,7 +1499,14 @@ SELECT pid, pubpid,
   COALESCE(state, '') AS state,
   COALESCE(postal_code, '') AS postalCode,
   COALESCE(status, '') AS maritalStatus,
-  COALESCE(occupation, '') AS occupation
+  COALESCE(occupation, '') AS occupation,
+  COALESCE(race, '') AS race,
+  COALESCE(ethnicity, '') AS ethnicity,
+  COALESCE(interpreter, '') AS interpreter,
+  COALESCE(CAST(family_size AS CHAR), '') AS familySize,
+  COALESCE(CAST(monthly_income AS CHAR), '') AS monthlyIncome,
+  COALESCE(homeless, '') AS homeless,
+  COALESCE(DATE(financial_review), '') AS financialReviewDate
 FROM patient_data
 WHERE pid = ${integer(pid)}
 LIMIT 1;
@@ -1515,7 +1529,14 @@ LIMIT 1;
       state: row.state,
       postalCode: row.postalCode,
       maritalStatus: row.maritalStatus,
-      occupation: row.occupation
+      occupation: row.occupation,
+      race: row.race,
+      ethnicity: row.ethnicity,
+      interpreter: row.interpreter,
+      familySize: row.familySize,
+      monthlyIncome: row.monthlyIncome,
+      homeless: row.homeless,
+      financialReviewDate: row.financialReviewDate
     };
   }
 
@@ -1532,7 +1553,14 @@ SET fname = ${sqlString(demographics.firstName)},
   state = ${sqlString(demographics.state)},
   postal_code = ${sqlString(demographics.postalCode)},
   status = ${sqlString(demographics.maritalStatus)},
-  occupation = ${sqlString(demographics.occupation)}
+  occupation = ${sqlString(demographics.occupation)},
+  race = ${sqlString(demographics.race)},
+  ethnicity = ${sqlString(demographics.ethnicity)},
+  interpreter = ${sqlString(demographics.interpreter)},
+  family_size = ${nullableSqlString(demographics.familySize)},
+  monthly_income = ${nullableSqlString(demographics.monthlyIncome)},
+  homeless = ${sqlString(demographics.homeless)},
+  financial_review = ${nullableSqlString(demographics.financialReviewDate)}
 WHERE pid = ${integer(demographics.pid)};
 `);
   }
