@@ -1,8 +1,8 @@
 {
   "version": "0.1.0",
   "lastUpdated": "2026-06-22",
-  "generatedAt": "2026-06-22T22:50:31.125Z",
-  "durationMs": 8342,
+  "generatedAt": "2026-06-22T23:16:04.628Z",
+  "durationMs": 9837,
   "method": "Physical source lines counted from configured source roots. Dependency folders, generated output, runtime artifacts, and local environment files are excluded. Counts include comments; non-blank lines are shown separately in the UI.",
   "systems": [
     {
@@ -223,10 +223,10 @@
       "systemId": "modernization-workbench",
       "summary": "The Workbench is a React operator UI plus a local Express orchestration API, configuration contracts, and the shared parity/evidence harness it surfaces.",
       "totals": {
-        "files": 234,
-        "totalLines": 62451,
-        "nonBlankLines": 57395,
-        "blankLines": 5056
+        "files": 235,
+        "totalLines": 62846,
+        "nonBlankLines": 57765,
+        "blankLines": 5081
       },
       "components": [
         {
@@ -291,8 +291,8 @@
             "/modernization-workbench/config/source-inventory.snapshot.json"
           ],
           "files": 3,
-          "totalLines": 4569,
-          "nonBlankLines": 4569,
+          "totalLines": 4592,
+          "nonBlankLines": 4592,
           "blankLines": 0,
           "samplePaths": [
             "/modernization-workbench/config/apps.json",
@@ -346,10 +346,10 @@
           "excludePathIncludes": [
             "/parity-tests/artifacts/"
           ],
-          "files": 217,
-          "totalLines": 47913,
-          "nonBlankLines": 43709,
-          "blankLines": 4204,
+          "files": 218,
+          "totalLines": 48285,
+          "nonBlankLines": 44056,
+          "blankLines": 4229,
           "samplePaths": [
             "/parity-tests/config/targets.json",
             "/parity-tests/package-lock.json",
@@ -401,9 +401,9 @@
       "summary": "The modernized target is a React/TypeScript SPA, ASP.NET Core API, PostgreSQL seed/schema generator, parity evidence, and Docker/PowerShell runtime scripts.",
       "totals": {
         "files": 36,
-        "totalLines": 56192,
-        "nonBlankLines": 51867,
-        "blankLines": 4325
+        "totalLines": 56369,
+        "nonBlankLines": 52031,
+        "blankLines": 4338
       },
       "components": [
         {
@@ -420,9 +420,9 @@
             ".css"
           ],
           "files": 5,
-          "totalLines": 26219,
-          "nonBlankLines": 24342,
-          "blankLines": 1877,
+          "totalLines": 26307,
+          "nonBlankLines": 24425,
+          "blankLines": 1882,
           "samplePaths": [
             "/modernized-openemr/frontend/src/App.css",
             "/modernized-openemr/frontend/src/App.tsx",
@@ -445,9 +445,9 @@
             ".json"
           ],
           "files": 27,
-          "totalLines": 19197,
-          "nonBlankLines": 17457,
-          "blankLines": 1740,
+          "totalLines": 19286,
+          "nonBlankLines": 17538,
+          "blankLines": 1748,
           "samplePaths": [
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs",
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs",

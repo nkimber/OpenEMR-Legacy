@@ -57,6 +57,7 @@ import type {
   PatientEmployer,
   PatientGuardianContact,
   PatientCareTeamAssignment,
+  PatientCareTeamMembersAssignment,
   PatientProviderAssignment,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
@@ -740,6 +741,83 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient care team update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientCareTeamMembersAssignment(pid: number): Promise<PatientCareTeamMembersAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  COALESCE(ct.team_name, '') AS "teamName",
+  COALESCE(ct.team_status, '') AS "teamStatus",
+  COALESCE(ctm.user_id::text, '') AS "userId",
+  COALESCE(trim(concat(s.first_name, ' ', s.last_name)), '') AS "memberName",
+  COALESCE(ctm.role, '') AS "role",
+  COALESCE(ctm.facility_id::text, '') AS "facilityId",
+  COALESCE(f.name, '') AS "facilityName",
+  COALESCE(ctm.provider_since::text, '') AS "providerSince",
+  COALESCE(ctm.status, '') AS "memberStatus",
+  COALESCE(ctm.note, '') AS "note"
+FROM patients p
+LEFT JOIN patient_care_teams ct ON ct.patient_id = p.canonical_id
+LEFT JOIN patient_care_team_members ctm ON ctm.patient_id = ct.patient_id
+LEFT JOIN staff s ON s.id = ctm.user_id
+LEFT JOIN facilities f ON f.id = ctm.facility_id
+WHERE p.legacy_pid = ${integer(pid)}
+ORDER BY ctm.id ASC;
+`);
+    const first = rows[0];
+    if (!first) {
+      return null;
+    }
+
+    const teamStatus = first.teamStatus;
+    return {
+      pid: Number(first.pid),
+      pubpid: first.pubpid,
+      teamName: first.teamName,
+      teamStatus,
+      teamStatusDisplay: careTeamStatusLabel(teamStatus),
+      members: rows
+        .filter((row) => row.userId !== "")
+        .map((row) => {
+          const role = row.role;
+          const memberStatus = row.memberStatus;
+          return {
+            userId: Number(row.userId),
+            memberName: row.memberName,
+            role,
+            roleDisplay: careTeamRoleLabel(role),
+            facilityId: row.facilityId === "" ? null : Number(row.facilityId),
+            facilityName: row.facilityName,
+            providerSince: row.providerSince,
+            memberStatus,
+            memberStatusDisplay: careTeamStatusLabel(memberStatus),
+            note: row.note
+          };
+        })
+    };
+  }
+
+  async updatePatientCareTeamMembersAssignment(assignment: PatientCareTeamMembersAssignment): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(assignment.pubpid)}/care-team`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        teamName: assignment.teamName,
+        teamStatus: assignment.teamStatus,
+        members: assignment.members.map((member) => ({
+          userId: member.userId,
+          role: member.role,
+          facilityId: member.facilityId,
+          providerSince: member.providerSince,
+          status: member.memberStatus,
+          note: member.note
+        }))
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient care team members update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

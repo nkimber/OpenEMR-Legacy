@@ -177,6 +177,28 @@ export type PatientCareTeamAssignment = {
   note: string;
 };
 
+export type PatientCareTeamMemberAssignment = {
+  userId: number;
+  memberName: string;
+  role: string;
+  roleDisplay: string;
+  facilityId: number | null;
+  facilityName: string;
+  providerSince: string;
+  memberStatus: string;
+  memberStatusDisplay: string;
+  note: string;
+};
+
+export type PatientCareTeamMembersAssignment = {
+  pid: number;
+  pubpid: string;
+  teamName: string;
+  teamStatus: string;
+  teamStatusDisplay: string;
+  members: PatientCareTeamMemberAssignment[];
+};
+
 export type NewPatientRegistration = {
   pubpid: string;
   firstName: string;
@@ -1784,7 +1806,13 @@ SELECT p.pid, p.pubpid,
   COALESCE(ctm.status, '') AS memberStatus,
   COALESCE(ctm.note, '') AS note
 FROM patient_data p
-LEFT JOIN care_teams ct ON ct.pid = p.pid
+LEFT JOIN care_teams ct ON ct.id = (
+  SELECT latest_ct.id
+  FROM care_teams latest_ct
+  WHERE latest_ct.pid = p.pid
+  ORDER BY latest_ct.id DESC
+  LIMIT 1
+)
 LEFT JOIN care_team_member ctm ON ctm.care_team_id = ct.id
 LEFT JOIN users u ON u.id = ctm.user_id
 LEFT JOIN facility f ON f.id = ctm.facility_id
@@ -1851,6 +1879,99 @@ VALUES
   (@care_team_id, ${integer(assignment.userId)}, NULL, ${sqlString(assignment.role)},
    ${facilityId}, ${nullableSqlString(assignment.providerSince)}, ${sqlString(assignment.memberStatus || "active")},
    NOW(), NOW(), 1, 1, ${nullableSqlString(assignment.note)});
+`);
+  }
+
+  async getPatientCareTeamMembersAssignment(pid: number): Promise<PatientCareTeamMembersAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.pid, p.pubpid,
+  COALESCE(ct.team_name, '') AS teamName,
+  COALESCE(ct.status, '') AS teamStatus,
+  COALESCE(CAST(ctm.user_id AS CHAR), '') AS userId,
+  COALESCE(CONCAT(u.fname, ' ', u.lname), '') AS memberName,
+  COALESCE(ctm.role, '') AS role,
+  COALESCE(CAST(ctm.facility_id AS CHAR), '') AS facilityId,
+  COALESCE(f.name, '') AS facilityName,
+  COALESCE(DATE_FORMAT(ctm.provider_since, '%Y-%m-%d'), '') AS providerSince,
+  COALESCE(ctm.status, '') AS memberStatus,
+  COALESCE(ctm.note, '') AS note
+FROM patient_data p
+LEFT JOIN care_teams ct ON ct.pid = p.pid
+LEFT JOIN care_team_member ctm ON ctm.care_team_id = ct.id
+LEFT JOIN users u ON u.id = ctm.user_id
+LEFT JOIN facility f ON f.id = ctm.facility_id
+WHERE p.pid = ${integer(pid)}
+ORDER BY ct.id DESC, ctm.id ASC;
+`);
+    const first = rows[0];
+    if (!first) {
+      return null;
+    }
+
+    const teamStatus = first.teamStatus;
+    return {
+      pid: Number(first.pid),
+      pubpid: first.pubpid,
+      teamName: first.teamName,
+      teamStatus,
+      teamStatusDisplay: careTeamStatusLabel(teamStatus),
+      members: rows
+        .filter((row) => row.userId !== "")
+        .map((row) => {
+          const role = row.role;
+          const memberStatus = row.memberStatus;
+          return {
+            userId: Number(row.userId),
+            memberName: row.memberName,
+            role,
+            roleDisplay: careTeamRoleLabel(role),
+            facilityId: row.facilityId === "" ? null : Number(row.facilityId),
+            facilityName: row.facilityName,
+            providerSince: row.providerSince,
+            memberStatus,
+            memberStatusDisplay: careTeamStatusLabel(memberStatus),
+            note: row.note
+          };
+        })
+    };
+  }
+
+  async updatePatientCareTeamMembersAssignment(assignment: PatientCareTeamMembersAssignment): Promise<void> {
+    await this.db.execute(`
+DELETE ctm FROM care_team_member ctm
+INNER JOIN care_teams ct ON ct.id = ctm.care_team_id
+WHERE ct.pid = ${integer(assignment.pid)};
+
+DELETE FROM care_teams
+WHERE pid = ${integer(assignment.pid)};
+`);
+
+    if (assignment.members.length === 0) {
+      return;
+    }
+
+    const memberValues = assignment.members.map((member) => {
+      const facilityId = member.facilityId === null ? "NULL" : integer(member.facilityId);
+      return `(@care_team_id, ${integer(member.userId)}, NULL, ${sqlString(member.role)},
+   ${facilityId}, ${nullableSqlString(member.providerSince)}, ${sqlString(member.memberStatus || "active")},
+   NOW(), NOW(), 1, 1, ${nullableSqlString(member.note)})`;
+    }).join(",\n");
+
+    await this.db.execute(`
+INSERT INTO care_teams
+  (uuid, pid, status, team_name, note, date_created, date_updated, created_by, updated_by)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${integer(assignment.pid)}, ${sqlString(assignment.teamStatus || "active")},
+   ${sqlString(assignment.teamName || "Care Team")}, NULL,
+   NOW(), NOW(), 1, 1);
+
+SET @care_team_id := LAST_INSERT_ID();
+
+INSERT INTO care_team_member
+  (care_team_id, user_id, contact_id, role, facility_id, provider_since, status,
+   date_created, date_updated, created_by, updated_by, note)
+VALUES
+  ${memberValues};
 `);
   }
 

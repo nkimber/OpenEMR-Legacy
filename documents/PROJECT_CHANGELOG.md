@@ -13196,6 +13196,74 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 232. Slice 200 Patient Care Team Members Readiness
+
+Started: `2026-06-22T18:58:00-04:00`
+Finished: `2026-06-22T19:18:59-04:00`
+Duration: `20m 59s`
+Changeset: `pending`
+
+Implemented workflow Slice 200: patient care-team members readiness. The modernized target now supports OpenEMR-style multi-member patient care teams through the patient API, Patient/Client UI, reusable parity workflow actions, Workbench-managed test runs, and side-by-side comparison against legacy OpenEMR.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 821
+- Lines deleted: 177
+- Net lines: 644
+- Total churn: 998
+
+Key outcomes:
+
+- Extended the modernized care-team write DTO to accept both the Slice 199 single-member payload and a canonical `members` collection payload.
+- Updated the modernized repository write path to clear, validate, and persist ordered multi-member care teams in `patient_care_teams` and `patient_care_team_members`.
+- Updated the Patient/Client Care Team panel to render multiple members and provide add, remove, edit, save, cancel, and restore-friendly editing behavior.
+- Added target-neutral legacy and modernized workflow helpers for reading, updating, restoring, and comparing multi-member care teams.
+- Added the `workflow-patient-care-team-members` parity suite and `slice-200-patient-care-team-members-readiness` plan.
+- Placed the new Playwright spec under `tests/workflow-patient-team-members` so the Slice 199 `workflow-patient-care-team` path remains isolated from the Slice 200 suite.
+- Added Workbench managed actions for Slice 200 on both legacy and modernized targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to mark multi-member patient care teams as completed and raise Patient Chart modernization readiness to 85%.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 140 checks and 0 failures.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-200-patient-care-team-members-readiness -Reset test` passed with 1 expected test; run `2026-06-22T230935-396Z-legacy-openemr-plan-slice-200-patient-care-team-members-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-200-patient-care-team-members-readiness -Reset test` passed with 1 expected test; run `2026-06-22T231005-019Z-modernized-openemr-plan-slice-200-patient-care-team-members-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-200-patient-care-team-members-readiness` passed with status `matched`; comparison `2026-06-22T231021-579Z-legacy-openemr-vs-modernized-openemr-plan-slice-200-patient-care-team-members-readiness`.
+- Regression check `slice-199-patient-care-team-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-22T230926-065Z-legacy-openemr-vs-modernized-openemr-plan-slice-199-patient-care-team-readiness`.
+- Verification note: the first Slice 199 regression attempt after adding Slice 200 exposed a Playwright path-prefix collision, because `workflow-patient-care-team-members` also matched the Slice 199 `workflow-patient-care-team` project path. The Slice 200 spec folder was renamed to `workflow-patient-team-members`, then Slice 199 and Slice 200 were both rerun successfully.
+- `git diff --check` passed with only expected Windows line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-team-members/patient-care-team-members.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

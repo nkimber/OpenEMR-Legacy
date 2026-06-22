@@ -180,6 +180,7 @@ param(
         "workflow-patient-employer-core",
         "workflow-patient-provider-assignment",
         "workflow-patient-care-team",
+        "workflow-patient-care-team-members",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",
