@@ -161,6 +161,8 @@ type ChangelogEntry = {
   commit: string;
   startedAt?: string;
   finishedAt?: string;
+  timelineDate?: string;
+  timelineDateSource?: "finishedAt" | "completedAt" | "startedAt" | "sectionDate";
   durationMs?: number;
   completedAt?: string;
   completedCommit?: string;
@@ -471,6 +473,10 @@ function cleanMarkdownText(text: string) {
 function parseChangelogTimestamp(text: string) {
   const value = cleanMarkdownText(text);
   return value && !Number.isNaN(new Date(value).getTime()) ? value : undefined;
+}
+
+function extractTimestampDate(value?: string) {
+  return value?.match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
 }
 
 function calculateDurationMs(startedAt?: string, finishedAt?: string) {
@@ -1059,33 +1065,86 @@ function resolveEntryCodeChangeStats(entry: ChangelogEntry, commits: GitCommitIn
     : undefined;
 }
 
-function enrichChangelogEntries(entries: ChangelogEntry[], commits: GitCommitInfo[]) {
-  let previousCompletedAt: string | undefined;
+function resolveTimelineDate(entry: ChangelogEntry, completedAt?: string) {
+  const finishedDate = extractTimestampDate(entry.finishedAt);
+  if (finishedDate) {
+    return { timelineDate: finishedDate, timelineDateSource: "finishedAt" as const };
+  }
 
-  return entries.map((entry) => {
+  const completedDate = extractTimestampDate(completedAt);
+  if (completedDate) {
+    return { timelineDate: completedDate, timelineDateSource: "completedAt" as const };
+  }
+
+  const startedDate = extractTimestampDate(entry.startedAt);
+  if (startedDate) {
+    return { timelineDate: startedDate, timelineDateSource: "startedAt" as const };
+  }
+
+  return { timelineDate: entry.date, timelineDateSource: "sectionDate" as const };
+}
+
+function getChangelogEntrySortTime(entry: ChangelogEntry) {
+  for (const value of [entry.finishedAt, entry.completedAt, entry.startedAt]) {
+    if (!value) {
+      continue;
+    }
+    const time = new Date(value).getTime();
+    if (!Number.isNaN(time)) {
+      return time;
+    }
+  }
+
+  const fallbackDate = entry.timelineDate ?? entry.date;
+  const fallbackTime = new Date(`${fallbackDate}T12:00:00`).getTime();
+  return Number.isNaN(fallbackTime) ? 0 : fallbackTime;
+}
+
+function compareChangelogEntries(left: ChangelogEntry, right: ChangelogEntry) {
+  const timeDifference = getChangelogEntrySortTime(left) - getChangelogEntrySortTime(right);
+  if (timeDifference !== 0) {
+    return timeDifference;
+  }
+
+  return Number.parseInt(left.id, 10) - Number.parseInt(right.id, 10);
+}
+
+function enrichChangelogEntries(entries: ChangelogEntry[], commits: GitCommitInfo[]) {
+  const enrichedEntries = entries.map((entry) => {
     const resolvedCommit = resolveEntryCommit(entry, commits);
     const completionCommit = resolvedCommit?.commit;
     const completedAt = entry.finishedAt ?? completionCommit?.authoredAt;
-    const previousTime = previousCompletedAt ? new Date(previousCompletedAt).getTime() : Number.NaN;
-    const completedTime = completedAt ? new Date(completedAt).getTime() : Number.NaN;
-    const elapsedSincePreviousMs =
-      completedAt && previousCompletedAt && !Number.isNaN(previousTime) && !Number.isNaN(completedTime)
-        ? Math.max(0, completedTime - previousTime)
-        : undefined;
-
-    if (completedAt) {
-      previousCompletedAt = completedAt;
-    }
+    const timelineDate = resolveTimelineDate(entry, completedAt);
 
     return {
       ...entry,
       completedAt,
+      ...timelineDate,
       completedCommit: completionCommit?.shortHash,
       completedCommitSource: resolvedCommit?.source,
       completedCommitSubject: completionCommit?.subject,
       durationMs: entry.durationMs ?? calculateDurationMs(entry.startedAt, entry.finishedAt),
-      elapsedSincePreviousMs,
       codeChangeStats: resolveEntryCodeChangeStats(entry, commits, resolvedCommit)
+    };
+  });
+
+  let previousCompletedAt: string | undefined;
+
+  return enrichedEntries.sort(compareChangelogEntries).map((entry) => {
+    const previousTime = previousCompletedAt ? new Date(previousCompletedAt).getTime() : Number.NaN;
+    const completedTime = entry.completedAt ? new Date(entry.completedAt).getTime() : Number.NaN;
+    const elapsedSincePreviousMs =
+      entry.completedAt && previousCompletedAt && !Number.isNaN(previousTime) && !Number.isNaN(completedTime)
+        ? Math.max(0, completedTime - previousTime)
+        : undefined;
+
+    if (entry.completedAt) {
+      previousCompletedAt = entry.completedAt;
+    }
+
+    return {
+      ...entry,
+      elapsedSincePreviousMs
     };
   });
 }

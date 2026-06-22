@@ -15,6 +15,7 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 - Reference the relevant commit when available. `Commit: pending` is only for work in progress; after the commit exists, replace placeholders such as `this commit` or `current slice commit` with the real short changeset ID whenever practical.
 - Record `Started:` and `Finished:` timestamps for each new entry using ISO 8601 local time with timezone offset, such as `2026-06-19T13:06:12-04:00`.
 - Treat `Started:` as the time active implementation work for that changelog section began and `Finished:` as the time verification and document updates for that section were complete.
+- Treat date headings as document grouping only. The Modernization Workbench Project Timeline derives the primary visible slice date from `Finished:`, then Git completion time, then `Started:`, and falls back to the section date only when no timing metadata is available.
 - Do not manually calculate or write a duration; the Modernization Workbench calculates section duration from `Started:` and `Finished:`.
 - Record code-change metrics for implementation entries in a `Code changes:` section using files changed, lines added, lines deleted, net lines, and total churn. These values should come from Git whenever a commit is available, for example `git show --shortstat --format= <commit>` and `git show --numstat --format= <commit>`, or from the final scoped diff when the entry is being prepared before commit.
 - Do not record a modified-line count. Git records additions and deletions; an edited line usually appears as one deletion plus one addition.
@@ -12153,6 +12154,44 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 215. Workbench Timeline Completion Dates
+
+Commit: pending
+Started: `2026-06-22T07:52:06.0304447-04:00`
+Finished: `2026-06-22T07:59:26.0631222-04:00`
+
+Corrected the Modernization Workbench Project Timeline so slice cards use the actual completion date instead of the changelog section heading date, and so the timeline orders entries by completion timing rather than accidental markdown position.
+
+Code changes:
+
+- Files changed: 5
+- Lines added: 145
+- Lines deleted: 16
+- Net lines: +129
+- Total churn: 161
+
+Key outcomes:
+
+- Added `timelineDate` and `timelineDateSource` to structured changelog entries, deriving the visible date from `Finished:`, then Git completion time, then `Started:`, and falling back to the section date only for untimed entries.
+- Sorted enriched changelog entries chronologically before computing elapsed-between-step timing so the Timeline and Latest Step summary no longer depend on markdown insertion order.
+- Updated the Project Timeline date label to show provenance such as `Finished Jun 22, 2026`.
+- Documented that changelog date headings are grouping dates, not the primary per-slice completion date.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live `/api/changelog` smoke confirmed entries 154 and 198 retain section date `2026-06-19` but expose `timelineDate: 2026-06-21`, while entry 214 exposes `timelineDate: 2026-06-22`.
+- Playwright browser verification on `http://127.0.0.1:5173/#/timeline` confirmed the first visible entries are 215, 214, 213, and 212 with `Finished Jun 22, 2026`.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries

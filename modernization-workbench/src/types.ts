@@ -507,6 +507,8 @@ export type ChangelogEntry = {
   commit: string;
   startedAt?: string;
   finishedAt?: string;
+  timelineDate?: string;
+  timelineDateSource?: "finishedAt" | "completedAt" | "startedAt" | "sectionDate";
   durationMs?: number;
   completedAt?: string;
   completedCommit?: string;

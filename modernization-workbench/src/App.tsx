@@ -32,6 +32,7 @@ import type {
   ArchitectureModel,
   ArchitectureSystem,
   ArchitectureTechnology,
+  ChangelogEntry,
   CustomParityRunRequest,
   FunctionalityProgressArea,
   FunctionalityProgressForecast,
@@ -147,6 +148,30 @@ function formatClockTime(value?: string) {
     second: "2-digit",
     timeZoneName: "short"
   }).format(new Date(value));
+}
+
+function formatTimelineDateSource(source?: ChangelogEntry["timelineDateSource"]) {
+  switch (source) {
+    case "finishedAt":
+      return "Finished";
+    case "completedAt":
+      return "Completed";
+    case "startedAt":
+      return "Started";
+    case "sectionDate":
+    default:
+      return "Section";
+  }
+}
+
+function getTimelineDateTitle(entry: ChangelogEntry) {
+  const timelineDate = entry.timelineDate ?? entry.date;
+  const source = formatTimelineDateSource(entry.timelineDateSource);
+  const sectionDate = formatDateOnly(entry.date);
+
+  return timelineDate !== entry.date
+    ? `${source} date. Changelog section date: ${sectionDate}.`
+    : `${source} date.`;
 }
 
 function formatDuration(ms?: number) {
@@ -1456,6 +1481,8 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                   : isPlaceholderCommit
                     ? `The changelog says "${entry.commit}" and no safe Git commit match was found.`
                     : entry.completedCommitSubject;
+              const timelineDate = entry.timelineDate ?? entry.date;
+              const timelineDateLabel = `${formatTimelineDateSource(entry.timelineDateSource)} ${formatDateOnly(timelineDate)}`;
 
               return (
                 <article className="changelog-entry" key={`${entry.date}-${entry.id}`}>
@@ -1465,7 +1492,9 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
                   <div className="changelog-content">
                     <div className="changelog-entry-header">
                       <div>
-                        <span className="changelog-date">{formatDateOnly(entry.date)}</span>
+                        <time className="changelog-date" dateTime={timelineDate} title={getTimelineDateTitle(entry)}>
+                          {timelineDateLabel}
+                        </time>
                         <h3>{entry.title}</h3>
                       </div>
                       {commitLabel ? (
