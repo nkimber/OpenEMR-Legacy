@@ -2179,7 +2179,7 @@ LIMIT 1;
   async createProcedureOrder(input: NewProcedureOrder): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
@@ -2207,7 +2207,7 @@ LIMIT 1;
   async createProcedureLabProvider(input: NewProcedureLabProvider): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         name: input.name,
         labDirectorId: input.labDirectorId ?? null,
@@ -2240,7 +2240,7 @@ LIMIT 1;
   async updateProcedureLabProvider(id: number, input: NewProcedureLabProvider): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         name: input.name,
         labDirectorId: input.labDirectorId ?? null,
@@ -2269,7 +2269,8 @@ LIMIT 1;
 
   async deleteProcedureLabProvider(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-providers/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -2338,7 +2339,7 @@ LIMIT 1;
   ): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-provider-address-book`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         organization: input.organization,
         type: input.type ?? "ord_lab",
@@ -2356,7 +2357,8 @@ LIMIT 1;
 
   async deleteProcedureLabProviderAddressBookOrganization(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/lab-provider-address-book/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -2367,7 +2369,7 @@ LIMIT 1;
   async createProcedureOrderCatalogItem(input: NewProcedureOrderCatalogItem): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         parentId: input.parentId ?? null,
         labId: input.labId ?? null,
@@ -2394,7 +2396,7 @@ LIMIT 1;
   async updateProcedureOrderCatalogItem(id: number, input: NewProcedureOrderCatalogItem): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         parentId: input.parentId ?? null,
         labId: input.labId ?? null,
@@ -2417,7 +2419,8 @@ LIMIT 1;
 
   async deleteProcedureOrderCatalogItem(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -2489,7 +2492,7 @@ LIMIT 1;
   ): Promise<ProcedureVendorCompendiumImportResult> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/order-catalog/import-compendium`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -2551,7 +2554,7 @@ LIMIT 1;
   async updateProcedureOrder(id: number, input: ProcedureOrderUpdate): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         dateOrdered: input.dateOrdered,
         priority: input.priority,
@@ -2572,7 +2575,7 @@ LIMIT 1;
   async updateProcedureOrderStatus(id: number, status: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}/status`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ status })
     });
 
@@ -2584,7 +2587,7 @@ LIMIT 1;
   async transmitProcedureOrder(id: number, transmittedAt: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}/transmit`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ transmittedAt })
     });
 
@@ -2596,7 +2599,7 @@ LIMIT 1;
   async createProcedureReport(input: NewProcedureReport): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         orderId: input.orderId,
         dateCollected: input.dateCollected,
@@ -2650,7 +2653,7 @@ LIMIT 1;
   async updateProcedureReport(id: number, input: ProcedureReportUpdate): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         dateCollected: input.dateCollected,
         dateReport: input.dateReport,
@@ -2669,7 +2672,7 @@ LIMIT 1;
   async signProcedureReport(id: number, input: ProcedureReportSignOff): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}/sign`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         reviewedBy: input.reviewedBy,
         reviewedAt: input.reviewedAt
@@ -2683,7 +2686,8 @@ LIMIT 1;
 
   async reopenProcedureReportReview(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}/reopen-review`, {
-      method: "PUT"
+      method: "PUT",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -2694,7 +2698,7 @@ LIMIT 1;
   async bulkSignProcedureReports(ids: number[], input: ProcedureReportSignOff): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/bulk-sign`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         reportIds: ids,
         reviewedBy: input.reviewedBy,
@@ -2710,7 +2714,7 @@ LIMIT 1;
   async createProcedureSpecimen(input: NewProcedureSpecimen): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/specimens`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         orderId: input.orderId,
         specimenIdentifier: input.specimenIdentifier,
@@ -2787,7 +2791,7 @@ LIMIT 1;
   async createProcedureResult(input: NewProcedureResult): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/results`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         reportId: input.reportId,
         resultCode: input.resultCode,
@@ -2839,7 +2843,7 @@ LIMIT 1;
   async updateProcedureResult(id: number, input: NewProcedureResult): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/results/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         resultCode: input.resultCode,
         resultText: input.resultText,
@@ -2859,7 +2863,8 @@ LIMIT 1;
 
   async deleteProcedureOrderCascade(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/orders/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {

@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureReportReviewQueueDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const bulkSignAnchorPatientId = "MOD-PAT-0009";
 const orderDate = "2026-06-21";
@@ -121,9 +122,7 @@ test.describe("procedure report bulk sign-off parity @slice153 @workflow-procedu
           reviewedAt: bulkSignedAt
         });
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
-        await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+        await openAuthenticatedModernizedReports(page, target);
 
         const reviewQueue = page.locator('[aria-label="Procedure report review queue"]');
         await reviewQueue.getByLabel("Patient").fill(patient!.pubpid);

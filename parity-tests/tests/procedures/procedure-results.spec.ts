@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openProcedureResultsDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedProcedures } from "../../src/ui/modernizedOpenEmr.js";
 
 const procedureAnchorPatientId = "MOD-PAT-0009";
 
@@ -49,11 +50,7 @@ test.describe("procedure results parity @slice6 @procedures", () => {
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Procedures" }).click();
-    await expect(page.getByRole("heading", { name: "Procedures" })).toBeVisible();
-
-    await page.getByLabel("Procedure patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedProcedures(page, target, patient!.pubpid);
 
     await expect(page.getByRole("heading", { name: patient!.lname + ", " + patient!.fname })).toBeVisible();
     await expect(page.locator("body")).toContainText(patient!.pubpid);

@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureOrderCatalogDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const rootGroupId = 9000;
 const anchorLabId = 504;
@@ -96,8 +97,7 @@ test.describe("procedure vendor compendium import parity @slice148 @workflow-pro
         await expectRenderedText(page, `Slice 148 Chemistry Panel ${suffix}`);
         await expectRenderedText(page, orderCodeA);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const orderCatalog = page.locator('[aria-label="Procedure order catalog"]');
         await expect(orderCatalog).toContainText(groupName);
         await expect(orderCatalog).toContainText(`Slice 148 Chemistry Panel ${suffix}`);

@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureOrderQueueDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const orderQueueAnchorPatientId = "MOD-PAT-0009";
 const orderQueueLabId = 504;
@@ -108,9 +109,7 @@ test.describe("procedure order queue parity @slice149 @workflow-procedure-order-
         await expectRenderedText(page, procedureName);
         await expectRenderedText(page, patient!.pubpid);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
-        await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+        await openAuthenticatedModernizedReports(page, target);
         const orderQueue = page.locator('[aria-label="Procedure order queue"]');
         await orderQueue.getByLabel("Patient").fill(orderQueueAnchorPatientId);
         await orderQueue.getByLabel("Lab").fill(String(orderQueueLabId));

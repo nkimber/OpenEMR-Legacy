@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureOrderCatalogDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const parentGroupId = 9040;
 const anchorLabId = 504;
@@ -58,8 +59,7 @@ test.describe("procedure order catalog lifecycle parity @slice147 @workflow-proc
         await expectRenderedText(page, initialName);
         await expectRenderedText(page, initialCode);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const orderCatalog = page.locator('[aria-label="Procedure order catalog"]');
         await expect(orderCatalog).toContainText(initialName);
         await expect(orderCatalog).toContainText(initialCode);
@@ -100,8 +100,7 @@ test.describe("procedure order catalog lifecycle parity @slice147 @workflow-proc
         await expectRenderedText(page, updatedName);
         await expectRenderedText(page, updatedCode);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const orderCatalog = page.locator('[aria-label="Procedure order catalog"]');
         await expect(orderCatalog).toContainText(updatedName);
         await expect(orderCatalog).toContainText(updatedCode);

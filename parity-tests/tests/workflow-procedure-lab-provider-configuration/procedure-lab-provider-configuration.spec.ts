@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureProvidersDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("procedure lab provider configuration parity @slice142 @workflow-procedure-lab-provider-configuration @mutation", () => {
   test("persists and renders temporary lab provider transport settings", async ({
@@ -83,8 +84,7 @@ test.describe("procedure lab provider configuration parity @slice142 @workflow-p
         await expectRenderedText(page, providerNpi);
         await expectRenderedText(page, "SFTP");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const providerDirectory = page.locator('[aria-label="Procedure lab provider directory"]');
         await expect(providerDirectory).toContainText(updatedProviderName);
         await expect(providerDirectory).toContainText("SFTP");

@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureOrdersAndReportsForPatient
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedProcedures } from "../../src/ui/modernizedOpenEmr.js";
 
 const pendingProcedureAnchorPatientId = "MOD-PAT-0701";
 const pendingProcedureAfterDate = "2026-06-18";
@@ -52,11 +53,7 @@ test.describe("pending scheduled procedure orders parity @slice23 @procedure-pen
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Procedures" }).click();
-    await expect(page.getByRole("heading", { name: "Procedures" })).toBeVisible();
-
-    await page.getByLabel("Procedure patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedProcedures(page, target, patient!.pubpid);
 
     await expect(page.getByRole("heading", { name: patient!.lname + ", " + patient!.fname })).toBeVisible();
     await expect(page.locator("body")).toContainText("Pending/Scheduled Orders");

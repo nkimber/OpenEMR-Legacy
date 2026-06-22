@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureReportReviewQueueDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedProcedures } from "../../src/ui/modernizedOpenEmr.js";
 
 const reopenAnchorPatientId = "MOD-PAT-0009";
 const orderDate = "2026-06-21";
@@ -101,10 +102,7 @@ test.describe("procedure report reopen review parity @slice154 @workflow-procedu
         await openProcedureReportReviewQueueDirect(page, target, patient!.pid, orderDate, orderDate, "3");
         await expectRenderedText(page, procedureName);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Procedures" }).click();
-        await expect(page.getByRole("heading", { name: "Procedures" })).toBeVisible();
-        await page.getByLabel("Procedure patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedProcedures(page, target, patient!.pubpid);
 
         const reportCard = page.locator(".procedure-report-card", { hasText: specimenNumber }).first();
         await expect(reportCard).toBeVisible();

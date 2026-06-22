@@ -171,6 +171,23 @@ export async function openAuthenticatedModernizedFees(page: Page, target: Runtim
   }
 }
 
+export async function openAuthenticatedModernizedProcedures(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Procedures" }).click();
+  await expect(page.getByRole("heading", { name: "Procedures", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Procedures access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByRole("button", { name: "Verify Procedures Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load procedure results");
+
+  if (patientSearch) {
+    await page.getByLabel("Procedure patient ID").fill(patientSearch);
+  }
+}
+
 export async function getModernizedAdminSessionHeaders(page: Page, target: RuntimeTarget) {
   const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
     data: target.credentials

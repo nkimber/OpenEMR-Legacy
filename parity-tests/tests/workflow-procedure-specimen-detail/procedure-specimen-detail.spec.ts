@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedProcedures } from "../../src/ui/modernizedOpenEmr.js";
 
 const procedureSpecimenDetailAnchorPatientId = "MOD-PAT-0009";
 
@@ -91,10 +92,7 @@ test.describe("procedure specimen detail parity @slice131 @workflow-procedure-sp
       });
 
       if (target.type === "modernized-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Procedures" }).click();
-        await expect(page.getByRole("heading", { name: "Procedures" })).toBeVisible();
-        await page.getByLabel("Procedure patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedProcedures(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(procedureName);
         await expect(page.locator("body")).toContainText(specimenIdentifier);

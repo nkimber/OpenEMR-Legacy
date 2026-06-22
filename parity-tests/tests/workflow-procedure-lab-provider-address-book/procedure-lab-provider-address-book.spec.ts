@@ -3,6 +3,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureProvidersDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("procedure lab provider address book parity @slice144 @workflow-procedure-lab-provider-address-book @mutation", () => {
   test("links a procedure lab provider to address book organizations", async ({
@@ -88,9 +89,7 @@ test.describe("procedure lab provider address book parity @slice144 @workflow-pr
         await expect(page.locator("body")).toContainText("SFTP");
         await expect(page.locator("body")).not.toContainText(secondFallbackName);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
-        await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+        await openAuthenticatedModernizedReports(page, target);
         const providerDirectory = page.locator('[aria-label="Procedure lab provider directory"]');
         await expect(providerDirectory).toContainText(updatedOrganization);
         await expect(providerDirectory).toContainText("Address book organization");

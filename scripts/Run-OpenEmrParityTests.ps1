@@ -170,7 +170,8 @@ param(
         "workflow-encounter-protection",
         "workflow-document-protection",
         "workflow-message-protection",
-        "workflow-billing-protection"
+        "workflow-billing-protection",
+        "workflow-procedure-protection"
     )]
     [string] $Suite = "all",
 

@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 202. Procedure Protection Readiness Slice 172
+
+Commit: `pending`
+Started: `2026-06-22T02:01:20.3182590-04:00`
+Finished: `2026-06-22T02:17:47.0208187-04:00`
+
+Implemented the one-hundred-seventy-second project slice and latest modernized OpenEMR workflow slice: procedure protection readiness, requiring an active modernized OpenEMR session for `/api/procedures/*`, gating the Procedures workspace procedure result lookup and lab mutation controls until sign-in, and comparing that behavior with legacy OpenEMR procedure result pages protected by login.
+
+Code changes:
+
+- Files changed: 43
+- Lines added: 703
+- Lines deleted: 276
+- Net lines: +427
+- Total churn: 979
+
+Key outcomes:
+
+- Protected the modernized `/api/procedures` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Procedures Access sign-in gate so procedure result lookup, order entry, report/specimen/result edits, provider/catalog selections, queue operations, transmit, sign-off, reopen, and delete controls only run after session verification.
+- Updated modernized procedure API calls, smoke checks, workflow actions, Playwright UI helpers, and direct API assertions to pass the active OpenEMR session.
+- Added the `workflow-procedure-protection` suite and `slice-172-procedure-protection-readiness` plan.
+- Added Workbench-managed Slice 172 plan actions for both legacy and modernized targets.
+- Kept older procedure, lab-provider, catalog, order-queue, report-queue, and encounter-procedure parity suites compatible with authenticated modernized UI/API access.
+- Advanced labs/procedures completion from 65% to 67% and administration/security completion from 54% to 56%, while leaving broader authorization policy depth, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with line-ending warnings only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor procedure check includes unauthenticated procedure status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-172-procedure-protection-readiness -Reset run` passed: run `2026-06-22T060930-878Z-legacy-openemr-plan-slice-172-procedure-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-172-procedure-protection-readiness -Reset run` passed: run `2026-06-22T060930-884Z-modernized-openemr-plan-slice-172-procedure-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-172-procedure-protection-readiness` passed with comparison `2026-06-22T061006-388Z-legacy-openemr-vs-modernized-openemr-plan-slice-172-procedure-protection-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for procedure read (`slice-6-procedures-readiness`), procedure mutation (`slice-17-procedure-mutation-readiness`), pending procedure orders (`slice-23-procedure-pending-orders-readiness`), encounter procedure order/result entry (`slice-75`, `slice-76`), result correction (`slice-129`), report signoff (`slice-134`), lab-provider directory/lifecycle (`slice-140`, `slice-141`), order catalog (`slice-145`), vendor compendium import (`slice-148`), order queue (`slice-149`), order transmit (`slice-151`), bulk signoff (`slice-153`), and reopen review (`slice-154`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-procedure-protection/procedure-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 201. Billing Protection Readiness Slice 171
 
 Commit: `957e4cf2`

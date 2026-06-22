@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureOrderCatalogDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const rootCatalogId = 9000;
 const anchorProviderGroupId = 9040;
@@ -83,14 +84,14 @@ test.describe("procedure order catalog parity @slice145 @workflow-procedure-orde
         await expectRenderedText(page, panelCode);
       }
     } else {
-      const apiResponse = await page.request.get(`${target.apiBaseUrl}/api/procedures/order-catalog`);
+      const apiResponse = await page.request.get(`${target.apiBaseUrl}/api/procedures/order-catalog`, {
+        headers: await getModernizedAdminSessionHeaders(page, target)
+      });
       expect(apiResponse.ok()).toBe(true);
       const apiPayload = await apiResponse.json();
       expect(apiPayload.orderCount).toBe(15);
 
-      await page.goto(target.publicUrl);
-      await page.getByRole("button", { name: "Reports" }).click();
-      await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+      await openAuthenticatedModernizedReports(page, target);
 
       const orderCatalog = page.locator('[aria-label="Procedure order catalog"]');
       await expect(orderCatalog).toContainText(anchorLabName);

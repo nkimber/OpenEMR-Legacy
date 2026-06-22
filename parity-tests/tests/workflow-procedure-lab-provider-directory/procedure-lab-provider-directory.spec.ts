@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureProvidersDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const expectedProviders = [
   { id: 503, name: "Canyon Pathology Partners", npi: "1720123403" },
@@ -57,9 +58,7 @@ test.describe("procedure lab provider directory parity @slice140 @workflow-proce
       await expectRenderedText(page, anchorProvider.npi);
       await expect(page.locator("tbody tr.detail")).toHaveCount(5);
     } else {
-      await page.goto(target.publicUrl);
-      await page.getByRole("button", { name: "Reports" }).click();
-      await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+      await openAuthenticatedModernizedReports(page, target);
 
       const providerDirectory = page.locator('[aria-label="Procedure lab provider directory"]');
       await expect(providerDirectory).toContainText(anchorProvider.name);

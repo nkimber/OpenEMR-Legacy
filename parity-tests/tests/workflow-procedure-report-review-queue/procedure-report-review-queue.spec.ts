@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureReportReviewQueueDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 const reviewQueueAnchorPatientId = "MOD-PAT-0009";
 const reportDateTime = "2026-06-21 08:45:00";
@@ -95,9 +96,7 @@ test.describe("procedure report review queue parity @slice135 @workflow-procedur
         await expectRenderedText(page, procedureName);
         await expectRenderedText(page, patient!.pubpid);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
-        await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
+        await openAuthenticatedModernizedReports(page, target);
         const reviewQueue = page.locator('[aria-label="Procedure report review queue"]');
         await expect(reviewQueue).toContainText(procedureName);
         await expect(reviewQueue).toContainText(patient!.pubpid);

@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openProcedureResultsDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedProcedures } from "../../src/ui/modernizedOpenEmr.js";
 
 const procedureReportSignOffAnchorPatientId = "MOD-PAT-0009";
 const signedAt = "2026-06-19 14:15:00";
@@ -93,10 +94,7 @@ test.describe("procedure report sign-off parity @slice134 @workflow-procedure-re
         await expectRenderedText(page, specimenNumber);
         await expectRenderedText(page, resultText);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Procedures" }).click();
-        await expect(page.getByRole("heading", { name: "Procedures" })).toBeVisible();
-        await page.getByLabel("Procedure patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedProcedures(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(procedureName);
         const reportCard = page.locator(".procedure-report-card", { hasText: specimenNumber }).first();

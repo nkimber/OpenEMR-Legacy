@@ -4,6 +4,7 @@ import {
   loginToLegacyOpenEmr,
   openProcedureProvidersDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedReports } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("procedure lab provider lifecycle parity @slice141 @workflow-procedure-lab-provider-lifecycle @mutation", () => {
   test("creates, deactivates, renders, includes inactive, and deletes a temporary lab provider", async ({
@@ -39,8 +40,7 @@ test.describe("procedure lab provider lifecycle parity @slice141 @workflow-proce
         await expectRenderedText(page, providerName);
         await expectRenderedText(page, providerNpi);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const providerDirectory = page.locator('[aria-label="Procedure lab provider directory"]');
         await expect(providerDirectory).toContainText(providerName);
         await expect(providerDirectory).toContainText(`NPI ${providerNpi}`);
@@ -71,8 +71,7 @@ test.describe("procedure lab provider lifecycle parity @slice141 @workflow-proce
         await expectRenderedText(page, updatedProviderName);
         await expectRenderedText(page, providerNpi);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Reports" }).click();
+        await openAuthenticatedModernizedReports(page, target);
         const providerDirectory = page.locator('[aria-label="Procedure lab provider directory"]');
         await expect(providerDirectory).toContainText("5 active");
         await expect(providerDirectory).toContainText("1 inactive");
