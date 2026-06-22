@@ -12690,6 +12690,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 225. Patient Deceased Status Readiness Slice 193
+
+Commit: pending
+Started: `2026-06-22T13:12:16.2411995-04:00`
+Finished: `2026-06-22T13:54:19.9683001-04:00`
+
+Implemented workflow Slice 193: patient deceased status readiness. The modernized patient model now mirrors the legacy OpenEMR deceased date and reason fields, exposes them through the patient chart API and Patient/Client chart UI, and provides a restore-backed mutation path for marking and clearing deceased status.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 622
+- Lines deleted: 27
+- Net lines: 595
+- Total churn: 649
+
+Key outcomes:
+
+- Added nullable `deceased_date` and `deceased_reason` fields to the generated modernized PostgreSQL patient schema and seed-copy contract.
+- Extended patient chart summaries with deceased date and reason fields.
+- Added a write-level `/api/patients/{patientId}/deceased-status` endpoint that accepts blank values as clear operations and validates nonblank dates as `yyyy-MM-dd`.
+- Added a Patient/Client Deceased Status panel with read and edit states for date and reason.
+- Added restore-backed modernized smoke coverage for the `MOD-PAT-0010` deceased-status lifecycle.
+- Added target-neutral workflow actions, the `workflow-patient-deceased-status` parity suite, the `slice-193-patient-deceased-status-readiness` plan, and Workbench managed plan actions for both targets.
+- Updated the Workbench functionality progress ledger and project documents to reflect completed patient deceased-status readiness.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` and `scripts/Run-OpenEmrParityTests.ps1`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with the patient deceased-status columns.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` reseeded the modernized PostgreSQL database.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `patient deceased status lifecycle` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-193-patient-deceased-status-readiness -Reset test` passed with 1 expected test; run `2026-06-22T175056-367Z-legacy-openemr-plan-slice-193-patient-deceased-status-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-193-patient-deceased-status-readiness -Reset test` passed with 1 expected test; run `2026-06-22T175122-981Z-modernized-openemr-plan-slice-193-patient-deceased-status-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-193-patient-deceased-status-readiness` passed with status `matched`; comparison `2026-06-22T175142-539Z-legacy-openemr-vs-modernized-openemr-plan-slice-193-patient-deceased-status-readiness`.
+- Modernized focused regressions passed for `slice-36-patient-demographics-mutation-readiness`, `slice-191-patient-duplicate-detection-readiness`, and `slice-192-patient-registration-validation-readiness`.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-deceased-status/patient-deceased-status.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

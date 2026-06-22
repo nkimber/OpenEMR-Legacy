@@ -52,6 +52,7 @@ import type {
   NewSoapNote,
   NewVitals,
   PatientContact,
+  PatientDeceasedStatus,
   PatientDemographics,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
@@ -450,6 +451,43 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient demographics update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientDeceasedStatus(pid: number): Promise<PatientDeceasedStatus | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT legacy_pid AS pid, pubpid,
+  COALESCE(deceased_date::text, '') AS "deceasedDate",
+  COALESCE(deceased_reason, '') AS "deceasedReason"
+FROM patients
+WHERE legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      deceasedDate: row.deceasedDate,
+      deceasedReason: row.deceasedReason
+    };
+  }
+
+  async updatePatientDeceasedStatus(status: PatientDeceasedStatus): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(status.pubpid)}/deceased-status`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        deceasedDate: status.deceasedDate || null,
+        deceasedReason: status.deceasedReason || null
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient deceased status update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

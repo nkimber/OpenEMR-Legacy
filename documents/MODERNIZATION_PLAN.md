@@ -1892,7 +1892,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused demographics update and restore parity only.
-- Patient duplicate detection is covered by Slice 191. Guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
+- Patient duplicate detection is covered by Slice 191, registration validation is covered by Slice 192, and deceased-status date/reason administration is covered by Slice 193. Guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, lifecycle audit history, and broader administration policy enforcement remain deferred.
 
 ### Slice 37: Patient Registration Lifecycle
 
@@ -1922,7 +1922,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused patient registration create/render/delete parity only.
-- Patient duplicate detection is covered by Slice 191, and OpenEMR-style registration validation readiness is covered by Slice 192. Patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, audit history, and authorization enforcement remain deferred.
+- Patient duplicate detection is covered by Slice 191, OpenEMR-style registration validation readiness is covered by Slice 192, and deceased-status date/reason administration is covered by Slice 193. Patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, lifecycle audit history, and broader administration policy enforcement remain deferred.
 
 ### Slice 38: Patient Document Sign-Off
 
@@ -4466,3 +4466,4 @@ As of 2026-06-20:
 - The one-hundred-ninetieth modernized vertical slice implements encounter amendment history readiness by deriving an `amendmentHistory` read model from nonblank encounter signature amendment text, preserving newest-first e-sign ordering, filtering blank sign-off notes, rendering a dedicated modernized Encounter Amendment History panel, and proving the behavior against legacy `esign_signatures` rows with cleanup-backed parity. This extends focused encounter sign-off coverage from attestation/co-signature capture into amendment history visibility; formal amendment policy controls, revocation policy, legal attestation text, comprehensive audit export, templates, and multi-form encounter packages remain future work.
 - The one-hundred-ninety-first modernized vertical slice implements patient duplicate detection readiness by deriving candidate duplicates from first name, last name, date of birth, phone, and email, exposing them through `/api/patients/duplicates` and patient chart summaries, rendering Duplicate Detection panels in the Patient/Client workspace and registration flow, and proving the behavior against legacy `patient_data` facts with cleanup-backed parity. This extends patient registration readiness into duplicate-checking decision support; patient merge, guarantor/subscriber capture, portal provisioning, and broader patient administration remain future work.
 - The one-hundred-ninety-second modernized vertical slice implements patient registration validation readiness by mirroring OpenEMR `PatientValidator` insert rules for first name, last name length, sex, DOB format, and email syntax; returning structured validation details from the ASP.NET Core patient registration API; rendering those details in the Patient/Client registration form; proving invalid drafts do not create rows; and exposing the plan through the Workbench. This closes the focused registration-validation gap while leaving patient merge, guarantor/subscriber capture, portal provisioning, address catalogs, patient deactivation policies, and broader administration depth for future slices.
+- The one-hundred-ninety-third modernized vertical slice implements patient deceased-status readiness by mapping legacy OpenEMR `patient_data.deceased_date` and `patient_data.deceased_reason` into the modernized `patients` schema, exposing those fields through chart summaries and a write-level `/api/patients/{patientId}/deceased-status` endpoint, rendering a dedicated Patient/Client Deceased Status panel, and proving mark/restore behavior with smoke and parity tests. This closes the focused deceased date/reason gap while leaving patient merge, guarantor/subscriber capture, portal provisioning, address catalogs, lifecycle audit history, and broader administration policy depth for future slices.

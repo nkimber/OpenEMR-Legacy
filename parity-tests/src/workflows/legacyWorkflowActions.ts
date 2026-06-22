@@ -110,6 +110,13 @@ export type PatientDemographics = {
   occupation: string;
 };
 
+export type PatientDeceasedStatus = {
+  pid: number;
+  pubpid: string;
+  deceasedDate: string;
+  deceasedReason: string;
+};
+
 export type NewPatientRegistration = {
   pubpid: string;
   firstName: string;
@@ -1510,6 +1517,37 @@ SET fname = ${sqlString(demographics.firstName)},
   status = ${sqlString(demographics.maritalStatus)},
   occupation = ${sqlString(demographics.occupation)}
 WHERE pid = ${integer(demographics.pid)};
+`);
+  }
+
+  async getPatientDeceasedStatus(pid: number): Promise<PatientDeceasedStatus | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pid, pubpid,
+  COALESCE(DATE(deceased_date), '') AS deceasedDate,
+  COALESCE(deceased_reason, '') AS deceasedReason
+FROM patient_data
+WHERE pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      deceasedDate: row.deceasedDate,
+      deceasedReason: row.deceasedReason
+    };
+  }
+
+  async updatePatientDeceasedStatus(status: PatientDeceasedStatus): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_data
+SET deceased_date = ${nullableSqlString(status.deceasedDate)},
+  deceased_reason = ${sqlString(status.deceasedReason)}
+WHERE pid = ${integer(status.pid)};
 `);
   }
 
