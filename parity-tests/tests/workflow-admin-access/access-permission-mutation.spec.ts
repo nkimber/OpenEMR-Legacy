@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openAccessControlDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("access-control permission mutation parity @slice21 @workflow-admin-access @mutation", () => {
   test("revokes, renders, restores, and verifies a group permission assignment", async ({
@@ -38,9 +39,7 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
         await openAccessControlDirect(page, target);
         await expectRenderedText(page, /Groups and Access Controls/i);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText("Access Control Matrix");
         await expect(page.locator("body")).toContainText("Front Office");
         await expect(page.locator("body")).toContainText("5 permissions");
@@ -61,9 +60,7 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
         await openAccessControlDirect(page, target);
         await expectRenderedText(page, /Access Control List Administration|Groups and Access Controls/i);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText("6 permissions");
         await expect(page.locator("body")).toContainText("patients:demo write");
       }

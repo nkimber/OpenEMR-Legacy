@@ -80,15 +80,55 @@ import type {
 } from "./legacyWorkflowActions.js";
 
 export class ModernizedWorkflowActions {
+  private adminSessionId: string | null = null;
+
   constructor(
     private readonly db: ModernizedPostgresProbe,
     private readonly target: RuntimeTarget
   ) {}
 
+  private async getAdminSessionHeaders(): Promise<Record<string, string>> {
+    if (!this.adminSessionId) {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/auth/login`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          username: this.target.credentials.username,
+          password: this.target.credentials.password
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized admin session login failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const login = (await response.json()) as { authenticated: boolean; sessionId?: string | null; failureReason?: string | null };
+      if (!login.authenticated || !login.sessionId) {
+        throw new Error(`Modernized admin session login was rejected: ${login.failureReason ?? "no session issued"}`);
+      }
+
+      this.adminSessionId = login.sessionId;
+    }
+
+    const sessionId = this.adminSessionId;
+    if (!sessionId) {
+      throw new Error("Modernized admin session was not issued.");
+    }
+
+    return { "X-OpenEMR-Session": sessionId };
+  }
+
+  private async getAdminJsonHeaders(): Promise<Record<string, string>> {
+    return {
+      "content-type": "application/json",
+      ...(await this.getAdminSessionHeaders())
+    };
+  }
+
   async createUser(input: NewUser): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -135,7 +175,7 @@ LIMIT 1;
   async updateUser(id: number, input: NewUser): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users/${id}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -146,7 +186,8 @@ LIMIT 1;
 
   async deleteUser(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/users/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -157,7 +198,7 @@ LIMIT 1;
   async createFacility(input: NewFacility): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -197,7 +238,7 @@ LIMIT 1;
   async updateFacility(id: number, input: NewFacility): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities/${id}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -208,7 +249,8 @@ LIMIT 1;
 
   async deleteFacility(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/facilities/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -239,7 +281,7 @@ LIMIT 1;
   async grantAccessPermission(input: AccessPermissionMutation): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/access-control/group-permissions`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -252,7 +294,8 @@ LIMIT 1;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/administration/access-control/group-permissions/${encodeURIComponent(input.groupValue)}/${encodeURIComponent(input.sectionValue)}/${encodeURIComponent(input.permissionValue)}`,
       {
-        method: "DELETE"
+        method: "DELETE",
+        headers: await this.getAdminSessionHeaders()
       }
     );
 
@@ -281,7 +324,7 @@ LIMIT 1;
   async grantAccessGroupMembership(input: AccessGroupMembershipMutation): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/access-control/user-memberships`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -294,7 +337,8 @@ LIMIT 1;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/administration/access-control/user-memberships/${encodeURIComponent(input.userValue)}/${encodeURIComponent(input.groupValue)}`,
       {
-        method: "DELETE"
+        method: "DELETE",
+        headers: await this.getAdminSessionHeaders()
       }
     );
 

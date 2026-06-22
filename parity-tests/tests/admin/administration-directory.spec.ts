@@ -59,6 +59,12 @@ test.describe("administration directory parity @slice8 @admin", () => {
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
     await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+    await expect(page.locator("body")).toContainText("Sign in to load the users and facilities directory");
+
+    const loginPanel = page.locator('form[aria-label="Login readiness"]');
+    await loginPanel.getByLabel("Username").fill(target.credentials.username);
+    await loginPanel.getByLabel("Password").fill(target.credentials.password);
+    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
 
     await expect(page.locator("body")).toContainText("Administration Directory");
     await expect(page.locator("body")).toContainText("Users And Facilities");
@@ -69,6 +75,6 @@ test.describe("administration directory parity @slice8 @admin", () => {
     await expect(page.locator("body")).toContainText(mainFacility.name);
     await expect(page.locator("body")).toContainText(northFacility.name);
     await expect(page.locator("body")).toContainText("Access Control Status");
-    await expect(page.locator("body")).toContainText("Deferred");
+    await expect(page.locator("body")).toContainText("Default ACL model mirrored");
   });
 });

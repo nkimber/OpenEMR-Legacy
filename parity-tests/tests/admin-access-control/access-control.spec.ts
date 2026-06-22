@@ -60,6 +60,13 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
     await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+    await expect(page.locator("body")).toContainText("Sign in to load the users and facilities directory");
+
+    const loginPanel = page.locator('form[aria-label="Login readiness"]');
+    await loginPanel.getByLabel("Username").fill(target.credentials.username);
+    await loginPanel.getByLabel("Password").fill(target.credentials.password);
+    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
+
     await expect(page.locator("body")).toContainText("Access Control Matrix");
     await expect(page.locator("body")).toContainText("Access memberships");
     await expect(page.locator("body")).toContainText("Administrators");

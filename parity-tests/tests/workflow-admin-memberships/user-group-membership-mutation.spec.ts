@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openAccessControlDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("user group membership mutation parity @slice22 @workflow-admin-memberships @mutation", () => {
   test("creates a user, assigns access group membership, renders it, revokes it, and cleans up", async ({
@@ -53,9 +54,7 @@ test.describe("user group membership mutation parity @slice22 @workflow-admin-me
         await openAccessControlDirect(page, target);
         await expectRenderedText(page, /Access Control List Administration|Groups and Access Controls/i);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText(user.username);
         await expect(page.locator("body")).toContainText("Front Office membership");
       }
@@ -72,9 +71,7 @@ test.describe("user group membership mutation parity @slice22 @workflow-admin-me
       );
 
       if (target.type !== "legacy-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText(user.username);
         await expect(page.locator("body")).not.toContainText("Front Office membership");
       }

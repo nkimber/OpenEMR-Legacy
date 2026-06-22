@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openFacilitiesDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("facility administration mutation parity @slice18 @workflow-admin @mutation", () => {
   test("creates, updates, renders, deactivates, and removes an administration facility", async ({
@@ -40,9 +41,7 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
         await openFacilitiesDirect(page, target);
         await expectRenderedText(page, facility.name);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText(facility.name);
         await expect(page.locator("body")).toContainText(facility.code);
       }
@@ -54,9 +53,7 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
         await openFacilitiesDirect(page, target);
         await expectRenderedText(page, "Include Inactive Facilities");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText("Users And Facilities");
         await expect(page.locator("body")).not.toContainText(updatedFacility.name);
       }

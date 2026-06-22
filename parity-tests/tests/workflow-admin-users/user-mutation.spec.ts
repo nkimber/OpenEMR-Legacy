@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openUserAdministrationDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("user administration mutation parity @slice19 @workflow-admin-users @mutation", () => {
   test("creates, updates, renders, deactivates, and removes an administration user", async ({
@@ -41,9 +42,7 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
         await expectRenderedText(page, user.firstName);
         await expectRenderedText(page, user.lastName);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText(user.username);
         await expect(page.locator("body")).toContainText(`${user.lastName}, ${user.firstName}`);
       }
@@ -56,9 +55,7 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
         await expectRenderedText(page, "Include inactive users");
         await expect(page.locator("body")).not.toContainText(updatedUser.username);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Admin" }).click();
-        await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+        await openAuthenticatedModernizedAdmin(page, target);
         await expect(page.locator("body")).toContainText("Users And Facilities");
         await expect(page.locator("body")).not.toContainText(updatedUser.username);
       }
