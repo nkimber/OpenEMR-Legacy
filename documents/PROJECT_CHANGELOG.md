@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 210. Patient Message Authorization Policy Readiness Slice 180
+
+Commit: `pending`
+Started: `2026-06-22T05:28:00.0000000-04:00`
+Finished: `2026-06-22T05:49:58.1093395-04:00`
+
+Implemented the one-hundred-eightieth project slice and latest modernized OpenEMR workflow slice: patient message authorization-policy readiness, enforcing mirrored OpenEMR Patient Notes access for the modernized patient message API and Messages workspace while comparing admin/front-desk message access behavior with the legacy ACL matrix and patient-notes rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 439
+- Lines deleted: 48
+- Net lines: +391
+- Total churn: 487
+
+Key outcomes:
+
+- Replaced the message route group's session-only gate with ACL-backed authorization requiring `patients:notes view` after session validation.
+- Kept unauthenticated message list and create access on the existing `401` contract while proving authenticated front-desk message list and create attempts receive `403` from the modernized API.
+- Kept admin message list retrieval and Messages UI access working through the same authorization policy.
+- Added message-specific frontend `403` copy so operators see `Message access` requirements instead of generic failed-status messages.
+- Added username/password credential entry to the Messages Access panel so parity tests and operators can prove denied front-desk access and then retry with admin access from the same UI surface.
+- Added message authorization probes to the modernized smoke test.
+- Added the `workflow-message-authorization-policy` suite and `slice-180-message-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 180 plan actions for both legacy and modernized targets.
+- Advanced messaging completion from 50% to 52% and administration/security completion from 70% to 72%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run typecheck` passed in `parity-tests/` before and after the Slice 180 test fixture correction.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor patient messages check now verifies unauthenticated message search status `401`, front-desk message list/create status `403`, and admin message retrieval success.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-180-message-authorization-policy-readiness -Reset run` passed: run `2026-06-22T094258-223Z-legacy-openemr-plan-slice-180-message-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-180-message-authorization-policy-readiness -Reset run` passed: run `2026-06-22T094409-584Z-modernized-openemr-plan-slice-180-message-authorization-policy-readiness`, 1 expected, 0 unexpected. An earlier modernized run exposed an incorrect hard-coded test fixture display name; the test now derives the display name from the seeded patient and the plan was rerun successfully.
+- `npm run compare -- --plan slice-180-message-authorization-policy-readiness` passed with comparison `2026-06-22T094439-864Z-legacy-openemr-vs-modernized-openemr-plan-slice-180-message-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for message protection (`slice-170-message-protection-readiness`, run `2026-06-22T094451-551Z-modernized-openemr-plan-slice-170-message-protection-readiness`), message read (`slice-5-messaging-readiness`, run `2026-06-22T094515-711Z-modernized-openemr-plan-slice-5-messaging-readiness`), message mutation (`slice-14-message-mutation-readiness`, run `2026-06-22T094539-547Z-modernized-openemr-plan-slice-14-message-mutation-readiness`), message assignment (`slice-65-message-assignment-readiness`, run `2026-06-22T094611-591Z-modernized-openemr-plan-slice-65-message-assignment-readiness`), message content (`slice-66-message-content-readiness`, run `2026-06-22T094641-619Z-modernized-openemr-plan-slice-66-message-content-readiness`), message reply (`slice-156-message-reply-readiness`, run `2026-06-22T094714-839Z-modernized-openemr-plan-slice-156-message-reply-readiness`), message portal metadata (`slice-157-message-portal-metadata-readiness`, run `2026-06-22T094745-257Z-modernized-openemr-plan-slice-157-message-portal-metadata-readiness`), message update metadata (`slice-158-message-update-metadata-readiness`, run `2026-06-22T094807-559Z-modernized-openemr-plan-slice-158-message-update-metadata-readiness`), and collections follow-up (`slice-64-collections-follow-up-readiness`, run `2026-06-22T094836-800Z-modernized-openemr-plan-slice-64-collections-follow-up-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-message-authorization-policy/message-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 209. Patient Document Authorization Policy Readiness Slice 179
 
 Commit: `481499e1`
