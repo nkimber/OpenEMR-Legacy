@@ -13201,7 +13201,7 @@ Primary files:
 Started: `2026-06-22T18:58:00-04:00`
 Finished: `2026-06-22T19:18:59-04:00`
 Duration: `20m 59s`
-Changeset: `pending`
+Changeset: `db44b902`
 
 Implemented workflow Slice 200: patient care-team members readiness. The modernized target now supports OpenEMR-style multi-member patient care teams through the patient API, Patient/Client UI, reusable parity workflow actions, Workbench-managed test runs, and side-by-side comparison against legacy OpenEMR.
 
