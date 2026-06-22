@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientInsuranceBrowseDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const insuranceAnchorPatientId = "MOD-PAT-0005";
 
@@ -56,9 +57,7 @@ test.describe("patient insurance coverage parity @slice28 @insurance", () => {
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-    await page.getByLabel("Search patients").fill(patient!.pubpid);
+    await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
 
     await expect(page.getByRole("button", { name: /Morgan, Elias/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Morgan, Elias" })).toBeVisible();

@@ -1,6 +1,8 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import type { Page } from "@playwright/test";
+import type { RuntimeTarget } from "../../src/config/targets.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientInsuranceBrowseDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const insuranceMutationAnchorPatientId = "MOD-PAT-0005";
 
@@ -58,7 +60,7 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
         await expectRenderedText(page, createdCoverage.policyNumber);
         await expectRenderedText(page, createdCoverage.groupNumber);
       } else {
-        await openModernizedPatientChart(page, target.publicUrl, patient!.pubpid);
+      await openModernizedPatientChart(page, target, patient!.pubpid);
         const insurancePanel = page.getByLabel("Insurance coverage", { exact: true });
         await expect(insurancePanel).toContainText(createdCoverage.provider);
         await expect(insurancePanel).toContainText(createdCoverage.planName);
@@ -86,7 +88,7 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
         await expectRenderedText(page, updatedCoverage.policyNumber);
         await expectRenderedText(page, updatedCoverage.groupNumber);
       } else {
-        await openModernizedPatientChart(page, target.publicUrl, patient!.pubpid);
+      await openModernizedPatientChart(page, target, patient!.pubpid);
         const insurancePanel = page.getByLabel("Insurance coverage", { exact: true });
         await expect(insurancePanel).toContainText(updatedCoverage.provider);
         await expect(insurancePanel).toContainText(updatedCoverage.planName);
@@ -107,10 +109,8 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
   });
 });
 
-async function openModernizedPatientChart(page: Page, publicUrl: string, pubpid: string) {
-  await page.goto(publicUrl);
-  await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-  await page.getByLabel("Search patients").fill(pubpid);
+async function openModernizedPatientChart(page: Page, target: RuntimeTarget, pubpid: string) {
+  await openAuthenticatedModernizedPatient(page, target, pubpid);
   await expect(page.getByRole("heading", { name: "Morgan, Elias" })).toBeVisible();
 }
 

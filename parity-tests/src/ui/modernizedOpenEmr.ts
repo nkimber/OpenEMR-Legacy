@@ -1,6 +1,24 @@
 import { expect, type Page } from "@playwright/test";
 import type { RuntimeTarget } from "../config/targets.js";
 
+export async function openAuthenticatedModernizedPatient(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Patient access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByLabel("Username").fill(target.credentials.username);
+    await accessPanel.getByLabel("Password").fill(target.credentials.password);
+    await accessPanel.getByRole("button", { name: "Verify Patient Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to search patient charts");
+
+  if (patientSearch) {
+    await page.getByLabel("Search patients").fill(patientSearch);
+  }
+}
+
 export async function openAuthenticatedModernizedAdmin(page: Page, target: RuntimeTarget) {
   await page.goto(target.publicUrl);
   await page.getByRole("button", { name: "Admin" }).click();

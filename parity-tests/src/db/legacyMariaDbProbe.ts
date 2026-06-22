@@ -959,7 +959,9 @@ UNION ALL SELECT 'allergies', COUNT(*) FROM lists WHERE type = 'allergy' AND act
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM lists WHERE type = 'medication' AND activity = 1
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE COALESCE(added_erroneously, 0) = 0
+UNION ALL SELECT 'labProviders', COUNT(*) FROM procedure_providers WHERE ppid BETWEEN 501 AND 505
 UNION ALL SELECT 'labOrders', COUNT(*) FROM procedure_order
+UNION ALL SELECT 'procedureOrderCatalogItems', COUNT(*) FROM procedure_type WHERE procedure_type_id BETWEEN 9000 AND 9999
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes

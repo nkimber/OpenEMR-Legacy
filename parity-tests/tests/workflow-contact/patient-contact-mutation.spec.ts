@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const contactAnchorPatientId = "MOD-PAT-0001";
 
@@ -37,9 +38,7 @@ test.describe("patient contact mutation parity @slice10 @workflow-contact @mutat
         await expect(page.locator("body")).toContainText(updated.phoneHome);
         await expect(page.locator("body")).toContainText(updated.phoneCell);
       } else {
-        await page.goto(target.publicUrl);
-        await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-        await page.getByLabel("Search patients").fill(patient!.pubpid);
+        await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
 
         await expect(page.getByRole("heading", { name: "Stone, Avery" })).toBeVisible();
         await expect(page.locator("body")).toContainText(updated.email);

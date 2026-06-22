@@ -9,6 +9,7 @@ import {
   openPatientSummaryDirect,
   openProcedureResultsDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("legacy Playwright UI contract @ui", () => {
   test("logs in with configured local demo credentials", async ({ page, target }) => {
@@ -115,10 +116,7 @@ test.describe("legacy Playwright UI contract @ui", () => {
   test("opens the stable gold patient chart through the modernized UI", async ({ page, target }) => {
     test.skip(target.type !== "modernized-openemr", "Modernized UI contract only applies to the modernized target.");
 
-    await page.goto(target.publicUrl);
-
-    await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-    await page.getByLabel("Search patients").fill("MOD-PAT-0001");
+    await openAuthenticatedModernizedPatient(page, target, "MOD-PAT-0001");
 
     await expect(page.getByRole("button", { name: /Stone, Avery/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Stone, Avery" })).toBeVisible();

@@ -5,6 +5,7 @@ import {
   openPatientDemographicsEditDirect,
   openPatientSummaryDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 import type { NewPatientRegistration } from "../../src/workflows/legacyWorkflowActions.js";
 
 test.describe("patient registration lifecycle parity @slice37 @workflow-registration @mutation", () => {
@@ -77,9 +78,7 @@ test.describe("patient registration lifecycle parity @slice37 @workflow-registra
         await expectRenderedText(page, registration.postalCode);
         await expectRenderedText(page, registration.email);
       } else {
-        await page.goto(target.publicUrl);
-        await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-        await page.getByLabel("Search patients").fill(registration.pubpid);
+        await openAuthenticatedModernizedPatient(page, target, registration.pubpid);
 
         await expect(page.getByRole("heading", { name: /Register, Taylor/ })).toBeVisible();
         await expect(page.locator("body")).toContainText(registration.pubpid);

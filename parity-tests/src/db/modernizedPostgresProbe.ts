@@ -110,7 +110,9 @@ UNION ALL SELECT 'allergies', COUNT(*) FROM allergies WHERE activity = 1
 UNION ALL SELECT 'medicationListEntries', COUNT(*) FROM medications WHERE activity = 1
 UNION ALL SELECT 'medicationsAndPrescriptions', COUNT(*) FROM prescriptions
 UNION ALL SELECT 'immunizations', COUNT(*) FROM immunizations WHERE added_erroneously = 0
+UNION ALL SELECT 'labProviders', COUNT(*) FROM lab_providers
 UNION ALL SELECT 'labOrders', COUNT(*) FROM lab_orders
+UNION ALL SELECT 'procedureOrderCatalogItems', COUNT(*) FROM lab_order_catalog
 UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
 UNION ALL SELECT 'labResults', COUNT(*) FROM lab_results
 UNION ALL SELECT 'messages', COUNT(*) FROM messages

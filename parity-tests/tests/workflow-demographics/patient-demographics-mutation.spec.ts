@@ -5,6 +5,7 @@ import {
   openPatientDemographicsEditDirect,
   openPatientSummaryDirect
 } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const demographicsAnchorPatientId = "MOD-PAT-0010";
 
@@ -51,9 +52,7 @@ test.describe("patient demographics mutation parity @slice36 @workflow-demograph
         await expectRenderedText(page, updated.city);
         await expectRenderedText(page, updated.postalCode);
       } else {
-        await page.goto(target.publicUrl);
-        await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-        await page.getByLabel("Search patients").fill(patient!.pubpid);
+        await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
 
         await expect(page.getByRole("heading", { name: /Parity, Morgan/ })).toBeVisible();
         await expect(page.locator("body")).toContainText(updated.dateOfBirth);

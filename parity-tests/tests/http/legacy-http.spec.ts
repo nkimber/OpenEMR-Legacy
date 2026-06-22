@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { isSuccessStatus, requestText } from "../../src/http/httpClient.js";
+import type { RuntimeTarget } from "../../src/config/targets.js";
 
 test.describe("HTTP functional contract @http", () => {
   test("health endpoint reports ready", async ({ target }) => {
@@ -46,7 +47,10 @@ test.describe("HTTP functional contract @http", () => {
   test("modernized patient search API returns the stable anchor patient", async ({ target }) => {
     test.skip(target.type !== "modernized-openemr", "Modernized API contract only applies to the modernized target.");
 
-    const response = await requestText(`${target.apiBaseUrl}/api/patients?search=MOD-PAT-0001&limit=5`);
+    const sessionId = await getModernizedSessionId(target);
+    const response = await requestText(`${target.apiBaseUrl}/api/patients?search=MOD-PAT-0001&limit=5`, {
+      headers: { "X-OpenEMR-Session": sessionId }
+    });
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body) as {
       totalMatches: number;
@@ -70,7 +74,10 @@ test.describe("HTTP functional contract @http", () => {
   test("modernized chart summary API returns comparable patient activity facts", async ({ target }) => {
     test.skip(target.type !== "modernized-openemr", "Modernized API contract only applies to the modernized target.");
 
-    const response = await requestText(`${target.apiBaseUrl}/api/patients/MOD-PAT-0001`);
+    const sessionId = await getModernizedSessionId(target);
+    const response = await requestText(`${target.apiBaseUrl}/api/patients/MOD-PAT-0001`, {
+      headers: { "X-OpenEMR-Session": sessionId }
+    });
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body) as {
       canonicalId: string;
@@ -95,3 +102,20 @@ test.describe("HTTP functional contract @http", () => {
     expect(body.counts.labOrders).toBeGreaterThanOrEqual(1);
   });
 });
+
+async function getModernizedSessionId(target: RuntimeTarget) {
+  const body = JSON.stringify(target.credentials);
+  const response = await requestText(`${target.apiBaseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": String(Buffer.byteLength(body))
+    },
+    body
+  });
+  expect(response.statusCode).toBe(200);
+  const login = JSON.parse(response.body) as { authenticated: boolean; sessionId?: string | null; failureReason?: string | null };
+  expect(login.authenticated, login.failureReason ?? "login rejected").toBe(true);
+  expect(login.sessionId).toBeTruthy();
+  return login.sessionId!;
+}

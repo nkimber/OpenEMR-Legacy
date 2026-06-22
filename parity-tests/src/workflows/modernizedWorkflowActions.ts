@@ -374,7 +374,7 @@ LIMIT 1;
   async updatePatientContact(contact: PatientContact): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(contact.pubpid)}/contact`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         phoneHome: contact.phoneHome,
         phoneCell: contact.phoneCell,
@@ -432,7 +432,7 @@ LIMIT 1;
   async updatePatientDemographics(demographics: PatientDemographics): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(demographics.pubpid)}/demographics`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         firstName: demographics.firstName,
         lastName: demographics.lastName,
@@ -456,7 +456,7 @@ LIMIT 1;
   async createPatient(input: NewPatientRegistration): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -482,7 +482,8 @@ LIMIT 1;
     }
 
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(pubpid)}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {
@@ -493,7 +494,7 @@ LIMIT 1;
   async createPatientInsurance(input: NewPatientInsurance): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(String(input.patientId))}/insurance`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         type: input.type,
         provider: input.provider,
@@ -544,7 +545,7 @@ LIMIT 1;
   async updatePatientInsurance(id: number | string, input: NewPatientInsurance): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/insurance/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         type: input.type,
         provider: input.provider,
@@ -562,7 +563,8 @@ LIMIT 1;
 
   async deletePatientInsurance(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/patients/insurance/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {

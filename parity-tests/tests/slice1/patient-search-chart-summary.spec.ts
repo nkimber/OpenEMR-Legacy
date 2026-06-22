@@ -1,6 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { isSuccessStatus, requestText } from "../../src/http/httpClient.js";
 import { loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("patient search and chart summary parity @slice1 @patient-chart", () => {
   test("target health endpoint is reachable", async ({ target }) => {
@@ -41,9 +42,7 @@ test.describe("patient search and chart summary parity @slice1 @patient-chart", 
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-    await page.getByLabel("Search patients").fill(patient!.pubpid);
+    await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
 
     await expect(page.getByRole("button", { name: /Stone, Avery/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Stone, Avery" })).toBeVisible();
