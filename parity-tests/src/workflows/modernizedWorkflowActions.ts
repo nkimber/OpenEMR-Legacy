@@ -1234,7 +1234,7 @@ LIMIT 1;
   async createPatientDocument(input: NewPatientDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         categoryId: input.categoryId,
@@ -1322,7 +1322,7 @@ LIMIT 1;
   async createPatientBinaryDocument(input: NewPatientBinaryDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/binary`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         categoryId: input.categoryId,
@@ -1347,7 +1347,7 @@ LIMIT 1;
   async createPatientExternalLinkDocument(input: NewPatientExternalLinkDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/external-link`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         categoryId: input.categoryId,
@@ -1428,7 +1428,7 @@ LIMIT 1;
   async updatePatientDocumentMetadata(id: number | string, input: PatientDocumentMetadataUpdate): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/metadata`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         categoryId: input.categoryId,
         name: input.name,
@@ -1486,7 +1486,7 @@ LIMIT 1;
   async replacePatientDocumentContent(id: number | string, input: PatientDocumentContentReplacement): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         fileName: input.fileName,
         content: input.content
@@ -1525,7 +1525,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/content/binary`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({
           fileName: input.fileName,
           mimetype: input.mimetype,
@@ -1636,7 +1636,7 @@ LIMIT 1;
   ): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/sign`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ reviewStatus, reviewedBy })
     });
 
@@ -1647,7 +1647,8 @@ LIMIT 1;
 
   async softDeletePatientDocument(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/soft-delete`, {
-      method: "PUT"
+      method: "PUT",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1657,7 +1658,8 @@ LIMIT 1;
 
   async restorePatientDocument(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}/restore`, {
-      method: "PUT"
+      method: "PUT",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1667,7 +1669,8 @@ LIMIT 1;
 
   async deletePatientDocument(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok && response.status !== 404) {

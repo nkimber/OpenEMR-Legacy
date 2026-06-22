@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -85,10 +86,7 @@ test.describe("patient scanned attachment parity @slice92 @workflow-document-sca
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: fileName }).first();
         await expect(documentCard).toBeVisible();

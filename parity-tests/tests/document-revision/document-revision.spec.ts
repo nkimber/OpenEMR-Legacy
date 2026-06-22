@@ -1,5 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
-
+import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 const documentRevisionAnchorPatientId = "MOD-PAT-0001";
 const intakePacketName = "Primary care intake packet";
 const advanceDirectiveName = "Advance directive acknowledgement";
@@ -58,10 +58,7 @@ test.describe("patient document revision readiness parity @slice54 @document-rev
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Documents" }).click();
-    await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-    await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
     const intakeCard = page.locator(".document-card").filter({ hasText: intakePacketName }).first();
     await expect(intakeCard).toBeVisible();

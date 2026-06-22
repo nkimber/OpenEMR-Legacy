@@ -1,5 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import {
+  getModernizedAdminSessionHeaders,
+  openAuthenticatedModernizedDocuments
+} from "../../src/ui/modernizedOpenEmr.js";
+import {
   expandPatientDocumentCategories,
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -79,10 +83,7 @@ test.describe("patient PDF document inline preview parity @slice90 @workflow-doc
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: fileName }).first();
         await expect(documentCard).toBeVisible();
@@ -101,9 +102,11 @@ test.describe("patient PDF document inline preview parity @slice90 @workflow-doc
         const pdfFrame = viewer.locator("iframe.document-inline-pdf-preview");
         await expect(pdfFrame).toBeVisible();
         await expect(pdfFrame).toHaveAttribute("title", `${fileName} PDF preview`);
-        await expect(pdfFrame).toHaveAttribute("src", new RegExp(`/api/documents/${documentId}/download$`));
+        await expect(pdfFrame).toHaveAttribute("src", `data:application/pdf;base64,${contentBase64}`);
 
-        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`);
+        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`, {
+          headers: await getModernizedAdminSessionHeaders(page, target)
+        });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("application/pdf");
         expect((await download.body()).toString("base64")).toBe(contentBase64);

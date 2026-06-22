@@ -1,5 +1,9 @@
 import type { Page } from "@playwright/test";
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import {
+  getModernizedAdminSessionHeaders,
+  openAuthenticatedModernizedDocuments
+} from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 import type { PatientDocumentRecord } from "../../src/workflows/legacyWorkflowActions.js";
 import {
@@ -219,7 +223,8 @@ async function expectModernizedLifecycle(
   expectedCodes: string[]
 ) {
   const response = await page.request.get(
-    `${target.apiBaseUrl}/api/documents/${encodeURIComponent(patientPublicId)}?includeArchived=true`
+    `${target.apiBaseUrl}/api/documents/${encodeURIComponent(patientPublicId)}?includeArchived=true`,
+    { headers: await getModernizedAdminSessionHeaders(page, target) }
   );
   expect(response.ok()).toBe(true);
   const payload = await response.json() as { documents: PatientDocumentApiItem[] };
@@ -247,10 +252,7 @@ async function openModernizedPatientDocumentCard(
   documentName: string,
   includeArchived = false
 ) {
-  await page.goto(target.publicUrl);
-  await page.getByRole("button", { name: "Documents" }).click();
-  await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-  await page.getByLabel("Documents patient ID").fill(patientPublicId);
+  await openAuthenticatedModernizedDocuments(page, target, patientPublicId);
 
   if (includeArchived) {
     await page.getByLabel("Show archived documents").check();

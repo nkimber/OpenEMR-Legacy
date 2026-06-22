@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 199. Document Protection Readiness Slice 169
+
+Commit: `pending`
+Started: `2026-06-22T00:00:00.0000000-04:00`
+Finished: `2026-06-22T00:31:46.2886892-04:00`
+
+Implemented the one-hundred-sixty-ninth project slice and latest modernized OpenEMR workflow slice: document protection readiness, requiring an active modernized OpenEMR session for `/api/documents/*`, gating the Documents workspace list/create/view/download and mutation controls until sign-in, and comparing that behavior with legacy OpenEMR document pages protected by login.
+
+Code changes:
+
+- Files changed: 39
+- Lines added: 768
+- Lines deleted: 308
+- Net lines: 460
+- Total churn: 1076
+
+Key outcomes:
+
+- Protected the modernized `/api/documents` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Documents Access sign-in gate so patient document search, create, upload, external-link, view, download, metadata, replacement, archive/restore, sign-off, denial, delete, and encounter attachment download flows only run after session verification.
+- Replaced unauthenticated document download URLs in the React UI with authenticated blob/data-URI retrieval for PDF/image previews and downloads.
+- Updated modernized document API calls, smoke checks, workflow actions, Playwright UI helpers, and direct API assertions to pass the active OpenEMR session.
+- Added the `workflow-document-protection` suite and `slice-169-document-protection-readiness` plan.
+- Added Workbench-managed Slice 169 plan actions for both legacy and modernized targets.
+- Kept older document read, content, preview, revision, lifecycle, mutation, binary, scanned attachment, sign-off, denial, metadata, external-link, archive/restore, and encounter document parity suites compatible with authenticated modernized UI/API access.
+- Advanced document completion from 58% to 60% and administration/security completion from 48% to 50%, while leaving billing, procedure, messaging, broader authorization policy depth, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor document smoke check includes unauthenticated document list/content status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-169-document-protection-readiness -Reset run` passed: run `2026-06-22T041633-721Z-legacy-openemr-plan-slice-169-document-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-169-document-protection-readiness -Reset run` passed: run `2026-06-22T041804-179Z-modernized-openemr-plan-slice-169-document-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-169-document-protection-readiness` passed with comparison `2026-06-22T041830-539Z-legacy-openemr-vs-modernized-openemr-plan-slice-169-document-protection-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for document read (`slice-25-documents-readiness`), document content (`slice-27-document-content-readiness`), binary document mutation (`slice-33-binary-document-mutation-readiness`), PDF preview (`slice-90-document-pdf-preview-readiness`), binary content replace (`slice-128-document-binary-content-replace-readiness`), encounter binary document upload (`slice-79-encounter-binary-document-upload-readiness`), and encounter binary content replace (`slice-127-encounter-document-binary-content-replace-readiness`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-document-protection/document-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 198. Encounter Protection Readiness Slice 168
 
 Commit: `e1092380`

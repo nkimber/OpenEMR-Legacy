@@ -120,6 +120,23 @@ export async function openAuthenticatedModernizedEncounters(
   }
 }
 
+export async function openAuthenticatedModernizedDocuments(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Documents" }).click();
+  await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Documents access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByRole("button", { name: "Verify Documents Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load patient documents");
+
+  if (patientSearch) {
+    await page.getByLabel("Documents patient ID").fill(patientSearch);
+  }
+}
+
 export async function getModernizedAdminSessionHeaders(page: Page, target: RuntimeTarget) {
   const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
     data: target.credentials

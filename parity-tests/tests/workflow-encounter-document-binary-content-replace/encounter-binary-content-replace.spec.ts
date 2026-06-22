@@ -187,7 +187,8 @@ test.describe("encounter binary document content replacement parity @slice127 @w
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
       } else {
-        const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryContentReplaceEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
+        const headers = await getModernizedAdminSessionHeaders(page, target);
+        const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryContentReplaceEncounter}`, { headers });
         expect(response.ok()).toBe(true);
         const payload = await response.json() as { documents: Array<Record<string, unknown>> };
         const apiDocument = payload.documents.find((document) => document.id === Number(documentId));
@@ -204,7 +205,9 @@ test.describe("encounter binary document content replacement parity @slice127 @w
           hash: replacedContent!.hash
         });
 
-        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`);
+        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`, {
+          headers
+        });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("application/pdf");
         expect((await download.body()).toString("base64")).toBe(replacementContentBase64);

@@ -1,5 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import {
+  getModernizedAdminSessionHeaders,
+  openAuthenticatedModernizedDocuments
+} from "../../src/ui/modernizedOpenEmr.js";
+import {
   expandPatientDocumentCategories,
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -82,10 +86,7 @@ test.describe("patient image document preview parity @slice88 @workflow-document
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: fileName }).first();
         await expect(documentCard).toBeVisible();
@@ -103,7 +104,9 @@ test.describe("patient image document preview parity @slice88 @workflow-document
         await expect(previewImage).toBeVisible();
         await expect(previewImage).toHaveAttribute("src", `data:image/svg+xml;base64,${contentBase64}`);
 
-        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`);
+        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`, {
+          headers: await getModernizedAdminSessionHeaders(page, target)
+        });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("image/svg+xml");
         expect((await download.body()).toString("base64")).toBe(contentBase64);

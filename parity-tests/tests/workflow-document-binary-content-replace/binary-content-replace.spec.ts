@@ -1,5 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import {
+  getModernizedAdminSessionHeaders,
+  openAuthenticatedModernizedDocuments
+} from "../../src/ui/modernizedOpenEmr.js";
+import {
   expandPatientDocumentCategories,
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -84,10 +88,7 @@ test.describe("patient binary document content replacement parity @slice128 @wor
           contentBase64: replacementContentBase64
         });
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: documentName }).first();
         await expect(documentCard).toBeVisible();
@@ -153,7 +154,10 @@ test.describe("patient binary document content replacement parity @slice128 @wor
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
       } else {
-        const response = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/content`);
+        const headers = await getModernizedAdminSessionHeaders(page, target);
+        const response = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/content`, {
+          headers
+        });
         expect(response.ok()).toBe(true);
         const apiDocument = await response.json() as Record<string, unknown>;
         expect(apiDocument).toMatchObject({
@@ -169,7 +173,9 @@ test.describe("patient binary document content replacement parity @slice128 @wor
           hash: replacedContent!.hash
         });
 
-        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`);
+        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`, {
+          headers
+        });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("application/pdf");
         expect((await download.body()).toString("base64")).toBe(replacementContentBase64);

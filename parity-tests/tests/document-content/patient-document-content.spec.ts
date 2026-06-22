@@ -1,5 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import {
+  getModernizedAdminSessionHeaders,
+  openAuthenticatedModernizedDocuments
+} from "../../src/ui/modernizedOpenEmr.js";
+import {
   expandPatientDocumentCategories,
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -59,7 +63,10 @@ test.describe("patient document content parity @slice27 @documents", () => {
       return;
     }
 
-    const apiContent = await page.request.get(`${target.apiBaseUrl}/api/documents/${intakePacket!.id}/content`);
+    const headers = await getModernizedAdminSessionHeaders(page, target);
+    const apiContent = await page.request.get(`${target.apiBaseUrl}/api/documents/${intakePacket!.id}/content`, {
+      headers
+    });
     expect(apiContent.ok()).toBe(true);
     const apiPayload = await apiContent.json();
     expect(apiPayload).toMatchObject({
@@ -69,15 +76,14 @@ test.describe("patient document content parity @slice27 @documents", () => {
       content: intakePacketContent
     });
 
-    const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${intakePacket!.id}/download`);
+    const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${intakePacket!.id}/download`, {
+      headers
+    });
     expect(download.ok()).toBe(true);
     expect(download.headers()["content-type"]).toContain("text/plain");
     expect(await download.text()).toBe(intakePacketContent);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Documents" }).click();
-    await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-    await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
     const intakeCard = page.locator(".document-card").filter({ hasText: intakePacketName }).first();
     await expect(intakeCard).toBeVisible();
@@ -85,9 +91,6 @@ test.describe("patient document content parity @slice27 @documents", () => {
     await expect(page.getByRole("heading", { name: "Document Viewer" })).toBeVisible();
     await expect(page.locator(".document-content-block")).toContainText("Gold synthetic document DOC-MOD-PAT-0001-1");
     await expect(page.locator(".document-content-block")).toContainText("Purpose: Stable search and demographics navigation");
-    await expect(page.getByLabel("Document viewer").getByRole("link", { name: "Download" })).toHaveAttribute(
-      "href",
-      `${target.apiBaseUrl}/api/documents/${intakePacket!.id}/download`
-    );
+    await expect(page.getByLabel("Document viewer").getByRole("button", { name: "Download" })).toBeVisible();
   });
 });

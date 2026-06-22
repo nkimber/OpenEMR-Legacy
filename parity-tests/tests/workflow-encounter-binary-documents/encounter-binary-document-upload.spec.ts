@@ -89,7 +89,8 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryDocumentAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
+        const headers = await getModernizedAdminSessionHeaders(page, target);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryDocumentAnchorEncounter}`, { headers });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const apiDocument = detailPayload.documents.find((document: { name: string }) => document.name === fileName);
@@ -103,7 +104,9 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
           canDownload: true
         });
 
-        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`);
+        const download = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/download`, {
+          headers
+        });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("application/pdf");
         expect((await download.body()).toString("base64")).toBe(contentBase64);

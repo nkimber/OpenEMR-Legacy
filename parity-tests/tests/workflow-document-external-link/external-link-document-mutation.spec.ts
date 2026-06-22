@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -63,10 +64,7 @@ test.describe("patient external-link document parity @slice39 @workflow-document
         await expectRenderedText(page, name);
         await expectRenderedText(page, "Medical Record");
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: name }).first();
         await expect(documentCard).toBeVisible();

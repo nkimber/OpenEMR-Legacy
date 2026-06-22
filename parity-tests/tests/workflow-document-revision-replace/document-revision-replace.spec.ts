@@ -1,5 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
-
+import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 const documentRevisionReplacementAnchorPatientId = "MOD-PAT-0001";
 
 test.describe("patient document replacement revision parity @slice55 @workflow-document-revision-replace @mutation @documents", () => {
@@ -73,10 +73,7 @@ test.describe("patient document replacement revision parity @slice55 @workflow-d
       expect(afterReplaceCounts.documents).toBe(beforeCounts.documents + 1);
 
       if (target.type !== "legacy-openemr") {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: documentName }).first();
         await expect(documentCard).toBeVisible();

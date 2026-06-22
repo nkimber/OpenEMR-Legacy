@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -53,10 +54,7 @@ test.describe("patient document archive restore parity @slice42 @workflow-docume
       if (target.type === "legacy-openemr") {
         await workflow.softDeletePatientDocument(documentId);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Documents" }).click();
-        await expect(page.getByRole("heading", { name: "Documents" })).toBeVisible();
-        await page.getByLabel("Documents patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
         await page.getByLabel("Show archived documents").check();
 
         const activeCard = page.locator(".document-card").filter({ hasText: documentName }).first();
