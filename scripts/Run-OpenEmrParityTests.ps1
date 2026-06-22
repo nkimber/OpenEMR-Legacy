@@ -181,6 +181,7 @@ param(
         "workflow-billing-authorization-policy",
         "workflow-billing-protection",
         "workflow-procedure-authorization-policy",
+        "workflow-procedure-mutation-authorization-policy",
         "workflow-procedure-protection"
     )]
     [string] $Suite = "all",

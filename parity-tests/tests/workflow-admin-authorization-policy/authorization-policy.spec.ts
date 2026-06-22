@@ -151,11 +151,12 @@ test.describe("administration authorization policy parity @workflow-admin-author
     expect(directory.counts.users).toBeGreaterThanOrEqual(20);
     expect(directory.counts.accessGroups).toBe(7);
     expect(directory.counts.accessGroupPermissions).toBe(203);
-    expect(directory.counts.accessUserMemberships).toBe(3);
+    expect(directory.counts.accessUserMemberships).toBe(4);
     expect(directory.accessControl.userMemberships).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ userValue: "admin", groupValue: "admin", groupName: "Administrators" }),
-        expect.objectContaining({ userValue: "gold-frontdesk-01", groupValue: "front", groupName: "Front Office" })
+        expect.objectContaining({ userValue: "gold-frontdesk-01", groupValue: "front", groupName: "Front Office" }),
+        expect.objectContaining({ userValue: "gold-provider-01", groupValue: "clin", groupName: "Clinicians" })
       ])
     );
 

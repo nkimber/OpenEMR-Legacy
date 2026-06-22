@@ -308,7 +308,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, and ACL-authorized Lab Results access are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -334,25 +334,30 @@
           "label": "Procedure authorization policy readiness",
           "detail": "The modernized procedure API now enforces mirrored Lab Results access, accepts admin sessions through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, keeps the Procedures access panel available for retry, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-182-procedure-authorization-policy-readiness"]
+        },
+        {
+          "label": "Procedure mutation authorization policy readiness",
+          "detail": "The modernized procedure mutation API now separates Lab Results add-only, Lab Results write, and Sign Lab Results authority so clinicians can create order/report records while status updates, deletion, and sign-off require stronger permissions.",
+          "evidence": ["slice-183-procedure-mutation-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
         "Reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
-        "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and role-specific authorization depth."
+        "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and deeper role-specific authorization breadth beyond the first mutation-specific lab policy slice."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 69,
+      "completionEstimatePercent": 70,
       "estimatedScopeWeight": 12,
       "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
-      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, and ACL-backed Lab Results authorization are covered; external lab operations and deeper lab policy remain."
+      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations and deeper lab policy remain."
     },
     {
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, and procedure authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -440,6 +445,11 @@
           "evidence": ["slice-182-procedure-authorization-policy-readiness"]
         },
         {
+          "label": "Procedure mutation authorization policy readiness",
+          "detail": "The modernized procedure mutation API now requires Lab Results add-only for clinician-created order/report records, Lab Results write for status/delete updates, and Sign Lab Results write for report sign-off.",
+          "evidence": ["slice-183-procedure-mutation-authorization-policy-readiness"]
+        },
+        {
           "label": "Operational reports protection readiness",
           "detail": "The modernized operational reports API and CSV export now require an active session, the Reports page gates operational report data until sign-in, and parity compares legacy report-page protection with modernized API/UI protection.",
           "evidence": ["slice-164-reports-protection-readiness"]
@@ -486,16 +496,16 @@
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, and procedure ACL gates.",
+        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure mutation ACL gates.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 76,
+      "completionEstimatePercent": 77,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, and procedure authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

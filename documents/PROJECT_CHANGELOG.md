@@ -11162,6 +11162,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 213. Procedure Mutation Authorization Policy Readiness Slice 183
+
+Commit: pending
+Started: `2026-06-22T06:45:00.0000000-04:00`
+Finished: `2026-06-22T07:12:01.0044256-04:00`
+
+Implemented the one-hundred-eighty-third project slice and latest modernized OpenEMR workflow slice: procedure mutation authorization-policy readiness, separating Lab Results add-only, Lab Results write, and Sign Lab Results write behavior on the modernized procedure mutation API while comparing the admin/clinician ACL matrix with the legacy baseline.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 549
+- Lines deleted: 61
+- Net lines: +488
+- Total churn: 610
+
+Key outcomes:
+
+- Added endpoint-level authorization filters to procedure mutation endpoints so order/report/specimen/result create operations can use `patients:lab addonly`, status/update/delete operations require `patients:lab write`, and report sign-off/bulk sign-off require `patients:sign write`.
+- Seeded the modernized-only clinician login `gold-provider-01` with password `pass`, display name `Alex Walker`, role `provider`, staff id `101`, and Clinicians ACL membership for lab add-only policy evidence.
+- Extended modernized smoke coverage to authenticate the clinician, verify procedure read access, verify clinician `403` for status update and report sign-off, and preserve the existing front-desk/admin procedure authorization checks.
+- Added the `workflow-procedure-mutation-authorization-policy` suite and `slice-183-procedure-mutation-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 183 plan actions for both legacy and modernized targets and updated the progress ledger for labs/procedures plus administration/security.
+- Updated access-control/admin-authorization expectations for the new modernized Clinicians membership while keeping canonical patient, staff, and clinical counts unchanged.
+- Advanced labs/procedures completion from 69% to 70% and administration/security completion from 76% to 77%, while leaving broader role/facility policy, production identity, MFA, password lifecycle, audit export, and external lab operations outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed with 0 warnings.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded 3 auth accounts plus 4 access-user memberships.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-183-procedure-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T110840-407Z-legacy-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-183-procedure-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T110917-781Z-modernized-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-183-procedure-mutation-authorization-policy-readiness` passed with comparison `2026-06-22T110950-466Z-legacy-openemr-vs-modernized-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized regressions passed for access control (`slice-20-access-control-readiness`, run `2026-06-22T111003-184Z-modernized-openemr-plan-slice-20-access-control-readiness`), admin authorization policy (`slice-173-admin-authorization-policy-readiness`, run `2026-06-22T111028-662Z-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness`), procedure authorization policy (`slice-182-procedure-authorization-policy-readiness`, run `2026-06-22T111052-843Z-modernized-openemr-plan-slice-182-procedure-authorization-policy-readiness`), and existing procedure mutation lifecycle (`slice-17-procedure-mutation-readiness`, run `2026-06-22T111120-612Z-modernized-openemr-plan-slice-17-procedure-mutation-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `parity-tests/tests/workflow-procedure-mutation-authorization-policy/procedure-mutation-authorization-policy.spec.ts`
+- `parity-tests/tests/admin-access-control/access-control.spec.ts`
+- `parity-tests/tests/workflow-admin-authorization-policy/authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 211. Billing Authorization Policy Readiness Slice 181
 
 Commit: `ef894f9c`
