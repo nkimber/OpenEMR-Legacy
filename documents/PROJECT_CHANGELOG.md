@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 207. Encounter Authorization Policy Readiness Slice 177
+
+Commit: `pending`
+Started: `2026-06-22T04:16:00.0000000-04:00`
+Finished: `2026-06-22T04:35:40.5308906-04:00`
+
+Implemented the one-hundred-seventy-seventh project slice and latest modernized OpenEMR workflow slice: encounter authorization-policy readiness, enforcing mirrored Authorize Any Encounter access for the modernized encounter API and Encounters workspace while comparing admin-allowed/front-desk-forbidden behavior with the legacy ACL matrix and encounter rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 479
+- Lines deleted: 47
+- Net lines: +432
+- Total churn: 526
+
+Key outcomes:
+
+- Replaced the encounter route group's session-only gate with ACL-backed authorization requiring `encounters:auth_a view` after session validation.
+- Kept OpenEMR's stronger-return-value hierarchy in place so admin `write` access satisfies the modernized encounter `view` gate.
+- Kept unauthenticated encounter access on the existing `401` contract while proving an authenticated front-desk session receives `403` for encounter search and create attempts.
+- Kept admin-session encounter search, detail, mutation, and UI behavior working through the new route-group policy.
+- Added encounter-specific frontend `403` copy so operators see `Encounter access` requirements instead of generic failed-status messages.
+- Kept the Encounters access form visible after an authorization failure so an operator can retry immediately with an authorized admin account.
+- Added the `workflow-encounter-authorization-policy` suite and `slice-177-encounter-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 177 plan actions for both legacy and modernized targets.
+- Advanced encounter completion from 68% to 70% and administration/security completion from 64% to 66%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor encounter search check now verifies unauthenticated status `401`, front-desk search status `403`, front-desk mutation status `403`, and admin anchor encounter visibility.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-177-encounter-authorization-policy-readiness -Reset run` passed: run `2026-06-22T083151-578Z-legacy-openemr-plan-slice-177-encounter-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-177-encounter-authorization-policy-readiness -Reset run` passed: run `2026-06-22T083151-609Z-modernized-openemr-plan-slice-177-encounter-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-177-encounter-authorization-policy-readiness` passed with comparison `2026-06-22T083229-760Z-legacy-openemr-vs-modernized-openemr-plan-slice-177-encounter-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for encounter protection (`slice-168-encounter-protection-readiness`, run `2026-06-22T083241-689Z-modernized-openemr-plan-slice-168-encounter-protection-readiness`), encounter mutation (`slice-12-encounter-mutation-readiness`, run `2026-06-22T083304-632Z-modernized-openemr-plan-slice-12-encounter-mutation-readiness`), and encounter metadata (`slice-35-encounter-metadata-readiness`, run `2026-06-22T083331-577Z-modernized-openemr-plan-slice-35-encounter-metadata-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-authorization-policy/encounter-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 206. Appointment Authorization Policy Readiness Slice 176
 
 Commit: `b1a3f1de`

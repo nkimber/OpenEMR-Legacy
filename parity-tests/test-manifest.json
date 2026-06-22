@@ -564,6 +564,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-177-encounter-authorization-policy-readiness",
+      "name": "Slice 177 Encounter Authorization Policy Readiness",
+      "description": "Encounter security confidence plan that verifies Authorize Any Encounter ACL access is required for modernized encounter APIs and compares that policy with the legacy ACL matrix.",
+      "suites": ["workflow-encounter-authorization-policy"],
+      "resetMode": "run",
+      "tags": ["readiness", "authorization-policy", "slice-177", "encounters", "clinical-notes", "access-control", "authentication", "security", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3250,6 +3259,16 @@
       "layer": "workflow",
       "path": "tests/workflow-encounter-protection",
       "tags": ["slice168", "workflow", "session-enforcement", "encounters", "clinical-notes", "authentication", "security", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-encounter-authorization-policy",
+      "name": "Encounter Authorization Policy Readiness",
+      "description": "Verifies encounter APIs require Authorize Any Encounter ACL access for authenticated modernized sessions and match the legacy ACL matrix.",
+      "layer": "workflow",
+      "path": "tests/workflow-encounter-authorization-policy",
+      "tags": ["slice177", "workflow", "authorization-policy", "encounters", "clinical-notes", "access-control", "authentication", "security", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
