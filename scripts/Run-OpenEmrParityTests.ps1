@@ -166,6 +166,7 @@ param(
         "workflow-admin-authorization-policy",
         "workflow-reports-protection",
         "workflow-reports-authorization-policy",
+        "workflow-clinical-list-authorization-policy",
         "workflow-patient-protection",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",

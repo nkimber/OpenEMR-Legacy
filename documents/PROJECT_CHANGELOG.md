@@ -11100,6 +11100,67 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 205. Clinical List Authorization Policy Readiness Slice 175
+
+Commit: pending
+Started: `2026-06-22T03:19:00.0000000-04:00`
+Finished: `2026-06-22T03:39:27.3641138-04:00`
+
+Implemented the one-hundred-seventy-fifth project slice and latest modernized OpenEMR workflow slice: clinical-list authorization-policy readiness, enforcing mirrored Medical/History access for the modernized clinical-list API while comparing admin-allowed/front-desk-forbidden behavior with the legacy ACL matrix and clinical-list rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 424
+- Lines deleted: 49
+- Net lines: +375
+- Total churn: 473
+
+Key outcomes:
+
+- Replaced the clinical-list route group's session-only gate with ACL-backed authorization requiring `patients:med view` after session validation.
+- Kept the OpenEMR return-value hierarchy in place so admin `write` access satisfies the clinical-list `view` requirement.
+- Kept unauthenticated clinical-list access on the existing `401` contract and added structured `403` evidence for authenticated front-desk sessions without Medical/History access.
+- Kept the Lists page operator-friendly after a forbidden clinical-list load by keeping the access form and successful sign-in identity visible, so users can immediately retry with an authorized account.
+- Added smoke probes for front-desk `403` behavior on clinical-list retrieval and allergy mutation.
+- Added the `workflow-clinical-list-authorization-policy` suite and `slice-175-clinical-list-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 175 plan actions for both legacy and modernized targets.
+- Advanced clinical-list completion from 54% to 56% and administration/security completion from 60% to 62%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with line-ending warnings only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`, followed by a targeted frontend rebuild after the Lists UI retry fix.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the clinical-list smoke now verifies front-desk status `403` for both clinical-list retrieval and allergy mutation.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-175-clinical-list-authorization-policy-readiness -Reset run` passed: run `2026-06-22T073231-755Z-legacy-openemr-plan-slice-175-clinical-list-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-175-clinical-list-authorization-policy-readiness -Reset run` passed: run `2026-06-22T073535-719Z-modernized-openemr-plan-slice-175-clinical-list-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-175-clinical-list-authorization-policy-readiness` passed with comparison `2026-06-22T073604-144Z-legacy-openemr-vs-modernized-openemr-plan-slice-175-clinical-list-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for clinical-list readiness (`slice-4-clinical-lists-readiness`, run `2026-06-22T073615-938Z-modernized-openemr-plan-slice-4-clinical-lists-readiness`), clinical-list mutation (`slice-13-clinical-list-mutation-readiness`, run `2026-06-22T073645-485Z-modernized-openemr-plan-slice-13-clinical-list-mutation-readiness`), clinical-list protection (`slice-166-clinical-list-protection-readiness`, run `2026-06-22T073711-942Z-modernized-openemr-plan-slice-166-clinical-list-protection-readiness`), and reports authorization policy (`slice-174-reports-authorization-policy-readiness`, run `2026-06-22T073744-890Z-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`).
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-clinical-list-authorization-policy/clinical-list-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 204. Operational Reports Authorization Policy Readiness Slice 174
 
 Commit: `e3601f6b`
