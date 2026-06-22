@@ -876,7 +876,7 @@ RETURNING id;
 
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         title: input.title,
@@ -926,7 +926,7 @@ LIMIT 1;
   async deactivateClinicalListEntry(id: number | string, comments: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies/${encodeURIComponent(String(id))}/deactivate`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ comments })
     });
 
@@ -937,7 +937,8 @@ LIMIT 1;
 
   async deleteClinicalListEntry(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/allergies/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -948,7 +949,7 @@ LIMIT 1;
   async createProblem(input: NewProblem): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         title: input.title,
@@ -994,7 +995,7 @@ LIMIT 1;
   async deactivateProblem(id: number | string, comments: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems/${encodeURIComponent(String(id))}/deactivate`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ comments })
     });
 
@@ -1005,7 +1006,8 @@ LIMIT 1;
 
   async deleteProblem(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/problems/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1016,7 +1018,7 @@ LIMIT 1;
   async createMedication(input: NewMedication): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         title: input.title,
@@ -1062,7 +1064,7 @@ LIMIT 1;
   async deactivateMedication(id: number | string, comments: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications/${encodeURIComponent(String(id))}/deactivate`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ comments })
     });
 
@@ -1073,7 +1075,8 @@ LIMIT 1;
 
   async deleteMedication(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/medications/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1668,7 +1671,7 @@ LIMIT 1;
   async createPrescription(input: NewPrescription): Promise<string> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
@@ -1724,7 +1727,7 @@ LIMIT 1;
   async deactivatePrescription(id: number | string, endDate: string, note: string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(id))}/deactivate`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({ endDate, note })
     });
 
@@ -1735,7 +1738,8 @@ LIMIT 1;
 
   async deletePrescription(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -1746,7 +1750,7 @@ LIMIT 1;
   async createImmunization(input: NewImmunization): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/immunizations`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         encounter: input.encounter ?? null,
@@ -1831,7 +1835,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/clinical-lists/immunizations/${encodeURIComponent(String(id))}/entered-in-error`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({ note })
       }
     );
@@ -1843,7 +1847,8 @@ LIMIT 1;
 
   async deleteImmunization(id: number | string): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/immunizations/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {

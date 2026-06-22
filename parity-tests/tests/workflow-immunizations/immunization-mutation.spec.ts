@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientImmunizationsDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
 const immunizationMutationAnchorPatientId = "MOD-PAT-0007";
 
@@ -68,10 +69,7 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
         await expectRenderedText(page, vaccine);
         await expectRenderedText(page, lotNumber);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Lists" }).click();
-        await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
-        await page.getByLabel("Clinical lists patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedClinicalLists(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(vaccine);
         await expect(page.locator("body")).toContainText(`CVX 141 / completed / intramuscular`);

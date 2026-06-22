@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
 const clinicalListMutationAnchorPatientId = "MOD-PAT-0006";
 
@@ -48,10 +49,7 @@ test.describe("clinical list mutation parity @slice13 @workflow-clinical-lists @
         await openPatientSummaryDirect(page, target, patient!.pid);
         await expectRenderedText(page, title);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Lists" }).click();
-        await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
-        await page.getByLabel("Clinical lists patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedClinicalLists(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(title);
         await expect(page.locator("body")).toContainText("Rash / mild");

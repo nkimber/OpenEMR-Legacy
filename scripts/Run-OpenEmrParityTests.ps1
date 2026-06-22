@@ -164,7 +164,8 @@ param(
         "workflow-admin-audit-protection",
         "workflow-admin-directory-protection",
         "workflow-reports-protection",
-        "workflow-patient-protection"
+        "workflow-patient-protection",
+        "workflow-clinical-list-protection"
     )]
     [string] $Suite = "all",
 

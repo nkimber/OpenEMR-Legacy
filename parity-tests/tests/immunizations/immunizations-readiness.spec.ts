@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientImmunizationsDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
 const immunizationAnchorPatientId = "MOD-PAT-0007";
 
@@ -38,11 +39,7 @@ test.describe("immunizations parity @slice29 @immunizations", () => {
       return;
     }
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Lists" }).click();
-    await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
-
-    await page.getByLabel("Clinical lists patient ID").fill(patient!.pubpid);
+    await openAuthenticatedModernizedClinicalLists(page, target, patient!.pubpid);
 
     await expect(page.getByRole("heading", { name: patient!.lname + ", " + patient!.fname })).toBeVisible();
     await expect(page.locator("body")).toContainText("Immunizations");

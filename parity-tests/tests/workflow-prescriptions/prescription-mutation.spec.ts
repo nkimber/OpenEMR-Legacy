@@ -1,5 +1,6 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
 const prescriptionMutationAnchorPatientId = "MOD-PAT-0008";
 
@@ -51,10 +52,7 @@ test.describe("prescription mutation parity @slice15 @workflow-prescriptions @mu
         await openPatientSummaryDirect(page, target, patient!.pid);
         await expectRenderedText(page, drug);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Lists" }).click();
-        await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
-        await page.getByLabel("Clinical lists patient ID").fill(patient!.pubpid);
+        await openAuthenticatedModernizedClinicalLists(page, target, patient!.pubpid);
 
         await expect(page.locator("body")).toContainText(drug);
         await expect(page.locator("body")).toContainText("1 tablet daily / oral / Z00.00");

@@ -44,3 +44,22 @@ export async function openAuthenticatedModernizedReports(page: Page, target: Run
 
   await expect(page.locator("body")).toContainText("Gold Data Snapshot");
 }
+
+export async function openAuthenticatedModernizedClinicalLists(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Lists" }).click();
+  await expect(page.getByRole("heading", { name: "Lists", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Lists access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByLabel("Username").fill(target.credentials.username);
+    await accessPanel.getByLabel("Password").fill(target.credentials.password);
+    await accessPanel.getByRole("button", { name: "Verify Lists Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load clinical lists");
+
+  if (patientSearch) {
+    await page.getByLabel("Clinical lists patient ID").fill(patientSearch);
+  }
+}
