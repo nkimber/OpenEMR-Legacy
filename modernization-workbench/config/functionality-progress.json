@@ -104,12 +104,17 @@
       "id": "encounters-clinical-notes",
       "name": "Encounters And Clinical Notes",
       "status": "in-progress",
-      "summary": "Encounter read/write, protected access, ACL-backed authorization-policy enforcement, mutation-specific authorization-policy readiness, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
+      "summary": "Encounter read/write, protected access, ACL-backed authorization-policy enforcement, mutation-specific authorization-policy readiness, SOAP/vitals, sign-off, co-signature, amendment history, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
       "completed": [
         {
           "label": "Encounter lifecycle and clinical note facts",
           "detail": "Encounter search/detail, vitals, SOAP create/update/delete, metadata mutation, sign-off, and co-signature readiness are covered.",
           "evidence": ["slice-3-encounters-readiness", "slice-12-encounter-mutation-readiness", "slice-35-encounter-metadata-readiness", "slice-77-encounter-signoff-readiness", "slice-121-encounter-cosignature-readiness"]
+        },
+        {
+          "label": "Encounter amendment history readiness",
+          "detail": "Encounter signature amendment text is now projected as ordered amendment history, blank sign-off notes are filtered, and the modernized API/UI render the same history proven against legacy e-sign rows.",
+          "evidence": ["slice-190-encounter-amendment-history-readiness"]
         },
         {
           "label": "Encounter billing, claim, procedure, and diagnosis linkage",
@@ -138,16 +143,16 @@
         }
       ],
       "outstanding": [
-        "Encounter templates, multi-form encounter packages, amendment policy and history depth.",
+        "Encounter templates, multi-form encounter packages, and amendment policy controls beyond signature-derived history.",
         "Code search, coding validation, claim scrubbing, charge-capture expansion, and comprehensive audit-log export."
       ],
       "deferred": [
         "Direct scanner integration and full historical encounter document version chains."
       ],
-      "completionEstimatePercent": 71,
+      "completionEstimatePercent": 73,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Encounters combine clinical notes, documents, billing links, diagnoses, procedure links, sign-off, and policy-heavy clinical behavior.",
-      "estimateRationale": "Core encounter, protected encounter access, ACL-backed encounter authorization, core mutation-specific encounter authorization, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and deeper policy depth remain."
+      "estimateRationale": "Core encounter, protected encounter access, ACL-backed encounter authorization, core mutation-specific encounter authorization, SOAP/vitals, sign-off, amendment-history projection, document, billing, diagnosis, and procedure linkages are covered; templates and deeper policy controls remain."
     },
     {
       "id": "clinical-lists-medications",

@@ -12504,6 +12504,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 222. Encounter Amendment History Readiness Slice 190
+
+Commit: `pending`
+Started: `2026-06-22T11:04:00.0000000-04:00`
+Finished: `2026-06-22T11:49:02.1691715-04:00`
+
+Implemented workflow Slice 190: encounter amendment history readiness. The modernized encounter detail API now projects a signature-derived `amendmentHistory` read model from nonblank encounter signature amendment text, and the Encounters workspace renders the same ordered amendment facts that legacy OpenEMR stores in `esign_signatures`.
+
+Code changes:
+
+- Files changed: 18
+- Lines added: 487
+- Lines deleted: 36
+- Net lines: 451
+- Total churn: 523
+
+Key outcomes:
+
+- Added an `EncounterAmendmentHistoryItem` API contract and repository projection that filters blank sign-off notes while preserving newest-first signature order.
+- Added a modernized Encounter Amendment History panel with amendment counts, locked-state visibility, signer/timestamp metadata, amendment text, and signature hash evidence.
+- Added the `workflow-encounter-amendment-history` parity suite and `slice-190-encounter-amendment-history-readiness` plan.
+- Added Workbench managed plan actions for Slice 190 on both legacy and modernized targets.
+- Extended the modernized smoke test to verify amendment history projection and cleanup through the existing encounter co-signature lifecycle.
+- Updated the functionality progress ledger and project documents to mark signature-derived encounter amendment history as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` and `scripts/Run-OpenEmrParityTests.ps1`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `docker compose up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new encounter amendment history projection smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-190-encounter-amendment-history-readiness -Reset run` passed with 1 expected test; run `2026-06-22T154411-011Z-legacy-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-190-encounter-amendment-history-readiness -Reset run` passed with 1 expected test; run `2026-06-22T154550-762Z-modernized-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-190-encounter-amendment-history-readiness` passed with status `matched`; comparison `2026-06-22T154646-710Z-legacy-openemr-vs-modernized-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- Modernized focused regressions passed for `slice-77-encounter-signoff-readiness` and `slice-121-encounter-cosignature-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/EncounterDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/EncounterRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-encounter-amendment-history/encounter-amendment-history.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -12511,5 +12573,5 @@ Likely upcoming changelog entries should cover:
 - Legacy-native Panther test-container enablement if practical.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
-- Broader encounter workflows for templates, amendment policy/history depth, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
 - Workbench comparison screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
