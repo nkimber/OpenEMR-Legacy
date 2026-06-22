@@ -13269,7 +13269,7 @@ Primary files:
 Started: `2026-06-22T19:21:00-04:00`
 Finished: `2026-06-22T19:57:30-04:00`
 Duration: `36m 30s`
-Changeset: `pending`
+Changeset: `9542756e`
 
 Implemented workflow Slice 201: patient contact-backed care-team readiness. The modernized target now supports OpenEMR-style care-team members that reference patient contacts through `contactId` / `contact_id`, while preserving provider-backed members and the Slice 199/200 care-team contracts.
 
