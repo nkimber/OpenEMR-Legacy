@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 212. Procedure Authorization Policy Readiness Slice 182
+
+Commit: `pending`
+Started: `2026-06-22T06:18:00.0000000-04:00`
+Finished: `2026-06-22T06:37:53.6574107-04:00`
+
+Implemented the one-hundred-eighty-second project slice and latest modernized OpenEMR workflow slice: procedure authorization-policy readiness, enforcing mirrored OpenEMR Lab access for the modernized procedure API and Procedures workspace while comparing admin/front-desk procedure access behavior with the legacy ACL matrix and procedure-result rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 557
+- Lines deleted: 86
+- Net lines: +471
+- Total churn: 643
+
+Key outcomes:
+
+- Replaced the procedures route group's session-only gate with ACL-backed authorization requiring `patients:lab view` after session validation.
+- Preserved the unauthenticated `401` contract for procedure APIs while proving authenticated front-desk procedure result, order-catalog, and procedure-order create attempts receive `403` from the modernized API.
+- Kept admin procedure results, order catalog access, and completed CBC/hemoglobin retrieval working through the same OpenEMR return-value hierarchy where higher privileges satisfy `view`.
+- Added procedure-specific frontend `403` copy so operators see `Procedure access` requirements instead of generic failed-status messages.
+- Added username/password credential entry to the Procedures Access panel so parity tests and operators can prove denied front-desk access and then retry with admin access from the same UI surface.
+- Added procedure authorization probes to the modernized smoke test.
+- Added the `workflow-procedure-authorization-policy` suite and `slice-182-procedure-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 182 plan actions for both legacy and modernized targets.
+- Advanced labs/procedures completion from 67% to 69% and administration/security completion from 74% to 76%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed with 0 warnings.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor procedure smoke check verifies unauthenticated procedure retrieval status `401`, front-desk procedure retrieval, order-catalog, and procedure-order create status `403`, and admin procedure retrieval success.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-182-procedure-authorization-policy-readiness -Reset run` passed: run `2026-06-22T103338-781Z-legacy-openemr-plan-slice-182-procedure-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-182-procedure-authorization-policy-readiness -Reset run` passed: run `2026-06-22T103415-367Z-modernized-openemr-plan-slice-182-procedure-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-182-procedure-authorization-policy-readiness` passed with comparison `2026-06-22T103444-473Z-legacy-openemr-vs-modernized-openemr-plan-slice-182-procedure-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for procedure protection (`slice-172-procedure-protection-readiness`, run `2026-06-22T103457-910Z-modernized-openemr-plan-slice-172-procedure-protection-readiness`), procedure read (`slice-6-procedures-readiness`, run `2026-06-22T103521-542Z-modernized-openemr-plan-slice-6-procedures-readiness`), procedure mutation (`slice-17-procedure-mutation-readiness`, run `2026-06-22T103551-172Z-modernized-openemr-plan-slice-17-procedure-mutation-readiness`), and procedure order catalog (`slice-145-procedure-order-catalog-readiness`, run `2026-06-22T103628-414Z-modernized-openemr-plan-slice-145-procedure-order-catalog-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-procedure-authorization-policy/procedure-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 211. Billing Authorization Policy Readiness Slice 181
 
 Commit: `ef894f9c`
