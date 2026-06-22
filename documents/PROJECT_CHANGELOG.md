@@ -13126,7 +13126,7 @@ Primary files:
 Started: `2026-06-22T18:25:28-04:00`
 Finished: `2026-06-22T18:52:30-04:00`
 Duration: `27m 2s`
-Changeset: `pending`
+Changeset: `490e157b`
 
 Implemented workflow Slice 199: patient care-team readiness. The modernized target now exposes OpenEMR-style patient care-team lead-member assignment through PostgreSQL care-team tables, the patient API, Patient/Client UI, smoke coverage, Workbench managed actions, and side-by-side parity against legacy OpenEMR `care_teams` and `care_team_member`.
 
