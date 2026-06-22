@@ -12284,6 +12284,49 @@ Primary files:
 - `modernization-workbench/config/source-inventory.snapshot.json`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 218. Document Mutation Authorization Policy Readiness Slice 186
+
+Commit: `pending`
+Started: `2026-06-22T09:12:22.6393560-04:00`
+Finished: `pending`
+
+Implemented workflow Slice 186: patient document mutation authorization-policy readiness. The modernized document API now keeps patient document read behavior behind the existing Documents view gate while separating document filing, editing, review/archive, and hard-delete authority across `patients:docs addonly`, `patients:docs write`, and `patients:docs_rm write`.
+
+Code changes:
+
+- Files changed: pending
+- Lines added: pending
+- Lines deleted: pending
+- Net lines: pending
+- Total churn: pending
+
+Key outcomes:
+
+- Added endpoint-level document mutation authorization filters for patient and encounter document create, metadata, content, review, archive/restore, move, and delete endpoints.
+- Added the `workflow-document-mutation-authorization-policy` parity suite and `slice-186-document-mutation-authorization-policy-readiness` plan.
+- Added Workbench managed plan actions for Slice 186 on both legacy and modernized targets.
+- Updated the functionality progress ledger and project documents to mark document mutation authorization as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- pending
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `parity-tests/tests/workflow-document-mutation-authorization-policy/document-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

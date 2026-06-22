@@ -279,7 +279,7 @@
       "id": "documents-attachments",
       "name": "Documents And Attachments",
       "status": "in-progress",
-      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, external-link behavior, protected document access, and ACL-authorized document access are broadly covered; production document operations remain open.",
+      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, external-link behavior, protected document access, ACL-authorized document access, and mutation-specific document authorization are broadly covered; production document operations remain open.",
       "completed": [
         {
           "label": "Patient document read, retrieval, and mutation",
@@ -300,19 +300,24 @@
           "label": "Patient document authorization policy readiness",
           "detail": "The modernized patient document API now enforces mirrored Documents ACL access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-179-document-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient document mutation authorization policy readiness",
+          "detail": "The modernized patient and encounter document mutation APIs now separate Documents add-only filing from write-level metadata/content/review/archive operations and Documents Delete hard-delete authority.",
+          "evidence": ["slice-186-document-mutation-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
-        "Direct scanner capture, OCR execution and queueing, generated PDF thumbnails, document routing queues, full historical version rows, mutation-specific document workflow authorization, encryption/key management, and retention policy.",
+        "Direct scanner capture, OCR execution and queueing, generated PDF thumbnails, document routing queues, full historical version rows, encryption/key management, and retention policy.",
         "External object storage, CCDA import/export, patient-portal document access rules, and document delivery integrations."
       ],
       "deferred": [
         "Fax/SMS attachments and external storage provider adapters."
       ],
-      "completionEstimatePercent": 62,
+      "completionEstimatePercent": 64,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Document workflows span storage, previews, reviews, revisions, retention, authorization, scanner/OCR, and patient/encounter contexts.",
-      "estimateRationale": "Document read, upload, preview, review, archive, replacement, revision, protected access, and focused ACL-authorized access paths are broad; scanner, OCR, storage, retention, and mutation-specific document workflow authorization remain."
+      "estimateRationale": "Document read, upload, preview, review, archive, replacement, revision, protected access, focused ACL-authorized access, and mutation-specific add/write/delete document authorization paths are broad; scanner, OCR, storage, and retention remain."
     },
     {
       "id": "labs-procedures",
@@ -367,7 +372,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -450,6 +455,11 @@
           "evidence": ["slice-179-document-authorization-policy-readiness"]
         },
         {
+          "label": "Patient document mutation authorization policy readiness",
+          "detail": "The modernized document mutation API now requires Documents add-only for document filing, Documents write for metadata/content/review/archive changes, and Documents Delete write for hard deletion.",
+          "evidence": ["slice-186-document-mutation-authorization-policy-readiness"]
+        },
+        {
           "label": "Patient message authorization policy readiness",
           "detail": "The modernized message API now enforces mirrored Patient Notes access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-180-message-authorization-policy-readiness"]
@@ -516,16 +526,16 @@
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure mutation ACL gates.",
+        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure mutation ACL gates.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 79,
+      "completionEstimatePercent": 80,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

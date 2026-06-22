@@ -178,6 +178,7 @@ param(
         "workflow-encounter-mutation-authorization-policy",
         "workflow-document-protection",
         "workflow-document-authorization-policy",
+        "workflow-document-mutation-authorization-policy",
         "workflow-message-protection",
         "workflow-message-authorization-policy",
         "workflow-billing-authorization-policy",
