@@ -10830,6 +10830,73 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 194. Operational Reports Protection Readiness Slice 164
+
+Commit: `4c7891b1`
+Started: `2026-06-21T20:45:00.0000000-04:00`
+Finished: `2026-06-21T21:13:04.7726233-04:00`
+Duration: 28 minutes 4 seconds
+
+Implemented the one-hundred-sixty-fourth project slice and latest modernized OpenEMR workflow slice: operational reports protection readiness, requiring an active modernized session for `/api/reports/*`, gating operational report data and CSV export on the Reports page until sign-in, and comparing that behavior with legacy OpenEMR report pages protected by login.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 359
+- Lines deleted: 31
+- Net lines: +328
+- Total churn: 390
+
+Key outcomes:
+
+- Protected the modernized `/api/reports` route group behind the active `X-OpenEMR-Session` contract.
+- Added a Reports workspace sign-in gate so operational report data and CSV export controls only load after session verification.
+- Replaced the direct CSV export link with an authenticated fetch/download path.
+- Updated existing reports readiness and reports export parity suites to authenticate before opening modernized operational reports.
+- Added the `workflow-reports-protection` suite and `slice-164-reports-protection-readiness` plan.
+- Added Workbench-managed Slice 164 plan actions for both legacy and modernized targets.
+- Advanced the administration/security/audit functionality estimate from 38% to 40%, while leaving remaining non-admin protected APIs, ASP.NET Core Identity, MFA, authorization policy, password lifecycle, production hardening, and broader audit export as outstanding scope.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including protected operational reports and CSV export assertions.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-164-reports-protection-readiness -Reset run` passed: run `2026-06-22T005728-816Z-legacy-openemr-plan-slice-164-reports-protection-readiness`, 1 expected, 0 unexpected.
+- The first modernized Slice 164 run found an overly broad Reports heading selector that also matched Reports Access; the selector was narrowed and the suite reran successfully.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-164-reports-protection-readiness -Reset run` passed: run `2026-06-22T005849-136Z-modernized-openemr-plan-slice-164-reports-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-164-reports-protection-readiness` passed with comparison `2026-06-22T005914-082Z-legacy-openemr-vs-modernized-openemr-plan-slice-164-reports-protection-readiness`, `status: matched`, and no differences.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-9-reports-readiness -Reset run` passed as a reports compatibility check: run `2026-06-22T005938-117Z-modernized-openemr-plan-slice-9-reports-readiness`, 4 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-24-reports-export-readiness -Reset run` passed as a reports export compatibility check: run `2026-06-22T010023-644Z-modernized-openemr-plan-slice-24-reports-export-readiness`, 2 expected, 0 unexpected. An earlier parallel launch hit a PostgreSQL reset deadlock before tests ran; the sequential rerun passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only Git line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/tests/reports/operational-reports.spec.ts`
+- `parity-tests/tests/reports-export/operational-reports-export.spec.ts`
+- `parity-tests/tests/workflow-reports-protection/reports-protection.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
