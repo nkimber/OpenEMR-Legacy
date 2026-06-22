@@ -12286,19 +12286,19 @@ Primary files:
 
 ### 218. Document Mutation Authorization Policy Readiness Slice 186
 
-Commit: `pending`
+Commit: `a3d94dfe`
 Started: `2026-06-22T09:12:22.6393560-04:00`
-Finished: `pending`
+Finished: `2026-06-22T09:23:30.3759759-04:00`
 
 Implemented workflow Slice 186: patient document mutation authorization-policy readiness. The modernized document API now keeps patient document read behavior behind the existing Documents view gate while separating document filing, editing, review/archive, and hard-delete authority across `patients:docs addonly`, `patients:docs write`, and `patients:docs_rm write`.
 
 Code changes:
 
-- Files changed: pending
-- Lines added: pending
-- Lines deleted: pending
-- Net lines: pending
-- Total churn: pending
+- Files changed: 13
+- Lines added: 553
+- Lines deleted: 52
+- Net lines: +501
+- Total churn: 605
 
 Key outcomes:
 
@@ -12309,7 +12309,18 @@ Key outcomes:
 
 Verified test runs:
 
-- pending
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr\frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-186-document-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T131455-718Z-legacy-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-186-document-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T131634-764Z-modernized-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-186-document-mutation-authorization-policy-readiness` passed with comparison `2026-06-22T131653-009Z-legacy-openemr-vs-modernized-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized regression plans passed for Slice 179 patient document authorization-policy, Slice 169 document protection, Slice 26 document mutation, Slice 38 document sign-off, Slice 41 document metadata, Slice 42 document archive, Slice 43 document content replacement, Slice 78 encounter document upload, Slice 80 encounter document sign-off, Slice 82 encounter document metadata, Slice 84 encounter document content replacement, and Slice 85 encounter document archive.
 
 Primary files:
 
