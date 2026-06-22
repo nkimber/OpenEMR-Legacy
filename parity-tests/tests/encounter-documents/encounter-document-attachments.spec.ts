@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -65,7 +66,7 @@ test.describe("encounter document attachment readiness parity @slice67 @encounte
       return;
     }
 
-    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
     expect(detailResponse.ok()).toBe(true);
     const detailPayload = await detailResponse.json();
     expect(detailPayload.documents).toHaveLength(2);
@@ -74,12 +75,7 @@ test.describe("encounter document attachment readiness parity @slice67 @encounte
       intakePacketName
     ]);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Encounters" }).click();
-    await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-    await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-    await page.getByLabel("Encounter from date").fill(encounterDocumentAnchorFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentAnchorFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
     await expect(encounterButton).toBeVisible();

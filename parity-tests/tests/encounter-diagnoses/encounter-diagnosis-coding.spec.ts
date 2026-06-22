@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -69,7 +70,7 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
       return;
     }
 
-    const billingDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${billingAnchorEncounter}`);
+    const billingDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${billingAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
     expect(billingDetailResponse.ok()).toBe(true);
     const billingDetailPayload = await billingDetailResponse.json();
     const billingDiagnosis = billingDetailPayload.diagnosisCodes.find(
@@ -84,7 +85,7 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
     expect(billingDiagnosis.sources).toEqual(expect.arrayContaining(["Encounter diagnosis", "Fee sheet justification"]));
     expect(billingDiagnosis.supportingBillingCodes).toEqual(expect.arrayContaining(["CPT4 99214", "CPT4 36415"]));
 
-    const procedureDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${procedureAnchorEncounter}`);
+    const procedureDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${procedureAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
     expect(procedureDetailResponse.ok()).toBe(true);
     const procedureDetailPayload = await procedureDetailResponse.json();
     const procedureDiagnosis = procedureDetailPayload.diagnosisCodes.find(
@@ -97,12 +98,7 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
     });
     expect(procedureDiagnosis.sources).toEqual(expect.arrayContaining(["Encounter diagnosis", "Procedure order diagnosis"]));
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Encounters" }).click();
-    await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-    await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-    await page.getByLabel("Encounter from date").fill(encounterDiagnosisAnchorFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDiagnosisAnchorFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
     await expect(encounterButton).toBeVisible();

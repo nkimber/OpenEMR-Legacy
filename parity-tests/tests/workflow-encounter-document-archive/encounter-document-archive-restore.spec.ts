@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -68,11 +69,7 @@ test.describe("encounter document archive restore parity @slice85 @workflow-enco
       if (target.type === "legacy-openemr") {
         await workflow.softDeleteEncounterDocument(encounterDocumentArchiveEncounter, documentId);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterDocumentArchiveFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentArchiveFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -107,13 +104,14 @@ test.describe("encounter document archive restore parity @slice85 @workflow-enco
       if (target.type === "legacy-openemr") {
         await workflow.restoreEncounterDocument(encounterDocumentArchiveEncounter, documentId);
       } else {
-        const apiHiddenResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}`);
+        const apiHiddenResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(apiHiddenResponse.ok()).toBe(true);
         const activePayload = await apiHiddenResponse.json();
         expect(activePayload.documents.find((document: { id: number }) => document.id === Number(documentId))).toBeUndefined();
 
         const apiArchivedResponse = await page.request.get(
-          `${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}?includeArchivedDocuments=true`
+          `${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}?includeArchivedDocuments=true`,
+          { headers: await getModernizedAdminSessionHeaders(page, target) }
         );
         expect(apiArchivedResponse.ok()).toBe(true);
         const archivedPayload = await apiArchivedResponse.json();
@@ -159,7 +157,7 @@ test.describe("encounter document archive restore parity @slice85 @workflow-enco
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
       } else {
-        const restoredResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}`);
+        const restoredResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentArchiveEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(restoredResponse.ok()).toBe(true);
         const restoredPayload = await restoredResponse.json();
         const apiRestoredDocument = restoredPayload.documents.find(

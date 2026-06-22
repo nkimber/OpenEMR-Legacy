@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 import type { PatientDocumentRecord } from "../../src/workflows/legacyWorkflowActions.js";
@@ -241,7 +242,8 @@ async function expectModernizedLifecycle(
   expectedCodes: string[]
 ) {
   const response = await page.request.get(
-    `${target.apiBaseUrl}/api/encounters/${encounterDocumentLifecycleAnchorEncounter}?includeArchivedDocuments=true`
+    `${target.apiBaseUrl}/api/encounters/${encounterDocumentLifecycleAnchorEncounter}?includeArchivedDocuments=true`,
+    { headers: await getModernizedAdminSessionHeaders(page, target) }
   );
   expect(response.ok()).toBe(true);
   const payload = await response.json() as { documents: EncounterDocumentApiAttachment[] };
@@ -269,11 +271,7 @@ async function openModernizedEncounterDocumentCard(
   documentName: string,
   includeArchived = false
 ) {
-  await page.goto(target.publicUrl);
-  await page.getByRole("button", { name: "Encounters" }).click();
-  await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-  await page.getByLabel("Encounter patient ID").fill(patientPublicId);
-  await page.getByLabel("Encounter from date").fill(encounterDocumentLifecycleFromDate);
+  await openAuthenticatedModernizedEncounters(page, target, patientPublicId, encounterDocumentLifecycleFromDate);
 
   const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
   await expect(encounterButton).toBeVisible();

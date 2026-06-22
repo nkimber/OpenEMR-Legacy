@@ -91,3 +91,42 @@ export async function openAuthenticatedModernizedCalendar(
     await page.getByLabel("Appointment from date").fill(fromDate);
   }
 }
+
+export async function openAuthenticatedModernizedEncounters(
+  page: Page,
+  target: RuntimeTarget,
+  patientSearch?: string,
+  fromDate?: string
+) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Encounters" }).click();
+  await expect(page.getByRole("heading", { name: "Encounters", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Encounter access"]');
+  if ((await accessPanel.count()) > 0) {
+    await accessPanel.getByLabel("Username").fill(target.credentials.username);
+    await accessPanel.getByLabel("Password").fill(target.credentials.password);
+    await accessPanel.getByRole("button", { name: "Verify Encounter Access" }).click();
+  }
+
+  await expect(page.locator("body")).not.toContainText("Sign in to load encounters");
+
+  if (patientSearch) {
+    await page.getByLabel("Encounter patient ID").fill(patientSearch);
+  }
+
+  if (fromDate) {
+    await page.getByLabel("Encounter from date").fill(fromDate);
+  }
+}
+
+export async function getModernizedAdminSessionHeaders(page: Page, target: RuntimeTarget) {
+  const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/auth/login`, {
+    data: target.credentials
+  });
+  expect(loginResponse.ok()).toBeTruthy();
+  const login = await loginResponse.json() as { authenticated: boolean; sessionId?: string | null };
+  expect(login.authenticated).toBe(true);
+  expect(login.sessionId).toBeTruthy();
+  return { "X-OpenEMR-Session": login.sessionId! };
+}

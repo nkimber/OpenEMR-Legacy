@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 import {
@@ -142,7 +143,7 @@ async function expectModernizedExternalLinkApi(
   documentId: number,
   expectedUrl: string
 ) {
-  const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterExternalLinkAnchorEncounter}`);
+  const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterExternalLinkAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
   expect(response.ok()).toBe(true);
   const payload = await response.json() as { documents: EncounterExternalLinkApiAttachment[] };
   const document = payload.documents.find((item) => item.id === documentId);
@@ -165,11 +166,7 @@ async function openModernizedEncounterDocumentCard(
   patientPublicId: string,
   documentName: string
 ) {
-  await page.goto(target.publicUrl);
-  await page.getByRole("button", { name: "Encounters" }).click();
-  await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-  await page.getByLabel("Encounter patient ID").fill(patientPublicId);
-  await page.getByLabel("Encounter from date").fill(encounterExternalLinkFromDate);
+  await openAuthenticatedModernizedEncounters(page, target, patientPublicId, encounterExternalLinkFromDate);
 
   const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
   await expect(encounterButton).toBeVisible();

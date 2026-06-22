@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -88,7 +89,7 @@ test.describe("encounter billing linkage mutation parity @slice72 @workflow-enco
         await expectRenderedText(page, codeText);
         await expectRenderedText(page, legacyEncounterBillingMutationJustifyVisible);
       } else {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         expect(detailPayload.billingLineCount).toBe(beforeLines.length + 1);
@@ -110,12 +111,7 @@ test.describe("encounter billing linkage mutation parity @slice72 @workflow-enco
         expect(diagnosis).toBeTruthy();
         expect(diagnosis.supportingBillingCodes).toEqual(expect.arrayContaining([`CPT4 ${encounterBillingMutationCode}`]));
 
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterBillingMutationAnchorFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterBillingMutationAnchorFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -144,7 +140,7 @@ test.describe("encounter billing linkage mutation parity @slice72 @workflow-enco
       expect(inactiveLines).toHaveLength(beforeLines.length);
 
       if (target.type === "modernized-openemr") {
-        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(inactiveDetailResponse.ok()).toBe(true);
         const inactiveDetail = await inactiveDetailResponse.json();
         expect(inactiveDetail.billingLineCount).toBe(beforeLines.length);

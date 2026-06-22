@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -64,12 +65,7 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
         await expectRenderedText(page, procedureName);
         await expectRenderedText(page, encounterProcedureEntryCode);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterProcedureEntryAnchorFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterProcedureEntryAnchorFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -123,7 +119,7 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
       procedureOrderId = createdOrder!.id;
 
       if (target.type === "modernized-openemr") {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const apiOrder = detailPayload.procedureOrders.find(

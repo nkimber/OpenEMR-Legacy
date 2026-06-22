@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -68,7 +69,7 @@ test.describe("encounter billing linkage readiness parity @slice68 @encounter-bi
       return;
     }
 
-    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
     expect(detailResponse.ok()).toBe(true);
     const detailPayload = await detailResponse.json();
     expect(detailPayload.billingLineCount).toBe(2);
@@ -78,12 +79,7 @@ test.describe("encounter billing linkage readiness parity @slice68 @encounter-bi
       officeVisitCode
     ]);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Encounters" }).click();
-    await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-    await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-    await page.getByLabel("Encounter from date").fill(encounterBillingAnchorFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterBillingAnchorFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
     await expect(encounterButton).toBeVisible();

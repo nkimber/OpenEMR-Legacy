@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -79,11 +80,7 @@ test.describe("encounter document content replacement parity @slice84 @workflow-
           content: replacementBody
         });
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterDocumentContentFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentContentFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -155,7 +152,7 @@ test.describe("encounter document content replacement parity @slice84 @workflow-
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
       } else {
-        const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentContentEncounter}`);
+        const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentContentEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(response.ok()).toBe(true);
         const payload = await response.json();
         const apiDocument = payload.documents.find((document: { id: number }) => document.id === Number(documentId));

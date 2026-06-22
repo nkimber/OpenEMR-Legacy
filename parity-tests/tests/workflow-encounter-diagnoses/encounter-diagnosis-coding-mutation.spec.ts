@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -86,7 +87,7 @@ test.describe("encounter diagnosis coding mutation parity @slice73 @workflow-enc
         await expectRenderedText(page, encounterDiagnosisMutationCode);
         await expectRenderedText(page, codeText);
       } else {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const diagnosis = detailPayload.diagnosisCodes.find(
@@ -105,12 +106,7 @@ test.describe("encounter diagnosis coding mutation parity @slice73 @workflow-enc
           expect.arrayContaining([`ICD10 ${encounterDiagnosisMutationCode}`])
         );
 
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterDiagnosisMutationAnchorFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDiagnosisMutationAnchorFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -137,7 +133,7 @@ test.describe("encounter diagnosis coding mutation parity @slice73 @workflow-enc
       expect(inactiveLines).toHaveLength(beforeLines.length);
 
       if (target.type === "modernized-openemr") {
-        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(inactiveDetailResponse.ok()).toBe(true);
         const inactiveDetail = await inactiveDetailResponse.json();
         expect(inactiveDetail.diagnosisCodes.map((item: { code: string }) => item.code)).not.toContain(

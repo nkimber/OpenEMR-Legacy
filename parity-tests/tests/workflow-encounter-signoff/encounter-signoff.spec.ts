@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const signOffAnchorPatientId = "MOD-PAT-0002";
@@ -78,11 +79,7 @@ test.describe("encounter sign-off parity @slice77 @workflow-encounter-signoff @m
         await openPatientSummaryDirect(page, target, patient!.pid);
         await expectRenderedText(page, patient!.lname);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(signOffEncounterDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, signOffEncounterDate);
 
         const encounterButton = page.getByRole("button", { name: new RegExp(escapeRegex(reason), "i") }).first();
         await expect(encounterButton).toBeVisible();

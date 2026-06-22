@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -73,12 +74,7 @@ test.describe("encounter fee sheet entry parity @slice74 @workflow-encounter-fee
         await expectRenderedText(page, encounterFeeSheetDiagnosisCode);
         await expectRenderedText(page, diagnosisText);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterFeeSheetAnchorFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterFeeSheetAnchorFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -164,7 +160,7 @@ test.describe("encounter fee sheet entry parity @slice74 @workflow-encounter-fee
       expect(inactiveLines.map((line) => line.id)).not.toEqual(expect.arrayContaining(billingLineIds.map(String)));
 
       if (target.type === "modernized-openemr") {
-        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`);
+        const inactiveDetailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(inactiveDetailResponse.ok()).toBe(true);
         const inactiveDetail = await inactiveDetailResponse.json();
         expect(inactiveDetail.billingLineCount).toBe(beforeLines.length);

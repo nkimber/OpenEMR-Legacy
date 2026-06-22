@@ -84,7 +84,7 @@
       "id": "encounters-clinical-notes",
       "name": "Encounters And Clinical Notes",
       "status": "in-progress",
-      "summary": "Encounter read/write, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
+      "summary": "Encounter read/write, protected access, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
       "completed": [
         {
           "label": "Encounter lifecycle and clinical note facts",
@@ -100,6 +100,11 @@
           "label": "Encounter-scoped documents",
           "detail": "Encounter attachment visibility, upload, binary upload, sign-off, denial, metadata refiling, movement, content replacement, archive/restore, lifecycle timeline, external link, revision, scanned attachment, and binary replacement are covered.",
           "evidence": ["slice-67-encounter-documents-readiness", "slice-78-encounter-document-upload-readiness", "slice-79-encounter-binary-document-upload-readiness", "slice-122-encounter-document-revision-readiness", "slice-123-encounter-document-revision-replace-readiness", "slice-126-encounter-document-scanned-attachment-readiness", "slice-127-encounter-document-binary-content-replace-readiness"]
+        },
+        {
+          "label": "Encounter protection readiness",
+          "detail": "The modernized encounter API now requires an active session, the Encounters page gates encounter search and mutations until sign-in, and parity compares legacy encounter-page protection with modernized API/UI protection.",
+          "evidence": ["slice-168-encounter-protection-readiness"]
         }
       ],
       "outstanding": [
@@ -109,10 +114,10 @@
       "deferred": [
         "Direct scanner integration and full historical encounter document version chains."
       ],
-      "completionEstimatePercent": 66,
+      "completionEstimatePercent": 68,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Encounters combine clinical notes, documents, billing links, diagnoses, procedure links, sign-off, and policy-heavy clinical behavior.",
-      "estimateRationale": "Core encounter, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and policy depth remain."
+      "estimateRationale": "Core encounter, protected encounter access, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and policy depth remain."
     },
     {
       "id": "clinical-lists-medications",
@@ -287,7 +292,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, and protected appointment APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, and protected encounter APIs are covered, but production identity, policy enforcement, MFA, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -343,19 +348,24 @@
           "label": "Appointment protection readiness",
           "detail": "The modernized appointment API now requires an active session, the Calendar page gates schedule search and appointment mutations until sign-in, and parity compares legacy schedule-page protection with modernized API/UI protection.",
           "evidence": ["slice-167-appointment-protection-readiness"]
+        },
+        {
+          "label": "Encounter protection readiness",
+          "detail": "The modernized encounter API group now requires an active session, the Encounters page gates encounter search and mutations until sign-in, and parity compares legacy encounter-page protection with modernized API/UI protection.",
+          "evidence": ["slice-168-encounter-protection-readiness"]
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, enforcing session checks across the remaining encounter, document, billing, procedure, and messaging APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
+        "ASP.NET Core Identity, enforcing session checks across the remaining document, billing, procedure, and messaging APIs, password lifecycle, MFA, authorization policies, user-facility restriction matrices, broader role/permission management, and policy enforcement.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 46,
+      "completionEstimatePercent": 48,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, and protected appointment APIs exist; Identity, remaining encounter/document/billing/procedure/messaging API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, and protected encounter APIs exist; Identity, remaining document/billing/procedure/messaging API enforcement, MFA, authorization policy, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

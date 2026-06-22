@@ -1257,7 +1257,7 @@ LIMIT 1;
   async createEncounterDocument(input: NewEncounterDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         categoryId: input.categoryId,
         name: input.name,
@@ -1278,7 +1278,7 @@ LIMIT 1;
   async createEncounterBinaryDocument(input: NewEncounterBinaryDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents/binary`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         categoryId: input.categoryId,
         name: input.name,
@@ -1301,7 +1301,7 @@ LIMIT 1;
   async createEncounterExternalLinkDocument(input: NewEncounterExternalLinkDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/documents/external-link`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         categoryId: input.categoryId,
         name: input.name,
@@ -1452,7 +1452,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/metadata`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({
           categoryId: input.categoryId,
           name: input.name,
@@ -1473,7 +1473,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(sourceEncounter))}/documents/${encodeURIComponent(String(id))}/move`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({ targetEncounter })
       }
     );
@@ -1507,7 +1507,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/content`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({
           fileName: input.fileName,
           content: input.content
@@ -1548,7 +1548,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/content/binary`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({
           fileName: input.fileName,
           mimetype: input.mimetype,
@@ -1566,7 +1566,8 @@ LIMIT 1;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/soft-delete`,
       {
-        method: "PUT"
+        method: "PUT",
+        headers: await this.getAdminSessionHeaders()
       }
     );
 
@@ -1579,7 +1580,8 @@ LIMIT 1;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/restore`,
       {
-        method: "PUT"
+        method: "PUT",
+        headers: await this.getAdminSessionHeaders()
       }
     );
 
@@ -1597,7 +1599,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/sign`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({ reviewStatus: "approved", reviewedBy })
       }
     );
@@ -1612,7 +1614,7 @@ LIMIT 1;
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter))}/documents/${encodeURIComponent(String(id))}/sign`,
       {
         method: "PUT",
-        headers: { "content-type": "application/json" },
+        headers: await this.getAdminJsonHeaders(),
         body: JSON.stringify({ reviewStatus: "denied", reviewedBy })
       }
     );
@@ -2859,7 +2861,7 @@ LIMIT 1;
   async createEncounter(input: NewEncounter): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         patientId: String(input.patientId),
         providerId: input.providerId,
@@ -2925,7 +2927,7 @@ LIMIT 1;
     const current = metadata ? null : await this.getEncounter(id);
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         reason,
         sensitivity: metadata?.sensitivity ?? current?.sensitivity ?? null,
@@ -2944,7 +2946,7 @@ LIMIT 1;
   async signEncounter(id: number, input: NewEncounterSignature): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}/sign`, {
       method: "PUT",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify(input)
     });
 
@@ -2990,7 +2992,8 @@ LIMIT 1;
     const response = await fetch(
       `${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(signature.encounterId))}/signatures/${encodeURIComponent(String(id))}`,
       {
-        method: "DELETE"
+        method: "DELETE",
+        headers: await this.getAdminSessionHeaders()
       }
     );
 
@@ -3001,7 +3004,8 @@ LIMIT 1;
 
   async deleteEncounter(id: number): Promise<void> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -3012,7 +3016,7 @@ LIMIT 1;
   async createVitals(input: NewVitals): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/vitals`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         dateTime: input.dateTime,
         systolic: Number(input.bps),
@@ -3074,7 +3078,8 @@ LIMIT 1;
     }
 
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(encounter)}/vitals/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {
@@ -3085,7 +3090,7 @@ LIMIT 1;
   async createSoapNote(input: NewSoapNote): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(input.encounter))}/soap-notes`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: await this.getAdminJsonHeaders(),
       body: JSON.stringify({
         dateTime: input.dateTime,
         subjective: input.subjective,
@@ -3139,7 +3144,8 @@ LIMIT 1;
     }
 
     const response = await fetch(`${this.target.apiBaseUrl}/api/encounters/${encodeURIComponent(encounter)}/soap-notes/${encodeURIComponent(String(id))}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: await this.getAdminSessionHeaders()
     });
 
     if (!response.ok) {

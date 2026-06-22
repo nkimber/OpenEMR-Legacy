@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openProcedureResultsDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const encounterProcedureAnchorPatientId = "MOD-PAT-0001";
@@ -74,7 +75,7 @@ test.describe("encounter procedure order linkage readiness parity @slice70 @enco
       return;
     }
 
-    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${anchorEncounter}`);
+    const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${anchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
     expect(detailResponse.ok()).toBe(true);
     const detailPayload = await detailResponse.json();
     expect(detailPayload.procedureOrders).toHaveLength(1);
@@ -90,12 +91,7 @@ test.describe("encounter procedure order linkage readiness parity @slice70 @enco
     expect(detailPayload.procedureOrders[0].reports).toHaveLength(1);
     expect(detailPayload.procedureOrders[0].reports[0].results).toHaveLength(4);
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Encounters" }).click();
-    await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-
-    await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-    await page.getByLabel("Encounter from date").fill(encounterProcedureAnchorFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterProcedureAnchorFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Comprehensive new patient evaluation/i }).first();
     await expect(encounterButton).toBeVisible();

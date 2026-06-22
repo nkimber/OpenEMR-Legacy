@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -114,7 +115,7 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterScannedAttachmentAnchorEncounter}`);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterScannedAttachmentAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const apiDocument = detailPayload.documents.find((document: { name: string }) => document.name === fileName);
@@ -133,11 +134,7 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
           ocrStatus: "OCR pending"
         });
 
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterScannedAttachmentFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterScannedAttachmentFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();

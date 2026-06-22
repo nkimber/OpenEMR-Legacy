@@ -90,6 +90,7 @@
         "parityPatientProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-165-patient-protection-readiness", "-Reset", "run"],
         "parityClinicalListProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-166-clinical-list-protection-readiness", "-Reset", "run"],
         "parityAppointmentProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-167-appointment-protection-readiness", "-Reset", "run"],
+        "parityEncounterProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-168-encounter-protection-readiness", "-Reset", "run"],
         "parityProcedurePendingOrdersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-23-procedure-pending-orders-readiness", "-Reset", "run"],
         "parityReportsExportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-24-reports-export-readiness", "-Reset", "run"],
         "parityDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-25-documents-readiness", "-Reset", "run"],
@@ -932,6 +933,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-167-appointment-protection-readiness.json"
         },
         {
+          "id": "parity-plan-encounter-protection",
+          "name": "Slice 168 encounter protection plan",
+          "description": "Runs the shared encounter protection readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterProtectionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-168-encounter-protection-readiness.json"
+        },
+        {
           "id": "parity-plan-procedure-pending-orders",
           "name": "Slice 23 pending procedure orders plan",
           "description": "Runs the shared scheduled, reportless procedure-order plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -1662,6 +1671,7 @@
         "parityPatientProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-165-patient-protection-readiness", "-Reset", "run"],
         "parityClinicalListProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-166-clinical-list-protection-readiness", "-Reset", "run"],
         "parityAppointmentProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-167-appointment-protection-readiness", "-Reset", "run"],
+        "parityEncounterProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-168-encounter-protection-readiness", "-Reset", "run"],
         "parityProcedurePendingOrdersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-23-procedure-pending-orders-readiness", "-Reset", "run"],
         "parityReportsExportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-24-reports-export-readiness", "-Reset", "run"],
         "parityDocumentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-25-documents-readiness", "-Reset", "run"],
@@ -2428,6 +2438,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentProtectionPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-167-appointment-protection-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-protection",
+          "name": "Slice 168 encounter protection plan",
+          "description": "Runs the shared encounter protection readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterProtectionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-168-encounter-protection-readiness.json"
         },
         {
           "id": "parity-plan-procedure-pending-orders",

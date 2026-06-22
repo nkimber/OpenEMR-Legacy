@@ -2617,7 +2617,7 @@ INSERT INTO form_encounter
 VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.dateTime)}, ${sqlString(input.reason)}, ${sqlString(input.facilityName)},
    ${integer(input.facilityId)}, ${integer(input.patientId)}, 0, 9, ${integer(input.providerId)},
-   ${integer(input.billingFacilityId)}, 'AMB', ${nullableSqlString(input.sensitivity)}, ${nullableSqlString(input.referralSource)},
+   ${integer(input.billingFacilityId)}, 'AMB', ${nullableSqlString(input.sensitivity)}, ${sqlStringOrEmpty(input.referralSource)},
    ${nullableSqlString(input.externalId)}, ${nullableInteger(input.posCode)}, ${sqlString(input.billingNote)});
 SELECT LAST_INSERT_ID() AS id;
 `);
@@ -2670,7 +2670,7 @@ LIMIT 1;
     const metadataSet = metadata
       ? `,
     sensitivity = ${nullableSqlString(metadata.sensitivity)},
-    referral_source = ${nullableSqlString(metadata.referralSource)},
+    referral_source = ${sqlStringOrEmpty(metadata.referralSource)},
     external_id = ${nullableSqlString(metadata.externalId)},
     pos_code = ${nullableInteger(metadata.posCode)}`
       : "";
@@ -3952,6 +3952,10 @@ function sqlString(value: string) {
 
 function nullableSqlString(value: string | null | undefined) {
   return value === null || value === undefined || value.trim() === "" ? "NULL" : sqlString(value);
+}
+
+function sqlStringOrEmpty(value: string | null | undefined) {
+  return value === null || value === undefined || value.trim() === "" ? sqlString("") : sqlString(value);
 }
 
 function integer(value: number) {

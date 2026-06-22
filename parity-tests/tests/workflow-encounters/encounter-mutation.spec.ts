@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 
 const encounterAnchorPatientId = "MOD-PAT-0002";
@@ -105,11 +106,7 @@ test.describe("encounter mutation parity @slice12 @workflow-encounters @mutation
 
         await expect(page.locator("body")).toContainText(patient!.lname);
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill("2026-06-18");
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, "2026-06-18");
 
         const encounterButton = page.getByRole("button", { name: new RegExp(escapeRegex(updatedReason), "i") }).first();
         await expect(encounterButton).toBeVisible();

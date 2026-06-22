@@ -36,11 +36,11 @@ One-paragraph summary of what changed and why it matters.
 
 Code changes:
 
-- Files changed: 0
-- Lines added: 0
-- Lines deleted: 0
-- Net lines: 0
-- Total churn: 0
+- Files changed: 48
+- Lines added: 727
+- Lines deleted: 377
+- Net lines: +350
+- Total churn: 1104
 ```
 
 Use the local machine clock, for example PowerShell `Get-Date -Format o`, so the Workbench can display actual clock times and calculate elapsed section duration.
@@ -11088,6 +11088,69 @@ Primary files:
 - `parity-tests/tests/workflow-appointment-protection/appointment-protection.spec.ts`
 - `parity-tests/tests/workflow-appointment-series/appointment-series.spec.ts`
 - `parity-tests/tests/workflow-appointment-occurrence-cancel/appointment-occurrence-cancel.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 198. Encounter Protection Readiness Slice 168
+
+Commit: `pending`
+Started: `2026-06-21T23:13:00.0000000-04:00`
+Finished: `2026-06-21T23:48:53.8025459-04:00`
+
+Implemented the one-hundred-sixty-eighth project slice and latest modernized OpenEMR workflow slice: encounter protection readiness, requiring an active modernized OpenEMR session for `/api/encounters/*`, gating the Encounters workspace search/detail and mutation controls until sign-in, and comparing that behavior with legacy OpenEMR encounter pages protected by login.
+
+Code changes:
+
+- Files changed: 0
+- Lines added: 0
+- Lines deleted: 0
+- Net lines: 0
+- Total churn: 0
+
+Key outcomes:
+
+- Protected the modernized `/api/encounters` route group behind the active `X-OpenEMR-Session` contract.
+- Added an Encounter Access sign-in gate so encounter search, detail loading, creation, updates, vitals, SOAP notes, signatures, documents, billing/procedure follow-up refreshes, and deletion only run after session verification.
+- Updated modernized encounter API calls, smoke checks, workflow actions, Playwright UI helpers, and direct API assertions to pass the active OpenEMR session.
+- Added the `workflow-encounter-protection` suite and `slice-168-encounter-protection-readiness` plan.
+- Added Workbench-managed Slice 168 plan actions for both legacy and modernized targets.
+- Kept older encounter read, mutation, document, billing, diagnosis, procedure, sign-off, and co-signature parity suites compatible with authenticated modernized UI/API access.
+- Fixed the legacy encounter mutation workflow helper to persist absent `referral_source` values as an empty string instead of SQL `NULL`, matching the installed legacy schema's non-null column constraint.
+- Advanced encounter completion from 66% to 68% and administration/security completion from 46% to 48%, while leaving document, billing, procedure, messaging, broader authorization policy depth, identity, MFA, password lifecycle, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor encounter search check includes unauthenticated encounter search status `401`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-168-encounter-protection-readiness -Reset run` passed: run `2026-06-22T033254-003Z-legacy-openemr-plan-slice-168-encounter-protection-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-168-encounter-protection-readiness -Reset run` passed: run `2026-06-22T033332-958Z-modernized-openemr-plan-slice-168-encounter-protection-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-168-encounter-protection-readiness` passed with comparison `2026-06-22T033413-366Z-legacy-openemr-vs-modernized-openemr-plan-slice-168-encounter-protection-readiness`, `status: matched`, and no differences.
+- Focused compatibility checks passed for encounter read (`slice-3-encounters-readiness`), encounter mutation (`slice-12-encounter-mutation-readiness`), and encounter documents (`slice-67-encounter-documents-readiness`) against both legacy and modernized targets, with matched comparison artifacts `2026-06-22T033538-996Z-legacy-openemr-vs-modernized-openemr-plan-slice-3-encounters-readiness`, `2026-06-22T033956-634Z-legacy-openemr-vs-modernized-openemr-plan-slice-12-encounter-mutation-readiness`, and `2026-06-22T034109-906Z-legacy-openemr-vs-modernized-openemr-plan-slice-67-encounter-documents-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/ui/modernizedOpenEmr.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-encounter-protection/encounter-protection.spec.ts`
 - `parity-tests/test-manifest.json`
 - `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`

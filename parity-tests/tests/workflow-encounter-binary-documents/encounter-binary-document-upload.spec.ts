@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -88,7 +89,7 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryDocumentAnchorEncounter}`);
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterBinaryDocumentAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const apiDocument = detailPayload.documents.find((document: { name: string }) => document.name === fileName);
@@ -107,11 +108,7 @@ test.describe("encounter binary document upload parity @slice79 @workflow-encoun
         expect(download.headers()["content-type"]).toContain("application/pdf");
         expect((await download.body()).toString("base64")).toBe(contentBase64);
 
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterBinaryDocumentFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterBinaryDocumentFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();

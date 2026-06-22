@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
   expectRenderedText,
@@ -87,11 +88,7 @@ test.describe("encounter document move parity @slice83 @workflow-encounter-docum
           encounterDocumentMoveTargetEncounter
         );
       } else {
-        await page.goto(target.publicUrl);
-        await page.getByRole("button", { name: "Encounters" }).click();
-        await expect(page.getByRole("heading", { name: "Encounters" })).toBeVisible();
-        await page.getByLabel("Encounter patient ID").fill(patient!.pubpid);
-        await page.getByLabel("Encounter from date").fill(encounterDocumentMoveFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentMoveFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -146,12 +143,12 @@ test.describe("encounter document move parity @slice83 @workflow-encounter-docum
         await expectRenderedText(page, documentName);
         await expectRenderedText(page, "Medical Record");
       } else {
-        const sourceResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentMoveSourceEncounter}`);
+        const sourceResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentMoveSourceEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(sourceResponse.ok()).toBe(true);
         const sourcePayload = await sourceResponse.json();
         expect(sourcePayload.documents.some((document: { id: number }) => document.id === Number(documentId))).toBe(false);
 
-        const targetResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentMoveTargetEncounter}`);
+        const targetResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentMoveTargetEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(targetResponse.ok()).toBe(true);
         const targetPayload = await targetResponse.json();
         const apiDocument = targetPayload.documents.find((document: { id: number }) => document.id === Number(documentId));
