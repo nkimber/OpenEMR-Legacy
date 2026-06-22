@@ -56,6 +56,7 @@ import type {
   PatientDemographics,
   PatientEmployer,
   PatientGuardianContact,
+  PatientProviderAssignment,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
@@ -628,6 +629,46 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient employer update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientProviderAssignment(pid: number): Promise<PatientProviderAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  COALESCE(p.provider_id::text, '') AS "providerId",
+  COALESCE(trim(concat(s.first_name, ' ', s.last_name)), '') AS "providerName"
+FROM patients p
+LEFT JOIN staff s ON s.id = p.provider_id
+WHERE p.legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      providerId: row.providerId === "" ? null : Number(row.providerId),
+      providerName: row.providerName
+    };
+  }
+
+  async updatePatientProviderAssignment(assignment: PatientProviderAssignment): Promise<void> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(assignment.pubpid)}/provider-assignment`,
+      {
+        method: "PUT",
+        headers: await this.getAdminJsonHeaders(),
+        body: JSON.stringify({
+          providerId: assignment.providerId
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient provider assignment update failed with ${response.status}: ${await response.text()}`);
     }
   }
 

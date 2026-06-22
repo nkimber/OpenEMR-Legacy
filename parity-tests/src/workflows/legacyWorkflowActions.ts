@@ -152,6 +152,13 @@ export type PatientEmployer = {
   employerCountry: string;
 };
 
+export type PatientProviderAssignment = {
+  pid: number;
+  pubpid: string;
+  providerId: number | null;
+  providerName: string;
+};
+
 export type NewPatientRegistration = {
   pubpid: string;
   firstName: string;
@@ -1710,6 +1717,38 @@ SET name = ${sqlString(employer.employerName)},
   postal_code = ${sqlString(employer.employerPostalCode)},
   country = ${sqlString(employer.employerCountry)}
 WHERE pid = ${integer(employer.pid)};
+`);
+  }
+
+  async getPatientProviderAssignment(pid: number): Promise<PatientProviderAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.pid, p.pubpid,
+  COALESCE(CAST(p.providerID AS CHAR), '') AS providerId,
+  COALESCE(CONCAT(u.fname, ' ', u.lname), '') AS providerName
+FROM patient_data p
+LEFT JOIN users u ON u.id = p.providerID
+WHERE p.pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      providerId: row.providerId === "" ? null : Number(row.providerId),
+      providerName: row.providerName
+    };
+  }
+
+  async updatePatientProviderAssignment(assignment: PatientProviderAssignment): Promise<void> {
+    const providerValue = assignment.providerId === null ? "NULL" : integer(assignment.providerId);
+    await this.db.execute(`
+UPDATE patient_data
+SET providerID = ${providerValue}
+WHERE pid = ${integer(assignment.pid)};
 `);
   }
 

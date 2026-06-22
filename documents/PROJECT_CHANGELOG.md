@@ -13055,6 +13055,72 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 230. Slice 198 Patient Provider Assignment Readiness
+
+Started: `2026-06-22T16:48:10-04:00`
+Finished: `2026-06-22T17:23:52-04:00`
+Duration: `35m 42s`
+Changeset: `pending`
+
+Implemented workflow Slice 198: patient provider assignment readiness. The modernized target now exposes patient primary-provider assignment through the API, Patient/Client UI, smoke coverage, Workbench managed actions, and side-by-side parity against legacy OpenEMR `patient_data.providerID`.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 759
+- Lines deleted: 51
+- Net lines: 708
+- Total churn: 810
+
+Key outcomes:
+
+- Added provider assignment fields to patient search/chart DTOs and repository projections.
+- Added patient-module provider option lookup and a write-level `/api/patients/{patientId}/provider-assignment` endpoint with active-provider validation and support for clearing the assignment.
+- Added a Patient/Client Primary Provider panel with provider selection, save, cancel, read-only state, provider ID, and facility display.
+- Added modernized smoke coverage for the provider assignment lifecycle using `MOD-PAT-0010` and provider `103` / `Alex Chen`.
+- Added target-neutral legacy and modernized workflow actions for reading, updating, and restoring primary-provider assignment.
+- Added the `workflow-patient-provider-assignment` parity suite, the `slice-198-patient-provider-assignment-readiness` plan, runner manifest wiring, and Workbench managed actions for both targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to reflect completed primary-provider assignment readiness and deferred patient facility/care-team mapping.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, and `modernization-workbench/config/source-inventory.snapshot.json`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 139 checks and 0 failures, including `patient provider assignment lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-198-patient-provider-assignment-readiness -Reset test` passed with 1 expected test; run `2026-06-22T211846-318Z-legacy-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-198-patient-provider-assignment-readiness -Reset test` passed with 1 expected test; run `2026-06-22T211957-151Z-modernized-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-198-patient-provider-assignment-readiness` passed with status `matched`; comparison `2026-06-22T212039-895Z-legacy-openemr-vs-modernized-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- Regression check `slice-197-patient-employer-core-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-22T212323-492Z-legacy-openemr-vs-modernized-openemr-plan-slice-197-patient-employer-core-readiness`.
+- Verification note: the first Slice 198 legacy run exposed a brittle label assertion and was corrected to assert the provider value actually rendered by OpenEMR; the first parallel Slice 197 modernized regression timed out under concurrent browser load and passed on the immediate solo rerun.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-provider-assignment/patient-provider-assignment.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
