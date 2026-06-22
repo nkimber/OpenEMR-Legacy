@@ -171,6 +171,7 @@ param(
         "workflow-patient-protection",
         "workflow-patient-authorization-policy",
         "workflow-patient-mutation-authorization-policy",
+        "workflow-patient-duplicate-detection",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

@@ -12103,11 +12103,11 @@ Implemented the one-hundred-sixty-eighth project slice and latest modernized Ope
 
 Code changes:
 
-- Files changed: 0
-- Lines added: 0
-- Lines deleted: 0
-- Net lines: 0
-- Total churn: 0
+- Files changed: 19
+- Lines added: 976
+- Lines deleted: 32
+- Net lines: 944
+- Total churn: 1008
 
 Key outcomes:
 
@@ -12554,6 +12554,69 @@ Primary files:
 - `modernized-openemr/frontend/src/api.ts`
 - `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
 - `parity-tests/tests/workflow-encounter-amendment-history/encounter-amendment-history.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+### 223. Patient Duplicate Detection Readiness Slice 191
+
+Commit: `pending`
+Started: `2026-06-22T11:50:00.0000000-04:00`
+Finished: `2026-06-22T12:31:49.9560310-04:00`
+
+Implemented workflow Slice 191: patient duplicate detection readiness. The modernized patient API now exposes duplicate-candidate detection from first name, last name, date of birth, phone, and email facts, and the Patient/Client workspace renders the same candidate evidence in registration and chart panels.
+
+Code changes:
+
+- Files changed: 0
+- Lines added: 0
+- Lines deleted: 0
+- Net lines: 0
+- Total churn: 0
+
+Key outcomes:
+
+- Added a `PatientDuplicateCandidate` API/read-model contract, `/api/patients/duplicates`, chart-level duplicate candidates, and score/reason derivation for demographic, phone, and email matches.
+- Added Patient/Client Duplicate Detection UI for registration readiness checks and existing chart duplicate-candidate review.
+- Added the `workflow-patient-duplicate-detection` parity suite and `slice-191-patient-duplicate-detection-readiness` plan.
+- Added Workbench managed plan actions for Slice 191 on both legacy and modernized targets.
+- Extended the modernized smoke test with a cleanup-backed duplicate registration that proves direct endpoint and chart projection behavior.
+- Updated the functionality progress ledger and project documents to mark patient duplicate detection as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1` and `scripts/Run-OpenEmrParityTests.ps1`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `docker compose up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `patient duplicate detection readiness` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-191-patient-duplicate-detection-readiness -Reset run` passed with 1 expected test; run `2026-06-22T162930-290Z-legacy-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-191-patient-duplicate-detection-readiness -Reset run` passed with 1 expected test; run `2026-06-22T162952-314Z-modernized-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-191-patient-duplicate-detection-readiness` passed with status `matched`; comparison `2026-06-22T163011-466Z-legacy-openemr-vs-modernized-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- Modernized focused regressions passed for `slice-37-patient-registration-readiness`, `slice-1-readiness`, and `slice-184-patient-mutation-authorization-policy-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-patient-duplicate-detection/patient-duplicate-detection.spec.ts`
 - `parity-tests/test-manifest.json`
 - `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`

@@ -1892,7 +1892,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused demographics update and restore parity only.
-- Duplicate detection, guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
+- Patient duplicate detection is covered by Slice 191. Guarantor/subscriber demographics, additional contact fields, validation catalogs, patient history, audit history, and authorization enforcement remain deferred.
 
 ### Slice 37: Patient Registration Lifecycle
 
@@ -1922,7 +1922,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers focused patient registration create/render/delete parity only.
-- Duplicate detection, patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, audit history, and authorization enforcement remain deferred.
+- Patient duplicate detection is covered by Slice 191. Patient merge, guarantor/subscriber capture, portal account provisioning, address validation, facility/provider assignment, audit history, and authorization enforcement remain deferred.
 
 ### Slice 38: Patient Document Sign-Off
 
@@ -4464,3 +4464,4 @@ As of 2026-06-20:
 - The one-hundred-eighty-eighth modernized vertical slice implements billing mutation authorization-policy readiness by keeping the billing API group behind Billing view access and adding endpoint-level mutation gates so billing-line, claim-status, payment-posting, and collections follow-up mutations require Billing write access. The shared parity plan temporarily grants the Clinicians group `acct:bill view`, proves the modernized clinician can read fee-sheet and revenue-cycle facts but receives 403 for write-level billing mutations, then revokes the temporary grant so the permanent seed matrix remains stable. This extends mutation-specific policy coverage to revenue-cycle operations; claim generation depth, payer adjudication, ERA/EOB import, refunds/reversals, full audit history, production identity, MFA, password lifecycle, and audit expansion remain future work.
 - The one-hundred-eighty-ninth modernized vertical slice implements appointment mutation authorization-policy readiness by keeping the appointment API group behind Appointment view access and adding endpoint-level mutation gates so appointment create, update, status, recurrence restore, occurrence reschedule, and deletion operations require Appointment write access. The shared parity plan temporarily downgrades the Clinicians group from `patients:appt write` to `patients:appt view`, proves the modernized clinician can still read appointment search/detail facts but receives 403 for write-level scheduling mutations, then restores the permanent write grant so the seed matrix remains stable. This extends mutation-specific policy coverage to scheduling operations; waitlists, stricter resource availability enforcement, reminder delivery audit, production identity, MFA, password lifecycle, and broader facility/role policy remain future work.
 - The one-hundred-ninetieth modernized vertical slice implements encounter amendment history readiness by deriving an `amendmentHistory` read model from nonblank encounter signature amendment text, preserving newest-first e-sign ordering, filtering blank sign-off notes, rendering a dedicated modernized Encounter Amendment History panel, and proving the behavior against legacy `esign_signatures` rows with cleanup-backed parity. This extends focused encounter sign-off coverage from attestation/co-signature capture into amendment history visibility; formal amendment policy controls, revocation policy, legal attestation text, comprehensive audit export, templates, and multi-form encounter packages remain future work.
+- The one-hundred-ninety-first modernized vertical slice implements patient duplicate detection readiness by deriving candidate duplicates from first name, last name, date of birth, phone, and email, exposing them through `/api/patients/duplicates` and patient chart summaries, rendering Duplicate Detection panels in the Patient/Client workspace and registration flow, and proving the behavior against legacy `patient_data` facts with cleanup-backed parity. This extends patient registration readiness into duplicate-checking decision support; patient merge, richer registration validation, guarantor/subscriber capture, portal provisioning, and broader patient administration remain future work.

@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative and validation paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative and validation paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -37,19 +37,24 @@
           "label": "Patient mutation authorization policy readiness",
           "detail": "The modernized patient mutation API now distinguishes Demographics add-only registration access from write-level existing chart updates, contact edits, insurance edits, and temporary patient deletion.",
           "evidence": ["slice-184-patient-mutation-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient duplicate detection readiness",
+          "detail": "The modernized patient API and Patient/Client page now surface candidate duplicates from first name, last name, date of birth, phone, and email matches, with parity coverage that creates and cleans up temporary duplicate registrations.",
+          "evidence": ["slice-191-patient-duplicate-detection-readiness"]
         }
       ],
       "outstanding": [
-        "Patient merge, duplicate detection, richer registration validation, guarantor/subscriber detail, and patient history depth.",
+        "Patient merge, richer registration validation, guarantor/subscriber detail, and patient history depth.",
         "Portal account provisioning, patient deactivation policies, address validation catalogs, and broader patient administration policy depth."
       ],
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 75,
+      "completionEstimatePercent": 76,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, and validation depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, demographics, insurance, registration, and immunization coverage; merge, portal provisioning, and validation depth remain."
     },
     {
       "id": "scheduling",
