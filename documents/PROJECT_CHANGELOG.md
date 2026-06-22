@@ -12248,6 +12248,42 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 217. Architecture Source Inventory Refreshed
+
+Commit: pending
+Started: `2026-06-22T08:52:00.0000000-04:00`
+Finished: `2026-06-22T08:59:47.5594547-04:00`
+
+Reviewed and refreshed the Modernization Workbench Architecture size inventory after the modernized OpenEMR line count looked suspiciously low on the Architecture page.
+
+Code changes:
+
+- Files changed: 3
+- Lines added: 78
+- Lines deleted: 42
+- Net lines: +36
+- Total churn: 120
+
+Key outcomes:
+
+- Confirmed the Architecture size panel reads `modernization-workbench/config/source-inventory.snapshot.json` rather than calculating live in the browser.
+- Confirmed the counting logic is intentionally scoped to physical source lines from configured roots, excluding dependency folders, generated output, runtime artifacts, local environment files, and other noisy directories.
+- Refreshed the tracked source inventory snapshot from the current workspace, moving modernized OpenEMR from the stale 47,716 physical-line snapshot to 52,036 physical lines and 47,980 non-blank lines across 36 tracked files.
+- Recorded the current modernized breakdown as 24,512 frontend lines, 17,751 ASP.NET Core backend lines, 9,732 PostgreSQL schema/seed-script lines, and 41 runtime-script lines.
+- Updated the inventory config `lastUpdated` date to `2026-06-22` so the Architecture page metadata matches the refreshed snapshot.
+
+Verified test runs:
+
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and regenerated `modernization-workbench/config/source-inventory.snapshot.json`.
+- `modernization-workbench/config/source-inventory.json` and `modernization-workbench/config/source-inventory.snapshot.json` parsed successfully as JSON.
+- Live `/api/architecture` smoke confirmed `lastUpdated: 2026-06-22`, generated timestamp `2026-06-22T12:58:47.874Z`, and modernized OpenEMR totals of 52,036 physical lines, 47,980 non-blank lines, and 36 tracked files.
+
+Primary files:
+
+- `modernization-workbench/config/source-inventory.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
