@@ -13121,6 +13121,81 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 231. Slice 199 Patient Care Team Readiness
+
+Started: `2026-06-22T18:25:28-04:00`
+Finished: `2026-06-22T18:52:30-04:00`
+Duration: `27m 2s`
+Changeset: `pending`
+
+Implemented workflow Slice 199: patient care-team readiness. The modernized target now exposes OpenEMR-style patient care-team lead-member assignment through PostgreSQL care-team tables, the patient API, Patient/Client UI, smoke coverage, Workbench managed actions, and side-by-side parity against legacy OpenEMR `care_teams` and `care_team_member`.
+
+Code changes:
+
+- Files changed: 24
+- Lines added: 1375
+- Lines deleted: 60
+- Net lines: 1315
+- Total churn: 1435
+
+Key outcomes:
+
+- Added modernized `patient_care_teams` and `patient_care_team_members` seed/schema support, plus legacy seed cleanup for synthetic care-team rows.
+- Added care-team summary DTOs, chart projections, update validation, and a write-level `/api/patients/{patientId}/care-team` endpoint.
+- Extended provider options with `facilityId` so care-team edits can preserve provider/facility assignment without parsing display text.
+- Replaced the Patient/Client placeholder Care Team panel with an editable care-team card covering team name/status, member, role, facility, provider-since date, member status, and note.
+- Added modernized smoke coverage for the care-team lifecycle using `MOD-PAT-0010`, provider `103` / `Alex Chen`, and facility `12` / `East County Care Center`.
+- Added target-neutral legacy and modernized workflow actions for reading, updating, and restoring patient care-team assignment.
+- Added the `workflow-patient-care-team` parity suite, the `slice-199-patient-care-team-readiness` plan, runner manifest wiring, and Workbench managed actions for both targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to reflect completed lead-member care-team readiness while deferring multi-member and related-person care-team depth.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:seed-data` regenerated the canonical dataset and legacy MariaDB seed SQL with care-team cleanup.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with care-team tables.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` reseeded the modernized PostgreSQL database.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 140 checks and 0 failures, including `patient care team lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-199-patient-care-team-readiness -Reset test` passed with 1 expected test; run `2026-06-22T224755-237Z-legacy-openemr-plan-slice-199-patient-care-team-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-199-patient-care-team-readiness -Reset test` passed with 1 expected test; run `2026-06-22T224837-944Z-modernized-openemr-plan-slice-199-patient-care-team-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-199-patient-care-team-readiness` passed with status `matched`; comparison `2026-06-22T224909-617Z-legacy-openemr-vs-modernized-openemr-plan-slice-199-patient-care-team-readiness`.
+- Regression check `slice-198-patient-provider-assignment-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-22T225016-968Z-legacy-openemr-vs-modernized-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- Verification note: the first Slice 199 legacy run exposed a legacy UI display-order difference (`Chen, Alex` instead of normalized `Alex Chen`) and the UI assertion was corrected while preserving normalized database/API comparison.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `git diff --check` passed with only expected Windows line-ending warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-care-team/patient-care-team.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

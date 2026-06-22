@@ -178,6 +178,8 @@ param(
         "workflow-patient-guardian-details",
         "workflow-patient-social-details",
         "workflow-patient-employer-core",
+        "workflow-patient-provider-assignment",
+        "workflow-patient-care-team",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

@@ -56,6 +56,7 @@ import type {
   PatientDemographics,
   PatientEmployer,
   PatientGuardianContact,
+  PatientCareTeamAssignment,
   PatientProviderAssignment,
   PatientDocumentBinaryContentReplacement,
   PatientDocumentContentReplacement,
@@ -669,6 +670,76 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient provider assignment update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientCareTeamAssignment(pid: number): Promise<PatientCareTeamAssignment | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  COALESCE(ct.team_name, '') AS "teamName",
+  COALESCE(ct.team_status, '') AS "teamStatus",
+  COALESCE(ctm.user_id::text, '') AS "userId",
+  COALESCE(trim(concat(s.first_name, ' ', s.last_name)), '') AS "memberName",
+  COALESCE(ctm.role, '') AS "role",
+  COALESCE(ctm.facility_id::text, '') AS "facilityId",
+  COALESCE(f.name, '') AS "facilityName",
+  COALESCE(ctm.provider_since::text, '') AS "providerSince",
+  COALESCE(ctm.status, '') AS "memberStatus",
+  COALESCE(ctm.note, '') AS "note"
+FROM patients p
+LEFT JOIN patient_care_teams ct ON ct.patient_id = p.canonical_id
+LEFT JOIN patient_care_team_members ctm ON ctm.patient_id = ct.patient_id
+LEFT JOIN staff s ON s.id = ctm.user_id
+LEFT JOIN facilities f ON f.id = ctm.facility_id
+WHERE p.legacy_pid = ${integer(pid)}
+ORDER BY ctm.id DESC
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const role = row.role;
+    const memberStatus = row.memberStatus;
+    const teamStatus = row.teamStatus;
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      teamName: row.teamName,
+      teamStatus,
+      teamStatusDisplay: careTeamStatusLabel(teamStatus),
+      userId: row.userId === "" ? null : Number(row.userId),
+      memberName: row.memberName,
+      role,
+      roleDisplay: careTeamRoleLabel(role),
+      facilityId: row.facilityId === "" ? null : Number(row.facilityId),
+      facilityName: row.facilityName,
+      providerSince: row.providerSince,
+      memberStatus,
+      memberStatusDisplay: careTeamStatusLabel(memberStatus),
+      note: row.note
+    };
+  }
+
+  async updatePatientCareTeamAssignment(assignment: PatientCareTeamAssignment): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(assignment.pubpid)}/care-team`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        teamName: assignment.teamName,
+        teamStatus: assignment.teamStatus,
+        userId: assignment.userId,
+        role: assignment.role,
+        facilityId: assignment.facilityId,
+        providerSince: assignment.providerSince,
+        status: assignment.memberStatus,
+        note: assignment.note
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient care team update failed with ${response.status}: ${await response.text()}`);
     }
   }
 
@@ -3396,6 +3467,44 @@ function integer(value: number) {
 
 function sqlString(value: string) {
   return `'${value.replaceAll("\\", "\\\\").replaceAll("'", "''")}'`;
+}
+
+function careTeamRoleLabel(value: string) {
+  switch (value) {
+    case "primary_care_provider":
+      return "Primary Care Provider";
+    case "physician":
+      return "Physician";
+    case "nurse":
+      return "Nurse";
+    case "case_manager":
+      return "Case Manager";
+    case "social_worker":
+      return "Social Worker";
+    case "specialist":
+      return "Specialist";
+    case "other":
+      return "Other";
+    default:
+      return value;
+  }
+}
+
+function careTeamStatusLabel(value: string) {
+  switch (value) {
+    case "proposed":
+      return "Proposed";
+    case "active":
+      return "Active";
+    case "suspended":
+      return "Suspended";
+    case "inactive":
+      return "Inactive";
+    case "entered-in-error":
+      return "Entered In Error";
+    default:
+      return value;
+  }
 }
 
 function normalizeTime(value: string) {

@@ -1087,6 +1087,8 @@ function buildLegacySql() {
     "DELETE FROM lists;",
     "DELETE FROM insurance_data;",
     "DELETE FROM employer_data;",
+    "DELETE ctm FROM care_team_member ctm INNER JOIN care_teams ct ON ct.id = ctm.care_team_id WHERE ct.pid BETWEEN 100001 AND 101000;",
+    "DELETE FROM care_teams WHERE pid BETWEEN 100001 AND 101000;",
     "DELETE FROM insurance_companies WHERE id BETWEEN 9001 AND 9006;",
     "DELETE FROM patient_data;",
     "DELETE FROM users WHERE id BETWEEN 101 AND 120 OR username LIKE 'gold-%' OR username IN ('davis', 'hamming');",
