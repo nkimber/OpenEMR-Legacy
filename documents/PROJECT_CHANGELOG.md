@@ -12393,6 +12393,62 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 220. Billing Mutation Authorization Policy Readiness Slice 188
+
+Commit: pending
+Started: `2026-06-22T09:59:57.5317814-04:00`
+Finished: `2026-06-22T10:14:25.2984937-04:00`
+
+Implemented workflow Slice 188: billing mutation authorization-policy readiness. The modernized billing API now keeps fee-sheet and revenue-cycle reads behind the existing Billing view gate while requiring Billing write for billing-line, claim-status, payment-posting, and collections follow-up mutations.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 709
+- Lines deleted: 30
+- Net lines: 679
+- Total churn: 739
+
+Key outcomes:
+
+- Added endpoint-level Billing write authorization filters to billing-line, claim, payment, and collections follow-up mutation endpoints.
+- Added the `workflow-billing-mutation-authorization-policy` parity suite and `slice-188-billing-mutation-authorization-policy-readiness` plan.
+- Added Workbench managed plan actions for Slice 188 on both legacy and modernized targets.
+- Added a modernized smoke check that temporarily grants Clinicians `acct:bill view`, proves read access plus write-level mutation denial, and revokes the temporary grant.
+- Updated the functionality progress ledger and project documents to mark billing mutation authorization as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- PowerShell parser validation passed for `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`.
+- `git diff --check` passed with only existing Git CRLF normalization warnings.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed, including the new `billing mutation authorization` smoke check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-188-billing-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-188-billing-mutation-authorization-policy-readiness -Reset run` passed with 1 expected test.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-188-billing-mutation-authorization-policy-readiness` passed with status `matched`.
+- Modernized focused regressions passed for `slice-171-billing-protection-readiness`, `slice-181-billing-authorization-policy-readiness`, `slice-16-billing-mutation-readiness`, `slice-44-billing-diagnosis-readiness`, `slice-45-billing-correction-readiness`, `slice-46-billing-modifier-readiness`, `slice-56-payment-posting-mutation-readiness`, `slice-57-claim-status-mutation-readiness`, `slice-58-patient-payment-capture-readiness`, and `slice-64-collections-follow-up-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-billing-mutation-authorization-policy/billing-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

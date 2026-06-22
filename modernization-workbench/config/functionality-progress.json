@@ -240,7 +240,7 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, and ACL-authorized Billing access are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
@@ -266,6 +266,11 @@
           "label": "Billing authorization policy readiness",
           "detail": "The modernized billing API now enforces mirrored Billing access, accepts admin sessions through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-181-billing-authorization-policy-readiness"]
+        },
+        {
+          "label": "Billing mutation authorization policy readiness",
+          "detail": "The modernized billing mutation API now keeps fee-sheet and revenue-cycle reads on Billing view access while requiring Billing write for billing-line, claim, payment, and collections follow-up mutations.",
+          "evidence": ["slice-188-billing-mutation-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
@@ -275,10 +280,10 @@
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 52,
+      "completionEstimatePercent": 54,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, collections basics, protected billing access, and ACL-backed Billing authorization are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",
@@ -480,6 +485,11 @@
           "evidence": ["slice-181-billing-authorization-policy-readiness"]
         },
         {
+          "label": "Billing mutation authorization policy readiness",
+          "detail": "The modernized billing mutation API now requires Billing write for fee-sheet, claim, payment, and collections follow-up mutations while Billing view remains sufficient for read-only revenue-cycle data.",
+          "evidence": ["slice-188-billing-mutation-authorization-policy-readiness"]
+        },
+        {
           "label": "Procedure authorization policy readiness",
           "detail": "The modernized procedure API now enforces mirrored Lab Results access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-182-procedure-authorization-policy-readiness"]
@@ -536,16 +546,16 @@
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, procedure, and procedure mutation ACL gates.",
+        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, billing-mutation, procedure, and procedure mutation ACL gates.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 81,
+      "completionEstimatePercent": 82,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, document-mutation, message, message-mutation, billing, billing-mutation, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",
