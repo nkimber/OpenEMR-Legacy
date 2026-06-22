@@ -11100,6 +11100,68 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 211. Billing Authorization Policy Readiness Slice 181
+
+Commit: `pending`
+Started: `2026-06-22T05:52:00.0000000-04:00`
+Finished: `2026-06-22T06:15:42.5994574-04:00`
+
+Implemented the one-hundred-eighty-first project slice and latest modernized OpenEMR workflow slice: billing authorization-policy readiness, enforcing mirrored OpenEMR Billing access for the modernized billing API and Fees workspace while comparing admin/front-desk billing access behavior with the legacy ACL matrix and fee-sheet rendering.
+
+Code changes:
+
+- Files changed: 16
+- Lines added: 492
+- Lines deleted: 60
+- Net lines: +432
+- Total churn: 552
+
+Key outcomes:
+
+- Replaced the billing route group's session-only gate with ACL-backed authorization requiring `acct:bill view` after session validation.
+- Preserved the unauthenticated `401` contract for billing APIs while proving authenticated front-desk billing retrieval, statement batch, and billing-line create attempts receive `403` from the modernized API.
+- Kept admin fee-sheet and revenue-cycle access working through the same OpenEMR return-value hierarchy where `write` satisfies `view`.
+- Added billing-specific frontend `403` copy so operators see `Billing access` requirements instead of generic failed-status messages.
+- Added username/password credential entry to the Fees Access panel so parity tests and operators can prove denied front-desk access and then retry with admin access from the same UI surface.
+- Added billing authorization probes to the modernized smoke test.
+- Added the `workflow-billing-authorization-policy` suite and `slice-181-billing-authorization-policy-readiness` plan.
+- Added Workbench-managed Slice 181 plan actions for both legacy and modernized targets.
+- Advanced billing/revenue-cycle completion from 50% to 52% and administration/security completion from 72% to 74%, while leaving mutation-specific write policies, ASP.NET Core Identity, MFA, password lifecycle, user-facility restrictions, broader role/permission policy depth, procedure authorization, and production hardening scope outstanding.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernized-openemr/frontend/`, with the existing Vite chunk-size warning only.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`; the anchor fee-sheet check now verifies unauthenticated billing retrieval status `401`, front-desk billing retrieval and billing-line create status `403`, and admin billing retrieval success.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-181-billing-authorization-policy-readiness -Reset run` passed: run `2026-06-22T100918-142Z-legacy-openemr-plan-slice-181-billing-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-181-billing-authorization-policy-readiness -Reset run` passed: run `2026-06-22T100950-517Z-modernized-openemr-plan-slice-181-billing-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-181-billing-authorization-policy-readiness` passed with comparison `2026-06-22T101018-753Z-legacy-openemr-vs-modernized-openemr-plan-slice-181-billing-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized compatibility checks passed for billing protection (`slice-171-billing-protection-readiness`, run `2026-06-22T101044-111Z-modernized-openemr-plan-slice-171-billing-protection-readiness`), billing read (`slice-7-billing-readiness`, run `2026-06-22T101100-892Z-modernized-openemr-plan-slice-7-billing-readiness`), billing mutation (`slice-16-billing-mutation-readiness`, run `2026-06-22T101120-000Z-modernized-openemr-plan-slice-16-billing-mutation-readiness`), claim status (`slice-47-claim-status-readiness`, run `2026-06-22T101223-826Z-modernized-openemr-plan-slice-47-claim-status-readiness`), payment posting (`slice-48-payment-posting-readiness`, run `2026-06-22T101240-113Z-modernized-openemr-plan-slice-48-payment-posting-readiness`), statement batch (`slice-61-statement-batch-readiness`, run `2026-06-22T101259-467Z-modernized-openemr-plan-slice-61-statement-batch-readiness`), and collections follow-up (`slice-64-collections-follow-up-readiness`, run `2026-06-22T101352-732Z-modernized-openemr-plan-slice-64-collections-follow-up-readiness`).
+- `git diff --check` passed with line-ending warnings only.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-billing-authorization-policy/billing-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ### 210. Patient Message Authorization Policy Readiness Slice 180
 
 Commit: `cdf9a2ec`
