@@ -99,7 +99,7 @@
       "id": "encounters-clinical-notes",
       "name": "Encounters And Clinical Notes",
       "status": "in-progress",
-      "summary": "Encounter read/write, protected access, ACL-backed authorization-policy enforcement, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
+      "summary": "Encounter read/write, protected access, ACL-backed authorization-policy enforcement, mutation-specific authorization-policy readiness, SOAP/vitals, sign-off, co-signature, metadata, billing/claim/procedure/diagnosis linkage, and encounter-scoped document actions are represented, with advanced clinical workflow policy still outstanding.",
       "completed": [
         {
           "label": "Encounter lifecycle and clinical note facts",
@@ -125,19 +125,24 @@
           "label": "Encounter authorization policy readiness",
           "detail": "The modernized encounter API now enforces mirrored Authorize Any Encounter access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-177-encounter-authorization-policy-readiness"]
+        },
+        {
+          "label": "Encounter mutation authorization policy readiness",
+          "detail": "The modernized encounter mutation API now requires Authorize Any Encounter write access for core encounter create, update, sign, clinical-note, vitals, signature, and delete operations while a temporary Clinicians view-only grant proves read-only denial.",
+          "evidence": ["slice-185-encounter-mutation-authorization-policy-readiness"]
         }
       ],
       "outstanding": [
-        "Encounter templates, multi-form encounter packages, mutation-specific authorization rules, amendment policy and history depth.",
+        "Encounter templates, multi-form encounter packages, amendment policy and history depth.",
         "Code search, coding validation, claim scrubbing, charge-capture expansion, and comprehensive audit-log export."
       ],
       "deferred": [
         "Direct scanner integration and full historical encounter document version chains."
       ],
-      "completionEstimatePercent": 70,
+      "completionEstimatePercent": 71,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Encounters combine clinical notes, documents, billing links, diagnoses, procedure links, sign-off, and policy-heavy clinical behavior.",
-      "estimateRationale": "Core encounter, protected encounter access, ACL-backed encounter authorization, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and deeper policy depth remain."
+      "estimateRationale": "Core encounter, protected encounter access, ACL-backed encounter authorization, core mutation-specific encounter authorization, SOAP/vitals, sign-off, document, billing, diagnosis, and procedure linkages are covered; templates and deeper policy depth remain."
     },
     {
       "id": "clinical-lists-medications",
@@ -362,7 +367,7 @@
       "id": "admin-security-audit",
       "name": "Administration, Security, And Audit",
       "status": "partial",
-      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
+      "summary": "Facility, user, ACL, demo login-readiness, session-readiness, login-audit basics, focused audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure-mutation authorization-policy enforcement, protected operational reports, protected patient APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs are covered, but production identity, MFA, broader policy depth, and broader audit remain major outstanding scope.",
       "completed": [
         {
           "label": "Administration directory and lifecycle basics",
@@ -433,6 +438,11 @@
           "label": "Encounter authorization policy readiness",
           "detail": "The modernized encounter API now enforces mirrored Authorize Any Encounter access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-177-encounter-authorization-policy-readiness"]
+        },
+        {
+          "label": "Encounter mutation authorization policy readiness",
+          "detail": "The modernized core encounter mutation API now requires Authorize Any Encounter write access and parity proves a Clinicians view-only grant can read encounters while create, update, sign, and delete operations remain blocked.",
+          "evidence": ["slice-185-encounter-mutation-authorization-policy-readiness"]
         },
         {
           "label": "Patient document authorization policy readiness",
@@ -506,16 +516,16 @@
         }
       ],
       "outstanding": [
-        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure mutation ACL gates.",
+        "ASP.NET Core Identity, password lifecycle, MFA, user-facility restriction matrices, broader role/permission management, and policy enforcement beyond the focused administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure mutation ACL gates.",
         "Comprehensive audit-event logging beyond login attempts and audit export across clinical, billing, document, lab, and admin workflows."
       ],
       "deferred": [
         "Production identity-provider integration and security hardening beyond local parity scope."
       ],
-      "completionEstimatePercent": 78,
+      "completionEstimatePercent": 79,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Administration, authentication, authorization, security policy, facility restriction, and audit are cross-cutting and high-risk.",
-      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, document, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
+      "estimateRationale": "Directory, lifecycle, ACL, group, demo login readiness, session readiness, login audit basics, focused login-audit protection, protected administration APIs, ACL-backed administration, operational-report, patient, patient-mutation, clinical-list, appointment, encounter, encounter-mutation, document, message, billing, procedure, and procedure mutation authorization policy enforcement, protected operational reports, protected patient chart APIs, protected clinical-list APIs, protected appointment APIs, protected encounter APIs, protected document APIs, protected message APIs, protected billing APIs, and protected procedure APIs exist; Identity, MFA, broader policy depth, facility restrictions, and broader audit remain major scope."
     },
     {
       "id": "reports-workbench-evidence",

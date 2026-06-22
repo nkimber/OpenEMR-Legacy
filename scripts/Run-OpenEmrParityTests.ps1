@@ -175,6 +175,7 @@ param(
         "workflow-appointment-authorization-policy",
         "workflow-encounter-protection",
         "workflow-encounter-authorization-policy",
+        "workflow-encounter-mutation-authorization-policy",
         "workflow-document-protection",
         "workflow-document-authorization-policy",
         "workflow-message-protection",

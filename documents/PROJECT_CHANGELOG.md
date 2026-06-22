@@ -12194,6 +12194,60 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+### 216. Encounter Mutation Authorization Policy Readiness Slice 185
+
+Commit: pending
+Started: `2026-06-22T07:33:00.0000000-04:00`
+Finished: `2026-06-22T08:06:20.9096540-04:00`
+
+Implemented Slice 185 encounter mutation authorization-policy readiness. The modernized encounter API now keeps encounter search/detail behind the existing Authorize Any Encounter view gate while requiring Authorize Any Encounter write access for core encounter create, update, vitals, SOAP-note, signature, sign-off, and delete operations. The shared parity plan temporarily grants the Clinicians group `encounters:auth_a view`, proves the clinician can read encounter facts but receives 403 for write-level encounter mutations, then revokes the temporary grant so the permanent ACL seed matrix remains stable.
+
+Code changes:
+
+- Files changed: pending
+- Lines added: pending
+- Lines deleted: pending
+- Net lines: pending
+- Total churn: pending
+
+Key outcomes:
+
+- Added endpoint-level `encounters:auth_a write` filters to core modernized encounter mutation endpoints while leaving encounter read behavior on the group-level `encounters:auth_a view` gate.
+- Added the `workflow-encounter-mutation-authorization-policy` parity suite and `slice-185-encounter-mutation-authorization-policy-readiness` plan.
+- Repaired aggregate parity plan coverage so encounter authorization-policy and encounter mutation authorization-policy suites are included in `mutation-isolated` and `full-parity`.
+- Added Workbench managed plan actions for Slice 185 on both legacy and modernized targets.
+- Updated the functionality progress ledger and project documents to mark encounter mutation authorization as covered without adding permanent seed rows.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernized-openemr\frontend/`, with the existing Vite chunk-size warning only.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr\artifacts\latest-modernized-smoke-test.json`.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-185-encounter-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T120309-349Z-legacy-openemr-plan-slice-185-encounter-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `scripts/Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-185-encounter-mutation-authorization-policy-readiness -Reset run` passed: run `2026-06-22T120349-915Z-modernized-openemr-plan-slice-185-encounter-mutation-authorization-policy-readiness`, 1 expected, 0 unexpected.
+- `npm run compare -- --plan slice-185-encounter-mutation-authorization-policy-readiness` passed with comparison `2026-06-22T120411-577Z-legacy-openemr-vs-modernized-openemr-plan-slice-185-encounter-mutation-authorization-policy-readiness`, `status: matched`, and no differences.
+- Focused modernized regression plans passed for Slice 177 encounter authorization-policy, Slice 168 encounter protection, Slice 12 encounter mutation, Slice 35 encounter metadata, and Slice 77 encounter sign-off.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `parity-tests/tests/workflow-encounter-mutation-authorization-policy/encounter-mutation-authorization-policy.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
