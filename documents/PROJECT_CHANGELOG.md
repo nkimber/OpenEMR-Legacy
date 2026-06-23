@@ -13761,7 +13761,7 @@ Primary files:
 Started: `2026-06-22T23:58:00-04:00`
 Finished: `2026-06-23T06:58:19-04:00`
 Duration: `7h 0m 19s`
-Changeset: `pending`
+Changeset: `0f59d546`
 
 Implemented Slice 207: patient portal authentication readiness. The legacy gold seed now enables the local OpenEMR patient portal and provisions deterministic bcrypt-backed synthetic credentials, while the modernized target exposes public patient portal login/session endpoints, creates portal session evidence, renders a Patient/Client Portal Account sign-in readiness check, and proves valid-login plus invalid-password, disabled-access, and pending-reset rejection parity for the `MOD-PAT-0004` anchor.
 
