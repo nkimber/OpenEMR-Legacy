@@ -825,6 +825,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-206-patient-portal-access-readiness",
+      "name": "Slice 206 Patient Portal Access Readiness",
+      "description": "Patient portal confidence plan that revokes, renders, and grants portal access while preserving a provisioned portal account on database/API/UI surfaces.",
+      "suites": ["workflow-patient-portal-access"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-206", "patients", "portal", "access", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3651,6 +3660,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-reset",
       "tags": ["slice205", "workflow", "mutation", "patients", "portal", "reset", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-access",
+      "name": "Patient Portal Access Readiness",
+      "description": "Revokes, verifies, and grants portal access for a provisioned portal account while preserving the account facts.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-access",
+      "tags": ["slice206", "workflow", "mutation", "patients", "portal", "access", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -112,6 +112,11 @@
           "label": "Patient portal reset readiness",
           "detail": "The modernized patient API and Patient/Client Portal Account panel now issue and clear one-time portal reset state while parity mutates/restores the matching legacy `patient_access_onsite` fields.",
           "evidence": ["slice-205-patient-portal-reset-readiness"]
+        },
+        {
+          "label": "Patient portal access readiness",
+          "detail": "The modernized patient API and Patient/Client Portal Account panel now revoke and grant portal access while preserving provisioned account facts, and parity mutates/restores legacy `patient_data.allow_patient_portal`.",
+          "evidence": ["slice-206-patient-portal-access-readiness"]
         }
       ],
       "outstanding": [
@@ -121,10 +126,10 @@
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 90,
+      "completionEstimatePercent": 91,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",

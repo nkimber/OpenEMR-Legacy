@@ -13649,6 +13649,76 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 238. Slice 206 Patient Portal Access Readiness
+
+Started: `2026-06-22T23:02:47-04:00`
+Finished: `2026-06-22T23:33:37-04:00`
+Duration: `30m 50s`
+Changeset: `pending`
+
+Implemented Slice 206: patient portal access readiness. The modernized target can now grant and revoke portal access for a provisioned patient portal account, the Patient/Client Portal Account panel renders the access lifecycle, and restore-backed parity proves the same observable behavior against legacy OpenEMR for the `MOD-PAT-0004` anchor.
+
+Code changes:
+
+- Files changed: 24
+- Lines added: 619
+- Lines deleted: 52
+- Net lines: 567
+- Total churn: 671
+
+Key outcomes:
+
+- Added the modernized `PUT /api/patients/{patientId}/portal-account/access` endpoint, protected by Demographics write access, to toggle patient portal access.
+- Extended the patient portal account summary with a normalized access-status label so database, API, and UI checks expose the same Enabled, Access disabled, or Pending contract.
+- Added `Grant portal access` / `Revoke portal access` actions to the Patient/Client Portal Account panel with save/error feedback while preserving CMS login, portal username, login username, and reset state.
+- Extended the modernized smoke suite with an `anchor patient portal access lifecycle` check, raising the smoke suite to 145 checks.
+- Added legacy and modernized workflow adapters that revoke, verify, grant, and restore portal access through legacy `patient_data.allow_patient_portal` and modernized `patients.portal_enabled`.
+- Added the `workflow-patient-portal-access` parity suite and `slice-206-patient-portal-access-readiness` plan, plus Workbench managed actions for both targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to mark patient portal access readiness as completed while leaving broader portal authentication/password lifecycle work as future scope.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 145 checks and 0 failures, including `anchor patient portal access lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-206-patient-portal-access-readiness -Reset test` passed with 1 expected test; run `2026-06-23T033126-881Z-legacy-openemr-plan-slice-206-patient-portal-access-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-206-patient-portal-access-readiness -Reset test` passed with 1 expected test; run `2026-06-23T033154-138Z-modernized-openemr-plan-slice-206-patient-portal-access-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-206-patient-portal-access-readiness` passed with status `matched`; comparison `2026-06-23T033211-133Z-legacy-openemr-vs-modernized-openemr-plan-slice-206-patient-portal-access-readiness`.
+- Regression check `slice-204-patient-portal-account-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T033250-551Z-legacy-openemr-vs-modernized-openemr-plan-slice-204-patient-portal-account-readiness`.
+- Regression check `slice-205-patient-portal-reset-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T033328-871Z-legacy-openemr-vs-modernized-openemr-plan-slice-205-patient-portal-reset-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/patient-portal-account/patient-portal-account.spec.ts`
+- `parity-tests/tests/workflow-patient-portal-access/patient-portal-access.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

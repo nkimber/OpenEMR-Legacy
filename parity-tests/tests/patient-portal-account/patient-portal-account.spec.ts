@@ -10,6 +10,7 @@ type PatientChartPortalAccount = {
   portalEnabled: boolean;
   portalAccount?: {
     portalEnabled: boolean;
+    accessStatusLabel: string;
     cmsPortalLogin?: string | null;
     hasAccount: boolean;
     portalUsername?: string | null;
@@ -30,6 +31,7 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
     expect(portalAccount).toEqual({
       patientId: patient!.pid,
       portalEnabled: true,
+      accessStatusLabel: "Enabled",
       cmsPortalLogin: expectedLogin,
       hasAccount: true,
       portalUsername: expectedLogin,
@@ -60,6 +62,7 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
     expect(chart.portalEnabled).toBe(true);
     expect(chart.portalAccount).toMatchObject({
       portalEnabled: true,
+      accessStatusLabel: "Enabled",
       cmsPortalLogin: expectedLogin,
       hasAccount: true,
       portalUsername: expectedLogin,

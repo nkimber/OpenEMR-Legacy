@@ -63,6 +63,7 @@ import type {
   PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
+  PatientPortalAccountAccessState,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
   PatientMessageRecord,
@@ -557,6 +558,47 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient portal account reset update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientPortalAccountAccessState(pid: number): Promise<PatientPortalAccountAccessState | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  CASE WHEN p.portal_enabled THEN 'YES' ELSE 'NO' END AS "portalEnabled",
+  COALESCE(p.cms_portal_login, '') AS "cmsPortalLogin",
+  COALESCE(ppa.portal_username, '') AS "portalUsername"
+FROM patients p
+LEFT JOIN patient_portal_accounts ppa ON ppa.patient_id = p.canonical_id
+WHERE p.legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const portalEnabled = row.portalEnabled === "YES";
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      portalEnabled,
+      accessStatusLabel: portalWorkflowAccessStatusLabel(portalEnabled, row.portalUsername),
+      cmsPortalLogin: row.cmsPortalLogin,
+      hasAccount: row.portalUsername !== ""
+    };
+  }
+
+  async updatePatientPortalAccountAccessState(state: PatientPortalAccountAccessState): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(state.pubpid)}/portal-account/access`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        portalEnabled: state.portalEnabled
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient portal account access update failed with ${response.status}: ${await response.text()}`);
     }
   }
 
@@ -3729,6 +3771,14 @@ function portalWorkflowResetStatusLabel(oneTimeLinkPending: boolean, portalUsern
   }
 
   return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
+}
+
+function portalWorkflowAccessStatusLabel(portalEnabled: boolean, portalUsername: string) {
+  if (portalEnabled) {
+    return "Enabled";
+  }
+
+  return portalUsername ? "Access disabled" : "Pending";
 }
 
 function normalizeTime(value: string) {

@@ -481,6 +481,7 @@ LIMIT 1;
     return {
       patientId: Number(row.patientId),
       portalEnabled: row.portalEnabled === "YES",
+      accessStatusLabel: portalAccessStatusLabel(row.portalEnabled === "YES", row.portalUsername),
       cmsPortalLogin: row.cmsPortalLogin,
       hasAccount: row.portalUsername !== "",
       portalUsername: row.portalUsername,
@@ -2161,6 +2162,14 @@ function portalResetStatusLabel(oneTimeLinkPending: boolean, portalUsername: str
   }
 
   return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
+}
+
+function portalAccessStatusLabel(portalEnabled: boolean, portalUsername: string) {
+  if (portalEnabled) {
+    return "Enabled";
+  }
+
+  return portalUsername ? "Access disabled" : "Pending";
 }
 
 function escapeSql(value: string) {

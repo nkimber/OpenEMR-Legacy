@@ -133,6 +133,15 @@ export type PatientPortalAccountResetState = {
   resetStatusLabel: string;
 };
 
+export type PatientPortalAccountAccessState = {
+  pid: number;
+  pubpid: string;
+  portalEnabled: boolean;
+  accessStatusLabel: string;
+  cmsPortalLogin: string;
+  hasAccount: boolean;
+};
+
 export type PatientGuardianContact = {
   pid: number;
   pubpid: string;
@@ -1736,6 +1745,41 @@ LIMIT 1;
 UPDATE patient_access_onsite
 SET portal_pwd_status = ${nullableInteger(state.passwordStatus)},
   portal_onetime = ${sqlString(state.oneTimeLinkPending ? `reset-${state.pubpid.toLowerCase()}` : "")}
+WHERE pid = ${integer(state.pid)};
+`);
+  }
+
+  async getPatientPortalAccountAccessState(pid: number): Promise<PatientPortalAccountAccessState | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pd.pid, pd.pubpid,
+  pd.allow_patient_portal AS portalEnabled,
+  COALESCE(pd.cmsportal_login, '') AS cmsPortalLogin,
+  COALESCE(pao.portal_username, '') AS portalUsername
+FROM patient_data pd
+LEFT JOIN patient_access_onsite pao ON pao.pid = pd.pid
+WHERE pd.pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const portalEnabled = row.portalEnabled === "YES";
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      portalEnabled,
+      accessStatusLabel: portalWorkflowAccessStatusLabel(portalEnabled, row.portalUsername),
+      cmsPortalLogin: row.cmsPortalLogin,
+      hasAccount: row.portalUsername !== ""
+    };
+  }
+
+  async updatePatientPortalAccountAccessState(state: PatientPortalAccountAccessState): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_data
+SET allow_patient_portal = ${sqlString(state.portalEnabled ? "YES" : "")}
 WHERE pid = ${integer(state.pid)};
 `);
   }
@@ -5170,6 +5214,14 @@ function portalWorkflowResetStatusLabel(oneTimeLinkPending: boolean, portalUsern
   }
 
   return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
+}
+
+function portalWorkflowAccessStatusLabel(portalEnabled: boolean, portalUsername: string) {
+  if (portalEnabled) {
+    return "Enabled";
+  }
+
+  return portalUsername ? "Access disabled" : "Pending";
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {
