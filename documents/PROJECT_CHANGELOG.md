@@ -13725,7 +13725,7 @@ Primary files:
 Started: `2026-06-22T23:49:52.7365020-04:00`
 Finished: `2026-06-22T23:51:56.0280824-04:00`
 Duration: `2m 3s`
-Changeset: pending
+Changeset: `fdd55534`
 
 Corrected the Modernization Workbench Project Timeline parser so newer changelog entries that use numbered `##` headings and `Changeset:` metadata are included in `/api/changelog`, resolved against Git, and rendered on the Timeline page.
 
