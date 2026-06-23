@@ -191,6 +191,7 @@ param(
         "workflow-patient-portal-session",
         "workflow-patient-portal-home",
         "workflow-patient-portal-messages",
+        "workflow-patient-portal-compose",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

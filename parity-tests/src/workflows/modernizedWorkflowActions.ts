@@ -64,8 +64,11 @@ import type {
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
+  PatientPortalComposeMessageInput,
+  PatientPortalComposeMessageResult,
   PatientPortalHomeSummary,
   PatientPortalLoginResult,
+  PatientPortalMessageItem,
   PatientPortalMessagesResult,
   PatientPortalSessionResult,
   PatientPortalAccountResetState,
@@ -724,6 +727,8 @@ LIMIT 1;
         asOfDate: new Date().toISOString().slice(0, 10),
         messageCount: 0,
         messages: [],
+        sentMessageCount: 0,
+        sentMessages: [],
         failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
         sessionSource: "modernized-openemr-portal"
       };
@@ -742,6 +747,82 @@ LIMIT 1;
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
+  }
+
+  async composePatientPortalMessage(
+    username: string,
+    password: string,
+    input: PatientPortalComposeMessageInput
+  ): Promise<PatientPortalComposeMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        created: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        recipientId: input.recipientId,
+        recipientName: "",
+        sentMessage: null,
+        recipientMessage: null,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      await this.cleanupPatientPortalComposedMessage(login.portalUsername, input.title);
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify(input)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message compose failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const result = await response.json();
+      return {
+        authenticated: Boolean(result.authenticated),
+        created: Boolean(result.created),
+        username: result.username ?? username,
+        portalUsername: result.portalUsername ?? "",
+        canonicalId: result.canonicalId ?? "",
+        pid: result.legacyPid ?? null,
+        pubpid: result.pubpid ?? "",
+        displayName: result.displayName ?? "",
+        recipientId: result.recipientId ?? input.recipientId,
+        recipientName: result.recipientName ?? "",
+        sentMessage: result.sentMessage ? mapPatientPortalMessageItem(result.sentMessage, result.portalUsername) : null,
+        recipientMessage: result.recipientMessage ? mapPatientPortalMessageItem(result.recipientMessage, result.portalUsername) : null,
+        messageCount: result.messageCount ?? 0,
+        sentMessageCount: result.sentMessageCount ?? 0,
+        failureReason: result.failureReason ?? null,
+        sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+      };
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async cleanupPatientPortalComposedMessage(portalUsername: string, title: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM portal_mailbox_messages
+WHERE title = ${sqlString(title)}
+  AND (owner = ${sqlString(portalUsername)}
+    OR sender_id = ${sqlString(portalUsername)}
+    OR recipient_id = ${sqlString(portalUsername)});
+`);
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -3924,22 +4005,28 @@ function mapPatientPortalMessagesResult(result: any): PatientPortalMessagesResul
     datasetVersion: result.datasetVersion ?? "",
     asOfDate: result.asOfDate ?? "",
     messageCount: result.messageCount ?? 0,
-    messages: (result.messages ?? []).map((message: any) => ({
-      id: message.id ?? "",
-      date: message.date ?? "",
-      title: message.title ?? "",
-      body: message.body ?? "",
-      status: message.status ?? "",
-      assignedTo: message.assignedTo ?? "",
-      senderId: message.senderId ?? message.assignedTo ?? "",
-      senderName: message.senderName ?? "",
-      recipientId: message.recipientId ?? result.portalUsername ?? "",
-      recipientName: message.recipientName ?? "",
-      portalRelation: message.portalRelation ?? null,
-      isEncrypted: Boolean(message.isEncrypted)
-    })),
+    messages: (result.messages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
+    sentMessageCount: result.sentMessageCount ?? 0,
+    sentMessages: (result.sentMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalMessageItem(message: any, portalUsername: string): PatientPortalMessageItem {
+  return {
+    id: message.id ?? "",
+    date: message.date ?? "",
+    title: message.title ?? "",
+    body: message.body ?? "",
+    status: message.status ?? "",
+    assignedTo: message.assignedTo ?? "",
+    senderId: message.senderId ?? message.assignedTo ?? "",
+    senderName: message.senderName ?? "",
+    recipientId: message.recipientId ?? portalUsername ?? "",
+    recipientName: message.recipientName ?? "",
+    portalRelation: message.portalRelation ?? null,
+    isEncrypted: Boolean(message.isEncrypted)
   };
 }
 

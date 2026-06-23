@@ -14196,6 +14196,70 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 248. Slice 211 Patient Portal Secure Message Compose Readiness
+
+Started: 2026-06-23T11:11:00.0000000-04:00
+Finished: 2026-06-23T11:52:35.2254810-04:00
+Commit: pending
+
+Implemented Slice 211: patient portal secure-message compose readiness. The modernized target now has a PostgreSQL-backed portal mailbox model, a session-protected compose endpoint, Portal workspace compose and Sent-folder rendering, and cleanup-backed parity against legacy OpenEMR `onsite_mail` behavior for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 1,157
+- Lines deleted: 75
+- Net lines: +1,082
+- Total churn: 1,232
+
+Key outcomes:
+
+- Added modernized `portal_mailbox_messages` seed projection with 400 deterministic mailbox rows while preserving the existing 1,200 canonical staff-message rows.
+- Moved patient portal home and secure-message reads onto mailbox semantics so the modernized inbox/sent model matches legacy portal mailbox ownership.
+- Added `POST /api/patient-portal/messages` with portal-session validation, required subject/body checks, default practice recipient routing, paired sender/recipient mailbox rows, and deterministic high-range compose IDs.
+- Extended the modernized Portal workspace with secure-message compose controls and Sent-folder rendering for signed-in portal accounts.
+- Added legacy and modernized workflow actions, cleanup helpers, a `workflow-patient-portal-compose` Playwright suite, the `slice-211-patient-portal-compose-readiness` run plan, and Workbench managed actions/progress updates.
+- Synchronized project context, modernization plan, workbench, test architecture, and test data documents with the Slice 211 mailbox and compose contract.
+
+Verified test runs:
+
+- `node modernized-openemr\scripts\generate-postgres-seed.mjs` passed.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed.
+- `npm --prefix parity-tests run typecheck` passed.
+- `npm --prefix parity-tests run list` passed and included `slice-211-patient-portal-compose-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`, including `portalMailboxMessages: 400`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Test-ModernizedBaseline.ps1` passed with artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-211-patient-portal-compose-readiness -Reset test` passed as run `2026-06-23T152336-422Z-legacy-openemr-plan-slice-211-patient-portal-compose-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-211-patient-portal-compose-readiness -Reset test` passed as run `2026-06-23T153056-836Z-modernized-openemr-plan-slice-211-patient-portal-compose-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-211-patient-portal-compose-readiness` passed as comparison `2026-06-23T153428-038Z-legacy-openemr-vs-modernized-openemr-plan-slice-211-patient-portal-compose-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-compose/patient-portal-compose.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

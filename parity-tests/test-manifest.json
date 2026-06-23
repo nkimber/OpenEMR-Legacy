@@ -870,6 +870,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-211-patient-portal-compose-readiness",
+      "name": "Slice 211 Patient Portal Secure Message Compose Readiness",
+      "description": "Patient portal confidence plan that composes a secure message, verifies the patient-owned sent copy, and checks the portal sent surface.",
+      "suites": ["workflow-patient-portal-compose"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-211", "patients", "portal", "messages", "compose", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3746,6 +3755,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-messages",
       "tags": ["slice210", "workflow", "mutation", "patients", "portal", "messages", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-compose",
+      "name": "Patient Portal Secure Message Compose Readiness",
+      "description": "Composes a signed-in portal secure message, verifies the sent copy, and checks the portal sent surface.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-compose",
+      "tags": ["slice211", "workflow", "mutation", "patients", "portal", "messages", "compose", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

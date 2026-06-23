@@ -236,6 +236,33 @@ export type PatientPortalMessagesResult = {
   asOfDate: string;
   messageCount: number;
   messages: PatientPortalMessageItem[];
+  sentMessageCount: number;
+  sentMessages: PatientPortalMessageItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalComposeMessageInput = {
+  recipientId: string;
+  title: string;
+  body: string;
+};
+
+export type PatientPortalComposeMessageResult = {
+  authenticated: boolean;
+  created: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  recipientId: string;
+  recipientName: string;
+  sentMessage: PatientPortalMessageItem | null;
+  recipientMessage: PatientPortalMessageItem | null;
+  messageCount: number;
+  sentMessageCount: number;
   failureReason: string | null;
   sessionSource: string;
 };
@@ -2041,6 +2068,39 @@ WHERE deleted != 1
   AND recipient_id = ${sqlString(login.portalUsername)}
 ORDER BY date DESC, id DESC;
 `);
+    const sentRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND sender_id = ${sqlString(login.portalUsername)}
+ORDER BY date DESC, id DESC;
+`);
+    const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
+      id: row.id,
+      date: normalizeDateText(row.messageDate),
+      title: row.title,
+      body: row.body,
+      status: row.status,
+      assignedTo: row.assignedTo,
+      senderId: row.senderId,
+      senderName: row.senderName,
+      recipientId: row.recipientId,
+      recipientName: row.recipientName,
+      portalRelation: null,
+      isEncrypted: row.isEncrypted === "1"
+    });
 
     return {
       authenticated: true,
@@ -2053,23 +2113,106 @@ ORDER BY date DESC, id DESC;
       datasetVersion: "openemr-shared-synthetic-v1",
       asOfDate: new Date().toISOString().slice(0, 10),
       messageCount: rows.length,
-      messages: rows.map((row) => ({
-        id: row.id,
-        date: normalizeDateText(row.messageDate),
-        title: row.title,
-        body: row.body,
-        status: row.status,
-        assignedTo: row.assignedTo,
-        senderId: row.senderId,
-        senderName: row.senderName,
-        recipientId: row.recipientId,
-        recipientName: row.recipientName,
-        portalRelation: null,
-        isEncrypted: row.isEncrypted === "1"
-      })),
+      messages: rows.map(mapRow),
+      sentMessageCount: sentRows.length,
+      sentMessages: sentRows.map(mapRow),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
+  }
+
+  async composePatientPortalMessage(
+    username: string,
+    password: string,
+    input: PatientPortalComposeMessageInput
+  ): Promise<PatientPortalComposeMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalComposeMessageResult(username, input.recipientId, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const title = input.title.trim();
+    const body = input.body.trim();
+    const recipientId = input.recipientId.trim() || "admin";
+    if (!title || !body) {
+      return buildEmptyPortalComposeMessageResult(username, recipientId, "Secure message title and body are required.");
+    }
+
+    await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
+    const recipientName = await this.getPortalMessageRecipientName(recipientId);
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9391000) + 1, 9391001) AS nextId
+FROM onsite_mail;
+`);
+    const sentId = Number(idRows[0]?.nextId ?? 9391001);
+    const recipientCopyId = sentId + 1;
+    const messageDate = new Date().toISOString().slice(0, 10);
+    const sentMessage: PatientPortalMessageItem = {
+      id: String(sentId),
+      date: messageDate,
+      title,
+      body,
+      status: "New",
+      assignedTo: recipientId,
+      senderId: login.portalUsername,
+      senderName: login.displayName,
+      recipientId,
+      recipientName,
+      portalRelation: null,
+      isEncrypted: false
+    };
+    const recipientMessage: PatientPortalMessageItem = {
+      ...sentMessage,
+      id: String(recipientCopyId)
+    };
+
+    await this.db.execute(`
+INSERT INTO onsite_mail
+  (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
+VALUES
+  (${integer(sentId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(sentId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0),
+  (${integer(recipientCopyId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(recipientId)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(recipientCopyId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0);
+`);
+
+    const refreshed = await this.getPatientPortalMessages(username, password);
+    return {
+      authenticated: true,
+      created: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      recipientId,
+      recipientName,
+      sentMessage,
+      recipientMessage,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async cleanupPatientPortalComposedMessage(portalUsername: string, title: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM onsite_mail
+WHERE title = ${sqlString(title)}
+  AND (owner = ${sqlString(portalUsername)}
+    OR sender_id = ${sqlString(portalUsername)}
+    OR recipient_id = ${sqlString(portalUsername)});
+`);
+  }
+
+  private async getPortalMessageRecipientName(recipientId: string): Promise<string> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT COALESCE(NULLIF(TRIM(CONCAT(fname, ' ', lname)), ''), username) AS displayName
+FROM users
+WHERE username = ${sqlString(recipientId)}
+LIMIT 1;
+`);
+    return rows[0]?.displayName || recipientId;
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -5594,6 +5737,33 @@ function buildEmptyPortalMessagesResult(username: string, failureReason: string)
     asOfDate: new Date().toISOString().slice(0, 10),
     messageCount: 0,
     messages: [],
+    sentMessageCount: 0,
+    sentMessages: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalComposeMessageResult(
+  username: string,
+  recipientId: string,
+  failureReason: string
+): PatientPortalComposeMessageResult {
+  return {
+    authenticated: false,
+    created: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    recipientId,
+    recipientName: "",
+    sentMessage: null,
+    recipientMessage: null,
+    messageCount: 0,
+    sentMessageCount: 0,
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };
