@@ -13585,7 +13585,7 @@ Primary files:
 Started: `2026-06-22T22:12:00-04:00`
 Finished: `2026-06-22T22:59:19-04:00`
 Duration: `47m 19s`
-Changeset: `pending`
+Changeset: `da38724b`
 
 Implemented Slice 205: patient portal reset readiness. The modernized target can now issue and clear a one-time portal reset state for a provisioned patient portal account, the Patient/Client Portal Account panel renders the reset lifecycle, and restore-backed parity proves the same observable behavior against legacy OpenEMR for the `MOD-PAT-0004` anchor.
 
