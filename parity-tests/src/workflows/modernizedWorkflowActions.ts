@@ -65,6 +65,7 @@ import type {
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
   PatientPortalLoginResult,
+  PatientPortalSessionResult,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
   PatientMessageRecord,
@@ -637,6 +638,31 @@ LIMIT 1;
       failureReason: result.failureReason ?? null,
       sessionId: result.sessionId ?? null
     };
+  }
+
+  async getPatientPortalSession(sessionId: string): Promise<PatientPortalSessionResult> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/session`, {
+      headers: { "X-OpenEMR-Patient-Portal-Session": sessionId }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient portal session check failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return mapPatientPortalSessionResult(await response.json());
+  }
+
+  async endPatientPortalSession(sessionId: string): Promise<PatientPortalSessionResult> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/session`, {
+      method: "DELETE",
+      headers: { "X-OpenEMR-Patient-Portal-Session": sessionId }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient portal session logout failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return mapPatientPortalSessionResult(await response.json());
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -3750,6 +3776,25 @@ function integer(value: number) {
 
 function sqlString(value: string) {
   return `'${value.replaceAll("\\", "\\\\").replaceAll("'", "''")}'`;
+}
+
+function mapPatientPortalSessionResult(result: any): PatientPortalSessionResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    sessionId: result.sessionId ?? null,
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    createdAt: result.createdAt ?? null,
+    lastSeenAt: result.lastSeenAt ?? null,
+    expiresAt: result.expiresAt ?? null,
+    endedAt: result.endedAt ?? null,
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
 }
 
 function careTeamRoleLabel(value: string) {

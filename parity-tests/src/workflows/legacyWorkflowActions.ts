@@ -154,6 +154,23 @@ export type PatientPortalLoginResult = {
   sessionId?: string | null;
 };
 
+export type PatientPortalSessionResult = {
+  authenticated: boolean;
+  sessionId: string | null;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  createdAt: string | null;
+  lastSeenAt: string | null;
+  expiresAt: string | null;
+  endedAt: string | null;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientGuardianContact = {
   pid: number;
   pubpid: string;
@@ -1833,6 +1850,14 @@ LIMIT 1;
     }
 
     return buildPortalLoginResult(username, null, row, true);
+  }
+
+  async getPatientPortalSession(sessionId: string): Promise<PatientPortalSessionResult> {
+    return buildLegacyPortalSessionResult(sessionId);
+  }
+
+  async endPatientPortalSession(sessionId: string): Promise<PatientPortalSessionResult> {
+    return buildLegacyPortalSessionResult(sessionId);
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -5297,6 +5322,25 @@ function buildPortalLoginResult(
     pubpid: row?.pubpid ?? "",
     displayName: row ? `${row.lastName}, ${row.firstName}` : "",
     failureReason
+  };
+}
+
+function buildLegacyPortalSessionResult(sessionId: string): PatientPortalSessionResult {
+  return {
+    authenticated: false,
+    sessionId,
+    username: "",
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    createdAt: null,
+    lastSeenAt: null,
+    expiresAt: null,
+    endedAt: null,
+    failureReason: "Legacy patient portal sessions are browser-cookie based.",
+    sessionSource: "legacy-openemr-portal"
   };
 }
 

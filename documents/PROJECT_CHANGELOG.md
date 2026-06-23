@@ -13835,6 +13835,71 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 241. Slice 208 Patient Portal Session Readiness
+
+Started: 2026-06-23T07:05:49.9510277-04:00
+Finished: 2026-06-23T07:25:59.9658761-04:00
+Duration: 20 minutes 10 seconds
+Commit: pending
+
+Implemented Slice 208: patient portal session readiness. The modernized patient portal now supports explicit session logout, records `ended_at` on `patient_portal_sessions`, exposes that behavior through the Patient/Client Portal Account panel after portal readiness sign-in, and proves active-session read, logout, and reuse rejection against legacy portal logout behavior for the `MOD-PAT-0004` anchor.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 521
+- Lines deleted: 53
+- Net lines: 468
+- Total churn: 574
+
+Key outcomes:
+
+- Added modernized `DELETE /api/patient-portal/session` behavior and repository support that ends patient portal sessions, preserves session evidence, and returns an inactive session response with `ended_at`.
+- Added a Patient/Client Portal Account `End portal session` command that appears after successful portal sign-in readiness verification and confirms the ended session in the same panel.
+- Extended the modernized smoke test's `anchor patient portal authentication` check to start, read, end, and reject reuse of a patient portal session.
+- Added shared parity workflow methods and a new `workflow-patient-portal-session` Playwright suite that compares legacy portal cookie logout with modernized API/UI session logout behavior.
+- Added the `slice-208-patient-portal-session-readiness` plan, Workbench managed actions for both targets, progress-ledger updates, source inventory refresh, and synchronized project documentation.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm.cmd run typecheck` passed in `parity-tests/`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm.cmd run build` passed in `modernized-openemr/frontend/` with the existing Vite large-chunk warning.
+- `npm.cmd run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `npm.cmd run build` passed in `modernization-workbench/`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded the modernized PostgreSQL seed.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 146 checks and 0 failed checks, including the extended patient portal authentication/session lifecycle check.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-208-patient-portal-session-readiness -Reset test` passed with 1 expected test; run `2026-06-23T112458-183Z-legacy-openemr-plan-slice-208-patient-portal-session-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-208-patient-portal-session-readiness -Reset test` passed with 1 expected test; run `2026-06-23T112458-186Z-modernized-openemr-plan-slice-208-patient-portal-session-readiness`.
+- `npm.cmd run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-208-patient-portal-session-readiness` passed with status `matched`; comparison `2026-06-23T112517-854Z-legacy-openemr-vs-modernized-openemr-plan-slice-208-patient-portal-session-readiness`.
+- Regression check `slice-207-patient-portal-authentication-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T112552-546Z-legacy-openemr-vs-modernized-openemr-plan-slice-207-patient-portal-authentication-readiness`.
+- `git diff --check` passed with only the repository's normal LF-to-CRLF working-copy warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-session/patient-portal-session.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -188,6 +188,7 @@ param(
         "workflow-patient-portal-reset",
         "workflow-patient-portal-access",
         "workflow-patient-portal-authentication",
+        "workflow-patient-portal-session",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",
