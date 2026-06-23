@@ -14613,7 +14613,7 @@ Primary files:
 Started: 2026-06-23T17:31:15.9401325-04:00
 Finished: 2026-06-23T17:35:34.8633212-04:00
 Duration: 00:04:19
-Commit: pending
+Commit: 551be3e4
 
 Implemented Slice 217: patient portal secure-message All-folder readiness. The modernized target now exposes an active, owner-scoped All mailbox projection in the authenticated patient portal messages API, renders a first-class All folder in the Portal workspace, and proves the same active inbox/sent inclusion and archived-row exclusion behavior against legacy OpenEMR `onsite_mail` for the `MOD-PAT-0004` account.
 
