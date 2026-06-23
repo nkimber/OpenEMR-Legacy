@@ -455,6 +455,68 @@ patients.forEach((patient, index) => {
   }
 });
 
+const patientHistories = patients.map((patient, index) => {
+  const sequence = index + 1;
+  const isMale = patient.sex === "Male";
+  const chronic = patient.cohort === "chronic-care" || sequence % 4 === 0;
+  const ldlValue = 90 + (sequence % 30);
+  const hemoglobinValue = (12 + (sequence % 25) / 10).toFixed(1);
+  const psaValue = isMale ? (1 + (sequence % 15) / 10).toFixed(1) : "";
+
+  return {
+    id: `HIST-${patient.canonicalId}`,
+    patientId: patient.canonicalId,
+    pid: patient.pid,
+    coffee: `${1 + (sequence % 3)} cups/day`,
+    tobacco: sequence % 5 === 0 ? "Former smoker - quit 2019" : sequence % 11 === 0 ? "Current light tobacco use" : "Never smoker",
+    alcohol: sequence % 4 === 0 ? "1-2 drinks/week" : "No alcohol use",
+    sleepPatterns: sequence % 3 === 0 ? "Sleeps 6 hours with intermittent insomnia" : "Sleeps 7-8 hours nightly",
+    exercisePatterns: sequence % 2 === 0 ? "Walks 30 minutes 5 days/week" : "Light activity 2 days/week",
+    seatbeltUse: "Always",
+    counseling: sequence % 6 === 0 ? "Nutrition counseling reviewed" : "",
+    hazardousActivities: sequence % 7 === 0 ? "Occasional ladder work with safety precautions" : "No hazardous activities reported",
+    recreationalDrugs: "Denies recreational drug use",
+    lastPhysicalExam: "2026-01-15",
+    lastMammogram: !isMale ? "2026-02-12" : "",
+    lastProstateExam: isMale ? "2026-02-09" : "",
+    lastColonoscopy: sequence % 2 === 0 ? "2025-11-20" : "2024-10-18",
+    lastEcg: sequence % 3 === 0 ? "2026-03-03" : "",
+    lastRetinal: chronic ? "2026-01-30" : "",
+    lastFluvax: "2025-10-01",
+    lastPneuvax: chronic ? "2024-09-15" : "",
+    lastLdl: `2026-01-11 LDL ${ldlValue}`,
+    lastHemoglobin: `2026-01-11 Hgb ${hemoglobinValue}`,
+    lastPsa: isMale ? `2026-02-11 PSA ${psaValue}` : "",
+    lastExamResults: "Preventive screening reviewed in gold dataset",
+    historyMother: "Mother: hypertension",
+    historyFather: "Father: type 2 diabetes",
+    historySiblings: sequence % 4 === 0 ? "Sibling: asthma" : "Siblings: no major chronic illness",
+    historyOffspring: patient.cohort === "pediatric" ? "No children" : "Children: preventive counseling reviewed",
+    historySpouse: patient.status === "married" ? "Spouse: wellness visit current" : "",
+    relativesCancer: sequence % 8 === 0 ? "maternal aunt" : "",
+    relativesTuberculosis: "",
+    relativesDiabetes: "father",
+    relativesHighBloodPressure: "mother",
+    relativesHeartProblems: sequence % 6 === 0 ? "grandparent" : "",
+    relativesStroke: sequence % 9 === 0 ? "grandparent" : "",
+    relativesEpilepsy: "",
+    relativesMentalIllness: sequence % 10 === 0 ? "sibling anxiety" : "",
+    relativesSuicide: "",
+    appendectomy: sequence % 5 === 0 ? "2016-04-20 00:00:00" : null,
+    tonsillectomy: sequence % 7 === 0 ? "2012-05-11 00:00:00" : null,
+    cholecystectomy: sequence % 13 === 0 ? "2019-08-14 00:00:00" : null,
+    heartSurgery: chronic && sequence % 17 === 0 ? "2021-02-22 00:00:00" : null,
+    hysterectomy: !isMale && sequence % 19 === 0 ? "2018-10-05 00:00:00" : null,
+    herniaRepair: sequence % 11 === 0 ? "2015-07-09 00:00:00" : null,
+    hipReplacement: patient.cohort === "senior" && sequence % 12 === 0 ? "2020-03-16 00:00:00" : null,
+    kneeReplacement: patient.cohort === "senior" && sequence % 10 === 0 ? "2022-06-21 00:00:00" : null,
+    recordedDate: `${patient.registrationDate} 10:00:00`,
+    additionalHistory: `Gold history for ${patient.pubpid}: ${patient.purpose}`,
+    exams: "Annual physical, medication reconciliation, and preventive screening reviewed.",
+    createdBy: 1
+  };
+});
+
 const appointments = [];
 patients.forEach((patient, index) => {
   const count = index < 800 ? 3 : 2;
@@ -982,6 +1044,7 @@ const dataset = {
   staff,
   facilities,
   insuranceRecords,
+  patientHistories,
   appointments,
   encounters,
   vitals,
@@ -1031,6 +1094,7 @@ const summary = {
     providersAndStaff: staff.length,
     facilities: facilities.length,
     insuranceRecords: insuranceRecords.length,
+    patientHistories: patientHistories.length,
     appointments: appointments.length,
     encounters: encounters.length,
     vitals: vitals.length,
@@ -1086,6 +1150,7 @@ function buildLegacySql() {
     "DELETE FROM openemr_postcalendar_events;",
     "DELETE FROM lists;",
     "DELETE FROM insurance_data;",
+    "DELETE FROM history_data WHERE pid BETWEEN 100001 AND 101000;",
     "DELETE FROM employer_data;",
     "DELETE ctm FROM care_team_member ctm INNER JOIN care_teams ct ON ct.id = ctm.care_team_id WHERE ct.pid BETWEEN 100001 AND 101000;",
     "DELETE FROM care_teams WHERE pid BETWEEN 100001 AND 101000;",
@@ -1299,6 +1364,58 @@ function buildLegacySql() {
     country: patient.employerCountry,
     date: patient.registrationDate,
     pid: patient.pid
+  })), 150));
+
+  statements.push(insert("history_data", ["uuid", "coffee", "tobacco", "alcohol", "sleep_patterns", "exercise_patterns", "seatbelt_use", "counseling", "hazardous_activities", "recreational_drugs", "last_physical_exam", "last_mammogram", "last_prostate_exam", "last_sigmoidoscopy_colonoscopy", "last_ecg", "last_retinal", "last_fluvax", "last_pneuvax", "last_ldl", "last_hemoglobin", "last_psa", "last_exam_results", "history_mother", "history_father", "history_siblings", "history_offspring", "history_spouse", "relatives_cancer", "relatives_tuberculosis", "relatives_diabetes", "relatives_high_blood_pressure", "relatives_heart_problems", "relatives_stroke", "relatives_epilepsy", "relatives_mental_illness", "relatives_suicide", "appendectomy", "tonsillectomy", "cholecystestomy", "heart_surgery", "hysterectomy", "hernia_repair", "hip_replacement", "knee_replacement", "date", "pid", "additional_history", "exams", "created_by"], patientHistories.map((history) => ({
+    uuid: raw(sqlUuid(history.id)),
+    coffee: history.coffee,
+    tobacco: history.tobacco,
+    alcohol: history.alcohol,
+    sleep_patterns: history.sleepPatterns,
+    exercise_patterns: history.exercisePatterns,
+    seatbelt_use: history.seatbeltUse,
+    counseling: history.counseling,
+    hazardous_activities: history.hazardousActivities,
+    recreational_drugs: history.recreationalDrugs,
+    last_physical_exam: history.lastPhysicalExam,
+    last_mammogram: history.lastMammogram,
+    last_prostate_exam: history.lastProstateExam,
+    last_sigmoidoscopy_colonoscopy: history.lastColonoscopy,
+    last_ecg: history.lastEcg,
+    last_retinal: history.lastRetinal,
+    last_fluvax: history.lastFluvax,
+    last_pneuvax: history.lastPneuvax,
+    last_ldl: history.lastLdl,
+    last_hemoglobin: history.lastHemoglobin,
+    last_psa: history.lastPsa,
+    last_exam_results: history.lastExamResults,
+    history_mother: history.historyMother,
+    history_father: history.historyFather,
+    history_siblings: history.historySiblings,
+    history_offspring: history.historyOffspring,
+    history_spouse: history.historySpouse,
+    relatives_cancer: history.relativesCancer,
+    relatives_tuberculosis: history.relativesTuberculosis,
+    relatives_diabetes: history.relativesDiabetes,
+    relatives_high_blood_pressure: history.relativesHighBloodPressure,
+    relatives_heart_problems: history.relativesHeartProblems,
+    relatives_stroke: history.relativesStroke,
+    relatives_epilepsy: history.relativesEpilepsy,
+    relatives_mental_illness: history.relativesMentalIllness,
+    relatives_suicide: history.relativesSuicide,
+    appendectomy: history.appendectomy,
+    tonsillectomy: history.tonsillectomy,
+    cholecystestomy: history.cholecystectomy,
+    heart_surgery: history.heartSurgery,
+    hysterectomy: history.hysterectomy,
+    hernia_repair: history.herniaRepair,
+    hip_replacement: history.hipReplacement,
+    knee_replacement: history.kneeReplacement,
+    date: history.recordedDate,
+    pid: history.pid,
+    additional_history: history.additionalHistory,
+    exams: history.exams,
+    created_by: history.createdBy
   })), 150));
 
   statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {

@@ -13340,6 +13340,87 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 234. Slice 202 Patient History Readiness
+
+Started: `2026-06-22T20:04:00-04:00`
+Finished: `2026-06-22T20:42:33-04:00`
+Duration: `38m 33s`
+Changeset: `pending`
+
+Implemented read-only Slice 202: patient history and lifestyle readiness. The shared gold dataset now carries one deterministic history/lifestyle record per synthetic patient, the legacy and modernized databases can be seeded from that shared source, and the modernized Patient/Client chart renders the same patient history values that parity tests can validate against legacy OpenEMR.
+
+Code changes:
+
+- Files changed: 28
+- Lines added: 54068
+- Lines deleted: 64
+- Net lines: 54004
+- Total churn: 54132
+
+Key outcomes:
+
+- Added 1,000 canonical `patientHistories` records to the shared synthetic gold dataset and legacy MariaDB seed SQL, including lifestyle, family history, relative conditions, preventive screening, exam, and surgery-date fields.
+- Added the modernized PostgreSQL `patient_histories` table, seed generation, and seed-count reporting so both targets load the same history baseline.
+- Extended the modernized Patient API chart summary with a `history` object and rendered a Patient/Client `History and Lifestyle` panel covering tobacco, coffee, alcohol, sleep, exercise, safety, recreational drug, hazardous activity, counseling, family history, relative conditions, screening, surgery, and recorded timestamp values.
+- Added modernized smoke coverage for the `MOD-PAT-0010` history anchor, raising the smoke suite to 142 checks.
+- Extended legacy and modernized database probes with `patientHistories` counts and patient-history lookup support.
+- Added the `patient-history` parity suite and `slice-202-patient-history-readiness` plan, including DB checks plus legacy tab navigation through Lifestyle, Family History, and Other.
+- Updated the legacy patient-history helper to establish patient context through demographics before opening `history.php`, matching how OpenEMR's session-scoped patient pages behave.
+- Added Workbench managed actions for Slice 202 on both legacy and modernized targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to mark patient history/lifestyle readiness as completed and raise Patient Chart modernization readiness to 87%.
+
+Verified test runs:
+
+- `npm run generate:seed-data` passed in `modernization-workbench/` and regenerated the canonical dataset plus legacy MariaDB seed SQL with 1,000 patient-history rows.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with `patient_histories`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, the canonical gold dataset, the seed summary, and the modernized seed summary.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `powershell -ExecutionPolicy Bypass -File .\legacy-openemr\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/` and loaded 1,000 `patientHistories` rows.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed from `modernized-openemr/` and loaded 1,000 `patient_histories` rows.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 142 checks and 0 failures, including `anchor patient history`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-202-patient-history-readiness -Reset run` passed with 1 expected test; run `2026-06-23T003931-328Z-legacy-openemr-plan-slice-202-patient-history-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-202-patient-history-readiness -Reset run` passed with 1 expected test; run `2026-06-23T004007-375Z-modernized-openemr-plan-slice-202-patient-history-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-202-patient-history-readiness` passed with status `matched`; comparison `2026-06-23T004034-774Z-legacy-openemr-vs-modernized-openemr-plan-slice-202-patient-history-readiness`.
+- Regression check `slice-201-patient-care-team-contact-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T004207-881Z-legacy-openemr-vs-modernized-openemr-plan-slice-201-patient-care-team-contact-readiness`.
+- Verification note: the first legacy Slice 202 attempts exposed two useful harness issues: the anchor-patient expected history note needed to match the generated `MOD-PAT-0010` purpose, and legacy History pages must establish patient context through demographics before tab-specific values can be asserted. The test now uses exact role-based tab clicks for the visible legacy History sections.
+- `git diff --check` passed with only expected Windows line-ending warnings.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/ui/legacyOpenEmr.ts`
+- `parity-tests/tests/patient-history/patient-history.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

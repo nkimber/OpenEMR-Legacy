@@ -20,6 +20,12 @@ export async function openPatientDemographicsEditDirect(page: Page, target: Runt
   await expectRenderedText(page, /Demographics|First Name|Last Name/i);
 }
 
+export async function openPatientHistoryDirect(page: Page, target: RuntimeTarget, pid: number) {
+  await openPatientSummaryDirect(page, target, pid);
+  await page.goto(`${target.publicUrl}/interface/patient_file/history/history.php`);
+  await expectRenderedText(page, /History and Lifestyle|History/i);
+}
+
 export async function openPatientInsuranceBrowseDirect(
   page: Page,
   target: RuntimeTarget,

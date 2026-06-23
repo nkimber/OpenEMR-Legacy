@@ -66,6 +66,7 @@ SELECT 'patients', COUNT(*) FROM patient_data
 UNION ALL SELECT 'providersAndStaff', COUNT(*) FROM users WHERE username LIKE 'gold-%'
 UNION ALL SELECT 'facilities', COUNT(*) FROM facility WHERE id IN (10, 11, 12)
 UNION ALL SELECT 'insuranceRecords', COUNT(*) FROM insurance_data
+UNION ALL SELECT 'patientHistories', COUNT(*) FROM history_data WHERE pid BETWEEN 100001 AND 101000
 UNION ALL SELECT 'appointments', COUNT(*) FROM openemr_postcalendar_events
 UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter
 UNION ALL SELECT 'vitals', COUNT(*) FROM form_vitals

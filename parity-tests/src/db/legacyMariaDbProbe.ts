@@ -140,6 +140,56 @@ export type PatientInsuranceCoverageSummary = {
   insurance: PatientInsuranceSummary[];
 };
 
+export type PatientHistorySummary = {
+  patientId: number;
+  coffee: string;
+  tobacco: string;
+  alcohol: string;
+  sleepPatterns: string;
+  exercisePatterns: string;
+  seatbeltUse: string;
+  counseling: string;
+  hazardousActivities: string;
+  recreationalDrugs: string;
+  lastPhysicalExam: string;
+  lastMammogram: string;
+  lastProstateExam: string;
+  lastColonoscopy: string;
+  lastEcg: string;
+  lastRetinal: string;
+  lastFluvax: string;
+  lastPneuvax: string;
+  lastLdl: string;
+  lastHemoglobin: string;
+  lastPsa: string;
+  lastExamResults: string;
+  historyMother: string;
+  historyFather: string;
+  historySiblings: string;
+  historyOffspring: string;
+  historySpouse: string;
+  relativesCancer: string;
+  relativesTuberculosis: string;
+  relativesDiabetes: string;
+  relativesHighBloodPressure: string;
+  relativesHeartProblems: string;
+  relativesStroke: string;
+  relativesEpilepsy: string;
+  relativesMentalIllness: string;
+  relativesSuicide: string;
+  appendectomyDate: string;
+  tonsillectomyDate: string;
+  cholecystectomyDate: string;
+  heartSurgeryDate: string;
+  hysterectomyDate: string;
+  herniaRepairDate: string;
+  hipReplacementDate: string;
+  kneeReplacementDate: string;
+  additionalHistory: string;
+  exams: string;
+  recordedAt: string;
+};
+
 export type PatientDocumentSummary = {
   id: number;
   documentKey: string;
@@ -410,6 +460,58 @@ function extractOcrStatus(notes?: string | null, contentPreview?: string | null)
 
 function normalizeText(value?: string | null): string {
   return value?.trim() ?? "";
+}
+
+export function mapPatientHistoryRow(row: Record<string, string>): PatientHistorySummary {
+  return {
+    patientId: Number(row.patientId),
+    coffee: row.coffee,
+    tobacco: row.tobacco,
+    alcohol: row.alcohol,
+    sleepPatterns: row.sleepPatterns,
+    exercisePatterns: row.exercisePatterns,
+    seatbeltUse: row.seatbeltUse,
+    counseling: row.counseling,
+    hazardousActivities: row.hazardousActivities,
+    recreationalDrugs: row.recreationalDrugs,
+    lastPhysicalExam: row.lastPhysicalExam,
+    lastMammogram: row.lastMammogram,
+    lastProstateExam: row.lastProstateExam,
+    lastColonoscopy: row.lastColonoscopy,
+    lastEcg: row.lastEcg,
+    lastRetinal: row.lastRetinal,
+    lastFluvax: row.lastFluvax,
+    lastPneuvax: row.lastPneuvax,
+    lastLdl: row.lastLdl,
+    lastHemoglobin: row.lastHemoglobin,
+    lastPsa: row.lastPsa,
+    lastExamResults: row.lastExamResults,
+    historyMother: row.historyMother,
+    historyFather: row.historyFather,
+    historySiblings: row.historySiblings,
+    historyOffspring: row.historyOffspring,
+    historySpouse: row.historySpouse,
+    relativesCancer: row.relativesCancer,
+    relativesTuberculosis: row.relativesTuberculosis,
+    relativesDiabetes: row.relativesDiabetes,
+    relativesHighBloodPressure: row.relativesHighBloodPressure,
+    relativesHeartProblems: row.relativesHeartProblems,
+    relativesStroke: row.relativesStroke,
+    relativesEpilepsy: row.relativesEpilepsy,
+    relativesMentalIllness: row.relativesMentalIllness,
+    relativesSuicide: row.relativesSuicide,
+    appendectomyDate: row.appendectomyDate,
+    tonsillectomyDate: row.tonsillectomyDate,
+    cholecystectomyDate: row.cholecystectomyDate,
+    heartSurgeryDate: row.heartSurgeryDate,
+    hysterectomyDate: row.hysterectomyDate,
+    herniaRepairDate: row.herniaRepairDate,
+    hipReplacementDate: row.hipReplacementDate,
+    kneeReplacementDate: row.kneeReplacementDate,
+    additionalHistory: row.additionalHistory,
+    exams: row.exams,
+    recordedAt: row.recordedAt
+  };
 }
 
 export type BillingLineSummary = {
@@ -950,6 +1052,7 @@ SELECT 'patients' AS name, COUNT(*) AS value FROM patient_data
 UNION ALL SELECT 'providersAndStaff', COUNT(*) FROM users WHERE username LIKE 'gold-%'
 UNION ALL SELECT 'facilities', COUNT(*) FROM facility WHERE id IN (10, 11, 12)
 UNION ALL SELECT 'insuranceRecords', COUNT(*) FROM insurance_data
+UNION ALL SELECT 'patientHistories', COUNT(*) FROM history_data WHERE pid BETWEEN 100001 AND 101000
 UNION ALL SELECT 'appointments', COUNT(*) FROM openemr_postcalendar_events
 UNION ALL SELECT 'encounters', COUNT(*) FROM form_encounter
 UNION ALL SELECT 'vitals', COUNT(*) FROM form_vitals
@@ -1338,6 +1441,64 @@ ORDER BY FIELD(insd.type, 'primary', 'secondary'), insd.type, insd.id;
         relationship: row.relationship
       }))
     };
+  }
+
+  async getPatientHistoryForPatient(pid: number): Promise<PatientHistorySummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pid AS patientId,
+  COALESCE(coffee, '') AS coffee,
+  COALESCE(tobacco, '') AS tobacco,
+  COALESCE(alcohol, '') AS alcohol,
+  COALESCE(sleep_patterns, '') AS sleepPatterns,
+  COALESCE(exercise_patterns, '') AS exercisePatterns,
+  COALESCE(seatbelt_use, '') AS seatbeltUse,
+  COALESCE(counseling, '') AS counseling,
+  COALESCE(hazardous_activities, '') AS hazardousActivities,
+  COALESCE(recreational_drugs, '') AS recreationalDrugs,
+  COALESCE(last_physical_exam, '') AS lastPhysicalExam,
+  COALESCE(last_mammogram, '') AS lastMammogram,
+  COALESCE(last_prostate_exam, '') AS lastProstateExam,
+  COALESCE(last_sigmoidoscopy_colonoscopy, '') AS lastColonoscopy,
+  COALESCE(last_ecg, '') AS lastEcg,
+  COALESCE(last_retinal, '') AS lastRetinal,
+  COALESCE(last_fluvax, '') AS lastFluvax,
+  COALESCE(last_pneuvax, '') AS lastPneuvax,
+  COALESCE(last_ldl, '') AS lastLdl,
+  COALESCE(last_hemoglobin, '') AS lastHemoglobin,
+  COALESCE(last_psa, '') AS lastPsa,
+  COALESCE(last_exam_results, '') AS lastExamResults,
+  COALESCE(history_mother, '') AS historyMother,
+  COALESCE(history_father, '') AS historyFather,
+  COALESCE(history_siblings, '') AS historySiblings,
+  COALESCE(history_offspring, '') AS historyOffspring,
+  COALESCE(history_spouse, '') AS historySpouse,
+  COALESCE(relatives_cancer, '') AS relativesCancer,
+  COALESCE(relatives_tuberculosis, '') AS relativesTuberculosis,
+  COALESCE(relatives_diabetes, '') AS relativesDiabetes,
+  COALESCE(relatives_high_blood_pressure, '') AS relativesHighBloodPressure,
+  COALESCE(relatives_heart_problems, '') AS relativesHeartProblems,
+  COALESCE(relatives_stroke, '') AS relativesStroke,
+  COALESCE(relatives_epilepsy, '') AS relativesEpilepsy,
+  COALESCE(relatives_mental_illness, '') AS relativesMentalIllness,
+  COALESCE(relatives_suicide, '') AS relativesSuicide,
+  COALESCE(DATE(appendectomy), '') AS appendectomyDate,
+  COALESCE(DATE(tonsillectomy), '') AS tonsillectomyDate,
+  COALESCE(DATE(cholecystestomy), '') AS cholecystectomyDate,
+  COALESCE(DATE(heart_surgery), '') AS heartSurgeryDate,
+  COALESCE(DATE(hysterectomy), '') AS hysterectomyDate,
+  COALESCE(DATE(hernia_repair), '') AS herniaRepairDate,
+  COALESCE(DATE(hip_replacement), '') AS hipReplacementDate,
+  COALESCE(DATE(knee_replacement), '') AS kneeReplacementDate,
+  COALESCE(additional_history, '') AS additionalHistory,
+  COALESCE(exams, '') AS exams,
+  COALESCE(DATE_FORMAT(\`date\`, '%Y-%m-%d %H:%i:%s'), '') AS recordedAt
+FROM history_data
+WHERE pid = ${pid}
+ORDER BY id DESC
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? mapPatientHistoryRow(row) : null;
   }
 
   async getPatientDocumentsForPatient(pid: number, includeGenerated = false): Promise<PatientDocumentsSummary> {

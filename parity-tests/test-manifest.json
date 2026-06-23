@@ -789,6 +789,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-202-patient-history-readiness",
+      "name": "Slice 202 Patient History Readiness",
+      "description": "Read-only patient administration confidence plan that verifies History and Lifestyle gold data through database, API, and UI surfaces.",
+      "suites": ["patient-history"],
+      "resetMode": "run",
+      "tags": ["readiness", "read-only", "slice-202", "patients", "history", "lifestyle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3577,6 +3586,16 @@
       "tags": ["slice201", "workflow", "mutation", "patients", "demographics", "care-team", "contacts", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
+    },
+    {
+      "id": "patient-history",
+      "name": "Patient History Readiness",
+      "description": "Verifies read-only History and Lifestyle records from the shared gold dataset on database/API/UI surfaces.",
+      "layer": "parity",
+      "path": "tests/patient-history",
+      "tags": ["slice202", "parity", "read-only", "patients", "history", "lifestyle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
     },
     {
       "id": "workflow-clinical-list-protection",

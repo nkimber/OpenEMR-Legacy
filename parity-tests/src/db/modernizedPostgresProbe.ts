@@ -18,6 +18,7 @@ import type {
   OperationalReportExportRow,
   PatientDocumentContentSummary,
   PatientDocumentsSummary,
+  PatientHistorySummary,
   PatientInsuranceCoverageSummary,
   PatientImmunizationsSummary,
   PatientMessagesSummary,
@@ -48,6 +49,7 @@ import {
   buildPatientDocumentPreviewFields,
   buildPatientDocumentScanFields,
   buildOperationalReportExportRows,
+  mapPatientHistoryRow,
   buildPatientStatementSummary
 } from "./legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
@@ -101,6 +103,7 @@ SELECT 'patients' AS name, COUNT(*) AS value FROM patients
 UNION ALL SELECT 'providersAndStaff', COUNT(*) FROM staff
 UNION ALL SELECT 'facilities', COUNT(*) FROM facilities
 UNION ALL SELECT 'insuranceRecords', COUNT(*) FROM insurance_records
+UNION ALL SELECT 'patientHistories', COUNT(*) FROM patient_histories
 UNION ALL SELECT 'appointments', COUNT(*) FROM appointments
 UNION ALL SELECT 'encounters', COUNT(*) FROM encounters
 UNION ALL SELECT 'vitals', COUNT(*) FROM vitals
@@ -483,6 +486,63 @@ ORDER BY
         relationship: row.relationship
       }))
     };
+  }
+
+  async getPatientHistoryForPatient(pid: number): Promise<PatientHistorySummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pid::text AS "patientId",
+  COALESCE(coffee, '') AS coffee,
+  COALESCE(tobacco, '') AS tobacco,
+  COALESCE(alcohol, '') AS alcohol,
+  COALESCE(sleep_patterns, '') AS "sleepPatterns",
+  COALESCE(exercise_patterns, '') AS "exercisePatterns",
+  COALESCE(seatbelt_use, '') AS "seatbeltUse",
+  COALESCE(counseling, '') AS counseling,
+  COALESCE(hazardous_activities, '') AS "hazardousActivities",
+  COALESCE(recreational_drugs, '') AS "recreationalDrugs",
+  COALESCE(last_physical_exam, '') AS "lastPhysicalExam",
+  COALESCE(last_mammogram, '') AS "lastMammogram",
+  COALESCE(last_prostate_exam, '') AS "lastProstateExam",
+  COALESCE(last_colonoscopy, '') AS "lastColonoscopy",
+  COALESCE(last_ecg, '') AS "lastEcg",
+  COALESCE(last_retinal, '') AS "lastRetinal",
+  COALESCE(last_fluvax, '') AS "lastFluvax",
+  COALESCE(last_pneuvax, '') AS "lastPneuvax",
+  COALESCE(last_ldl, '') AS "lastLdl",
+  COALESCE(last_hemoglobin, '') AS "lastHemoglobin",
+  COALESCE(last_psa, '') AS "lastPsa",
+  COALESCE(last_exam_results, '') AS "lastExamResults",
+  COALESCE(history_mother, '') AS "historyMother",
+  COALESCE(history_father, '') AS "historyFather",
+  COALESCE(history_siblings, '') AS "historySiblings",
+  COALESCE(history_offspring, '') AS "historyOffspring",
+  COALESCE(history_spouse, '') AS "historySpouse",
+  COALESCE(relatives_cancer, '') AS "relativesCancer",
+  COALESCE(relatives_tuberculosis, '') AS "relativesTuberculosis",
+  COALESCE(relatives_diabetes, '') AS "relativesDiabetes",
+  COALESCE(relatives_high_blood_pressure, '') AS "relativesHighBloodPressure",
+  COALESCE(relatives_heart_problems, '') AS "relativesHeartProblems",
+  COALESCE(relatives_stroke, '') AS "relativesStroke",
+  COALESCE(relatives_epilepsy, '') AS "relativesEpilepsy",
+  COALESCE(relatives_mental_illness, '') AS "relativesMentalIllness",
+  COALESCE(relatives_suicide, '') AS "relativesSuicide",
+  COALESCE(appendectomy_date::text, '') AS "appendectomyDate",
+  COALESCE(tonsillectomy_date::text, '') AS "tonsillectomyDate",
+  COALESCE(cholecystectomy_date::text, '') AS "cholecystectomyDate",
+  COALESCE(heart_surgery_date::text, '') AS "heartSurgeryDate",
+  COALESCE(hysterectomy_date::text, '') AS "hysterectomyDate",
+  COALESCE(hernia_repair_date::text, '') AS "herniaRepairDate",
+  COALESCE(hip_replacement_date::text, '') AS "hipReplacementDate",
+  COALESCE(knee_replacement_date::text, '') AS "kneeReplacementDate",
+  COALESCE(additional_history, '') AS "additionalHistory",
+  COALESCE(exams, '') AS exams,
+  COALESCE(to_char(recorded_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "recordedAt"
+FROM patient_histories
+WHERE pid = ${pid}
+LIMIT 1;
+`);
+    const row = rows[0];
+    return row ? mapPatientHistoryRow(row) : null;
   }
 
   async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {

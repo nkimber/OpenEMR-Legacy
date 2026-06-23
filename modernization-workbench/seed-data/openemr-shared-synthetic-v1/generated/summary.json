@@ -11,6 +11,7 @@
     "providersAndStaff": 20,
     "facilities": 3,
     "insuranceRecords": 1400,
+    "patientHistories": 1000,
     "appointments": 2800,
     "encounters": 2100,
     "vitals": 2100,
