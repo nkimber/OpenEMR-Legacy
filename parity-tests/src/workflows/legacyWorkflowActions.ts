@@ -246,6 +246,65 @@ export type PatientPortalMessagesResult = {
   sessionSource: string;
 };
 
+export type PatientPortalDocumentItem = {
+  id: number;
+  documentKey: string;
+  categoryId: number;
+  categoryName: string;
+  displayPath: string;
+  name: string;
+  docDate: string;
+  uploadedAt: string;
+  mimetype: string | null;
+  fileName: string;
+  sizeBytes: number | null;
+  storageMethod: string | null;
+  canDownload: boolean;
+};
+
+export type PatientPortalDocumentCategory = {
+  categoryId: number;
+  categoryName: string;
+  displayPath: string;
+  documentCount: number;
+  documents: PatientPortalDocumentItem[];
+};
+
+export type PatientPortalDocumentsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  documentCount: number;
+  categories: PatientPortalDocumentCategory[];
+  documents: PatientPortalDocumentItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalDocumentsDownloadResult = {
+  authenticated: boolean;
+  downloadable: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  documentIds: number[];
+  documentCount: number;
+  fileName: string;
+  contentType: string;
+  contentLength: number;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalMessageThreadResult = {
   authenticated: boolean;
   username: string;
@@ -2252,6 +2311,130 @@ ORDER BY date DESC, id DESC;
       sentMessages: sentRows.map(mapRow),
       allMessageCount: allRows.length,
       allMessages: allRows.map(mapRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalDocuments(username: string, password: string): Promise<PatientPortalDocumentsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalDocumentsResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  d.id,
+  d.foreign_id AS pid,
+  CASE
+    WHEN SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1) LIKE 'Gold synthetic document %'
+      THEN SUBSTRING_INDEX(SUBSTRING_INDEX(COALESCE(CONVERT(d.document_data USING utf8mb4), ''), '\n', 1), ' ', -1)
+    WHEN d.url LIKE 'gold://documents/%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(d.url, 'gold://documents/', -1), '/', 1)
+    ELSE CONCAT('DOC-', d.id)
+  END AS documentKey,
+  COALESCE(c.id, 0) AS categoryId,
+  COALESCE(c.name, '') AS categoryName,
+  COALESCE(d.name, '') AS name,
+  DATE_FORMAT(d.docdate, '%Y-%m-%d') AS docDate,
+  DATE_FORMAT(d.date, '%Y-%m-%d %H:%i:%s') AS uploadedAt,
+  COALESCE(d.mimetype, '') AS mimetype,
+  COALESCE(d.size, 0) AS sizeBytes,
+  CASE
+    WHEN d.type = 'web_url' THEN 'web_url'
+    WHEN d.type = 'file_url' THEN 'file_url'
+    WHEN COALESCE(d.storagemethod, 0) = 0 THEN 'database'
+    ELSE CAST(d.storagemethod AS CHAR)
+  END AS storageMethod
+FROM documents d
+LEFT JOIN categories_to_documents ctd ON ctd.document_id = d.id
+LEFT JOIN categories c ON c.id = ctd.category_id
+WHERE d.foreign_id = ${integer(login.pid)}
+  AND COALESCE(d.deleted, 0) = 0
+ORDER BY COALESCE(c.name, ''), d.docdate DESC, d.id DESC;
+`);
+    const documents = rows.map((row): PatientPortalDocumentItem => {
+      const categoryName = row.categoryName || "Unfiled";
+      const name = row.name || `Document ${row.id}`;
+      const storageMethod = row.storageMethod || null;
+      return {
+        id: Number(row.id),
+        documentKey: row.documentKey,
+        categoryId: Number(row.categoryId),
+        categoryName,
+        displayPath: categoryName,
+        name,
+        docDate: normalizeDateText(row.docDate),
+        uploadedAt: row.uploadedAt,
+        mimetype: row.mimetype || null,
+        fileName: name.endsWith(".txt") ? name : `${name}.txt`,
+        sizeBytes: row.sizeBytes === "" ? null : Number(row.sizeBytes),
+        storageMethod,
+        canDownload: storageMethod !== "web_url"
+      };
+    });
+    const categories = buildPortalDocumentCategories(documents);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      documentCount: documents.length,
+      categories,
+      documents,
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async downloadPatientPortalDocuments(
+    username: string,
+    password: string,
+    documentIds: number[]
+  ): Promise<PatientPortalDocumentsDownloadResult> {
+    const documents = await this.getPatientPortalDocuments(username, password);
+    const requestedDocumentIds = Array.from(
+      new Set(documentIds.filter((documentId) => Number.isInteger(documentId) && documentId > 0))
+    );
+    if (!documents.authenticated || documents.pid === null) {
+      return buildEmptyPortalDocumentsDownloadResult(
+        username,
+        requestedDocumentIds,
+        documents.failureReason ?? "Patient portal sign-in was rejected."
+      );
+    }
+    if (requestedDocumentIds.length === 0) {
+      return buildEmptyPortalDocumentsDownloadResult(username, [], "Select at least one patient document to download.");
+    }
+
+    const selected = documents.documents.filter((document) => requestedDocumentIds.includes(document.id) && document.canDownload);
+    if (selected.length === 0) {
+      return buildEmptyPortalDocumentsDownloadResult(
+        username,
+        requestedDocumentIds,
+        "Selected patient documents were not found in the signed-in portal account."
+      );
+    }
+
+    return {
+      authenticated: true,
+      downloadable: true,
+      username: documents.username,
+      portalUsername: documents.portalUsername,
+      canonicalId: documents.canonicalId,
+      pid: documents.pid,
+      pubpid: documents.pubpid,
+      displayName: documents.displayName,
+      documentIds: requestedDocumentIds,
+      documentCount: selected.length,
+      fileName: "patient_documents.zip",
+      contentType: "application/zip",
+      contentLength: selected.reduce((total, document) => total + (document.sizeBytes ?? 0), 0),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -6480,6 +6663,69 @@ function buildEmptyPortalMessagesResult(username: string, failureReason: string)
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };
+}
+
+function buildEmptyPortalDocumentsResult(username: string, failureReason: string): PatientPortalDocumentsResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    documentCount: 0,
+    categories: [],
+    documents: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalDocumentsDownloadResult(
+  username: string,
+  documentIds: number[],
+  failureReason: string
+): PatientPortalDocumentsDownloadResult {
+  return {
+    authenticated: false,
+    downloadable: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    documentIds,
+    documentCount: 0,
+    fileName: "patient_documents.zip",
+    contentType: "application/zip",
+    contentLength: 0,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildPortalDocumentCategories(documents: PatientPortalDocumentItem[]): PatientPortalDocumentCategory[] {
+  const groups = new Map<string, PatientPortalDocumentItem[]>();
+  documents.forEach((document) => {
+    const key = `${document.categoryId}|${document.categoryName}|${document.displayPath}`;
+    const group = groups.get(key) ?? [];
+    group.push(document);
+    groups.set(key, group);
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      categoryId: group[0].categoryId,
+      categoryName: group[0].categoryName,
+      displayPath: group[0].displayPath,
+      documentCount: group.length,
+      documents: group.sort((left, right) => right.docDate.localeCompare(left.docDate) || right.id - left.id)
+    }))
+    .sort((left, right) => left.displayPath.localeCompare(right.displayPath));
 }
 
 function buildEmptyPortalMessageThreadResult(

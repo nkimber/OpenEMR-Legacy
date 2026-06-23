@@ -172,6 +172,11 @@
           "label": "Patient portal secure-message All-folder readiness",
           "detail": "The modernized patient portal API and Portal page now expose the legacy active All-folder mailbox view, while parity verifies temporary inbound and sent message inclusion plus archived-row exclusion for the signed-in patient.",
           "evidence": ["slice-217-patient-portal-all-messages-readiness"]
+        },
+        {
+          "label": "Patient portal document list/download readiness",
+          "detail": "The modernized patient portal API and Portal page now list active patient-owned documents by legacy category and build a selected-document ZIP download, while parity compares the same list and download package behavior against legacy OpenEMR.",
+          "evidence": ["slice-218-patient-portal-documents-readiness"]
         }
       ],
       "outstanding": [
@@ -181,10 +186,10 @@
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 98,
+      "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -439,7 +444,7 @@
       "id": "documents-attachments",
       "name": "Documents And Attachments",
       "status": "in-progress",
-      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, external-link behavior, protected document access, ACL-authorized document access, and mutation-specific document authorization are broadly covered; production document operations remain open.",
+      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, external-link behavior, patient portal list/download, protected document access, ACL-authorized document access, and mutation-specific document authorization are broadly covered; production document operations remain open.",
       "completed": [
         {
           "label": "Patient document read, retrieval, and mutation",
@@ -465,19 +470,24 @@
           "label": "Patient document mutation authorization policy readiness",
           "detail": "The modernized patient and encounter document mutation APIs now separate Documents add-only filing from write-level metadata/content/review/archive operations and Documents Delete hard-delete authority.",
           "evidence": ["slice-186-document-mutation-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient portal document list/download readiness",
+          "detail": "The authenticated patient portal can render active patient-owned document categories and create a selected-document ZIP package with OpenEMR-compatible ownership, deleted-row, and non-downloadable external-link filtering.",
+          "evidence": ["slice-218-patient-portal-documents-readiness"]
         }
       ],
       "outstanding": [
         "Direct scanner capture, OCR execution and queueing, generated PDF thumbnails, document routing queues, full historical version rows, encryption/key management, and retention policy.",
-        "External object storage, CCDA import/export, patient-portal document access rules, and document delivery integrations."
+        "External object storage, CCDA import/export, broader patient-portal document access rules beyond active owned list/download, and document delivery integrations."
       ],
       "deferred": [
         "Fax/SMS attachments and external storage provider adapters."
       ],
-      "completionEstimatePercent": 64,
+      "completionEstimatePercent": 65,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Document workflows span storage, previews, reviews, revisions, retention, authorization, scanner/OCR, and patient/encounter contexts.",
-      "estimateRationale": "Document read, upload, preview, review, archive, replacement, revision, protected access, focused ACL-authorized access, and mutation-specific add/write/delete document authorization paths are broad; scanner, OCR, storage, and retention remain."
+      "estimateRationale": "Document read, upload, preview, review, archive, replacement, revision, patient portal list/download, protected access, focused ACL-authorized access, and mutation-specific add/write/delete document authorization paths are broad; scanner, OCR, storage, and retention remain."
     },
     {
       "id": "labs-procedures",

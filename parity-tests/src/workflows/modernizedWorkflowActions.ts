@@ -68,6 +68,8 @@ import type {
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
+  PatientPortalDocumentsDownloadResult,
+  PatientPortalDocumentsResult,
   PatientPortalHomeSummary,
   PatientPortalInboxMessageInput,
   PatientPortalLoginResult,
@@ -753,6 +755,126 @@ LIMIT 1;
       }
 
       return mapPatientPortalMessagesResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalDocuments(username: string, password: string): Promise<PatientPortalDocumentsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        documentCount: 0,
+        categories: [],
+        documents: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/documents`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal documents failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalDocumentsResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async downloadPatientPortalDocuments(
+    username: string,
+    password: string,
+    documentIds: number[]
+  ): Promise<PatientPortalDocumentsDownloadResult> {
+    const requestedDocumentIds = Array.from(
+      new Set(documentIds.filter((documentId) => Number.isInteger(documentId) && documentId > 0))
+    );
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        downloadable: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        documentIds: requestedDocumentIds,
+        documentCount: 0,
+        fileName: "patient_documents.zip",
+        contentType: "application/zip",
+        contentLength: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/documents/download`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify({ documentIds: requestedDocumentIds })
+      });
+
+      if (!response.ok) {
+        return {
+          authenticated: true,
+          downloadable: false,
+          username: login.username,
+          portalUsername: login.portalUsername,
+          canonicalId: login.canonicalId,
+          pid: login.pid,
+          pubpid: login.pubpid,
+          displayName: login.displayName,
+          documentIds: requestedDocumentIds,
+          documentCount: 0,
+          fileName: "patient_documents.zip",
+          contentType: "application/zip",
+          contentLength: 0,
+          failureReason: await response.text(),
+          sessionSource: "modernized-openemr-portal"
+        };
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+      return {
+        authenticated: true,
+        downloadable: true,
+        username: login.username,
+        portalUsername: login.portalUsername,
+        canonicalId: login.canonicalId,
+        pid: login.pid,
+        pubpid: login.pubpid,
+        displayName: login.displayName,
+        documentIds: requestedDocumentIds,
+        documentCount: requestedDocumentIds.length,
+        fileName: response.headers.get("content-disposition")?.includes("patient_documents.zip")
+          ? "patient_documents.zip"
+          : "patient_documents.zip",
+        contentType: response.headers.get("content-type") ?? "application/zip",
+        contentLength: buffer.length,
+        failureReason: null,
+        sessionSource: "modernized-openemr-portal"
+      };
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4344,6 +4466,47 @@ function mapPatientPortalMessagesResult(result: any): PatientPortalMessagesResul
     sentMessages: (result.sentMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     allMessageCount: result.allMessageCount ?? 0,
     allMessages: (result.allMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalDocumentsResult(result: any): PatientPortalDocumentsResult {
+  const mapDocument = (document: any) => ({
+    id: Number(document.id ?? 0),
+    documentKey: document.documentKey ?? "",
+    categoryId: Number(document.categoryId ?? 0),
+    categoryName: document.categoryName ?? "",
+    displayPath: document.displayPath ?? document.categoryName ?? "",
+    name: document.name ?? "",
+    docDate: document.docDate ?? "",
+    uploadedAt: document.uploadedAt ?? "",
+    mimetype: document.mimetype ?? null,
+    fileName: document.fileName ?? document.name ?? "",
+    sizeBytes: document.sizeBytes ?? null,
+    storageMethod: document.storageMethod ?? null,
+    canDownload: Boolean(document.canDownload)
+  });
+
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    documentCount: result.documentCount ?? 0,
+    categories: (result.categories ?? []).map((category: any) => ({
+      categoryId: Number(category.categoryId ?? 0),
+      categoryName: category.categoryName ?? "",
+      displayPath: category.displayPath ?? category.categoryName ?? "",
+      documentCount: category.documentCount ?? 0,
+      documents: (category.documents ?? []).map(mapDocument)
+    })),
+    documents: (result.documents ?? []).map(mapDocument),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

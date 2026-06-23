@@ -325,6 +325,7 @@ The shared gold dataset temporal coverage has also been verified in the legacy M
 - Procedure orders: 1,000 in 2026, including 300 future scheduled orders after 2026-06-18 and through 2026-12-31.
 - Procedure results: 2,400 completed results in 2026. Future scheduled procedure orders intentionally do not have final result rows.
 - Patient documents: 1,200 total, including 1,152 dated in 2026 and anchored by `MOD-PAT-0001` document records on 2026-06-10 and 2026-06-12.
+- Patient portal document anchor: `MOD-PAT-0004` has active patient-owned portal documents `8000007` (`Advance directive acknowledgement 01`) and `8000008` (`Continuity of care document 02`) for portal list/download parity.
 - Claims: 700 total seeded OpenEMR claim status rows, including queued, generated-to-file, cleared, closed, canceled, forwarded, and denied examples anchored by `MOD-PAT-0005` for repeatable revenue-cycle status checks.
 - Account aging anchor: `MOD-PAT-0005` derives Current `$83.75`, 31-60 `$18.00`, 61-90 `$0.00`, and Over 90 `$263.00` balances from seeded billing and AR payment rows as of the dataset base date `2026-06-18`.
 - Payment postings: 617 total seeded OpenEMR AR activity rows, including 422 posted in 2026 and a `MOD-PAT-0005` anchor with `EOB-NSTAR-1000052`, payment `$126.00`, adjustment `$42.00`, and reason `CO-45`.
