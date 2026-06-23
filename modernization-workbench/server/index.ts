@@ -135,6 +135,7 @@ type FunctionalityProgressSummary = {
 type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   commit: string;
   fullCommit: string;
+  snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
 };
@@ -770,7 +771,10 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
     return [];
   }
 
-  const commitLog = await runGitText(["log", "--first-parent", "--reverse", "--format=%H%x1f%h%x1f%aI%x1f%s", `${addCommit}^..HEAD`], 15000);
+  const commitLog = await runGitText(
+    ["log", "--first-parent", "--reverse", "--format=%H%x1f%h%x1f%cI%x1f%s", `${addCommit}^..HEAD`, "--", progressPath],
+    15000
+  );
   if (!commitLog) {
     progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history: [] };
     return [];
@@ -778,8 +782,8 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
 
   const history: FunctionalityProgressHistoryPoint[] = [];
   for (const line of commitLog.split(/\r?\n/).filter(Boolean)) {
-    const [fullCommit, commit, committedAt, subject] = line.split("\x1f");
-    if (!fullCommit || !commit || !committedAt || !subject) {
+    const [fullCommit, commit, snapshotCompletedAt, subject] = line.split("\x1f");
+    if (!fullCommit || !commit || !snapshotCompletedAt || !subject) {
       continue;
     }
 
@@ -796,7 +800,8 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
     history.push({
       commit,
       fullCommit,
-      committedAt,
+      snapshotCompletedAt,
+      committedAt: snapshotCompletedAt,
       subject,
       ...calculateFunctionalityProgressSummary(areas)
     });

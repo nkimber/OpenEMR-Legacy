@@ -1176,6 +1176,14 @@ p {
   font-weight: 700;
 }
 
+.chart-axis-label-x {
+  font-size: 11px;
+}
+
+.chart-grid-line-vertical {
+  stroke-dasharray: 3 5;
+}
+
 .progress-history-line {
   fill: none;
   stroke: #2f8f72;
@@ -1198,6 +1206,7 @@ p {
 
 .functionality-card {
   display: grid;
+  align-content: start;
   gap: 14px;
   min-width: 0;
   border: 1px solid #dce5eb;

@@ -471,6 +471,7 @@ export type FunctionalityProgressSummary = {
 export type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   commit: string;
   fullCommit: string;
+  snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
 };

@@ -127,6 +127,17 @@ function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
+function formatHistoryAxisTick(value: number, includeDate: boolean) {
+  return new Intl.DateTimeFormat(undefined, includeDate ? {
+    month: "short",
+    day: "numeric",
+    hour: "numeric"
+  } : {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
 function formatDateOnly(value?: string) {
   if (!value) {
     return "Undated";
@@ -786,25 +797,40 @@ function ProgressForecastPanel({ forecast }: { forecast?: FunctionalityProgressF
 }
 
 function FunctionalityProgressHistoryChart({ history }: { history: FunctionalityProgressHistoryPoint[] }) {
-  const points = history.filter((point) => Number.isFinite(point.weightedAveragePercent));
+  const points = history
+    .filter((point) => Number.isFinite(point.weightedAveragePercent))
+    .map((point, index) => ({
+      point,
+      index,
+      timestamp: new Date(point.snapshotCompletedAt ?? point.committedAt).getTime()
+    }))
+    .filter((point) => Number.isFinite(point.timestamp))
+    .sort((left, right) => left.timestamp - right.timestamp || left.index - right.index);
   if (points.length < 2) {
     return <EmptyState text="Progress history will appear after more committed progress snapshots are available." />;
   }
 
   const width = 720;
   const height = 220;
-  const paddingX = 42;
-  const paddingY = 24;
-  const chartWidth = width - paddingX * 2;
-  const chartHeight = height - paddingY * 2;
-  const coordinates = points.map((point, index) => {
-    const x = paddingX + (points.length === 1 ? 0 : (index / (points.length - 1)) * chartWidth);
-    const y = paddingY + (1 - Math.max(0, Math.min(100, point.weightedAveragePercent)) / 100) * chartHeight;
+  const paddingLeft = 42;
+  const paddingRight = 22;
+  const paddingTop = 24;
+  const paddingBottom = 36;
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+  const first = points[0];
+  const latest = points[points.length - 1];
+  const firstTime = first.timestamp;
+  const latestTime = latest.timestamp;
+  const timeSpan = Math.max(1, latestTime - firstTime);
+  const spansMultipleDays = new Date(firstTime).toDateString() !== new Date(latestTime).toDateString();
+  const timeTicks = [0, 1, 2, 3].map((index) => firstTime + (timeSpan * index) / 3);
+  const coordinates = points.map(({ point, timestamp }) => {
+    const x = paddingLeft + ((timestamp - firstTime) / timeSpan) * chartWidth;
+    const y = paddingTop + (1 - Math.max(0, Math.min(100, point.weightedAveragePercent)) / 100) * chartHeight;
     return { point, x, y };
   });
   const linePoints = coordinates.map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`).join(" ");
-  const latest = points[points.length - 1];
-  const first = points[0];
 
   return (
     <div className="progress-history-panel">
@@ -814,20 +840,36 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             <GitBranch size={17} />
             Weighted Completion History
           </h3>
-          <p>{points.length} committed progress snapshots from {first.commit} through {latest.commit}.</p>
+          <p>{points.length} committed progress snapshots from {first.point.commit} through {latest.point.commit}.</p>
         </div>
         <div className="progress-history-latest">
-          <span>{formatProgressPercent(latest.weightedAveragePercent)}</span>
-          <strong>{latest.commit}</strong>
+          <span>{formatProgressPercent(latest.point.weightedAveragePercent)}</span>
+          <strong>{latest.point.commit}</strong>
         </div>
       </div>
       <svg className="progress-history-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Weighted modernization completion over committed progress snapshots">
-        {[0, 25, 50, 75, 100].map((tick) => {
-          const y = paddingY + (1 - tick / 100) * chartHeight;
+        {timeTicks.map((tick, index) => {
+          const x = paddingLeft + ((tick - firstTime) / timeSpan) * chartWidth;
           return (
             <Fragment key={tick}>
-              <line x1={paddingX} x2={width - paddingX} y1={y} y2={y} className="chart-grid-line" />
-              <text x={paddingX - 10} y={y + 4} className="chart-axis-label" textAnchor="end">
+              <line x1={x} x2={x} y1={paddingTop} y2={height - paddingBottom} className="chart-grid-line chart-grid-line-vertical" />
+              <text
+                x={x}
+                y={height - 10}
+                className="chart-axis-label chart-axis-label-x"
+                textAnchor={index === 0 ? "start" : index === timeTicks.length - 1 ? "end" : "middle"}
+              >
+                {formatHistoryAxisTick(tick, spansMultipleDays)}
+              </text>
+            </Fragment>
+          );
+        })}
+        {[0, 25, 50, 75, 100].map((tick) => {
+          const y = paddingTop + (1 - tick / 100) * chartHeight;
+          return (
+            <Fragment key={tick}>
+              <line x1={paddingLeft} x2={width - paddingRight} y1={y} y2={y} className="chart-grid-line" />
+              <text x={paddingLeft - 10} y={y + 4} className="chart-axis-label" textAnchor="end">
                 {tick}%
               </text>
             </Fragment>
@@ -836,13 +878,14 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
         <polyline className="progress-history-line" points={linePoints} />
         {coordinates.map(({ point, x, y }) => (
           <circle className="progress-history-point" key={point.fullCommit} cx={x} cy={y} r={4.5}>
-            <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} - ${point.subject}`}</title>
+            <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}`}</title>
           </circle>
         ))}
       </svg>
       <div className="progress-history-caption">
-        <span>{formatDate(first.committedAt)}</span>
-        <span>{formatDate(latest.committedAt)}</span>
+        <span>{formatDate(first.point.snapshotCompletedAt ?? first.point.committedAt)}</span>
+        <span>{formatElapsedDuration(latestTime - firstTime)} span</span>
+        <span>{formatDate(latest.point.snapshotCompletedAt ?? latest.point.committedAt)}</span>
       </div>
     </div>
   );

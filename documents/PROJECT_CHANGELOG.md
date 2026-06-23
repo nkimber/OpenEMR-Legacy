@@ -13900,6 +13900,46 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 242. Workbench Progress History Timing And Card Alignment
+
+Started: 2026-06-23T08:55:00.0000000-04:00
+Finished: 2026-06-23T09:10:00.0000000-04:00
+Commit: pending
+
+Improved the Modernization Workbench Progress page so the Weighted Completion History chart plots actual snapshot completion time on the x-axis and functionality cards keep their sections top-justified when adjacent cards have different content heights.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 126
+- Lines deleted: 28
+- Net lines: +98
+- Total churn: 154
+
+Key outcomes:
+
+- Changed `/api/progress` history reconstruction to use first-parent commits that actually changed `modernization-workbench/config/functionality-progress.json`, then expose each commit completion timestamp as `snapshotCompletedAt`.
+- Updated the Weighted Completion History SVG to map x coordinates from snapshot completion timestamps, render compact time ticks, show a total time span, and include the completion timestamp in each point tooltip.
+- Top-justified functionality progress cards so a shorter card such as Scheduling keeps normal section spacing and leaves extra row height as one block at the bottom.
+- Documented the timestamp-based progress history behavior in the Workbench document.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live `/api/progress` smoke returned 64 ledger-change history snapshots with `snapshotCompletedAt`, from `2026-06-21T11:58:47-04:00` through `2026-06-23T07:28:20-04:00`; the largest measured snapshot gap was 7.41 hours between Slice 206 and Slice 207.
+- Playwright browser verification on `http://127.0.0.1:5173/#/progress` confirmed 64 chart points, x-axis labels from Jun 21 through Jun 23, a 111.8px overnight gap between Slice 206 and Slice 207, a 7.2px gap to the next slice, and no x-axis label overlap at a 390px-wide viewport.
+- Playwright DOM measurement confirmed the Scheduling functionality card uses `align-content: start`, keeps 14px internal section gaps, and leaves the remaining vertical space as one bottom block.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/src/types.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
