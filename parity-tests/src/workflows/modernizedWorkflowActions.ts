@@ -64,6 +64,7 @@ import type {
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
+  PatientPortalHomeSummary,
   PatientPortalLoginResult,
   PatientPortalSessionResult,
   PatientPortalAccountResetState,
@@ -663,6 +664,48 @@ LIMIT 1;
     }
 
     return mapPatientPortalSessionResult(await response.json());
+  }
+
+  async getPatientPortalHomeSummary(username: string, password: string): Promise<PatientPortalHomeSummary> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        messages: {
+          totalMessages: 0,
+          newMessages: 0,
+          doneMessages: 0,
+          latestMessageTitle: null,
+          latestMessageDate: null
+        },
+        upcomingAppointmentCount: 0,
+        upcomingAppointments: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/home`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal home failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalHomeSummary(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -3792,6 +3835,42 @@ function mapPatientPortalSessionResult(result: any): PatientPortalSessionResult 
     lastSeenAt: result.lastSeenAt ?? null,
     expiresAt: result.expiresAt ?? null,
     endedAt: result.endedAt ?? null,
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalHomeSummary(result: any): PatientPortalHomeSummary {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    messages: {
+      totalMessages: result.messages?.totalMessages ?? 0,
+      newMessages: result.messages?.newMessages ?? 0,
+      doneMessages: result.messages?.doneMessages ?? 0,
+      latestMessageTitle: result.messages?.latestMessageTitle ?? null,
+      latestMessageDate: result.messages?.latestMessageDate ?? null
+    },
+    upcomingAppointmentCount: result.upcomingAppointmentCount ?? 0,
+    upcomingAppointments: (result.upcomingAppointments ?? []).map((appointment: any) => ({
+      id: appointment.id ?? "",
+      date: appointment.date ?? "",
+      startTime: appointment.startTime ?? "",
+      title: appointment.title ?? "",
+      status: appointment.status ?? null,
+      categoryId: appointment.categoryId ?? null,
+      categoryName: appointment.categoryName ?? null,
+      providerName: appointment.providerName ?? null,
+      facilityName: appointment.facilityName ?? null,
+      comments: appointment.comments ?? null
+    })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

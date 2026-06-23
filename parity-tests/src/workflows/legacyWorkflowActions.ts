@@ -171,6 +171,44 @@ export type PatientPortalSessionResult = {
   sessionSource: string;
 };
 
+export type PatientPortalHomeMessageSummary = {
+  totalMessages: number;
+  newMessages: number;
+  doneMessages: number;
+  latestMessageTitle: string | null;
+  latestMessageDate: string | null;
+};
+
+export type PatientPortalHomeAppointmentSummary = {
+  id: string;
+  date: string;
+  startTime: string;
+  title: string;
+  status: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  providerName: string | null;
+  facilityName: string | null;
+  comments: string | null;
+};
+
+export type PatientPortalHomeSummary = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  messages: PatientPortalHomeMessageSummary;
+  upcomingAppointmentCount: number;
+  upcomingAppointments: PatientPortalHomeAppointmentSummary[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientGuardianContact = {
   pid: number;
   pubpid: string;
@@ -1858,6 +1896,93 @@ LIMIT 1;
 
   async endPatientPortalSession(sessionId: string): Promise<PatientPortalSessionResult> {
     return buildLegacyPortalSessionResult(sessionId);
+  }
+
+  async getPatientPortalHomeSummary(username: string, password: string): Promise<PatientPortalHomeSummary> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalHomeSummary(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const messageRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  COUNT(*) AS totalMessages,
+  SUM(CASE WHEN message_status = 'New' THEN 1 ELSE 0 END) AS newMessages,
+  SUM(CASE WHEN message_status = 'Done' THEN 1 ELSE 0 END) AS doneMessages
+FROM pnotes
+WHERE pid = ${integer(login.pid)}
+  AND activity = 1;
+`);
+    const latestMessageRows = await this.db.queryRows<Record<string, string>>(`
+SELECT title AS latestMessageTitle, DATE_FORMAT(date, '%Y-%m-%d') AS latestMessageDate
+FROM pnotes
+WHERE pid = ${integer(login.pid)}
+  AND activity = 1
+ORDER BY date DESC, id DESC
+LIMIT 1;
+`);
+    const appointmentRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  e.pc_eid AS id,
+  DATE_FORMAT(e.pc_eventDate, '%Y-%m-%d') AS appointmentDate,
+  TIME_FORMAT(e.pc_startTime, '%H:%i') AS startTime,
+  COALESCE(e.pc_title, 'Appointment') AS title,
+  COALESCE(e.pc_apptstatus, '') AS status,
+  COALESCE(CAST(e.pc_catid AS CHAR), '') AS categoryId,
+  TRIM(CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, ''))) AS providerName,
+  COALESCE(f.name, '') AS facilityName,
+  COALESCE(e.pc_hometext, '') AS comments
+FROM openemr_postcalendar_events e
+LEFT JOIN users u ON u.id = e.pc_aid
+LEFT JOIN facility f ON f.id = e.pc_facility
+WHERE e.pc_pid = ${integer(login.pid)}
+  AND e.pc_eventDate >= CURDATE()
+ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid
+LIMIT 10;
+`);
+    const appointmentCountRows = await this.db.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS appointmentCount
+FROM openemr_postcalendar_events
+WHERE pc_pid = ${integer(login.pid)}
+  AND pc_eventDate >= CURDATE();
+`);
+
+    const messageRow = messageRows[0] ?? {};
+    const latestMessage = latestMessageRows[0] ?? {};
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      messages: {
+        totalMessages: Number(messageRow.totalMessages ?? 0),
+        newMessages: Number(messageRow.newMessages ?? 0),
+        doneMessages: Number(messageRow.doneMessages ?? 0),
+        latestMessageTitle: latestMessage.latestMessageTitle || null,
+        latestMessageDate: latestMessage.latestMessageDate || null
+      },
+      upcomingAppointmentCount: Number(appointmentCountRows[0]?.appointmentCount ?? appointmentRows.length),
+      upcomingAppointments: appointmentRows.map((row) => ({
+        id: row.id,
+        date: normalizeDateText(row.appointmentDate),
+        startTime: row.startTime,
+        title: row.title,
+        status: row.status || null,
+        categoryId: row.categoryId ? Number(row.categoryId) : null,
+        categoryName: appointmentCategoryLabel(row.categoryId ? Number(row.categoryId) : null),
+        providerName: row.providerName || null,
+        facilityName: row.facilityName || null,
+        comments: row.comments || null
+      })),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -5342,6 +5467,54 @@ function buildLegacyPortalSessionResult(sessionId: string): PatientPortalSession
     failureReason: "Legacy patient portal sessions are browser-cookie based.",
     sessionSource: "legacy-openemr-portal"
   };
+}
+
+function buildEmptyPortalHomeSummary(username: string, failureReason: string): PatientPortalHomeSummary {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    messages: {
+      totalMessages: 0,
+      newMessages: 0,
+      doneMessages: 0,
+      latestMessageTitle: null,
+      latestMessageDate: null
+    },
+    upcomingAppointmentCount: 0,
+    upcomingAppointments: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function appointmentCategoryLabel(categoryId: number | null): string | null {
+  switch (categoryId) {
+    case 9:
+      return "Established Patient";
+    case 10:
+      return "New Patient";
+    case 13:
+      return "Preventive Care Services";
+    case null:
+      return null;
+    default:
+      return `Category ${categoryId}`;
+  }
+}
+
+function normalizeDateText(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  return value.slice(0, 10);
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

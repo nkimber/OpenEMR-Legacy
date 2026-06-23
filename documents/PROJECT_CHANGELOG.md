@@ -13904,7 +13904,7 @@ Primary files:
 
 Started: 2026-06-23T08:55:00.0000000-04:00
 Finished: 2026-06-23T09:10:00.0000000-04:00
-Commit: pending
+Commit: 6e7512bb
 
 Improved the Modernization Workbench Progress page so the Weighted Completion History chart plots actual snapshot completion time on the x-axis and functionality cards keep their sections top-justified when adjacent cards have different content heights.
 
@@ -13938,6 +13938,72 @@ Primary files:
 - `modernization-workbench/src/styles.css`
 - `modernization-workbench/src/types.ts`
 - `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+## 243. Slice 209 Patient Portal Home Readiness
+
+Started: 2026-06-23T08:26:00.0000000-04:00
+Finished: 2026-06-23T09:13:37.7887873-04:00
+Duration: 47 minutes 38 seconds
+Commit: pending
+
+Implemented Slice 209: patient portal home readiness. The modernized app now has a session-protected patient portal home endpoint, a first-class Portal workspace in the SPA, and shared parity coverage that proves the `MOD-PAT-0004` portal identity, secure-message summary, and next upcoming appointment against the legacy OpenEMR portal home.
+
+Code changes:
+
+- Files changed: 22
+- Lines added: 1126
+- Lines deleted: 53
+- Net lines: +1073
+- Total churn: 1179
+
+Key outcomes:
+
+- Added modernized `/api/patient-portal/home`, backed by authenticated patient portal sessions, message summary counts, latest portal message facts, and upcoming appointment summaries.
+- Added a dedicated modernized Portal module with portal sign-in, session state, message summary, and upcoming appointments while preserving the legacy-friendly portal workflow shape.
+- Extended the modernized smoke test so the live baseline verifies the new portal home payload before portal logout.
+- Added shared legacy and modernized workflow adapters plus the `workflow-patient-portal-home` parity suite and `slice-209-patient-portal-home-readiness` plan.
+- Added Workbench managed plan actions, progress-ledger updates, source inventory refresh, and synchronized project documents for Slice 209.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm.cmd run typecheck` passed in `parity-tests/`.
+- `dotnet build modernized-openemr/backend/src/OpenEmr.Modernized.Api/OpenEmr.Modernized.Api.csproj` passed.
+- `npm.cmd run build` passed in `modernized-openemr/frontend/` with the existing Vite large-chunk warning.
+- `npm.cmd run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `npm.cmd run build` passed in `modernization-workbench/`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded the modernized PostgreSQL seed.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with status `passed` and 146 checks, including portal home facts for `MOD-PAT-0004`, two messages, and the `2026-07-28` future appointment.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-209-patient-portal-home-readiness -Reset test` passed with 1 expected test; run `2026-06-23T130923-890Z-legacy-openemr-plan-slice-209-patient-portal-home-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-209-patient-portal-home-readiness -Reset test` passed with 1 expected test; run `2026-06-23T130833-769Z-modernized-openemr-plan-slice-209-patient-portal-home-readiness`.
+- `npm.cmd run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-209-patient-portal-home-readiness` passed with status `matched`; comparison `2026-06-23T130958-336Z-legacy-openemr-vs-modernized-openemr-plan-slice-209-patient-portal-home-readiness`.
+- Regression check `slice-208-patient-portal-session-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T131056-189Z-legacy-openemr-vs-modernized-openemr-plan-slice-208-patient-portal-session-readiness`.
+- `git diff --check` passed with only the repository's normal LF-to-CRLF working-copy warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-home/patient-portal-home.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries

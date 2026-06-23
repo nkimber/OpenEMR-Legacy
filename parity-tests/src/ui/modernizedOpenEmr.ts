@@ -19,6 +19,24 @@ export async function openAuthenticatedModernizedPatient(page: Page, target: Run
   }
 }
 
+export async function openAuthenticatedModernizedPatientPortal(
+  page: Page,
+  target: RuntimeTarget,
+  username: string,
+  password: string
+) {
+  await page.goto(target.publicUrl);
+  await page.getByRole("button", { name: "Portal" }).click();
+  await expect(page.getByRole("heading", { name: "Portal", exact: true })).toBeVisible();
+
+  const accessPanel = page.locator('form[aria-label="Patient portal home access"]');
+  await accessPanel.getByLabel("Portal username").fill(username);
+  await accessPanel.getByLabel("Portal password").fill(password);
+  await accessPanel.getByRole("button", { name: "Open Portal Home" }).click();
+
+  await expect(page.locator("body")).toContainText("Portal home ready");
+}
+
 export async function openAuthenticatedModernizedAdmin(page: Page, target: RuntimeTarget) {
   await page.goto(target.publicUrl);
   await page.getByRole("button", { name: "Admin" }).click();

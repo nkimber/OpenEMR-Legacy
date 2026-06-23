@@ -852,6 +852,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-209-patient-portal-home-readiness",
+      "name": "Slice 209 Patient Portal Home Readiness",
+      "description": "Patient portal confidence plan that opens the portal home summary and verifies identity, message counts, and upcoming appointments across API/UI surfaces.",
+      "suites": ["workflow-patient-portal-home"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-209", "patients", "portal", "home", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3708,6 +3717,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-session",
       "tags": ["slice208", "workflow", "mutation", "patients", "portal", "session", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-home",
+      "name": "Patient Portal Home Readiness",
+      "description": "Opens the signed-in portal home and verifies identity, secure message counts, and upcoming appointment summary.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-home",
+      "tags": ["slice209", "workflow", "mutation", "patients", "portal", "home", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
