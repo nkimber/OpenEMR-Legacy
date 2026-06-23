@@ -13506,7 +13506,7 @@ Primary files:
 Started: `2026-06-22T21:25:00-04:00`
 Finished: `2026-06-22T22:11:18-04:00`
 Duration: `46m 18s`
-Changeset: `pending`
+Changeset: `e0d24fde`
 
 Implemented Slice 204: patient portal account readiness. The shared gold dataset now provisions deterministic portal account facts for the existing 200 portal-enabled patients, the legacy and modernized databases seed the same account facts, the modernized Patient/Client chart renders them in a Portal Account panel, and parity tests prove the read-only account contract against both targets with the `MOD-PAT-0004` anchor.
 
