@@ -17,6 +17,7 @@ type PatientChartPortalAccount = {
     passwordStatus?: number | null;
     passwordStatusLabel: string;
     oneTimeLinkPending: boolean;
+    resetStatusLabel: string;
   } | null;
 };
 
@@ -35,7 +36,8 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
       portalLoginUsername: expectedLogin,
       passwordStatus: 1,
       passwordStatusLabel: "Patient-managed password",
-      oneTimeLinkPending: false
+      oneTimeLinkPending: false,
+      resetStatusLabel: "No reset pending"
     });
 
     if (target.type === "legacy-openemr") {
@@ -64,7 +66,8 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
       portalLoginUsername: expectedLogin,
       passwordStatus: 1,
       passwordStatusLabel: "Patient-managed password",
-      oneTimeLinkPending: false
+      oneTimeLinkPending: false,
+      resetStatusLabel: "No reset pending"
     });
 
     await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
@@ -74,6 +77,6 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
     await expect(page.locator("body")).toContainText(expectedLogin);
     await expect(page.locator("body")).toContainText("Provisioned");
     await expect(page.locator("body")).toContainText("Patient-managed password");
-    await expect(page.locator("body")).toContainText("Not pending");
+    await expect(page.locator("body")).toContainText("No reset pending");
   });
 });

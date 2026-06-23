@@ -816,6 +816,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-205-patient-portal-reset-readiness",
+      "name": "Slice 205 Patient Portal Reset Readiness",
+      "description": "Patient portal confidence plan that issues, renders, and clears one-time reset state for a provisioned portal account on database/API/UI surfaces.",
+      "suites": ["workflow-patient-portal-reset"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-205", "patients", "portal", "reset", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3634,6 +3643,16 @@
       "tags": ["slice204", "parity", "read-only", "patients", "portal", "account", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-patient-portal-reset",
+      "name": "Patient Portal Reset Readiness",
+      "description": "Issues, verifies, and clears one-time portal reset state for a provisioned portal account.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-reset",
+      "tags": ["slice205", "workflow", "mutation", "patients", "portal", "reset", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
     },
     {
       "id": "workflow-clinical-list-protection",

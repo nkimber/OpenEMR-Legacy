@@ -487,7 +487,8 @@ LIMIT 1;
       portalLoginUsername: row.portalLoginUsername,
       passwordStatus,
       passwordStatusLabel: portalPasswordStatusLabel(passwordStatus),
-      oneTimeLinkPending: row.oneTimeLinkPending === "1"
+      oneTimeLinkPending: row.oneTimeLinkPending === "1",
+      resetStatusLabel: portalResetStatusLabel(row.oneTimeLinkPending === "1", row.portalUsername)
     };
   }
 
@@ -2152,6 +2153,14 @@ function portalPasswordStatusLabel(status: number | null) {
     return "Patient-managed password";
   }
   return status === null ? "No account provisioned" : `Status ${status}`;
+}
+
+function portalResetStatusLabel(oneTimeLinkPending: boolean, portalUsername: string) {
+  if (!portalUsername) {
+    return "No account provisioned";
+  }
+
+  return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
 }
 
 function escapeSql(value: string) {

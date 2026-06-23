@@ -63,6 +63,7 @@ import type {
   PatientDocumentContentReplacement,
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
+  PatientPortalAccountResetState,
   PatientInsuranceRecord,
   PatientMessageRecord,
   PaymentPostingRecord,
@@ -514,6 +515,48 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized patient deceased status update failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async getPatientPortalAccountResetState(pid: number): Promise<PatientPortalAccountResetState | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS pid, p.pubpid,
+  COALESCE(ppa.password_status::text, '') AS "passwordStatus",
+  CASE WHEN COALESCE(ppa.one_time_token, '') <> '' THEN '1' ELSE '0' END AS "oneTimeLinkPending",
+  COALESCE(ppa.portal_username, '') AS "portalUsername"
+FROM patients p
+LEFT JOIN patient_portal_accounts ppa ON ppa.patient_id = p.canonical_id
+WHERE p.legacy_pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const passwordStatus = row.passwordStatus === "" ? null : Number(row.passwordStatus);
+    const oneTimeLinkPending = row.oneTimeLinkPending === "1";
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      passwordStatus,
+      passwordStatusLabel: portalWorkflowPasswordStatusLabel(passwordStatus),
+      oneTimeLinkPending,
+      resetStatusLabel: portalWorkflowResetStatusLabel(oneTimeLinkPending, row.portalUsername)
+    };
+  }
+
+  async updatePatientPortalAccountResetState(state: PatientPortalAccountResetState): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patients/${encodeURIComponent(state.pubpid)}/portal-account/reset`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        oneTimeLinkPending: state.oneTimeLinkPending
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient portal account reset update failed with ${response.status}: ${await response.text()}`);
     }
   }
 
@@ -3668,6 +3711,24 @@ function careTeamStatusLabel(value: string) {
     default:
       return value;
   }
+}
+
+function portalWorkflowPasswordStatusLabel(status: number | null) {
+  if (status === 0) {
+    return "Temporary password issued";
+  }
+  if (status === 1) {
+    return "Patient-managed password";
+  }
+  return status === null ? "No account provisioned" : `Status ${status}`;
+}
+
+function portalWorkflowResetStatusLabel(oneTimeLinkPending: boolean, portalUsername: string) {
+  if (!portalUsername) {
+    return "No account provisioned";
+  }
+
+  return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
 }
 
 function normalizeTime(value: string) {

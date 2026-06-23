@@ -124,6 +124,15 @@ export type PatientDeceasedStatus = {
   deceasedReason: string;
 };
 
+export type PatientPortalAccountResetState = {
+  pid: number;
+  pubpid: string;
+  passwordStatus: number | null;
+  passwordStatusLabel: string;
+  oneTimeLinkPending: boolean;
+  resetStatusLabel: string;
+};
+
 export type PatientGuardianContact = {
   pid: number;
   pubpid: string;
@@ -1691,6 +1700,43 @@ UPDATE patient_data
 SET deceased_date = ${nullableSqlString(status.deceasedDate)},
   deceased_reason = ${sqlString(status.deceasedReason)}
 WHERE pid = ${integer(status.pid)};
+`);
+  }
+
+  async getPatientPortalAccountResetState(pid: number): Promise<PatientPortalAccountResetState | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pd.pid, pd.pubpid,
+  COALESCE(CAST(pao.portal_pwd_status AS CHAR), '') AS passwordStatus,
+  CASE WHEN COALESCE(pao.portal_onetime, '') <> '' THEN '1' ELSE '0' END AS oneTimeLinkPending,
+  COALESCE(pao.portal_username, '') AS portalUsername
+FROM patient_data pd
+LEFT JOIN patient_access_onsite pao ON pao.pid = pd.pid
+WHERE pd.pid = ${integer(pid)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const passwordStatus = row.passwordStatus === "" ? null : Number(row.passwordStatus);
+    const oneTimeLinkPending = row.oneTimeLinkPending === "1";
+    return {
+      pid: Number(row.pid),
+      pubpid: row.pubpid,
+      passwordStatus,
+      passwordStatusLabel: portalWorkflowPasswordStatusLabel(passwordStatus),
+      oneTimeLinkPending,
+      resetStatusLabel: portalWorkflowResetStatusLabel(oneTimeLinkPending, row.portalUsername)
+    };
+  }
+
+  async updatePatientPortalAccountResetState(state: PatientPortalAccountResetState): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_access_onsite
+SET portal_pwd_status = ${nullableInteger(state.passwordStatus)},
+  portal_onetime = ${sqlString(state.oneTimeLinkPending ? `reset-${state.pubpid.toLowerCase()}` : "")}
+WHERE pid = ${integer(state.pid)};
 `);
   }
 
@@ -5106,6 +5152,24 @@ function careTeamStatusLabel(value: string) {
     default:
       return value;
   }
+}
+
+function portalWorkflowPasswordStatusLabel(status: number | null) {
+  if (status === 0) {
+    return "Temporary password issued";
+  }
+  if (status === 1) {
+    return "Patient-managed password";
+  }
+  return status === null ? "No account provisioned" : `Status ${status}`;
+}
+
+function portalWorkflowResetStatusLabel(oneTimeLinkPending: boolean, portalUsername: string) {
+  if (!portalUsername) {
+    return "No account provisioned";
+  }
+
+  return oneTimeLinkPending ? "One-time reset pending" : "No reset pending";
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {
