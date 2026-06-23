@@ -13840,7 +13840,7 @@ Primary files:
 Started: 2026-06-23T07:05:49.9510277-04:00
 Finished: 2026-06-23T07:25:59.9658761-04:00
 Duration: 20 minutes 10 seconds
-Commit: pending
+Commit: 7a02e92d
 
 Implemented Slice 208: patient portal session readiness. The modernized patient portal now supports explicit session logout, records `ended_at` on `patient_portal_sessions`, exposes that behavior through the Patient/Client Portal Account panel after portal readiness sign-in, and proves active-session read, logout, and reuse rejection against legacy portal logout behavior for the `MOD-PAT-0004` anchor.
 
