@@ -13426,7 +13426,7 @@ Primary files:
 Started: `2026-06-22T20:48:00-04:00`
 Finished: `2026-06-22T21:24:13-04:00`
 Duration: `36m 13s`
-Changeset: `pending`
+Changeset: `bc50db48`
 
 Implemented Slice 203: patient insurance subscriber readiness. The shared gold dataset now carries deterministic subscriber-party details on existing insurance rows, the legacy and modernized databases seed the same subscriber facts, the modernized Patient/Client insurance panel renders those fields, and parity tests prove seeded secondary coverage plus temporary tertiary coverage create/update/delete behavior against both targets.
 
