@@ -64,6 +64,7 @@ import type {
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
+  PatientPortalArchiveMessagesResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
@@ -891,7 +892,7 @@ SELECT COALESCE(
   (SELECT TRIM(first_name || ' ' || last_name) FROM staff WHERE username = ${sqlString(senderId)} LIMIT 1),
   (SELECT display_name FROM auth_accounts WHERE username = ${sqlString(senderId)} LIMIT 1),
   ${sqlString(senderId)}
-) AS displayName;
+) AS "displayName";
 `);
     const senderName = input.senderName?.trim() || senderRows[0]?.displayName || senderId;
     if (!title || !body) {
@@ -900,7 +901,7 @@ SELECT COALESCE(
 
     await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
     const idRows = await this.db.queryRows<{ nextId: string }>(`
-SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS nextId
+SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS "nextId"
 FROM portal_mailbox_messages;
 `);
     const messageId = Number(idRows[0]?.nextId ?? 9393001);
@@ -1019,6 +1020,55 @@ VALUES (
       }
 
       return mapPatientPortalDeleteMessageResult(await response.json(), username, messageId);
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async archivePatientPortalMessages(
+    username: string,
+    password: string,
+    messageIds: string[]
+  ): Promise<PatientPortalArchiveMessagesResult> {
+    const requestedMessageIds = Array.from(
+      new Set(messageIds.map((messageId) => Number(messageId)).filter((messageId) => Number.isInteger(messageId) && messageId > 0))
+    );
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        archived: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        messageIds: requestedMessageIds.map(String),
+        archivedMessages: [],
+        archivedMessageCount: 0,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/archive`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify({ messageIds: requestedMessageIds })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal selected message archive failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalArchiveMessagesResult(await response.json(), username, requestedMessageIds.map(String));
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4333,6 +4383,30 @@ function mapPatientPortalDeleteMessageResult(
     messageId: result.messageId ?? messageId,
     deletedMessage: result.deletedMessage ? mapPatientPortalMessageItem(result.deletedMessage, result.portalUsername) : null,
     deletedMessageCount: result.deletedMessageCount ?? 0,
+    messageCount: result.messageCount ?? 0,
+    sentMessageCount: result.sentMessageCount ?? 0,
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+  };
+}
+
+function mapPatientPortalArchiveMessagesResult(
+  result: any,
+  username: string,
+  messageIds: string[]
+): PatientPortalArchiveMessagesResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    archived: Boolean(result.archived),
+    username: result.username ?? username,
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    messageIds: result.messageIds ?? messageIds,
+    archivedMessages: (result.archivedMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
+    archivedMessageCount: result.archivedMessageCount ?? 0,
     messageCount: result.messageCount ?? 0,
     sentMessageCount: result.sentMessageCount ?? 0,
     failureReason: result.failureReason ?? null,

@@ -915,6 +915,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-216-patient-portal-batch-archive-readiness",
+      "name": "Slice 216 Patient Portal Secure Message Batch Archive Readiness",
+      "description": "Patient portal confidence plan that creates multiple temporary inbound secure messages, archives the selected messages together, and verifies legacy Delete-status active-folder removal from database and UI surfaces.",
+      "suites": ["workflow-patient-portal-batch-archive"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-216", "patients", "portal", "messages", "batch-archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3841,6 +3850,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-read",
       "tags": ["slice215", "workflow", "mutation", "patients", "portal", "messages", "read-status", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-batch-archive",
+      "name": "Patient Portal Secure Message Batch Archive Readiness",
+      "description": "Archives selected signed-in portal secure messages together and verifies Delete-status active-folder removal through database and UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-batch-archive",
+      "tags": ["slice216", "workflow", "mutation", "patients", "portal", "messages", "batch-archive", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -14546,6 +14546,68 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 254. Slice 216 Patient Portal Secure Message Batch Archive Readiness
+
+Started: 2026-06-23T16:12:00.0000000-04:00
+Finished: 2026-06-23T17:01:55.7640510-04:00
+Commit: pending
+
+Implemented Slice 216: patient portal secure-message batch archive readiness. The modernized target now exposes a session-protected selected-message archive endpoint, preserves OpenEMR-compatible `Delete` status and active-folder hiding for multiple selected patient-visible mailbox rows, renders Portal checkboxes plus an `Archive selected` command, and proves selected-message archive parity against legacy OpenEMR `onsite_mail` with cleanup-backed temporary inbound messages for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 852
+- Lines deleted: 24
+- Net lines: +828
+- Total churn: 876
+
+Key outcomes:
+
+- Added `POST /api/patient-portal/messages/archive` with portal-session validation, patient mailbox ownership checks, OpenEMR-style `message_status = Delete`, `activity = 1`, and `deleted = 1` behavior across selected row IDs or thread IDs.
+- Added frontend API contracts and Portal selected-message controls for inbox and sent secure-message cards, including refreshed counts and cleared reply/thread state after archive.
+- Added legacy and modernized workflow actions plus a `workflow-patient-portal-batch-archive` Playwright suite that creates two temporary inbound messages, archives both by database workflow and browser UI, verifies active-folder hiding plus archive visibility, and cleans up transient mailbox rows.
+- Hardened the modernized PostgreSQL portal inbox fixture helper by quoting temporary ID aliases so repeated high-range temporary message creation does not fall back to a stale ID.
+- Added the `slice-216-patient-portal-batch-archive-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed test actions.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, and functionality progress ledger with the Slice 216 portal mailbox batch-archive contract.
+
+Verified test runs:
+
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null`, `functionality-progress.json`, and `parity-tests\test-manifest.json` passed JSON parsing.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-216-patient-portal-batch-archive-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-216-patient-portal-batch-archive-readiness -Reset test` passed as run `2026-06-23T205707-055Z-legacy-openemr-plan-slice-216-patient-portal-batch-archive-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-216-patient-portal-batch-archive-readiness -Reset test` passed as run `2026-06-23T205959-715Z-modernized-openemr-plan-slice-216-patient-portal-batch-archive-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-216-patient-portal-batch-archive-readiness` passed as comparison `2026-06-23T210132-667Z-legacy-openemr-vs-modernized-openemr-plan-slice-216-patient-portal-batch-archive-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-batch-archive/patient-portal-batch-archive.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

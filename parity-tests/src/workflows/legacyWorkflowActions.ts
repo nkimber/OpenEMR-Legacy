@@ -281,6 +281,24 @@ export type PatientPortalDeleteMessageResult = {
   sessionSource: string;
 };
 
+export type PatientPortalArchiveMessagesResult = {
+  authenticated: boolean;
+  archived: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  messageIds: string[];
+  archivedMessages: PatientPortalMessageItem[];
+  archivedMessageCount: number;
+  messageCount: number;
+  sentMessageCount: number;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalReadMessageResult = {
   authenticated: boolean;
   markedRead: boolean;
@@ -2655,6 +2673,113 @@ ORDER BY date ASC, id ASC;
       messageCount: refreshed.messageCount,
       sentMessageCount: refreshed.sentMessageCount,
       failureReason: deletedMessages.length > 0 ? null : "Secure message was not archived.",
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async archivePatientPortalMessages(
+    username: string,
+    password: string,
+    messageIds: string[]
+  ): Promise<PatientPortalArchiveMessagesResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    const requestedMessageIds = Array.from(
+      new Set(messageIds.map((messageId) => Number(messageId)).filter((messageId) => Number.isInteger(messageId) && messageId > 0))
+    );
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalArchiveMessagesResult(
+        username,
+        requestedMessageIds.map(String),
+        login.failureReason ?? "Patient portal sign-in was rejected."
+      );
+    }
+    if (requestedMessageIds.length === 0) {
+      return buildEmptyPortalArchiveMessagesResult(username, [], "Select at least one secure message to archive.");
+    }
+
+    const requestedSql = requestedMessageIds.map((messageId) => integer(messageId)).join(", ");
+    const archiveRows = await this.db.queryRows<{ archiveId: string }>(`
+SELECT DISTINCT CAST(CASE WHEN COALESCE(mail_chain, 0) > 0 THEN mail_chain ELSE id END AS CHAR) AS archiveId
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND (sender_id = ${sqlString(login.portalUsername)} OR recipient_id = ${sqlString(login.portalUsername)})
+  AND (id IN (${requestedSql}) OR mail_chain IN (${requestedSql}));
+`);
+    const archiveIds = archiveRows.map((row) => Number(row.archiveId)).filter((messageId) => Number.isInteger(messageId) && messageId > 0);
+    if (archiveIds.length === 0) {
+      return buildEmptyPortalArchiveMessagesResult(
+        username,
+        requestedMessageIds.map(String),
+        "Selected secure messages were not found in the signed-in portal mailbox."
+      );
+    }
+
+    const archiveSql = archiveIds.map((messageId) => integer(messageId)).join(", ");
+    await this.db.execute(`
+UPDATE onsite_mail
+SET message_status = 'Delete',
+  activity = 1,
+  deleted = 1,
+  delete_date = NOW()
+WHERE owner = ${sqlString(login.portalUsername)}
+  AND (mail_chain IN (${archiveSql}) OR id IN (${archiveSql}));
+`);
+
+    const archivedRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted = 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND (mail_chain IN (${archiveSql}) OR id IN (${archiveSql}))
+ORDER BY date ASC, id ASC;
+`);
+    const archivedMessages = archivedRows.map((row): PatientPortalMessageItem => ({
+      id: row.id,
+      date: normalizeDateText(row.messageDate),
+      title: row.title,
+      body: row.body,
+      status: row.status,
+      assignedTo: row.assignedTo,
+      senderId: row.senderId,
+      senderName: row.senderName,
+      recipientId: row.recipientId,
+      recipientName: row.recipientName,
+      mailChain: Number(row.mailChain || 0),
+      replyMailChain: Number(row.replyMailChain || 0),
+      portalRelation: null,
+      isEncrypted: row.isEncrypted === "1"
+    }));
+    const refreshed = await this.getPatientPortalMessages(username, password);
+
+    return {
+      authenticated: true,
+      archived: archivedMessages.length > 0,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      messageIds: requestedMessageIds.map(String),
+      archivedMessages,
+      archivedMessageCount: archivedMessages.length,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: archivedMessages.length > 0 ? null : "Selected secure messages were not archived.",
       sessionSource: "legacy-openemr-portal"
     };
   }
@@ -6373,6 +6498,30 @@ function buildEmptyPortalDeleteMessageResult(
     messageId,
     deletedMessage: null,
     deletedMessageCount: 0,
+    messageCount: 0,
+    sentMessageCount: 0,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalArchiveMessagesResult(
+  username: string,
+  messageIds: string[],
+  failureReason: string
+): PatientPortalArchiveMessagesResult {
+  return {
+    authenticated: false,
+    archived: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    messageIds,
+    archivedMessages: [],
+    archivedMessageCount: 0,
     messageCount: 0,
     sentMessageCount: 0,
     failureReason,
