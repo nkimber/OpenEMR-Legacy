@@ -14676,7 +14676,7 @@ Primary files:
 Started: 2026-06-23T18:09:50.0000000-04:00
 Finished: 2026-06-23T18:33:50.3551762-04:00
 Duration: 00:24:00
-Commit: pending
+Commit: 5bb00452
 
 Implemented Slice 218: patient portal document list/download readiness. The modernized target now exposes signed-in patient portal document categories, filters active patient-owned rows using the legacy document semantics, renders selectable document cards in the Portal workspace, builds `patient_documents.zip` for selected downloadable documents, and proves the same behavior against legacy OpenEMR portal documents for the `MOD-PAT-0004` account.
 
