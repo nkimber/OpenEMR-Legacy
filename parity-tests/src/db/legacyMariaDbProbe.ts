@@ -126,6 +126,18 @@ export type PatientMessagesSummary = {
   messages: PatientMessageSummary[];
 };
 
+export type PatientPortalAccountSummary = {
+  patientId: number;
+  portalEnabled: boolean;
+  cmsPortalLogin: string;
+  hasAccount: boolean;
+  portalUsername: string;
+  portalLoginUsername: string;
+  passwordStatus: number | null;
+  passwordStatusLabel: string;
+  oneTimeLinkPending: boolean;
+};
+
 export type PatientInsuranceSummary = {
   type: string;
   provider: string;
@@ -1092,7 +1104,8 @@ UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'paymentSessions', COUNT(*) FROM ar_session
 UNION ALL SELECT 'paymentActivities', COUNT(*) FROM ar_activity WHERE deleted IS NULL
-UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES';
+UNION ALL SELECT 'portalPatients', COUNT(*) FROM patient_data WHERE allow_patient_portal = 'YES'
+UNION ALL SELECT 'portalAccounts', COUNT(*) FROM patient_access_onsite pao INNER JOIN patient_data pd ON pd.pid = pao.pid WHERE pd.allow_patient_portal = 'YES';
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -1432,6 +1445,39 @@ ORDER BY pn.date DESC, pn.id DESC;
         updatedBy: row.updatedBy,
         updatedAt: row.updatedAt
       }))
+    };
+  }
+
+  async getPatientPortalAccountForPatient(pid: number): Promise<PatientPortalAccountSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT pd.pid AS patientId,
+  pd.allow_patient_portal AS portalEnabled,
+  COALESCE(pd.cmsportal_login, '') AS cmsPortalLogin,
+  COALESCE(pao.portal_username, '') AS portalUsername,
+  COALESCE(pao.portal_login_username, '') AS portalLoginUsername,
+  COALESCE(CAST(pao.portal_pwd_status AS CHAR), '') AS passwordStatus,
+  CASE WHEN COALESCE(pao.portal_onetime, '') <> '' THEN '1' ELSE '0' END AS oneTimeLinkPending
+FROM patient_data pd
+LEFT JOIN patient_access_onsite pao ON pao.pid = pd.pid
+WHERE pd.pid = ${pid}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const passwordStatus = row.passwordStatus === "" ? null : Number(row.passwordStatus);
+    return {
+      patientId: Number(row.patientId),
+      portalEnabled: row.portalEnabled === "YES",
+      cmsPortalLogin: row.cmsPortalLogin,
+      hasAccount: row.portalUsername !== "",
+      portalUsername: row.portalUsername,
+      portalLoginUsername: row.portalLoginUsername,
+      passwordStatus,
+      passwordStatusLabel: portalPasswordStatusLabel(passwordStatus),
+      oneTimeLinkPending: row.oneTimeLinkPending === "1"
     };
   }
 
@@ -3250,6 +3296,16 @@ function claimStatusLabel(status: number, billProcess: number) {
   if (status === 6) return "Forwarded";
   if (status === 7) return "Denied";
   return "Unsubmitted";
+}
+
+function portalPasswordStatusLabel(status: number | null) {
+  if (status === 0) {
+    return "Temporary password issued";
+  }
+  if (status === 1) {
+    return "Patient-managed password";
+  }
+  return status === null ? "No account provisioned" : `Status ${status}`;
 }
 
 function normalizeProcedureReportReviewQueueStatus(status: string) {

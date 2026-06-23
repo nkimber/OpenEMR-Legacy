@@ -25,6 +25,7 @@ V1 targets 1,000 synthetic patients with appropriately scaled workflow data:
 - 2,400 lab results or observations.
 - 1,200 messages.
 - 200 portal-enabled patients.
+- 200 provisioned portal account rows for the portal-enabled cohort.
 - 3,000 billing line items.
 - 700 claim status rows.
 - 420 payment sessions and 617 payment activity rows.
@@ -51,7 +52,7 @@ The current V1 temporal contract is anchored to `2026-06-18` and includes:
 
 The generated summary includes a `temporalCoverage` section so tests and future Workbench views can assert date coverage as well as row counts. The legacy seed script validates this temporal contract after applying the SQL seed.
 
-Slice 194 adds deterministic mother name, guardian name, guardian relationship, guardian phone, and guardian email values to the canonical patient contract. Slice 195 extends that same contract with guardian sex, address, city, state, postal code, country, and work phone. Slice 196 extends it again with race, ethnicity, interpreter, family size, monthly income, homeless status, and financial review date values. Slice 197 adds deterministic employer name, street, city, state, postal code, and country values. These values seed legacy OpenEMR `patient_data` plus `employer_data`, and the modernized PostgreSQL `patients` plus `patient_employers` tables, so guardian-contact, guardian-detail, social-detail, and employer parity tests can mutate and restore `MOD-PAT-0010` from a shared baseline.
+Slice 194 adds deterministic mother name, guardian name, guardian relationship, guardian phone, and guardian email values to the canonical patient contract. Slice 195 extends that same contract with guardian sex, address, city, state, postal code, country, and work phone. Slice 196 extends it again with race, ethnicity, interpreter, family size, monthly income, homeless status, and financial review date values. Slice 197 adds deterministic employer name, street, city, state, postal code, and country values. These values seed legacy OpenEMR `patient_data` plus `employer_data`, and the modernized PostgreSQL `patients` plus `patient_employers` tables, so guardian-contact, guardian-detail, social-detail, and employer parity tests can mutate and restore `MOD-PAT-0010` from a shared baseline. Slice 204 provisions portal account readiness for the existing 200 portal-enabled patients: legacy receives `patient_data.cmsportal_login` plus `patient_access_onsite` rows, while the modernized PostgreSQL seed receives `patients.cms_portal_login` plus `patient_portal_accounts` rows.
 
 Generated artifacts:
 

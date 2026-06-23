@@ -370,6 +370,7 @@ for (let i = 1; i <= patientCount; i += 1) {
   const guardianPostalCode = postalCode;
   const guardianCountry = "USA";
   const guardianWorkPhone = `(619) 555-${pad(4000 + (i % 6000), 4)}`;
+  const email = `${canonicalId.toLowerCase()}@example.test`;
   const race = i % 6 === 0 ? "Asian" : i % 6 === 1 ? "White" : i % 6 === 2 ? "Black or African American" : "";
   const ethnicity = i % 5 === 0 ? "Hispanic or Latino" : "Not Hispanic or Latino";
   const interpreter = i % 9 === 0 ? "Spanish interpreter preferred" : "";
@@ -394,7 +395,7 @@ for (let i = 1; i <= patientCount; i += 1) {
     city,
     state,
     postalCode,
-    email: `${canonicalId.toLowerCase()}@example.test`,
+    email,
     phone: `(619) 555-${pad(1000 + (i % 9000), 4)}`,
     motherName: `${guardianFirstNames[(i + 3) % guardianFirstNames.length]} ${patientLastName}`,
     guardianName,
@@ -426,6 +427,14 @@ for (let i = 1; i <= patientCount; i += 1) {
     providerId: provider.id,
     facilityId: facility.id,
     portalEnabled: i <= 200,
+    cmsPortalLogin: i <= 200 ? email : "",
+    portalAccount: i <= 200 ? {
+      portalUsername: email,
+      portalLoginUsername: email,
+      passwordStatus: i % 4 === 0 ? 1 : 0,
+      oneTimeLinkPending: i % 19 === 0,
+      oneTimeToken: i % 19 === 0 ? `reset-${canonicalId.toLowerCase()}` : ""
+    } : null,
     registrationDate: addDays(baseDate, -900 + (i % 600))
   });
 }
@@ -1174,7 +1183,8 @@ const summary = {
     paymentActivities: paymentActivities.length,
     labProviders: labProviders.length,
     procedureOrderCatalogItems: procedureOrderCatalog.length,
-    portalPatients: patients.filter((patient) => patient.portalEnabled).length
+    portalPatients: patients.filter((patient) => patient.portalEnabled).length,
+    portalAccounts: patients.filter((patient) => patient.portalAccount).length
   },
   temporalCoverage: dataset.temporalCoverage,
   cohorts: patients.reduce((counts, patient) => ({ ...counts, [patient.cohort]: (counts[patient.cohort] ?? 0) + 1 }), {}),
@@ -1209,6 +1219,7 @@ function buildLegacySql() {
     "DELETE FROM openemr_postcalendar_events;",
     "DELETE FROM lists;",
     "DELETE FROM insurance_data;",
+    "DELETE FROM patient_access_onsite WHERE pid BETWEEN 100001 AND 101000;",
     "DELETE FROM history_data WHERE pid BETWEEN 100001 AND 101000;",
     "DELETE FROM employer_data;",
     "DELETE ctm FROM care_team_member ctm INNER JOIN care_teams ct ON ct.id = ctm.care_team_id WHERE ct.pid BETWEEN 100001 AND 101000;",
@@ -1321,7 +1332,7 @@ function buildLegacySql() {
     hipaa_allowsms: "YES",
     hipaa_allowemail: "YES",
     allow_patient_portal: patient.portalEnabled ? "YES" : "",
-    cmsportal_login: patient.portalEnabled ? patient.email : "",
+    cmsportal_login: patient.cmsPortalLogin,
     created_by: 1,
     updated_by: 1,
     preferred_name: patient.preferredName,
@@ -1338,6 +1349,15 @@ function buildLegacySql() {
     guardiancountry: patient.guardianCountry,
     guardianworkphone: patient.guardianWorkPhone
   })), 150));
+
+  statements.push(insert("patient_access_onsite", ["pid", "portal_username", "portal_pwd", "portal_pwd_status", "portal_login_username", "portal_onetime"], patients.filter((patient) => patient.portalAccount).map((patient) => ({
+    pid: patient.pid,
+    portal_username: patient.portalAccount.portalUsername,
+    portal_pwd: `synthetic-hash-${patient.canonicalId}`,
+    portal_pwd_status: patient.portalAccount.passwordStatus,
+    portal_login_username: patient.portalAccount.portalLoginUsername,
+    portal_onetime: patient.portalAccount.oneTimeToken
+  })), 200));
 
   statements.push(insert("person", ["id", "uuid", "first_name", "middle_name", "last_name", "preferred_name", "gender", "active", "notes", "created_by", "updated_by"], patients.map((patient) => {
     const [firstName, ...lastParts] = patient.guardianName.split(" ");

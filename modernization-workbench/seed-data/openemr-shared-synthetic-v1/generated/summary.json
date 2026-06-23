@@ -32,7 +32,8 @@
     "paymentActivities": 617,
     "labProviders": 5,
     "procedureOrderCatalogItems": 21,
-    "portalPatients": 200
+    "portalPatients": 200,
+    "portalAccounts": 200
   },
   "temporalCoverage": {
     "asOfDate": "2026-06-18",

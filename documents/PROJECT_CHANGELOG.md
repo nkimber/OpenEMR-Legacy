@@ -13501,6 +13501,85 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 236. Slice 204 Patient Portal Account Readiness
+
+Started: `2026-06-22T21:25:00-04:00`
+Finished: `2026-06-22T22:11:18-04:00`
+Duration: `46m 18s`
+Changeset: `pending`
+
+Implemented Slice 204: patient portal account readiness. The shared gold dataset now provisions deterministic portal account facts for the existing 200 portal-enabled patients, the legacy and modernized databases seed the same account facts, the modernized Patient/Client chart renders them in a Portal Account panel, and parity tests prove the read-only account contract against both targets with the `MOD-PAT-0004` anchor.
+
+Code changes:
+
+- Files changed: 28
+- Lines added: 3941
+- Lines deleted: 86
+- Net lines: 3855
+- Total churn: 4027
+
+Key outcomes:
+
+- Extended the canonical gold dataset with 200 deterministic portal account records for the portal-enabled cohort while preserving the 200 portal-enabled patient count.
+- Added legacy MariaDB seed support for `patient_data.cmsportal_login` and `patient_access_onsite`, and updated the legacy seed validator so `portalAccounts` must equal 200.
+- Added modernized PostgreSQL seed support for `patients.cms_portal_login` and `patient_portal_accounts`, and included the portal account count in the modernized seed result.
+- Added a modernized `portalAccount` patient chart read model with CMS login, portal username, login username, password status, password-status label, and one-time reset readiness.
+- Rendered the new Patient/Client Portal Account panel in the modernized UI.
+- Added normalized legacy and modernized database probe methods for patient portal account facts.
+- Added the `patient-portal-account` parity suite and `slice-204-patient-portal-account-readiness` plan, plus Workbench managed actions for both targets.
+- Extended the modernized smoke suite with `anchor patient portal account`, raising the smoke suite to 143 checks.
+- Updated the Workbench functionality ledger, source inventory snapshot, seed-data README, and project documents to mark patient portal account readiness as completed while leaving portal login/password lifecycle work as future scope.
+
+Verified test runs:
+
+- `npm run generate:seed-data` passed in `modernization-workbench/` and regenerated the canonical dataset, summary, and legacy MariaDB seed SQL with `portalAccounts: 200`.
+- `node .\scripts\generate-postgres-seed.mjs` passed in `modernized-openemr/` and regenerated the modernized PostgreSQL seed SQL with `patient_portal_accounts`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, the canonical gold dataset, the seed summary, and the source inventory snapshot.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/` and validated `portalAccounts = 200`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed from `modernized-openemr/` and reported `portalAccounts = 200`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` rebuilt and restarted the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 143 checks and 0 failures, including `anchor patient portal account`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-204-patient-portal-account-readiness -Reset run` passed with 1 expected test; run `2026-06-23T020758-609Z-legacy-openemr-plan-slice-204-patient-portal-account-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-204-patient-portal-account-readiness -Reset run` passed with 1 expected test; run `2026-06-23T020833-049Z-modernized-openemr-plan-slice-204-patient-portal-account-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-204-patient-portal-account-readiness` passed with status `matched`; comparison `2026-06-23T020859-931Z-legacy-openemr-vs-modernized-openemr-plan-slice-204-patient-portal-account-readiness`.
+- Regression check `database` passed on legacy and modernized targets with 4 expected tests each, and the comparison matched with no differences; comparison `2026-06-23T020949-525Z-legacy-openemr-vs-modernized-openemr-suite-database`.
+- Regression check `slice-157-message-portal-metadata-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T021044-701Z-legacy-openemr-vs-modernized-openemr-plan-slice-157-message-portal-metadata-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/tests/patient-portal-account/patient-portal-account.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

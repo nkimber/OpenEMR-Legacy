@@ -22,6 +22,7 @@ import type {
   PatientInsuranceCoverageSummary,
   PatientImmunizationsSummary,
   PatientMessagesSummary,
+  PatientPortalAccountSummary,
   PaymentPostingSummary,
   AccountBalanceSummary,
   AccountAgingSummary,
@@ -124,7 +125,8 @@ UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims
 UNION ALL SELECT 'paymentSessions', COUNT(*) FROM payment_sessions
 UNION ALL SELECT 'paymentActivities', COUNT(*) FROM payment_activities WHERE deleted IS NULL
-UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled = true;
+UNION ALL SELECT 'portalPatients', COUNT(*) FROM patients WHERE portal_enabled = true
+UNION ALL SELECT 'portalAccounts', COUNT(*) FROM patient_portal_accounts ppa INNER JOIN patients p ON p.canonical_id = ppa.patient_id WHERE p.portal_enabled = true;
 `);
     return Object.fromEntries(rows.map((row) => [row.name, Number(row.value)]));
   }
@@ -453,6 +455,39 @@ ORDER BY m.message_date DESC, m.id DESC;
         updatedBy: row.updatedBy,
         updatedAt: row.updatedAt
       }))
+    };
+  }
+
+  async getPatientPortalAccountForPatient(pid: number): Promise<PatientPortalAccountSummary | null> {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT p.legacy_pid AS "patientId",
+  CASE WHEN p.portal_enabled THEN 'YES' ELSE 'NO' END AS "portalEnabled",
+  COALESCE(p.cms_portal_login, '') AS "cmsPortalLogin",
+  COALESCE(ppa.portal_username, '') AS "portalUsername",
+  COALESCE(ppa.portal_login_username, '') AS "portalLoginUsername",
+  COALESCE(ppa.password_status::text, '') AS "passwordStatus",
+  CASE WHEN COALESCE(ppa.one_time_token, '') <> '' THEN '1' ELSE '0' END AS "oneTimeLinkPending"
+FROM patients p
+LEFT JOIN patient_portal_accounts ppa ON ppa.patient_id = p.canonical_id
+WHERE p.legacy_pid = ${pid}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const passwordStatus = row.passwordStatus === "" ? null : Number(row.passwordStatus);
+    return {
+      patientId: Number(row.patientId),
+      portalEnabled: row.portalEnabled === "YES",
+      cmsPortalLogin: row.cmsPortalLogin,
+      hasAccount: row.portalUsername !== "",
+      portalUsername: row.portalUsername,
+      portalLoginUsername: row.portalLoginUsername,
+      passwordStatus,
+      passwordStatusLabel: portalPasswordStatusLabel(passwordStatus),
+      oneTimeLinkPending: row.oneTimeLinkPending === "1"
     };
   }
 
@@ -2107,6 +2142,16 @@ function collectionContactMethod(email: string, phone: string) {
     return "Email-ready";
   }
   return phone.trim() ? "Phone" : "Print";
+}
+
+function portalPasswordStatusLabel(status: number | null) {
+  if (status === 0) {
+    return "Temporary password issued";
+  }
+  if (status === 1) {
+    return "Patient-managed password";
+  }
+  return status === null ? "No account provisioned" : `Status ${status}`;
 }
 
 function escapeSql(value: string) {

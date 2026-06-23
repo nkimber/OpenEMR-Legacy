@@ -184,6 +184,7 @@ param(
         "workflow-patient-care-team-members",
         "workflow-patient-care-team-contact",
         "patient-history",
+        "patient-portal-account",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",
