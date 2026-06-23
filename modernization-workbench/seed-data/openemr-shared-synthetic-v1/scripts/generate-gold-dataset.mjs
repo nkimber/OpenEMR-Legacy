@@ -7,6 +7,8 @@ const datasetId = "openemr-shared-synthetic-v1";
 const datasetVersion = "v1";
 const baseDate = "2026-06-18";
 const patientCount = 1000;
+const portalDemoPassword = "PortalPass207!";
+const portalDemoLegacyHash = "$2y$12$rVnICT6EtKZGpK5482QqFOfD5bZhBAUNRLsneTJvhGSwEj3bEcnMq";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const datasetRoot = path.resolve(__dirname, "..");
@@ -431,6 +433,8 @@ for (let i = 1; i <= patientCount; i += 1) {
     portalAccount: i <= 200 ? {
       portalUsername: email,
       portalLoginUsername: email,
+      portalPassword: portalDemoPassword,
+      portalPasswordHash: portalDemoLegacyHash,
       passwordStatus: i % 4 === 0 ? 1 : 0,
       oneTimeLinkPending: i % 19 === 0,
       oneTimeToken: i % 19 === 0 ? `reset-${canonicalId.toLowerCase()}` : ""
@@ -1234,7 +1238,11 @@ function buildLegacySql() {
     "DELETE FROM patient_data;",
     "DELETE FROM users WHERE id BETWEEN 101 AND 120 OR username LIKE 'gold-%' OR username IN ('davis', 'hamming');",
     "DELETE FROM facility WHERE id IN (10, 11, 12);",
-    "SET FOREIGN_KEY_CHECKS=1;"
+    "SET FOREIGN_KEY_CHECKS=1;",
+    insert("globals", ["gl_name", "gl_index", "gl_value"], [
+      { gl_name: "portal_onsite_two_enable", gl_index: 0, gl_value: "1" },
+      { gl_name: "portal_onsite_two_address", gl_index: 0, gl_value: "http://localhost:8080/portal" }
+    ]).replace(/;$/, " ON DUPLICATE KEY UPDATE `gl_value` = VALUES(`gl_value`);")
   ];
 
   statements.push(insert("facility", ["id", "uuid", "name", "phone", "street", "city", "state", "postal_code", "country_code", "service_location", "billing_location", "accepts_assignment", "pos_code", "facility_npi", "color", "primary_business_entity", "facility_code"], facilities.map((facility) => ({
@@ -1353,7 +1361,7 @@ function buildLegacySql() {
   statements.push(insert("patient_access_onsite", ["pid", "portal_username", "portal_pwd", "portal_pwd_status", "portal_login_username", "portal_onetime"], patients.filter((patient) => patient.portalAccount).map((patient) => ({
     pid: patient.pid,
     portal_username: patient.portalAccount.portalUsername,
-    portal_pwd: `synthetic-hash-${patient.canonicalId}`,
+    portal_pwd: patient.portalAccount.portalPasswordHash,
     portal_pwd_status: patient.portalAccount.passwordStatus,
     portal_login_username: patient.portalAccount.portalLoginUsername,
     portal_onetime: patient.portalAccount.oneTimeToken

@@ -64,6 +64,7 @@ import type {
   PatientDocumentMetadataUpdate,
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
+  PatientPortalLoginResult,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
   PatientMessageRecord,
@@ -600,6 +601,42 @@ LIMIT 1;
     if (!response.ok) {
       throw new Error(`Modernized patient portal account access update failed with ${response.status}: ${await response.text()}`);
     }
+  }
+
+  async verifyPatientPortalLogin(username: string, password: string): Promise<PatientPortalLoginResult> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized patient portal login failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const result = (await response.json()) as {
+      authenticated: boolean;
+      username: string;
+      portalUsername: string;
+      canonicalId: string;
+      legacyPid?: number | null;
+      pubpid: string;
+      displayName: string;
+      failureReason?: string | null;
+      sessionId?: string | null;
+    };
+
+    return {
+      authenticated: result.authenticated,
+      username: result.username,
+      portalUsername: result.portalUsername,
+      canonicalId: result.canonicalId,
+      pid: result.legacyPid ?? null,
+      pubpid: result.pubpid,
+      displayName: result.displayName,
+      failureReason: result.failureReason ?? null,
+      sessionId: result.sessionId ?? null
+    };
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {

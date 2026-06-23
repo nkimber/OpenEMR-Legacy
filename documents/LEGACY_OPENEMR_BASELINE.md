@@ -1,7 +1,7 @@
 # Legacy OpenEMR Baseline
 
 Created: 2026-06-18
-Last verified: 2026-06-20
+Last verified: 2026-06-23
 
 ## Purpose
 
@@ -38,6 +38,7 @@ The Docker image is used to run the baseline application. The source checkout is
 ## Local URLs
 
 - Browser-friendly app URL: `http://localhost:8080`
+- Patient portal URL: `http://localhost:8080/portal/index.php?site=default`
 - HTTPh: `https://localhost:9443`
 - Health endpoint: `https://localhost:9443/meta/health/readyz`
 
@@ -127,7 +128,7 @@ Seed the bundled OpenEMR example patient data:
 powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyExampleData.ps1
 ```
 
-The gold seed action is exposed through the Modernization Workbench. `Seed-LegacyGoldDataset.ps1` is the current legacy MariaDB adapter for the shared Workbench-owned seed-data contract under `modernization-workbench/seed-data/`.
+The gold seed action is exposed through the Modernization Workbench. `Seed-LegacyGoldDataset.ps1` is the current legacy MariaDB adapter for the shared Workbench-owned seed-data contract under `modernization-workbench/seed-data/`. As of Slice 207, the generated legacy seed also upserts the OpenEMR patient portal globals needed for parity testing: `portal_onsite_two_enable = 1` and `portal_onsite_two_address = http://localhost:8080/portal`.
 
 Stop containers while keeping data:
 
@@ -182,6 +183,7 @@ The parity test harness under `parity-tests/` has been implemented and verified 
 - Shared patient documents plan now runs against the legacy target as the legacy half of Slice 25 side-by-side parity, covering seeded patient documents through OpenEMR's document list controller.
 - Shared patient document mutation plan now runs against the legacy target as the legacy half of Slice 26 side-by-side parity, covering temporary database-backed text document create/render/archive/delete behavior through OpenEMR's document tables and document list controller.
 - Shared patient document content plan now runs against the legacy target as the legacy half of Slice 27 side-by-side parity, covering full seeded document payload comparison for the `MOD-PAT-0001` primary-care intake packet.
+- Shared patient portal authentication plan now runs against the legacy target as the legacy half of Slice 207 side-by-side parity, using the enabled local patient portal, the deterministic `MOD-PAT-0004` portal account, and the synthetic `PortalPass207!` credential to verify valid login, invalid password rejection, disabled-access rejection, and pending-reset handling.
 - Shared encounter documents plan now runs against the legacy target as the legacy half of Slice 67 side-by-side parity, covering the two active documents linked to `MOD-PAT-0001` encounter `1000013` and their document-category rendering in OpenEMR.
 - Shared encounter billing plan now runs against the legacy target as the legacy half of Slice 68 side-by-side parity, covering the two active CPT4 fee-sheet rows linked to MOD-PAT-0001 encounter 1000013 and their fee-sheet rendering in OpenEMR.
 - Shared encounter claims plan now runs against the legacy target as the legacy half of Slice 69 side-by-side parity, covering claim row CLAIM-1000013-1 linked to MOD-PAT-0001 encounter 1000013 and its normalized claim-status facts.

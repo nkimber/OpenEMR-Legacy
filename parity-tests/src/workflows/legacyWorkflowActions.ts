@@ -142,6 +142,18 @@ export type PatientPortalAccountAccessState = {
   hasAccount: boolean;
 };
 
+export type PatientPortalLoginResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  failureReason: string | null;
+  sessionId?: string | null;
+};
+
 export type PatientGuardianContact = {
   pid: number;
   pubpid: string;
@@ -1782,6 +1794,45 @@ UPDATE patient_data
 SET allow_patient_portal = ${sqlString(state.portalEnabled ? "YES" : "")}
 WHERE pid = ${integer(state.pid)};
 `);
+  }
+
+  async verifyPatientPortalLogin(username: string, password: string): Promise<PatientPortalLoginResult> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT pd.pid, pd.pubpid, pd.fname AS firstName, pd.lname AS lastName,
+  pd.allow_patient_portal AS allowPatientPortal,
+  COALESCE(pao.portal_username, '') AS portalUsername,
+  COALESCE(pao.portal_login_username, '') AS portalLoginUsername,
+  COALESCE(CAST(pao.portal_pwd_status AS CHAR), '') AS passwordStatus,
+  COALESCE(pao.portal_onetime, '') AS portalOneTime,
+  COALESCE(pao.portal_pwd, '') AS portalPasswordHash
+FROM patient_access_onsite pao
+INNER JOIN patient_data pd ON pd.pid = pao.pid
+WHERE BINARY pao.portal_login_username = ${sqlString(username)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row || !row.portalUsername || !row.portalLoginUsername || !row.portalPasswordHash) {
+      return buildPortalLoginResult(username, "Invalid username or password.");
+    }
+
+    if (row.portalOneTime.trim() !== "") {
+      return buildPortalLoginResult(username, "One-time reset pending.", row);
+    }
+
+    const passwordStatus = row.passwordStatus === "" ? null : Number(row.passwordStatus);
+    if (passwordStatus !== 1) {
+      return buildPortalLoginResult(username, "Patient portal account is pending password setup.", row);
+    }
+
+    if (row.allowPatientPortal !== "YES") {
+      return buildPortalLoginResult(username, "Patient portal access is disabled.", row);
+    }
+
+    if (!isSeededPortalPasswordHash(row.portalPasswordHash) || password !== seededPortalDemoPassword) {
+      return buildPortalLoginResult(username, "Invalid username or password.", row);
+    }
+
+    return buildPortalLoginResult(username, null, row, true);
   }
 
   async getPatientGuardianContact(pid: number): Promise<PatientGuardianContact | null> {
@@ -5222,6 +5273,31 @@ function portalWorkflowAccessStatusLabel(portalEnabled: boolean, portalUsername:
   }
 
   return portalUsername ? "Access disabled" : "Pending";
+}
+
+const seededPortalDemoPassword = "PortalPass207!";
+
+function isSeededPortalPasswordHash(hash: string) {
+  return hash.startsWith("$2y$") || hash.startsWith("$2a$") || hash.startsWith("$2b$");
+}
+
+function buildPortalLoginResult(
+  username: string,
+  failureReason: string | null,
+  row?: Record<string, string>,
+  authenticated = false
+): PatientPortalLoginResult {
+  const pid = row?.pid ? Number(row.pid) : null;
+  return {
+    authenticated,
+    username,
+    portalUsername: row?.portalUsername ?? "",
+    canonicalId: row?.pubpid ?? "",
+    pid,
+    pubpid: row?.pubpid ?? "",
+    displayName: row ? `${row.lastName}, ${row.firstName}` : "",
+    failureReason
+  };
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

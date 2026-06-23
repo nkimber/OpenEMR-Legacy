@@ -834,6 +834,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-207-patient-portal-authentication-readiness",
+      "name": "Slice 207 Patient Portal Authentication Readiness",
+      "description": "Patient portal confidence plan that authenticates a seeded portal credential and rejects invalid, disabled, and pending-reset portal accounts on database/API/UI surfaces.",
+      "suites": ["workflow-patient-portal-authentication"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-207", "patients", "portal", "authentication", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3670,6 +3679,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-access",
       "tags": ["slice206", "workflow", "mutation", "patients", "portal", "access", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-authentication",
+      "name": "Patient Portal Authentication Readiness",
+      "description": "Authenticates a seeded portal credential and verifies invalid, disabled, and pending-reset portal accounts are rejected.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-authentication",
+      "tags": ["slice207", "workflow", "mutation", "patients", "portal", "authentication", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
