@@ -69,6 +69,7 @@ import type {
   PatientPortalHomeSummary,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
+  PatientPortalMessageThreadResult,
   PatientPortalMessagesResult,
   PatientPortalReplyMessageInput,
   PatientPortalReplyMessageResult,
@@ -746,6 +747,48 @@ LIMIT 1;
       }
 
       return mapPatientPortalMessagesResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalMessageThread(
+    username: string,
+    password: string,
+    messageId: string
+  ): Promise<PatientPortalMessageThreadResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        messageId,
+        threadId: 0,
+        anchorMessage: null,
+        threadMessageCount: 0,
+        threadMessages: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/${messageId}/thread`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message thread failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalMessageThreadResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4093,6 +4136,27 @@ function mapPatientPortalMessagesResult(result: any): PatientPortalMessagesResul
     messages: (result.messages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     sentMessageCount: result.sentMessageCount ?? 0,
     sentMessages: (result.sentMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalMessageThreadResult(result: any): PatientPortalMessageThreadResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    messageId: result.messageId ?? "",
+    threadId: Number(result.threadId ?? 0),
+    anchorMessage: result.anchorMessage ? mapPatientPortalMessageItem(result.anchorMessage, result.portalUsername) : null,
+    threadMessageCount: result.threadMessageCount ?? 0,
+    threadMessages: (result.threadMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

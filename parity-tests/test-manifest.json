@@ -888,6 +888,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-213-patient-portal-thread-readiness",
+      "name": "Slice 213 Patient Portal Secure Message Thread Readiness",
+      "description": "Patient portal confidence plan that loads a secure-message thread around a seeded inbox message and verifies chronological thread rendering after a cleanup-backed reply.",
+      "suites": ["workflow-patient-portal-thread"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-213", "patients", "portal", "messages", "threading", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3784,6 +3793,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-reply",
       "tags": ["slice212", "workflow", "mutation", "patients", "portal", "messages", "reply", "threading", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-thread",
+      "name": "Patient Portal Secure Message Thread Readiness",
+      "description": "Loads a signed-in portal secure-message thread and verifies chronological conversation rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-thread",
+      "tags": ["slice213", "workflow", "mutation", "patients", "portal", "messages", "threading", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

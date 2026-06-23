@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -147,6 +147,11 @@
           "label": "Patient portal secure-message reply readiness",
           "detail": "The modernized patient portal API and Portal page now reply to seeded inbox messages with mailbox thread linkage, while parity verifies cleanup-backed reply and sent-folder behavior against legacy onsite_mail.",
           "evidence": ["slice-212-patient-portal-reply-readiness"]
+        },
+        {
+          "label": "Patient portal secure-message thread view readiness",
+          "detail": "The modernized patient portal API and Portal page now load patient-visible secure-message conversation threads around seeded inbox messages, while parity compares chronological thread rows against legacy onsite_mail after a cleanup-backed reply.",
+          "evidence": ["slice-213-patient-portal-thread-readiness"]
         }
       ],
       "outstanding": [
@@ -156,10 +161,10 @@
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."
       ],
-      "completionEstimatePercent": 97,
+      "completionEstimatePercent": 98,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -307,7 +312,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -345,21 +350,21 @@
           "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
         },
         {
-          "label": "Patient portal secure-message inbox, compose, and reply",
-          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, and reply to seeded inbox messages with reply_mail_chain linkage.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness"]
+          "label": "Patient portal secure-message inbox, compose, reply, and thread view",
+          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, and view chronological conversation threads.",
+          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness"]
         }
       ],
       "outstanding": [
-        "Richer multi-message portal conversation views, encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and full audit history."
+        "Richer thread actions, encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and full audit history."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 58,
+      "completionEstimatePercent": 60,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply behavior, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; richer thread views, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view behavior, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; richer thread actions, encrypted content, attachments, routing, notifications, and full audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

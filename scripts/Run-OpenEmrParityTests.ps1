@@ -193,6 +193,7 @@ param(
         "workflow-patient-portal-messages",
         "workflow-patient-portal-compose",
         "workflow-patient-portal-reply",
+        "workflow-patient-portal-thread",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

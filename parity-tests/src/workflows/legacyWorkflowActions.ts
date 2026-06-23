@@ -244,6 +244,25 @@ export type PatientPortalMessagesResult = {
   sessionSource: string;
 };
 
+export type PatientPortalMessageThreadResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  messageId: string;
+  threadId: number;
+  anchorMessage: PatientPortalMessageItem | null;
+  threadMessageCount: number;
+  threadMessages: PatientPortalMessageItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalReplyMessageInput = {
   body: string;
 };
@@ -2147,6 +2166,105 @@ ORDER BY date DESC, id DESC;
       messages: rows.map(mapRow),
       sentMessageCount: sentRows.length,
       sentMessages: sentRows.map(mapRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalMessageThread(
+    username: string,
+    password: string,
+    messageId: string
+  ): Promise<PatientPortalMessageThreadResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalMessageThreadResult(username, messageId, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const anchorRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND (sender_id = ${sqlString(login.portalUsername)} OR recipient_id = ${sqlString(login.portalUsername)})
+  AND id = ${integer(Number(messageId))}
+LIMIT 1;
+`);
+    const anchorRow = anchorRows[0];
+    if (!anchorRow) {
+      return buildEmptyPortalMessageThreadResult(username, messageId, "Secure message was not found in the signed-in portal mailbox.");
+    }
+
+    const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
+      id: row.id,
+      date: normalizeDateText(row.messageDate),
+      title: row.title,
+      body: row.body,
+      status: row.status,
+      assignedTo: row.assignedTo,
+      senderId: row.senderId,
+      senderName: row.senderName,
+      recipientId: row.recipientId,
+      recipientName: row.recipientName,
+      mailChain: Number(row.mailChain || 0),
+      replyMailChain: Number(row.replyMailChain || 0),
+      portalRelation: null,
+      isEncrypted: row.isEncrypted === "1"
+    });
+    const anchorMessage = mapRow(anchorRow);
+    const threadId = anchorMessage.replyMailChain || anchorMessage.mailChain || Number(anchorMessage.id);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND (sender_id = ${sqlString(login.portalUsername)} OR recipient_id = ${sqlString(login.portalUsername)})
+  AND (reply_mail_chain = ${integer(threadId)} OR mail_chain = ${integer(threadId)} OR id = ${integer(Number(messageId))})
+ORDER BY date ASC, id ASC;
+`);
+    const threadMessages = rows.map(mapRow);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      messageId: anchorMessage.id,
+      threadId,
+      anchorMessage,
+      threadMessageCount: threadMessages.length,
+      threadMessages,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -5906,6 +6024,31 @@ function buildEmptyPortalMessagesResult(username: string, failureReason: string)
     messages: [],
     sentMessageCount: 0,
     sentMessages: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalMessageThreadResult(
+  username: string,
+  messageId: string,
+  failureReason: string
+): PatientPortalMessageThreadResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    messageId,
+    threadId: 0,
+    anchorMessage: null,
+    threadMessageCount: 0,
+    threadMessages: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };

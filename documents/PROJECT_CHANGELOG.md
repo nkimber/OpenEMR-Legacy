@@ -14366,6 +14366,65 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 251. Slice 213 Patient Portal Secure Message Thread View Readiness
+
+Started: 2026-06-23T14:05:00.0000000-04:00
+Finished: 2026-06-23T14:44:31.9848153-04:00
+Commit: pending
+
+Implemented Slice 213: patient portal secure-message thread view readiness. The modernized target now exposes a session-protected thread endpoint, resolves patient-visible mailbox conversations from OpenEMR-style thread IDs, renders chronological thread panels in the Portal workspace, and proves the same conversation facts against legacy OpenEMR `onsite_mail` after a cleanup-backed reply for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 854
+- Lines deleted: 63
+- Net lines: +791
+- Total churn: 917
+
+Key outcomes:
+
+- Added session-protected `GET /api/patient-portal/messages/{messageId}/thread` with portal-session validation, anchor-message ownership checks, `reply_mail_chain` / `mail_chain` resolution, and chronological patient-visible thread projection.
+- Added modernized frontend contracts and Portal `View thread` panels that render care-team messages and patient replies under inbox and sent cards.
+- Added legacy and modernized workflow actions plus a `workflow-patient-portal-thread` Playwright suite that creates a temporary reply, verifies two-message thread ordering, verifies the modernized UI thread panel, and cleans up transient mailbox rows.
+- Added the `slice-213-patient-portal-thread-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed test actions.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, and functionality progress ledger with the Slice 213 portal mailbox thread contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed.
+- `npm --prefix parity-tests run typecheck` passed.
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null` passed.
+- `npm --prefix parity-tests run list` passed and included `slice-213-patient-portal-thread-readiness`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-213-patient-portal-thread-readiness -Reset test` passed as run `2026-06-23T183452-651Z-modernized-openemr-plan-slice-213-patient-portal-thread-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-213-patient-portal-thread-readiness -Reset test` passed as run `2026-06-23T183530-267Z-legacy-openemr-plan-slice-213-patient-portal-thread-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-213-patient-portal-thread-readiness` passed as comparison `2026-06-23T183603-402Z-legacy-openemr-vs-modernized-openemr-plan-slice-213-patient-portal-thread-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-thread/patient-portal-thread.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
