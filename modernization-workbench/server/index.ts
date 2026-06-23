@@ -479,6 +479,11 @@ function extractTimestampDate(value?: string) {
   return value?.match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
 }
 
+function parseChangelogDate(text: string) {
+  const value = cleanMarkdownText(text);
+  return value.match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
+}
+
 function calculateDurationMs(startedAt?: string, finishedAt?: string) {
   if (!startedAt || !finishedAt) {
     return undefined;
@@ -540,6 +545,7 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
   const summaryLines: string[] = [];
   let currentSection = "";
   let commit = "";
+  let entryDate = date;
   let startedAt: string | undefined;
   let finishedAt: string | undefined;
 
@@ -549,9 +555,15 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
       continue;
     }
 
-    const commitMatch = line.match(/^Commits?:\s+(.+)$/);
+    const dateMatch = line.match(/^Date:\s+(.+)$/i);
+    if (dateMatch) {
+      entryDate = parseChangelogDate(dateMatch[1]) ?? entryDate;
+      continue;
+    }
+
+    const commitMatch = line.match(/^(Commits?|Changeset):\s+(.+)$/i);
     if (commitMatch) {
-      commit = cleanMarkdownText(commitMatch[1]);
+      commit = cleanMarkdownText(commitMatch[2]);
       continue;
     }
 
@@ -564,6 +576,10 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
     const finishedMatch = line.match(/^(Finished|Ended|Stopped):\s+(.+)$/i);
     if (finishedMatch) {
       finishedAt = parseChangelogTimestamp(finishedMatch[2]);
+      continue;
+    }
+
+    if (/^Duration:\s+/.test(line)) {
       continue;
     }
 
@@ -599,7 +615,7 @@ function parseChangelogEntry(date: string, id: string, title: string, lines: str
   return {
     id,
     title: cleanMarkdownText(title),
-    date,
+    date: entryDate || extractTimestampDate(finishedAt) || extractTimestampDate(startedAt) || "",
     commit,
     startedAt,
     finishedAt,
@@ -616,6 +632,7 @@ function parseProjectChangelog(text: string): ChangelogEntry[] {
   const entries: ChangelogEntry[] = [];
   let currentDate = "";
   let currentEntry: { id: string; title: string; date: string; lines: string[] } | null = null;
+  let isInCodeFence = false;
 
   const flushEntry = () => {
     if (currentEntry) {
@@ -625,6 +642,15 @@ function parseProjectChangelog(text: string): ChangelogEntry[] {
   };
 
   for (const line of text.split(/\r?\n/)) {
+    if (line.trim().startsWith("```")) {
+      isInCodeFence = !isInCodeFence;
+      continue;
+    }
+
+    if (isInCodeFence) {
+      continue;
+    }
+
     const dateMatch = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\s*$/);
     if (dateMatch) {
       flushEntry();
@@ -632,21 +658,21 @@ function parseProjectChangelog(text: string): ChangelogEntry[] {
       continue;
     }
 
-    if (line.startsWith("## ")) {
+    const entryMatch = line.match(/^(#{2,3})\s+(\d+)\.\s+(.+)$/);
+    if (entryMatch) {
       flushEntry();
-      currentDate = "";
+      currentEntry = {
+        id: entryMatch[2],
+        title: entryMatch[3],
+        date: entryMatch[1] === "###" ? currentDate : "",
+        lines: []
+      };
       continue;
     }
 
-    const entryMatch = line.match(/^###\s+(\d+)\.\s+(.+)$/);
-    if (entryMatch && currentDate) {
+    if (line.startsWith("## ")) {
       flushEntry();
-      currentEntry = {
-        id: entryMatch[1],
-        title: entryMatch[2],
-        date: currentDate,
-        lines: []
-      };
+      currentDate = "";
       continue;
     }
 

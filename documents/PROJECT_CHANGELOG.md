@@ -19,6 +19,7 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 - Do not manually calculate or write a duration; the Modernization Workbench calculates section duration from `Started:` and `Finished:`.
 - Record code-change metrics for implementation entries in a `Code changes:` section using files changed, lines added, lines deleted, net lines, and total churn. These values should come from Git whenever a commit is available, for example `git show --shortstat --format= <commit>` and `git show --numstat --format= <commit>`, or from the final scoped diff when the entry is being prepared before commit.
 - Do not record a modified-line count. Git records additions and deletions; an edited line usually appears as one deletion plus one addition.
+- The Workbench parser accepts numbered entries written as either `### 000. Title` under a date heading or `## 000. Title` with entry-level timing metadata. Completed entries may use `Commit:` or `Changeset:` for the Git hash.
 - Do not replace the detailed project documents. Link to them or name them when the change belongs to a specific area.
 - If a later change supersedes an earlier entry, add a new entry that says so rather than silently rewriting history.
 
@@ -13717,6 +13718,42 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CONTEXT.md`
 - `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+## 239. Project Timeline Numbered Heading Parsing Fix
+
+Started: `2026-06-22T23:49:52.7365020-04:00`
+Finished: `2026-06-22T23:51:56.0280824-04:00`
+Duration: `2m 3s`
+Changeset: pending
+
+Corrected the Modernization Workbench Project Timeline parser so newer changelog entries that use numbered `##` headings and `Changeset:` metadata are included in `/api/changelog`, resolved against Git, and rendered on the Timeline page.
+
+Code changes:
+
+- Files changed: 2
+- Lines added: 76
+- Lines deleted: 13
+- Net lines: 63
+- Total churn: 89
+
+Key outcomes:
+
+- Added parser support for numbered `## 000. Title` changelog entries in addition to the older `### 000. Title` shape.
+- Added parser support for `Changeset:` metadata alongside `Commit:` / `Commits:` metadata.
+- Added entry-level `Date:` parsing and ignored explicit `Duration:` lines because the Workbench calculates duration from `Started:` and `Finished:`.
+- Made the parser ignore fenced template/example blocks so the entry template is not counted as a real timeline item.
+- Restored Project Timeline coverage for entries 229 through 238, mapping workflow slices 197 through 206 to their documented Git changesets.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `/api/changelog` smoke confirmed 238 entries before this parser-fix entry, with entries 229 through 238 visible, ordered, and mapped to completed changesets `e9785eba` through `f89cbd5e`.
+- `git log --grep "Slice 207" --all` found no committed Slice 207 changeset on `main` or `origin/main`; the next slice appears to be local in-progress work until committed and recorded.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
 - `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries
