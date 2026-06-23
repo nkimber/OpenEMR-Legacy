@@ -162,6 +162,8 @@ const employerNames = ["Harbor Health Logistics", "Pacific Learning Group", "Civ
 const insurers = ["Acme Health", "Blue Valley Health", "CommunityCare", "Evergreen PPO", "Northstar HMO", "Harbor Mutual"];
 const insuranceCompanies = insurers.map((name, index) => ({ id: 9001 + index, name }));
 const plans = ["Standard Silver", "Family Choice", "Premier PPO", "Community HMO", "Medicare Advantage", "High Deductible"];
+const subscriberFirstNames = ["Avery", "Jordan", "Taylor", "Casey", "Jamie", "Riley", "Robin", "Quinn"];
+const subscriberEmployerNames = ["Civic Analytics", "Northstar Finance", "Mesa Engineering", "Pacific Learning Group", "Harbor Health Logistics", "Coastal Transit"];
 const problemCatalog = [
   ["I10", "Essential hypertension"],
   ["E11.9", "Type 2 diabetes mellitus without complications"],
@@ -429,7 +431,60 @@ for (let i = 1; i <= patientCount; i += 1) {
 }
 
 const insuranceRecords = [];
+function buildInsuranceSubscriber(patient, index, type) {
+  if (type === "primary") {
+    return {
+      relationship: "self",
+      subscriberFirstName: patient.fname,
+      subscriberMiddleName: "",
+      subscriberLastName: patient.lname,
+      subscriberDateOfBirth: patient.dob,
+      subscriberSex: patient.sex,
+      subscriberStreet: patient.street,
+      subscriberStreetLine2: "",
+      subscriberCity: patient.city,
+      subscriberState: patient.state,
+      subscriberPostalCode: patient.postalCode,
+      subscriberCountry: "US",
+      subscriberPhone: patient.phone,
+      subscriberEmployer: patient.employerName,
+      subscriberEmployerStreet: patient.employerStreet,
+      subscriberEmployerStreetLine2: "",
+      subscriberEmployerCity: patient.employerCity,
+      subscriberEmployerState: patient.employerState,
+      subscriberEmployerPostalCode: patient.employerPostalCode,
+      subscriberEmployerCountry: patient.employerCountry
+    };
+  }
+
+  const [city, state, postalCode] = cities[(index + 3) % cities.length];
+  const birthYear = 1972 + (index % 22);
+  return {
+    relationship: "spouse",
+    subscriberFirstName: subscriberFirstNames[index % subscriberFirstNames.length],
+    subscriberMiddleName: "",
+    subscriberLastName: patient.lname,
+    subscriberDateOfBirth: `${birthYear}-${pad((index % 12) + 1, 2)}-${pad((index % 27) + 1, 2)}`,
+    subscriberSex: patient.sex === "Male" ? "Female" : "Male",
+    subscriberStreet: `${2200 + index} Mesa Partner Ave`,
+    subscriberStreetLine2: "",
+    subscriberCity: city,
+    subscriberState: state,
+    subscriberPostalCode: postalCode,
+    subscriberCountry: "US",
+    subscriberPhone: `619-555-${pad(7000 + index, 4)}`,
+    subscriberEmployer: subscriberEmployerNames[index % subscriberEmployerNames.length],
+    subscriberEmployerStreet: `${4100 + index} Benefits Way`,
+    subscriberEmployerStreetLine2: "",
+    subscriberEmployerCity: city,
+    subscriberEmployerState: state,
+    subscriberEmployerPostalCode: postalCode,
+    subscriberEmployerCountry: "US"
+  };
+}
+
 patients.forEach((patient, index) => {
+  const primarySubscriber = buildInsuranceSubscriber(patient, index, "primary");
   const primary = {
     id: `INS-${patient.canonicalId}-P`,
     patientId: patient.canonicalId,
@@ -439,10 +494,12 @@ patients.forEach((patient, index) => {
     planName: plans[index % plans.length],
     policyNumber: `POL${patient.pid}`,
     groupNumber: `GRP${100 + (index % 30)}`,
-    relationship: "self"
+    relationship: primarySubscriber.relationship,
+    ...primarySubscriber
   };
   insuranceRecords.push(primary);
   if (index < 400) {
+    const secondarySubscriber = buildInsuranceSubscriber(patient, index, "secondary");
     insuranceRecords.push({
       ...primary,
       id: `INS-${patient.canonicalId}-S`,
@@ -450,7 +507,9 @@ patients.forEach((patient, index) => {
       provider: insurers[(index + 2) % insurers.length],
       planName: plans[(index + 3) % plans.length],
       policyNumber: `SEC${patient.pid}`,
-      groupNumber: `GRP${200 + (index % 25)}`
+      groupNumber: `GRP${200 + (index % 25)}`,
+      relationship: secondarySubscriber.relationship,
+      ...secondarySubscriber
     });
   }
 });
@@ -1418,8 +1477,7 @@ function buildLegacySql() {
     created_by: history.createdBy
   })), 150));
 
-  statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {
-    const patient = patients.find((candidate) => candidate.pid === record.pid);
+  statements.push(insert("insurance_data", ["uuid", "type", "provider", "plan_name", "policy_number", "group_number", "subscriber_lname", "subscriber_mname", "subscriber_fname", "subscriber_relationship", "subscriber_DOB", "subscriber_street", "subscriber_street_line_2", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "subscriber_employer", "subscriber_employer_street", "subscriber_employer_street_line_2", "subscriber_employer_postal_code", "subscriber_employer_city", "subscriber_employer_state", "subscriber_employer_country", "copay", "date", "pid", "subscriber_sex", "accept_assignment", "policy_type"], insuranceRecords.map((record) => {
     const company = insuranceCompanies.find((candidate) => candidate.name === record.provider);
     return {
       uuid: raw(sqlUuid(record.id)),
@@ -1428,20 +1486,29 @@ function buildLegacySql() {
       plan_name: record.planName,
       policy_number: record.policyNumber,
       group_number: record.groupNumber,
-      subscriber_lname: patient.lname,
-      subscriber_fname: patient.fname,
+      subscriber_lname: record.subscriberLastName,
+      subscriber_mname: record.subscriberMiddleName,
+      subscriber_fname: record.subscriberFirstName,
       subscriber_relationship: record.relationship,
-      subscriber_DOB: patient.dob,
-      subscriber_street: patient.street,
-      subscriber_postal_code: patient.postalCode,
-      subscriber_city: patient.city,
-      subscriber_state: patient.state,
-      subscriber_country: "US",
-      subscriber_phone: patient.phone,
+      subscriber_DOB: record.subscriberDateOfBirth,
+      subscriber_street: record.subscriberStreet,
+      subscriber_street_line_2: record.subscriberStreetLine2,
+      subscriber_postal_code: record.subscriberPostalCode,
+      subscriber_city: record.subscriberCity,
+      subscriber_state: record.subscriberState,
+      subscriber_country: record.subscriberCountry,
+      subscriber_phone: record.subscriberPhone,
+      subscriber_employer: record.subscriberEmployer,
+      subscriber_employer_street: record.subscriberEmployerStreet,
+      subscriber_employer_street_line_2: record.subscriberEmployerStreetLine2,
+      subscriber_employer_postal_code: record.subscriberEmployerPostalCode,
+      subscriber_employer_city: record.subscriberEmployerCity,
+      subscriber_employer_state: record.subscriberEmployerState,
+      subscriber_employer_country: record.subscriberEmployerCountry,
       copay: record.type === "primary" ? "25" : "10",
       date: "2026-01-01",
       pid: record.pid,
-      subscriber_sex: patient.sex,
+      subscriber_sex: record.subscriberSex,
       accept_assignment: "TRUE",
       policy_type: record.type === "primary" ? "individual" : "secondary"
     };

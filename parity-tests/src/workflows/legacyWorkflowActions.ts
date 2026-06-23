@@ -362,6 +362,25 @@ export type PatientInsuranceRecord = {
   policyNumber: string;
   groupNumber: string;
   relationship: string;
+  subscriberFirstName: string;
+  subscriberMiddleName: string;
+  subscriberLastName: string;
+  subscriberDateOfBirth: string;
+  subscriberSex: string;
+  subscriberStreet: string;
+  subscriberStreetLine2: string;
+  subscriberCity: string;
+  subscriberState: string;
+  subscriberPostalCode: string;
+  subscriberCountry: string;
+  subscriberPhone: string;
+  subscriberEmployer: string;
+  subscriberEmployerStreet: string;
+  subscriberEmployerStreetLine2: string;
+  subscriberEmployerCity: string;
+  subscriberEmployerState: string;
+  subscriberEmployerPostalCode: string;
+  subscriberEmployerCountry: string;
 };
 
 export type PrescriptionRecord = {
@@ -812,6 +831,25 @@ export type NewPatientInsurance = {
   policyNumber: string;
   groupNumber: string;
   relationship: string;
+  subscriberFirstName?: string;
+  subscriberMiddleName?: string;
+  subscriberLastName?: string;
+  subscriberDateOfBirth?: string;
+  subscriberSex?: string;
+  subscriberStreet?: string;
+  subscriberStreetLine2?: string;
+  subscriberCity?: string;
+  subscriberState?: string;
+  subscriberPostalCode?: string;
+  subscriberCountry?: string;
+  subscriberPhone?: string;
+  subscriberEmployer?: string;
+  subscriberEmployerStreet?: string;
+  subscriberEmployerStreetLine2?: string;
+  subscriberEmployerCity?: string;
+  subscriberEmployerState?: string;
+  subscriberEmployerPostalCode?: string;
+  subscriberEmployerCountry?: string;
 };
 
 export type NewPatientBinaryDocument = {
@@ -2022,11 +2060,25 @@ WHERE pid = ${integer(pid)}
     const rows = await this.db.queryRows<{ id: string }>(`
 INSERT INTO insurance_data
   (uuid, type, provider, plan_name, policy_number, group_number, subscriber_relationship,
-   date, pid, accept_assignment, policy_type)
+   subscriber_fname, subscriber_mname, subscriber_lname, subscriber_DOB, subscriber_sex,
+   subscriber_street, subscriber_street_line_2, subscriber_city, subscriber_state, subscriber_postal_code,
+   subscriber_country, subscriber_phone, subscriber_employer, subscriber_employer_street,
+   subscriber_employer_street_line_2, subscriber_employer_city, subscriber_employer_state,
+   subscriber_employer_postal_code, subscriber_employer_country, date, pid, accept_assignment, policy_type)
 VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.type)}, ${integer(providerId)},
    ${sqlString(input.planName)}, ${sqlString(input.policyNumber)}, ${sqlString(input.groupNumber)},
-   ${sqlString(input.relationship)}, '2026-06-18', ${integer(input.patientId)}, 'TRUE', 'group');
+   ${sqlString(input.relationship)}, ${sqlStringOrEmpty(input.subscriberFirstName)},
+   ${sqlStringOrEmpty(input.subscriberMiddleName)}, ${sqlStringOrEmpty(input.subscriberLastName)},
+   ${nullableSqlString(input.subscriberDateOfBirth)}, ${sqlStringOrEmpty(input.subscriberSex)},
+   ${sqlStringOrEmpty(input.subscriberStreet)}, ${sqlStringOrEmpty(input.subscriberStreetLine2)},
+   ${sqlStringOrEmpty(input.subscriberCity)}, ${sqlStringOrEmpty(input.subscriberState)},
+   ${sqlStringOrEmpty(input.subscriberPostalCode)}, ${sqlStringOrEmpty(input.subscriberCountry)},
+   ${sqlStringOrEmpty(input.subscriberPhone)}, ${sqlStringOrEmpty(input.subscriberEmployer)},
+   ${sqlStringOrEmpty(input.subscriberEmployerStreet)}, ${sqlStringOrEmpty(input.subscriberEmployerStreetLine2)},
+   ${sqlStringOrEmpty(input.subscriberEmployerCity)}, ${sqlStringOrEmpty(input.subscriberEmployerState)},
+   ${sqlStringOrEmpty(input.subscriberEmployerPostalCode)}, ${sqlStringOrEmpty(input.subscriberEmployerCountry)},
+   '2026-06-18', ${integer(input.patientId)}, 'TRUE', 'group');
 SELECT LAST_INSERT_ID() AS id;
 `);
     return Number(rows[0]?.id);
@@ -2040,7 +2092,26 @@ SELECT insd.id, insd.pid AS patientId, COALESCE(insd.type, '') AS type,
   COALESCE(insd.plan_name, '') AS planName,
   COALESCE(insd.policy_number, '') AS policyNumber,
   COALESCE(insd.group_number, '') AS groupNumber,
-  COALESCE(insd.subscriber_relationship, '') AS relationship
+  COALESCE(insd.subscriber_relationship, '') AS relationship,
+  COALESCE(insd.subscriber_fname, '') AS subscriberFirstName,
+  COALESCE(insd.subscriber_mname, '') AS subscriberMiddleName,
+  COALESCE(insd.subscriber_lname, '') AS subscriberLastName,
+  COALESCE(DATE_FORMAT(insd.subscriber_DOB, '%Y-%m-%d'), '') AS subscriberDateOfBirth,
+  COALESCE(insd.subscriber_sex, '') AS subscriberSex,
+  COALESCE(insd.subscriber_street, '') AS subscriberStreet,
+  COALESCE(insd.subscriber_street_line_2, '') AS subscriberStreetLine2,
+  COALESCE(insd.subscriber_city, '') AS subscriberCity,
+  COALESCE(insd.subscriber_state, '') AS subscriberState,
+  COALESCE(insd.subscriber_postal_code, '') AS subscriberPostalCode,
+  COALESCE(insd.subscriber_country, '') AS subscriberCountry,
+  COALESCE(insd.subscriber_phone, '') AS subscriberPhone,
+  COALESCE(insd.subscriber_employer, '') AS subscriberEmployer,
+  COALESCE(insd.subscriber_employer_street, '') AS subscriberEmployerStreet,
+  COALESCE(insd.subscriber_employer_street_line_2, '') AS subscriberEmployerStreetLine2,
+  COALESCE(insd.subscriber_employer_city, '') AS subscriberEmployerCity,
+  COALESCE(insd.subscriber_employer_state, '') AS subscriberEmployerState,
+  COALESCE(insd.subscriber_employer_postal_code, '') AS subscriberEmployerPostalCode,
+  COALESCE(insd.subscriber_employer_country, '') AS subscriberEmployerCountry
 FROM insurance_data insd
 LEFT JOIN insurance_companies ic ON ic.id = insd.provider
 WHERE insd.id = ${integer(legacyId)}
@@ -2055,7 +2126,26 @@ LIMIT 1;
       planName: row.planName,
       policyNumber: row.policyNumber,
       groupNumber: row.groupNumber,
-      relationship: row.relationship
+      relationship: row.relationship,
+      subscriberFirstName: row.subscriberFirstName,
+      subscriberMiddleName: row.subscriberMiddleName,
+      subscriberLastName: row.subscriberLastName,
+      subscriberDateOfBirth: row.subscriberDateOfBirth,
+      subscriberSex: row.subscriberSex,
+      subscriberStreet: row.subscriberStreet,
+      subscriberStreetLine2: row.subscriberStreetLine2,
+      subscriberCity: row.subscriberCity,
+      subscriberState: row.subscriberState,
+      subscriberPostalCode: row.subscriberPostalCode,
+      subscriberCountry: row.subscriberCountry,
+      subscriberPhone: row.subscriberPhone,
+      subscriberEmployer: row.subscriberEmployer,
+      subscriberEmployerStreet: row.subscriberEmployerStreet,
+      subscriberEmployerStreetLine2: row.subscriberEmployerStreetLine2,
+      subscriberEmployerCity: row.subscriberEmployerCity,
+      subscriberEmployerState: row.subscriberEmployerState,
+      subscriberEmployerPostalCode: row.subscriberEmployerPostalCode,
+      subscriberEmployerCountry: row.subscriberEmployerCountry
     } : null;
   }
 
@@ -2069,7 +2159,26 @@ SET type = ${sqlString(input.type)},
   plan_name = ${sqlString(input.planName)},
   policy_number = ${sqlString(input.policyNumber)},
   group_number = ${sqlString(input.groupNumber)},
-  subscriber_relationship = ${sqlString(input.relationship)}
+  subscriber_relationship = ${sqlString(input.relationship)},
+  subscriber_fname = ${sqlStringOrEmpty(input.subscriberFirstName)},
+  subscriber_mname = ${sqlStringOrEmpty(input.subscriberMiddleName)},
+  subscriber_lname = ${sqlStringOrEmpty(input.subscriberLastName)},
+  subscriber_DOB = ${nullableSqlString(input.subscriberDateOfBirth)},
+  subscriber_sex = ${sqlStringOrEmpty(input.subscriberSex)},
+  subscriber_street = ${sqlStringOrEmpty(input.subscriberStreet)},
+  subscriber_street_line_2 = ${sqlStringOrEmpty(input.subscriberStreetLine2)},
+  subscriber_city = ${sqlStringOrEmpty(input.subscriberCity)},
+  subscriber_state = ${sqlStringOrEmpty(input.subscriberState)},
+  subscriber_postal_code = ${sqlStringOrEmpty(input.subscriberPostalCode)},
+  subscriber_country = ${sqlStringOrEmpty(input.subscriberCountry)},
+  subscriber_phone = ${sqlStringOrEmpty(input.subscriberPhone)},
+  subscriber_employer = ${sqlStringOrEmpty(input.subscriberEmployer)},
+  subscriber_employer_street = ${sqlStringOrEmpty(input.subscriberEmployerStreet)},
+  subscriber_employer_street_line_2 = ${sqlStringOrEmpty(input.subscriberEmployerStreetLine2)},
+  subscriber_employer_city = ${sqlStringOrEmpty(input.subscriberEmployerCity)},
+  subscriber_employer_state = ${sqlStringOrEmpty(input.subscriberEmployerState)},
+  subscriber_employer_postal_code = ${sqlStringOrEmpty(input.subscriberEmployerPostalCode)},
+  subscriber_employer_country = ${sqlStringOrEmpty(input.subscriberEmployerCountry)}
 WHERE id = ${integer(legacyId)};
 `);
   }

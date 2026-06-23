@@ -123,6 +123,7 @@ param(
         "workflow-document-content-replace",
         "workflow-document-revision-replace",
         "workflow-insurance",
+        "workflow-insurance-subscriber",
         "workflow-prescriptions",
         "workflow-immunizations",
         "workflow-billing",

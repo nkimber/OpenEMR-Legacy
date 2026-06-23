@@ -11,7 +11,7 @@ test.describe("patient insurance coverage parity @slice28 @insurance", () => {
 
     const coverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
     expect(coverage.patientId).toBe(patient!.pid);
-    expect(coverage.insurance).toEqual([
+    expect(coverage.insurance).toMatchObject([
       {
         type: "primary",
         provider: "Northstar HMO",
@@ -26,7 +26,7 @@ test.describe("patient insurance coverage parity @slice28 @insurance", () => {
         planName: "Family Choice",
         policyNumber: "SEC100005",
         groupNumber: "GRP204",
-        relationship: "self"
+        relationship: "spouse"
       }
     ]);
   });

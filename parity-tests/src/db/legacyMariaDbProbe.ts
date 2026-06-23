@@ -133,6 +133,25 @@ export type PatientInsuranceSummary = {
   policyNumber: string;
   groupNumber: string;
   relationship: string;
+  subscriberFirstName: string;
+  subscriberMiddleName: string;
+  subscriberLastName: string;
+  subscriberDateOfBirth: string;
+  subscriberSex: string;
+  subscriberStreet: string;
+  subscriberStreetLine2: string;
+  subscriberCity: string;
+  subscriberState: string;
+  subscriberPostalCode: string;
+  subscriberCountry: string;
+  subscriberPhone: string;
+  subscriberEmployer: string;
+  subscriberEmployerStreet: string;
+  subscriberEmployerStreetLine2: string;
+  subscriberEmployerCity: string;
+  subscriberEmployerState: string;
+  subscriberEmployerPostalCode: string;
+  subscriberEmployerCountry: string;
 };
 
 export type PatientInsuranceCoverageSummary = {
@@ -1423,7 +1442,26 @@ SELECT COALESCE(insd.type, '') AS type,
   COALESCE(plan_name, '') AS planName,
   COALESCE(policy_number, '') AS policyNumber,
   COALESCE(group_number, '') AS groupNumber,
-  COALESCE(subscriber_relationship, '') AS relationship
+  COALESCE(subscriber_relationship, '') AS relationship,
+  COALESCE(subscriber_fname, '') AS subscriberFirstName,
+  COALESCE(subscriber_mname, '') AS subscriberMiddleName,
+  COALESCE(subscriber_lname, '') AS subscriberLastName,
+  COALESCE(DATE_FORMAT(subscriber_DOB, '%Y-%m-%d'), '') AS subscriberDateOfBirth,
+  COALESCE(subscriber_sex, '') AS subscriberSex,
+  COALESCE(subscriber_street, '') AS subscriberStreet,
+  COALESCE(subscriber_street_line_2, '') AS subscriberStreetLine2,
+  COALESCE(subscriber_city, '') AS subscriberCity,
+  COALESCE(subscriber_state, '') AS subscriberState,
+  COALESCE(subscriber_postal_code, '') AS subscriberPostalCode,
+  COALESCE(subscriber_country, '') AS subscriberCountry,
+  COALESCE(subscriber_phone, '') AS subscriberPhone,
+  COALESCE(subscriber_employer, '') AS subscriberEmployer,
+  COALESCE(subscriber_employer_street, '') AS subscriberEmployerStreet,
+  COALESCE(subscriber_employer_street_line_2, '') AS subscriberEmployerStreetLine2,
+  COALESCE(subscriber_employer_city, '') AS subscriberEmployerCity,
+  COALESCE(subscriber_employer_state, '') AS subscriberEmployerState,
+  COALESCE(subscriber_employer_postal_code, '') AS subscriberEmployerPostalCode,
+  COALESCE(subscriber_employer_country, '') AS subscriberEmployerCountry
 FROM insurance_data insd
 LEFT JOIN insurance_companies ic ON ic.id = insd.provider
 WHERE insd.pid = ${pid}
@@ -1438,7 +1476,26 @@ ORDER BY FIELD(insd.type, 'primary', 'secondary'), insd.type, insd.id;
         planName: row.planName,
         policyNumber: row.policyNumber,
         groupNumber: row.groupNumber,
-        relationship: row.relationship
+        relationship: row.relationship,
+        subscriberFirstName: row.subscriberFirstName,
+        subscriberMiddleName: row.subscriberMiddleName,
+        subscriberLastName: row.subscriberLastName,
+        subscriberDateOfBirth: row.subscriberDateOfBirth,
+        subscriberSex: row.subscriberSex,
+        subscriberStreet: row.subscriberStreet,
+        subscriberStreetLine2: row.subscriberStreetLine2,
+        subscriberCity: row.subscriberCity,
+        subscriberState: row.subscriberState,
+        subscriberPostalCode: row.subscriberPostalCode,
+        subscriberCountry: row.subscriberCountry,
+        subscriberPhone: row.subscriberPhone,
+        subscriberEmployer: row.subscriberEmployer,
+        subscriberEmployerStreet: row.subscriberEmployerStreet,
+        subscriberEmployerStreetLine2: row.subscriberEmployerStreetLine2,
+        subscriberEmployerCity: row.subscriberEmployerCity,
+        subscriberEmployerState: row.subscriberEmployerState,
+        subscriberEmployerPostalCode: row.subscriberEmployerPostalCode,
+        subscriberEmployerCountry: row.subscriberEmployerCountry
       }))
     };
   }

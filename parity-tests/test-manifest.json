@@ -798,6 +798,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-203-insurance-subscriber-readiness",
+      "name": "Slice 203 Insurance Subscriber Readiness",
+      "description": "Patient insurance confidence plan that verifies subscriber-party details and capture/update behavior on database/API/UI surfaces.",
+      "suites": ["workflow-insurance-subscriber"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-203", "patients", "insurance", "subscriber", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3004,6 +3013,16 @@
       "layer": "workflow",
       "path": "tests/workflow-insurance",
       "tags": ["slice34", "workflow", "mutation", "insurance", "patient-chart", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-insurance-subscriber",
+      "name": "Patient Insurance Subscriber Detail",
+      "description": "Verifies subscriber-party insurance details from seed data and creates, updates, renders, and removes subscriber details on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-subscriber-insurance",
+      "tags": ["slice203", "workflow", "mutation", "insurance", "subscriber", "patient-chart", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

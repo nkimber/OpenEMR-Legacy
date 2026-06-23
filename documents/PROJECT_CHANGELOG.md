@@ -13421,6 +13421,86 @@ Primary files:
 - `documents/INDEX.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 235. Slice 203 Insurance Subscriber Readiness
+
+Started: `2026-06-22T20:48:00-04:00`
+Finished: `2026-06-22T21:24:13-04:00`
+Duration: `36m 13s`
+Changeset: `pending`
+
+Implemented Slice 203: patient insurance subscriber readiness. The shared gold dataset now carries deterministic subscriber-party details on existing insurance rows, the legacy and modernized databases seed the same subscriber facts, the modernized Patient/Client insurance panel renders those fields, and parity tests prove seeded secondary coverage plus temporary tertiary coverage create/update/delete behavior against both targets.
+
+Code changes:
+
+- Files changed: 27
+- Lines added: 30668
+- Lines deleted: 2910
+- Net lines: 27758
+- Total churn: 33578
+
+Key outcomes:
+
+- Extended the canonical gold dataset and legacy MariaDB seed SQL with subscriber relationship, first/middle/last name, DOB, sex, address, phone, employer, and employer-address fields while keeping the insurance row count at 1,400.
+- Added modernized PostgreSQL `insurance_records` subscriber columns and seed generation so both targets load the same insurance-party baseline.
+- Expanded the modernized patient insurance DTOs, repository read/write normalization, mutation API payloads, frontend API contract, and Patient/Client insurance panel so subscriber detail is visible and editable.
+- Extended modernized smoke coverage for the `MOD-PAT-0005` secondary subscriber anchor and subscriber mutation lifecycle while keeping the smoke suite at 142 checks.
+- Extended legacy and modernized normalized database probes plus workflow adapters with subscriber-field reads and writes.
+- Added the `workflow-insurance-subscriber` suite and `slice-203-insurance-subscriber-readiness` plan. Its physical Playwright path is `tests/workflow-subscriber-insurance` so the Slice 34 `workflow-insurance` plan does not accidentally pick it up by path prefix.
+- Added Workbench managed actions for Slice 203 on both legacy and modernized targets.
+- Updated the Workbench functionality ledger, source inventory snapshot, and project documents to mark insurance subscriber detail as completed and raise Patient Chart modernization readiness to 88%.
+
+Verified test runs:
+
+- `npm run generate:seed-data` passed in `modernization-workbench/` and regenerated the canonical dataset plus legacy MariaDB seed SQL with deterministic subscriber details.
+- `node .\modernized-openemr\scripts\generate-postgres-seed.mjs` regenerated the modernized PostgreSQL seed SQL with subscriber columns.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, the canonical gold dataset, and the seed summary.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `npm run build` passed in `modernization-workbench/`.
+- `npm run generate:source-inventory` passed in `modernization-workbench/` and refreshed the source inventory snapshot.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-LegacyGoldDataset.ps1` passed from `legacy-openemr/` and loaded 1,400 insurance records.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Seed-ModernizedGoldDataset.ps1` passed from `modernized-openemr/` and loaded 1,400 `insurance_records` rows.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` refreshed the modernized API and frontend containers.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed with 142 checks and 0 failures, including `anchor insurance coverage` and `patient insurance mutation lifecycle`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-203-insurance-subscriber-readiness -Reset test` passed with 1 expected test; run `2026-06-23T012228-361Z-legacy-openemr-plan-slice-203-insurance-subscriber-readiness`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-203-insurance-subscriber-readiness -Reset test` passed with 1 expected test; run `2026-06-23T012302-888Z-modernized-openemr-plan-slice-203-insurance-subscriber-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-203-insurance-subscriber-readiness` passed with status `matched`; comparison `2026-06-23T012342-655Z-legacy-openemr-vs-modernized-openemr-plan-slice-203-insurance-subscriber-readiness`.
+- Regression check `slice-34-insurance-mutation-readiness` passed on legacy and modernized targets with the expected single test after the path-prefix fix, and the comparison matched with no differences; comparison `2026-06-23T012104-630Z-legacy-openemr-vs-modernized-openemr-plan-slice-34-insurance-mutation-readiness`.
+- Regression check `slice-28-insurance-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T012218-158Z-legacy-openemr-vs-modernized-openemr-plan-slice-28-insurance-readiness`.
+- `git diff --check` passed with only expected Windows line-ending warnings.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/db/legacyMariaDbProbe.ts`
+- `parity-tests/src/db/modernizedPostgresProbe.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-subscriber-insurance/insurance-subscriber.spec.ts`
+- `parity-tests/tests/insurance/insurance-coverage.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/config/source-inventory.snapshot.json`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/INDEX.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
