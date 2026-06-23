@@ -13345,7 +13345,7 @@ Primary files:
 Started: `2026-06-22T20:04:00-04:00`
 Finished: `2026-06-22T20:42:33-04:00`
 Duration: `38m 33s`
-Changeset: `pending`
+Changeset: `3b174732`
 
 Implemented read-only Slice 202: patient history and lifestyle readiness. The shared gold dataset now carries one deterministic history/lifestyle record per synthetic patient, the legacy and modernized databases can be seeded from that shared source, and the modernized Patient/Client chart renders the same patient history values that parity tests can validate against legacy OpenEMR.
 
