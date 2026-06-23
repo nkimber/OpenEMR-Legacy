@@ -14739,7 +14739,7 @@ Primary files:
 Started: 2026-06-23T19:31:59.2707810-04:00
 Finished: 2026-06-23T19:35:34.4564872-04:00
 Duration: 00:03:35
-Commit: pending
+Commit: e3228129
 
 Implemented Slice 219: patient portal appointment list readiness. The modernized target now exposes signed-in patient upcoming and past appointment lists from the authenticated patient portal session, renders those appointment cards in the Portal workspace, and proves the same future/past appointment behavior against legacy OpenEMR portal home appointment cards for the `MOD-PAT-0004` account.
 
