@@ -14608,6 +14608,69 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 255. Slice 217 Patient Portal Secure Message All Folder Readiness
+
+Started: 2026-06-23T17:31:15.9401325-04:00
+Finished: 2026-06-23T17:35:34.8633212-04:00
+Duration: 00:04:19
+Commit: pending
+
+Implemented Slice 217: patient portal secure-message All-folder readiness. The modernized target now exposes an active, owner-scoped All mailbox projection in the authenticated patient portal messages API, renders a first-class All folder in the Portal workspace, and proves the same active inbox/sent inclusion and archived-row exclusion behavior against legacy OpenEMR `onsite_mail` for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 414
+- Lines deleted: 39
+- Net lines: +375
+- Total churn: 453
+
+Key outcomes:
+
+- Added `allMessages` and `allMessageCount` to the session-protected `/api/patient-portal/messages` response, using active patient-owned mailbox rows that match the legacy portal All folder behavior.
+- Added modernized Portal UI rendering for the All secure-message folder with thread viewing, read-status, and archive controls over the same message identifiers.
+- Added legacy and modernized workflow action support for active All-folder reads, including temporary inbound and sent portal messages and archived-row exclusion.
+- Added the `workflow-patient-portal-all-messages` Playwright suite and `slice-217-patient-portal-all-messages-readiness` plan to the parity manifest, PowerShell allow-list, and Workbench managed actions.
+- Extended the modernized smoke test to assert the seeded portal account exposes the expected All-folder projection.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, and functionality progress ledger with the Slice 217 portal mailbox All-folder contract.
+
+Verified test runs:
+
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null`, `functionality-progress.json`, and `parity-tests\test-manifest.json` passed JSON parsing.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-217-patient-portal-all-messages-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-217-patient-portal-all-messages-readiness -Reset test` passed as run `2026-06-23T213133-955Z-legacy-openemr-plan-slice-217-patient-portal-all-messages-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-217-patient-portal-all-messages-readiness -Reset test` passed as run `2026-06-23T213340-300Z-modernized-openemr-plan-slice-217-patient-portal-all-messages-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-217-patient-portal-all-messages-readiness` passed as comparison `2026-06-23T213439-773Z-legacy-openemr-vs-modernized-openemr-plan-slice-217-patient-portal-all-messages-readiness` with no differences.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr/artifacts/latest-modernized-smoke-test.json`; the portal authentication check reported `allMessageCount = 2` for `MOD-PAT-0004`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-all-messages/patient-portal-all-messages.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

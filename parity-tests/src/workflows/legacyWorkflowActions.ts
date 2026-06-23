@@ -240,6 +240,8 @@ export type PatientPortalMessagesResult = {
   messages: PatientPortalMessageItem[];
   sentMessageCount: number;
   sentMessages: PatientPortalMessageItem[];
+  allMessageCount: number;
+  allMessages: PatientPortalMessageItem[];
   failureReason: string | null;
   sessionSource: string;
 };
@@ -2197,6 +2199,26 @@ WHERE deleted != 1
   AND sender_id = ${sqlString(login.portalUsername)}
 ORDER BY date DESC, id DESC;
 `);
+    const allRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+ORDER BY date DESC, id DESC;
+`);
     const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
       id: row.id,
       date: normalizeDateText(row.messageDate),
@@ -2228,6 +2250,8 @@ ORDER BY date DESC, id DESC;
       messages: rows.map(mapRow),
       sentMessageCount: sentRows.length,
       sentMessages: sentRows.map(mapRow),
+      allMessageCount: allRows.length,
+      allMessages: allRows.map(mapRow),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -6451,6 +6475,8 @@ function buildEmptyPortalMessagesResult(username: string, failureReason: string)
     messages: [],
     sentMessageCount: 0,
     sentMessages: [],
+    allMessageCount: 0,
+    allMessages: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };

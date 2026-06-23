@@ -924,6 +924,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-217-patient-portal-all-messages-readiness",
+      "name": "Slice 217 Patient Portal Secure Message All Folder Readiness",
+      "description": "Patient portal confidence plan that creates temporary inbound and sent secure messages, verifies the legacy All folder active-owner mailbox semantics, and confirms archived rows leave that active All view.",
+      "suites": ["workflow-patient-portal-all-messages"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-217", "patients", "portal", "messages", "all-folder", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3860,6 +3869,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-batch-archive",
       "tags": ["slice216", "workflow", "mutation", "patients", "portal", "messages", "batch-archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-all-messages",
+      "name": "Patient Portal Secure Message All Folder Readiness",
+      "description": "Creates temporary inbound and sent portal secure messages, verifies active All-folder inclusion, and confirms archived rows are removed from the active All folder.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-all-messages",
+      "tags": ["slice217", "workflow", "mutation", "patients", "portal", "messages", "all-folder", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
