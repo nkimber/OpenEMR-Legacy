@@ -25,7 +25,7 @@ import {
   XCircle
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import type { ComponentType, CSSProperties, ReactNode } from "react";
+import type { ComponentType, CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { api } from "./api";
 import type {
   AppSnapshot,
@@ -285,6 +285,16 @@ function formatProgressPercent(value?: number) {
 
   const rounded = Math.round(value * 10) / 10;
   return `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)}%`;
+}
+
+function formatProgressDelta(value?: number) {
+  if (value === undefined || !Number.isFinite(value)) {
+    return "-";
+  }
+
+  const rounded = Math.round(value * 10) / 10;
+  const formatted = `${Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)}%`;
+  return rounded > 0 ? `+${formatted}` : formatted;
 }
 
 function formatScopePoints(value?: number) {
@@ -797,6 +807,25 @@ function ProgressForecastPanel({ forecast }: { forecast?: FunctionalityProgressF
 }
 
 function FunctionalityProgressHistoryChart({ history }: { history: FunctionalityProgressHistoryPoint[] }) {
+  type ChartPoint = {
+    point: FunctionalityProgressHistoryPoint;
+    index: number;
+    timestamp: number;
+  };
+  type ChartPointDetail = {
+    snapshotNumber: number;
+    point: FunctionalityProgressHistoryPoint;
+    timestamp: number;
+    previous?: ChartPoint;
+    deltaPercent?: number;
+    elapsedMs?: number;
+  };
+
+  const [viewRange, setViewRange] = useState<{ start: number; end: number } | null>(null);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragCurrentX, setDragCurrentX] = useState<number | null>(null);
+  const [hoveredCommit, setHoveredCommit] = useState<string | null>(null);
+  const [selectedCommit, setSelectedCommit] = useState<string | null>(null);
   const points = history
     .filter((point) => Number.isFinite(point.weightedAveragePercent))
     .map((point, index) => ({
@@ -818,19 +847,106 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
   const paddingBottom = 36;
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
-  const first = points[0];
-  const latest = points[points.length - 1];
+  const fullFirst = points[0];
+  const fullLatest = points[points.length - 1];
+  const viewStart = viewRange?.start ?? fullFirst.timestamp;
+  const viewEnd = viewRange?.end ?? fullLatest.timestamp;
+  const visiblePoints = points.filter((point) => point.timestamp >= viewStart && point.timestamp <= viewEnd);
+  const chartPoints = visiblePoints.length >= 2 ? visiblePoints : points;
+  const first = chartPoints[0];
+  const latest = chartPoints[chartPoints.length - 1];
   const firstTime = first.timestamp;
   const latestTime = latest.timestamp;
   const timeSpan = Math.max(1, latestTime - firstTime);
   const spansMultipleDays = new Date(firstTime).toDateString() !== new Date(latestTime).toDateString();
   const timeTicks = [0, 1, 2, 3].map((index) => firstTime + (timeSpan * index) / 3);
-  const coordinates = points.map(({ point, timestamp }) => {
-    const x = paddingLeft + ((timestamp - firstTime) / timeSpan) * chartWidth;
+  const isZoomed = Boolean(viewRange);
+  const timestampToX = (timestamp: number) => paddingLeft + ((timestamp - firstTime) / timeSpan) * chartWidth;
+  const xToTimestamp = (x: number) => firstTime + ((x - paddingLeft) / chartWidth) * timeSpan;
+  const clampChartX = (x: number) => Math.max(paddingLeft, Math.min(width - paddingRight, x));
+  const coordinates = chartPoints.map(({ point, timestamp }) => {
+    const x = timestampToX(timestamp);
     const y = paddingTop + (1 - Math.max(0, Math.min(100, point.weightedAveragePercent)) / 100) * chartHeight;
     return { point, x, y };
   });
   const linePoints = coordinates.map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`).join(" ");
+  const selection =
+    dragStartX !== null && dragCurrentX !== null
+      ? {
+          x: Math.min(dragStartX, dragCurrentX),
+          width: Math.abs(dragCurrentX - dragStartX)
+        }
+      : null;
+  const getPointDetail = (point: FunctionalityProgressHistoryPoint): ChartPointDetail => {
+    const pointIndex = points.findIndex((item) => item.point.fullCommit === point.fullCommit);
+    const current = points[pointIndex] as ChartPoint;
+    const previous = pointIndex > 0 ? points[pointIndex - 1] : undefined;
+    const deltaPercent = previous ? point.weightedAveragePercent - previous.point.weightedAveragePercent : undefined;
+    const elapsedMs = previous ? current.timestamp - previous.timestamp : undefined;
+    return {
+      snapshotNumber: pointIndex + 1,
+      point,
+      timestamp: current.timestamp,
+      previous,
+      deltaPercent,
+      elapsedMs
+    };
+  };
+  const hoveredCoordinate = hoveredCommit ? coordinates.find((coordinate) => coordinate.point.fullCommit === hoveredCommit) : undefined;
+  const hoveredDetail = hoveredCoordinate ? getPointDetail(hoveredCoordinate.point) : undefined;
+  const selectedPoint = selectedCommit ? points.find((item) => item.point.fullCommit === selectedCommit)?.point : undefined;
+  const selectedDetail = selectedPoint ? getPointDetail(selectedPoint) : undefined;
+  const zoomDelta = latest.point.weightedAveragePercent - first.point.weightedAveragePercent;
+
+  const getSvgX = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const relativeX = ((event.clientX - rect.left) / rect.width) * width;
+    return clampChartX(relativeX);
+  };
+  const beginBrushZoom = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if ((event.target as Element).classList?.contains("progress-history-point")) {
+      return;
+    }
+
+    const x = getSvgX(event);
+    setDragStartX(x);
+    setDragCurrentX(x);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const updateBrushZoom = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (dragStartX === null) {
+      return;
+    }
+
+    setDragCurrentX(getSvgX(event));
+  };
+  const completeBrushZoom = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (dragStartX === null || dragCurrentX === null) {
+      return;
+    }
+
+    const startX = Math.min(dragStartX, dragCurrentX);
+    const endX = Math.max(dragStartX, dragCurrentX);
+    if (endX - startX >= 10) {
+      const start = xToTimestamp(startX);
+      const end = xToTimestamp(endX);
+      const rangePoints = points.filter((point) => point.timestamp >= start && point.timestamp <= end);
+      if (rangePoints.length >= 2) {
+        setViewRange({ start, end });
+        setSelectedCommit(null);
+      }
+    }
+
+    setDragStartX(null);
+    setDragCurrentX(null);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+  const cancelBrushZoom = () => {
+    setDragStartX(null);
+    setDragCurrentX(null);
+  };
 
   return (
     <div className="progress-history-panel">
@@ -840,53 +956,148 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             <GitBranch size={17} />
             Weighted Completion History
           </h3>
-          <p>{points.length} committed progress snapshots from {first.point.commit} through {latest.point.commit}.</p>
+          <p>
+            {isZoomed ? `${chartPoints.length} of ${points.length}` : points.length} committed progress snapshots from {first.point.commit} through {latest.point.commit}.
+          </p>
         </div>
         <div className="progress-history-latest">
           <span>{formatProgressPercent(latest.point.weightedAveragePercent)}</span>
           <strong>{latest.point.commit}</strong>
         </div>
       </div>
-      <svg className="progress-history-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Weighted modernization completion over committed progress snapshots">
-        {timeTicks.map((tick, index) => {
-          const x = paddingLeft + ((tick - firstTime) / timeSpan) * chartWidth;
-          return (
-            <Fragment key={tick}>
-              <line x1={x} x2={x} y1={paddingTop} y2={height - paddingBottom} className="chart-grid-line chart-grid-line-vertical" />
-              <text
-                x={x}
-                y={height - 10}
-                className="chart-axis-label chart-axis-label-x"
-                textAnchor={index === 0 ? "start" : index === timeTicks.length - 1 ? "end" : "middle"}
-              >
-                {formatHistoryAxisTick(tick, spansMultipleDays)}
-              </text>
-            </Fragment>
-          );
-        })}
-        {[0, 25, 50, 75, 100].map((tick) => {
-          const y = paddingTop + (1 - tick / 100) * chartHeight;
-          return (
-            <Fragment key={tick}>
-              <line x1={paddingLeft} x2={width - paddingRight} y1={y} y2={y} className="chart-grid-line" />
-              <text x={paddingLeft - 10} y={y + 4} className="chart-axis-label" textAnchor="end">
-                {tick}%
-              </text>
-            </Fragment>
-          );
-        })}
-        <polyline className="progress-history-line" points={linePoints} />
-        {coordinates.map(({ point, x, y }) => (
-          <circle className="progress-history-point" key={point.fullCommit} cx={x} cy={y} r={4.5}>
-            <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}`}</title>
-          </circle>
-        ))}
-      </svg>
+      <div className="progress-history-toolbar">
+        {isZoomed ? (
+          <button className="text-button" type="button" onClick={() => setViewRange(null)}>
+            Reset zoom
+          </button>
+        ) : null}
+        {selectedCommit ? (
+          <button className="text-button" type="button" onClick={() => setSelectedCommit(null)}>
+            Clear selection
+          </button>
+        ) : null}
+        <span>
+          {formatDate(first.point.snapshotCompletedAt ?? first.point.committedAt)} - {formatDate(latest.point.snapshotCompletedAt ?? latest.point.committedAt)}
+        </span>
+      </div>
+      <div className="progress-history-chart-wrap">
+        <svg
+          className="progress-history-chart"
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label="Weighted modernization completion over committed progress snapshots"
+          onPointerDown={beginBrushZoom}
+          onPointerMove={updateBrushZoom}
+          onPointerUp={completeBrushZoom}
+          onPointerCancel={cancelBrushZoom}
+          onPointerLeave={() => setHoveredCommit(null)}
+        >
+          {timeTicks.map((tick, index) => {
+            const x = timestampToX(tick);
+            return (
+              <Fragment key={tick}>
+                <line x1={x} x2={x} y1={paddingTop} y2={height - paddingBottom} className="chart-grid-line chart-grid-line-vertical" />
+                <text
+                  x={x}
+                  y={height - 10}
+                  className="chart-axis-label chart-axis-label-x"
+                  textAnchor={index === 0 ? "start" : index === timeTicks.length - 1 ? "end" : "middle"}
+                >
+                  {formatHistoryAxisTick(tick, spansMultipleDays)}
+                </text>
+              </Fragment>
+            );
+          })}
+          {[0, 25, 50, 75, 100].map((tick) => {
+            const y = paddingTop + (1 - tick / 100) * chartHeight;
+            return (
+              <Fragment key={tick}>
+                <line x1={paddingLeft} x2={width - paddingRight} y1={y} y2={y} className="chart-grid-line" />
+                <text x={paddingLeft - 10} y={y + 4} className="chart-axis-label" textAnchor="end">
+                  {tick}%
+                </text>
+              </Fragment>
+            );
+          })}
+          <rect x={paddingLeft} y={paddingTop} width={chartWidth} height={chartHeight} className="progress-history-plot-area" />
+          <polyline className="progress-history-line" points={linePoints} />
+          {selection ? <rect className="progress-history-brush" x={selection.x} y={paddingTop} width={selection.width} height={chartHeight} /> : null}
+          {coordinates.map(({ point, x, y }) => (
+            <circle
+              className={`progress-history-point${selectedCommit === point.fullCommit ? " selected" : ""}`}
+              key={point.fullCommit}
+              cx={x}
+              cy={y}
+              r={selectedCommit === point.fullCommit ? 6 : 4.5}
+              role="button"
+              tabIndex={0}
+              aria-label={`Inspect ${point.commit}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                setSelectedCommit(point.fullCommit);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelectedCommit(point.fullCommit);
+                }
+              }}
+              onPointerEnter={() => setHoveredCommit(point.fullCommit)}
+              onPointerLeave={() => setHoveredCommit(null)}
+              onFocus={() => setHoveredCommit(point.fullCommit)}
+              onBlur={() => setHoveredCommit(null)}
+            >
+              <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}`}</title>
+            </circle>
+          ))}
+        </svg>
+        {hoveredDetail && hoveredCoordinate ? (
+          <div
+            className="progress-history-tooltip"
+            style={{
+              left: `${(hoveredCoordinate.x / width) * 100}%`,
+              top: `${(hoveredCoordinate.y / height) * 100}%`
+            }}
+          >
+            <strong>{hoveredDetail.point.commit}</strong>
+            <span>{formatProgressPercent(hoveredDetail.point.weightedAveragePercent)} complete</span>
+            <span>{formatProgressDelta(hoveredDetail.deltaPercent)} since prior snapshot</span>
+            <span>{hoveredDetail.elapsedMs !== undefined ? formatElapsedDuration(hoveredDetail.elapsedMs) : "-"} since prior</span>
+            <span>{formatDate(hoveredDetail.point.snapshotCompletedAt ?? hoveredDetail.point.committedAt)}</span>
+          </div>
+        ) : null}
+      </div>
+      {isZoomed ? (
+        <div className="progress-history-zoom-summary">
+          <span>{formatProgressDelta(zoomDelta)} in view</span>
+          <span>{formatElapsedDuration(latestTime - firstTime)} span</span>
+          <span>{chartPoints.length} snapshots</span>
+        </div>
+      ) : null}
       <div className="progress-history-caption">
         <span>{formatDate(first.point.snapshotCompletedAt ?? first.point.committedAt)}</span>
         <span>{formatElapsedDuration(latestTime - firstTime)} span</span>
         <span>{formatDate(latest.point.snapshotCompletedAt ?? latest.point.committedAt)}</span>
       </div>
+      {selectedDetail ? (
+        <div className="progress-history-inspector">
+          <div>
+            <div className="section-kicker">Selected snapshot</div>
+            <h4>{selectedDetail.point.subject}</h4>
+            <p>
+              Snapshot {selectedDetail.snapshotNumber} of {points.length} completed at {formatDate(selectedDetail.point.snapshotCompletedAt ?? selectedDetail.point.committedAt)}.
+            </p>
+          </div>
+          <div className="progress-history-inspector-grid">
+            <Metric label="Commit" value={selectedDetail.point.commit} detail={selectedDetail.point.fullCommit.slice(0, 12)} />
+            <Metric label="Weighted Complete" value={formatProgressPercent(selectedDetail.point.weightedAveragePercent)} detail={`${formatScopePoints(selectedDetail.point.weightedCompletedPoints)} weighted points`} />
+            <Metric label="Change" value={formatProgressDelta(selectedDetail.deltaPercent)} detail="Since prior snapshot" />
+            <Metric label="Elapsed Since Prior" value={formatElapsedDuration(selectedDetail.elapsedMs)} detail={selectedDetail.previous?.point.commit ?? "First snapshot"} />
+            <Metric label="Remaining" value={formatProgressPercent(selectedDetail.point.estimatedRemainingPercent)} detail={`${formatScopePoints(selectedDetail.point.weightedRemainingPoints)} weighted points`} />
+            <Metric label="Simple Average" value={formatProgressPercent(selectedDetail.point.simpleAveragePercent)} detail="Unweighted signal" />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

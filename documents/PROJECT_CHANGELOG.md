@@ -14006,6 +14006,46 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 244. Workbench Progress Chart Interaction Slice
+
+Started: 2026-06-23T09:18:00.0000000-04:00
+Finished: 2026-06-23T09:31:36.9358318-04:00
+Commit: pending
+
+Enhanced the Modernization Workbench Progress page's Weighted Completion History chart with brush-to-zoom range selection, richer hover details, and click-to-inspect snapshot details so the chart can be used as an evidence investigation surface instead of only a static trend line.
+
+Code changes:
+
+- Files changed: 4
+- Lines added: 408
+- Lines deleted: 42
+- Net lines: +366
+- Total churn: 450
+
+Key outcomes:
+
+- Added resettable brush zoom to the weighted completion chart, including visible zoom-range metrics for percent change, time span, and snapshot count.
+- Added rich hover details for each progress snapshot: commit, weighted completion, delta since prior snapshot, elapsed time since prior snapshot, and completion timestamp.
+- Added click-to-inspect snapshot details with commit identity, full hash prefix, weighted completion, weighted points, remaining work, elapsed time, and simple-average comparison signal.
+- Kept the chart keyboard-accessible by exposing snapshot points as focusable inspect controls.
+- Documented the new chart interaction contract in the Workbench document.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Playwright browser verification on `http://127.0.0.1:5173/#/progress` confirmed the Slice 207 point hover tooltip shows `0f59d546`, `65.5% complete`, `+0.1% since prior snapshot`, and `7h 24m since prior`.
+- Playwright click verification confirmed the selected-snapshot inspector opens for `0f59d546` with commit, weighted completion, delta, elapsed-time, remaining-work, and simple-average metrics.
+- Playwright brush verification confirmed a right-side range zoomed the chart from 65 points to 8 points, showed `Reset zoom`, and displayed `+0.6% in view`, `11h 29m span`, and `8 snapshots`; reset returned the chart to all 65 points.
+- Playwright mobile-width verification at 390px confirmed the Progress history toolbar stayed within the panel and x-axis labels did not overlap.
+
+Primary files:
+
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
