@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -157,6 +157,11 @@
           "label": "Patient portal secure-message archive readiness",
           "detail": "The modernized patient portal API and Portal page now archive patient-visible secure messages using the legacy Delete status and soft-delete visibility rules, while parity verifies active-folder removal and archive visibility with cleanup-backed temporary messages.",
           "evidence": ["slice-214-patient-portal-delete-readiness"]
+        },
+        {
+          "label": "Patient portal secure-message read-status readiness",
+          "detail": "The modernized patient portal API and Portal page now mark patient-visible secure messages read while preserving inbox visibility, and parity verifies legacy New-to-Read behavior with cleanup-backed temporary inbound messages.",
+          "evidence": ["slice-215-patient-portal-read-readiness"]
         }
       ],
       "outstanding": [
@@ -169,7 +174,7 @@
       "completionEstimatePercent": 98,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -317,7 +322,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -355,9 +360,9 @@
           "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
         },
         {
-          "label": "Patient portal secure-message inbox, compose, reply, thread view, and archive",
-          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, and archive active messages through legacy soft-delete semantics.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness"]
+          "label": "Patient portal secure-message inbox, compose, reply, thread view, archive, and read status",
+          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, and mark active messages read while preserving inbox visibility.",
+          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness"]
         }
       ],
       "outstanding": [
@@ -366,10 +371,10 @@
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 61,
+      "completionEstimatePercent": 62,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive behavior, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; encrypted content, attachments, routing, notifications, and full audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status behavior, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; encrypted content, attachments, routing, notifications, and full audit history remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

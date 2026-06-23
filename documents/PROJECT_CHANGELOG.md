@@ -14485,6 +14485,67 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 253. Slice 215 Patient Portal Secure Message Read Status Readiness
+
+Started: 2026-06-23T15:36:00.0000000-04:00
+Finished: 2026-06-23T16:11:28.0048730-04:00
+Commit: pending
+
+Implemented Slice 215: patient portal secure-message read-status readiness. The modernized target now exposes a session-protected mark-read endpoint, preserves OpenEMR-compatible `New` to `Read` mailbox status behavior with active-folder retention, renders Portal `Mark read` controls, and proves read-status parity against legacy OpenEMR `onsite_mail` with cleanup-backed temporary inbound messages for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 823
+- Lines deleted: 33
+- Net lines: +790
+- Total churn: 856
+
+Key outcomes:
+
+- Added `PUT /api/patient-portal/messages/{messageId}/read` with portal-session validation, patient mailbox ownership checks, OpenEMR-style `message_status = Read`, and `activity = 1` behavior.
+- Added frontend API contracts and Portal `Mark read` controls for New secure-message cards, with refreshed home/message counts and thread state after the read-status update.
+- Added legacy and modernized workflow actions plus a `workflow-patient-portal-read` Playwright suite that creates a temporary inbound message, marks it read, verifies inbox retention and home new-count decrement, and cleans up transient mailbox rows.
+- Corrected the legacy patient portal home-summary helper to match OpenEMR `portal/home.php` and `getPortalPatientNotes(...)` behavior by reading patient-owned `onsite_mail` rows instead of `pnotes`.
+- Added the `slice-215-patient-portal-read-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed test actions.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, and functionality progress ledger with the Slice 215 portal mailbox read-status contract.
+
+Verified test runs:
+
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null`, `functionality-progress.json`, and `parity-tests\test-manifest.json` passed JSON parsing.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-215-patient-portal-read-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-215-patient-portal-read-readiness -Reset test` passed as run `2026-06-23T200940-396Z-legacy-openemr-plan-slice-215-patient-portal-read-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-215-patient-portal-read-readiness -Reset test` passed as run `2026-06-23T201026-468Z-modernized-openemr-plan-slice-215-patient-portal-read-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-215-patient-portal-read-readiness` passed as comparison `2026-06-23T201056-273Z-legacy-openemr-vs-modernized-openemr-plan-slice-215-patient-portal-read-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-read/patient-portal-read.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

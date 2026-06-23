@@ -68,10 +68,12 @@ import type {
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
   PatientPortalHomeSummary,
+  PatientPortalInboxMessageInput,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
   PatientPortalMessageThreadResult,
   PatientPortalMessagesResult,
+  PatientPortalReadMessageResult,
   PatientPortalReplyMessageInput,
   PatientPortalReplyMessageResult,
   PatientPortalSessionResult,
@@ -869,6 +871,115 @@ WHERE title = ${sqlString(title)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
 `);
+  }
+
+  async createPatientPortalInboxMessage(
+    username: string,
+    password: string,
+    input: PatientPortalInboxMessageInput
+  ): Promise<PatientPortalMessageItem> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId || login.pid === null) {
+      throw new Error(`Patient portal sign-in was rejected: ${login.failureReason ?? "no portal session"}`);
+    }
+
+    const title = input.title.trim();
+    const body = input.body.trim();
+    const senderId = input.senderId?.trim() || "admin";
+    const senderRows = await this.db.queryRows<{ displayName: string }>(`
+SELECT COALESCE(
+  (SELECT TRIM(first_name || ' ' || last_name) FROM staff WHERE username = ${sqlString(senderId)} LIMIT 1),
+  (SELECT display_name FROM auth_accounts WHERE username = ${sqlString(senderId)} LIMIT 1),
+  ${sqlString(senderId)}
+) AS displayName;
+`);
+    const senderName = input.senderName?.trim() || senderRows[0]?.displayName || senderId;
+    if (!title || !body) {
+      throw new Error("Secure message title and body are required.");
+    }
+
+    await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS nextId
+FROM portal_mailbox_messages;
+`);
+    const messageId = Number(idRows[0]?.nextId ?? 9393001);
+    const messageDate = new Date().toISOString().slice(0, 10);
+
+    await this.db.execute(`
+INSERT INTO portal_mailbox_messages (
+  id, patient_id, pid, message_date, body, owner, user_value, group_name,
+  activity, authorized, title, assigned_to, message_status, portal_relation, mail_chain,
+  sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain,
+  is_encrypted, deleted
+)
+VALUES (
+  ${integer(messageId)}, ${sqlString(login.canonicalId)}, ${integer(login.pid)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(senderId)}, 'Default',
+  1, 1, ${sqlString(title)}, ${sqlString(login.portalUsername)}, 'New', 'portal:inbox-setup', ${integer(messageId)},
+  ${sqlString(senderId)}, ${sqlString(senderName)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${integer(messageId)},
+  FALSE, 0
+);
+`);
+
+    await this.endPatientPortalSession(login.sessionId);
+
+    return {
+      id: String(messageId),
+      date: messageDate,
+      title,
+      body,
+      status: "New",
+      assignedTo: login.portalUsername,
+      senderId,
+      senderName,
+      recipientId: login.portalUsername,
+      recipientName: login.displayName,
+      mailChain: messageId,
+      replyMailChain: messageId,
+      portalRelation: "portal:inbox-setup",
+      isEncrypted: false
+    };
+  }
+
+  async readPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string
+  ): Promise<PatientPortalReadMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        markedRead: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        messageId,
+        message: null,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/${messageId}/read`, {
+        method: "PUT",
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message read-status update failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalReadMessageResult(await response.json(), username, messageId);
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
   }
 
   async deletePatientPortalMessage(
@@ -4222,6 +4333,29 @@ function mapPatientPortalDeleteMessageResult(
     messageId: result.messageId ?? messageId,
     deletedMessage: result.deletedMessage ? mapPatientPortalMessageItem(result.deletedMessage, result.portalUsername) : null,
     deletedMessageCount: result.deletedMessageCount ?? 0,
+    messageCount: result.messageCount ?? 0,
+    sentMessageCount: result.sentMessageCount ?? 0,
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+  };
+}
+
+function mapPatientPortalReadMessageResult(
+  result: any,
+  username: string,
+  messageId: string
+): PatientPortalReadMessageResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    markedRead: Boolean(result.markedRead),
+    username: result.username ?? username,
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    messageId: result.messageId ?? messageId,
+    message: result.message ? mapPatientPortalMessageItem(result.message, result.portalUsername) : null,
     messageCount: result.messageCount ?? 0,
     sentMessageCount: result.sentMessageCount ?? 0,
     failureReason: result.failureReason ?? null,

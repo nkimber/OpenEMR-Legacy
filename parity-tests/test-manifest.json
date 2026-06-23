@@ -906,6 +906,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-215-patient-portal-read-readiness",
+      "name": "Slice 215 Patient Portal Secure Message Read Status Readiness",
+      "description": "Patient portal confidence plan that creates a temporary inbound secure message, marks it read, and verifies legacy New-to-Read status behavior while keeping the message in active folders.",
+      "suites": ["workflow-patient-portal-read"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-215", "patients", "portal", "messages", "read-status", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3822,6 +3831,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-delete",
       "tags": ["slice214", "workflow", "mutation", "patients", "portal", "messages", "delete", "archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-read",
+      "name": "Patient Portal Secure Message Read Status Readiness",
+      "description": "Marks a signed-in portal secure message read and verifies active-folder retention plus New-to-Read status behavior.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-read",
+      "tags": ["slice215", "workflow", "mutation", "patients", "portal", "messages", "read-status", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

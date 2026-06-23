@@ -281,6 +281,30 @@ export type PatientPortalDeleteMessageResult = {
   sessionSource: string;
 };
 
+export type PatientPortalReadMessageResult = {
+  authenticated: boolean;
+  markedRead: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  messageId: string;
+  message: PatientPortalMessageItem | null;
+  messageCount: number;
+  sentMessageCount: number;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalInboxMessageInput = {
+  senderId?: string;
+  senderName?: string;
+  title: string;
+  body: string;
+};
+
 export type PatientPortalReplyMessageInput = {
   body: string;
 };
@@ -2029,15 +2053,17 @@ SELECT
   COUNT(*) AS totalMessages,
   SUM(CASE WHEN message_status = 'New' THEN 1 ELSE 0 END) AS newMessages,
   SUM(CASE WHEN message_status = 'Done' THEN 1 ELSE 0 END) AS doneMessages
-FROM pnotes
-WHERE pid = ${integer(login.pid)}
-  AND activity = 1;
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND recipient_id = ${sqlString(login.portalUsername)};
 `);
     const latestMessageRows = await this.db.queryRows<Record<string, string>>(`
 SELECT title AS latestMessageTitle, DATE_FORMAT(date, '%Y-%m-%d') AS latestMessageDate
-FROM pnotes
-WHERE pid = ${integer(login.pid)}
-  AND activity = 1
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND recipient_id = ${sqlString(login.portalUsername)}
 ORDER BY date DESC, id DESC
 LIMIT 1;
 `);
@@ -2373,6 +2399,159 @@ WHERE title = ${sqlString(title)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
 `);
+  }
+
+  async createPatientPortalInboxMessage(
+    username: string,
+    password: string,
+    input: PatientPortalInboxMessageInput
+  ): Promise<PatientPortalMessageItem> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      throw new Error(`Patient portal sign-in was rejected: ${login.failureReason ?? "no portal session"}`);
+    }
+
+    const title = input.title.trim();
+    const body = input.body.trim();
+    const senderId = input.senderId?.trim() || "admin";
+    const senderName = input.senderName?.trim() || await this.getPortalMessageRecipientName(senderId);
+    if (!title || !body) {
+      throw new Error("Secure message title and body are required.");
+    }
+
+    await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS nextId
+FROM onsite_mail;
+`);
+    const messageId = Number(idRows[0]?.nextId ?? 9393001);
+    const messageDate = new Date().toISOString().slice(0, 10);
+
+    await this.db.execute(`
+INSERT INTO onsite_mail
+  (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
+VALUES
+  (${integer(messageId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(senderId)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(login.portalUsername)}, 'New', ${integer(messageId)}, ${sqlString(senderId)}, ${sqlString(senderName)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${integer(messageId)}, 0);
+`);
+
+    return {
+      id: String(messageId),
+      date: messageDate,
+      title,
+      body,
+      status: "New",
+      assignedTo: login.portalUsername,
+      senderId,
+      senderName,
+      recipientId: login.portalUsername,
+      recipientName: login.displayName,
+      mailChain: messageId,
+      replyMailChain: messageId,
+      portalRelation: null,
+      isEncrypted: false
+    };
+  }
+
+  async readPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string
+  ): Promise<PatientPortalReadMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalReadMessageResult(username, messageId, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const anchorRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND (sender_id = ${sqlString(login.portalUsername)} OR recipient_id = ${sqlString(login.portalUsername)})
+  AND id = ${integer(Number(messageId))}
+LIMIT 1;
+`);
+    if (!anchorRows[0]) {
+      return buildEmptyPortalReadMessageResult(username, messageId, "Secure message was not found in the signed-in portal mailbox.");
+    }
+
+    await this.db.execute(`
+UPDATE onsite_mail
+SET message_status = 'Read',
+  activity = 1
+WHERE id = ${integer(Number(messageId))}
+  AND owner = ${sqlString(login.portalUsername)};
+`);
+
+    const readRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND id = ${integer(Number(messageId))}
+LIMIT 1;
+`);
+    const row = readRows[0];
+    const message = row ? {
+      id: row.id,
+      date: normalizeDateText(row.messageDate),
+      title: row.title,
+      body: row.body,
+      status: row.status,
+      assignedTo: row.assignedTo,
+      senderId: row.senderId,
+      senderName: row.senderName,
+      recipientId: row.recipientId,
+      recipientName: row.recipientName,
+      mailChain: Number(row.mailChain || 0),
+      replyMailChain: Number(row.replyMailChain || 0),
+      portalRelation: null,
+      isEncrypted: row.isEncrypted === "1"
+    } : null;
+    const refreshed = await this.getPatientPortalMessages(username, password);
+
+    return {
+      authenticated: true,
+      markedRead: Boolean(message),
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      messageId,
+      message,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: message ? null : "Secure message was not marked read.",
+      sessionSource: "legacy-openemr-portal"
+    };
   }
 
   async deletePatientPortalMessage(
@@ -6194,6 +6373,29 @@ function buildEmptyPortalDeleteMessageResult(
     messageId,
     deletedMessage: null,
     deletedMessageCount: 0,
+    messageCount: 0,
+    sentMessageCount: 0,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalReadMessageResult(
+  username: string,
+  messageId: string,
+  failureReason: string
+): PatientPortalReadMessageResult {
+  return {
+    authenticated: false,
+    markedRead: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    messageId,
+    message: null,
     messageCount: 0,
     sentMessageCount: 0,
     failureReason,
