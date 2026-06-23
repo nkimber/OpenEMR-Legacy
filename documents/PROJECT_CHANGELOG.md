@@ -14254,7 +14254,7 @@ Primary files:
 
 Started: 2026-06-23T12:14:04.8940268-04:00
 Finished: 2026-06-23T12:26:59.9342348-04:00
-Commit: TBD
+Commit: 25b80881
 
 Enhanced the Modernization Workbench Progress page so pre-ledger modernization check-ins have stored retroactive completion estimates and appear as first-class points in Weighted Completion History.
 
