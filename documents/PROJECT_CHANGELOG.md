@@ -14046,6 +14046,74 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 245. Slice 210 Patient Portal Secure Messages Readiness
+
+Started: 2026-06-23T09:34:00.0000000-04:00
+Finished: pending
+Commit: pending
+
+Implemented Slice 210: patient portal secure-message inbox readiness. The gold dataset now projects deterministic portal-message facts into legacy OpenEMR `onsite_mail`, the modernized API exposes the same signed-in portal inbox through `/api/patient-portal/messages`, and the modernized Portal workspace renders secure-message cards that match the legacy portal secure-messaging behavior for the `MOD-PAT-0004` anchor.
+
+Code changes:
+
+- Files changed: pending
+- Lines added: pending
+- Lines deleted: pending
+- Net lines: pending
+- Total churn: pending
+
+Key outcomes:
+
+- Added 400 deterministic legacy portal mailbox rows for the 200 provisioned portal accounts while preserving the canonical 1,200 staff-side message count.
+- Extended the legacy gold seed verifier so `portalMailboxMessages` is validated after each MariaDB reseed.
+- Added modernized patient portal message DTOs, repository access, and a session-protected `/api/patient-portal/messages` endpoint.
+- Extended the modernized Portal workspace so authenticated portal users can see secure-message inbox cards with title, date, sender, status, body, relation, and encryption labels.
+- Added legacy and modernized workflow adapters plus the `workflow-patient-portal-messages` parity suite and `slice-210-patient-portal-messages-readiness` plan.
+- Added Workbench managed plan actions, progress-ledger updates, and synchronized project documents for Slice 210.
+
+Verified test runs:
+
+- `cmd.exe /c npm run generate:seed-data` passed in `modernization-workbench/` and regenerated the shared gold dataset artifacts with `portalMailboxMessages: 400`.
+- `dotnet build modernized-openemr\OpenEmr.Modernized.slnx` passed.
+- `cmd.exe /c npm run build` passed in `modernized-openemr/frontend/` with the existing Vite large-chunk warning.
+- `cmd.exe /c npm run build` passed in `modernization-workbench/`.
+- `cmd.exe /c npm run typecheck` passed in `parity-tests/`.
+- `cmd.exe /c powershell -ExecutionPolicy Bypass -File scripts\Seed-LegacyGoldDataset.ps1` passed in `legacy-openemr/` and validated `portalMailboxMessages` count `400`.
+- `cmd.exe /c powershell -ExecutionPolicy Bypass -File scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/` and rebuilt the modernized API/frontend containers.
+- `cmd.exe /c powershell -ExecutionPolicy Bypass -File scripts\Test-ModernizedBaseline.ps1` passed in `modernized-openemr/`.
+- `cmd.exe /c powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-210-patient-portal-messages-readiness -Reset test` passed with 1 expected test; run `2026-06-23T134646-761Z-legacy-openemr-plan-slice-210-patient-portal-messages-readiness`.
+- `cmd.exe /c powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-210-patient-portal-messages-readiness -Reset test` passed with 1 expected test; run `2026-06-23T134729-198Z-modernized-openemr-plan-slice-210-patient-portal-messages-readiness`.
+- `cmd.exe /c npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-210-patient-portal-messages-readiness` passed with status `matched`; comparison `2026-06-23T134811-881Z-legacy-openemr-vs-modernized-openemr-plan-slice-210-patient-portal-messages-readiness`.
+- Regression check `slice-209-patient-portal-home-readiness` passed on legacy and modernized targets, and the comparison matched with no differences; comparison `2026-06-23T134955-667Z-legacy-openemr-vs-modernized-openemr-plan-slice-209-patient-portal-home-readiness`.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `legacy-openemr/scripts/Seed-LegacyGoldDataset.ps1`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-messages/patient-portal-messages.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

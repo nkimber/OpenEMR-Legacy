@@ -66,6 +66,7 @@ import type {
   PatientPortalAccountAccessState,
   PatientPortalHomeSummary,
   PatientPortalLoginResult,
+  PatientPortalMessagesResult,
   PatientPortalSessionResult,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
@@ -703,6 +704,41 @@ LIMIT 1;
       }
 
       return mapPatientPortalHomeSummary(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalMessages(username: string, password: string): Promise<PatientPortalMessagesResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        messageCount: 0,
+        messages: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal messages failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalMessagesResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -3870,6 +3906,37 @@ function mapPatientPortalHomeSummary(result: any): PatientPortalHomeSummary {
       providerName: appointment.providerName ?? null,
       facilityName: appointment.facilityName ?? null,
       comments: appointment.comments ?? null
+    })),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalMessagesResult(result: any): PatientPortalMessagesResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    messageCount: result.messageCount ?? 0,
+    messages: (result.messages ?? []).map((message: any) => ({
+      id: message.id ?? "",
+      date: message.date ?? "",
+      title: message.title ?? "",
+      body: message.body ?? "",
+      status: message.status ?? "",
+      assignedTo: message.assignedTo ?? "",
+      senderId: message.senderId ?? message.assignedTo ?? "",
+      senderName: message.senderName ?? "",
+      recipientId: message.recipientId ?? result.portalUsername ?? "",
+      recipientName: message.recipientName ?? "",
+      portalRelation: message.portalRelation ?? null,
+      isEncrypted: Boolean(message.isEncrypted)
     })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""

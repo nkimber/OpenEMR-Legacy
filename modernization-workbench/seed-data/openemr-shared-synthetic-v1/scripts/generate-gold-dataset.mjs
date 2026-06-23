@@ -779,6 +779,21 @@ patients.forEach((patient, index) => {
   }
 });
 
+const patientsByPid = new Map(patients.map((patient) => [patient.pid, patient]));
+const portalMailboxMessages = [];
+messages.forEach((message) => {
+  const patient = patientsByPid.get(message.pid);
+  if (!patient?.portalAccount) {
+    return;
+  }
+
+  portalMailboxMessages.push({
+    id: 9300000 + portalMailboxMessages.length + 1,
+    message,
+    patient
+  });
+});
+
 const billing = [];
 encounters.forEach((encounter, index) => {
   const officeVisitModifier = encounter.categoryId === 10 ? "" : (index % 6 === 1 ? "25" : "");
@@ -1180,6 +1195,7 @@ const summary = {
     labReports: labReports.length,
     labResults: labResults.length,
     messages: messages.length,
+    portalMailboxMessages: portalMailboxMessages.length,
     patientDocuments: patientDocuments.length,
     billingLineItems: billing.length,
     claims: claims.length,
@@ -1214,6 +1230,7 @@ function buildLegacySql() {
     "DELETE FROM immunization_observation WHERE imo_im_id BETWEEN 8500001 AND 8505000 OR imo_pid BETWEEN 100001 AND 101000;",
     "DELETE FROM immunizations WHERE id BETWEEN 8500001 AND 8505000 OR patient_id BETWEEN 100001 AND 101000;",
     "DELETE FROM pnotes;",
+    "DELETE FROM onsite_mail WHERE id BETWEEN 9300001 AND 9300500 OR owner LIKE 'mod-pat-%@example.test' OR recipient_id LIKE 'mod-pat-%@example.test' OR sender_id LIKE 'mod-pat-%@example.test';",
     "DELETE FROM categories_to_documents WHERE document_id BETWEEN 8000001 AND 8001200;",
     "DELETE FROM documents WHERE id BETWEEN 8000001 AND 8001200 OR url LIKE 'gold://documents/%';",
     "DELETE FROM forms;",
@@ -1690,6 +1707,27 @@ function buildLegacySql() {
     assigned_to: message.assignedTo,
     message_status: message.status,
     portal_relation: message.portalRelation,
+    is_msg_encrypted: message.isEncrypted
+  })), 200));
+
+  statements.push(insert("onsite_mail", ["id", "date", "body", "owner", "user", "groupname", "activity", "authorized", "title", "assigned_to", "message_status", "mail_chain", "sender_id", "sender_name", "recipient_id", "recipient_name", "reply_mail_chain", "is_msg_encrypted"], portalMailboxMessages.map(({ id, message, patient }) => ({
+    id,
+    date: message.date,
+    body: message.body,
+    owner: patient.portalAccount.portalUsername,
+    user: "admin",
+    groupname: "Default",
+    activity: 1,
+    authorized: 1,
+    title: message.title,
+    assigned_to: message.assignedTo,
+    message_status: message.status,
+    mail_chain: id,
+    sender_id: message.assignedTo,
+    sender_name: "Administrator",
+    recipient_id: patient.portalAccount.portalUsername,
+    recipient_name: `${patient.fname} ${patient.lname}`,
+    reply_mail_chain: id,
     is_msg_encrypted: message.isEncrypted
   })), 200));
 

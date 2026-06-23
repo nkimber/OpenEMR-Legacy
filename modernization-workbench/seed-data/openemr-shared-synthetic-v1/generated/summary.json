@@ -25,6 +25,7 @@
     "labReports": 700,
     "labResults": 2400,
     "messages": 1200,
+    "portalMailboxMessages": 400,
     "patientDocuments": 1200,
     "billingLineItems": 3000,
     "claims": 700,

@@ -861,6 +861,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-210-patient-portal-messages-readiness",
+      "name": "Slice 210 Patient Portal Secure Messages Readiness",
+      "description": "Patient portal confidence plan that opens the signed-in patient's secure-message inbox and verifies message detail across API/UI surfaces.",
+      "suites": ["workflow-patient-portal-messages"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-210", "patients", "portal", "messages", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3727,6 +3736,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-home",
       "tags": ["slice209", "workflow", "mutation", "patients", "portal", "home", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-messages",
+      "name": "Patient Portal Secure Messages Readiness",
+      "description": "Opens the signed-in portal secure-message inbox and verifies patient-scoped message detail.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-messages",
+      "tags": ["slice210", "workflow", "mutation", "patients", "portal", "messages", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
