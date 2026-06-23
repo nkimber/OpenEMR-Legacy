@@ -14010,7 +14010,7 @@ Primary files:
 
 Started: 2026-06-23T09:18:00.0000000-04:00
 Finished: 2026-06-23T09:31:36.9358318-04:00
-Commit: pending
+Commit: fdcb02bc
 
 Enhanced the Modernization Workbench Progress page's Weighted Completion History chart with brush-to-zoom range selection, richer hover details, and click-to-inspect snapshot details so the chart can be used as an evidence investigation surface instead of only a static trend line.
 
