@@ -13654,7 +13654,7 @@ Primary files:
 Started: `2026-06-22T23:02:47-04:00`
 Finished: `2026-06-22T23:33:37-04:00`
 Duration: `30m 50s`
-Changeset: `pending`
+Changeset: `f89cbd5e`
 
 Implemented Slice 206: patient portal access readiness. The modernized target can now grant and revoke portal access for a provisioned patient portal account, the Patient/Client Portal Account panel renders the access lifecycle, and restore-backed parity proves the same observable behavior against legacy OpenEMR for the `MOD-PAT-0004` anchor.
 
