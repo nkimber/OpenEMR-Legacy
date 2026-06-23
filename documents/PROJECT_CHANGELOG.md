@@ -14429,7 +14429,7 @@ Primary files:
 
 Started: 2026-06-23T14:45:00.0000000-04:00
 Finished: 2026-06-23T15:21:17.5841741-04:00
-Commit: pending
+Commit: 8e4adb42
 
 Implemented Slice 214: patient portal secure-message archive readiness. The modernized target now exposes a session-protected archive/delete endpoint, preserves OpenEMR-compatible `Delete` status and soft-delete active-folder hiding, renders Portal `Archive message` controls, and proves active-folder removal plus archive visibility against legacy OpenEMR `onsite_mail` with cleanup-backed temporary sent messages for the `MOD-PAT-0004` account.
 
