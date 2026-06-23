@@ -14249,6 +14249,49 @@ Primary files:
 - `parity-tests/src/workflows/modernizedWorkflowActions.ts`
 - `parity-tests/tests/workflow-patient-portal-compose/patient-portal-compose.spec.ts`
 - `parity-tests/test-manifest.json`
+
+## 249. Progress Chart Historical Estimate Backfill
+
+Started: 2026-06-23T12:14:04.8940268-04:00
+Finished: 2026-06-23T12:26:59.9342348-04:00
+Commit: TBD
+
+Enhanced the Modernization Workbench Progress page so pre-ledger modernization check-ins have stored retroactive completion estimates and appear as first-class points in Weighted Completion History.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 2,491
+- Lines deleted: 24
+- Net lines: +2,467
+- Total churn: 2,515
+
+Key outcomes:
+
+- Added `modernization-workbench/config/functionality-progress-backfill.json` with 222 first-parent historical estimate points from `6586a4a0` (`Bootstrap modernized OpenEMR slice one`) through `bab45ab1` (`Implement procedure order catalog slice 145`).
+- Calibrated the cumulative estimates to the first explicit progress-ledger estimate at `40822fd8` (52.7%), with implementation commits carrying most of the movement and documentation/checkpoint commits preserving timestamps with tiny increments.
+- Extended `/api/progress` to merge stored historical estimates with measured functionality ledger snapshots, prefer nonzero measured snapshots when available, and keep zero-valued ledger setup commits as backfilled estimates.
+- Added the `historical-estimate` history kind, estimate basis, and estimate rationale fields to the Workbench API/client contract.
+- Updated the chart, hover card, and selected snapshot panel so historical estimates are visually distinct, counted separately from measured snapshots, and show the stored estimate rationale plus changelog narrative when available.
+- Documented the historical backfill artifact and handoff behavior in the Workbench documentation.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live `/api/progress` smoke returned `287` timeline points in `797` ms, with first point `6586a4a0` marked `historical-estimate` at `0.4%`, `222` historical estimates, `65` measured progress snapshots, and `40822fd8` as the first measured handoff point at `52.7%`.
+- Playwright CLI DOM verification on `http://127.0.0.1:5173/#/progress` confirmed the chart header shows `287 committed timeline points from 6586a4a0 through 2efe766d; 65 measured progress snapshots and 222 historical estimates`.
+- Playwright CLI click verification confirmed the first historical estimate opens a `Historical estimate` inspector for `Bootstrap modernized OpenEMR slice one`, includes the Slice 1 changelog narrative, shows `Estimate rationale`, and identifies `functionality-progress-backfill.json` as the estimate source.
+
+Primary files:
+
+- `modernization-workbench/config/functionality-progress-backfill.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
 - `scripts/Run-OpenEmrParityTests.ps1`
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/config/functionality-progress.json`

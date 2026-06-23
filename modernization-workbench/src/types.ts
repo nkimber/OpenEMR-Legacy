@@ -474,11 +474,13 @@ export type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
-  historyKind: "progress-snapshot" | "timeline-anchor";
+  historyKind: "progress-snapshot" | "timeline-anchor" | "historical-estimate";
   progressEstimateAvailable: boolean;
   note?: string;
+  estimateBasis?: string;
+  estimateRationale?: string;
   commitMessageBody?: string;
-  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor";
+  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor" | "historical-estimate";
   narrativeEntryId?: string;
   narrativeTitle?: string;
   narrativeSummary?: string;

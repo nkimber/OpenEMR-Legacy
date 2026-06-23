@@ -1251,6 +1251,12 @@ p {
   stroke-dasharray: 3 2;
 }
 
+.progress-history-point.historical-estimate {
+  fill: #edf4ff;
+  stroke: #4d6c9f;
+  stroke-dasharray: 2 2;
+}
+
 .progress-history-point:hover,
 .progress-history-point:focus,
 .progress-history-point.selected {
@@ -1264,6 +1270,13 @@ p {
 .progress-history-point.timeline-anchor.selected {
   fill: #ffe5a6;
   stroke: #704609;
+}
+
+.progress-history-point.historical-estimate:hover,
+.progress-history-point.historical-estimate:focus,
+.progress-history-point.historical-estimate.selected {
+  fill: #dce9ff;
+  stroke: #284d89;
 }
 
 .progress-history-brush {

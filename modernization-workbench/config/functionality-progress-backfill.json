@@ -1,0 +1,2237 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-06-23",
+  "methodology": "Retrospective planning estimates for first-parent modernization implementation check-ins before completion estimates existed. The cumulative percentages are monotonic and calibrated to the first explicit progress-ledger estimate, 52.7% at 40822fd8 on 2026-06-21. Implementation commits carry most of the movement; documentation, metadata, and changelog checkpoint commits receive tiny increments so their timestamps remain visible without overstating functional scope.",
+  "estimatedRange": {
+    "startCommit": "6586a4a0e54f1cdd6aefa4fe7bd38bd4f062c847",
+    "startSubject": "Bootstrap modernized OpenEMR slice one",
+    "endCommit": "bab45ab196ef79f1cf6292651f0c697aace787d9",
+    "endSubject": "Implement procedure order catalog slice 145",
+    "handoffCommit": "40822fd8ea3374a740b2dff3cf6773741c624b03",
+    "handoffSubject": "Implement Workbench progress estimates slice 146",
+    "handoffWeightedAveragePercent": 52.7
+  },
+  "totalScopeWeight": 11,
+  "points": [
+    {
+      "fullCommit": "6586a4a0e54f1cdd6aefa4fe7bd38bd4f062c847",
+      "commit": "6586a4a0",
+      "committedAt": "2026-06-18T23:13:48-04:00",
+      "subject": "Bootstrap modernized OpenEMR slice one",
+      "completionEstimatePercent": 0.41,
+      "estimateBasis": "modernized-application-foundation",
+      "summary": "Bootstrap modernized OpenEMR slice one.",
+      "estimateRationale": "Foundation commit for the modernized application; estimated as the first modernization implementation movement before explicit completion tracking existed."
+    },
+    {
+      "fullCommit": "937f1acc0b2076cc0a4dff69e5426fc2da927324",
+      "commit": "937f1acc",
+      "committedAt": "2026-06-18T23:14:03-04:00",
+      "subject": "Record modernized slice changelog hash",
+      "completionEstimatePercent": 0.45,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record modernized slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "be5f634cc15370ac56f07b00e2e73925f82d4347",
+      "commit": "be5f634c",
+      "committedAt": "2026-06-18T23:30:43-04:00",
+      "subject": "Add slice one parity for modernized OpenEMR",
+      "completionEstimatePercent": 0.78,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add slice one parity for modernized OpenEMR.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c0f5eafa03f30b6cc6949e6092d561415e4a5ed2",
+      "commit": "c0f5eafa",
+      "committedAt": "2026-06-18T23:30:54-04:00",
+      "subject": "Record slice one parity changelog hash",
+      "completionEstimatePercent": 0.83,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record slice one parity changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "8b2bc6f4e7efe7775913f7796eead40e9fc37467",
+      "commit": "8b2bc6f4",
+      "committedAt": "2026-06-18T23:47:25-04:00",
+      "subject": "Add modernized scheduling slice",
+      "completionEstimatePercent": 1.16,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized scheduling slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "508f2421f07ff61f46e75fec160b61b1810c027d",
+      "commit": "508f2421",
+      "committedAt": "2026-06-18T23:47:35-04:00",
+      "subject": "Record scheduling slice changelog hash",
+      "completionEstimatePercent": 1.2,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record scheduling slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "c74dc8fc97278e8108dbfc7b9b7ed4171456ef73",
+      "commit": "c74dc8fc",
+      "committedAt": "2026-06-19T00:01:58-04:00",
+      "subject": "Add modernized encounters slice",
+      "completionEstimatePercent": 1.54,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized encounters slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "b02d71c458f649ebd37daa6681a5c76b077b9de6",
+      "commit": "b02d71c4",
+      "committedAt": "2026-06-19T00:02:09-04:00",
+      "subject": "Record encounters slice changelog hash",
+      "completionEstimatePercent": 1.58,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record encounters slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "0fb425f473810078990213b9bf61ab0b63d3ed12",
+      "commit": "0fb425f4",
+      "committedAt": "2026-06-19T00:17:12-04:00",
+      "subject": "Add modernized clinical lists slice",
+      "completionEstimatePercent": 1.92,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized clinical lists slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d5dd2398d928141fb3d4f38f1ecb1c2a320fc63a",
+      "commit": "d5dd2398",
+      "committedAt": "2026-06-19T00:17:22-04:00",
+      "subject": "Record clinical lists slice changelog hash",
+      "completionEstimatePercent": 1.96,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record clinical lists slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "bbc082c84bebd9e81b15e702c183b0e50754a5fb",
+      "commit": "bbc082c8",
+      "committedAt": "2026-06-19T00:31:29-04:00",
+      "subject": "Add modernized messaging slice",
+      "completionEstimatePercent": 2.3,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized messaging slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ee31bb6b8d5725d22b310dbf7c5bb56d4aee994a",
+      "commit": "ee31bb6b",
+      "committedAt": "2026-06-19T00:31:35-04:00",
+      "subject": "Record messaging slice changelog hash",
+      "completionEstimatePercent": 2.34,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record messaging slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "630a041ebfeb19ef6888998214d020dd50dddf0a",
+      "commit": "630a041e",
+      "committedAt": "2026-06-19T00:50:08-04:00",
+      "subject": "Add modernized procedures slice",
+      "completionEstimatePercent": 2.68,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized procedures slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "87604bd5806b4ee89eb72492d1a70d972495b8d8",
+      "commit": "87604bd5",
+      "committedAt": "2026-06-19T00:50:17-04:00",
+      "subject": "Record procedures slice changelog hash",
+      "completionEstimatePercent": 2.72,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record procedures slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "3ff837f748b0e1f1e375eaba91d23e44779747f6",
+      "commit": "3ff837f7",
+      "committedAt": "2026-06-19T01:06:00-04:00",
+      "subject": "Add modernized billing slice",
+      "completionEstimatePercent": 3.06,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized billing slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "26762c02cf09a7740753de39577b7e580f8fd19c",
+      "commit": "26762c02",
+      "committedAt": "2026-06-19T01:06:11-04:00",
+      "subject": "Record billing slice changelog hash",
+      "completionEstimatePercent": 3.1,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record billing slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6553d55a4389731fa7d040cbd0919906de8febc3",
+      "commit": "6553d55a",
+      "committedAt": "2026-06-19T01:22:04-04:00",
+      "subject": "Add modernized administration directory slice",
+      "completionEstimatePercent": 3.44,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized administration directory slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "590f92a484e58ea69986b230afad1778284a2353",
+      "commit": "590f92a4",
+      "committedAt": "2026-06-19T01:22:18-04:00",
+      "subject": "Record administration slice changelog hash",
+      "completionEstimatePercent": 3.48,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record administration slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6edab8bfcaa7f04574acf54b34dec62715cc8f9b",
+      "commit": "6edab8bf",
+      "committedAt": "2026-06-19T01:52:48-04:00",
+      "subject": "Add modernized operational reports slice",
+      "completionEstimatePercent": 3.82,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized operational reports slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "37d053d14f22b4d4fd47c8ace8a121c5cfa89e09",
+      "commit": "37d053d1",
+      "committedAt": "2026-06-19T01:52:58-04:00",
+      "subject": "Record reports slice changelog hash",
+      "completionEstimatePercent": 3.86,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record reports slice changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "4638ba826f88dd6c1688592a5824d12e00d20e73",
+      "commit": "4638ba82",
+      "committedAt": "2026-06-19T02:12:50-04:00",
+      "subject": "Add modernized patient contact mutation slice",
+      "completionEstimatePercent": 4.2,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized patient contact mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "cfb43b286e04e08a28ba75bf9a41330cc639618b",
+      "commit": "cfb43b28",
+      "committedAt": "2026-06-19T02:13:12-04:00",
+      "subject": "Record contact mutation changelog hash",
+      "completionEstimatePercent": 4.24,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record contact mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "06db8791f0090b01e5e6b50fc8b1be1a5ae9fedd",
+      "commit": "06db8791",
+      "committedAt": "2026-06-19T02:30:07-04:00",
+      "subject": "Add modernized appointment mutation slice",
+      "completionEstimatePercent": 4.57,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized appointment mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d9a824917c69ca7ca9c639f090b7ba0545c2729b",
+      "commit": "d9a82491",
+      "committedAt": "2026-06-19T02:30:28-04:00",
+      "subject": "Record appointment mutation changelog hash",
+      "completionEstimatePercent": 4.61,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record appointment mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "37accf2c887b4d80bbfd308bd1c7e2375851a232",
+      "commit": "37accf2c",
+      "committedAt": "2026-06-19T02:55:40-04:00",
+      "subject": "Add modernized encounter mutation slice",
+      "completionEstimatePercent": 4.95,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized encounter mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "610992f6e1681a79f65c6c3988e22714260673c8",
+      "commit": "610992f6",
+      "committedAt": "2026-06-19T02:56:00-04:00",
+      "subject": "Record encounter mutation changelog hash",
+      "completionEstimatePercent": 4.99,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record encounter mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "30f314fb0849d51e207d36908885af467dad9204",
+      "commit": "30f314fb",
+      "committedAt": "2026-06-19T03:17:15-04:00",
+      "subject": "Add modernized clinical list mutation slice",
+      "completionEstimatePercent": 5.33,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized clinical list mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ae6d12112368a18da35521bc88f4a0d11d5fa6b4",
+      "commit": "ae6d1211",
+      "committedAt": "2026-06-19T03:17:27-04:00",
+      "subject": "Record clinical list mutation changelog hash",
+      "completionEstimatePercent": 5.37,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record clinical list mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "dc79a4a426c4fd16bd0cc48c571b5751ba5cec54",
+      "commit": "dc79a4a4",
+      "committedAt": "2026-06-19T03:35:49-04:00",
+      "subject": "Add modernized message mutation slice",
+      "completionEstimatePercent": 5.71,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized message mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "49acbb9bc8c580bc0e31243d19f574b3fdc575a4",
+      "commit": "49acbb9b",
+      "committedAt": "2026-06-19T03:36:01-04:00",
+      "subject": "Record message mutation changelog hash",
+      "completionEstimatePercent": 5.75,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record message mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "ece3f71b4463428e93bbe78b328c07e3485a6fd1",
+      "commit": "ece3f71b",
+      "committedAt": "2026-06-19T03:55:48-04:00",
+      "subject": "Add modernized prescription mutation slice",
+      "completionEstimatePercent": 6.09,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized prescription mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "6ca2f9d0c0c72ee28379a652731d956120d2568b",
+      "commit": "6ca2f9d0",
+      "committedAt": "2026-06-19T03:56:03-04:00",
+      "subject": "Record prescription mutation changelog hash",
+      "completionEstimatePercent": 6.13,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record prescription mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "704697e2231363a4e1c4395c81f7e938402ebc1f",
+      "commit": "704697e2",
+      "committedAt": "2026-06-19T04:17:28-04:00",
+      "subject": "Add modernized billing mutation slice",
+      "completionEstimatePercent": 6.47,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized billing mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "76b73f05d9162bce26b9045d5e5a2c9420c9a545",
+      "commit": "76b73f05",
+      "committedAt": "2026-06-19T04:17:45-04:00",
+      "subject": "Record billing mutation changelog hash",
+      "completionEstimatePercent": 6.51,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record billing mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "328ddc32afd566d0a9535a10cc5c428fac3dfa88",
+      "commit": "328ddc32",
+      "committedAt": "2026-06-19T04:46:21-04:00",
+      "subject": "Add modernized procedure mutation slice",
+      "completionEstimatePercent": 6.85,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add modernized procedure mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "f4cefc44786dd5814f1b31d086e3d1e0548d1bf1",
+      "commit": "f4cefc44",
+      "committedAt": "2026-06-19T04:46:43-04:00",
+      "subject": "Record procedure mutation changelog hash",
+      "completionEstimatePercent": 6.89,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record procedure mutation changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "3754e020866a26b86345a1c4216f98dd70a5da48",
+      "commit": "3754e020",
+      "committedAt": "2026-06-19T05:13:37-04:00",
+      "subject": "Add admin facility mutation slice",
+      "completionEstimatePercent": 7.23,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add admin facility mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ca1b89b0256823d3c952a53921a1f27a84d07a51",
+      "commit": "ca1b89b0",
+      "committedAt": "2026-06-19T05:13:55-04:00",
+      "subject": "Record admin facility changelog hash",
+      "completionEstimatePercent": 7.27,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record admin facility changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "39b15ac8ae09ee2f414f2bc4174424ce05839356",
+      "commit": "39b15ac8",
+      "committedAt": "2026-06-19T05:35:40-04:00",
+      "subject": "Add admin user mutation slice",
+      "completionEstimatePercent": 7.61,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add admin user mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "6a8782ba286f5d2b6f06c8ddd7e4453fb3465a04",
+      "commit": "6a8782ba",
+      "committedAt": "2026-06-19T05:35:55-04:00",
+      "subject": "Record admin user changelog hash",
+      "completionEstimatePercent": 7.65,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record admin user changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "ae99d38c1f04d927c0fd2f4c54338b0ca3eab050",
+      "commit": "ae99d38c",
+      "committedAt": "2026-06-19T05:56:07-04:00",
+      "subject": "Add access control read model slice",
+      "completionEstimatePercent": 7.98,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add access control read model slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "2aaf6b76a7a4e70a303908a53ead28c8cb0fae89",
+      "commit": "2aaf6b76",
+      "committedAt": "2026-06-19T05:56:34-04:00",
+      "subject": "Record access control changelog hash",
+      "completionEstimatePercent": 8.02,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record access control changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "bdc8041a4b2fd5c6b80e1b8d687d094f433199ad",
+      "commit": "bdc8041a",
+      "committedAt": "2026-06-19T06:13:46-04:00",
+      "subject": "Add access permission mutation slice",
+      "completionEstimatePercent": 8.36,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add access permission mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "23a0018125facfe6c6dc2d09ac9bb0467e204dfc",
+      "commit": "23a00181",
+      "committedAt": "2026-06-19T06:14:06-04:00",
+      "subject": "Record access permission changelog hash",
+      "completionEstimatePercent": 8.4,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record access permission changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "871edae43a00a96a0747557351d1942698212587",
+      "commit": "871edae4",
+      "committedAt": "2026-06-19T06:39:46-04:00",
+      "subject": "Add user group membership mutation slice",
+      "completionEstimatePercent": 8.74,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add user group membership mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e2304aea0128e501aefc4adea44af592636fb2a8",
+      "commit": "e2304aea",
+      "committedAt": "2026-06-19T06:39:58-04:00",
+      "subject": "Record user group membership changelog hash",
+      "completionEstimatePercent": 8.78,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record user group membership changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "278d2f50cdd23aaa3b11130e46010189501fe891",
+      "commit": "278d2f50",
+      "committedAt": "2026-06-19T07:01:35-04:00",
+      "subject": "Add pending procedure orders read slice",
+      "completionEstimatePercent": 9.12,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add pending procedure orders read slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1fe3473272726eae75bd521bd2cf29715258185e",
+      "commit": "1fe34732",
+      "committedAt": "2026-06-19T07:03:23-04:00",
+      "subject": "Record pending procedure orders changelog hash",
+      "completionEstimatePercent": 9.16,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record pending procedure orders changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "cd192f5746c3a60643e67b4d779caebef5c4ec8c",
+      "commit": "cd192f57",
+      "committedAt": "2026-06-19T07:26:01-04:00",
+      "subject": "Add operational reports export slice",
+      "completionEstimatePercent": 9.5,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add operational reports export slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "367864e6ad4ae80c4ef160147cb42e30d84a22fc",
+      "commit": "367864e6",
+      "committedAt": "2026-06-19T07:26:16-04:00",
+      "subject": "Record reports export changelog hash",
+      "completionEstimatePercent": 9.54,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record reports export changelog hash.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6f263c962670c14174984bc2b4d45fff3c5e1978",
+      "commit": "6f263c96",
+      "committedAt": "2026-06-19T08:07:39-04:00",
+      "subject": "Add patient documents modernization slice",
+      "completionEstimatePercent": 9.88,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient documents modernization slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "9958cd2f7b553359820b395fac5be22e741c9b45",
+      "commit": "9958cd2f",
+      "committedAt": "2026-06-19T08:33:03-04:00",
+      "subject": "Add patient document mutation modernization slice",
+      "completionEstimatePercent": 10.22,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient document mutation modernization slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4906ecf148f0437e81bb7384110677af2ccff15b",
+      "commit": "4906ecf1",
+      "committedAt": "2026-06-19T09:01:24-04:00",
+      "subject": "Add patient document content retrieval slice",
+      "completionEstimatePercent": 10.56,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient document content retrieval slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7891d8495ef42c3526eba1f667b846d294d6eb98",
+      "commit": "7891d849",
+      "committedAt": "2026-06-19T09:31:11-04:00",
+      "subject": "Add patient insurance coverage slice",
+      "completionEstimatePercent": 10.89,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient insurance coverage slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "852961399a2e01b5cb6baff48a0b18fe9ec0c8ca",
+      "commit": "85296139",
+      "committedAt": "2026-06-19T10:08:31-04:00",
+      "subject": "Implement immunization history parity slice",
+      "completionEstimatePercent": 11.23,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement immunization history parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e615c433fb685f37a134312c8eeb282ffefe3754",
+      "commit": "e615c433",
+      "committedAt": "2026-06-19T10:32:33-04:00",
+      "subject": "Implement immunization mutation parity slice",
+      "completionEstimatePercent": 11.57,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement immunization mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "3aa5107d0f449b61962ce562a898c88e8709ebfa",
+      "commit": "3aa5107d",
+      "committedAt": "2026-06-19T10:55:37-04:00",
+      "subject": "Implement problem list mutation parity slice",
+      "completionEstimatePercent": 11.91,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement problem list mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "794b5a416cb37b4d798ee2dbe43d8dc7fbac5afd",
+      "commit": "794b5a41",
+      "committedAt": "2026-06-19T11:16:43-04:00",
+      "subject": "Implement medication list mutation parity slice",
+      "completionEstimatePercent": 12.25,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement medication list mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e9a06fa54d539d830239e4643f46af350fbdb338",
+      "commit": "e9a06fa5",
+      "committedAt": "2026-06-19T11:50:45-04:00",
+      "subject": "Implement binary document mutation parity slice",
+      "completionEstimatePercent": 12.59,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement binary document mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7209176aaee8d4587ef89d62c80c71ebbdfec458",
+      "commit": "7209176a",
+      "committedAt": "2026-06-19T12:19:23-04:00",
+      "subject": "Implement insurance mutation parity slice",
+      "completionEstimatePercent": 12.92,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement insurance mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "25d016e0f15bcfaefe26fa0cb39120fe253b8eb0",
+      "commit": "25d016e0",
+      "committedAt": "2026-06-19T12:45:01-04:00",
+      "subject": "Implement encounter metadata parity slice",
+      "completionEstimatePercent": 13.26,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter metadata parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "f84189be5532caff1afd06c47a0374812c8f1fa2",
+      "commit": "f84189be",
+      "committedAt": "2026-06-19T13:17:38-04:00",
+      "subject": "Implement patient demographics parity slice",
+      "completionEstimatePercent": 13.6,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient demographics parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "fcff8463bccb5306ee200344d0484af160076ee0",
+      "commit": "fcff8463",
+      "committedAt": "2026-06-19T13:44:43-04:00",
+      "subject": "Implement patient registration parity slice",
+      "completionEstimatePercent": 13.94,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient registration parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7986884eab1420372e0fdb3b4fb0f30f50004909",
+      "commit": "7986884e",
+      "committedAt": "2026-06-19T14:06:26-04:00",
+      "subject": "Implement patient document sign-off parity slice",
+      "completionEstimatePercent": 14.28,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document sign-off parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "23c310fb0bf1e5e9de95db997c08688393bf0b43",
+      "commit": "23c310fb",
+      "committedAt": "2026-06-19T14:29:37-04:00",
+      "subject": "Implement patient document external-link parity slice",
+      "completionEstimatePercent": 14.62,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document external-link parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "6d49a8cf2ee8d168f48b4302f103ba8221c3b212",
+      "commit": "6d49a8cf",
+      "committedAt": "2026-06-19T14:49:23-04:00",
+      "subject": "Implement patient document denial parity slice",
+      "completionEstimatePercent": 14.95,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document denial parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "eb398cf12f17e607b9e169f4c3cd2f2815870ffa",
+      "commit": "eb398cf1",
+      "committedAt": "2026-06-19T15:18:23-04:00",
+      "subject": "Implement patient document metadata parity slice",
+      "completionEstimatePercent": 15.29,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document metadata parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "31440f22c422cfec4e60b59b910b099b285488dd",
+      "commit": "31440f22",
+      "committedAt": "2026-06-19T15:46:46-04:00",
+      "subject": "Implement patient document archive restore parity slice",
+      "completionEstimatePercent": 15.63,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document archive restore parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4963c56271b6645f509971f75cdd8ae11be062df",
+      "commit": "4963c562",
+      "committedAt": "2026-06-19T16:04:47-04:00",
+      "subject": "Implement patient document content replacement parity slice",
+      "completionEstimatePercent": 15.97,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document content replacement parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "5b2c09245d7593265c2a3b02b94970baf053764d",
+      "commit": "5b2c0924",
+      "committedAt": "2026-06-19T16:26:31-04:00",
+      "subject": "Implement billing diagnosis parity slice",
+      "completionEstimatePercent": 16.31,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement billing diagnosis parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e844830e59d7d2a3ef0567efd0876b29e51474e8",
+      "commit": "e844830e",
+      "committedAt": "2026-06-19T16:52:14-04:00",
+      "subject": "Implement billing correction parity slice",
+      "completionEstimatePercent": 16.64,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement billing correction parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "5b40e6a5fe25f1f0eeba840bf9dd4f7875880912",
+      "commit": "5b40e6a5",
+      "committedAt": "2026-06-19T17:15:53-04:00",
+      "subject": "Implement billing modifier parity slice",
+      "completionEstimatePercent": 16.98,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement billing modifier parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "40cbd5eb9bc2e7fbf97abcc07343edf8e5110dae",
+      "commit": "40cbd5eb",
+      "committedAt": "2026-06-19T17:42:32-04:00",
+      "subject": "Implement claim status parity slice",
+      "completionEstimatePercent": 17.32,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement claim status parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "5b8abc49266985effd73c624af48b9218fe0abc8",
+      "commit": "5b8abc49",
+      "committedAt": "2026-06-19T18:10:18-04:00",
+      "subject": "Implement payment posting parity slice",
+      "completionEstimatePercent": 17.66,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement payment posting parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d0b495d4e3ade3c4a3b79bad334b9abf0e0ccc29",
+      "commit": "d0b495d4",
+      "committedAt": "2026-06-19T18:39:25-04:00",
+      "subject": "Implement account balance parity slice",
+      "completionEstimatePercent": 18,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement account balance parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "034d08b17044915effd466b331e5f3158c053526",
+      "commit": "034d08b1",
+      "committedAt": "2026-06-19T18:51:23-04:00",
+      "subject": "Enhance workbench architecture view",
+      "completionEstimatePercent": 18.22,
+      "estimateBasis": "workbench-support",
+      "summary": "Enhance workbench architecture view.",
+      "estimateRationale": "Workbench or evidence-surface capability that supported the modernization effort before explicit completion tracking existed; counted below a domain parity slice and normalized to the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "3176784b02c94a9d9018ac358ded2ed61308217a",
+      "commit": "3176784b",
+      "committedAt": "2026-06-19T19:16:37-04:00",
+      "subject": "Implement account aging parity slice",
+      "completionEstimatePercent": 18.56,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement account aging parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "b259f3a81bc3494b2fdf039c6eb3ba044b29a90e",
+      "commit": "b259f3a8",
+      "committedAt": "2026-06-19T19:45:05-04:00",
+      "subject": "Implement account ledger parity slice",
+      "completionEstimatePercent": 18.89,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement account ledger parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1a8ecd4db67cb63d282b98d81659d643d3db35de",
+      "commit": "1a8ecd4d",
+      "committedAt": "2026-06-19T20:10:25-04:00",
+      "subject": "Implement account statement parity slice",
+      "completionEstimatePercent": 19.23,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement account statement parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "13404da774a3dbd372bd44d5e61e72cc45dc3f43",
+      "commit": "13404da7",
+      "committedAt": "2026-06-19T20:38:59-04:00",
+      "subject": "Implement document preview parity slice",
+      "completionEstimatePercent": 19.57,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement document preview parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "20ffb7a63e97242acaa96a24dfec9c8c86d15b8d",
+      "commit": "20ffb7a6",
+      "committedAt": "2026-06-19T21:01:28-04:00",
+      "subject": "Implement document revision parity slice",
+      "completionEstimatePercent": 19.91,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement document revision parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4e4334a8601e56e3f1dab3b577937e57fc9b84b8",
+      "commit": "4e4334a8",
+      "committedAt": "2026-06-19T21:24:35-04:00",
+      "subject": "Add document replacement revision parity slice",
+      "completionEstimatePercent": 20.25,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add document replacement revision parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d72160bf2dd5bbd500d8b974c39c23b4cb629054",
+      "commit": "d72160bf",
+      "committedAt": "2026-06-19T21:58:41-04:00",
+      "subject": "Add payment posting mutation parity slice",
+      "completionEstimatePercent": 20.59,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add payment posting mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "de2d1feb1b28410a5ffc5079195263a08fe313b5",
+      "commit": "de2d1feb",
+      "committedAt": "2026-06-19T22:28:49-04:00",
+      "subject": "Add claim status mutation parity slice",
+      "completionEstimatePercent": 20.92,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add claim status mutation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1af722092230a0959926594fcc4be79705f92b09",
+      "commit": "1af72209",
+      "committedAt": "2026-06-19T22:54:40-04:00",
+      "subject": "Add patient payment capture parity slice",
+      "completionEstimatePercent": 21.26,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient payment capture parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "aa8e34dc12fdc4bbd084920a46e25fe6814bd6af",
+      "commit": "aa8e34dc",
+      "committedAt": "2026-06-19T23:22:17-04:00",
+      "subject": "Add patient statement generation parity slice",
+      "completionEstimatePercent": 21.6,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient statement generation parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "2c5fdf5bd7cea179332619ed1781b3077e11d88c",
+      "commit": "2c5fdf5b",
+      "committedAt": "2026-06-19T23:48:04-04:00",
+      "subject": "Add patient statement PDF export parity slice",
+      "completionEstimatePercent": 21.94,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient statement PDF export parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ccd152a9f202846741569a33ebb990871fb0fb7c",
+      "commit": "ccd152a9",
+      "committedAt": "2026-06-20T00:22:40-04:00",
+      "subject": "Add statement batch readiness slice",
+      "completionEstimatePercent": 22.28,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add statement batch readiness slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "a28586d1d1a7d3dde1c49e6162beed9338c908b3",
+      "commit": "a28586d1",
+      "committedAt": "2026-06-20T00:51:00-04:00",
+      "subject": "Add statement batch package export slice",
+      "completionEstimatePercent": 22.62,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add statement batch package export slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "9fab0de3fbf61e96622e317290bf3a3e8120cdc9",
+      "commit": "9fab0de3",
+      "committedAt": "2026-06-20T01:21:26-04:00",
+      "subject": "Add collections work queue slice",
+      "completionEstimatePercent": 22.95,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add collections work queue slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "8651adb0a0dc5bcaedbad2751ac34b6adda52624",
+      "commit": "8651adb0",
+      "committedAt": "2026-06-20T01:52:37-04:00",
+      "subject": "Add collections follow-up task slice",
+      "completionEstimatePercent": 23.29,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add collections follow-up task slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "f3c926b8a7066088b383542fac5bd4e9b5595672",
+      "commit": "f3c926b8",
+      "committedAt": "2026-06-20T02:18:02-04:00",
+      "subject": "Add patient message assignment slice",
+      "completionEstimatePercent": 23.63,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient message assignment slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d912f16ad0a156fc2fbca92fd3f72d18003b7604",
+      "commit": "d912f16a",
+      "committedAt": "2026-06-20T02:42:11-04:00",
+      "subject": "Add patient message content slice",
+      "completionEstimatePercent": 23.97,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add patient message content slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "222853286be286f3885de9c2543cdbaba43c3672",
+      "commit": "22285328",
+      "committedAt": "2026-06-20T03:07:50-04:00",
+      "subject": "Add encounter document attachment slice",
+      "completionEstimatePercent": 24.31,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter document attachment slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "10b340ca0c039d0ca3987200e48119834dae0ee2",
+      "commit": "10b340ca",
+      "committedAt": "2026-06-20T03:33:29-04:00",
+      "subject": "Add encounter billing linkage slice",
+      "completionEstimatePercent": 24.65,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter billing linkage slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d00a914d9fe04f11d4c3f98bee12aff0667d8f96",
+      "commit": "d00a914d",
+      "committedAt": "2026-06-20T03:54:59-04:00",
+      "subject": "Add encounter claim linkage slice",
+      "completionEstimatePercent": 24.98,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter claim linkage slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e5da5567ff3ebec545f6dccdaf1212794c62297c",
+      "commit": "e5da5567",
+      "committedAt": "2026-06-20T04:28:42-04:00",
+      "subject": "Add encounter procedure order linkage slice",
+      "completionEstimatePercent": 25.32,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter procedure order linkage slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c2b0ae20eb02d681966b7e81b25d087ed44a8661",
+      "commit": "c2b0ae20",
+      "committedAt": "2026-06-20T05:03:08-04:00",
+      "subject": "Add encounter diagnosis coding slice",
+      "completionEstimatePercent": 25.66,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter diagnosis coding slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "67d651738bd8ee704a5654bf10c5f1052e46a8b5",
+      "commit": "67d65173",
+      "committedAt": "2026-06-20T05:29:43-04:00",
+      "subject": "Add encounter billing linkage mutation slice",
+      "completionEstimatePercent": 26,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter billing linkage mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c353aac0b2048f0e2f72ceb9e1059995ee9619e4",
+      "commit": "c353aac0",
+      "committedAt": "2026-06-20T05:53:16-04:00",
+      "subject": "Add encounter diagnosis coding mutation slice",
+      "completionEstimatePercent": 26.34,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter diagnosis coding mutation slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7b7ae5fda8485c295bdb068590e75fbdacbd636f",
+      "commit": "7b7ae5fd",
+      "committedAt": "2026-06-20T06:19:20-04:00",
+      "subject": "Add encounter fee sheet entry slice",
+      "completionEstimatePercent": 26.68,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter fee sheet entry slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d87cd68b176eff36c6232c727d14a60a420f5d38",
+      "commit": "d87cd68b",
+      "committedAt": "2026-06-20T06:40:01-04:00",
+      "subject": "Add encounter procedure order entry slice",
+      "completionEstimatePercent": 27.01,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter procedure order entry slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "460ade1b4d458e1c3bea2be9e6aa20e648c082ce",
+      "commit": "460ade1b",
+      "committedAt": "2026-06-20T07:10:00-04:00",
+      "subject": "Add encounter procedure result entry slice",
+      "completionEstimatePercent": 27.35,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter procedure result entry slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e4f225dd928b18adc612e607397064063cba80ce",
+      "commit": "e4f225dd",
+      "committedAt": "2026-06-20T07:54:24-04:00",
+      "subject": "Add encounter sign-off modernization slice",
+      "completionEstimatePercent": 27.69,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter sign-off modernization slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "fd6ac5b54c7816f7789e90d5fe602a381cc0701f",
+      "commit": "fd6ac5b5",
+      "committedAt": "2026-06-20T08:27:44-04:00",
+      "subject": "Add encounter document upload modernization slice",
+      "completionEstimatePercent": 28.03,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter document upload modernization slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1b304596ee18292a47a01049588d121e3b9bbdd3",
+      "commit": "1b304596",
+      "committedAt": "2026-06-20T08:51:38-04:00",
+      "subject": "Add encounter binary document upload slice",
+      "completionEstimatePercent": 28.37,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter binary document upload slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "e1e4b8fefd94886c048c81084a9419ab0100f07f",
+      "commit": "e1e4b8fe",
+      "committedAt": "2026-06-20T09:28:12-04:00",
+      "subject": "Add encounter document sign-off slice",
+      "completionEstimatePercent": 28.71,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter document sign-off slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "9fe74e0ca3da76856e78bf6ba932d79f65835df3",
+      "commit": "9fe74e0c",
+      "committedAt": "2026-06-20T09:58:44-04:00",
+      "subject": "Add encounter document denial slice",
+      "completionEstimatePercent": 29.04,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Add encounter document denial slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4fe1f0bb724d730fcc5f4f2634d1fb47035876e4",
+      "commit": "4fe1f0bb",
+      "committedAt": "2026-06-20T10:27:36-04:00",
+      "subject": "Implement encounter document metadata parity slice",
+      "completionEstimatePercent": 29.38,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document metadata parity slice.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7dae8db7a4fd18930a23e6c90bc956e67b5b182a",
+      "commit": "7dae8db7",
+      "committedAt": "2026-06-20T10:31:18-04:00",
+      "subject": "Document slice completion git rule",
+      "completionEstimatePercent": 29.42,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document slice completion git rule.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6d0ea9bd43d9e200c35c20fa17b08b8f9babb246",
+      "commit": "6d0ea9bd",
+      "committedAt": "2026-06-20T11:23:13-04:00",
+      "subject": "Implement encounter document move slice 83",
+      "completionEstimatePercent": 29.76,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document move slice 83.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "eaffb1fb14197de5e1e6e19238187a1639d55e9b",
+      "commit": "eaffb1fb",
+      "committedAt": "2026-06-20T11:49:29-04:00",
+      "subject": "Implement encounter document content replacement slice 84",
+      "completionEstimatePercent": 30.1,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document content replacement slice 84.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "7d71a6572b1275268e7f4626a437dbb039d173c1",
+      "commit": "7d71a657",
+      "committedAt": "2026-06-20T12:21:59-04:00",
+      "subject": "Implement encounter document archive restore slice 85",
+      "completionEstimatePercent": 30.44,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document archive restore slice 85.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "a551eba55e32475845e5913db312621e4bf5e966",
+      "commit": "a551eba5",
+      "committedAt": "2026-06-20T12:44:53-04:00",
+      "subject": "Implement encounter document lifecycle slice 86",
+      "completionEstimatePercent": 30.78,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document lifecycle slice 86.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "3cecf94ecbc4875b907e427de2046f1fbcab813a",
+      "commit": "3cecf94e",
+      "committedAt": "2026-06-20T13:05:26-04:00",
+      "subject": "Implement encounter external link document slice 87",
+      "completionEstimatePercent": 31.11,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter external link document slice 87.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "9a21536e3937ce36ebe37fb047fa67b07d59f99d",
+      "commit": "9a21536e",
+      "committedAt": "2026-06-20T13:35:55-04:00",
+      "subject": "Implement patient image document preview slice 88",
+      "completionEstimatePercent": 31.45,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient image document preview slice 88.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ff8af034eb38c164d6816517a7407bc4afc3d91f",
+      "commit": "ff8af034",
+      "committedAt": "2026-06-20T13:55:11-04:00",
+      "subject": "Implement patient image document thumbnail slice 89",
+      "completionEstimatePercent": 31.79,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient image document thumbnail slice 89.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "29e2b6a15b863e77d7ac2ca9e73c6ea569f179b2",
+      "commit": "29e2b6a1",
+      "committedAt": "2026-06-20T14:21:35-04:00",
+      "subject": "Implement patient PDF document preview slice 90",
+      "completionEstimatePercent": 32.13,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient PDF document preview slice 90.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "53de4f32c6883d00acd4889fecb728616040a260",
+      "commit": "53de4f32",
+      "committedAt": "2026-06-20T14:44:41-04:00",
+      "subject": "Implement patient document lifecycle slice 91",
+      "completionEstimatePercent": 32.47,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient document lifecycle slice 91.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "13d4ffb2b175cf526e03798ceda88c4c72c6f1dc",
+      "commit": "13d4ffb2",
+      "committedAt": "2026-06-20T15:08:45-04:00",
+      "subject": "Implement patient scanned attachment slice 92",
+      "completionEstimatePercent": 32.81,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient scanned attachment slice 92.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "0a32f8e19591d12ef7577da67e0e94b2c71dc644",
+      "commit": "0a32f8e1",
+      "committedAt": "2026-06-20T15:28:54-04:00",
+      "subject": "Implement appointment reschedule slice 93",
+      "completionEstimatePercent": 33.14,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment reschedule slice 93.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "77237af0a3057a27d892f6d05e5841e203eb39d9",
+      "commit": "77237af0",
+      "committedAt": "2026-06-20T15:49:23-04:00",
+      "subject": "Implement appointment arrival slice 94",
+      "completionEstimatePercent": 33.48,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment arrival slice 94.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "98ab0eeb8177193ba9036078e67cf9d8f72ad735",
+      "commit": "98ab0eeb",
+      "committedAt": "2026-06-20T16:12:09-04:00",
+      "subject": "Implement appointment checkout slice 95",
+      "completionEstimatePercent": 33.82,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment checkout slice 95.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "dafe1f8cc2c593baf01a7dbd22573660d9234f52",
+      "commit": "dafe1f8c",
+      "committedAt": "2026-06-20T16:26:13-04:00",
+      "subject": "Implement appointment no-show slice 96",
+      "completionEstimatePercent": 34.16,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment no-show slice 96.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "b9bf76ae03c407cff5ffba8e17e45725c7a8d5cc",
+      "commit": "b9bf76ae",
+      "committedAt": "2026-06-20T16:58:52-04:00",
+      "subject": "Implement appointment category slice 97",
+      "completionEstimatePercent": 34.5,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment category slice 97.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ddaa83404d137106ac6e4c4bd29026ec333c44cc",
+      "commit": "ddaa8340",
+      "committedAt": "2026-06-20T17:13:24-04:00",
+      "subject": "Implement appointment pending-status slice 98",
+      "completionEstimatePercent": 34.84,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment pending-status slice 98.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "0a0c5209180a2f2b8db766e2f4ddea3cda6bdf4b",
+      "commit": "0a0c5209",
+      "committedAt": "2026-06-20T17:28:12-04:00",
+      "subject": "Add Workbench comparison artifact viewer",
+      "completionEstimatePercent": 35.06,
+      "estimateBasis": "workbench-support",
+      "summary": "Add Workbench comparison artifact viewer.",
+      "estimateRationale": "Workbench or evidence-surface capability that supported the modernization effort before explicit completion tracking existed; counted below a domain parity slice and normalized to the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "ee3be11fed1f6a7fc3982ee200d8e1c30c8b1408",
+      "commit": "ee3be11f",
+      "committedAt": "2026-06-20T17:28:52-04:00",
+      "subject": "Record comparison viewer changelog commit",
+      "completionEstimatePercent": 35.1,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Record comparison viewer changelog commit.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "b2141d887393b896d3cef2cc9f3365e9e0a24aa0",
+      "commit": "b2141d88",
+      "committedAt": "2026-06-20T17:48:33-04:00",
+      "subject": "feat: add appointment provider reassignment parity",
+      "completionEstimatePercent": 35.43,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "feat: add appointment provider reassignment parity.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "22b2f76a3fc258c6948d947f5b1b96721268a92a",
+      "commit": "22b2f76a",
+      "committedAt": "2026-06-20T17:49:17-04:00",
+      "subject": "docs: record appointment provider reassignment slice",
+      "completionEstimatePercent": 35.48,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "docs: record appointment provider reassignment slice.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "b430571eaa57d570211f59d4cde9a02fef0bbfa0",
+      "commit": "b430571e",
+      "committedAt": "2026-06-20T18:04:19-04:00",
+      "subject": "feat: add appointment facility reassignment parity",
+      "completionEstimatePercent": 35.81,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "feat: add appointment facility reassignment parity.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "49eca6b6fcaab1d3628e7cb23fefa136bfffe30c",
+      "commit": "49eca6b6",
+      "committedAt": "2026-06-20T18:05:12-04:00",
+      "subject": "docs: record appointment facility reassignment slice",
+      "completionEstimatePercent": 35.85,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "docs: record appointment facility reassignment slice.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "bd242b699460723be51a019a2fe6ce24530ae044",
+      "commit": "bd242b69",
+      "committedAt": "2026-06-20T18:22:12-04:00",
+      "subject": "feat: add appointment billing-location reassignment parity",
+      "completionEstimatePercent": 36.19,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "feat: add appointment billing-location reassignment parity.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1e579b6c51727b2db4ea19eddd120c22a609ad97",
+      "commit": "1e579b6c",
+      "committedAt": "2026-06-20T18:23:03-04:00",
+      "subject": "docs: record appointment billing-location reassignment slice",
+      "completionEstimatePercent": 36.23,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "docs: record appointment billing-location reassignment slice.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "932726634eea434c0c319a0b932acf8b90e04a2a",
+      "commit": "93272663",
+      "committedAt": "2026-06-20T18:43:51-04:00",
+      "subject": "feat: add appointment comments parity",
+      "completionEstimatePercent": 36.57,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "feat: add appointment comments parity.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c6a1115577502c462a8cc12e847bcc45c9984a3d",
+      "commit": "c6a11155",
+      "committedAt": "2026-06-20T18:44:51-04:00",
+      "subject": "docs: record appointment comments slice",
+      "completionEstimatePercent": 36.61,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "docs: record appointment comments slice.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "85fad6757e08319fbf52c2639053e1382b2a6965",
+      "commit": "85fad675",
+      "committedAt": "2026-06-20T19:25:03-04:00",
+      "subject": "Implement appointment recurrence metadata slice 103",
+      "completionEstimatePercent": 36.95,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment recurrence metadata slice 103.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "6dc2e34841f73c197a3bb484f44f0a2fe8b83f54",
+      "commit": "6dc2e348",
+      "committedAt": "2026-06-20T19:25:53-04:00",
+      "subject": "Document appointment recurrence metadata slice 103",
+      "completionEstimatePercent": 36.99,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment recurrence metadata slice 103.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "0505722a8635ebabd5f410d283fe877bc77cd883",
+      "commit": "0505722a",
+      "committedAt": "2026-06-20T19:45:01-04:00",
+      "subject": "Implement appointment recurring series slice 104",
+      "completionEstimatePercent": 37.33,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment recurring series slice 104.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "406b64dd4d08db37b4b0583fcf5ee9f51f012b7b",
+      "commit": "406b64dd",
+      "committedAt": "2026-06-20T19:45:43-04:00",
+      "subject": "Document appointment recurring series slice 104",
+      "completionEstimatePercent": 37.37,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment recurring series slice 104.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "3c88bf640152b285bbd7debf355d896c58755a11",
+      "commit": "3c88bf64",
+      "committedAt": "2026-06-20T20:05:09-04:00",
+      "subject": "Implement appointment recurrence exceptions slice 105",
+      "completionEstimatePercent": 37.71,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment recurrence exceptions slice 105.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "6ca902a02eea30edc2fa8ffa6af2d3c7133fa396",
+      "commit": "6ca902a0",
+      "committedAt": "2026-06-20T20:14:26-04:00",
+      "subject": "Document appointment recurrence exceptions slice 105",
+      "completionEstimatePercent": 37.75,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment recurrence exceptions slice 105.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "7140041e07c20f13c13e03250dad4c1e36b2d5d9",
+      "commit": "7140041e",
+      "committedAt": "2026-06-20T20:32:26-04:00",
+      "subject": "Implement appointment occurrence cancel slice 106",
+      "completionEstimatePercent": 38.09,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment occurrence cancel slice 106.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c12d5f57e158cb124a7dad14d80e37a6ea79cbfb",
+      "commit": "c12d5f57",
+      "committedAt": "2026-06-20T20:33:19-04:00",
+      "subject": "Document appointment occurrence cancel slice 106",
+      "completionEstimatePercent": 38.13,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment occurrence cancel slice 106.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "255bfd631ae25b78bee99ebbf15e0974287b520f",
+      "commit": "255bfd63",
+      "committedAt": "2026-06-20T20:56:58-04:00",
+      "subject": "Implement appointment occurrence restore slice 107",
+      "completionEstimatePercent": 38.47,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment occurrence restore slice 107.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "a72a9cf2706c5c8ec4c0395cfb04ad32c233f78a",
+      "commit": "a72a9cf2",
+      "committedAt": "2026-06-20T20:57:59-04:00",
+      "subject": "Document appointment occurrence restore slice 107",
+      "completionEstimatePercent": 38.51,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment occurrence restore slice 107.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "478da9d761395b05e6694b65b831f0e37d3f9c67",
+      "commit": "478da9d7",
+      "committedAt": "2026-06-20T21:19:08-04:00",
+      "subject": "Implement appointment occurrence reschedule slice 108",
+      "completionEstimatePercent": 38.84,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment occurrence reschedule slice 108.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "2f182d2e2edab7a3a79db42d2aa5e6cead04b95a",
+      "commit": "2f182d2e",
+      "committedAt": "2026-06-20T21:25:12-04:00",
+      "subject": "Document appointment occurrence reschedule slice 108",
+      "completionEstimatePercent": 38.89,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment occurrence reschedule slice 108.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "b55d1f4ada86b60e34ef975317c221352d88cb10",
+      "commit": "b55d1f4a",
+      "committedAt": "2026-06-20T21:36:42-04:00",
+      "subject": "Implement appointment recurrence exception edit slice 109",
+      "completionEstimatePercent": 39.22,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment recurrence exception edit slice 109.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "3dc1bae76a6c5d6c1c2de04919ead3e455da0181",
+      "commit": "3dc1bae7",
+      "committedAt": "2026-06-20T21:48:17-04:00",
+      "subject": "Document appointment recurrence exception edit slice 109",
+      "completionEstimatePercent": 39.26,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment recurrence exception edit slice 109.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "a042c9957a5bc7c85f98d5a3c76f75cddb1e49a5",
+      "commit": "a042c995",
+      "committedAt": "2026-06-20T22:10:47-04:00",
+      "subject": "Implement appointment series root update slice 110",
+      "completionEstimatePercent": 39.6,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment series root update slice 110.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "0362326813f8fde9df81b25e20f5857cc995969d",
+      "commit": "03623268",
+      "committedAt": "2026-06-20T22:11:36-04:00",
+      "subject": "Document appointment series root update slice 110",
+      "completionEstimatePercent": 39.64,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment series root update slice 110.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "119459beae562f96a21f5f173d0e8165e9f82f2f",
+      "commit": "119459be",
+      "committedAt": "2026-06-20T22:33:00-04:00",
+      "subject": "Implement appointment series root metadata slice 111",
+      "completionEstimatePercent": 39.98,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment series root metadata slice 111.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "b201b3b3f2f37f0e982a7bbd96111bff185060c8",
+      "commit": "b201b3b3",
+      "committedAt": "2026-06-20T22:34:15-04:00",
+      "subject": "Document appointment series root metadata slice 111",
+      "completionEstimatePercent": 40.02,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment series root metadata slice 111.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "689188fef0e8f2f6e9b9861420e543f67cc60d7f",
+      "commit": "689188fe",
+      "committedAt": "2026-06-20T23:03:37-04:00",
+      "subject": "Implement appointment monthly recurrence slice 112",
+      "completionEstimatePercent": 40.36,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment monthly recurrence slice 112.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "2677b18fc092900683f3652579bdb7856df3d061",
+      "commit": "2677b18f",
+      "committedAt": "2026-06-20T23:04:41-04:00",
+      "subject": "Document appointment monthly recurrence slice 112",
+      "completionEstimatePercent": 40.4,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment monthly recurrence slice 112.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "8904b83c3225a4c8f6d7222451ddd01aa5fed1fd",
+      "commit": "8904b83c",
+      "committedAt": "2026-06-20T23:15:45-04:00",
+      "subject": "Implement appointment recurrence unit matrix slice 113",
+      "completionEstimatePercent": 40.74,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment recurrence unit matrix slice 113.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "8edc7273702d7191ccbf0fb8d634aebda9d83452",
+      "commit": "8edc7273",
+      "committedAt": "2026-06-20T23:24:36-04:00",
+      "subject": "Document appointment recurrence unit matrix slice 113",
+      "completionEstimatePercent": 40.78,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment recurrence unit matrix slice 113.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "8e71739d00f142dbbf498ec3c482e40c2d844f11",
+      "commit": "8e71739d",
+      "committedAt": "2026-06-20T23:53:21-04:00",
+      "subject": "Implement appointment days-of-week recurrence slice 114",
+      "completionEstimatePercent": 41.12,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment days-of-week recurrence slice 114.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "a52579e218e17940892b257a26732efc97dc46e4",
+      "commit": "a52579e2",
+      "committedAt": "2026-06-21T00:04:58-04:00",
+      "subject": "Document appointment days-of-week recurrence slice 114",
+      "completionEstimatePercent": 41.16,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment days-of-week recurrence slice 114.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "b39df71c416bac340e399ae399eae1519ad42987",
+      "commit": "b39df71c",
+      "committedAt": "2026-06-21T00:29:54-04:00",
+      "subject": "Implement appointment monthly repeat-on recurrence slice 115",
+      "completionEstimatePercent": 41.5,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment monthly repeat-on recurrence slice 115.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "1da41cdfce6de9a667590503cf94d12f46bfd285",
+      "commit": "1da41cdf",
+      "committedAt": "2026-06-21T00:37:25-04:00",
+      "subject": "Document appointment monthly repeat-on recurrence slice 115",
+      "completionEstimatePercent": 41.54,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment monthly repeat-on recurrence slice 115.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "7dedb208991742887b2788d5d04d12c972d6fc28",
+      "commit": "7dedb208",
+      "committedAt": "2026-06-21T00:46:06-04:00",
+      "subject": "Implement appointment series recurrence update slice 116",
+      "completionEstimatePercent": 41.88,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment series recurrence update slice 116.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "dd4dfe3ad57508baf90791c99a834b64a91d078a",
+      "commit": "dd4dfe3a",
+      "committedAt": "2026-06-21T00:51:20-04:00",
+      "subject": "Document appointment series recurrence update slice 116",
+      "completionEstimatePercent": 41.92,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment series recurrence update slice 116.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "d7a790312877918a585b3621e39fe54717185f52",
+      "commit": "d7a79031",
+      "committedAt": "2026-06-21T01:04:52-04:00",
+      "subject": "Implement appointment provider overlap slice 117",
+      "completionEstimatePercent": 42.26,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment provider overlap slice 117.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "cb092697142aab34aa9d6542002b83e5d6249b7c",
+      "commit": "cb092697",
+      "committedAt": "2026-06-21T01:19:13-04:00",
+      "subject": "Document appointment provider overlap slice 117",
+      "completionEstimatePercent": 42.3,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment provider overlap slice 117.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "79e9833346a92243b232102589f415663c382a7c",
+      "commit": "79e98333",
+      "committedAt": "2026-06-21T01:29:46-04:00",
+      "subject": "Implement appointment patient overlap slice 118",
+      "completionEstimatePercent": 42.63,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment patient overlap slice 118.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "085b9e2674798cebbd73d85257818d00af0ea466",
+      "commit": "085b9e26",
+      "committedAt": "2026-06-21T01:42:38-04:00",
+      "subject": "Document appointment patient overlap slice 118",
+      "completionEstimatePercent": 42.67,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment patient overlap slice 118.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "195f4403cd5ba8438cc0a013c200dbaa2200a4af",
+      "commit": "195f4403",
+      "committedAt": "2026-06-21T01:51:45-04:00",
+      "subject": "Implement appointment room overlap slice 119",
+      "completionEstimatePercent": 43.01,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment room overlap slice 119.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "97b6199aab8274f22b438f9df15a806d7bf03682",
+      "commit": "97b6199a",
+      "committedAt": "2026-06-21T01:59:59-04:00",
+      "subject": "Document appointment room overlap slice 119",
+      "completionEstimatePercent": 43.05,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment room overlap slice 119.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "a0596be9f2453abc4abcd79dd63ae88f1bc10ff6",
+      "commit": "a0596be9",
+      "committedAt": "2026-06-21T02:16:03-04:00",
+      "subject": "Implement appointment reminder readiness slice 120",
+      "completionEstimatePercent": 43.39,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement appointment reminder readiness slice 120.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "a97e46940602a6cb99454a7ec33e92bc2e23da38",
+      "commit": "a97e4694",
+      "committedAt": "2026-06-21T02:22:43-04:00",
+      "subject": "Document appointment reminder readiness slice 120",
+      "completionEstimatePercent": 43.43,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document appointment reminder readiness slice 120.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "0524ac88c504aeaa4117857f3c6669cf22f86d97",
+      "commit": "0524ac88",
+      "committedAt": "2026-06-21T02:33:45-04:00",
+      "subject": "Implement encounter co-signature slice 121",
+      "completionEstimatePercent": 43.77,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter co-signature slice 121.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "66a31b66802432c37629849c03d9815dd054f9cb",
+      "commit": "66a31b66",
+      "committedAt": "2026-06-21T02:45:52-04:00",
+      "subject": "Document encounter co-signature slice 121",
+      "completionEstimatePercent": 43.81,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document encounter co-signature slice 121.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "19d34c47881a01fb2377f06c8d3284de382cee2c",
+      "commit": "19d34c47",
+      "committedAt": "2026-06-21T02:53:48-04:00",
+      "subject": "Implement encounter document revision slice 122",
+      "completionEstimatePercent": 44.15,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document revision slice 122.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "be9bc9d1b56f5013ad01163101e22cb8a65b3599",
+      "commit": "be9bc9d1",
+      "committedAt": "2026-06-21T03:00:47-04:00",
+      "subject": "Document encounter document revision slice 122",
+      "completionEstimatePercent": 44.19,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document encounter document revision slice 122.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "07ae0b8b9e87981309f5d78cf10b2584fa6cb758",
+      "commit": "07ae0b8b",
+      "committedAt": "2026-06-21T03:08:40-04:00",
+      "subject": "Implement encounter document replacement revision slice 123",
+      "completionEstimatePercent": 44.53,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter document replacement revision slice 123.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "532257de9d604a6bc6e94687d0af2bf24c679a7e",
+      "commit": "532257de",
+      "committedAt": "2026-06-21T03:20:23-04:00",
+      "subject": "Document encounter document replacement revision slice 123",
+      "completionEstimatePercent": 44.57,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document encounter document replacement revision slice 123.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "8690ced672e7be052879c89a7588f02611d58337",
+      "commit": "8690ced6",
+      "committedAt": "2026-06-21T03:25:29-04:00",
+      "subject": "Implement Workbench comparison drill-in slice 124",
+      "completionEstimatePercent": 44.79,
+      "estimateBasis": "workbench-support",
+      "summary": "Implement Workbench comparison drill-in slice 124.",
+      "estimateRationale": "Workbench or evidence-surface capability that supported the modernization effort before explicit completion tracking existed; counted below a domain parity slice and normalized to the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "91651f53f8bca1089bd7b07dcb52e910a4760b6b",
+      "commit": "91651f53",
+      "committedAt": "2026-06-21T03:29:16-04:00",
+      "subject": "Update Workbench metadata for slice 124",
+      "completionEstimatePercent": 44.83,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Update Workbench metadata for slice 124.",
+      "estimateRationale": "Workbench metadata checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "e5c84191c29b3793845537a29276f078780ea2d7",
+      "commit": "e5c84191",
+      "committedAt": "2026-06-21T03:32:49-04:00",
+      "subject": "Document Workbench comparison drill-in slice 124",
+      "completionEstimatePercent": 44.87,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document Workbench comparison drill-in slice 124.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "3d29d3365925caa18f1cea88a117cb9c14abb320",
+      "commit": "3d29d336",
+      "committedAt": "2026-06-21T03:37:02-04:00",
+      "subject": "Implement Workbench artifact links slice 125",
+      "completionEstimatePercent": 45.09,
+      "estimateBasis": "workbench-support",
+      "summary": "Implement Workbench artifact links slice 125.",
+      "estimateRationale": "Workbench or evidence-surface capability that supported the modernization effort before explicit completion tracking existed; counted below a domain parity slice and normalized to the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "156a3b331182c9e6ff3be2b8bb203366ada3a3e9",
+      "commit": "156a3b33",
+      "committedAt": "2026-06-21T03:39:18-04:00",
+      "subject": "Document Workbench artifact links slice 125",
+      "completionEstimatePercent": 45.13,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document Workbench artifact links slice 125.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "e0c5dc78bab3783e881e3e6038453c4ce9f91fd9",
+      "commit": "e0c5dc78",
+      "committedAt": "2026-06-21T03:54:17-04:00",
+      "subject": "Implement encounter scanned attachment slice 126",
+      "completionEstimatePercent": 45.47,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter scanned attachment slice 126.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "b8f285a15ca16b25111ecb58370f8e67db4a8cb3",
+      "commit": "b8f285a1",
+      "committedAt": "2026-06-21T04:03:10-04:00",
+      "subject": "Document encounter scanned attachment slice 126",
+      "completionEstimatePercent": 45.51,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document encounter scanned attachment slice 126.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "d8e5e9b516f43faedb0a1f9b50eb3d03ac25b2af",
+      "commit": "d8e5e9b5",
+      "committedAt": "2026-06-21T04:23:45-04:00",
+      "subject": "Implement encounter binary replacement slice 127",
+      "completionEstimatePercent": 45.85,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement encounter binary replacement slice 127.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "beac8d8fb96758c2dde5661ff0a77dc780ec9bb9",
+      "commit": "beac8d8f",
+      "committedAt": "2026-06-21T04:33:29-04:00",
+      "subject": "Document encounter binary replacement slice 127",
+      "completionEstimatePercent": 45.89,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document encounter binary replacement slice 127.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "3e82be2dbd9b6609b079804ba158e3eb20e8d693",
+      "commit": "3e82be2d",
+      "committedAt": "2026-06-21T04:47:15-04:00",
+      "subject": "Implement patient binary replacement slice 128",
+      "completionEstimatePercent": 46.23,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement patient binary replacement slice 128.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "019e5fcf5b08c469d9082eae7daba66b29a9c17f",
+      "commit": "019e5fcf",
+      "committedAt": "2026-06-21T04:54:48-04:00",
+      "subject": "Document patient binary replacement slice 128",
+      "completionEstimatePercent": 46.27,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document patient binary replacement slice 128.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "45f00b93048e1aaaf2b203d66a9083504b7a5bbf",
+      "commit": "45f00b93",
+      "committedAt": "2026-06-21T05:11:36-04:00",
+      "subject": "Implement procedure result correction slice 129",
+      "completionEstimatePercent": 46.61,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure result correction slice 129.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "fc1a26ab153ee9550d3c6286cb2ae00b48b59c42",
+      "commit": "fc1a26ab",
+      "committedAt": "2026-06-21T05:19:18-04:00",
+      "subject": "Document procedure result correction slice 129",
+      "completionEstimatePercent": 46.65,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure result correction slice 129.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "febc40fd7e26e0bc70a5fe93928500edfc535e19",
+      "commit": "febc40fd",
+      "committedAt": "2026-06-21T05:38:00-04:00",
+      "subject": "Implement procedure specimen slice 130",
+      "completionEstimatePercent": 46.98,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure specimen slice 130.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4afa6d38ac5fadc2ac2ed58dd89fabc696a3ae2e",
+      "commit": "4afa6d38",
+      "committedAt": "2026-06-21T05:39:04-04:00",
+      "subject": "Document procedure specimen slice 130",
+      "completionEstimatePercent": 47.03,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure specimen slice 130.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "2db3a256f13aa50cc2effda50baa3c78e493fcf6",
+      "commit": "2db3a256",
+      "committedAt": "2026-06-21T06:02:58-04:00",
+      "subject": "Implement procedure specimen detail slice 131",
+      "completionEstimatePercent": 47.36,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure specimen detail slice 131.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "4bf595f203279ec1a041963e04a86fec1a987cf1",
+      "commit": "4bf595f2",
+      "committedAt": "2026-06-21T06:16:46-04:00",
+      "subject": "Document procedure specimen detail slice 131",
+      "completionEstimatePercent": 47.4,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure specimen detail slice 131.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "25603a9e97e1c1703a7d287bb5ca76bef41b4471",
+      "commit": "25603a9e",
+      "committedAt": "2026-06-21T06:35:16-04:00",
+      "subject": "Implement procedure order correction slice 132",
+      "completionEstimatePercent": 47.74,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure order correction slice 132.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "97462e7b40580c5ce5b5ab57f517add2191a5541",
+      "commit": "97462e7b",
+      "committedAt": "2026-06-21T06:44:45-04:00",
+      "subject": "Document procedure order correction slice 132",
+      "completionEstimatePercent": 47.78,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure order correction slice 132.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "a4aa78f5a4f86abc3beb59463902ec72535bdbc3",
+      "commit": "a4aa78f5",
+      "committedAt": "2026-06-21T06:58:20-04:00",
+      "subject": "Implement procedure report correction slice 133",
+      "completionEstimatePercent": 48.12,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report correction slice 133.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "195f5ffdc8670c34a02efdd46518ad0a41811a58",
+      "commit": "195f5ffd",
+      "committedAt": "2026-06-21T07:14:41-04:00",
+      "subject": "Document procedure report correction slice 133",
+      "completionEstimatePercent": 48.16,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report correction slice 133.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6d0343d59afb2f81821e3b03b3bac7e5e7bb5b4a",
+      "commit": "6d0343d5",
+      "committedAt": "2026-06-21T07:34:00-04:00",
+      "subject": "Implement procedure report sign-off slice 134",
+      "completionEstimatePercent": 48.5,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report sign-off slice 134.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "56f8051ca18582bfac28f1e6ba878bb72b31a735",
+      "commit": "56f8051c",
+      "committedAt": "2026-06-21T07:46:12-04:00",
+      "subject": "Document procedure report sign-off slice 134",
+      "completionEstimatePercent": 48.54,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report sign-off slice 134.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "b7a4f47307cdd1459ca793ff1b7bdf1cd24850e8",
+      "commit": "b7a4f473",
+      "committedAt": "2026-06-21T08:06:52-04:00",
+      "subject": "Implement procedure report review queue slice 135",
+      "completionEstimatePercent": 48.88,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report review queue slice 135.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "856f8a52952ab97720f9713e7139dd46239815b3",
+      "commit": "856f8a52",
+      "committedAt": "2026-06-21T08:17:30-04:00",
+      "subject": "Document procedure report review queue slice 135",
+      "completionEstimatePercent": 48.92,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report review queue slice 135.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "c325e415e4cb3712e334e8ca00841700fdcdbc91",
+      "commit": "c325e415",
+      "committedAt": "2026-06-21T08:34:18-04:00",
+      "subject": "Implement procedure report review queue filters slice 136",
+      "completionEstimatePercent": 49.26,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report review queue filters slice 136.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "9f6d3f00faab09640cf7ae77b471d8990c0d92c5",
+      "commit": "9f6d3f00",
+      "committedAt": "2026-06-21T08:44:59-04:00",
+      "subject": "Document procedure report review queue filters slice 136",
+      "completionEstimatePercent": 49.3,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report review queue filters slice 136.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "35df46a7d6b73d665a9ee90208119dc0b429edfe",
+      "commit": "35df46a7",
+      "committedAt": "2026-06-21T08:58:07-04:00",
+      "subject": "Implement procedure report review queue provider filters slice 137",
+      "completionEstimatePercent": 49.64,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report review queue provider filters slice 137.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "361ae8bd4422a465ee6a9b22e8f37c4796e2cc31",
+      "commit": "361ae8bd",
+      "committedAt": "2026-06-21T09:13:17-04:00",
+      "subject": "Document procedure report review queue provider filters slice 137",
+      "completionEstimatePercent": 49.68,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report review queue provider filters slice 137.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "6bc9101084130c0b9bce271889c2467fad125d81",
+      "commit": "6bc91010",
+      "committedAt": "2026-06-21T09:36:03-04:00",
+      "subject": "Implement procedure report review queue lab filters slice 138",
+      "completionEstimatePercent": 50.02,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure report review queue lab filters slice 138.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c36c9d6b1689e96df405d11ae75704f73b987061",
+      "commit": "c36c9d6b",
+      "committedAt": "2026-06-21T09:48:03-04:00",
+      "subject": "Document procedure report review queue lab filters slice 138",
+      "completionEstimatePercent": 50.06,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure report review queue lab filters slice 138.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "05dc9973734fafd54f2afa3ffc42f0417fa0139f",
+      "commit": "05dc9973",
+      "committedAt": "2026-06-21T10:10:35-04:00",
+      "subject": "Implement procedure lab provider catalog slice 139",
+      "completionEstimatePercent": 50.39,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure lab provider catalog slice 139.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "c59c918a6da64d577a3ac6be3634f5a2b8195d7b",
+      "commit": "c59c918a",
+      "committedAt": "2026-06-21T10:11:41-04:00",
+      "subject": "Document procedure lab provider catalog slice 139",
+      "completionEstimatePercent": 50.44,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure lab provider catalog slice 139.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "bd425a8e15b6de072e273841471c750b85e2c4a9",
+      "commit": "bd425a8e",
+      "committedAt": "2026-06-21T10:40:08-04:00",
+      "subject": "Implement procedure lab provider directory slice 140",
+      "completionEstimatePercent": 50.77,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure lab provider directory slice 140.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "45504579fbceac5ae410e5fba2bfb4740e2d57ea",
+      "commit": "45504579",
+      "committedAt": "2026-06-21T10:43:30-04:00",
+      "subject": "Document procedure lab provider directory slice 140",
+      "completionEstimatePercent": 50.81,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure lab provider directory slice 140.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "e242bd4c1b69f50be4a7586c458dd57ed683e83d",
+      "commit": "e242bd4c",
+      "committedAt": "2026-06-21T11:10:39-04:00",
+      "subject": "Implement procedure lab provider lifecycle slice 141",
+      "completionEstimatePercent": 51.15,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure lab provider lifecycle slice 141.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "05439373b0d2381898c3777da6922fa8800ac7ba",
+      "commit": "05439373",
+      "committedAt": "2026-06-21T11:11:44-04:00",
+      "subject": "Document procedure lab provider lifecycle slice 141",
+      "completionEstimatePercent": 51.19,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure lab provider lifecycle slice 141.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "2f96767d1f1fd2701855ec45b299b56efc76b64a",
+      "commit": "2f96767d",
+      "committedAt": "2026-06-21T11:33:00-04:00",
+      "subject": "Implement procedure lab provider configuration slice 142",
+      "completionEstimatePercent": 51.53,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure lab provider configuration slice 142.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "d824ba3a6fb2c8d287d5dfdca3ce54d051969820",
+      "commit": "d824ba3a",
+      "committedAt": "2026-06-21T11:36:14-04:00",
+      "subject": "Document procedure lab provider configuration slice 142",
+      "completionEstimatePercent": 51.57,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure lab provider configuration slice 142.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "8818dae997aa81be684a94b556cc0690b4d151a5",
+      "commit": "8818dae9",
+      "committedAt": "2026-06-21T11:58:47-04:00",
+      "subject": "Implement Workbench functionality progress ledger slice 143",
+      "completionEstimatePercent": 51.79,
+      "estimateBasis": "workbench-support",
+      "summary": "Implement Workbench functionality progress ledger slice 143.",
+      "estimateRationale": "Workbench or evidence-surface capability that supported the modernization effort before explicit completion tracking existed; counted below a domain parity slice and normalized to the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "fc640f1c88aeb888797abf0932bffc225d5989c1",
+      "commit": "fc640f1c",
+      "committedAt": "2026-06-21T12:03:06-04:00",
+      "subject": "Document Workbench functionality progress ledger slice 143",
+      "completionEstimatePercent": 51.83,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document Workbench functionality progress ledger slice 143.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "a72ac5433351079a7d9730edce12c6ccc4d2c796",
+      "commit": "a72ac543",
+      "committedAt": "2026-06-21T12:07:02-04:00",
+      "subject": "Implement procedure lab provider address book slice 144",
+      "completionEstimatePercent": 52.17,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure lab provider address book slice 144.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    },
+    {
+      "fullCommit": "0532198e94f96f4769a1eaf46adf9f614782ae22",
+      "commit": "0532198e",
+      "committedAt": "2026-06-21T12:15:06-04:00",
+      "subject": "Document procedure lab provider address book slice 144",
+      "completionEstimatePercent": 52.21,
+      "estimateBasis": "documentation-checkpoint",
+      "summary": "Document procedure lab provider address book slice 144.",
+      "estimateRationale": "Documentation or changelog checkpoint for adjacent implementation work; assigned a tiny cumulative increase so the timestamp appears without overstating new functional scope."
+    },
+    {
+      "fullCommit": "bab45ab196ef79f1cf6292651f0c697aace787d9",
+      "commit": "bab45ab1",
+      "committedAt": "2026-06-21T12:46:15-04:00",
+      "subject": "Implement procedure order catalog slice 145",
+      "completionEstimatePercent": 52.55,
+      "estimateBasis": "modernized-functionality-slice",
+      "summary": "Implement procedure order catalog slice 145.",
+      "estimateRationale": "Modernized application functionality or parity slice completed before explicit completion tracking existed; assigned normalized cumulative progress against the first explicit ledger estimate."
+    }
+  ]
+}

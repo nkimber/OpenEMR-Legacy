@@ -138,15 +138,36 @@ type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
-  historyKind: "progress-snapshot" | "timeline-anchor";
+  historyKind: "progress-snapshot" | "timeline-anchor" | "historical-estimate";
   progressEstimateAvailable: boolean;
   note?: string;
+  estimateBasis?: string;
+  estimateRationale?: string;
   commitMessageBody?: string;
-  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor";
+  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor" | "historical-estimate";
   narrativeEntryId?: string;
   narrativeTitle?: string;
   narrativeSummary?: string;
   narrativeOutcomes?: string[];
+};
+
+type FunctionalityProgressBackfillPoint = {
+  fullCommit?: string;
+  commit?: string;
+  committedAt: string;
+  subject: string;
+  completionEstimatePercent: number;
+  estimateBasis?: string;
+  summary?: string;
+  estimateRationale: string;
+};
+
+type FunctionalityProgressBackfillConfig = {
+  version: string;
+  lastUpdated: string;
+  methodology: string;
+  totalScopeWeight?: number;
+  points: FunctionalityProgressBackfillPoint[];
 };
 
 type FunctionalityProgressForecast = {
@@ -363,6 +384,7 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const functionalityProgressPath = path.join(workbenchRoot, "config", "functionality-progress.json");
+const functionalityProgressBackfillPath = path.join(workbenchRoot, "config", "functionality-progress-backfill.json");
 const sourceInventoryPath = path.join(workbenchRoot, "config", "source-inventory.json");
 const sourceInventorySnapshotPath = path.join(workbenchRoot, "config", "source-inventory.snapshot.json");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
@@ -799,6 +821,22 @@ function createTimelineAnchorSummary(referenceSummary?: FunctionalityProgressSum
   };
 }
 
+function createHistoricalEstimateSummary(completionEstimatePercent: number, totalScopeWeight = 100): FunctionalityProgressSummary {
+  const weightedAveragePercent = Math.max(0, Math.min(100, Number.isFinite(completionEstimatePercent) ? completionEstimatePercent : 0));
+  const normalizedScopeWeight = Number.isFinite(totalScopeWeight) && totalScopeWeight > 0 ? totalScopeWeight : 100;
+  const weightedCompletedPoints = (weightedAveragePercent / 100) * normalizedScopeWeight;
+
+  return {
+    areaCount: 0,
+    simpleAveragePercent: roundProgressValue(weightedAveragePercent),
+    weightedAveragePercent: roundProgressValue(weightedAveragePercent),
+    estimatedRemainingPercent: roundProgressValue(100 - weightedAveragePercent),
+    totalScopeWeight: roundProgressValue(normalizedScopeWeight),
+    weightedCompletedPoints: roundProgressValue(weightedCompletedPoints),
+    weightedRemainingPoints: roundProgressValue(Math.max(0, normalizedScopeWeight - weightedCompletedPoints))
+  };
+}
+
 function commitHashMatches(fullCommit: string, shortCommit: string, hash: string) {
   const normalizedHash = hash.toLowerCase();
   const normalizedFullCommit = fullCommit.toLowerCase();
@@ -855,6 +893,73 @@ function buildHistoryNarrative(
     narrativeSummary: commitMessageBody || fallbackNote,
     narrativeOutcomes: []
   };
+}
+
+async function readFunctionalityProgressBackfill(changelogEntries: ChangelogEntry[] = []): Promise<FunctionalityProgressHistoryPoint[]> {
+  let configText: string;
+  try {
+    configText = await fs.readFile(functionalityProgressBackfillPath, "utf8");
+  } catch {
+    return [];
+  }
+
+  let parsed: Partial<FunctionalityProgressBackfillConfig>;
+  try {
+    parsed = JSON.parse(configText) as Partial<FunctionalityProgressBackfillConfig>;
+  } catch {
+    return [];
+  }
+
+  if (!Array.isArray(parsed.points)) {
+    return [];
+  }
+
+  const totalScopeWeight = Number.isFinite(Number(parsed.totalScopeWeight)) ? Number(parsed.totalScopeWeight) : undefined;
+  const historyPoints = parsed.points
+    .map((point): FunctionalityProgressHistoryPoint | undefined => {
+      const fullCommit = (point.fullCommit ?? point.commit ?? "").trim();
+      const commit = (point.commit && point.commit.length < fullCommit.length ? point.commit : fullCommit.slice(0, 8)).trim();
+      const committedAt = point.committedAt?.trim();
+      const subject = point.subject?.trim();
+      const completionEstimatePercent = Number(point.completionEstimatePercent);
+      if (!fullCommit || !commit || !committedAt || !subject || !Number.isFinite(completionEstimatePercent)) {
+        return undefined;
+      }
+
+      const changelogEntry = findChangelogEntryForCommit(fullCommit, commit, changelogEntries);
+      const narrative = changelogEntry
+        ? {
+            narrativeSource: "project-changelog" as const,
+            narrativeEntryId: changelogEntry.id,
+            narrativeTitle: changelogEntry.title,
+            narrativeSummary: changelogEntry.summary || point.summary || point.estimateRationale,
+            narrativeOutcomes: changelogEntry.keyOutcomes
+          }
+        : {
+            narrativeSource: "historical-estimate" as const,
+            narrativeTitle: subject,
+            narrativeSummary: point.summary || point.estimateRationale,
+            narrativeOutcomes: point.estimateRationale ? [point.estimateRationale] : []
+          };
+
+      return {
+        commit,
+        fullCommit,
+        snapshotCompletedAt: committedAt,
+        committedAt,
+        subject,
+        historyKind: "historical-estimate",
+        progressEstimateAvailable: true,
+        note: point.summary || point.estimateRationale,
+        estimateBasis: point.estimateBasis,
+        estimateRationale: point.estimateRationale,
+        ...narrative,
+        ...createHistoricalEstimateSummary(completionEstimatePercent, totalScopeWeight)
+      } satisfies FunctionalityProgressHistoryPoint;
+    })
+    .filter((point): point is FunctionalityProgressHistoryPoint => Boolean(point));
+
+  return historyPoints.sort((left, right) => Date.parse(left.snapshotCompletedAt) - Date.parse(right.snapshotCompletedAt));
 }
 
 async function readModernizedApplicationStartAnchor(referenceSummary?: FunctionalityProgressSummary, changelogEntries: ChangelogEntry[] = []): Promise<FunctionalityProgressHistoryPoint | undefined> {
@@ -915,14 +1020,12 @@ async function readProgressHistory(changelogEntries: ChangelogEntry[] = []): Pro
       return undefined;
     }
 
-    const [snapshotText, commitMessageBody] = await Promise.all([
-      runGitText(["show", `${fullCommit}:${progressPath}`], 10000),
-      readCommitMessageBody(fullCommit, subject)
-    ]);
+    const snapshotText = await runGitText(["show", `${fullCommit}:${progressPath}`], 10000);
     if (!snapshotText) {
       return undefined;
     }
 
+    const commitMessageBody = findChangelogEntryForCommit(fullCommit, commit, changelogEntries) ? undefined : await readCommitMessageBody(fullCommit, subject);
     const areas = parseFunctionalityProgressSnapshot(snapshotText);
     if (!areas.length) {
       return undefined;
@@ -940,13 +1043,33 @@ async function readProgressHistory(changelogEntries: ChangelogEntry[] = []): Pro
       ...calculateFunctionalityProgressSummary(areas)
     } satisfies FunctionalityProgressHistoryPoint;
   });
-  const history = historyPoints.filter((point): point is FunctionalityProgressHistoryPoint => Boolean(point));
+  const measuredHistory = historyPoints.filter((point): point is FunctionalityProgressHistoryPoint => Boolean(point));
+  const historicalEstimates = await readFunctionalityProgressBackfill(changelogEntries);
+  const mergedHistoryByCommit = new Map<string, FunctionalityProgressHistoryPoint>();
+  for (const point of historicalEstimates) {
+    mergedHistoryByCommit.set(point.fullCommit, point);
+  }
 
-  const startAnchor = await readModernizedApplicationStartAnchor(history[0], changelogEntries);
-  const anchorTime = startAnchor ? Date.parse(startAnchor.snapshotCompletedAt) : Number.NaN;
-  const firstHistoryTime = history[0] ? Date.parse(history[0].snapshotCompletedAt) : Number.NaN;
-  if (startAnchor && !history.some((point) => point.fullCommit === startAnchor.fullCommit) && (!Number.isFinite(firstHistoryTime) || anchorTime < firstHistoryTime)) {
-    history.unshift(startAnchor);
+  for (const point of measuredHistory) {
+    const existing = mergedHistoryByCommit.get(point.fullCommit);
+    if (!existing || point.weightedAveragePercent > 0 || existing.historyKind !== "historical-estimate") {
+      mergedHistoryByCommit.set(point.fullCommit, point);
+    }
+  }
+
+  const history = [...mergedHistoryByCommit.values()].sort((left, right) => {
+    const leftTime = Date.parse(left.snapshotCompletedAt);
+    const rightTime = Date.parse(right.snapshotCompletedAt);
+    return leftTime - rightTime || left.fullCommit.localeCompare(right.fullCommit);
+  });
+
+  if (!historicalEstimates.length) {
+    const startAnchor = await readModernizedApplicationStartAnchor(history[0], changelogEntries);
+    const anchorTime = startAnchor ? Date.parse(startAnchor.snapshotCompletedAt) : Number.NaN;
+    const firstHistoryTime = history[0] ? Date.parse(history[0].snapshotCompletedAt) : Number.NaN;
+    if (startAnchor && !history.some((point) => point.fullCommit === startAnchor.fullCommit) && (!Number.isFinite(firstHistoryTime) || anchorTime < firstHistoryTime)) {
+      history.unshift(startAnchor);
+    }
   }
 
   progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history };
