@@ -199,6 +199,7 @@ param(
         "workflow-patient-portal-batch-archive",
         "workflow-patient-portal-all-messages",
         "workflow-patient-portal-documents",
+        "workflow-patient-portal-appointments",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

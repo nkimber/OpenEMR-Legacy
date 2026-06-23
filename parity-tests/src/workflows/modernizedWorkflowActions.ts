@@ -65,6 +65,7 @@ import type {
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
   PatientPortalArchiveMessagesResult,
+  PatientPortalAppointmentsResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
@@ -716,6 +717,43 @@ LIMIT 1;
       }
 
       return mapPatientPortalHomeSummary(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        upcomingAppointmentCount: 0,
+        upcomingAppointments: [],
+        pastAppointmentCount: 0,
+        pastAppointments: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/appointments`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal appointments failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalAppointmentsResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4432,20 +4470,44 @@ function mapPatientPortalHomeSummary(result: any): PatientPortalHomeSummary {
       latestMessageDate: result.messages?.latestMessageDate ?? null
     },
     upcomingAppointmentCount: result.upcomingAppointmentCount ?? 0,
-    upcomingAppointments: (result.upcomingAppointments ?? []).map((appointment: any) => ({
-      id: appointment.id ?? "",
-      date: appointment.date ?? "",
-      startTime: appointment.startTime ?? "",
-      title: appointment.title ?? "",
-      status: appointment.status ?? null,
-      categoryId: appointment.categoryId ?? null,
-      categoryName: appointment.categoryName ?? null,
-      providerName: appointment.providerName ?? null,
-      facilityName: appointment.facilityName ?? null,
-      comments: appointment.comments ?? null
-    })),
+    upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalAppointmentsResult(result: any): PatientPortalAppointmentsResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    upcomingAppointmentCount: result.upcomingAppointmentCount ?? 0,
+    upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    pastAppointmentCount: result.pastAppointmentCount ?? 0,
+    pastAppointments: (result.pastAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalAppointmentItem(appointment: any) {
+  return {
+    id: appointment.id ?? "",
+    date: appointment.date ?? "",
+    startTime: appointment.startTime ?? "",
+    title: appointment.title ?? "",
+    status: appointment.status ?? null,
+    categoryId: appointment.categoryId ?? null,
+    categoryName: appointment.categoryName ?? null,
+    providerName: appointment.providerName ?? null,
+    facilityName: appointment.facilityName ?? null,
+    comments: appointment.comments ?? null
   };
 }
 

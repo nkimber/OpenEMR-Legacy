@@ -209,6 +209,24 @@ export type PatientPortalHomeSummary = {
   sessionSource: string;
 };
 
+export type PatientPortalAppointmentsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  upcomingAppointmentCount: number;
+  upcomingAppointments: PatientPortalHomeAppointmentSummary[];
+  pastAppointmentCount: number;
+  pastAppointments: PatientPortalHomeAppointmentSummary[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalMessageItem = {
   id: string;
   date: string;
@@ -2193,18 +2211,73 @@ WHERE pc_pid = ${integer(login.pid)}
         latestMessageDate: latestMessage.latestMessageDate || null
       },
       upcomingAppointmentCount: Number(appointmentCountRows[0]?.appointmentCount ?? appointmentRows.length),
-      upcomingAppointments: appointmentRows.map((row) => ({
-        id: row.id,
-        date: normalizeDateText(row.appointmentDate),
-        startTime: row.startTime,
-        title: row.title,
-        status: row.status || null,
-        categoryId: row.categoryId ? Number(row.categoryId) : null,
-        categoryName: appointmentCategoryLabel(row.categoryId ? Number(row.categoryId) : null),
-        providerName: row.providerName || null,
-        facilityName: row.facilityName || null,
-        comments: row.comments || null
-      })),
+      upcomingAppointments: appointmentRows.map(mapPortalAppointmentRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalAppointmentsResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const selectAppointmentColumns = `
+SELECT
+  e.pc_eid AS id,
+  DATE_FORMAT(e.pc_eventDate, '%Y-%m-%d') AS appointmentDate,
+  TIME_FORMAT(e.pc_startTime, '%H:%i') AS startTime,
+  COALESCE(e.pc_title, 'Appointment') AS title,
+  COALESCE(e.pc_apptstatus, '') AS status,
+  COALESCE(CAST(e.pc_catid AS CHAR), '') AS categoryId,
+  TRIM(CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, ''))) AS providerName,
+  COALESCE(f.name, '') AS facilityName,
+  COALESCE(e.pc_hometext, '') AS comments
+FROM openemr_postcalendar_events e
+LEFT JOIN users u ON u.id = e.pc_aid
+LEFT JOIN facility f ON f.id = e.pc_facility
+WHERE e.pc_pid = ${integer(login.pid)}
+`;
+    const upcomingRows = await this.db.queryRows<Record<string, string>>(`
+${selectAppointmentColumns}
+  AND e.pc_eventDate >= CURDATE()
+ORDER BY e.pc_eventDate, e.pc_startTime, e.pc_eid
+LIMIT 10;
+`);
+    const pastRows = await this.db.queryRows<Record<string, string>>(`
+${selectAppointmentColumns}
+  AND e.pc_eventDate < CURDATE()
+ORDER BY e.pc_eventDate DESC, e.pc_startTime DESC, e.pc_eid DESC
+LIMIT 10;
+`);
+    const upcomingCountRows = await this.db.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS appointmentCount
+FROM openemr_postcalendar_events
+WHERE pc_pid = ${integer(login.pid)}
+  AND pc_eventDate >= CURDATE();
+`);
+    const pastCountRows = await this.db.queryRows<Record<string, string>>(`
+SELECT COUNT(*) AS appointmentCount
+FROM openemr_postcalendar_events
+WHERE pc_pid = ${integer(login.pid)}
+  AND pc_eventDate < CURDATE();
+`);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      upcomingAppointmentCount: Number(upcomingCountRows[0]?.appointmentCount ?? upcomingRows.length),
+      upcomingAppointments: upcomingRows.map(mapPortalAppointmentRow),
+      pastAppointmentCount: Number(pastCountRows[0]?.appointmentCount ?? pastRows.length),
+      pastAppointments: pastRows.map(mapPortalAppointmentRow),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -6640,6 +6713,42 @@ function buildEmptyPortalHomeSummary(username: string, failureReason: string): P
     upcomingAppointments: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalAppointmentsResult(username: string, failureReason: string): PatientPortalAppointmentsResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    upcomingAppointmentCount: 0,
+    upcomingAppointments: [],
+    pastAppointmentCount: 0,
+    pastAppointments: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function mapPortalAppointmentRow(row: Record<string, string>): PatientPortalHomeAppointmentSummary {
+  const categoryId = row.categoryId ? Number(row.categoryId) : null;
+  return {
+    id: row.id,
+    date: normalizeDateText(row.appointmentDate),
+    startTime: row.startTime,
+    title: row.title,
+    status: row.status || null,
+    categoryId,
+    categoryName: appointmentCategoryLabel(categoryId),
+    providerName: row.providerName || null,
+    facilityName: row.facilityName || null,
+    comments: row.comments || null
   };
 }
 

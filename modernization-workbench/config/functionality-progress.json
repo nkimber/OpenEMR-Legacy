@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/appointments/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -177,6 +177,11 @@
           "label": "Patient portal document list/download readiness",
           "detail": "The modernized patient portal API and Portal page now list active patient-owned documents by legacy category and build a selected-document ZIP download, while parity compares the same list and download package behavior against legacy OpenEMR.",
           "evidence": ["slice-218-patient-portal-documents-readiness"]
+        },
+        {
+          "label": "Patient portal appointment list readiness",
+          "detail": "The modernized patient portal API and Portal page now list signed-in patient upcoming and past appointment cards with provider, facility, status, and category details, while parity compares the same future/past portal appointment behavior against legacy OpenEMR.",
+          "evidence": ["slice-219-patient-portal-appointments-readiness"]
         }
       ],
       "outstanding": [
@@ -189,13 +194,13 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/appointments/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -226,6 +231,11 @@
           "label": "Appointment mutation authorization policy readiness",
           "detail": "The modernized appointment API now distinguishes Appointment view access from write-level create, update, status, recurrence restore, occurrence reschedule, and deletion operations.",
           "evidence": ["slice-189-appointment-mutation-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient portal appointment list readiness",
+          "detail": "Signed-in portal patients can see the same future and past appointment card facts that legacy OpenEMR exposes from the portal home, with parity anchored to MOD-PAT-0004.",
+          "evidence": ["slice-219-patient-portal-appointments-readiness"]
         }
       ],
       "outstanding": [
@@ -235,10 +245,10 @@
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 80,
+      "completionEstimatePercent": 81,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, recurrence, overlap, reminder-readiness, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, and delivery/audit remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, recurrence, overlap, reminder-readiness, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, and delivery/audit remain."
     },
     {
       "id": "encounters-clinical-notes",

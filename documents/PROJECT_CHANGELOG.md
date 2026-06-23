@@ -14734,6 +14734,69 @@ Primary files:
 - `documents/LEGACY_OPENEMR_BASELINE.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 257. Slice 219 Patient Portal Appointment List Readiness
+
+Started: 2026-06-23T19:31:59.2707810-04:00
+Finished: 2026-06-23T19:35:34.4564872-04:00
+Duration: 00:03:35
+Commit: pending
+
+Implemented Slice 219: patient portal appointment list readiness. The modernized target now exposes signed-in patient upcoming and past appointment lists from the authenticated patient portal session, renders those appointment cards in the Portal workspace, and proves the same future/past appointment behavior against legacy OpenEMR portal home appointment cards for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 681
+- Lines deleted: 56
+- Net lines: +625
+- Total churn: 737
+
+Key outcomes:
+
+- Added session-protected `GET /api/patient-portal/appointments` to the modernized API, returning the signed-in patient's next 10 upcoming and most recent 10 past appointments using the shared appointment table and seed metadata base date.
+- Added frontend API contracts and Portal workspace rendering for upcoming and past appointment cards, including date, time, title, category, provider, facility, and status facts.
+- Added legacy and modernized workflow action support for patient portal appointment-list reads.
+- Added the `workflow-patient-portal-appointments` Playwright suite and `slice-219-patient-portal-appointments-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed actions for both targets.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, legacy baseline notes, and functionality progress ledger with the Slice 219 portal appointment contract.
+
+Verified test runs:
+
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null`, `functionality-progress.json`, and `parity-tests\test-manifest.json` passed JSON parsing.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-219-patient-portal-appointments-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-219-patient-portal-appointments-readiness -Reset test` passed as run `2026-06-23T233355-608Z-legacy-openemr-plan-slice-219-patient-portal-appointments-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-219-patient-portal-appointments-readiness -Reset test` passed as run `2026-06-23T233422-594Z-modernized-openemr-plan-slice-219-patient-portal-appointments-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-219-patient-portal-appointments-readiness` passed as comparison `2026-06-23T233448-860Z-legacy-openemr-vs-modernized-openemr-plan-slice-219-patient-portal-appointments-readiness` with no differences.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-appointments/patient-portal-appointments.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/LEGACY_OPENEMR_BASELINE.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
