@@ -13945,7 +13945,7 @@ Primary files:
 Started: 2026-06-23T08:26:00.0000000-04:00
 Finished: 2026-06-23T09:13:37.7887873-04:00
 Duration: 47 minutes 38 seconds
-Commit: pending
+Commit: e773acde
 
 Implemented Slice 209: patient portal home readiness. The modernized app now has a session-protected patient portal home endpoint, a first-class Portal workspace in the SPA, and shared parity coverage that proves the `MOD-PAT-0004` portal identity, secure-message summary, and next upcoming appointment against the legacy OpenEMR portal home.
 
