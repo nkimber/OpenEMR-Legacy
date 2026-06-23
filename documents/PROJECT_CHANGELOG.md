@@ -14489,7 +14489,7 @@ Primary files:
 
 Started: 2026-06-23T15:36:00.0000000-04:00
 Finished: 2026-06-23T16:11:28.0048730-04:00
-Commit: pending
+Commit: 38f11b5f
 
 Implemented Slice 215: patient portal secure-message read-status readiness. The modernized target now exposes a session-protected mark-read endpoint, preserves OpenEMR-compatible `New` to `Read` mailbox status behavior with active-folder retention, renders Portal `Mark read` controls, and proves read-status parity against legacy OpenEMR `onsite_mail` with cleanup-backed temporary inbound messages for the `MOD-PAT-0004` account.
 
