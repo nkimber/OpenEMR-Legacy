@@ -14550,7 +14550,7 @@ Primary files:
 
 Started: 2026-06-23T16:12:00.0000000-04:00
 Finished: 2026-06-23T17:01:55.7640510-04:00
-Commit: pending
+Commit: 4a0a4cb3
 
 Implemented Slice 216: patient portal secure-message batch archive readiness. The modernized target now exposes a session-protected selected-message archive endpoint, preserves OpenEMR-compatible `Delete` status and active-folder hiding for multiple selected patient-visible mailbox rows, renders Portal checkboxes plus an `Archive selected` command, and proves selected-message archive parity against legacy OpenEMR `onsite_mail` with cleanup-backed temporary inbound messages for the `MOD-PAT-0004` account.
 
