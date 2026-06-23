@@ -477,6 +477,12 @@ export type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   historyKind: "progress-snapshot" | "timeline-anchor";
   progressEstimateAvailable: boolean;
   note?: string;
+  commitMessageBody?: string;
+  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor";
+  narrativeEntryId?: string;
+  narrativeTitle?: string;
+  narrativeSummary?: string;
+  narrativeOutcomes?: string[];
 };
 
 export type FunctionalityProgressForecast = {

@@ -14154,6 +14154,48 @@ Primary files:
 - `modernization-workbench/src/styles.css`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 247. Progress Chart Snapshot Narrative Details
+
+Started: 2026-06-23T10:42:00.0000000-04:00
+Finished: 2026-06-23T11:05:06.9468224-04:00
+Commit: pending
+
+Enhanced the Modernization Workbench Progress page so Weighted Completion History hover cards and selected snapshot details show what each check-in actually accomplished, not only the completion metrics.
+
+Code changes:
+
+- Files changed: 6
+- Lines added: 245
+- Lines deleted: 14
+- Net lines: +231
+- Total churn: 259
+
+Key outcomes:
+
+- Enriched `/api/progress` history points with matching `PROJECT_CHANGELOG.md` entry title, summary, and key outcomes when a progress commit matches explicit `Commit:` or `Changeset:` metadata.
+- Added Git commit-message body fallback support for future commits that include body text beyond the subject.
+- Updated hover popups to include the changelog title and a compact accomplishment summary alongside the existing progress, delta, elapsed-time, and timestamp metrics.
+- Added a `What changed` section to the selected snapshot panel with the changelog source, summary, and top key outcomes while keeping the metrics grid intact.
+- Preserved timeline-anchor behavior so the June 18 modernized-app start point resolves to the original `Modernized OpenEMR Slice 1 Bootstrap` changelog narrative.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Live `/api/progress` smoke returned narrative data for `6586a4a0` from project changelog entry `022` and for latest progress point `6dceb93a` from project changelog entry `245`.
+- Playwright hover verification confirmed the `6dceb93a` popup includes `Slice 210 Patient Portal Secure Messages Readiness` plus the compact Slice 210 accomplishment summary.
+- Playwright click verification confirmed the selected `6dceb93a` snapshot panel shows `What changed`, the Slice 210 summary, project changelog entry `245`, and key outcomes above the metric grid.
+- Playwright anchor verification confirmed the `6586a4a0` timeline anchor shows `Modernized OpenEMR Slice 1 Bootstrap`, project changelog entry `022`, and the original bootstrap outcomes.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

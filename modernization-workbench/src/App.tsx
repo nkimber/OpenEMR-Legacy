@@ -301,6 +301,27 @@ function isTimelineAnchorPoint(point: FunctionalityProgressHistoryPoint) {
   return point.historyKind === "timeline-anchor" || point.progressEstimateAvailable === false;
 }
 
+function truncateText(value: string, maxLength: number) {
+  return value.length > maxLength ? `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}...` : value;
+}
+
+function getProgressHistoryNarrative(point: FunctionalityProgressHistoryPoint) {
+  return point.narrativeSummary || point.commitMessageBody || point.note || "";
+}
+
+function getProgressHistoryNarrativeSource(point: FunctionalityProgressHistoryPoint) {
+  switch (point.narrativeSource) {
+    case "project-changelog":
+      return point.narrativeEntryId ? `Project changelog entry ${point.narrativeEntryId}` : "Project changelog";
+    case "commit-message":
+      return "Git commit message";
+    case "timeline-anchor":
+      return "Timeline anchor";
+    default:
+      return "Git commit subject";
+  }
+}
+
 function formatScopePoints(value?: number) {
   if (value === undefined || !Number.isFinite(value)) {
     return "-";
@@ -932,6 +953,8 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
     return isTimelineAnchorPoint(detail.previous.point) ? "since modernization start" : "since prior snapshot";
   };
   const selectedIsTimelineAnchor = selectedDetail ? isTimelineAnchorPoint(selectedDetail.point) : false;
+  const selectedNarrative = selectedDetail ? getProgressHistoryNarrative(selectedDetail.point) : "";
+  const selectedNarrativeOutcomes = selectedDetail?.point.narrativeOutcomes?.filter(Boolean) ?? [];
 
   const getSvgX = (event: ReactPointerEvent<SVGSVGElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1103,6 +1126,7 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             }}
           >
             <strong>{hoveredDetail.point.commit}</strong>
+            <span className="progress-history-tooltip-title">{hoveredDetail.point.narrativeTitle ?? hoveredDetail.point.subject}</span>
             {isTimelineAnchorPoint(hoveredDetail.point) ? (
               <>
                 <span>Timeline anchor</span>
@@ -1116,6 +1140,9 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             )}
             <span>{hoveredDetail.previous ? `${formatElapsedDuration(hoveredDetail.elapsedMs)} since prior point` : "First modernized-app check-in"}</span>
             <span>{formatDate(hoveredDetail.point.snapshotCompletedAt ?? hoveredDetail.point.committedAt)}</span>
+            {getProgressHistoryNarrative(hoveredDetail.point) ? (
+              <span className="progress-history-tooltip-summary">{truncateText(getProgressHistoryNarrative(hoveredDetail.point), 190)}</span>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -1145,6 +1172,26 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
                 Snapshot {selectedDetail.measuredSnapshotNumber} of {measuredSnapshotCount} completed at {formatDate(selectedDetail.point.snapshotCompletedAt ?? selectedDetail.point.committedAt)}.
               </p>
             )}
+          </div>
+          <div className="progress-history-narrative">
+            <div className="section-kicker">What changed</div>
+            <strong>{selectedDetail.point.narrativeTitle ?? selectedDetail.point.subject}</strong>
+            <p>{selectedNarrative || "No additional narrative was found beyond the Git commit subject."}</p>
+            <span>{getProgressHistoryNarrativeSource(selectedDetail.point)}</span>
+            {selectedDetail.point.commitMessageBody && selectedDetail.point.commitMessageBody !== selectedNarrative ? (
+              <div className="progress-history-commit-notes">
+                <strong>Commit notes</strong>
+                <p>{selectedDetail.point.commitMessageBody}</p>
+              </div>
+            ) : null}
+            {selectedNarrativeOutcomes.length ? (
+              <ul>
+                {selectedNarrativeOutcomes.slice(0, 5).map((outcome) => (
+                  <li key={outcome}>{outcome}</li>
+                ))}
+              </ul>
+            ) : null}
+            {selectedNarrativeOutcomes.length > 5 ? <span>{selectedNarrativeOutcomes.length - 5} more outcomes in the changelog.</span> : null}
           </div>
           <div className="progress-history-inspector-grid">
             <Metric label="Commit" value={selectedDetail.point.commit} detail={selectedDetail.point.fullCommit.slice(0, 12)} />

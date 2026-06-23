@@ -141,6 +141,12 @@ type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   historyKind: "progress-snapshot" | "timeline-anchor";
   progressEstimateAvailable: boolean;
   note?: string;
+  commitMessageBody?: string;
+  narrativeSource?: "project-changelog" | "commit-message" | "timeline-anchor";
+  narrativeEntryId?: string;
+  narrativeTitle?: string;
+  narrativeSummary?: string;
+  narrativeOutcomes?: string[];
 };
 
 type FunctionalityProgressForecast = {
@@ -793,7 +799,65 @@ function createTimelineAnchorSummary(referenceSummary?: FunctionalityProgressSum
   };
 }
 
-async function readModernizedApplicationStartAnchor(referenceSummary?: FunctionalityProgressSummary): Promise<FunctionalityProgressHistoryPoint | undefined> {
+function commitHashMatches(fullCommit: string, shortCommit: string, hash: string) {
+  const normalizedHash = hash.toLowerCase();
+  const normalizedFullCommit = fullCommit.toLowerCase();
+  const normalizedShortCommit = shortCommit.toLowerCase();
+  return normalizedFullCommit.startsWith(normalizedHash) || normalizedHash.startsWith(normalizedFullCommit) || normalizedShortCommit === normalizedHash;
+}
+
+function findChangelogEntryForCommit(fullCommit: string, shortCommit: string, entries: ChangelogEntry[]) {
+  return entries.find((entry) => extractCommitHashes(entry.commit).some((hash) => commitHashMatches(fullCommit, shortCommit, hash)));
+}
+
+function extractCommitMessageBody(messageText: string | undefined, subject: string) {
+  if (!messageText) {
+    return undefined;
+  }
+
+  const lines = messageText.trim().split(/\r?\n/);
+  if (lines[0]?.trim() === subject.trim()) {
+    lines.shift();
+  }
+
+  const body = lines.join("\n").trim();
+  return body ? body : undefined;
+}
+
+async function readCommitMessageBody(fullCommit: string, subject: string) {
+  return extractCommitMessageBody(await runGitText(["show", "-s", "--format=%B", fullCommit], 10000), subject);
+}
+
+function buildHistoryNarrative(
+  fullCommit: string,
+  shortCommit: string,
+  subject: string,
+  entries: ChangelogEntry[],
+  commitMessageBody?: string,
+  fallbackNote?: string
+) {
+  const entry = findChangelogEntryForCommit(fullCommit, shortCommit, entries);
+  if (entry) {
+    return {
+      commitMessageBody,
+      narrativeSource: "project-changelog" as const,
+      narrativeEntryId: entry.id,
+      narrativeTitle: entry.title,
+      narrativeSummary: entry.summary || commitMessageBody || subject,
+      narrativeOutcomes: entry.keyOutcomes
+    };
+  }
+
+  return {
+    commitMessageBody,
+    narrativeSource: commitMessageBody ? ("commit-message" as const) : fallbackNote ? ("timeline-anchor" as const) : undefined,
+    narrativeTitle: subject,
+    narrativeSummary: commitMessageBody || fallbackNote,
+    narrativeOutcomes: []
+  };
+}
+
+async function readModernizedApplicationStartAnchor(referenceSummary?: FunctionalityProgressSummary, changelogEntries: ChangelogEntry[] = []): Promise<FunctionalityProgressHistoryPoint | undefined> {
   const commitLog = await runGitText(["log", "--first-parent", "--reverse", "--format=%H%x1f%h%x1f%cI%x1f%s", "--", "modernized-openemr"], 10000);
   const firstLine = commitLog?.split(/\r?\n/).find(Boolean);
   if (!firstLine) {
@@ -805,6 +869,9 @@ async function readModernizedApplicationStartAnchor(referenceSummary?: Functiona
     return undefined;
   }
 
+  const note = "First committed modernized application check-in; progress estimates were not captured yet.";
+  const commitMessageBody = await readCommitMessageBody(fullCommit, subject);
+
   return {
     commit,
     fullCommit,
@@ -813,12 +880,13 @@ async function readModernizedApplicationStartAnchor(referenceSummary?: Functiona
     subject,
     historyKind: "timeline-anchor",
     progressEstimateAvailable: false,
-    note: "First committed modernized application check-in; progress estimates were not captured yet.",
+    note,
+    ...buildHistoryNarrative(fullCommit, commit, subject, changelogEntries, commitMessageBody, note),
     ...createTimelineAnchorSummary(referenceSummary)
   };
 }
 
-async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[]> {
+async function readProgressHistory(changelogEntries: ChangelogEntry[] = []): Promise<FunctionalityProgressHistoryPoint[]> {
   const now = Date.now();
   if (progressHistoryCache && progressHistoryCache.expiresAt > now) {
     return progressHistoryCache.history;
@@ -841,13 +909,16 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
   }
 
   const snapshotRows = commitLog.split(/\r?\n/).filter(Boolean);
-  const historyPoints = await mapWithConcurrency(snapshotRows, 8, async (line) => {
+  const historyPoints = await mapWithConcurrency<string, FunctionalityProgressHistoryPoint | undefined>(snapshotRows, 8, async (line) => {
     const [fullCommit, commit, snapshotCompletedAt, subject] = line.split("\x1f");
     if (!fullCommit || !commit || !snapshotCompletedAt || !subject) {
       return undefined;
     }
 
-    const snapshotText = await runGitText(["show", `${fullCommit}:${progressPath}`], 10000);
+    const [snapshotText, commitMessageBody] = await Promise.all([
+      runGitText(["show", `${fullCommit}:${progressPath}`], 10000),
+      readCommitMessageBody(fullCommit, subject)
+    ]);
     if (!snapshotText) {
       return undefined;
     }
@@ -865,12 +936,13 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
       subject,
       historyKind: "progress-snapshot",
       progressEstimateAvailable: true,
+      ...buildHistoryNarrative(fullCommit, commit, subject, changelogEntries, commitMessageBody),
       ...calculateFunctionalityProgressSummary(areas)
-    };
+    } satisfies FunctionalityProgressHistoryPoint;
   });
   const history = historyPoints.filter((point): point is FunctionalityProgressHistoryPoint => Boolean(point));
 
-  const startAnchor = await readModernizedApplicationStartAnchor(history[0]);
+  const startAnchor = await readModernizedApplicationStartAnchor(history[0], changelogEntries);
   const anchorTime = startAnchor ? Date.parse(startAnchor.snapshotCompletedAt) : Number.NaN;
   const firstHistoryTime = history[0] ? Date.parse(history[0].snapshotCompletedAt) : Number.NaN;
   if (startAnchor && !history.some((point) => point.fullCommit === startAnchor.fullCommit) && (!Number.isFinite(firstHistoryTime) || anchorTime < firstHistoryTime)) {
@@ -892,8 +964,8 @@ async function readChangelogEntriesForForecast() {
   return parseProjectChangelog(await fs.readFile(changelogPath, "utf8"));
 }
 
-async function buildFunctionalityProgressForecast(summary: FunctionalityProgressSummary): Promise<FunctionalityProgressForecast> {
-  const entries = await readChangelogEntriesForForecast();
+async function buildFunctionalityProgressForecast(summary: FunctionalityProgressSummary, entries?: ChangelogEntry[]): Promise<FunctionalityProgressForecast> {
+  entries ??= await readChangelogEntriesForForecast();
   const slicesByNumber = new Map<number, { completedAt: string; durationMs?: number }>();
 
   for (const entry of entries) {
@@ -2366,9 +2438,10 @@ app.get("/api/architecture", async (_request, response) => {
 app.get("/api/progress", async (_request, response) => {
   const functionalityProgress = await readFunctionalityProgress();
   const functionalitySummary = calculateFunctionalityProgressSummary(functionalityProgress.areas);
+  const changelogEntries = await readChangelogEntriesForForecast();
   const [functionalityHistory, functionalityForecast] = await Promise.all([
-    readProgressHistory(),
-    buildFunctionalityProgressForecast(functionalitySummary)
+    readProgressHistory(changelogEntries),
+    buildFunctionalityProgressForecast(functionalitySummary, changelogEntries)
   ]);
 
   response.json({
