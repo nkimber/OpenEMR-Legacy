@@ -14049,18 +14049,18 @@ Primary files:
 ## 245. Slice 210 Patient Portal Secure Messages Readiness
 
 Started: 2026-06-23T09:34:00.0000000-04:00
-Finished: pending
-Commit: pending
+Finished: 2026-06-23T10:04:34.8879716-04:00
+Commit: 6dceb93a
 
 Implemented Slice 210: patient portal secure-message inbox readiness. The gold dataset now projects deterministic portal-message facts into legacy OpenEMR `onsite_mail`, the modernized API exposes the same signed-in portal inbox through `/api/patient-portal/messages`, and the modernized Portal workspace renders secure-message cards that match the legacy portal secure-messaging behavior for the `MOD-PAT-0004` anchor.
 
 Code changes:
 
-- Files changed: pending
-- Lines added: pending
-- Lines deleted: pending
-- Net lines: pending
-- Total churn: pending
+- Files changed: 26
+- Lines added: 1131
+- Lines deleted: 24
+- Net lines: +1107
+- Total churn: 1155
 
 Key outcomes:
 
