@@ -14307,7 +14307,7 @@ Primary files:
 
 Started: 2026-06-23T12:32:00.0000000-04:00
 Finished: 2026-06-23T13:51:19.8391902-04:00
-Commit: pending
+Commit: 06180b58
 
 Implemented Slice 212: patient portal secure-message reply readiness. The modernized target now exposes a session-protected reply endpoint, preserves mailbox thread linkage, renders inline reply controls in the Portal workspace, and proves cleanup-backed reply and Sent-folder behavior against legacy OpenEMR `onsite_mail` for the `MOD-PAT-0004` account.
 
