@@ -220,6 +220,8 @@ export type PatientPortalMessageItem = {
   senderName: string;
   recipientId: string;
   recipientName: string;
+  mailChain: number;
+  replyMailChain: number;
   portalRelation: string | null;
   isEncrypted: boolean;
 };
@@ -238,6 +240,29 @@ export type PatientPortalMessagesResult = {
   messages: PatientPortalMessageItem[];
   sentMessageCount: number;
   sentMessages: PatientPortalMessageItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalReplyMessageInput = {
+  body: string;
+};
+
+export type PatientPortalReplyMessageResult = {
+  authenticated: boolean;
+  created: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  originalMessageId: string;
+  originalMessage: PatientPortalMessageItem | null;
+  sentMessage: PatientPortalMessageItem | null;
+  recipientMessage: PatientPortalMessageItem | null;
+  messageCount: number;
+  sentMessageCount: number;
   failureReason: string | null;
   sessionSource: string;
 };
@@ -2061,6 +2086,8 @@ SELECT
   COALESCE(sender_name, '') AS senderName,
   COALESCE(recipient_id, '') AS recipientId,
   COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
   COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
 FROM onsite_mail
 WHERE deleted != 1
@@ -2080,6 +2107,8 @@ SELECT
   COALESCE(sender_name, '') AS senderName,
   COALESCE(recipient_id, '') AS recipientId,
   COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
   COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
 FROM onsite_mail
 WHERE deleted != 1
@@ -2098,6 +2127,8 @@ ORDER BY date DESC, id DESC;
       senderName: row.senderName,
       recipientId: row.recipientId,
       recipientName: row.recipientName,
+      mailChain: Number(row.mailChain || 0),
+      replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
       isEncrypted: row.isEncrypted === "1"
     });
@@ -2158,12 +2189,15 @@ FROM onsite_mail;
       senderName: login.displayName,
       recipientId,
       recipientName,
+      mailChain: sentId,
+      replyMailChain: sentId,
       portalRelation: null,
       isEncrypted: false
     };
     const recipientMessage: PatientPortalMessageItem = {
       ...sentMessage,
-      id: String(recipientCopyId)
+      id: String(recipientCopyId),
+      mailChain: recipientCopyId
     };
 
     await this.db.execute(`
@@ -2199,6 +2233,139 @@ VALUES
     await this.db.execute(`
 DELETE FROM onsite_mail
 WHERE title = ${sqlString(title)}
+  AND (owner = ${sqlString(portalUsername)}
+    OR sender_id = ${sqlString(portalUsername)}
+    OR recipient_id = ${sqlString(portalUsername)});
+`);
+  }
+
+  async replyToPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string,
+    input: PatientPortalReplyMessageInput
+  ): Promise<PatientPortalReplyMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalReplyMessageResult(username, messageId, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const body = input.body.trim();
+    if (!body) {
+      return buildEmptyPortalReplyMessageResult(username, messageId, "Secure message reply body is required.");
+    }
+
+    const originalRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND recipient_id = ${sqlString(login.portalUsername)}
+  AND id = ${integer(Number(messageId))}
+LIMIT 1;
+`);
+    const originalRow = originalRows[0];
+    if (!originalRow) {
+      return buildEmptyPortalReplyMessageResult(username, messageId, "Secure message was not found in the signed-in portal inbox.");
+    }
+
+    const originalMessage: PatientPortalMessageItem = {
+      id: originalRow.id,
+      date: normalizeDateText(originalRow.messageDate),
+      title: originalRow.title,
+      body: originalRow.body,
+      status: originalRow.status,
+      assignedTo: originalRow.assignedTo,
+      senderId: originalRow.senderId,
+      senderName: originalRow.senderName,
+      recipientId: originalRow.recipientId,
+      recipientName: originalRow.recipientName,
+      mailChain: Number(originalRow.mailChain || 0),
+      replyMailChain: Number(originalRow.replyMailChain || 0),
+      portalRelation: null,
+      isEncrypted: originalRow.isEncrypted === "1"
+    };
+    const recipientId = originalMessage.senderId || originalMessage.assignedTo || "admin";
+    const recipientName = originalMessage.senderName || await this.getPortalMessageRecipientName(recipientId);
+    const replyMailChain = originalMessage.replyMailChain || originalMessage.mailChain || Number(originalMessage.id);
+
+    await this.cleanupPatientPortalMessageReply(login.portalUsername, originalMessage.title, body);
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9392000) + 1, 9392001) AS nextId
+FROM onsite_mail;
+`);
+    const sentId = Number(idRows[0]?.nextId ?? 9392001);
+    const recipientCopyId = sentId + 1;
+    const messageDate = new Date().toISOString().slice(0, 10);
+    const sentMessage: PatientPortalMessageItem = {
+      id: String(sentId),
+      date: messageDate,
+      title: originalMessage.title,
+      body,
+      status: "New",
+      assignedTo: recipientId,
+      senderId: login.portalUsername,
+      senderName: login.displayName,
+      recipientId,
+      recipientName,
+      mailChain: sentId,
+      replyMailChain,
+      portalRelation: null,
+      isEncrypted: false
+    };
+    const recipientMessage: PatientPortalMessageItem = {
+      ...sentMessage,
+      id: String(recipientCopyId),
+      mailChain: recipientCopyId
+    };
+
+    await this.db.execute(`
+INSERT INTO onsite_mail
+  (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
+VALUES
+  (${integer(sentId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(originalMessage.title)}, ${sqlString(recipientId)}, 'New', ${integer(sentId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(replyMailChain)}, 0),
+  (${integer(recipientCopyId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(recipientId)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(originalMessage.title)}, ${sqlString(recipientId)}, 'New', ${integer(recipientCopyId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(replyMailChain)}, 0);
+`);
+
+    const refreshed = await this.getPatientPortalMessages(username, password);
+    return {
+      authenticated: true,
+      created: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      originalMessageId: originalMessage.id,
+      originalMessage,
+      sentMessage,
+      recipientMessage,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async cleanupPatientPortalMessageReply(portalUsername: string, title: string, body: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM onsite_mail
+WHERE title = ${sqlString(title)}
+  AND body = ${sqlString(body)}
   AND (owner = ${sqlString(portalUsername)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
@@ -5760,6 +5927,31 @@ function buildEmptyPortalComposeMessageResult(
     displayName: "",
     recipientId,
     recipientName: "",
+    sentMessage: null,
+    recipientMessage: null,
+    messageCount: 0,
+    sentMessageCount: 0,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalReplyMessageResult(
+  username: string,
+  originalMessageId: string,
+  failureReason: string
+): PatientPortalReplyMessageResult {
+  return {
+    authenticated: false,
+    created: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    originalMessageId,
+    originalMessage: null,
     sentMessage: null,
     recipientMessage: null,
     messageCount: 0,

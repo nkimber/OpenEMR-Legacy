@@ -14303,6 +14303,69 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 250. Slice 212 Patient Portal Secure Message Reply Readiness
+
+Started: 2026-06-23T12:32:00.0000000-04:00
+Finished: 2026-06-23T13:51:19.8391902-04:00
+Commit: pending
+
+Implemented Slice 212: patient portal secure-message reply readiness. The modernized target now exposes a session-protected reply endpoint, preserves mailbox thread linkage, renders inline reply controls in the Portal workspace, and proves cleanup-backed reply and Sent-folder behavior against legacy OpenEMR `onsite_mail` for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 903
+- Lines deleted: 24
+- Net lines: +879
+- Total churn: 927
+
+Key outcomes:
+
+- Added `POST /api/patient-portal/messages/{messageId}/reply` with portal-session validation, required body checks, original inbox-message lookup, practice-recipient routing, paired sender/recipient mailbox rows, and `reply_mail_chain` continuity.
+- Exposed portal mailbox thread IDs through the modernized API and frontend contracts so reply parity can compare the original and generated message thread facts.
+- Added inline reply forms to modernized Portal inbox cards and refreshed Portal home/message counts after reply submission.
+- Added legacy and modernized workflow actions, cleanup helpers, a `workflow-patient-portal-reply` Playwright suite, the `slice-212-patient-portal-reply-readiness` run plan, and Workbench managed actions/progress updates.
+- Synchronized project context, modernization plan, workbench, test architecture, and test data documents with the Slice 212 portal mailbox reply contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed.
+- `npm --prefix parity-tests run typecheck` passed.
+- `npm --prefix parity-tests run list` passed and included `slice-212-patient-portal-reply-readiness`.
+- `node modernized-openemr\scripts\generate-postgres-seed.mjs` passed.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Seed-ModernizedGoldDataset.ps1` passed in `modernized-openemr/`, including `portalMailboxMessages: 400`.
+- One overlapping modernized smoke run failed while the dataset seed was still in progress; after reseeding and rerunning sequentially, `powershell -ExecutionPolicy Bypass -File scripts\Test-ModernizedBaseline.ps1` passed with artifact `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-212-patient-portal-reply-readiness -Reset test` passed as run `2026-06-23T165142-033Z-modernized-openemr-plan-slice-212-patient-portal-reply-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-212-patient-portal-reply-readiness -Reset test` passed as run `2026-06-23T165238-694Z-legacy-openemr-plan-slice-212-patient-portal-reply-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-212-patient-portal-reply-readiness` passed as comparison `2026-06-23T165401-869Z-legacy-openemr-vs-modernized-openemr-plan-slice-212-patient-portal-reply-readiness` with no differences.
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-reply/patient-portal-reply.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

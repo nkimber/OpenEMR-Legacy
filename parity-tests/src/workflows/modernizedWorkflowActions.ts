@@ -70,6 +70,8 @@ import type {
   PatientPortalLoginResult,
   PatientPortalMessageItem,
   PatientPortalMessagesResult,
+  PatientPortalReplyMessageInput,
+  PatientPortalReplyMessageResult,
   PatientPortalSessionResult,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
@@ -819,6 +821,89 @@ LIMIT 1;
     await this.db.execute(`
 DELETE FROM portal_mailbox_messages
 WHERE title = ${sqlString(title)}
+  AND (owner = ${sqlString(portalUsername)}
+    OR sender_id = ${sqlString(portalUsername)}
+    OR recipient_id = ${sqlString(portalUsername)});
+`);
+  }
+
+  async replyToPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string,
+    input: PatientPortalReplyMessageInput
+  ): Promise<PatientPortalReplyMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        created: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        originalMessageId: messageId,
+        originalMessage: null,
+        sentMessage: null,
+        recipientMessage: null,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const messages = await this.getPatientPortalMessages(username, password);
+      const originalMessage = messages.messages.find((message) => message.id === messageId) ?? null;
+      if (originalMessage) {
+        await this.cleanupPatientPortalMessageReply(login.portalUsername, originalMessage.title, input.body);
+      }
+
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/${messageId}/reply`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify(input)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message reply failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const result = await response.json();
+      return {
+        authenticated: Boolean(result.authenticated),
+        created: Boolean(result.created),
+        username: result.username ?? username,
+        portalUsername: result.portalUsername ?? "",
+        canonicalId: result.canonicalId ?? "",
+        pid: result.legacyPid ?? null,
+        pubpid: result.pubpid ?? "",
+        displayName: result.displayName ?? "",
+        originalMessageId: result.originalMessageId ?? messageId,
+        originalMessage: result.originalMessage ? mapPatientPortalMessageItem(result.originalMessage, result.portalUsername) : null,
+        sentMessage: result.sentMessage ? mapPatientPortalMessageItem(result.sentMessage, result.portalUsername) : null,
+        recipientMessage: result.recipientMessage ? mapPatientPortalMessageItem(result.recipientMessage, result.portalUsername) : null,
+        messageCount: result.messageCount ?? 0,
+        sentMessageCount: result.sentMessageCount ?? 0,
+        failureReason: result.failureReason ?? null,
+        sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+      };
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async cleanupPatientPortalMessageReply(portalUsername: string, title: string, body: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM portal_mailbox_messages
+WHERE title = ${sqlString(title)}
+  AND body = ${sqlString(body)}
   AND (owner = ${sqlString(portalUsername)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
@@ -4025,6 +4110,8 @@ function mapPatientPortalMessageItem(message: any, portalUsername: string): Pati
     senderName: message.senderName ?? "",
     recipientId: message.recipientId ?? portalUsername ?? "",
     recipientName: message.recipientName ?? "",
+    mailChain: Number(message.mailChain ?? 0),
+    replyMailChain: Number(message.replyMailChain ?? 0),
     portalRelation: message.portalRelation ?? null,
     isEncrypted: Boolean(message.isEncrypted)
   };
