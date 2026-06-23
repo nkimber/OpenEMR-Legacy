@@ -14370,7 +14370,7 @@ Primary files:
 
 Started: 2026-06-23T14:05:00.0000000-04:00
 Finished: 2026-06-23T14:44:31.9848153-04:00
-Commit: pending
+Commit: 2acc02df
 
 Implemented Slice 213: patient portal secure-message thread view readiness. The modernized target now exposes a session-protected thread endpoint, resolves patient-visible mailbox conversations from OpenEMR-style thread IDs, renders chronological thread panels in the Portal workspace, and proves the same conversation facts against legacy OpenEMR `onsite_mail` after a cleanup-backed reply for the `MOD-PAT-0004` account.
 
