@@ -14425,6 +14425,66 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 252. Slice 214 Patient Portal Secure Message Archive Readiness
+
+Started: 2026-06-23T14:45:00.0000000-04:00
+Finished: 2026-06-23T15:21:17.5841741-04:00
+Commit: pending
+
+Implemented Slice 214: patient portal secure-message archive readiness. The modernized target now exposes a session-protected archive/delete endpoint, preserves OpenEMR-compatible `Delete` status and soft-delete active-folder hiding, renders Portal `Archive message` controls, and proves active-folder removal plus archive visibility against legacy OpenEMR `onsite_mail` with cleanup-backed temporary sent messages for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 716
+- Lines deleted: 30
+- Net lines: +686
+- Total churn: 746
+
+Key outcomes:
+
+- Added `DELETE /api/patient-portal/messages/{messageId}` with portal-session validation, patient mailbox ownership checks, OpenEMR-style `message_status = Delete`, `activity = 1`, and `deleted = 1` behavior.
+- Added frontend API contracts and Portal `Archive message` controls for inbox and sent secure-message cards, with refreshed home/message counts and cleared thread/reply state after archive.
+- Added legacy and modernized workflow actions plus a `workflow-patient-portal-delete` Playwright suite that creates a temporary sent message, archives the patient-owned copy, verifies active-folder hiding and archive visibility, and cleans up transient mailbox rows.
+- Added the `slice-214-patient-portal-delete-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed test actions.
+- Synchronized the project index, context, modernization plan, Workbench documentation, test architecture, test data strategy, and functionality progress ledger with the Slice 214 portal mailbox archive contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `Get-Content -Raw modernization-workbench\config\apps.json | ConvertFrom-Json | Out-Null`, `functionality-progress.json`, and `parity-tests\test-manifest.json` passed JSON parsing.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-214-patient-portal-delete-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose up -d --build api frontend` passed in `modernized-openemr/`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-214-patient-portal-delete-readiness -Reset test` passed as run `2026-06-23T191951-712Z-modernized-openemr-plan-slice-214-patient-portal-delete-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-214-patient-portal-delete-readiness -Reset test` passed as run `2026-06-23T191951-712Z-legacy-openemr-plan-slice-214-patient-portal-delete-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-214-patient-portal-delete-readiness` passed as comparison `2026-06-23T192103-550Z-legacy-openemr-vs-modernized-openemr-plan-slice-214-patient-portal-delete-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-delete/patient-portal-delete.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -897,6 +897,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-214-patient-portal-delete-readiness",
+      "name": "Slice 214 Patient Portal Secure Message Archive Readiness",
+      "description": "Patient portal confidence plan that archives a temporary sent secure message, verifies the legacy Delete status, and checks active-folder removal plus archive visibility.",
+      "suites": ["workflow-patient-portal-delete"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-214", "patients", "portal", "messages", "delete", "archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3803,6 +3812,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-thread",
       "tags": ["slice213", "workflow", "mutation", "patients", "portal", "messages", "threading", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-delete",
+      "name": "Patient Portal Secure Message Archive Readiness",
+      "description": "Archives a signed-in portal secure message and verifies active-folder removal plus archive visibility.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-delete",
+      "tags": ["slice214", "workflow", "mutation", "patients", "portal", "messages", "delete", "archive", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

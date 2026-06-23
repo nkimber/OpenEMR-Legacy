@@ -66,6 +66,7 @@ import type {
   PatientPortalAccountAccessState,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
+  PatientPortalDeleteMessageResult,
   PatientPortalHomeSummary,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
@@ -868,6 +869,48 @@ WHERE title = ${sqlString(title)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
 `);
+  }
+
+  async deletePatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string
+  ): Promise<PatientPortalDeleteMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        deleted: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        messageId,
+        deletedMessage: null,
+        deletedMessageCount: 0,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/${messageId}`, {
+        method: "DELETE",
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message archive failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalDeleteMessageResult(await response.json(), username, messageId);
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
   }
 
   async replyToPatientPortalMessage(
@@ -4159,6 +4202,30 @@ function mapPatientPortalMessageThreadResult(result: any): PatientPortalMessageT
     threadMessages: (result.threadMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalDeleteMessageResult(
+  result: any,
+  username: string,
+  messageId: string
+): PatientPortalDeleteMessageResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    deleted: Boolean(result.deleted),
+    username: result.username ?? username,
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    messageId: result.messageId ?? messageId,
+    deletedMessage: result.deletedMessage ? mapPatientPortalMessageItem(result.deletedMessage, result.portalUsername) : null,
+    deletedMessageCount: result.deletedMessageCount ?? 0,
+    messageCount: result.messageCount ?? 0,
+    sentMessageCount: result.sentMessageCount ?? 0,
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? "modernized-openemr-portal"
   };
 }
 

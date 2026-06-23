@@ -194,6 +194,7 @@ param(
         "workflow-patient-portal-compose",
         "workflow-patient-portal-reply",
         "workflow-patient-portal-thread",
+        "workflow-patient-portal-delete",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",
