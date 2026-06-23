@@ -297,6 +297,10 @@ function formatProgressDelta(value?: number) {
   return rounded > 0 ? `+${formatted}` : formatted;
 }
 
+function isTimelineAnchorPoint(point: FunctionalityProgressHistoryPoint) {
+  return point.historyKind === "timeline-anchor" || point.progressEstimateAvailable === false;
+}
+
 function formatScopePoints(value?: number) {
   if (value === undefined || !Number.isFinite(value)) {
     return "-";
@@ -814,9 +818,11 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
   };
   type ChartPointDetail = {
     snapshotNumber: number;
+    measuredSnapshotNumber?: number;
     point: FunctionalityProgressHistoryPoint;
     timestamp: number;
     previous?: ChartPoint;
+    next?: ChartPoint;
     deltaPercent?: number;
     elapsedMs?: number;
   };
@@ -869,7 +875,21 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
     const y = paddingTop + (1 - Math.max(0, Math.min(100, point.weightedAveragePercent)) / 100) * chartHeight;
     return { point, x, y };
   });
-  const linePoints = coordinates.map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`).join(" ");
+  const firstMeasuredCoordinateIndex = coordinates.findIndex((coordinate) => !isTimelineAnchorPoint(coordinate.point));
+  const preLedgerLinePoints =
+    firstMeasuredCoordinateIndex > 0
+      ? coordinates
+          .slice(0, firstMeasuredCoordinateIndex + 1)
+          .map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`)
+          .join(" ")
+      : "";
+  const measuredLinePoints =
+    firstMeasuredCoordinateIndex >= 0
+      ? coordinates
+          .slice(firstMeasuredCoordinateIndex)
+          .map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`)
+          .join(" ")
+      : coordinates.map((coordinate) => `${coordinate.x.toFixed(1)},${coordinate.y.toFixed(1)}`).join(" ");
   const selection =
     dragStartX !== null && dragCurrentX !== null
       ? {
@@ -881,13 +901,16 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
     const pointIndex = points.findIndex((item) => item.point.fullCommit === point.fullCommit);
     const current = points[pointIndex] as ChartPoint;
     const previous = pointIndex > 0 ? points[pointIndex - 1] : undefined;
+    const next = pointIndex >= 0 && pointIndex < points.length - 1 ? points[pointIndex + 1] : undefined;
     const deltaPercent = previous ? point.weightedAveragePercent - previous.point.weightedAveragePercent : undefined;
     const elapsedMs = previous ? current.timestamp - previous.timestamp : undefined;
     return {
       snapshotNumber: pointIndex + 1,
+      measuredSnapshotNumber: isTimelineAnchorPoint(point) ? undefined : points.slice(0, pointIndex + 1).filter((item) => !isTimelineAnchorPoint(item.point)).length,
       point,
       timestamp: current.timestamp,
       previous,
+      next,
       deltaPercent,
       elapsedMs
     };
@@ -897,6 +920,18 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
   const selectedPoint = selectedCommit ? points.find((item) => item.point.fullCommit === selectedCommit)?.point : undefined;
   const selectedDetail = selectedPoint ? getPointDetail(selectedPoint) : undefined;
   const zoomDelta = latest.point.weightedAveragePercent - first.point.weightedAveragePercent;
+  const timelineAnchorCount = points.filter((point) => isTimelineAnchorPoint(point.point)).length;
+  const measuredSnapshotCount = points.length - timelineAnchorCount;
+  const visiblePointLabel = chartPoints.length === 1 ? "point" : "points";
+  const fullPointLabel = points.length === 1 ? "point" : "points";
+  const getDeltaContext = (detail: ChartPointDetail) => {
+    if (!detail.previous) {
+      return "first timeline point";
+    }
+
+    return isTimelineAnchorPoint(detail.previous.point) ? "since modernization start" : "since prior snapshot";
+  };
+  const selectedIsTimelineAnchor = selectedDetail ? isTimelineAnchorPoint(selectedDetail.point) : false;
 
   const getSvgX = (event: ReactPointerEvent<SVGSVGElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -957,7 +992,7 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             Weighted Completion History
           </h3>
           <p>
-            {isZoomed ? `${chartPoints.length} of ${points.length}` : points.length} committed progress snapshots from {first.point.commit} through {latest.point.commit}.
+            {isZoomed ? `${chartPoints.length} of ${points.length}` : points.length} committed timeline {isZoomed ? visiblePointLabel : fullPointLabel} from {first.point.commit} through {latest.point.commit}; {measuredSnapshotCount} measured progress snapshots.
           </p>
         </div>
         <div className="progress-history-latest">
@@ -1020,36 +1055,44 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             );
           })}
           <rect x={paddingLeft} y={paddingTop} width={chartWidth} height={chartHeight} className="progress-history-plot-area" />
-          <polyline className="progress-history-line" points={linePoints} />
+          {preLedgerLinePoints ? <polyline className="progress-history-line progress-history-line-pre-ledger" points={preLedgerLinePoints} /> : null}
+          {measuredLinePoints ? <polyline className="progress-history-line" points={measuredLinePoints} /> : null}
           {selection ? <rect className="progress-history-brush" x={selection.x} y={paddingTop} width={selection.width} height={chartHeight} /> : null}
-          {coordinates.map(({ point, x, y }) => (
-            <circle
-              className={`progress-history-point${selectedCommit === point.fullCommit ? " selected" : ""}`}
-              key={point.fullCommit}
-              cx={x}
-              cy={y}
-              r={selectedCommit === point.fullCommit ? 6 : 4.5}
-              role="button"
-              tabIndex={0}
-              aria-label={`Inspect ${point.commit}`}
-              onClick={(event) => {
-                event.stopPropagation();
-                setSelectedCommit(point.fullCommit);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
+          {coordinates.map(({ point, x, y }) => {
+            const isTimelineAnchor = isTimelineAnchorPoint(point);
+            return (
+              <circle
+                className={`progress-history-point${isTimelineAnchor ? " timeline-anchor" : ""}${selectedCommit === point.fullCommit ? " selected" : ""}`}
+                key={point.fullCommit}
+                cx={x}
+                cy={y}
+                r={selectedCommit === point.fullCommit ? 6 : isTimelineAnchor ? 5.5 : 4.5}
+                role="button"
+                tabIndex={0}
+                aria-label={`Inspect ${isTimelineAnchor ? "timeline anchor " : ""}${point.commit}`}
+                onClick={(event) => {
+                  event.stopPropagation();
                   setSelectedCommit(point.fullCommit);
-                }
-              }}
-              onPointerEnter={() => setHoveredCommit(point.fullCommit)}
-              onPointerLeave={() => setHoveredCommit(null)}
-              onFocus={() => setHoveredCommit(point.fullCommit)}
-              onBlur={() => setHoveredCommit(null)}
-            >
-              <title>{`${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}`}</title>
-            </circle>
-          ))}
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedCommit(point.fullCommit);
+                  }
+                }}
+                onPointerEnter={() => setHoveredCommit(point.fullCommit)}
+                onPointerLeave={() => setHoveredCommit(null)}
+                onFocus={() => setHoveredCommit(point.fullCommit)}
+                onBlur={() => setHoveredCommit(null)}
+              >
+                <title>
+                  {isTimelineAnchor
+                    ? `${point.commit} timeline anchor at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}. Progress estimate not captured yet.`
+                    : `${point.commit} ${formatProgressPercent(point.weightedAveragePercent)} at ${formatDate(point.snapshotCompletedAt ?? point.committedAt)} - ${point.subject}`}
+                </title>
+              </circle>
+            );
+          })}
         </svg>
         {hoveredDetail && hoveredCoordinate ? (
           <div
@@ -1060,9 +1103,18 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
             }}
           >
             <strong>{hoveredDetail.point.commit}</strong>
-            <span>{formatProgressPercent(hoveredDetail.point.weightedAveragePercent)} complete</span>
-            <span>{formatProgressDelta(hoveredDetail.deltaPercent)} since prior snapshot</span>
-            <span>{hoveredDetail.elapsedMs !== undefined ? formatElapsedDuration(hoveredDetail.elapsedMs) : "-"} since prior</span>
+            {isTimelineAnchorPoint(hoveredDetail.point) ? (
+              <>
+                <span>Timeline anchor</span>
+                <span>No progress estimate captured yet</span>
+              </>
+            ) : (
+              <>
+                <span>{formatProgressPercent(hoveredDetail.point.weightedAveragePercent)} complete</span>
+                <span>{formatProgressDelta(hoveredDetail.deltaPercent)} {getDeltaContext(hoveredDetail)}</span>
+              </>
+            )}
+            <span>{hoveredDetail.previous ? `${formatElapsedDuration(hoveredDetail.elapsedMs)} since prior point` : "First modernized-app check-in"}</span>
             <span>{formatDate(hoveredDetail.point.snapshotCompletedAt ?? hoveredDetail.point.committedAt)}</span>
           </div>
         ) : null}
@@ -1071,7 +1123,7 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
         <div className="progress-history-zoom-summary">
           <span>{formatProgressDelta(zoomDelta)} in view</span>
           <span>{formatElapsedDuration(latestTime - firstTime)} span</span>
-          <span>{chartPoints.length} snapshots</span>
+          <span>{chartPoints.length} {visiblePointLabel}</span>
         </div>
       ) : null}
       <div className="progress-history-caption">
@@ -1082,19 +1134,39 @@ function FunctionalityProgressHistoryChart({ history }: { history: Functionality
       {selectedDetail ? (
         <div className="progress-history-inspector">
           <div>
-            <div className="section-kicker">Selected snapshot</div>
+            <div className="section-kicker">{selectedIsTimelineAnchor ? "Timeline anchor" : "Selected snapshot"}</div>
             <h4>{selectedDetail.point.subject}</h4>
-            <p>
-              Snapshot {selectedDetail.snapshotNumber} of {points.length} completed at {formatDate(selectedDetail.point.snapshotCompletedAt ?? selectedDetail.point.committedAt)}.
-            </p>
+            {selectedIsTimelineAnchor ? (
+              <p>
+                First committed modernized application check-in at {formatDate(selectedDetail.point.snapshotCompletedAt ?? selectedDetail.point.committedAt)}. Progress estimates were not captured yet, so the chart plots this as a 0% timeline anchor.
+              </p>
+            ) : (
+              <p>
+                Snapshot {selectedDetail.measuredSnapshotNumber} of {measuredSnapshotCount} completed at {formatDate(selectedDetail.point.snapshotCompletedAt ?? selectedDetail.point.committedAt)}.
+              </p>
+            )}
           </div>
           <div className="progress-history-inspector-grid">
             <Metric label="Commit" value={selectedDetail.point.commit} detail={selectedDetail.point.fullCommit.slice(0, 12)} />
-            <Metric label="Weighted Complete" value={formatProgressPercent(selectedDetail.point.weightedAveragePercent)} detail={`${formatScopePoints(selectedDetail.point.weightedCompletedPoints)} weighted points`} />
-            <Metric label="Change" value={formatProgressDelta(selectedDetail.deltaPercent)} detail="Since prior snapshot" />
-            <Metric label="Elapsed Since Prior" value={formatElapsedDuration(selectedDetail.elapsedMs)} detail={selectedDetail.previous?.point.commit ?? "First snapshot"} />
-            <Metric label="Remaining" value={formatProgressPercent(selectedDetail.point.estimatedRemainingPercent)} detail={`${formatScopePoints(selectedDetail.point.weightedRemainingPoints)} weighted points`} />
-            <Metric label="Simple Average" value={formatProgressPercent(selectedDetail.point.simpleAveragePercent)} detail="Unweighted signal" />
+            {selectedIsTimelineAnchor ? (
+              <>
+                <Metric label="Timeline Role" value="Modernized app start" detail="First commit touching modernized-openemr" />
+                <Metric label="Progress Estimate" value="Not captured" detail="Plotted at 0% as an anchor" />
+                <Metric
+                  label="Next Measured Point"
+                  value={selectedDetail.next?.point.commit ?? "-"}
+                  detail={selectedDetail.next ? `${formatElapsedDuration(selectedDetail.next.timestamp - selectedDetail.timestamp)} later` : "No later progress snapshot"}
+                />
+              </>
+            ) : (
+              <>
+                <Metric label="Weighted Complete" value={formatProgressPercent(selectedDetail.point.weightedAveragePercent)} detail={`${formatScopePoints(selectedDetail.point.weightedCompletedPoints)} weighted points`} />
+                <Metric label="Change" value={formatProgressDelta(selectedDetail.deltaPercent)} detail={getDeltaContext(selectedDetail)} />
+                <Metric label="Elapsed Since Prior" value={formatElapsedDuration(selectedDetail.elapsedMs)} detail={selectedDetail.previous?.point.commit ?? "First snapshot"} />
+                <Metric label="Remaining" value={formatProgressPercent(selectedDetail.point.estimatedRemainingPercent)} detail={`${formatScopePoints(selectedDetail.point.weightedRemainingPoints)} weighted points`} />
+                <Metric label="Simple Average" value={formatProgressPercent(selectedDetail.point.simpleAveragePercent)} detail="Unweighted signal" />
+              </>
+            )}
           </div>
         </div>
       ) : null}

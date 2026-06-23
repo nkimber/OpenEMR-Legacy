@@ -1233,11 +1233,22 @@ p {
   pointer-events: none;
 }
 
+.progress-history-line-pre-ledger {
+  stroke: #7d8f9a;
+  stroke-dasharray: 7 7;
+}
+
 .progress-history-point {
   fill: #ffffff;
   stroke: #236d58;
   stroke-width: 2;
   cursor: pointer;
+}
+
+.progress-history-point.timeline-anchor {
+  fill: #fff7df;
+  stroke: #946214;
+  stroke-dasharray: 3 2;
 }
 
 .progress-history-point:hover,
@@ -1246,6 +1257,13 @@ p {
   fill: #d9f1e7;
   stroke: #0f5a45;
   outline: none;
+}
+
+.progress-history-point.timeline-anchor:hover,
+.progress-history-point.timeline-anchor:focus,
+.progress-history-point.timeline-anchor.selected {
+  fill: #ffe5a6;
+  stroke: #704609;
 }
 
 .progress-history-brush {

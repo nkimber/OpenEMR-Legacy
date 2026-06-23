@@ -138,6 +138,9 @@ type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
+  historyKind: "progress-snapshot" | "timeline-anchor";
+  progressEstimateAvailable: boolean;
+  note?: string;
 };
 
 type FunctionalityProgressForecast = {
@@ -758,6 +761,63 @@ async function runGitText(args: string[], timeoutMs = 10000): Promise<string | u
   });
 }
 
+async function mapWithConcurrency<T, R>(items: T[], limit: number, mapper: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+  const workerCount = Math.min(Math.max(1, limit), items.length);
+
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (nextIndex < items.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+        results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+      }
+    })
+  );
+
+  return results;
+}
+
+function createTimelineAnchorSummary(referenceSummary?: FunctionalityProgressSummary): FunctionalityProgressSummary {
+  const totalScopeWeight = referenceSummary?.totalScopeWeight ?? 0;
+
+  return {
+    areaCount: referenceSummary?.areaCount ?? 0,
+    simpleAveragePercent: 0,
+    weightedAveragePercent: 0,
+    estimatedRemainingPercent: 100,
+    totalScopeWeight,
+    weightedCompletedPoints: 0,
+    weightedRemainingPoints: totalScopeWeight
+  };
+}
+
+async function readModernizedApplicationStartAnchor(referenceSummary?: FunctionalityProgressSummary): Promise<FunctionalityProgressHistoryPoint | undefined> {
+  const commitLog = await runGitText(["log", "--first-parent", "--reverse", "--format=%H%x1f%h%x1f%cI%x1f%s", "--", "modernized-openemr"], 10000);
+  const firstLine = commitLog?.split(/\r?\n/).find(Boolean);
+  if (!firstLine) {
+    return undefined;
+  }
+
+  const [fullCommit, commit, committedAt, subject] = firstLine.split("\x1f");
+  if (!fullCommit || !commit || !committedAt || !subject) {
+    return undefined;
+  }
+
+  return {
+    commit,
+    fullCommit,
+    snapshotCompletedAt: committedAt,
+    committedAt,
+    subject,
+    historyKind: "timeline-anchor",
+    progressEstimateAvailable: false,
+    note: "First committed modernized application check-in; progress estimates were not captured yet.",
+    ...createTimelineAnchorSummary(referenceSummary)
+  };
+}
+
 async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[]> {
   const now = Date.now();
   if (progressHistoryCache && progressHistoryCache.expiresAt > now) {
@@ -780,31 +840,41 @@ async function readProgressHistory(): Promise<FunctionalityProgressHistoryPoint[
     return [];
   }
 
-  const history: FunctionalityProgressHistoryPoint[] = [];
-  for (const line of commitLog.split(/\r?\n/).filter(Boolean)) {
+  const snapshotRows = commitLog.split(/\r?\n/).filter(Boolean);
+  const historyPoints = await mapWithConcurrency(snapshotRows, 8, async (line) => {
     const [fullCommit, commit, snapshotCompletedAt, subject] = line.split("\x1f");
     if (!fullCommit || !commit || !snapshotCompletedAt || !subject) {
-      continue;
+      return undefined;
     }
 
     const snapshotText = await runGitText(["show", `${fullCommit}:${progressPath}`], 10000);
     if (!snapshotText) {
-      continue;
+      return undefined;
     }
 
     const areas = parseFunctionalityProgressSnapshot(snapshotText);
     if (!areas.length) {
-      continue;
+      return undefined;
     }
 
-    history.push({
+    return {
       commit,
       fullCommit,
       snapshotCompletedAt,
       committedAt: snapshotCompletedAt,
       subject,
+      historyKind: "progress-snapshot",
+      progressEstimateAvailable: true,
       ...calculateFunctionalityProgressSummary(areas)
-    });
+    };
+  });
+  const history = historyPoints.filter((point): point is FunctionalityProgressHistoryPoint => Boolean(point));
+
+  const startAnchor = await readModernizedApplicationStartAnchor(history[0]);
+  const anchorTime = startAnchor ? Date.parse(startAnchor.snapshotCompletedAt) : Number.NaN;
+  const firstHistoryTime = history[0] ? Date.parse(history[0].snapshotCompletedAt) : Number.NaN;
+  if (startAnchor && !history.some((point) => point.fullCommit === startAnchor.fullCommit) && (!Number.isFinite(firstHistoryTime) || anchorTime < firstHistoryTime)) {
+    history.unshift(startAnchor);
   }
 
   progressHistoryCache = { expiresAt: now + progressHistoryCacheMs, history };

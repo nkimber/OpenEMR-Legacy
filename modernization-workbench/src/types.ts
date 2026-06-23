@@ -474,6 +474,9 @@ export type FunctionalityProgressHistoryPoint = FunctionalityProgressSummary & {
   snapshotCompletedAt: string;
   committedAt: string;
   subject: string;
+  historyKind: "progress-snapshot" | "timeline-anchor";
+  progressEstimateAvailable: boolean;
+  note?: string;
 };
 
 export type FunctionalityProgressForecast = {

@@ -14114,6 +14114,46 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 246. Progress Chart Modernization Start Anchor
+
+Started: 2026-06-23T09:58:00.0000000-04:00
+Finished: 2026-06-23T10:13:44.2059812-04:00
+Commit: pending
+
+Extended the Modernization Workbench Progress page history so the Weighted Completion History chart starts at the first committed modernized application check-in instead of the later functionality-ledger introduction.
+
+Code changes:
+
+- Files changed: 5
+- Lines added: 253
+- Lines deleted: 50
+- Net lines: +203
+- Total churn: 303
+
+Key outcomes:
+
+- Identified `6586a4a0` (`Bootstrap modernized OpenEMR slice one`, completed `2026-06-18T23:13:48-04:00`) as the first first-parent check-in that built the modernized application under `modernized-openemr`.
+- Prepended that commit to `/api/progress` history as a non-estimated `timeline-anchor` point so the chart now shows the full modernization implementation timeline from June 18 onward.
+- Rendered the pre-ledger span as a dashed line and gave the anchor distinct hover, accessibility, and click-to-inspect behavior that explains the missing early percentage estimate.
+- Kept measured ledger snapshots separate from the anchor in chart counts, snapshot numbering, tooltip wording, and inspector metrics.
+- Parallelized the Git snapshot reads used by `/api/progress` history reconstruction so cold cache rebuilds stay responsive with the longer timeline.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- Cold `/api/progress` smoke returned `67` timeline points in `8.118841` seconds, with first point `6586a4a0` marked `timeline-anchor` at `2026-06-18T23:13:48-04:00`.
+- Playwright browser verification on `http://127.0.0.1:5173/#/progress` confirmed the chart header shows `67 committed timeline points from 6586a4a0 through 6dceb93a; 66 measured progress snapshots` and the x-axis begins at `Jun 18, 11 PM`.
+- Playwright click verification confirmed the first point opens a `Timeline anchor` inspector for `Bootstrap modernized OpenEMR slice one`, shows `Progress Estimate: Not captured`, and links the next measured point to `8818dae9`.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/types.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/styles.css`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
