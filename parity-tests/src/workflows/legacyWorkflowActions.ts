@@ -287,6 +287,57 @@ export type PatientPortalClinicalSummaryResult = {
   sessionSource: string;
 };
 
+export type PatientPortalLabResultItem = {
+  id: string;
+  resultCode: string | null;
+  resultName: string;
+  abnormal: string | null;
+  value: string | null;
+  range: string | null;
+  units: string | null;
+  resultStatus: string | null;
+};
+
+export type PatientPortalLabReportItem = {
+  id: string;
+  dateCollected: string | null;
+  reportDate: string | null;
+  specimenNumber: string | null;
+  reportStatus: string | null;
+  reviewStatus: string | null;
+  resultCount: number;
+  results: PatientPortalLabResultItem[];
+};
+
+export type PatientPortalLabOrderItem = {
+  id: string;
+  orderDate: string;
+  procedureCode: string | null;
+  procedureName: string;
+  orderStatus: string | null;
+  reportCount: number;
+  resultCount: number;
+  reports: PatientPortalLabReportItem[];
+};
+
+export type PatientPortalLabResultsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  orderCount: number;
+  reportCount: number;
+  resultCount: number;
+  orders: PatientPortalLabOrderItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalAppointmentCategoryOption = {
   id: number;
   name: string;
@@ -2503,6 +2554,125 @@ ORDER BY start_date, id;
       medications: medicationRows.map(mapPortalMedicationRow),
       prescriptionCount: prescriptionRows.length,
       prescriptions: prescriptionRows.map(mapPortalPrescriptionRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalLabResults(username: string, password: string): Promise<PatientPortalLabResultsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalLabResultsResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(po.procedure_order_id AS CHAR) AS orderId,
+  DATE_FORMAT(po.date_ordered, '%Y-%m-%d') AS orderDate,
+  COALESCE(poc.procedure_code, '') AS procedureCode,
+  COALESCE(poc.procedure_name, '') AS procedureName,
+  COALESCE(po.order_status, '') AS orderStatus,
+  CAST(pr.procedure_report_id AS CHAR) AS reportId,
+  DATE_FORMAT(pr.date_collected, '%Y-%m-%d') AS dateCollected,
+  DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') AS reportDate,
+  COALESCE(pr.specimen_num, '') AS specimenNumber,
+  COALESCE(pr.report_status, '') AS reportStatus,
+  COALESCE(pr.review_status, '') AS reviewStatus,
+  CAST(ps.procedure_result_id AS CHAR) AS resultId,
+  COALESCE(ps.result_code, '') AS resultCode,
+  COALESCE(ps.result_text, '') AS resultName,
+  COALESCE(ps.abnormal, '') AS abnormal,
+  COALESCE(ps.result, '') AS value,
+  COALESCE(ps.\`range\`, '') AS \`range\`,
+  COALESCE(ps.units, '') AS units,
+  COALESCE(ps.result_status, '') AS resultStatus
+FROM procedure_order po
+LEFT JOIN procedure_order_code poc
+  ON poc.procedure_order_id = po.procedure_order_id
+  AND poc.procedure_order_seq = 1
+LEFT JOIN procedure_report pr
+  ON pr.procedure_order_id = po.procedure_order_id
+  AND pr.procedure_order_seq = poc.procedure_order_seq
+LEFT JOIN procedure_result ps
+  ON ps.procedure_report_id = pr.procedure_report_id
+WHERE po.patient_id = ${integer(login.pid)}
+ORDER BY po.date_ordered, po.procedure_order_id, poc.procedure_order_seq, pr.procedure_report_id, ps.procedure_result_id;
+`);
+
+    const orderMap = new Map<string, PatientPortalLabOrderItem>();
+    for (const row of rows) {
+      const orderId = row.orderId;
+      let order = orderMap.get(orderId);
+      if (!order) {
+        order = {
+          id: orderId,
+          orderDate: row.orderDate,
+          procedureCode: normalizeNullableText(row.procedureCode),
+          procedureName: row.procedureName,
+          orderStatus: normalizeNullableText(row.orderStatus),
+          reportCount: 0,
+          resultCount: 0,
+          reports: []
+        };
+        orderMap.set(orderId, order);
+      }
+
+      if (!row.reportId) {
+        continue;
+      }
+
+      let report = order.reports.find((candidate) => candidate.id === row.reportId);
+      if (!report) {
+        report = {
+          id: row.reportId,
+          dateCollected: normalizeOptionalDateText(row.dateCollected),
+          reportDate: normalizeOptionalDateTimeText(row.reportDate),
+          specimenNumber: normalizeNullableText(row.specimenNumber),
+          reportStatus: normalizeNullableText(row.reportStatus),
+          reviewStatus: normalizeNullableText(row.reviewStatus),
+          resultCount: 0,
+          results: []
+        };
+        order.reports.push(report);
+      }
+
+      if (row.resultId) {
+        report.results.push({
+          id: row.resultId,
+          resultCode: normalizeNullableText(row.resultCode),
+          resultName: row.resultName,
+          abnormal: normalizeNullableText(row.abnormal),
+          value: normalizeNullableText(row.value),
+          range: normalizeNullableText(row.range),
+          units: normalizeNullableText(row.units),
+          resultStatus: normalizeNullableText(row.resultStatus)
+        });
+      }
+    }
+
+    const orders = Array.from(orderMap.values()).map((order) => {
+      for (const report of order.reports) {
+        report.resultCount = report.results.length;
+      }
+      order.reportCount = order.reports.length;
+      order.resultCount = order.reports.reduce((sum, report) => sum + report.resultCount, 0);
+      return order;
+    });
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      orderCount: orders.length,
+      reportCount: orders.reduce((sum, order) => sum + order.reportCount, 0),
+      resultCount: orders.reduce((sum, order) => sum + order.resultCount, 0),
+      orders,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -7193,6 +7363,26 @@ function buildEmptyPortalClinicalSummaryResult(username: string, failureReason: 
   };
 }
 
+function buildEmptyPortalLabResultsResult(username: string, failureReason: string): PatientPortalLabResultsResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    orderCount: 0,
+    reportCount: 0,
+    resultCount: 0,
+    orders: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
 function buildEmptyPortalAppointmentRequestOptionsResult(
   username: string,
   failureReason: string
@@ -7612,6 +7802,24 @@ function normalizeOptionalDateText(value: string | null | undefined): string | n
   }
 
   return normalizeDateText(value) || null;
+}
+
+function normalizeOptionalDateTimeText(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length === 0 ? null : normalized.slice(0, 16);
+}
+
+function normalizeNullableText(value: string | null | undefined): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length === 0 ? null : normalized;
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

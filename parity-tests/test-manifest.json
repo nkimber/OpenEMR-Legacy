@@ -978,6 +978,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-223-patient-portal-lab-results-readiness",
+      "name": "Slice 223 Patient Portal Lab Results Readiness",
+      "description": "Patient portal confidence plan that verifies signed-in lab order, report, and final result facts on API/workflow and UI surfaces.",
+      "suites": ["workflow-patient-portal-lab-results"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-223", "patients", "portal", "labs", "procedure-results", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3974,6 +3983,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-clinical-summary",
       "tags": ["slice222", "workflow", "read-only", "patients", "portal", "clinical-lists", "medications", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-lab-results",
+      "name": "Patient Portal Lab Results Readiness",
+      "description": "Verifies signed-in patient portal lab order, report, and final result facts through workflow/API and portal UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-lab-results",
+      "tags": ["slice223", "workflow", "read-only", "patients", "portal", "labs", "procedure-results", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

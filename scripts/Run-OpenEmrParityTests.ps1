@@ -203,6 +203,7 @@ param(
         "workflow-patient-portal-appointment-request",
         "workflow-patient-portal-appointment-options",
         "workflow-patient-portal-clinical-summary",
+        "workflow-patient-portal-lab-results",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

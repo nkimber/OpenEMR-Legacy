@@ -70,6 +70,7 @@ import type {
   PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
   PatientPortalClinicalSummaryResult,
+  PatientPortalLabResultsResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
@@ -799,6 +800,43 @@ LIMIT 1;
       }
 
       return mapPatientPortalClinicalSummaryResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalLabResults(username: string, password: string): Promise<PatientPortalLabResultsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        orderCount: 0,
+        reportCount: 0,
+        resultCount: 0,
+        orders: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/lab-results`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal lab results failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalLabResultsResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4687,6 +4725,53 @@ function mapPatientPortalClinicalSummaryResult(result: any): PatientPortalClinic
       quantity: prescription.quantity ?? null,
       route: prescription.route ?? null,
       note: prescription.note ?? null
+    })),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalLabResultsResult(result: any): PatientPortalLabResultsResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: nullableNumber(result.legacyPid),
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    orderCount: result.orderCount ?? 0,
+    reportCount: result.reportCount ?? 0,
+    resultCount: result.resultCount ?? 0,
+    orders: (result.orders ?? []).map((order: any) => ({
+      id: order.id ?? "",
+      orderDate: order.orderDate ?? "",
+      procedureCode: order.procedureCode ?? null,
+      procedureName: order.procedureName ?? "",
+      orderStatus: order.orderStatus ?? null,
+      reportCount: order.reportCount ?? 0,
+      resultCount: order.resultCount ?? 0,
+      reports: (order.reports ?? []).map((report: any) => ({
+        id: report.id ?? "",
+        dateCollected: report.dateCollected ?? null,
+        reportDate: report.reportDate ?? null,
+        specimenNumber: report.specimenNumber ?? null,
+        reportStatus: report.reportStatus ?? null,
+        reviewStatus: report.reviewStatus ?? null,
+        resultCount: report.resultCount ?? 0,
+        results: (report.results ?? []).map((labResult: any) => ({
+          id: labResult.id ?? "",
+          resultCode: labResult.resultCode ?? null,
+          resultName: labResult.resultName ?? "",
+          abnormal: labResult.abnormal ?? null,
+          value: labResult.value ?? null,
+          range: labResult.range ?? null,
+          units: labResult.units ?? null,
+          resultStatus: labResult.resultStatus ?? null
+        }))
+      }))
     })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""

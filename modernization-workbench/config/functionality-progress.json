@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -197,6 +197,11 @@
           "label": "Patient portal clinical summary readiness",
           "detail": "The modernized patient portal API and Portal page now render signed-in patient problems, allergies, medication-list entries, and active prescriptions, while parity compares the same portal clinical summary facts against legacy OpenEMR.",
           "evidence": ["slice-222-patient-portal-clinical-summary-readiness"]
+        },
+        {
+          "label": "Patient portal lab results readiness",
+          "detail": "The modernized patient portal API and Portal page now render signed-in patient lab orders, reports, and final result rows, while parity compares the same portal lab-results facts against legacy OpenEMR.",
+          "evidence": ["slice-223-patient-portal-lab-results-readiness"]
         }
       ],
       "outstanding": [
@@ -209,7 +214,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -533,7 +538,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, patient portal lab-results visibility, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -564,6 +569,11 @@
           "label": "Procedure mutation authorization policy readiness",
           "detail": "The modernized procedure mutation API now separates Lab Results add-only, Lab Results write, and Sign Lab Results authority so clinicians can create order/report records while status updates, deletion, and sign-off require stronger permissions.",
           "evidence": ["slice-183-procedure-mutation-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient portal lab results readiness",
+          "detail": "Signed-in portal patients can see completed lab order, report, and result facts for their own record, with parity against legacy `portal/get_lab_results.php`.",
+          "evidence": ["slice-223-patient-portal-lab-results-readiness"]
         }
       ],
       "outstanding": [
@@ -573,10 +583,10 @@
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 70,
+      "completionEstimatePercent": 71,
       "estimatedScopeWeight": 12,
       "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
-      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations and deeper lab policy remain."
+      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, patient portal lab-results visibility, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations and deeper lab policy remain."
     },
     {
       "id": "admin-security-audit",

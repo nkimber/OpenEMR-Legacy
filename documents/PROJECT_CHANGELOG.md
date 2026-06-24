@@ -14984,6 +14984,69 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 261. Slice 223 Patient Portal Lab Results Readiness
+
+Started: 2026-06-23T21:34:00-04:00
+Finished: 2026-06-23T22:14:47-04:00
+Duration: 00:40:47
+Commit: pending
+
+Implemented Slice 223: patient portal lab results readiness. The modernized target now exposes signed-in patient portal lab orders, reports, and final result rows, renders those lab results in the Portal workspace, and proves parity against the legacy `portal/get_lab_results.php` surface for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 1046
+- Lines deleted: 23
+- Net lines: +1023
+- Total churn: 1069
+
+Key outcomes:
+
+- Added session-protected `GET /api/patient-portal/lab-results` to the modernized API, returning the signed-in patient's lab order, report, and result hierarchy from the modernized PostgreSQL lab tables.
+- Updated the modernized Portal workspace to load and render lab results alongside the existing portal home, document, clinical summary, appointment, and secure-message content.
+- Added legacy and modernized workflow action support for patient portal lab-results reads, including legacy direct reads from the `procedure_order`, `procedure_report`, and `procedure_result` tables.
+- Added the `workflow-patient-portal-lab-results` Playwright suite and `slice-223-patient-portal-lab-results-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed actions for both targets.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, baseline smoke test, and functionality progress ledger with the Slice 223 portal lab-results contract.
+
+Verified test runs:
+
+- `node -e "const fs=require('fs'); for (const p of ['parity-tests/test-manifest.json','modernization-workbench/config/apps.json','modernization-workbench/config/functionality-progress.json']) { JSON.parse(fs.readFileSync(p,'utf8')); console.log(p+': ok'); }"` passed via `cmd.exe /c`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-223-patient-portal-lab-results-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `git diff --check` passed with only existing line-ending conversion warnings.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-223-patient-portal-lab-results-readiness -Reset test` passed as run `2026-06-24T021041-827Z-legacy-openemr-plan-slice-223-patient-portal-lab-results-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-223-patient-portal-lab-results-readiness -Reset test` passed as run `2026-06-24T021317-580Z-modernized-openemr-plan-slice-223-patient-portal-lab-results-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-223-patient-portal-lab-results-readiness` passed as comparison `2026-06-24T021353-273Z-legacy-openemr-vs-modernized-openemr-plan-slice-223-patient-portal-lab-results-readiness` with no differences.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-lab-results/patient-portal-lab-results.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
