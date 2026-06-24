@@ -15398,7 +15398,7 @@ Primary files:
 
 Started: 2026-06-24T08:14:00-04:00
 Finished: 2026-06-24T09:51:16.5893649-04:00
-Commit: pending
+Commit: dc4054bb
 
 Implemented Slice 229: patient portal generated medical report printable template readiness. The modernized target now exposes generated-report printable template metadata for the facility block, printable patient name, `PATIENT:` header line, generated-on label, and signature-line availability; renders those facts in the Portal; includes them in the deterministic generated-report PDF payload; and verifies the behavior side by side with legacy OpenEMR's printable `portal/report/portal_custom_report.php` output for the `MOD-PAT-0004` portal account.
 
