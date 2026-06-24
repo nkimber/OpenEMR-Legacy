@@ -1300,6 +1300,10 @@ LIMIT 1;
 
   async cleanupPatientPortalComposedMessage(portalUsername: string, title: string): Promise<void> {
     await this.db.execute(`
+DELETE FROM patient_portal_message_audit_events
+WHERE message_title = ${sqlString(title)}
+  AND portal_username = ${sqlString(portalUsername)};
+
 DELETE FROM portal_mailbox_messages
 WHERE title = ${sqlString(title)}
   AND (owner = ${sqlString(portalUsername)}

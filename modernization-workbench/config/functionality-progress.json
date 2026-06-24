@@ -463,18 +463,23 @@
           "label": "Patient portal secure-message inbox, compose, reply, thread view, archive, read status, batch archive, and All folder",
           "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, archive selected messages together, and view the active All-folder mailbox projection.",
           "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness"]
+        },
+        {
+          "label": "Patient portal secure-message lifecycle audit readiness",
+          "detail": "The modernized patient portal now records compose, reply, read-status, single-message archive, and selected-message archive audit events, exposes a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal Secure Messages panel, and parity compares normalized legacy source-action evidence with stored modernized audit history.",
+          "evidence": ["slice-232-patient-portal-message-audit-readiness"]
         }
       ],
       "outstanding": [
-        "Encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and full audit history."
+        "Encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and broader audit reporting policy."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 64,
+      "completionEstimatePercent": 66,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; encrypted content, attachments, routing, notifications, and full audit history remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, secure-message lifecycle audit, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; encrypted content, attachments, routing, notifications, and broader audit reporting policy remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

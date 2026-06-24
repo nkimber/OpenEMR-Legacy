@@ -212,6 +212,7 @@ param(
         "workflow-patient-portal-report-template",
         "workflow-patient-portal-report-package",
         "workflow-patient-portal-report-audit",
+        "workflow-patient-portal-message-audit",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

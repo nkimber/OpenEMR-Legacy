@@ -15589,12 +15589,79 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 271. Slice 232 Patient Portal Secure Message Lifecycle Audit Readiness
+
+Started: 2026-06-24T11:17:19.0919775-04:00
+Finished: 2026-06-24T11:30:21.7977724-04:00
+Commit: pending
+
+Implemented Slice 232: patient portal secure message lifecycle audit readiness. The modernized target now records secure-message compose, reply, read, single-message archive, and selected-message archive lifecycle events in PostgreSQL, exposes those facts through a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal secure-message workspace, and verifies normalized audit evidence side by side with legacy OpenEMR secure-message source actions for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 944
+- Lines deleted: 28
+- Net lines: +916
+- Total churn: 972
+
+Key outcomes:
+
+- Added modernized PostgreSQL schema generation for `patient_portal_message_audit_events` with patient/session linkage, event type/label, message metadata, related message ids, archived-count metadata, summary text, timestamps, and audit indexes.
+- Added session-protected `GET /api/patient-portal/messages/audit` plus repository write/read helpers that record compose, reply, read, single-message archive, and selected-message archive events from the focused portal message actions.
+- Extended patient portal message DTOs, frontend API types, and the Portal workspace with a compact Message Audit timeline that refreshes after message lifecycle actions.
+- Added the `workflow-patient-portal-message-audit` Playwright suite, `slice-232-patient-portal-message-audit-readiness` plan, PowerShell runner suite allow-list entry, and Workbench managed actions for both legacy and modernized targets.
+- Kept the legacy side honest by normalizing source-action evidence from the same secure-message actions instead of pretending legacy persists a matching modernized audit table.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 232 portal secure-message audit contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `node .\scripts\generate-postgres-seed.mjs` passed in `modernized-openemr/` and regenerated PostgreSQL seed SQL with `patient_portal_message_audit_events`.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` passed and loaded the updated modernized schema with `portalMessageAuditEvents: 0`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-232-patient-portal-message-audit-readiness` plus `workflow-patient-portal-message-audit`.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` and `openemr` healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-232-patient-portal-message-audit-readiness -Reset test` passed as run `2026-06-24T152755-611Z-legacy-openemr-plan-slice-232-patient-portal-message-audit-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-232-patient-portal-message-audit-readiness -Reset test` passed as run `2026-06-24T152926-636Z-modernized-openemr-plan-slice-232-patient-portal-message-audit-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-232-patient-portal-message-audit-readiness` passed as comparison `2026-06-24T153008-059Z-legacy-openemr-vs-modernized-openemr-plan-slice-232-patient-portal-message-audit-readiness` with no differences.
+- `git diff --check` passed with only normal CRLF warnings.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-message-audit/patient-portal-message-audit.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Patient portal richer report template fidelity, email/delivery integrations, broader portal audit policy, and production identity hardening.
+- Patient portal encrypted secure-message body hardening, attachments, routing queues, notification delivery, broader audit reporting policy, richer report template fidelity, email/delivery integrations, and production identity hardening.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.

@@ -1059,6 +1059,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-232-patient-portal-message-audit-readiness",
+      "name": "Slice 232 Patient Portal Secure Message Audit Readiness",
+      "description": "Patient portal confidence plan that verifies secure-message compose, reply, read, single-archive, selected-archive audit events and modernized Portal audit rendering.",
+      "suites": ["workflow-patient-portal-message-audit"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-232", "patients", "portal", "messages", "secure-messaging", "audit", "lifecycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4145,6 +4154,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-audit",
       "tags": ["slice231", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "audit", "lifecycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-audit",
+      "name": "Patient Portal Secure Message Audit Readiness",
+      "description": "Verifies signed-in patient portal secure-message compose, reply, read, single-archive, selected-archive lifecycle audit events, modernized stored audit history, and Portal audit rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-audit",
+      "tags": ["slice232", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "audit", "lifecycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
