@@ -258,6 +258,7 @@ export type PatientPortalPrescriptionItem = {
   id: string;
   drug: string;
   startDate: string | null;
+  modifiedDate: string | null;
   endDate: string | null;
   dosage: string | null;
   quantity: string | null;
@@ -2800,6 +2801,7 @@ SELECT
   CAST(id AS CHAR) AS id,
   COALESCE(drug, '') AS drug,
   DATE_FORMAT(start_date, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(date_modified, '%Y-%m-%d') AS modifiedDate,
   DATE_FORMAT(end_date, '%Y-%m-%d') AS endDate,
   COALESCE(dosage, '') AS dosage,
   COALESCE(quantity, '') AS quantity,
@@ -8290,6 +8292,7 @@ function mapPortalPrescriptionRow(row: Record<string, string>): PatientPortalPre
     id: row.id,
     drug: row.drug,
     startDate: normalizeOptionalDateText(row.startDate),
+    modifiedDate: normalizeOptionalDateText(row.modifiedDate),
     endDate: normalizeOptionalDateText(row.endDate),
     dosage: row.dosage || null,
     quantity: row.quantity || null,

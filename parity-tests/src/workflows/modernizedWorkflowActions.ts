@@ -5030,6 +5030,7 @@ function mapPatientPortalClinicalSummaryResult(result: any): PatientPortalClinic
       id: prescription.id ?? "",
       drug: prescription.drug ?? "",
       startDate: prescription.startDate ?? null,
+      modifiedDate: prescription.modifiedDate ?? null,
       endDate: prescription.endDate ?? null,
       dosage: prescription.dosage ?? null,
       quantity: prescription.quantity ?? null,

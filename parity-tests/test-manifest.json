@@ -1158,6 +1158,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-243-patient-portal-prescription-modified-date-readiness",
+      "name": "Slice 243 Patient Portal Prescription Modified-Date Readiness",
+      "description": "Patient portal confidence plan that verifies active prescription modified dates are exposed through clinical-summary facts and portal UI on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-prescription-modified-date"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-243", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4354,6 +4363,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-mark-all-read",
       "tags": ["slice242", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "read-status", "toolbar", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-prescription-modified-date",
+      "name": "Patient Portal Prescription Modified-Date Readiness",
+      "description": "Verifies signed-in patient portal active prescription modified-date facts and rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-prescription-modified-date",
+      "tags": ["slice243", "workflow", "read-only", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
