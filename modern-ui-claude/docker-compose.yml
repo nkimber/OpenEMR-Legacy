@@ -1,0 +1,22 @@
+# Runs modern-ui-claude as its own Docker Desktop stack.
+#
+# This deliberately does NOT define postgres/api services — those already
+# exist in modernized-openemr/docker-compose.yml and must be left untouched.
+# Start that stack first (from modernized-openemr/: `docker compose up -d`),
+# then start this one. It talks to the existing API purely over HTTP via its
+# published host port (5001), exactly like modernized-openemr/frontend does.
+services:
+  modern-ui-claude:
+    build:
+      context: .
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_API_BASE_URL: http://localhost:5001
+    ports:
+      - "3100:3100"
+    volumes:
+      - .:/app
+      - modern-ui-claude-node-modules:/app/node_modules
+
+volumes:
+  modern-ui-claude-node-modules:
