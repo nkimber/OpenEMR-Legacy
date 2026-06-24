@@ -996,6 +996,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-225-patient-portal-generated-medical-report-readiness",
+      "name": "Slice 225 Patient Portal Generated Medical Report Readiness",
+      "description": "Patient portal confidence plan that verifies default customized medical-history report generation on API/workflow and UI surfaces, including patient data, billing rollup, and selected procedure-order content.",
+      "suites": ["workflow-patient-portal-generated-medical-report"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-225", "patients", "portal", "reports", "medical-report", "generated-report", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4012,6 +4021,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-medical-report",
       "tags": ["slice224", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-generated-medical-report",
+      "name": "Patient Portal Generated Medical Report Readiness",
+      "description": "Verifies signed-in patient portal default customized medical-history report generation through workflow/API and portal UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-generated-medical-report",
+      "tags": ["slice225", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -394,6 +394,47 @@ export type PatientPortalGeneratedMedicalReport = {
   summaryLines: string[];
 };
 
+export type PatientPortalGeneratedMedicalReportSection = {
+  id: string;
+  title: string;
+  lineCount: number;
+  lines: string[];
+};
+
+export type PatientPortalGeneratedMedicalReportResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  title: string;
+  generatedOn: string;
+  includedSectionIds: string[];
+  includedProcedureOrderIds: string[];
+  printableVersionAvailable: boolean;
+  pdfDownloadAvailable: boolean;
+  reportSectionCount: number;
+  reportSections: PatientPortalGeneratedMedicalReportSection[];
+  summaryLineCount: number;
+  summaryLines: string[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+type PatientPortalGeneratedMedicalReportBillingSummary = {
+  lineCount: number;
+  paymentCount: number;
+  chargeAmount: number;
+  paymentAmount: number;
+  adjustmentAmount: number;
+  balanceAmount: number;
+  lastBillingDate: string | null;
+};
+
 export type PatientPortalMedicalReportResult = {
   authenticated: boolean;
   username: string;
@@ -2914,6 +2955,49 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
+  }
+
+  async generatePatientPortalMedicalReport(
+    username: string,
+    password: string
+  ): Promise<PatientPortalGeneratedMedicalReportResult> {
+    const report = await this.getPatientPortalMedicalReport(username, password);
+    if (!report.authenticated || report.pid === null) {
+      return buildEmptyGeneratedPortalMedicalReportResult(
+        username,
+        report.failureReason ?? "Patient portal sign-in was rejected.",
+        "legacy-openemr-portal"
+      );
+    }
+
+    const billingRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  COALESCE(charges.lineCount, 0) AS lineCount,
+  COALESCE(payments.paymentCount, 0) AS paymentCount,
+  COALESCE(charges.chargeAmount, 0) AS chargeAmount,
+  COALESCE(payments.paymentAmount, 0) AS paymentAmount,
+  COALESCE(payments.adjustmentAmount, 0) AS adjustmentAmount,
+  COALESCE(charges.chargeAmount, 0) - COALESCE(payments.paymentAmount, 0) - COALESCE(payments.adjustmentAmount, 0) AS balanceAmount,
+  COALESCE(DATE_FORMAT(charges.lastBillingDate, '%Y-%m-%d'), '') AS lastBillingDate
+FROM (
+  SELECT
+    COUNT(*) AS lineCount,
+    COALESCE(SUM(COALESCE(fee, 0)), 0) AS chargeAmount,
+    MAX(date) AS lastBillingDate
+  FROM billing
+  WHERE pid = ${integer(report.pid)} AND activity = 1
+) charges
+CROSS JOIN (
+  SELECT
+    COUNT(*) AS paymentCount,
+    COALESCE(SUM(pay_amount), 0) AS paymentAmount,
+    COALESCE(SUM(adj_amount), 0) AS adjustmentAmount
+  FROM ar_activity
+  WHERE pid = ${integer(report.pid)} AND deleted IS NULL
+) payments;
+`);
+    const billing = mapPatientPortalGeneratedMedicalReportBillingSummary(billingRows[0]);
+    return buildPatientPortalGeneratedMedicalReportResult(report, billing, "legacy-openemr-portal");
   }
 
   async getPatientPortalAppointmentRequestOptions(
@@ -7653,6 +7737,36 @@ function buildEmptyPortalMedicalReportResult(username: string, failureReason: st
   };
 }
 
+function buildEmptyGeneratedPortalMedicalReportResult(
+  username: string,
+  failureReason: string,
+  sessionSource: string
+): PatientPortalGeneratedMedicalReportResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    title: "",
+    generatedOn: new Date().toISOString().slice(0, 10),
+    includedSectionIds: [],
+    includedProcedureOrderIds: [],
+    printableVersionAvailable: false,
+    pdfDownloadAvailable: false,
+    reportSectionCount: 0,
+    reportSections: [],
+    summaryLineCount: 0,
+    summaryLines: [],
+    failureReason,
+    sessionSource
+  };
+}
+
 function buildEmptyPortalAppointmentRequestOptionsResult(
   username: string,
   failureReason: string
@@ -7852,6 +7966,110 @@ function buildPatientPortalGeneratedMedicalReport(
     summaryLineCount: summaryLines.length,
     summaryLines
   };
+}
+
+function mapPatientPortalGeneratedMedicalReportBillingSummary(
+  row: Record<string, string> | undefined
+): PatientPortalGeneratedMedicalReportBillingSummary {
+  return {
+    lineCount: Number(row?.lineCount ?? 0),
+    paymentCount: Number(row?.paymentCount ?? 0),
+    chargeAmount: Number(row?.chargeAmount ?? 0),
+    paymentAmount: Number(row?.paymentAmount ?? 0),
+    adjustmentAmount: Number(row?.adjustmentAmount ?? 0),
+    balanceAmount: Number(row?.balanceAmount ?? 0),
+    lastBillingDate: normalizeOptionalDateText(row?.lastBillingDate)
+  };
+}
+
+function buildPatientPortalGeneratedMedicalReportResult(
+  report: PatientPortalMedicalReportResult,
+  billing: PatientPortalGeneratedMedicalReportBillingSummary,
+  sessionSource: string
+): PatientPortalGeneratedMedicalReportResult {
+  const includedSectionIds = patientPortalMedicalReportSections
+    .filter((section) => section.selected)
+    .map((section) => section.id);
+  const includedProcedureOrders = report.procedureOrders.slice(0, 1);
+  const reportSections: PatientPortalGeneratedMedicalReportSection[] = [
+    buildGeneratedMedicalReportSection("demographics", "Patient Data", [
+      `Patient: ${report.displayName}`,
+      `Patient ID: ${report.pubpid}`,
+      `Portal username: ${report.portalUsername}`
+    ]),
+    buildGeneratedMedicalReportSection("billing", "Billing Information", [
+      `Billing lines: ${billing.lineCount}`,
+      `Payment rows: ${billing.paymentCount}`,
+      `Total charges: ${formatReportMoney(billing.chargeAmount)}`,
+      `Payments: ${formatReportMoney(billing.paymentAmount)}`,
+      `Adjustments: ${formatReportMoney(billing.adjustmentAmount)}`,
+      `Balance: ${formatReportMoney(billing.balanceAmount)}`,
+      `Last billing date: ${billing.lastBillingDate ?? "Not recorded"}`
+    ])
+  ];
+
+  reportSections.push(...includedProcedureOrders.map((order) =>
+    buildGeneratedMedicalReportSection(`procedure-${order.id}`, "Procedure Order", [
+      `Order: ${order.procedureName}`,
+      `Order date: ${order.orderDate}`,
+      `Encounter: ${order.encounter === 0 ? "Not linked" : order.encounter}`,
+      `Code: ${order.procedureCode ?? "Not recorded"}`,
+      `Diagnosis: ${order.diagnosis ?? "Not recorded"}`,
+      `Status: ${order.orderStatus ?? "Not recorded"}`,
+      `Reports: ${order.reportCount}`,
+      `Results: ${order.resultNames.join(", ")}`
+    ])
+  ));
+
+  const summaryLines = [
+    `Patient Data: ${report.displayName} (${report.pubpid})`,
+    `Billing Information: ${billing.lineCount} lines; balance ${formatReportMoney(billing.balanceAmount)}.`,
+    `Issues available: ${report.issues.length}; Encounters available: ${report.encounters.length}.`,
+    ...includedProcedureOrders.map((order) =>
+      `Procedure Order: ${order.procedureName} ordered ${order.orderDate} with ${order.resultCount} result rows.`
+    )
+  ];
+
+  return {
+    authenticated: true,
+    username: report.username,
+    portalUsername: report.portalUsername,
+    canonicalId: report.canonicalId,
+    pid: report.pid,
+    pubpid: report.pubpid,
+    displayName: report.displayName,
+    datasetVersion: report.datasetVersion,
+    asOfDate: report.asOfDate,
+    title: "Customized Medical History Report",
+    generatedOn: new Date().toISOString().slice(0, 10),
+    includedSectionIds,
+    includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
+    printableVersionAvailable: true,
+    pdfDownloadAvailable: false,
+    reportSectionCount: reportSections.length,
+    reportSections,
+    summaryLineCount: summaryLines.length,
+    summaryLines,
+    failureReason: null,
+    sessionSource
+  };
+}
+
+function buildGeneratedMedicalReportSection(
+  id: string,
+  title: string,
+  lines: string[]
+): PatientPortalGeneratedMedicalReportSection {
+  return {
+    id,
+    title,
+    lineCount: lines.length,
+    lines
+  };
+}
+
+function formatReportMoney(amount: number): string {
+  return `$${amount.toFixed(2)}`;
 }
 
 function buildPatientPortalReportEncounterDisplay(reason: string | null | undefined): string {

@@ -70,6 +70,7 @@ import type {
   PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
   PatientPortalClinicalSummaryResult,
+  PatientPortalGeneratedMedicalReportResult,
   PatientPortalLabResultsResult,
   PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
@@ -887,6 +888,39 @@ LIMIT 1;
       }
 
       return mapPatientPortalMedicalReportResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async generatePatientPortalMedicalReport(
+    username: string,
+    password: string
+  ): Promise<PatientPortalGeneratedMedicalReportResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return buildEmptyGeneratedPortalMedicalReportResult(
+        username,
+        login.failureReason ?? "Patient portal sign-in was rejected.",
+        "modernized-openemr-portal"
+      );
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/medical-report/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify({})
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal medical report generation failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalGeneratedMedicalReportResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4893,6 +4927,67 @@ function mapPatientPortalMedicalReportResult(result: any): PatientPortalMedicalR
       summaryLineCount: result.reportPreview?.summaryLineCount ?? 0,
       summaryLines: result.reportPreview?.summaryLines ?? []
     },
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function buildEmptyGeneratedPortalMedicalReportResult(
+  username: string,
+  failureReason: string,
+  sessionSource: string
+): PatientPortalGeneratedMedicalReportResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    title: "",
+    generatedOn: new Date().toISOString().slice(0, 10),
+    includedSectionIds: [],
+    includedProcedureOrderIds: [],
+    printableVersionAvailable: false,
+    pdfDownloadAvailable: false,
+    reportSectionCount: 0,
+    reportSections: [],
+    summaryLineCount: 0,
+    summaryLines: [],
+    failureReason,
+    sessionSource
+  };
+}
+
+function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPortalGeneratedMedicalReportResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: nullableNumber(result.legacyPid),
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    title: result.title ?? "",
+    generatedOn: result.generatedOn ?? "",
+    includedSectionIds: result.includedSectionIds ?? [],
+    includedProcedureOrderIds: result.includedProcedureOrderIds ?? [],
+    printableVersionAvailable: Boolean(result.printableVersionAvailable),
+    pdfDownloadAvailable: Boolean(result.pdfDownloadAvailable),
+    reportSectionCount: result.reportSectionCount ?? 0,
+    reportSections: (result.reportSections ?? []).map((section: any) => ({
+      id: section.id ?? "",
+      title: section.title ?? "",
+      lineCount: section.lineCount ?? 0,
+      lines: section.lines ?? []
+    })),
+    summaryLineCount: result.summaryLineCount ?? 0,
+    summaryLines: result.summaryLines ?? [],
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

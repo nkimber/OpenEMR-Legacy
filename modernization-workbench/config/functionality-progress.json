@@ -207,6 +207,11 @@
           "label": "Patient portal medical report readiness",
           "detail": "The modernized patient portal API and Portal page now render customized medical-history report sections, issue choices, encounter/form choices, procedure-order choices, and preview facts while parity compares the same report-builder readiness against legacy OpenEMR.",
           "evidence": ["slice-224-patient-portal-medical-report-readiness"]
+        },
+        {
+          "label": "Patient portal generated medical report readiness",
+          "detail": "The modernized patient portal API and Portal page now generate the default customized medical-history report content with patient data, billing rollup, and selected procedure-order lines while parity compares the same generated report behavior against legacy OpenEMR.",
+          "evidence": ["slice-225-patient-portal-generated-medical-report-readiness"]
         }
       ],
       "outstanding": [
@@ -219,7 +224,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/generated-report/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
