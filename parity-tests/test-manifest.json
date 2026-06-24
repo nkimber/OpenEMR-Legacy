@@ -1194,6 +1194,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-247-patient-portal-problem-date-columns-readiness",
+      "name": "Slice 247 Patient Portal Problem Date Columns Readiness",
+      "description": "Patient portal confidence plan that verifies problem reported, start, and end-date columns, including ended problem-list rows that legacy OpenEMR still renders.",
+      "suites": ["workflow-patient-portal-problem-date-columns"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-247", "patients", "portal", "clinical-lists", "problems", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4430,6 +4439,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-medication-date-columns",
       "tags": ["slice246", "workflow", "mutation", "patients", "portal", "clinical-lists", "medications", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-problem-date-columns",
+      "name": "Patient Portal Problem Date Columns Readiness",
+      "description": "Verifies signed-in patient portal problem reported, start, and end-date facts and rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-problem-date-columns",
+      "tags": ["slice247", "workflow", "mutation", "patients", "portal", "clinical-lists", "problems", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

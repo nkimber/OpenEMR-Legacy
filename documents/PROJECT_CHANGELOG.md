@@ -16489,6 +16489,56 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 289. Slice 247 Patient Portal Problem Date Columns Readiness
+
+Started: 2026-06-24T19:31:00-04:00
+Finished: 2026-06-24T19:48:35-04:00
+Commit: pending
+
+Implemented Slice 247: patient portal problem date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_problems.php` problem table by exposing reported, start, and end-date facts, including cleanup-backed ended problem-list rows that legacy still renders.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 251
+- Lines deleted: 23
+- Net lines: +228
+- Total churn: 274
+
+Key outcomes:
+
+- Removed the active-only filter from the modernized patient portal problem projection so ended problem-list rows match legacy portal visibility.
+- Updated modernized Portal problem cards to render legacy-aligned `Reported Date`, `Start Date`, and `End Date` labels.
+- Added the `workflow-patient-portal-problem-date-columns` Playwright suite and `slice-247-patient-portal-problem-date-columns-readiness` plan.
+- Added Workbench-managed Slice 247 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 247 problem date-column contract.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run list -- --plan slice-247-patient-portal-problem-date-columns-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-problem-date-columns`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed and rebuilt/restarted the modernized API and frontend services.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-247-patient-portal-problem-date-columns-readiness -Reset test` passed as run `2026-06-24T234729-757Z-legacy-openemr-plan-slice-247-patient-portal-problem-date-columns-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-247-patient-portal-problem-date-columns-readiness -Reset test` passed as run `2026-06-24T234756-040Z-modernized-openemr-plan-slice-247-patient-portal-problem-date-columns-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-247-patient-portal-problem-date-columns-readiness` passed as comparison `2026-06-24T234820-594Z-legacy-openemr-vs-modernized-openemr-plan-slice-247-patient-portal-problem-date-columns-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/tests/workflow-patient-portal-problem-date-columns/patient-portal-problem-date-columns.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
