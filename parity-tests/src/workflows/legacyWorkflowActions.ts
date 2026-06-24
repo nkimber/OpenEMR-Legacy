@@ -626,6 +626,14 @@ export type PatientPortalMessageItem = {
 };
 
 export const protectedPatientPortalMessageBody = "Encrypted secure message body is protected.";
+export const patientPortalMessageSubjectOptions: PatientPortalMessageSubjectOption[] = [
+  { value: "General", label: "General", default: true },
+  { value: "Insurance", label: "Insurance", default: false },
+  { value: "Prior Auth", label: "Prior Auth", default: false },
+  { value: "Bill/Collect", label: "Bill/Collect", default: false },
+  { value: "Referral", label: "Referral", default: false },
+  { value: "Pharmacy", label: "Pharmacy", default: false }
+];
 
 export type PatientPortalMessagesResult = {
   authenticated: boolean;
@@ -667,6 +675,31 @@ export type PatientPortalMessageRecipientsResult = {
   displayName: string;
   datasetVersion: string;
   asOfDate: string;
+  recipientCount: number;
+  recipients: PatientPortalMessageRecipientOption[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalMessageSubjectOption = {
+  value: string;
+  label: string;
+  default: boolean;
+};
+
+export type PatientPortalMessageComposeOptionsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  defaultSubject: string;
+  subjectCount: number;
+  subjectOptions: PatientPortalMessageSubjectOption[];
   recipientCount: number;
   recipients: PatientPortalMessageRecipientOption[];
   failureReason: string | null;
@@ -3491,6 +3524,29 @@ LIMIT 1;
       recipients,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalMessageComposeOptions(username: string, password: string): Promise<PatientPortalMessageComposeOptionsResult> {
+    const directory = await this.getPatientPortalMessageRecipients(username, password);
+
+    return {
+      authenticated: directory.authenticated,
+      username: directory.username,
+      portalUsername: directory.portalUsername,
+      canonicalId: directory.canonicalId,
+      pid: directory.pid,
+      pubpid: directory.pubpid,
+      displayName: directory.displayName,
+      datasetVersion: directory.datasetVersion,
+      asOfDate: directory.asOfDate,
+      defaultSubject: "General",
+      subjectCount: patientPortalMessageSubjectOptions.length,
+      subjectOptions: patientPortalMessageSubjectOptions,
+      recipientCount: directory.recipientCount,
+      recipients: directory.recipients,
+      failureReason: directory.failureReason,
+      sessionSource: directory.sessionSource
     };
   }
 

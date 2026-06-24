@@ -16006,6 +16006,66 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 280. Slice 239 Patient Portal Secure Message Subject Preset Readiness
+
+Started: 2026-06-24T14:50:00.0000000-04:00
+Finished: 2026-06-24T15:19:35.1707315-04:00
+Commit: pending
+
+Implemented Slice 239: patient portal secure-message subject preset readiness. The modernized target now exposes session-protected compose options for patient portal secure messaging, renders OpenEMR-compatible subject presets as an editable datalist-backed subject field, and proves the same subject-preset and free-text subject behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 565
+- Lines deleted: 20
+- Net lines: +545
+- Total churn: 585
+
+Key outcomes:
+
+- Added `GET /api/patient-portal/messages/compose-options` to return session-scoped secure-message compose metadata with OpenEMR-compatible subject presets and the existing recipient directory.
+- Added shared subject option DTOs, repository compose-options logic, and frontend API client support for the new endpoint.
+- Rendered the modernized Portal secure-message subject as an editable input with the `General`, `Insurance`, `Prior Auth`, `Bill/Collect`, `Referral`, and `Pharmacy` datalist options.
+- Added legacy and modernized workflow adapter support for normalized patient portal secure-message compose options.
+- Added the `workflow-patient-portal-message-subjects` Playwright suite and `slice-239-patient-portal-message-subject-presets-readiness` plan.
+- Added Workbench-managed Slice 239 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 239 subject-preset contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-239-patient-portal-message-subject-presets-readiness` plus `workflow-patient-portal-message-subjects`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-239-patient-portal-message-subject-presets-readiness -Reset test` passed as run `2026-06-24T191810-279Z-legacy-openemr-plan-slice-239-patient-portal-message-subject-presets-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-239-patient-portal-message-subject-presets-readiness -Reset test` passed as run `2026-06-24T191859-869Z-modernized-openemr-plan-slice-239-patient-portal-message-subject-presets-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-239-patient-portal-message-subject-presets-readiness` passed as comparison `2026-06-24T191927-343Z-legacy-openemr-vs-modernized-openemr-plan-slice-239-patient-portal-message-subject-presets-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-message-subjects/patient-portal-message-subjects.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -1122,6 +1122,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-239-patient-portal-message-subject-presets-readiness",
+      "name": "Slice 239 Patient Portal Secure Message Subject Preset Readiness",
+      "description": "Patient portal confidence plan that verifies secure-message subject preset options and editable compose-subject rendering on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-message-subjects"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-239", "patients", "portal", "messages", "secure-messaging", "subjects", "compose-options", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4278,6 +4287,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-recipients",
       "tags": ["slice238", "workflow", "read-only", "patients", "portal", "messages", "secure-messaging", "recipients", "routing", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-subjects",
+      "name": "Patient Portal Secure Message Subject Preset Readiness",
+      "description": "Verifies signed-in patient portal secure-message compose subject presets and editable compose-subject rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-subjects",
+      "tags": ["slice239", "workflow", "read-only", "patients", "portal", "messages", "secure-messaging", "subjects", "compose-options", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

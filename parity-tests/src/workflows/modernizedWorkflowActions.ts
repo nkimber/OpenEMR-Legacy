@@ -88,6 +88,7 @@ import type {
   PatientPortalInboxMessageInput,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
+  PatientPortalMessageComposeOptionsResult,
   PatientPortalMessageRecipientsResult,
   PatientPortalMessageThreadResult,
   PatientPortalMessagesResult,
@@ -1116,6 +1117,72 @@ LIMIT 1;
         displayName: result.displayName ?? "",
         datasetVersion: result.datasetVersion ?? "unknown",
         asOfDate: result.asOfDate ?? new Date().toISOString().slice(0, 10),
+        recipientCount: result.recipientCount ?? 0,
+        recipients: (result.recipients ?? []).map((recipient: any) => ({
+          id: recipient.id ?? "",
+          displayName: recipient.displayName ?? recipient.id ?? "",
+          type: recipient.type ?? "user",
+          active: Boolean(recipient.active),
+          fallback: Boolean(recipient.fallback)
+        })),
+        failureReason: result.failureReason ?? null,
+        sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+      };
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalMessageComposeOptions(username: string, password: string): Promise<PatientPortalMessageComposeOptionsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        defaultSubject: "General",
+        subjectCount: 0,
+        subjectOptions: [],
+        recipientCount: 0,
+        recipients: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/compose-options`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message compose options failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const result = await response.json();
+      return {
+        authenticated: Boolean(result.authenticated),
+        username: result.username ?? username,
+        portalUsername: result.portalUsername ?? "",
+        canonicalId: result.canonicalId ?? "",
+        pid: result.legacyPid ?? null,
+        pubpid: result.pubpid ?? "",
+        displayName: result.displayName ?? "",
+        datasetVersion: result.datasetVersion ?? "unknown",
+        asOfDate: result.asOfDate ?? new Date().toISOString().slice(0, 10),
+        defaultSubject: result.defaultSubject ?? "General",
+        subjectCount: result.subjectCount ?? 0,
+        subjectOptions: (result.subjectOptions ?? []).map((subject: any) => ({
+          value: subject.value ?? "",
+          label: subject.label ?? subject.value ?? "",
+          default: Boolean(subject.default)
+        })),
         recipientCount: result.recipientCount ?? 0,
         recipients: (result.recipients ?? []).map((recipient: any) => ({
           id: recipient.id ?? "",
