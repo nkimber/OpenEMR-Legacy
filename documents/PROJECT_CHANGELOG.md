@@ -15713,6 +15713,68 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 274. Slice 234 Patient Portal Secure Message Forward-To-Practice Readiness
+
+Started: 2026-06-24T11:58:00.0000000-04:00
+Finished: 2026-06-24T12:28:48.6959981-04:00
+Commit: pending
+
+Implemented Slice 234: patient portal secure message forward-to-practice readiness. The modernized target now forwards an inbound portal secure message into the practice-side patient-message queue, marks the original portal message `Sent`, exposes a modernized Portal `Forward to practice` control, and verifies the same cleanup-backed behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 905
+- Lines deleted: 21
+- Net lines: +884
+- Total churn: 926
+
+Key outcomes:
+
+- Added session-protected `POST /api/patient-portal/messages/{messageId}/forward` to the modernized API with repository logic that validates the portal session, requires forward body text, creates a `portal:forwarded` practice-side patient message, updates the original portal mailbox row to `Sent`, and records a message-forward audit event.
+- Extended modernized Portal API types and the React Portal secure-message card with a `Forward to practice` form for inbound messages, including draft body cleanup when messages are archived or sessions reset.
+- Extended legacy and modernized workflow adapters with a shared `forwardPatientPortalMessage` contract plus cleanup helpers for transient practice-side patient-message rows.
+- Added the `workflow-patient-portal-message-forward` Playwright suite and `slice-234-patient-portal-message-forward-readiness` plan to verify database/workflow state and modernized portal UI behavior on both targets.
+- Added Workbench-managed Slice 234 plan actions for both legacy and modernized targets and updated the functionality progress ledger for secure-message forward-to-practice readiness.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 234 portal secure-message forward-to-practice contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-234-patient-portal-message-forward-readiness` plus `workflow-patient-portal-message-forward`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-234-patient-portal-message-forward-readiness -Reset test` passed as run `2026-06-24T162005-661Z-legacy-openemr-plan-slice-234-patient-portal-message-forward-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-234-patient-portal-message-forward-readiness -Reset test` passed as run `2026-06-24T162145-283Z-modernized-openemr-plan-slice-234-patient-portal-message-forward-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-234-patient-portal-message-forward-readiness` passed as comparison `2026-06-24T162312-618Z-legacy-openemr-vs-modernized-openemr-plan-slice-234-patient-portal-message-forward-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-message-forward/patient-portal-message-forward.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -422,7 +422,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder and forward-to-practice behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -473,18 +473,23 @@
           "label": "Patient portal secure-message encrypted-body readiness",
           "detail": "The modernized patient portal now protects encrypted secure-message bodies at the API boundary, renders a fixed protected-body placeholder in the Portal Secure Messages panel, and parity verifies the behavior with cleanup-backed encrypted mailbox rows on both targets.",
           "evidence": ["slice-233-patient-portal-message-encryption-readiness"]
+        },
+        {
+          "label": "Patient portal secure-message forward-to-practice readiness",
+          "detail": "The modernized patient portal can forward an inbound secure message into the practice-side patient-message queue, update the portal message status to Sent, and render the forward control while parity verifies cleanup-backed forwarding on both targets.",
+          "evidence": ["slice-234-patient-portal-message-forward-readiness"]
         }
       ],
       "outstanding": [
-        "Full encryption key-management/decryption policy, attachments, routing queues, priority and escalation behavior, notification delivery, and broader audit reporting policy."
+        "Full encryption key-management/decryption policy, attachments, routing queues beyond basic forward-to-practice, priority and escalation behavior, notification delivery, and broader audit reporting policy."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 68,
+      "completionEstimatePercent": 69,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, routing, notifications, and broader audit reporting policy remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder and forward-to-practice behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, richer routing, notifications, and broader audit reporting policy remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

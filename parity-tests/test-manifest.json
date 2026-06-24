@@ -1077,6 +1077,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-234-patient-portal-message-forward-readiness",
+      "name": "Slice 234 Patient Portal Secure Message Forward Readiness",
+      "description": "Patient portal confidence plan that verifies forwarding an inbox secure message into the practice-side patient-message queue and modernized Portal forward controls.",
+      "suites": ["workflow-patient-portal-message-forward"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-234", "patients", "portal", "messages", "secure-messaging", "forward", "pnotes", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4183,6 +4192,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-encryption",
       "tags": ["slice233", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "encryption", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-forward",
+      "name": "Patient Portal Secure Message Forward Readiness",
+      "description": "Verifies signed-in patient portal secure-message forward-to-practice behavior, practice-side patient-message creation, and modernized Portal forward rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-forward",
+      "tags": ["slice234", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "forward", "pnotes", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

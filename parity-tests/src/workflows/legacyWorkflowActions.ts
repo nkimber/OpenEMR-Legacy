@@ -790,6 +790,11 @@ export type PatientPortalReplyMessageInput = {
   body: string;
 };
 
+export type PatientPortalForwardMessageInput = {
+  body: string;
+  assignedTo?: string;
+};
+
 export type PatientPortalReplyMessageResult = {
   authenticated: boolean;
   created: boolean;
@@ -803,6 +808,24 @@ export type PatientPortalReplyMessageResult = {
   originalMessage: PatientPortalMessageItem | null;
   sentMessage: PatientPortalMessageItem | null;
   recipientMessage: PatientPortalMessageItem | null;
+  messageCount: number;
+  sentMessageCount: number;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+export type PatientPortalForwardMessageResult = {
+  authenticated: boolean;
+  forwarded: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  originalMessageId: string;
+  originalMessage: PatientPortalMessageItem | null;
+  forwardedPatientMessage: PatientMessageRecord | null;
   messageCount: number;
   sentMessageCount: number;
   failureReason: string | null;
@@ -4166,6 +4189,110 @@ VALUES
     };
   }
 
+  async forwardPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string,
+    input: PatientPortalForwardMessageInput
+  ): Promise<PatientPortalForwardMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalForwardMessageResult(username, messageId, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const body = input.body.trim();
+    if (!body) {
+      return buildEmptyPortalForwardMessageResult(username, messageId, "Secure message forward body is required.");
+    }
+
+    const assignedTo = input.assignedTo?.trim() || "admin";
+    const originalRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  DATE_FORMAT(date, '%Y-%m-%d') AS messageDate,
+  COALESCE(title, '') AS title,
+  COALESCE(body, '') AS body,
+  COALESCE(message_status, '') AS status,
+  COALESCE(assigned_to, '') AS assignedTo,
+  COALESCE(sender_id, '') AS senderId,
+  COALESCE(sender_name, '') AS senderName,
+  COALESCE(recipient_id, '') AS recipientId,
+  COALESCE(recipient_name, '') AS recipientName,
+  COALESCE(CAST(mail_chain AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(reply_mail_chain AS CHAR), '0') AS replyMailChain,
+  COALESCE(CAST(is_msg_encrypted AS CHAR), '0') AS isEncrypted
+FROM onsite_mail
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND recipient_id = ${sqlString(login.portalUsername)}
+  AND id = ${integer(Number(messageId))}
+LIMIT 1;
+`);
+    const originalRow = originalRows[0];
+    if (!originalRow) {
+      return buildEmptyPortalForwardMessageResult(username, messageId, "Secure message was not found in the signed-in portal inbox.");
+    }
+
+    const originalMessage: PatientPortalMessageItem = {
+      id: originalRow.id,
+      date: normalizeDateText(originalRow.messageDate),
+      title: originalRow.title,
+      body: normalizePatientPortalMessageBody(originalRow.body, originalRow.isEncrypted === "1"),
+      status: "Sent",
+      assignedTo,
+      senderId: originalRow.senderId,
+      senderName: originalRow.senderName,
+      recipientId: originalRow.recipientId,
+      recipientName: originalRow.recipientName,
+      mailChain: Number(originalRow.mailChain || 0),
+      replyMailChain: Number(originalRow.replyMailChain || 0),
+      portalRelation: null,
+      isEncrypted: originalRow.isEncrypted === "1"
+    };
+
+    await this.cleanupPatientPortalForwardedMessage(login.pid, originalMessage.title, body);
+    const messageRows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO pnotes
+  (date, body, pid, user, groupname, activity, authorized, title, assigned_to, message_status, portal_relation, is_msg_encrypted)
+VALUES
+  (NOW(), ${sqlString(body)}, ${integer(login.pid)}, 'admin', 'Default', 1, 1,
+   ${sqlString(originalMessage.title)}, ${sqlString(assignedTo)}, 'New', 'portal:forwarded', 0);
+SELECT LAST_INSERT_ID() AS id;
+`);
+    const forwardedId = Number(messageRows[0]?.id ?? 0);
+
+    await this.db.execute(`
+UPDATE onsite_mail
+SET message_status = 'Sent',
+    assigned_to = ${sqlString(assignedTo)},
+    activity = 1
+WHERE deleted != 1
+  AND owner = ${sqlString(login.portalUsername)}
+  AND recipient_id = ${sqlString(login.portalUsername)}
+  AND id = ${integer(Number(messageId))};
+`);
+
+    const refreshed = await this.getPatientPortalMessages(username, password);
+    const forwardedPatientMessage = forwardedId > 0 ? await this.getPatientMessage(forwardedId) : null;
+    return {
+      authenticated: true,
+      forwarded: Boolean(forwardedPatientMessage),
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      originalMessageId: originalMessage.id,
+      originalMessage,
+      forwardedPatientMessage,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: forwardedPatientMessage ? null : "Forwarded patient message was not created.",
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
   async cleanupPatientPortalMessageReply(portalUsername: string, title: string, body: string): Promise<void> {
     await this.db.execute(`
 DELETE FROM onsite_mail
@@ -4174,6 +4301,15 @@ WHERE title = ${sqlString(title)}
   AND (owner = ${sqlString(portalUsername)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
+`);
+  }
+
+  async cleanupPatientPortalForwardedMessage(pid: number, title: string, body: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM pnotes
+WHERE pid = ${integer(pid)}
+  AND title = ${sqlString(title)}
+  AND body = ${sqlString(body)};
 `);
   }
 
@@ -8630,6 +8766,30 @@ function buildEmptyPortalReplyMessageResult(
     originalMessage: null,
     sentMessage: null,
     recipientMessage: null,
+    messageCount: 0,
+    sentMessageCount: 0,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalForwardMessageResult(
+  username: string,
+  originalMessageId: string,
+  failureReason: string
+): PatientPortalForwardMessageResult {
+  return {
+    authenticated: false,
+    forwarded: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    originalMessageId,
+    originalMessage: null,
+    forwardedPatientMessage: null,
     messageCount: 0,
     sentMessageCount: 0,
     failureReason,

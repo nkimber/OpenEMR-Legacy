@@ -79,6 +79,8 @@ import type {
   PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
+  PatientPortalForwardMessageInput,
+  PatientPortalForwardMessageResult,
   PatientPortalDeleteMessageResult,
   PatientPortalDocumentsDownloadResult,
   PatientPortalDocumentsResult,
@@ -1587,6 +1589,78 @@ VALUES (
     }
   }
 
+  async forwardPatientPortalMessage(
+    username: string,
+    password: string,
+    messageId: string,
+    input: PatientPortalForwardMessageInput
+  ): Promise<PatientPortalForwardMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        forwarded: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        originalMessageId: messageId,
+        originalMessage: null,
+        forwardedPatientMessage: null,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const messages = await this.getPatientPortalMessages(username, password);
+      const originalMessage = messages.messages.find((message) => message.id === messageId) ?? null;
+      if (originalMessage && login.pid !== null) {
+        await this.cleanupPatientPortalForwardedMessage(login.pid, originalMessage.title, input.body);
+      }
+
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/messages/${messageId}/forward`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify(input)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal message forward failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const result = await response.json();
+      const forwardedId = result.forwardedPatientMessage?.id;
+      const forwardedPatientMessage = forwardedId ? await this.getPatientMessage(forwardedId) : null;
+      return {
+        authenticated: Boolean(result.authenticated),
+        forwarded: Boolean(result.forwarded),
+        username: result.username ?? username,
+        portalUsername: result.portalUsername ?? "",
+        canonicalId: result.canonicalId ?? "",
+        pid: result.legacyPid ?? null,
+        pubpid: result.pubpid ?? "",
+        displayName: result.displayName ?? "",
+        originalMessageId: result.originalMessageId ?? messageId,
+        originalMessage: result.originalMessage ? mapPatientPortalMessageItem(result.originalMessage, result.portalUsername) : null,
+        forwardedPatientMessage,
+        messageCount: result.messageCount ?? 0,
+        sentMessageCount: result.sentMessageCount ?? 0,
+        failureReason: result.failureReason ?? null,
+        sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+      };
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
   async cleanupPatientPortalMessageReply(portalUsername: string, title: string, body: string): Promise<void> {
     await this.db.execute(`
 DELETE FROM portal_mailbox_messages
@@ -1595,6 +1669,15 @@ WHERE title = ${sqlString(title)}
   AND (owner = ${sqlString(portalUsername)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
+`);
+  }
+
+  async cleanupPatientPortalForwardedMessage(pid: number, title: string, body: string): Promise<void> {
+    await this.db.execute(`
+DELETE FROM messages
+WHERE pid = ${integer(pid)}
+  AND title = ${sqlString(title)}
+  AND body = ${sqlString(body.trim())};
 `);
   }
 
