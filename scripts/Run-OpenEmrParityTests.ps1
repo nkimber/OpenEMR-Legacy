@@ -206,6 +206,7 @@ param(
         "workflow-patient-portal-lab-results",
         "workflow-patient-portal-medical-report",
         "workflow-patient-portal-generated-medical-report",
+        "workflow-patient-portal-medical-report-pdf",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

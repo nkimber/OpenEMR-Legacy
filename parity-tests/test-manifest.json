@@ -1005,6 +1005,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-226-patient-portal-generated-medical-report-pdf-readiness",
+      "name": "Slice 226 Patient Portal Generated Medical Report PDF Readiness",
+      "description": "Patient portal confidence plan that verifies default customized medical-history report PDF export readiness through legacy portal PDF POST behavior, modernized API download behavior, and modernized Portal PDF controls.",
+      "suites": ["workflow-patient-portal-medical-report-pdf"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-226", "patients", "portal", "reports", "medical-report", "generated-report", "pdf", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4031,6 +4040,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-generated-medical-report",
       "tags": ["slice225", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-medical-report-pdf",
+      "name": "Patient Portal Generated Medical Report PDF Readiness",
+      "description": "Verifies signed-in patient portal default customized medical-history report PDF export through legacy portal PDF POST behavior, modernized API download behavior, and modernized Portal PDF controls.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-medical-report-pdf",
+      "tags": ["slice226", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "pdf", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

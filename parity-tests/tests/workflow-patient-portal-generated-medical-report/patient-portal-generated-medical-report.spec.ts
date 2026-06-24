@@ -29,7 +29,7 @@ test.describe("patient portal generated medical report parity @slice225 @workflo
       title: "Customized Medical History Report",
       includedSectionIds: ["demographics", "billing"],
       printableVersionAvailable: true,
-      pdfDownloadAvailable: false,
+      pdfDownloadAvailable: true,
       reportSectionCount: 3,
       summaryLineCount: 4,
       failureReason: null
@@ -80,7 +80,7 @@ test.describe("patient portal generated medical report parity @slice225 @workflo
     await expect(generatedReportRegion).toContainText("Code: 83036");
     await expect(generatedReportRegion).toContainText("Diagnosis: ICD10:M54.50");
     await expect(generatedReportRegion).toContainText("Results: Hemoglobin A1c, Glucose, Cholesterol, HDL Cholesterol");
-    await expect(generatedReportRegion).toContainText("PDF Download pending");
+    await expect(generatedReportRegion).toContainText("PDF Download available");
   });
 });
 

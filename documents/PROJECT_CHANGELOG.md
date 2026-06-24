@@ -15164,12 +15164,76 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 264. Slice 226 Patient Portal Generated Medical Report PDF Readiness
+
+Started: 2026-06-24T06:30:00-04:00
+Finished: 2026-06-24T07:01:13.5598120-04:00
+Duration: 00:31:13
+Commit: pending
+
+Implemented Slice 226: patient portal generated medical report PDF readiness. The modernized target now exports a deterministic PDF package for the signed-in patient portal generated medical-history report, exposes that behavior through the Portal workspace, and verifies it side by side with legacy OpenEMR's generated-report PDF POST path for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 496
+- Lines deleted: 25
+- Net lines: +471
+- Total churn: 521
+
+Key outcomes:
+
+- Added session-protected `POST /api/patient-portal/medical-report/pdf` to the modernized API, returning a downloadable `application/pdf` package for the generated customized medical-history report.
+- Added a deterministic backend PDF builder and response package that reuses the generated report payload, patient identity, billing rollup, selected procedure-order facts, and report section lines.
+- Updated generated-report readiness so `pdfDownloadAvailable` is true, added the modernized Portal `Download report PDF` action, and wired frontend download handling through the shared patient portal session header.
+- Added the `workflow-patient-portal-medical-report-pdf` Playwright suite and `slice-226-patient-portal-generated-medical-report-pdf-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed actions for both targets.
+- Verified legacy OpenEMR PDF behavior through `portal/report/portal_custom_report.php` with `pdf=1`, and verified modernized PDF metadata/content includes the expected patient, patient ID, billing, procedure-order, code, and diagnosis lines.
+- Kept the Slice 225 generated-report suite isolated by using a non-prefix Slice 226 suite folder, so the Slice 225 plan still selects exactly its two generated-report tests.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 226 portal generated medical-report PDF contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-226-patient-portal-generated-medical-report-pdf-readiness`.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` healthy and `openemr` running.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres`, `api`, and `frontend` running.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-226-patient-portal-generated-medical-report-pdf-readiness -Reset test` passed as run `2026-06-24T105333-219Z-legacy-openemr-plan-slice-226-patient-portal-generated-medical-report-pdf-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-226-patient-portal-generated-medical-report-pdf-readiness -Reset test` passed as run `2026-06-24T105332-664Z-modernized-openemr-plan-slice-226-patient-portal-generated-medical-report-pdf-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-226-patient-portal-generated-medical-report-pdf-readiness` passed as comparison `2026-06-24T105427-183Z-legacy-openemr-vs-modernized-openemr-plan-slice-226-patient-portal-generated-medical-report-pdf-readiness` with no differences.
+- Slice 225 regression plan still selected exactly two tests on each target and matched with no differences after the Slice 226 suite rename.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-generated-medical-report/patient-portal-generated-medical-report.spec.ts`
+- `parity-tests/tests/workflow-patient-portal-medical-report-pdf/patient-portal-medical-report-pdf.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Patient portal generated-report PDF export, richer report template fidelity, report package delivery, and lifecycle audit history.
+- Patient portal richer report template fidelity, report package delivery, and lifecycle audit history.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.

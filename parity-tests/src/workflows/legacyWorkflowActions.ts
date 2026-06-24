@@ -8045,7 +8045,7 @@ function buildPatientPortalGeneratedMedicalReportResult(
     includedSectionIds,
     includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
     printableVersionAvailable: true,
-    pdfDownloadAvailable: false,
+    pdfDownloadAvailable: true,
     reportSectionCount: reportSections.length,
     reportSections,
     summaryLineCount: summaryLines.length,
