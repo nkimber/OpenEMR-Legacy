@@ -16066,6 +16066,62 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 281. Slice 240 Patient Portal Secure Message HTML Body Rendering Readiness
+
+Started: 2026-06-24T15:20:00.0000000-04:00
+Finished: 2026-06-24T15:48:32.5370097-04:00
+Commit: pending
+
+Implemented Slice 240: patient portal secure-message HTML body rendering readiness. The modernized Portal now renders secure-message bodies through the same DOMPurify HTML-profile policy used by legacy OpenEMR, preserving raw HTML at the workflow/API boundary while allowing safe formatting and stripping links/images at the UI boundary.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 301
+- Lines deleted: 26
+- Net lines: +275
+- Total churn: 327
+
+Key outcomes:
+
+- Added DOMPurify to the modernized frontend and introduced a shared `SecureMessageBody` renderer for inbox, sent, all, deleted, and thread message surfaces.
+- Matched legacy OpenEMR's portal secure-message body sanitization profile by preserving allowed HTML formatting while forbidding `a` and `img` tags at render time.
+- Added the `workflow-patient-portal-message-html` Playwright suite and `slice-240-patient-portal-message-html-body-readiness` plan.
+- Added Workbench-managed Slice 240 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 240 HTML body rendering contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list -- --plan slice-240-patient-portal-message-html-body-readiness` passed via `cmd.exe /c` and listed `slice-240-patient-portal-message-html-body-readiness` plus `workflow-patient-portal-message-html`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing` returned HTTP 200 for the modernized frontend.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-240-patient-portal-message-html-body-readiness -Reset test` passed as run `2026-06-24T194630-685Z-legacy-openemr-plan-slice-240-patient-portal-message-html-body-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-240-patient-portal-message-html-body-readiness -Reset test` passed as run `2026-06-24T194706-348Z-modernized-openemr-plan-slice-240-patient-portal-message-html-body-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-240-patient-portal-message-html-body-readiness` passed as comparison `2026-06-24T194739-391Z-legacy-openemr-vs-modernized-openemr-plan-slice-240-patient-portal-message-html-body-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/frontend/package.json`
+- `modernized-openemr/frontend/package-lock.json`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/tests/workflow-patient-portal-message-html/patient-portal-message-html.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

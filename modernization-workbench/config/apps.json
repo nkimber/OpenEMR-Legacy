@@ -145,6 +145,7 @@
         "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "-Reset", "test"],
         "parityPatientPortalMessageRecipientsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-238-patient-portal-message-recipient-directory-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSubjectsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-239-patient-portal-message-subject-presets-readiness", "-Reset", "test"],
+        "parityPatientPortalMessageHtmlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-240-patient-portal-message-html-body-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -1445,6 +1446,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-239-patient-portal-message-subject-presets-readiness.json"
         },
         {
+          "id": "parity-plan-patient-portal-message-html",
+          "name": "Slice 240 patient portal secure message HTML body plan",
+          "description": "Runs the shared patient portal secure-message HTML body rendering readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalMessageHtmlPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-240-patient-portal-message-html-body-readiness.json"
+        },
+        {
           "id": "parity-plan-document-authorization-policy",
           "name": "Slice 179 patient document authorization policy plan",
           "description": "Runs the shared patient document authorization-policy readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2366,6 +2375,7 @@
         "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "-Reset", "test"],
         "parityPatientPortalMessageRecipientsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-238-patient-portal-message-recipient-directory-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSubjectsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-239-patient-portal-message-subject-presets-readiness", "-Reset", "test"],
+        "parityPatientPortalMessageHtmlPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-240-patient-portal-message-html-body-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -3590,6 +3600,14 @@
           "layer": "plan",
           "commandName": "parityPatientPortalMessageSubjectsPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-239-patient-portal-message-subject-presets-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-message-html",
+          "name": "Slice 240 patient portal secure message HTML body plan",
+          "description": "Runs the shared patient portal secure-message HTML body rendering readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalMessageHtmlPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-240-patient-portal-message-html-body-readiness.json"
         },
         {
           "id": "parity-plan-document-authorization-policy",

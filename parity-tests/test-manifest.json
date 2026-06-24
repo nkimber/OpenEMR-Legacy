@@ -1131,6 +1131,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-240-patient-portal-message-html-body-readiness",
+      "name": "Slice 240 Patient Portal Secure Message HTML Body Rendering Readiness",
+      "description": "Patient portal confidence plan that verifies secure-message HTML body sanitization and rendered formatting on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-message-html"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-240", "patients", "portal", "messages", "secure-messaging", "html", "sanitization", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4297,6 +4306,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-subjects",
       "tags": ["slice239", "workflow", "read-only", "patients", "portal", "messages", "secure-messaging", "subjects", "compose-options", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-html",
+      "name": "Patient Portal Secure Message HTML Body Rendering Readiness",
+      "description": "Verifies signed-in patient portal secure-message HTML body sanitization, allowed formatting, and link/image stripping.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-html",
+      "tags": ["slice240", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "html", "sanitization", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

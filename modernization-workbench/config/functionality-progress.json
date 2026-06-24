@@ -470,9 +470,9 @@
           "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
         },
         {
-          "label": "Patient portal secure-message inbox, compose, recipient directory, subject presets, reply, thread view, archive, read status, batch archive, All folder, and Deleted folder",
-          "detail": "The signed-in patient portal can render inbox messages, load the OpenEMR-compatible recipient directory with admin fallback routing, load OpenEMR-compatible compose subject presets, compose sent and practice copies through the selected route, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, archive selected messages together, view the active All-folder mailbox projection, and inspect owner-scoped archived rows in the Deleted folder.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness", "slice-235-patient-portal-deleted-messages-readiness", "slice-238-patient-portal-message-recipient-directory-readiness", "slice-239-patient-portal-message-subject-presets-readiness"]
+          "label": "Patient portal secure-message inbox, compose, recipient directory, subject presets, HTML body rendering, reply, thread view, archive, read status, batch archive, All folder, and Deleted folder",
+          "detail": "The signed-in patient portal can render inbox messages, preserve raw secure-message HTML at the data/workflow boundary, render allowed formatting while stripping links and images at the UI boundary, load the OpenEMR-compatible recipient directory with admin fallback routing, load OpenEMR-compatible compose subject presets, compose sent and practice copies through the selected route, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, archive selected messages together, view the active All-folder mailbox projection, and inspect owner-scoped archived rows in the Deleted folder.",
+          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness", "slice-235-patient-portal-deleted-messages-readiness", "slice-238-patient-portal-message-recipient-directory-readiness", "slice-239-patient-portal-message-subject-presets-readiness", "slice-240-patient-portal-message-html-body-readiness"]
         },
         {
           "label": "Patient portal secure-message lifecycle audit readiness",
@@ -496,10 +496,10 @@
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 72,
+      "completionEstimatePercent": 73,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/recipient-directory/subject-preset/reply/thread-view/archive/read-status/batch-archive/all-folder/deleted-folder and forward-to-practice behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, richer routing queues, notifications, and broader audit reporting policy remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/recipient-directory/subject-preset/HTML-body rendering/reply/thread-view/archive/read-status/batch-archive/all-folder/deleted-folder and forward-to-practice behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, richer routing queues, notifications, and broader audit reporting policy remain substantial."
     },
     {
       "id": "billing-revenue-cycle",
