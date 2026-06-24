@@ -1140,6 +1140,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-241-patient-portal-message-pagination-readiness",
+      "name": "Slice 241 Patient Portal Secure Message Pagination Readiness",
+      "description": "Patient portal confidence plan that verifies OpenEMR-compatible 20-message secure-message folder paging on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-message-pagination"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-241", "patients", "portal", "messages", "secure-messaging", "pagination", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4316,6 +4325,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-html",
       "tags": ["slice240", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "html", "sanitization", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-pagination",
+      "name": "Patient Portal Secure Message Pagination Readiness",
+      "description": "Verifies signed-in patient portal secure-message folder paging with the OpenEMR-compatible 20-message page size.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-pagination",
+      "tags": ["slice241", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "pagination", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

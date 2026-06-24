@@ -16122,6 +16122,64 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 282. Slice 241 Patient Portal Secure Message Pagination Readiness
+
+Started: 2026-06-24T16:06:53.9296560-04:00
+Finished: 2026-06-24T16:23:16.2815736-04:00
+Commit: pending
+
+Implemented Slice 241: patient portal secure-message pagination readiness. The modernized Portal now mirrors OpenEMR's 20-message folder page size for Inbox, Sent, All, and Deleted secure-message folders and exposes accessible previous/next controls that keep the active folder page bounded as message counts change.
+
+Code changes:
+
+- Files changed: 14
+- Lines added: 412
+- Lines deleted: 30
+- Net lines: +382
+- Total churn: 442
+
+Key outcomes:
+
+- Added bounded secure-message pager state to the modernized Portal, with a shared page size of 20 for Inbox, Sent, All, and Deleted folders.
+- Added a reusable `SecureMessagePager` with accessible previous/next icon controls and compact folder range text.
+- Extended parity workflow helpers with optional cleanup-only message dates so tests can create deterministic mailbox ordering without altering permanent seed data.
+- Added the `workflow-patient-portal-message-pagination` Playwright suite and `slice-241-patient-portal-message-pagination-readiness` plan.
+- Added Workbench-managed Slice 241 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 241 pagination contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c` before and after the visible-text legacy assertion update.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list -- --plan slice-241-patient-portal-message-pagination-readiness` passed via `cmd.exe /c` and listed `slice-241-patient-portal-message-pagination-readiness` plus `workflow-patient-portal-message-pagination`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build frontend` passed and rebuilt/restarted the modernized frontend stack.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing` returned HTTP 200 for the modernized frontend.
+- Initial legacy Slice 241 run failed on a hidden duplicate legacy DOM text assertion, then the test was tightened to count visible text nodes only.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-241-patient-portal-message-pagination-readiness -Reset test` passed as run `2026-06-24T201647-576Z-legacy-openemr-plan-slice-241-patient-portal-message-pagination-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-241-patient-portal-message-pagination-readiness -Reset test` passed as run `2026-06-24T201857-195Z-modernized-openemr-plan-slice-241-patient-portal-message-pagination-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-241-patient-portal-message-pagination-readiness` passed as comparison `2026-06-24T202247-391Z-legacy-openemr-vs-modernized-openemr-plan-slice-241-patient-portal-message-pagination-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-message-pagination/patient-portal-message-pagination.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

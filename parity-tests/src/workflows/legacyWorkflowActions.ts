@@ -840,6 +840,7 @@ export type PatientPortalReadMessageResult = {
 export type PatientPortalInboxMessageInput = {
   senderId?: string;
   senderName?: string;
+  messageDate?: string;
   title: string;
   body: string;
   isEncrypted?: boolean;
@@ -3886,7 +3887,10 @@ SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS nextId
 FROM onsite_mail;
 `);
     const messageId = Number(idRows[0]?.nextId ?? 9393001);
-    const messageDate = new Date().toISOString().slice(0, 10);
+    const messageDate = input.messageDate?.trim() || new Date().toISOString().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(messageDate)) {
+      throw new Error("Patient portal inbox message date must be formatted as YYYY-MM-DD.");
+    }
 
     await this.db.execute(`
 INSERT INTO onsite_mail
