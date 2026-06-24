@@ -15660,7 +15660,7 @@ Primary files:
 
 Started: 2026-06-24T11:40:00.0000000-04:00
 Finished: 2026-06-24T11:56:06.0271776-04:00
-Commit: pending
+Commit: 1b2ca3a4
 
 Implemented Slice 233: patient portal secure message encrypted body readiness. The modernized target now protects encrypted portal mailbox message bodies at the API boundary by returning the fixed placeholder `Encrypted secure message body is protected.`, keeps raw encrypted synthetic message text out of the Portal UI, preserves encrypted-message status rendering, and verifies the behavior side by side against legacy OpenEMR `onsite_mail.is_msg_encrypted` evidence for the `MOD-PAT-0004` portal account.
 
