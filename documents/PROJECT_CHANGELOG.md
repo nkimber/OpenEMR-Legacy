@@ -15948,7 +15948,7 @@ Primary files:
 
 Started: 2026-06-24T14:35:00.0000000-04:00
 Finished: 2026-06-24T14:48:55.2302861-04:00
-Commit: pending
+Commit: 28f2b14a
 
 Implemented Slice 238: patient portal secure-message recipient-directory readiness. The modernized target now exposes a session-protected recipient directory for portal secure messaging, matches OpenEMR's active portal-user lookup plus admin fallback behavior, validates compose requests against that directory, renders the Portal `To` field as a route selector, and proves the same recipient option side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
 
