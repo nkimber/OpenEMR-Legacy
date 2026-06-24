@@ -14927,7 +14927,7 @@ Primary files:
 Started: 2026-06-23T20:52:00-04:00
 Finished: 2026-06-23T21:33:39-04:00
 Duration: 00:41:39
-Commit: pending
+Commit: 40d5397d
 
 Implemented Slice 222: patient portal clinical summary readiness. The modernized target now exposes a signed-in patient portal clinical summary for active problems, allergies, medications, and prescriptions, renders the same clinical-list facts in the Portal workspace, and proves parity against the legacy portal clinical pages for the `MOD-PAT-0004` account.
 
