@@ -15840,7 +15840,7 @@ Primary files:
 
 Started: 2026-06-24T13:22:50.0002640-04:00
 Finished: 2026-06-24T13:46:18.7813929-04:00
-Commit: pending
+Commit: 4aa801c8
 
 Implemented Slice 236: patient portal generated medical-report procedure-order selection readiness. The modernized target now gives selected procedure orders explicit generated-report evidence in the Portal UI, while the shared parity harness creates cleanup-backed temporary procedure orders for `MOD-PAT-0004`, selects those orders in customized medical-history report generation, and proves the same selected-order contract side by side against legacy OpenEMR.
 
