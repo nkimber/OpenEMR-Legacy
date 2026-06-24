@@ -15331,6 +15331,69 @@ Primary files:
 - `documents/MODERNIZATION_WORKBENCH.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 267. Slice 228 Patient Portal Generated Medical Report Encounter-Form Selection Readiness
+
+Started: 2026-06-24T07:45:00-04:00
+Finished: 2026-06-24T08:08:11.0747237-04:00
+Commit: pending
+
+Implemented Slice 228: patient portal generated medical report encounter-form selection readiness. The modernized target now lets a signed-in portal patient select individual encounter form rows for a generated customized medical-history report, carries those selections through API and PDF generation requests, renders the selected Encounter Forms section in the Portal workspace, and verifies that behavior side by side with legacy OpenEMR's `formdir_formid` checkbox report POST flow for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 6778
+- Lines deleted: 4229
+- Net lines: +2549
+- Total churn: 11007
+
+Key outcomes:
+
+- Extended the modernized patient portal generated-report request contract with selected `encounterFormIds`, returned included encounter-form IDs, and preserved selected encounter-form details in deterministic PDF payloads.
+- Updated the modernized Portal medical-report builder to render report-builder encounter forms as selectable checkbox rows, then reuse the same selection state for Generate Report and Download Report PDF actions.
+- Added normalized legacy and modernized workflow-action support for selected encounter-form inclusion, including Vitals/SOAP form rows and selected encounter-form summaries in generated reports.
+- Added the `workflow-patient-portal-report-forms` Playwright suite and `slice-228-patient-portal-generated-medical-report-form-selection-readiness` plan to the parity manifest and Workbench managed actions for both targets.
+- Added legacy gold-seed `New Patient Encounter` wrapper rows for existing encounters so OpenEMR's portal report builder can display the already-seeded Vitals/SOAP form choices.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 228 portal generated medical-report encounter-form selection contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-228-patient-portal-generated-medical-report-form-selection-readiness` plus `workflow-patient-portal-report-forms`.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` and `openemr` healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `powershell -ExecutionPolicy Bypass -File scripts\Seed-LegacyGoldDataset.ps1` passed in `legacy-openemr` after adding the legacy report-builder wrapper rows.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-228-patient-portal-generated-medical-report-form-selection-readiness -Reset test` passed as run `2026-06-24T120358-684Z-legacy-openemr-plan-slice-228-patient-portal-generated-medical-report-form-selection-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-228-patient-portal-generated-medical-report-form-selection-readiness -Reset test` passed as run `2026-06-24T120425-803Z-modernized-openemr-plan-slice-228-patient-portal-generated-medical-report-form-selection-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-228-patient-portal-generated-medical-report-form-selection-readiness` passed as comparison `2026-06-24T120444-436Z-legacy-openemr-vs-modernized-openemr-plan-slice-228-patient-portal-generated-medical-report-form-selection-readiness` with no differences.
+- Verification note: the first legacy Slice 228 run exposed a seed-fidelity gap where the OpenEMR portal report builder did not group Vitals/SOAP forms unless a matching `New Patient Encounter` row existed in `forms`. The gold seed generator now emits those wrapper rows, the legacy baseline was reseeded, and the rerun passed.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-report-forms/patient-portal-report-forms.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

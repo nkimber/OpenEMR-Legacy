@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal generated-report issue selection, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal generated-report issue and encounter-form selection, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -222,6 +222,11 @@
           "label": "Patient portal generated medical report issue selection readiness",
           "detail": "The modernized patient portal API and Portal page now include selected issue rows in generated customized medical-history reports while parity compares legacy issue-checkbox POST behavior and modernized issue ID and checkbox behavior.",
           "evidence": ["slice-227-patient-portal-generated-medical-report-issue-selection-readiness"]
+        },
+        {
+          "label": "Patient portal generated medical report encounter-form selection readiness",
+          "detail": "The modernized patient portal API and Portal page now include selected encounter form rows in generated customized medical-history reports while parity compares legacy encounter/form checkbox POST behavior and modernized encounter form ID and checkbox behavior.",
+          "evidence": ["slice-228-patient-portal-generated-medical-report-form-selection-readiness"]
         }
       ],
       "outstanding": [

@@ -1117,9 +1117,11 @@ function listRows(items) {
 
 const formsRows = [];
 vitals.forEach((vital, index) => {
+  const encounter = encounters[index];
   const note = clinicalNotes[index];
-  formsRows.push({ id: 4000000 + formsRows.length + 1, date: vital.date, encounter: vital.encounter, form_name: "Vitals", form_id: vital.id, pid: vital.pid, user: "admin", groupname: "Default", authorized: 1, deleted: 0, formdir: "vitals", provider_id: encounters[index].providerId });
-  formsRows.push({ id: 4000000 + formsRows.length + 1, date: note.date, encounter: note.encounter, form_name: "SOAP", form_id: note.id, pid: note.pid, user: "admin", groupname: "Default", authorized: 1, deleted: 0, formdir: "soap", provider_id: encounters[index].providerId });
+  formsRows.push({ id: 4000000 + formsRows.length + 1, date: `${encounter.date} 00:00:00`, encounter: encounter.encounter, form_name: "New Patient Encounter", form_id: encounter.encounter, pid: encounter.pid, user: "admin", groupname: "Default", authorized: 1, deleted: 0, formdir: "newpatient", provider_id: encounter.providerId });
+  formsRows.push({ id: 4000000 + formsRows.length + 1, date: vital.date, encounter: vital.encounter, form_name: "Vitals", form_id: vital.id, pid: vital.pid, user: "admin", groupname: "Default", authorized: 1, deleted: 0, formdir: "vitals", provider_id: encounter.providerId });
+  formsRows.push({ id: 4000000 + formsRows.length + 1, date: note.date, encounter: note.encounter, form_name: "SOAP", form_id: note.id, pid: note.pid, user: "admin", groupname: "Default", authorized: 1, deleted: 0, formdir: "soap", provider_id: encounter.providerId });
 });
 
 const dataset = {

@@ -1023,6 +1023,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-228-patient-portal-generated-medical-report-form-selection-readiness",
+      "name": "Slice 228 Patient Portal Generated Medical Report Form Selection Readiness",
+      "description": "Patient portal confidence plan that verifies selected encounter form inclusion in customized medical-history report generation through legacy encounter/form checkboxes, modernized API encounter form IDs, and modernized Portal encounter-form-selection controls.",
+      "suites": ["workflow-patient-portal-report-forms"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-228", "patients", "portal", "reports", "medical-report", "generated-report", "encounter-forms", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4069,6 +4078,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-issues",
       "tags": ["slice227", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "issues", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-report-forms",
+      "name": "Patient Portal Generated Medical Report Form Selection Readiness",
+      "description": "Verifies signed-in patient portal selected encounter form inclusion in generated customized medical-history reports through workflow/API and portal UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-report-forms",
+      "tags": ["slice228", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "encounter-forms", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -871,6 +871,7 @@ LIMIT 1;
           title: "",
           includedSectionIds: [],
           includedProcedureOrderIds: [],
+          includedEncounterFormIds: [],
           summaryLineCount: 0,
           summaryLines: []
         },
@@ -4926,6 +4927,7 @@ function mapPatientPortalMedicalReportResult(result: any): PatientPortalMedicalR
       title: result.reportPreview?.title ?? "",
       includedSectionIds: result.reportPreview?.includedSectionIds ?? [],
       includedProcedureOrderIds: result.reportPreview?.includedProcedureOrderIds ?? [],
+      includedEncounterFormIds: result.reportPreview?.includedEncounterFormIds ?? [],
       summaryLineCount: result.reportPreview?.summaryLineCount ?? 0,
       summaryLines: result.reportPreview?.summaryLines ?? []
     },
@@ -4954,6 +4956,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     includedSectionIds: [],
     includedProcedureOrderIds: [],
     includedIssueIds: [],
+    includedEncounterFormIds: [],
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -4981,6 +4984,7 @@ function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPorta
     includedSectionIds: result.includedSectionIds ?? [],
     includedProcedureOrderIds: result.includedProcedureOrderIds ?? [],
     includedIssueIds: result.includedIssueIds ?? [],
+    includedEncounterFormIds: result.includedEncounterFormIds ?? [],
     printableVersionAvailable: Boolean(result.printableVersionAvailable),
     pdfDownloadAvailable: Boolean(result.pdfDownloadAvailable),
     reportSectionCount: result.reportSectionCount ?? 0,

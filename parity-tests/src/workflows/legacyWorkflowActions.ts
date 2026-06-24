@@ -390,6 +390,7 @@ export type PatientPortalGeneratedMedicalReport = {
   title: string;
   includedSectionIds: string[];
   includedProcedureOrderIds: string[];
+  includedEncounterFormIds: string[];
   summaryLineCount: number;
   summaryLines: string[];
 };
@@ -398,6 +399,7 @@ export type PatientPortalMedicalReportGenerationInput = {
   sectionIds?: string[];
   procedureOrderIds?: string[];
   issueIds?: string[];
+  encounterFormIds?: string[];
 };
 
 export type PatientPortalGeneratedMedicalReportSection = {
@@ -422,6 +424,7 @@ export type PatientPortalGeneratedMedicalReportResult = {
   includedSectionIds: string[];
   includedProcedureOrderIds: string[];
   includedIssueIds: string[];
+  includedEncounterFormIds: string[];
   printableVersionAvailable: boolean;
   pdfDownloadAvailable: boolean;
   reportSectionCount: number;
@@ -7737,6 +7740,7 @@ function buildEmptyPortalMedicalReportResult(username: string, failureReason: st
       title: "",
       includedSectionIds: [],
       includedProcedureOrderIds: [],
+      includedEncounterFormIds: [],
       summaryLineCount: 0,
       summaryLines: []
     },
@@ -7765,6 +7769,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     includedSectionIds: [],
     includedProcedureOrderIds: [],
     includedIssueIds: [],
+    includedEncounterFormIds: [],
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -7972,6 +7977,7 @@ function buildPatientPortalGeneratedMedicalReport(
     title: "Customized Medical History Report",
     includedSectionIds,
     includedProcedureOrderIds,
+    includedEncounterFormIds: [],
     summaryLineCount: summaryLines.length,
     summaryLines
   };
@@ -8011,6 +8017,20 @@ function buildPatientPortalGeneratedMedicalReportResult(
   const requestedIssueIds = [...new Set((input.issueIds ?? []).map((issueId) => issueId.trim()).filter(Boolean))];
   const requestedIssueIdSet = new Set(requestedIssueIds);
   const includedIssues = report.issues.filter((issue) => requestedIssueIdSet.has(issue.id));
+  const requestedEncounterFormIds = [
+    ...new Set((input.encounterFormIds ?? []).map((formId) => formId.trim()).filter(Boolean))
+  ];
+  const requestedEncounterFormIdSet = new Set(requestedEncounterFormIds);
+  const availableEncounterForms = report.encounters.flatMap((encounter) =>
+    encounter.forms.map((form) => ({
+      encounter,
+      form,
+      selectionId: buildPatientPortalEncounterFormSelectionId(form)
+    }))
+  );
+  const includedEncounterForms = availableEncounterForms.filter((item) =>
+    requestedEncounterFormIdSet.has(item.selectionId)
+  );
   const reportSections: PatientPortalGeneratedMedicalReportSection[] = [];
 
   for (const sectionId of includedSectionIds) {
@@ -8055,6 +8075,12 @@ function buildPatientPortalGeneratedMedicalReportResult(
     )));
   }
 
+  if (includedEncounterForms.length > 0) {
+    reportSections.push(buildGeneratedMedicalReportSection("encounter-forms", "Encounter Forms", includedEncounterForms.map((item) =>
+      `${item.form.display}: Encounter ${item.encounter.encounter} on ${item.encounter.date}; form ${item.form.id}; directory ${item.form.formDirectory}; reason ${item.encounter.reason ?? "Not recorded"}`
+    )));
+  }
+
   reportSections.push(...includedProcedureOrders.map((order) =>
     buildGeneratedMedicalReportSection(`procedure-${order.id}`, "Procedure Order", [
       `Order: ${order.procedureName}`,
@@ -8075,7 +8101,10 @@ function buildPatientPortalGeneratedMedicalReportResult(
     ...includedProcedureOrders.map((order) =>
       `Procedure Order: ${order.procedureName} ordered ${order.orderDate} with ${order.resultCount} result rows.`
     ),
-    ...(includedIssues.length > 0 ? [`Issues: ${includedIssues.length} selected for this customized report.`] : [])
+    ...(includedIssues.length > 0 ? [`Issues: ${includedIssues.length} selected for this customized report.`] : []),
+    ...(includedEncounterForms.length > 0
+      ? [`Encounter Forms: ${includedEncounterForms.length} selected for this customized report.`]
+      : [])
   ];
 
   return {
@@ -8093,6 +8122,7 @@ function buildPatientPortalGeneratedMedicalReportResult(
     includedSectionIds,
     includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
     includedIssueIds: includedIssues.map((issue) => issue.id),
+    includedEncounterFormIds: includedEncounterForms.map((item) => item.selectionId),
     printableVersionAvailable: true,
     pdfDownloadAvailable: true,
     reportSectionCount: reportSections.length,
@@ -8115,6 +8145,10 @@ function buildGeneratedMedicalReportSection(
     lineCount: lines.length,
     lines
   };
+}
+
+function buildPatientPortalEncounterFormSelectionId(form: PatientPortalMedicalReportEncounterForm): string {
+  return `${form.formDirectory}_${form.id}`;
 }
 
 function formatReportMoney(amount: number): string {
