@@ -14989,7 +14989,7 @@ Primary files:
 Started: 2026-06-23T21:34:00-04:00
 Finished: 2026-06-23T22:14:47-04:00
 Duration: 00:40:47
-Commit: pending
+Commit: b07d8694
 
 Implemented Slice 223: patient portal lab results readiness. The modernized target now exposes signed-in patient portal lab orders, reports, and final result rows, renders those lab results in the Portal workspace, and proves parity against the legacy `portal/get_lab_results.php` surface for the `MOD-PAT-0004` account.
 
