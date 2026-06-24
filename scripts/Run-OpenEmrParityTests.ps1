@@ -200,6 +200,7 @@ param(
         "workflow-patient-portal-all-messages",
         "workflow-patient-portal-documents",
         "workflow-patient-portal-appointments",
+        "workflow-patient-portal-appointment-request",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

@@ -65,6 +65,8 @@ import type {
   PatientDocumentRecord,
   PatientPortalAccountAccessState,
   PatientPortalArchiveMessagesResult,
+  PatientPortalAppointmentRequestInput,
+  PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
@@ -754,6 +756,57 @@ LIMIT 1;
       }
 
       return mapPatientPortalAppointmentsResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async requestPatientPortalAppointment(
+    username: string,
+    password: string,
+    input: PatientPortalAppointmentRequestInput
+  ): Promise<PatientPortalAppointmentRequestResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        created: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        appointment: null,
+        reminder: null,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/appointments/requests`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify({
+          providerId: input.providerId,
+          facilityId: input.facilityId,
+          categoryId: input.categoryId,
+          date: input.date,
+          startTime: input.startTime,
+          durationMinutes: input.durationMinutes,
+          reason: input.reason
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal appointment request failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalAppointmentRequestResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4491,6 +4544,31 @@ function mapPatientPortalAppointmentsResult(result: any): PatientPortalAppointme
     upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
     pastAppointmentCount: result.pastAppointmentCount ?? 0,
     pastAppointments: (result.pastAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalAppointmentRequestResult(result: any): PatientPortalAppointmentRequestResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    created: Boolean(result.created),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    appointment: result.appointment ? mapPatientPortalAppointmentItem(result.appointment) : null,
+    reminder: result.reminder
+      ? {
+          id: result.reminder.id ?? "",
+          title: result.reminder.title ?? "",
+          body: result.reminder.body ?? "",
+          assignedTo: result.reminder.assignedTo ?? "",
+          status: result.reminder.status ?? ""
+        }
+      : null,
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

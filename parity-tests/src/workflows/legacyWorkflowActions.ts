@@ -227,6 +227,39 @@ export type PatientPortalAppointmentsResult = {
   sessionSource: string;
 };
 
+export type PatientPortalAppointmentRequestInput = {
+  providerId: number;
+  facilityId: number;
+  categoryId: number;
+  date: string;
+  startTime: string;
+  durationMinutes: number;
+  reason: string;
+};
+
+export type PatientPortalAppointmentReminder = {
+  id: string;
+  title: string;
+  body: string;
+  assignedTo: string;
+  status: string;
+};
+
+export type PatientPortalAppointmentRequestResult = {
+  authenticated: boolean;
+  created: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  appointment: PatientPortalHomeAppointmentSummary | null;
+  reminder: PatientPortalAppointmentReminder | null;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalMessageItem = {
   id: string;
   date: string;
@@ -2279,6 +2312,99 @@ WHERE pc_pid = ${integer(login.pid)}
       pastAppointmentCount: Number(pastCountRows[0]?.appointmentCount ?? pastRows.length),
       pastAppointments: pastRows.map(mapPortalAppointmentRow),
       failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async requestPatientPortalAppointment(
+    username: string,
+    password: string,
+    input: PatientPortalAppointmentRequestInput
+  ): Promise<PatientPortalAppointmentRequestResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalAppointmentRequestResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const title = portalAppointmentRequestTitle(input.categoryId);
+    const startTime = normalizePortalAppointmentTime(input.startTime);
+    const endTime = addMinutesToTime(startTime, input.durationMinutes);
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO openemr_postcalendar_events
+  (uuid, pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext,
+   pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_startTime, pc_endTime,
+   pc_alldayevent, pc_apptstatus, pc_location, pc_eventstatus, pc_sharing,
+   pc_facility, pc_billing_location, pc_recurrtype, pc_recurrspec)
+VALUES
+  (UNHEX(REPLACE(UUID(), '-', '')), ${integer(input.categoryId)}, 0, ${sqlString(String(input.providerId))},
+   ${integer(login.pid)}, ${sqlString(title)}, NOW(), ${sqlString(input.reason)}, 0,
+   ${sqlString(input.date)}, ${sqlString(input.date)}, ${integer(input.durationMinutes * 60)},
+   ${sqlString(startTime)}, ${sqlString(endTime)}, 0, '^',
+   'a:6:{s:14:"event_location";N;s:13:"event_street1";N;s:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}',
+   1, 1, ${integer(input.facilityId)}, ${integer(input.facilityId)}, 0,
+   'a:5:{s:17:"event_repeat_freq";N;s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"1";}');
+SELECT LAST_INSERT_ID() AS id;
+`);
+    const appointmentId = Number(rows[0]?.id);
+    const appointmentRows = await this.db.queryRows<Record<string, string>>(portalAppointmentByIdQuery(appointmentId));
+    const appointment = appointmentRows[0] ? mapPortalAppointmentRow(appointmentRows[0]) : null;
+
+    const providerRows = await this.db.queryRows<Record<string, string>>(`
+SELECT username
+FROM users
+WHERE id = ${integer(input.providerId)}
+LIMIT 1;
+`);
+    const assignedTo = providerRows[0]?.username ?? "";
+    const reminderBody = buildPortalAppointmentReminderBody(login.displayName, appointment ?? {
+      id: String(appointmentId),
+      date: input.date,
+      startTime: startTime.slice(0, 5),
+      title,
+      status: "^",
+      categoryId: input.categoryId,
+      categoryName: appointmentCategoryLabel(input.categoryId),
+      providerName: null,
+      facilityName: null,
+      comments: input.reason
+    }, input.reason);
+    const reminderRows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO pnotes
+  (date, body, pid, user, groupname, activity, authorized, title, assigned_to, message_status, update_by, update_date)
+VALUES
+  (NOW(), CONCAT(DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'), ' (admin to ', ${sqlString(assignedTo)}, ') ', ${sqlString(reminderBody)}),
+   ${integer(login.pid)}, 'admin', 'Default', 1, 1, 'Patient Reminders', ${sqlString(assignedTo)}, 'New', 1, NOW());
+SELECT LAST_INSERT_ID() AS id;
+`);
+    const reminderId = reminderRows[0]?.id ?? "";
+    const savedReminderRows = await this.db.queryRows<Record<string, string>>(`
+SELECT CAST(id AS CHAR) AS id, title, body, assigned_to AS assignedTo, message_status AS status
+FROM pnotes
+WHERE id = ${integer(Number(reminderId))}
+LIMIT 1;
+`);
+    const reminderRow = savedReminderRows[0];
+
+    return {
+      authenticated: true,
+      created: appointment !== null && reminderRow !== undefined,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      appointment,
+      reminder: reminderRow
+        ? {
+            id: reminderRow.id,
+            title: reminderRow.title,
+            body: reminderRow.body,
+            assignedTo: reminderRow.assignedTo,
+            status: reminderRow.status
+          }
+        : null,
+      failureReason: appointment === null ? "Appointment request was not created." : null,
       sessionSource: "legacy-openemr-portal"
     };
   }
@@ -6130,6 +6256,33 @@ function appointmentCategoryName(categoryId: number) {
         : `Category ${categoryId}`;
 }
 
+function portalAppointmentRequestTitle(categoryId: number) {
+  return categoryId === 13 ? "Preventive Care" : appointmentCategoryName(categoryId);
+}
+
+function normalizePortalAppointmentTime(value: string) {
+  const [hour, minute] = value.split(":");
+  return `${hour.padStart(2, "0")}:${(minute ?? "00").padStart(2, "0")}:00`;
+}
+
+function addMinutesToTime(value: string, minutes: number) {
+  const [hourText, minuteText] = value.split(":");
+  const totalMinutes = (Number(hourText) * 60) + Number(minuteText) + minutes;
+  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`;
+}
+
+function buildPortalAppointmentReminderBody(
+  displayName: string,
+  appointment: PatientPortalHomeAppointmentSummary,
+  reason: string
+) {
+  const startTime = normalizePortalAppointmentTime(appointment.startTime);
+  return `A New Appointment request was received from portal patient ${displayName} regarding appointment dated ${appointment.date} ${startTime}. Reason ${reason}. Use Portal Dashboard to confirm with patient.`;
+}
+
 function buildAppointmentRecurrence(input: NewAppointment | AppointmentUpdate) {
   const type = input.recurrenceType ?? 0;
   const isRepeatOn = type === 2;
@@ -6736,6 +6889,26 @@ function buildEmptyPortalAppointmentsResult(username: string, failureReason: str
   };
 }
 
+function buildEmptyPortalAppointmentRequestResult(
+  username: string,
+  failureReason: string
+): PatientPortalAppointmentRequestResult {
+  return {
+    authenticated: false,
+    created: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    appointment: null,
+    reminder: null,
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
 function mapPortalAppointmentRow(row: Record<string, string>): PatientPortalHomeAppointmentSummary {
   const categoryId = row.categoryId ? Number(row.categoryId) : null;
   return {
@@ -6750,6 +6923,26 @@ function mapPortalAppointmentRow(row: Record<string, string>): PatientPortalHome
     facilityName: row.facilityName || null,
     comments: row.comments || null
   };
+}
+
+function portalAppointmentByIdQuery(appointmentId: number) {
+  return `
+SELECT
+  e.pc_eid AS id,
+  DATE_FORMAT(e.pc_eventDate, '%Y-%m-%d') AS appointmentDate,
+  TIME_FORMAT(e.pc_startTime, '%H:%i') AS startTime,
+  COALESCE(e.pc_title, 'Appointment') AS title,
+  COALESCE(e.pc_apptstatus, '') AS status,
+  COALESCE(CAST(e.pc_catid AS CHAR), '') AS categoryId,
+  TRIM(CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, ''))) AS providerName,
+  COALESCE(f.name, '') AS facilityName,
+  COALESCE(e.pc_hometext, '') AS comments
+FROM openemr_postcalendar_events e
+LEFT JOIN users u ON u.id = e.pc_aid
+LEFT JOIN facility f ON f.id = e.pc_facility
+WHERE e.pc_eid = ${integer(appointmentId)}
+LIMIT 1;
+`;
 }
 
 function buildEmptyPortalMessagesResult(username: string, failureReason: string): PatientPortalMessagesResult {

@@ -951,6 +951,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-220-patient-portal-appointment-request-readiness",
+      "name": "Slice 220 Patient Portal Appointment Request Readiness",
+      "description": "Patient portal confidence plan that creates a pending signed-in patient appointment request, verifies the provider reminder note, and confirms the requested appointment renders on portal UI surfaces.",
+      "suites": ["workflow-patient-portal-appointment-request"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-220", "patients", "portal", "appointments", "scheduling", "request", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3917,6 +3926,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-appointments",
       "tags": ["slice219", "workflow", "read-only", "patients", "portal", "appointments", "scheduling", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-appointment-request",
+      "name": "Patient Portal Appointment Request Readiness",
+      "description": "Creates a signed-in patient pending appointment request, verifies the provider reminder note, and confirms portal appointment rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-appointment-request",
+      "tags": ["slice220", "workflow", "mutation", "patients", "portal", "appointments", "scheduling", "request", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
