@@ -16180,6 +16180,37 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 283. Agent Guide Workspace Edit Permission Rule
+
+Started: 2026-06-24T16:32:09.6094992-04:00
+Finished: 2026-06-24T16:32:31.1609870-04:00
+Commit: pending
+
+Captured the user's standing permission for routine file edits directly in the workspace agent guide so future Codex sessions can proceed with necessary project changes without asking for repeated file-change approval.
+
+Code changes:
+
+- Files changed: 2
+- Lines added: 32
+- Lines deleted: 0
+- Net lines: +32
+- Total churn: 32
+
+Key outcomes:
+
+- Added an explicit `AGENTS.md` working rule that routine project file changes are pre-approved.
+- Kept the guardrails that unrelated user changes must be preserved and destructive Git operations still require an explicit request.
+- Recorded the durable project-history update in the changelog so the Workbench timeline can show when the rule was captured.
+
+Verified test runs:
+
+- Documentation-only change; verified by reading `AGENTS.md` and `documents/PROJECT_CHANGELOG.md`.
+
+Primary files:
+
+- `AGENTS.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
