@@ -14922,6 +14922,68 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 260. Slice 222 Patient Portal Clinical Summary Readiness
+
+Started: 2026-06-23T20:52:00-04:00
+Finished: 2026-06-23T21:33:39-04:00
+Duration: 00:41:39
+Commit: pending
+
+Implemented Slice 222: patient portal clinical summary readiness. The modernized target now exposes a signed-in patient portal clinical summary for active problems, allergies, medications, and prescriptions, renders the same clinical-list facts in the Portal workspace, and proves parity against the legacy portal clinical pages for the `MOD-PAT-0004` account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 1079
+- Lines deleted: 23
+- Net lines: +1056
+- Total churn: 1102
+
+Key outcomes:
+
+- Added session-protected `GET /api/patient-portal/clinical-summary` to the modernized API, returning active patient problems, allergies, medications, and prescriptions for the signed-in portal session.
+- Updated the modernized Portal workspace to load and render the clinical summary alongside existing portal home, appointment, message, and document content.
+- Added legacy and modernized workflow action support for patient portal clinical summary reads, including legacy direct reads from the portal-backed clinical-list and prescription tables.
+- Added the `workflow-patient-portal-clinical-summary` Playwright suite and `slice-222-patient-portal-clinical-summary-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed actions for both targets.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, baseline smoke test, and functionality progress ledger with the Slice 222 portal clinical-summary contract.
+
+Verified test runs:
+
+- `node -e "const fs=require('fs'); for (const p of ['parity-tests/test-manifest.json','modernization-workbench/config/apps.json','modernization-workbench/config/functionality-progress.json']) { JSON.parse(fs.readFileSync(p,'utf8')); console.log(p+': ok'); }"` passed via `cmd.exe /c`.
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and included `slice-222-patient-portal-clinical-summary-readiness`.
+- `npm --prefix modernization-workbench run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernization-workbench run build` passed via `cmd.exe /c`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-222-patient-portal-clinical-summary-readiness -Reset test` passed as run `2026-06-24T012313-186Z-legacy-openemr-plan-slice-222-patient-portal-clinical-summary-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-222-patient-portal-clinical-summary-readiness -Reset test` passed as run `2026-06-24T012402-836Z-modernized-openemr-plan-slice-222-patient-portal-clinical-summary-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-222-patient-portal-clinical-summary-readiness` passed as comparison `2026-06-24T012450-938Z-legacy-openemr-vs-modernized-openemr-plan-slice-222-patient-portal-clinical-summary-readiness` with no differences.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-clinical-summary/patient-portal-clinical-summary.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

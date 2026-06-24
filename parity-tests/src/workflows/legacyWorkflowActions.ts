@@ -227,6 +227,66 @@ export type PatientPortalAppointmentsResult = {
   sessionSource: string;
 };
 
+export type PatientPortalProblemItem = {
+  id: string;
+  title: string;
+  reportedDate: string | null;
+  startDate: string | null;
+  endDate: string | null;
+};
+
+export type PatientPortalAllergyItem = {
+  id: string;
+  title: string;
+  reportedDate: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  referredBy: string | null;
+  reaction: string | null;
+  severity: string | null;
+};
+
+export type PatientPortalMedicationItem = {
+  id: string;
+  title: string;
+  startDate: string | null;
+  modifiedDate: string | null;
+  endDate: string | null;
+};
+
+export type PatientPortalPrescriptionItem = {
+  id: string;
+  drug: string;
+  startDate: string | null;
+  endDate: string | null;
+  dosage: string | null;
+  quantity: string | null;
+  route: string | null;
+  note: string | null;
+};
+
+export type PatientPortalClinicalSummaryResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  problemCount: number;
+  problems: PatientPortalProblemItem[];
+  allergyCount: number;
+  allergies: PatientPortalAllergyItem[];
+  medicationCount: number;
+  medications: PatientPortalMedicationItem[];
+  prescriptionCount: number;
+  prescriptions: PatientPortalPrescriptionItem[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalAppointmentCategoryOption = {
   id: number;
   name: string;
@@ -2359,6 +2419,90 @@ WHERE pc_pid = ${integer(login.pid)}
       upcomingAppointments: upcomingRows.map(mapPortalAppointmentRow),
       pastAppointmentCount: Number(pastCountRows[0]?.appointmentCount ?? pastRows.length),
       pastAppointments: pastRows.map(mapPortalAppointmentRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalClinicalSummary(username: string, password: string): Promise<PatientPortalClinicalSummaryResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalClinicalSummaryResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const problemRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  COALESCE(title, '') AS title,
+  DATE_FORMAT(date, '%Y-%m-%d') AS reportedDate,
+  DATE_FORMAT(begdate, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(enddate, '%Y-%m-%d') AS endDate
+FROM lists
+WHERE pid = ${integer(login.pid)}
+  AND type = 'medical_problem'
+ORDER BY begdate, id;
+`);
+    const allergyRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  COALESCE(title, '') AS title,
+  DATE_FORMAT(date, '%Y-%m-%d') AS reportedDate,
+  DATE_FORMAT(begdate, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(enddate, '%Y-%m-%d') AS endDate,
+  COALESCE(referredby, '') AS referredBy,
+  COALESCE(reaction, '') AS reaction,
+  COALESCE(severity_al, '') AS severity
+FROM lists
+WHERE pid = ${integer(login.pid)}
+  AND type = 'allergy'
+ORDER BY begdate, id;
+`);
+    const medicationRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  COALESCE(title, '') AS title,
+  DATE_FORMAT(begdate, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(modifydate, '%Y-%m-%d') AS modifiedDate,
+  DATE_FORMAT(enddate, '%Y-%m-%d') AS endDate
+FROM lists
+WHERE pid = ${integer(login.pid)}
+  AND type = 'medication'
+ORDER BY begdate, id;
+`);
+    const prescriptionRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(id AS CHAR) AS id,
+  COALESCE(drug, '') AS drug,
+  DATE_FORMAT(start_date, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(end_date, '%Y-%m-%d') AS endDate,
+  COALESCE(dosage, '') AS dosage,
+  COALESCE(quantity, '') AS quantity,
+  COALESCE(route, '') AS route,
+  COALESCE(note, '') AS note
+FROM prescriptions
+WHERE patient_id = ${integer(login.pid)}
+  AND end_date IS NULL
+ORDER BY start_date, id;
+`);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      problemCount: problemRows.length,
+      problems: problemRows.map(mapPortalProblemRow),
+      allergyCount: allergyRows.length,
+      allergies: allergyRows.map(mapPortalAllergyRow),
+      medicationCount: medicationRows.length,
+      medications: medicationRows.map(mapPortalMedicationRow),
+      prescriptionCount: prescriptionRows.length,
+      prescriptions: prescriptionRows.map(mapPortalPrescriptionRow),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -7025,6 +7169,30 @@ function buildEmptyPortalAppointmentsResult(username: string, failureReason: str
   };
 }
 
+function buildEmptyPortalClinicalSummaryResult(username: string, failureReason: string): PatientPortalClinicalSummaryResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    problemCount: 0,
+    problems: [],
+    allergyCount: 0,
+    allergies: [],
+    medicationCount: 0,
+    medications: [],
+    prescriptionCount: 0,
+    prescriptions: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
 function buildEmptyPortalAppointmentRequestOptionsResult(
   username: string,
   failureReason: string
@@ -7115,6 +7283,52 @@ function mapPortalAppointmentRow(row: Record<string, string>): PatientPortalHome
     providerName: row.providerName || null,
     facilityName: row.facilityName || null,
     comments: row.comments || null
+  };
+}
+
+function mapPortalProblemRow(row: Record<string, string>): PatientPortalProblemItem {
+  return {
+    id: row.id,
+    title: row.title,
+    reportedDate: normalizeOptionalDateText(row.reportedDate),
+    startDate: normalizeOptionalDateText(row.startDate),
+    endDate: normalizeOptionalDateText(row.endDate)
+  };
+}
+
+function mapPortalAllergyRow(row: Record<string, string>): PatientPortalAllergyItem {
+  return {
+    id: row.id,
+    title: row.title,
+    reportedDate: normalizeOptionalDateText(row.reportedDate),
+    startDate: normalizeOptionalDateText(row.startDate),
+    endDate: normalizeOptionalDateText(row.endDate),
+    referredBy: row.referredBy || null,
+    reaction: row.reaction || null,
+    severity: row.severity || null
+  };
+}
+
+function mapPortalMedicationRow(row: Record<string, string>): PatientPortalMedicationItem {
+  return {
+    id: row.id,
+    title: row.title,
+    startDate: normalizeOptionalDateText(row.startDate),
+    modifiedDate: normalizeOptionalDateText(row.modifiedDate),
+    endDate: normalizeOptionalDateText(row.endDate)
+  };
+}
+
+function mapPortalPrescriptionRow(row: Record<string, string>): PatientPortalPrescriptionItem {
+  return {
+    id: row.id,
+    drug: row.drug,
+    startDate: normalizeOptionalDateText(row.startDate),
+    endDate: normalizeOptionalDateText(row.endDate),
+    dosage: row.dosage || null,
+    quantity: row.quantity || null,
+    route: row.route || null,
+    note: row.note || null
   };
 }
 
@@ -7390,6 +7604,14 @@ function normalizeDateText(value: string): string {
   }
 
   return value.slice(0, 10);
+}
+
+function normalizeOptionalDateText(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  return normalizeDateText(value) || null;
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

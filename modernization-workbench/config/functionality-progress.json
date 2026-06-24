@@ -1,12 +1,12 @@
 {
   "version": "0.3.0",
-  "lastUpdated": "2026-06-23",
+  "lastUpdated": "2026-06-24",
   "areas": [
     {
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -192,6 +192,11 @@
           "label": "Patient portal appointment request options readiness",
           "detail": "The modernized patient portal API and Portal page now derive appointment request visit, provider, facility, duration, and default selections from target data instead of hard-coded form IDs, while parity compares the same option readiness against legacy OpenEMR.",
           "evidence": ["slice-221-patient-portal-appointment-options-readiness"]
+        },
+        {
+          "label": "Patient portal clinical summary readiness",
+          "detail": "The modernized patient portal API and Portal page now render signed-in patient problems, allergies, medication-list entries, and active prescriptions, while parity compares the same portal clinical summary facts against legacy OpenEMR.",
+          "evidence": ["slice-222-patient-portal-clinical-summary-readiness"]
         }
       ],
       "outstanding": [
@@ -204,7 +209,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -328,7 +333,7 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, prescription, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, prescription, patient-portal clinical summary, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
@@ -349,6 +354,11 @@
           "label": "Clinical list authorization policy readiness",
           "detail": "The modernized clinical-list API now enforces mirrored Medical/History access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
           "evidence": ["slice-175-clinical-list-authorization-policy-readiness"]
+        },
+        {
+          "label": "Patient portal clinical summary readiness",
+          "detail": "Signed-in portal patients can see the same problem, allergy, medication-list, and active-prescription summary facts that legacy OpenEMR exposes through the portal clinical-list pages.",
+          "evidence": ["slice-222-patient-portal-clinical-summary-readiness"]
         }
       ],
       "outstanding": [
@@ -358,10 +368,10 @@
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 56,
+      "completionEstimatePercent": 58,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, and patient portal clinical-summary projection is covered; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
     },
     {
       "id": "messaging-portal",

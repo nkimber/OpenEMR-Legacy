@@ -69,6 +69,7 @@ import type {
   PatientPortalAppointmentRequestOptionsResult,
   PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
+  PatientPortalClinicalSummaryResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
@@ -757,6 +758,47 @@ LIMIT 1;
       }
 
       return mapPatientPortalAppointmentsResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalClinicalSummary(username: string, password: string): Promise<PatientPortalClinicalSummaryResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        problemCount: 0,
+        problems: [],
+        allergyCount: 0,
+        allergies: [],
+        medicationCount: 0,
+        medications: [],
+        prescriptionCount: 0,
+        prescriptions: [],
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/clinical-summary`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal clinical summary failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalClinicalSummaryResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4592,6 +4634,60 @@ function mapPatientPortalAppointmentsResult(result: any): PatientPortalAppointme
     upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
     pastAppointmentCount: result.pastAppointmentCount ?? 0,
     pastAppointments: (result.pastAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalClinicalSummaryResult(result: any): PatientPortalClinicalSummaryResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    problemCount: result.problemCount ?? 0,
+    problems: (result.problems ?? []).map((problem: any) => ({
+      id: problem.id ?? "",
+      title: problem.title ?? "",
+      reportedDate: problem.reportedDate ?? null,
+      startDate: problem.startDate ?? null,
+      endDate: problem.endDate ?? null
+    })),
+    allergyCount: result.allergyCount ?? 0,
+    allergies: (result.allergies ?? []).map((allergy: any) => ({
+      id: allergy.id ?? "",
+      title: allergy.title ?? "",
+      reportedDate: allergy.reportedDate ?? null,
+      startDate: allergy.startDate ?? null,
+      endDate: allergy.endDate ?? null,
+      referredBy: allergy.referredBy ?? null,
+      reaction: allergy.reaction ?? null,
+      severity: allergy.severity ?? null
+    })),
+    medicationCount: result.medicationCount ?? 0,
+    medications: (result.medications ?? []).map((medication: any) => ({
+      id: medication.id ?? "",
+      title: medication.title ?? "",
+      startDate: medication.startDate ?? null,
+      modifiedDate: medication.modifiedDate ?? null,
+      endDate: medication.endDate ?? null
+    })),
+    prescriptionCount: result.prescriptionCount ?? 0,
+    prescriptions: (result.prescriptions ?? []).map((prescription: any) => ({
+      id: prescription.id ?? "",
+      drug: prescription.drug ?? "",
+      startDate: prescription.startDate ?? null,
+      endDate: prescription.endDate ?? null,
+      dosage: prescription.dosage ?? null,
+      quantity: prescription.quantity ?? null,
+      route: prescription.route ?? null,
+      note: prescription.note ?? null
+    })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

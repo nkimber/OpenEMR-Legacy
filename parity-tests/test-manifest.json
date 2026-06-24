@@ -969,6 +969,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-222-patient-portal-clinical-summary-readiness",
+      "name": "Slice 222 Patient Portal Clinical Summary Readiness",
+      "description": "Patient portal confidence plan that verifies signed-in problem, allergy, medication, and active prescription summary facts on API/workflow and UI surfaces.",
+      "suites": ["workflow-patient-portal-clinical-summary"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-222", "patients", "portal", "clinical-lists", "medications", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3955,6 +3964,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-appointment-options",
       "tags": ["slice221", "workflow", "read-only", "patients", "portal", "appointments", "scheduling", "request-options", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-clinical-summary",
+      "name": "Patient Portal Clinical Summary Readiness",
+      "description": "Verifies signed-in patient portal problem, allergy, medication, and active prescription summary facts through workflow/API and portal UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-clinical-summary",
+      "tags": ["slice222", "workflow", "read-only", "patients", "portal", "clinical-lists", "medications", "prescriptions", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
