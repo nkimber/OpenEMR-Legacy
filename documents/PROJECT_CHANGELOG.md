@@ -15778,7 +15778,7 @@ Primary files:
 
 Started: 2026-06-24T12:45:30.0000000-04:00
 Finished: 2026-06-24T13:04:49.2194622-04:00
-Commit: pending
+Commit: 4b37a892
 
 Implemented Slice 235: patient portal secure-message Deleted-folder readiness. The modernized target now exposes owner-scoped archived portal mailbox rows through the session-protected portal messages response, renders a read-only Portal Deleted section, keeps archived rows hidden from Inbox, Sent, and All, and verifies the same cleanup-backed behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
 
