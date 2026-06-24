@@ -71,6 +71,7 @@ import type {
   PatientPortalAppointmentsResult,
   PatientPortalClinicalSummaryResult,
   PatientPortalLabResultsResult,
+  PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalDeleteMessageResult,
@@ -837,6 +838,55 @@ LIMIT 1;
       }
 
       return mapPatientPortalLabResultsResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalMedicalReport(username: string, password: string): Promise<PatientPortalMedicalReportResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        sectionCount: 0,
+        selectedSectionCount: 0,
+        sections: [],
+        issueCount: 0,
+        issues: [],
+        encounterCount: 0,
+        encounters: [],
+        procedureOrderCount: 0,
+        procedureOrders: [],
+        reportPreview: {
+          title: "",
+          includedSectionIds: [],
+          includedProcedureOrderIds: [],
+          summaryLineCount: 0,
+          summaryLines: []
+        },
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/medical-report`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal medical report failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalMedicalReportResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4773,6 +4823,76 @@ function mapPatientPortalLabResultsResult(result: any): PatientPortalLabResultsR
         }))
       }))
     })),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalMedicalReportResult(result: any): PatientPortalMedicalReportResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: nullableNumber(result.legacyPid),
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    sectionCount: result.sectionCount ?? 0,
+    selectedSectionCount: result.selectedSectionCount ?? 0,
+    sections: (result.sections ?? []).map((section: any) => ({
+      id: section.id ?? "",
+      label: section.label ?? "",
+      group: section.group ?? "",
+      selected: Boolean(section.selected)
+    })),
+    issueCount: result.issueCount ?? 0,
+    issues: (result.issues ?? []).map((issue: any) => ({
+      id: issue.id ?? "",
+      type: issue.type ?? "",
+      typeLabel: issue.typeLabel ?? "",
+      title: issue.title ?? "",
+      beginDate: issue.beginDate ?? null,
+      endDate: issue.endDate ?? null,
+      status: issue.status ?? "",
+      encounterIds: issue.encounterIds ?? []
+    })),
+    encounterCount: result.encounterCount ?? 0,
+    encounters: (result.encounters ?? []).map((encounter: any) => ({
+      encounter: encounter.encounter ?? 0,
+      date: encounter.date ?? "",
+      display: encounter.display ?? "",
+      reason: encounter.reason ?? null,
+      formCount: encounter.formCount ?? 0,
+      forms: (encounter.forms ?? []).map((form: any) => ({
+        id: form.id ?? "",
+        formDirectory: form.formDirectory ?? "",
+        display: form.display ?? "",
+        encounter: form.encounter ?? 0
+      }))
+    })),
+    procedureOrderCount: result.procedureOrderCount ?? 0,
+    procedureOrders: (result.procedureOrders ?? []).map((order: any) => ({
+      id: order.id ?? "",
+      encounter: order.encounter ?? 0,
+      orderDate: order.orderDate ?? "",
+      encounterDate: order.encounterDate ?? null,
+      procedureCode: order.procedureCode ?? null,
+      procedureName: order.procedureName ?? "",
+      diagnosis: order.diagnosis ?? null,
+      orderStatus: order.orderStatus ?? null,
+      reportCount: order.reportCount ?? 0,
+      resultCount: order.resultCount ?? 0,
+      resultNames: order.resultNames ?? []
+    })),
+    reportPreview: {
+      title: result.reportPreview?.title ?? "",
+      includedSectionIds: result.reportPreview?.includedSectionIds ?? [],
+      includedProcedureOrderIds: result.reportPreview?.includedProcedureOrderIds ?? [],
+      summaryLineCount: result.reportPreview?.summaryLineCount ?? 0,
+      summaryLines: result.reportPreview?.summaryLines ?? []
+    },
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

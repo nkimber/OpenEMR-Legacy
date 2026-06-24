@@ -987,6 +987,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-224-patient-portal-medical-report-readiness",
+      "name": "Slice 224 Patient Portal Medical Report Readiness",
+      "description": "Patient portal confidence plan that verifies signed-in medical report sections, issue choices, encounter/form choices, procedure-order inclusion, and report-preview facts on API/workflow and UI surfaces.",
+      "suites": ["workflow-patient-portal-medical-report"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-224", "patients", "portal", "reports", "medical-report", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3993,6 +4002,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-lab-results",
       "tags": ["slice223", "workflow", "read-only", "patients", "portal", "labs", "procedure-results", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-medical-report",
+      "name": "Patient Portal Medical Report Readiness",
+      "description": "Verifies signed-in patient portal customized medical-history report sections, issues, encounters, procedure orders, preview facts, and visible report-builder rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-medical-report",
+      "tags": ["slice224", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

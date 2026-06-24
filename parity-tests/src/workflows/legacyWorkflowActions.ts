@@ -338,6 +338,100 @@ export type PatientPortalLabResultsResult = {
   sessionSource: string;
 };
 
+export type PatientPortalMedicalReportSection = {
+  id: string;
+  label: string;
+  group: string;
+  selected: boolean;
+};
+
+export type PatientPortalMedicalReportIssue = {
+  id: string;
+  type: string;
+  typeLabel: string;
+  title: string;
+  beginDate: string | null;
+  endDate: string | null;
+  status: string;
+  encounterIds: number[];
+};
+
+export type PatientPortalMedicalReportEncounterForm = {
+  id: string;
+  formDirectory: string;
+  display: string;
+  encounter: number;
+};
+
+export type PatientPortalMedicalReportEncounter = {
+  encounter: number;
+  date: string;
+  display: string;
+  reason: string | null;
+  formCount: number;
+  forms: PatientPortalMedicalReportEncounterForm[];
+};
+
+export type PatientPortalMedicalReportProcedureOrder = {
+  id: string;
+  encounter: number;
+  orderDate: string;
+  encounterDate: string | null;
+  procedureCode: string | null;
+  procedureName: string;
+  diagnosis: string | null;
+  orderStatus: string | null;
+  reportCount: number;
+  resultCount: number;
+  resultNames: string[];
+};
+
+export type PatientPortalGeneratedMedicalReport = {
+  title: string;
+  includedSectionIds: string[];
+  includedProcedureOrderIds: string[];
+  summaryLineCount: number;
+  summaryLines: string[];
+};
+
+export type PatientPortalMedicalReportResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  sectionCount: number;
+  selectedSectionCount: number;
+  sections: PatientPortalMedicalReportSection[];
+  issueCount: number;
+  issues: PatientPortalMedicalReportIssue[];
+  encounterCount: number;
+  encounters: PatientPortalMedicalReportEncounter[];
+  procedureOrderCount: number;
+  procedureOrders: PatientPortalMedicalReportProcedureOrder[];
+  reportPreview: PatientPortalGeneratedMedicalReport;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
+const patientPortalMedicalReportSections: PatientPortalMedicalReportSection[] = [
+  { id: "demographics", label: "Demographics", group: "Core", selected: true },
+  { id: "history", label: "History", group: "Core", selected: false },
+  { id: "insurance", label: "Insurance", group: "Core", selected: false },
+  { id: "billing", label: "Billing", group: "Core", selected: true },
+  { id: "allergies", label: "Allergies", group: "Clinical", selected: false },
+  { id: "medications", label: "Medications", group: "Clinical", selected: false },
+  { id: "immunizations", label: "Immunizations", group: "Clinical", selected: false },
+  { id: "medical_problems", label: "Medical Problems", group: "Clinical", selected: false },
+  { id: "notes", label: "Patient Notes", group: "Clinical", selected: false },
+  { id: "transactions", label: "Transactions", group: "Clinical", selected: false },
+  { id: "batchcom", label: "Communications", group: "Clinical", selected: false }
+];
+
 export type PatientPortalAppointmentCategoryOption = {
   id: number;
   name: string;
@@ -2673,6 +2767,150 @@ ORDER BY po.date_ordered, po.procedure_order_id, poc.procedure_order_seq, pr.pro
       reportCount: orders.reduce((sum, order) => sum + order.reportCount, 0),
       resultCount: orders.reduce((sum, order) => sum + order.resultCount, 0),
       orders,
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalMedicalReport(username: string, password: string): Promise<PatientPortalMedicalReportResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalMedicalReportResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const issueRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(l.id AS CHAR) AS id,
+  COALESCE(l.type, '') AS type,
+  CASE l.type
+    WHEN 'medical_problem' THEN 'Medical Problem'
+    WHEN 'allergy' THEN 'Allergy'
+    WHEN 'medication' THEN 'Medication'
+    ELSE COALESCE(l.type, '')
+  END AS typeLabel,
+  COALESCE(NULLIF(l.title, ''), '[Missing Title]') AS title,
+  DATE_FORMAT(l.begdate, '%Y-%m-%d') AS beginDate,
+  DATE_FORMAT(l.enddate, '%Y-%m-%d') AS endDate,
+  CASE WHEN l.enddate IS NULL THEN 'active' ELSE 'inactive' END AS status,
+  COALESCE(GROUP_CONCAT(ie.encounter ORDER BY ie.encounter SEPARATOR ','), '') AS encounterIds
+FROM lists l
+LEFT JOIN issue_encounter ie ON ie.pid = l.pid AND ie.list_id = l.id
+WHERE l.pid = ${integer(login.pid)}
+GROUP BY l.id, l.type, l.title, l.begdate, l.enddate
+ORDER BY l.type, l.begdate, l.id;
+`);
+
+    const encounterRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  fe.encounter,
+  DATE_FORMAT(fe.date, '%Y-%m-%d') AS date,
+  COALESCE(fe.reason, '') AS reason
+FROM form_encounter fe
+WHERE fe.pid = ${integer(login.pid)}
+ORDER BY fe.date DESC, fe.encounter DESC;
+`);
+
+    const formRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  forms.encounter,
+  CAST(forms.form_id AS CHAR) AS id,
+  COALESCE(forms.formdir, '') AS formDirectory,
+  CASE
+    WHEN TRIM(COALESCE(forms.form_name, '')) = '-procedure' THEN 'Procedure Order'
+    ELSE COALESCE(NULLIF(TRIM(forms.form_name), ''), COALESCE(forms.formdir, 'Form'))
+  END AS display
+FROM forms
+WHERE forms.pid = ${integer(login.pid)}
+  AND forms.deleted = 0
+  AND forms.encounter > 0
+  AND COALESCE(forms.form_name, '') <> 'New Patient Encounter'
+ORDER BY forms.encounter, forms.date, forms.formdir, forms.form_id;
+`);
+
+    const formsByEncounter = new Map<number, PatientPortalMedicalReportEncounterForm[]>();
+    for (const row of formRows) {
+      const encounter = Number(row.encounter);
+      const forms = formsByEncounter.get(encounter) ?? [];
+      forms.push({
+        id: row.id,
+        formDirectory: row.formDirectory,
+        display: row.display,
+        encounter
+      });
+      formsByEncounter.set(encounter, forms);
+    }
+
+    const procedureRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(po.procedure_order_id AS CHAR) AS id,
+  COALESCE(CAST(f.encounter AS CHAR), '0') AS encounter,
+  DATE_FORMAT(po.date_ordered, '%Y-%m-%d') AS orderDate,
+  DATE_FORMAT(fe.date, '%Y-%m-%d') AS encounterDate,
+  COALESCE(poc.procedure_code, '') AS procedureCode,
+  COALESCE(poc.procedure_name, '') AS procedureName,
+  COALESCE(poc.diagnoses, '') AS diagnosis,
+  COALESCE(po.order_status, '') AS orderStatus,
+  COUNT(DISTINCT pr.procedure_report_id) AS reportCount,
+  COUNT(ps.procedure_result_id) AS resultCount,
+  COALESCE(GROUP_CONCAT(ps.result_text ORDER BY ps.procedure_result_id SEPARATOR '|'), '') AS resultNames
+FROM procedure_order po
+LEFT JOIN procedure_order_code poc
+  ON poc.procedure_order_id = po.procedure_order_id
+  AND poc.procedure_order_seq = 1
+LEFT JOIN forms f
+  ON f.pid = po.patient_id
+  AND f.formdir = 'procedure_order'
+  AND f.form_id = po.procedure_order_id
+  AND f.deleted = 0
+LEFT JOIN form_encounter fe
+  ON fe.pid = f.pid
+  AND fe.encounter = f.encounter
+LEFT JOIN procedure_report pr
+  ON pr.procedure_order_id = po.procedure_order_id
+  AND pr.procedure_order_seq = poc.procedure_order_seq
+LEFT JOIN procedure_result ps
+  ON ps.procedure_report_id = pr.procedure_report_id
+WHERE po.patient_id = ${integer(login.pid)}
+GROUP BY po.procedure_order_id, f.encounter, po.date_ordered, fe.date, poc.procedure_code, poc.procedure_name, poc.diagnoses, po.order_status
+ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
+`);
+
+    const issues = issueRows.map(mapPatientPortalMedicalReportIssueRow);
+    const encounters = encounterRows.map((row) => {
+      const encounter = Number(row.encounter);
+      const forms = formsByEncounter.get(encounter) ?? [];
+      return {
+        encounter,
+        date: row.date,
+        display: buildPatientPortalReportEncounterDisplay(row.reason),
+        reason: normalizeNullableText(row.reason),
+        formCount: forms.length,
+        forms
+      };
+    });
+    const procedureOrders = procedureRows.map(mapPatientPortalMedicalReportProcedureOrderRow);
+    const reportPreview = buildPatientPortalGeneratedMedicalReport(login.displayName, login.pubpid, issues, encounters, procedureOrders);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      sectionCount: patientPortalMedicalReportSections.length,
+      selectedSectionCount: patientPortalMedicalReportSections.filter((section) => section.selected).length,
+      sections: patientPortalMedicalReportSections,
+      issueCount: issues.length,
+      issues,
+      encounterCount: encounters.length,
+      encounters,
+      procedureOrderCount: procedureOrders.length,
+      procedureOrders,
+      reportPreview,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -7383,6 +7621,38 @@ function buildEmptyPortalLabResultsResult(username: string, failureReason: strin
   };
 }
 
+function buildEmptyPortalMedicalReportResult(username: string, failureReason: string): PatientPortalMedicalReportResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    sectionCount: 0,
+    selectedSectionCount: 0,
+    sections: [],
+    issueCount: 0,
+    issues: [],
+    encounterCount: 0,
+    encounters: [],
+    procedureOrderCount: 0,
+    procedureOrders: [],
+    reportPreview: {
+      title: "",
+      includedSectionIds: [],
+      includedProcedureOrderIds: [],
+      summaryLineCount: 0,
+      summaryLines: []
+    },
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
 function buildEmptyPortalAppointmentRequestOptionsResult(
   username: string,
   failureReason: string
@@ -7520,6 +7790,77 @@ function mapPortalPrescriptionRow(row: Record<string, string>): PatientPortalPre
     route: row.route || null,
     note: row.note || null
   };
+}
+
+function mapPatientPortalMedicalReportIssueRow(row: Record<string, string>): PatientPortalMedicalReportIssue {
+  return {
+    id: row.id,
+    type: row.type,
+    typeLabel: row.typeLabel,
+    title: row.title,
+    beginDate: normalizeOptionalDateText(row.beginDate),
+    endDate: normalizeOptionalDateText(row.endDate),
+    status: row.status || "active",
+    encounterIds: row.encounterIds
+      ? row.encounterIds.split(",").map((encounter) => Number(encounter)).filter((encounter) => Number.isInteger(encounter))
+      : []
+  };
+}
+
+function mapPatientPortalMedicalReportProcedureOrderRow(
+  row: Record<string, string>
+): PatientPortalMedicalReportProcedureOrder {
+  return {
+    id: row.id,
+    encounter: Number(row.encounter || 0),
+    orderDate: normalizeDateText(row.orderDate),
+    encounterDate: normalizeOptionalDateText(row.encounterDate),
+    procedureCode: normalizeNullableText(row.procedureCode),
+    procedureName: row.procedureName,
+    diagnosis: normalizeNullableText(row.diagnosis),
+    orderStatus: normalizeNullableText(row.orderStatus),
+    reportCount: Number(row.reportCount ?? 0),
+    resultCount: Number(row.resultCount ?? 0),
+    resultNames: row.resultNames ? row.resultNames.split("|").filter((name) => name.trim() !== "") : []
+  };
+}
+
+function buildPatientPortalGeneratedMedicalReport(
+  displayName: string,
+  pubpid: string,
+  issues: PatientPortalMedicalReportIssue[],
+  encounters: PatientPortalMedicalReportEncounter[],
+  procedureOrders: PatientPortalMedicalReportProcedureOrder[]
+): PatientPortalGeneratedMedicalReport {
+  const includedSectionIds = patientPortalMedicalReportSections
+    .filter((section) => section.selected)
+    .map((section) => section.id);
+  const includedProcedureOrderIds = procedureOrders.slice(0, 1).map((order) => order.id);
+  const summaryLines = [
+    `Patient Data: ${displayName} (${pubpid})`,
+    `Billing Information: ${displayName} has billing detail available through the medical history report.`,
+    `Issues available: ${issues.length}; Encounters available: ${encounters.length}.`,
+    ...procedureOrders.slice(0, 1).map((order) =>
+      `Procedure Order: ${order.procedureName} ordered ${order.orderDate} with ${order.resultCount} result rows.`
+    )
+  ];
+
+  return {
+    title: "Customized Medical History Report",
+    includedSectionIds,
+    includedProcedureOrderIds,
+    summaryLineCount: summaryLines.length,
+    summaryLines
+  };
+}
+
+function buildPatientPortalReportEncounterDisplay(reason: string | null | undefined): string {
+  const normalized = normalizeNullableText(reason);
+  if (!normalized) {
+    return "Encounter";
+  }
+
+  return normalized.length > 20 ? `${normalized.slice(0, 20)} ... ` : normalized;
 }
 
 function portalAppointmentByIdQuery(appointmentId: number) {
