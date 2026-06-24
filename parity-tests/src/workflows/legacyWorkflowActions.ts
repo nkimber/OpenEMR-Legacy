@@ -391,6 +391,7 @@ export type PatientPortalGeneratedMedicalReport = {
   includedSectionIds: string[];
   includedProcedureOrderIds: string[];
   includedEncounterFormIds: string[];
+  templateMetadata: PatientPortalGeneratedMedicalReportTemplateMetadata;
   summaryLineCount: number;
   summaryLines: string[];
 };
@@ -409,6 +410,17 @@ export type PatientPortalGeneratedMedicalReportSection = {
   lines: string[];
 };
 
+export type PatientPortalGeneratedMedicalReportTemplateMetadata = {
+  facilityName: string;
+  facilityStreet: string;
+  facilityCityStatePostal: string;
+  facilityPhone: string;
+  printablePatientName: string;
+  patientHeaderLine: string;
+  generatedOnLabel: string;
+  signatureLineAvailable: boolean;
+};
+
 export type PatientPortalGeneratedMedicalReportResult = {
   authenticated: boolean;
   username: string;
@@ -421,6 +433,7 @@ export type PatientPortalGeneratedMedicalReportResult = {
   asOfDate: string;
   title: string;
   generatedOn: string;
+  templateMetadata: PatientPortalGeneratedMedicalReportTemplateMetadata;
   includedSectionIds: string[];
   includedProcedureOrderIds: string[];
   includedIssueIds: string[];
@@ -3008,7 +3021,29 @@ CROSS JOIN (
 ) payments;
 `);
     const billing = mapPatientPortalGeneratedMedicalReportBillingSummary(billingRows[0]);
-    return buildPatientPortalGeneratedMedicalReportResult(report, billing, "legacy-openemr-portal", input);
+    const templateRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  COALESCE(pd.fname, '') AS firstName,
+  COALESCE(pd.lname, '') AS lastName,
+  DATE_FORMAT(pd.DOB, '%Y-%m-%d') AS dateOfBirth,
+  COALESCE(f.name, '') AS facilityName,
+  COALESCE(f.street, '') AS facilityStreet,
+  COALESCE(f.city, '') AS facilityCity,
+  COALESCE(f.state, '') AS facilityState,
+  COALESCE(f.postal_code, '') AS facilityPostalCode,
+  COALESCE(f.phone, '') AS facilityPhone
+FROM patient_data pd
+CROSS JOIN (
+  SELECT name, street, city, state, postal_code, phone
+  FROM facility
+  ORDER BY billing_location DESC, id
+  LIMIT 1
+) f
+WHERE pd.pid = ${integer(report.pid)}
+LIMIT 1;
+`);
+    const templateMetadata = buildPatientPortalGeneratedMedicalReportTemplateMetadata(templateRows[0]);
+    return buildPatientPortalGeneratedMedicalReportResult(report, billing, "legacy-openemr-portal", input, templateMetadata);
   }
 
   async getPatientPortalAppointmentRequestOptions(
@@ -7741,6 +7776,7 @@ function buildEmptyPortalMedicalReportResult(username: string, failureReason: st
       includedSectionIds: [],
       includedProcedureOrderIds: [],
       includedEncounterFormIds: [],
+      templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
       summaryLineCount: 0,
       summaryLines: []
     },
@@ -7770,6 +7806,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     includedProcedureOrderIds: [],
     includedIssueIds: [],
     includedEncounterFormIds: [],
+    templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -7978,6 +8015,7 @@ function buildPatientPortalGeneratedMedicalReport(
     includedSectionIds,
     includedProcedureOrderIds,
     includedEncounterFormIds: [],
+    templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
     summaryLineCount: summaryLines.length,
     summaryLines
   };
@@ -8001,7 +8039,8 @@ function buildPatientPortalGeneratedMedicalReportResult(
   report: PatientPortalMedicalReportResult,
   billing: PatientPortalGeneratedMedicalReportBillingSummary,
   sessionSource: string,
-  input: PatientPortalMedicalReportGenerationInput = {}
+  input: PatientPortalMedicalReportGenerationInput = {},
+  templateMetadata: PatientPortalGeneratedMedicalReportTemplateMetadata = buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata()
 ): PatientPortalGeneratedMedicalReportResult {
   const validSectionIds = new Set(patientPortalMedicalReportSections.map((section) => section.id));
   const includedSectionIds = input.sectionIds === undefined
@@ -8119,6 +8158,7 @@ function buildPatientPortalGeneratedMedicalReportResult(
     asOfDate: report.asOfDate,
     title: "Customized Medical History Report",
     generatedOn: new Date().toISOString().slice(0, 10),
+    templateMetadata,
     includedSectionIds,
     includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
     includedIssueIds: includedIssues.map((issue) => issue.id),
@@ -8149,6 +8189,55 @@ function buildGeneratedMedicalReportSection(
 
 function buildPatientPortalEncounterFormSelectionId(form: PatientPortalMedicalReportEncounterForm): string {
   return `${form.formDirectory}_${form.id}`;
+}
+
+function buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(): PatientPortalGeneratedMedicalReportTemplateMetadata {
+  return {
+    facilityName: "",
+    facilityStreet: "",
+    facilityCityStatePostal: "",
+    facilityPhone: "",
+    printablePatientName: "",
+    patientHeaderLine: "",
+    generatedOnLabel: "",
+    signatureLineAvailable: false
+  };
+}
+
+function buildPatientPortalGeneratedMedicalReportTemplateMetadata(
+  row: Record<string, string> | undefined
+): PatientPortalGeneratedMedicalReportTemplateMetadata {
+  if (!row) {
+    return buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata();
+  }
+
+  const printablePatientName = [row.firstName, row.lastName].filter((value) => value?.trim()).join(" ");
+  const headerPatientName = [row.lastName, row.firstName].filter((value) => value?.trim()).join(", ");
+  return {
+    facilityName: row.facilityName ?? "",
+    facilityStreet: row.facilityStreet ?? "",
+    facilityCityStatePostal: formatReportCityStatePostal(row.facilityCity, row.facilityState, row.facilityPostalCode),
+    facilityPhone: row.facilityPhone ?? "",
+    printablePatientName,
+    patientHeaderLine: `PATIENT:${headerPatientName} - ${formatReportShortDate(row.dateOfBirth)}`,
+    generatedOnLabel: `Generated on: ${formatReportShortDate(new Date().toISOString().slice(0, 10))}`,
+    signatureLineAvailable: true
+  };
+}
+
+function formatReportCityStatePostal(city: string | undefined, state: string | undefined, postalCode: string | undefined): string {
+  const statePostal = [state, postalCode].filter((value) => value?.trim()).join(" ");
+  const value = [city, statePostal].filter((part) => part?.trim()).join(", ");
+  return value || "Not recorded";
+}
+
+function formatReportShortDate(value: string | null | undefined): string {
+  if (!value) {
+    return "Not recorded";
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  return match ? `${match[2]}/${match[3]}/${match[1]}` : value;
 }
 
 function formatReportMoney(amount: number): string {

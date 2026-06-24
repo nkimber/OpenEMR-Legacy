@@ -1032,6 +1032,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-229-patient-portal-generated-medical-report-template-readiness",
+      "name": "Slice 229 Patient Portal Generated Medical Report Template Readiness",
+      "description": "Patient portal confidence plan that verifies printable generated medical-report header metadata, facility identity, patient header, generated-on label, and signature-line readiness through legacy printable report HTML and modernized API/UI surfaces.",
+      "suites": ["workflow-patient-portal-report-template"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-229", "patients", "portal", "reports", "medical-report", "generated-report", "template", "printable", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4088,6 +4097,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-forms",
       "tags": ["slice228", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "encounter-forms", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-report-template",
+      "name": "Patient Portal Generated Medical Report Template Readiness",
+      "description": "Verifies signed-in patient portal printable generated medical-report header metadata through workflow/API, legacy printable HTML, and modernized Portal UI surfaces.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-report-template",
+      "tags": ["slice229", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "template", "printable", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

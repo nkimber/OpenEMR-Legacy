@@ -1264,6 +1264,24 @@ function buildLegacySql() {
     ]).replace(/;$/, " ON DUPLICATE KEY UPDATE `gl_value` = VALUES(`gl_value`);")
   ];
 
+  const primaryFacility = facilities.find((facility) => facility.id === 10);
+  statements.push([
+    "UPDATE facility SET",
+    `  name = ${sql(primaryFacility.name)},`,
+    `  phone = ${sql(primaryFacility.phone)},`,
+    `  street = ${sql(primaryFacility.street)},`,
+    `  city = ${sql(primaryFacility.city)},`,
+    `  state = ${sql(primaryFacility.state)},`,
+    `  postal_code = ${sql(primaryFacility.postalCode)},`,
+    "  country_code = 'US',",
+    "  service_location = 1,",
+    "  billing_location = 1,",
+    "  accepts_assignment = 1,",
+    "  primary_business_entity = 0,",
+    "  facility_code = 'OPENEMR_DEFAULT'",
+    "WHERE id = 3;"
+  ].join("\n"));
+
   statements.push(insert("facility", ["id", "uuid", "name", "phone", "street", "city", "state", "postal_code", "country_code", "service_location", "billing_location", "accepts_assignment", "pos_code", "facility_npi", "color", "primary_business_entity", "facility_code"], facilities.map((facility) => ({
     id: facility.id,
     uuid: raw(sqlUuid(`facility-${facility.id}`)),

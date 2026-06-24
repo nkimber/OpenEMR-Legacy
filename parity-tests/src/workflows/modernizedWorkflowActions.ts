@@ -72,6 +72,7 @@ import type {
   PatientPortalClinicalSummaryResult,
   PatientPortalMedicalReportGenerationInput,
   PatientPortalGeneratedMedicalReportResult,
+  PatientPortalGeneratedMedicalReportTemplateMetadata,
   PatientPortalLabResultsResult,
   PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
@@ -872,6 +873,7 @@ LIMIT 1;
           includedSectionIds: [],
           includedProcedureOrderIds: [],
           includedEncounterFormIds: [],
+          templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
           summaryLineCount: 0,
           summaryLines: []
         },
@@ -4928,11 +4930,34 @@ function mapPatientPortalMedicalReportResult(result: any): PatientPortalMedicalR
       includedSectionIds: result.reportPreview?.includedSectionIds ?? [],
       includedProcedureOrderIds: result.reportPreview?.includedProcedureOrderIds ?? [],
       includedEncounterFormIds: result.reportPreview?.includedEncounterFormIds ?? [],
+      templateMetadata: {
+        facilityName: result.reportPreview?.templateMetadata?.facilityName ?? "",
+        facilityStreet: result.reportPreview?.templateMetadata?.facilityStreet ?? "",
+        facilityCityStatePostal: result.reportPreview?.templateMetadata?.facilityCityStatePostal ?? "",
+        facilityPhone: result.reportPreview?.templateMetadata?.facilityPhone ?? "",
+        printablePatientName: result.reportPreview?.templateMetadata?.printablePatientName ?? "",
+        patientHeaderLine: result.reportPreview?.templateMetadata?.patientHeaderLine ?? "",
+        generatedOnLabel: result.reportPreview?.templateMetadata?.generatedOnLabel ?? "",
+        signatureLineAvailable: Boolean(result.reportPreview?.templateMetadata?.signatureLineAvailable)
+      },
       summaryLineCount: result.reportPreview?.summaryLineCount ?? 0,
       summaryLines: result.reportPreview?.summaryLines ?? []
     },
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(): PatientPortalGeneratedMedicalReportTemplateMetadata {
+  return {
+    facilityName: "",
+    facilityStreet: "",
+    facilityCityStatePostal: "",
+    facilityPhone: "",
+    printablePatientName: "",
+    patientHeaderLine: "",
+    generatedOnLabel: "",
+    signatureLineAvailable: false
   };
 }
 
@@ -4957,6 +4982,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     includedProcedureOrderIds: [],
     includedIssueIds: [],
     includedEncounterFormIds: [],
+    templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -4981,6 +5007,16 @@ function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPorta
     asOfDate: result.asOfDate ?? "",
     title: result.title ?? "",
     generatedOn: result.generatedOn ?? "",
+    templateMetadata: {
+      facilityName: result.templateMetadata?.facilityName ?? "",
+      facilityStreet: result.templateMetadata?.facilityStreet ?? "",
+      facilityCityStatePostal: result.templateMetadata?.facilityCityStatePostal ?? "",
+      facilityPhone: result.templateMetadata?.facilityPhone ?? "",
+      printablePatientName: result.templateMetadata?.printablePatientName ?? "",
+      patientHeaderLine: result.templateMetadata?.patientHeaderLine ?? "",
+      generatedOnLabel: result.templateMetadata?.generatedOnLabel ?? "",
+      signatureLineAvailable: Boolean(result.templateMetadata?.signatureLineAvailable)
+    },
     includedSectionIds: result.includedSectionIds ?? [],
     includedProcedureOrderIds: result.includedProcedureOrderIds ?? [],
     includedIssueIds: result.includedIssueIds ?? [],

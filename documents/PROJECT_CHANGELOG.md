@@ -15394,6 +15394,72 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 268. Slice 229 Patient Portal Generated Medical Report Printable Template Readiness
+
+Started: 2026-06-24T08:14:00-04:00
+Finished: 2026-06-24T09:51:16.5893649-04:00
+Commit: pending
+
+Implemented Slice 229: patient portal generated medical report printable template readiness. The modernized target now exposes generated-report printable template metadata for the facility block, printable patient name, `PATIENT:` header line, generated-on label, and signature-line availability; renders those facts in the Portal; includes them in the deterministic generated-report PDF payload; and verifies the behavior side by side with legacy OpenEMR's printable `portal/report/portal_custom_report.php` output for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 573
+- Lines deleted: 25
+- Net lines: +548
+- Total churn: 598
+
+Key outcomes:
+
+- Added `templateMetadata` to modernized patient portal generated-report DTOs and API responses so printable facility, patient-header, generated-on, and signature-line facts are explicit rather than implied by rendered text.
+- Updated the modernized Portal generated-report panel and deterministic PDF text payload to show the printable facility block, printable patient name, legacy-style `PATIENT:` header, generated-on label, and signature-line availability.
+- Extended the legacy and modernized workflow adapters to normalize printable generated-report template metadata from the same portal report request flow used by legacy OpenEMR.
+- Added the `workflow-patient-portal-report-template` Playwright suite and `slice-229-patient-portal-generated-medical-report-template-readiness` plan to the parity manifest and Workbench managed actions for both targets.
+- Updated the gold dataset generator and legacy seed SQL to overlay OpenEMR's installed default facility row with the gold primary facility identity, because the legacy printable report chooses that default row by billing-location ordering.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 229 portal generated medical-report printable template contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-229-patient-portal-generated-medical-report-template-readiness` plus `workflow-patient-portal-report-template`.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` and `openemr` healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `npm --prefix modernization-workbench run generate:seed-data` passed and regenerated the legacy seed SQL with the default-facility overlay.
+- `powershell -ExecutionPolicy Bypass -File scripts\Seed-LegacyGoldDataset.ps1` passed in `legacy-openemr` after adding the default-facility overlay.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-229-patient-portal-generated-medical-report-template-readiness -Reset test` passed as run `2026-06-24T134403-713Z-legacy-openemr-plan-slice-229-patient-portal-generated-medical-report-template-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-229-patient-portal-generated-medical-report-template-readiness -Reset test` passed as run `2026-06-24T134441-490Z-modernized-openemr-plan-slice-229-patient-portal-generated-medical-report-template-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-229-patient-portal-generated-medical-report-template-readiness` passed as comparison `2026-06-24T134508-208Z-legacy-openemr-vs-modernized-openemr-plan-slice-229-patient-portal-generated-medical-report-template-readiness` with no differences.
+- Verification note: the first legacy Slice 229 run failed because legacy printable reports surfaced the installed placeholder facility row `Your Clinic Name Here`. The gold seed generator now overlays that installed default row with `Modernization Family Medicine`, the legacy baseline was reseeded, and the rerun passed.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-report-template/patient-portal-report-template.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
