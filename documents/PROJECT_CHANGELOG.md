@@ -16010,7 +16010,7 @@ Primary files:
 
 Started: 2026-06-24T14:50:00.0000000-04:00
 Finished: 2026-06-24T15:19:35.1707315-04:00
-Commit: pending
+Commit: b3159fce
 
 Implemented Slice 239: patient portal secure-message subject preset readiness. The modernized target now exposes session-protected compose options for patient portal secure messaging, renders OpenEMR-compatible subject presets as an editable datalist-backed subject field, and proves the same subject-preset and free-text subject behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
 
