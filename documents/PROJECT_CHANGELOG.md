@@ -15110,7 +15110,7 @@ Primary files:
 
 Started: 2026-06-23T23:24:00-04:00
 Finished: 2026-06-24T00:14:54.7780271-04:00
-Commit: pending
+Commit: c4448de3
 
 Implemented Slice 225: patient portal generated medical report readiness. The modernized target now generates the default customized medical-history report from a signed-in patient portal session; renders generated patient data, billing rollup, selected procedure-order content, printable availability, and explicit PDF-pending status in the Portal workspace; proves the generated report facts through normalized workflow/API results; and checks the legacy `portal/report/portal_custom_report.php` visible report shell for the `MOD-PAT-0004` account.
 
