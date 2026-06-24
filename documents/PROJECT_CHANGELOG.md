@@ -16215,7 +16215,7 @@ Primary files:
 
 Started: 2026-06-24T16:34:00.0000000-04:00
 Finished: 2026-06-24T16:53:31.6232538-04:00
-Commit: pending
+Commit: d49b7d33
 
 Implemented Slice 242: patient portal secure-message mark-all-read readiness. The modernized Portal now mirrors legacy OpenEMR's visible secure-message toolbar behavior by changing current inbox rows from `New` to `Read` in the browser without persisting that status change to the mailbox row.
 
