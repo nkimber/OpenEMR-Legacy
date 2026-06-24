@@ -1,6 +1,7 @@
 import type { ModernizedPostgresProbe } from "../db/modernizedPostgresProbe.js";
 import { buildPatientDocumentScanFields } from "../db/legacyMariaDbProbe.js";
 import type { RuntimeTarget } from "../config/targets.js";
+import { protectedPatientPortalMessageBody } from "./legacyWorkflowActions.js";
 import type {
   AccessGroupMembership,
   AccessGroupMembershipMutation,
@@ -1337,6 +1338,8 @@ SELECT COALESCE(
       throw new Error("Secure message title and body are required.");
     }
 
+    const isEncrypted = Boolean(input.isEncrypted);
+
     await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
     const idRows = await this.db.queryRows<{ nextId: string }>(`
 SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS "nextId"
@@ -1356,7 +1359,7 @@ VALUES (
   ${integer(messageId)}, ${sqlString(login.canonicalId)}, ${integer(login.pid)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(senderId)}, 'Default',
   1, 1, ${sqlString(title)}, ${sqlString(login.portalUsername)}, 'New', 'portal:inbox-setup', ${integer(messageId)},
   ${sqlString(senderId)}, ${sqlString(senderName)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${integer(messageId)},
-  FALSE, 0
+  ${isEncrypted ? "TRUE" : "FALSE"}, 0
 );
 `);
 
@@ -1366,7 +1369,7 @@ VALUES (
       id: String(messageId),
       date: messageDate,
       title,
-      body,
+      body: isEncrypted ? protectedPatientPortalMessageBody : body,
       status: "New",
       assignedTo: login.portalUsername,
       senderId,
@@ -1376,7 +1379,7 @@ VALUES (
       mailChain: messageId,
       replyMailChain: messageId,
       portalRelation: "portal:inbox-setup",
-      isEncrypted: false
+      isEncrypted
     };
   }
 

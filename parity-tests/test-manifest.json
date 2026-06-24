@@ -1068,6 +1068,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-233-patient-portal-message-encryption-readiness",
+      "name": "Slice 233 Patient Portal Secure Message Encryption Readiness",
+      "description": "Patient portal confidence plan that verifies encrypted secure-message body protection and modernized Portal encrypted-message rendering.",
+      "suites": ["workflow-patient-portal-message-encryption"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-233", "patients", "portal", "messages", "secure-messaging", "encryption", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4164,6 +4173,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-audit",
       "tags": ["slice232", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "audit", "lifecycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-encryption",
+      "name": "Patient Portal Secure Message Encryption Readiness",
+      "description": "Verifies signed-in patient portal encrypted secure-message body protection, modernized API placeholder behavior, and Portal encrypted-message rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-encryption",
+      "tags": ["slice233", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "encryption", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

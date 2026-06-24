@@ -468,18 +468,23 @@
           "label": "Patient portal secure-message lifecycle audit readiness",
           "detail": "The modernized patient portal now records compose, reply, read-status, single-message archive, and selected-message archive audit events, exposes a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal Secure Messages panel, and parity compares normalized legacy source-action evidence with stored modernized audit history.",
           "evidence": ["slice-232-patient-portal-message-audit-readiness"]
+        },
+        {
+          "label": "Patient portal secure-message encrypted-body readiness",
+          "detail": "The modernized patient portal now protects encrypted secure-message bodies at the API boundary, renders a fixed protected-body placeholder in the Portal Secure Messages panel, and parity verifies the behavior with cleanup-backed encrypted mailbox rows on both targets.",
+          "evidence": ["slice-233-patient-portal-message-encryption-readiness"]
         }
       ],
       "outstanding": [
-        "Encrypted-body handling, attachments, routing queues, priority and escalation behavior, notification delivery, and broader audit reporting policy."
+        "Full encryption key-management/decryption policy, attachments, routing queues, priority and escalation behavior, notification delivery, and broader audit reporting policy."
       ],
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 66,
+      "completionEstimatePercent": 68,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, secure-message lifecycle audit, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; encrypted content, attachments, routing, notifications, and broader audit reporting policy remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, routing, notifications, and broader audit reporting policy remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

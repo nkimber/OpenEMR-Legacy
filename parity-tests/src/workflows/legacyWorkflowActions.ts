@@ -625,6 +625,8 @@ export type PatientPortalMessageItem = {
   isEncrypted: boolean;
 };
 
+export const protectedPatientPortalMessageBody = "Encrypted secure message body is protected.";
+
 export type PatientPortalMessagesResult = {
   authenticated: boolean;
   username: string;
@@ -781,6 +783,7 @@ export type PatientPortalInboxMessageInput = {
   senderName?: string;
   title: string;
   body: string;
+  isEncrypted?: boolean;
 };
 
 export type PatientPortalReplyMessageInput = {
@@ -3330,7 +3333,7 @@ ORDER BY date DESC, id DESC;
       id: row.id,
       date: normalizeDateText(row.messageDate),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       senderId: row.senderId,
@@ -3529,7 +3532,7 @@ LIMIT 1;
       id: row.id,
       date: normalizeDateText(row.messageDate),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       senderId: row.senderId,
@@ -3692,6 +3695,8 @@ WHERE title = ${sqlString(title)}
       throw new Error("Secure message title and body are required.");
     }
 
+    const isEncrypted = Boolean(input.isEncrypted);
+
     await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
     const idRows = await this.db.queryRows<{ nextId: string }>(`
 SELECT GREATEST(COALESCE(MAX(id), 9393000) + 1, 9393001) AS nextId
@@ -3704,14 +3709,14 @@ FROM onsite_mail;
 INSERT INTO onsite_mail
   (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
 VALUES
-  (${integer(messageId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(senderId)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(login.portalUsername)}, 'New', ${integer(messageId)}, ${sqlString(senderId)}, ${sqlString(senderName)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${integer(messageId)}, 0);
+  (${integer(messageId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(senderId)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(login.portalUsername)}, 'New', ${integer(messageId)}, ${sqlString(senderId)}, ${sqlString(senderName)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${integer(messageId)}, ${isEncrypted ? 1 : 0});
 `);
 
     return {
       id: String(messageId),
       date: messageDate,
       title,
-      body,
+      body: normalizePatientPortalMessageBody(body, isEncrypted),
       status: "New",
       assignedTo: login.portalUsername,
       senderId,
@@ -3721,7 +3726,7 @@ VALUES
       mailChain: messageId,
       replyMailChain: messageId,
       portalRelation: null,
-      isEncrypted: false
+      isEncrypted
     };
   }
 
@@ -3795,7 +3800,7 @@ LIMIT 1;
       id: row.id,
       date: normalizeDateText(row.messageDate),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       senderId: row.senderId,
@@ -3898,7 +3903,7 @@ ORDER BY date ASC, id ASC;
       id: row.id,
       date: normalizeDateText(row.messageDate),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       senderId: row.senderId,
@@ -4006,7 +4011,7 @@ ORDER BY date ASC, id ASC;
       id: row.id,
       date: normalizeDateText(row.messageDate),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       senderId: row.senderId,
@@ -5108,7 +5113,7 @@ LIMIT 1;
       id: Number(row.id),
       patientId: Number(row.patientId),
       title: row.title,
-      body: row.body,
+      body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
       status: row.status,
       assignedTo: row.assignedTo,
       portalRelation: row.portalRelation,
@@ -8653,6 +8658,10 @@ function normalizeDateText(value: string): string {
   }
 
   return value.slice(0, 10);
+}
+
+function normalizePatientPortalMessageBody(body: string, isEncrypted: boolean): string {
+  return isEncrypted ? protectedPatientPortalMessageBody : body;
 }
 
 function normalizeOptionalDateText(value: string | null | undefined): string | null {

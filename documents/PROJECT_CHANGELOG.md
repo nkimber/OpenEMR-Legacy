@@ -15656,12 +15656,69 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 272. Slice 233 Patient Portal Secure Message Encrypted Body Readiness
+
+Started: 2026-06-24T11:40:00.0000000-04:00
+Finished: 2026-06-24T11:56:06.0271776-04:00
+Commit: pending
+
+Implemented Slice 233: patient portal secure message encrypted body readiness. The modernized target now protects encrypted portal mailbox message bodies at the API boundary by returning the fixed placeholder `Encrypted secure message body is protected.`, keeps raw encrypted synthetic message text out of the Portal UI, preserves encrypted-message status rendering, and verifies the behavior side by side against legacy OpenEMR `onsite_mail.is_msg_encrypted` evidence for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 273
+- Lines deleted: 49
+- Net lines: +224
+- Total churn: 322
+
+Key outcomes:
+
+- Added protected encrypted-body normalization to the modernized patient portal repository so encrypted `portal_mailbox_messages` rows expose the fixed protected placeholder through all portal message read paths.
+- Extended the parity workflow adapters with a shared protected-message placeholder and encrypted inbox fixture support for both legacy MariaDB `onsite_mail` and modernized PostgreSQL `portal_mailbox_messages`.
+- Added the `workflow-patient-portal-message-encryption` Playwright suite and `slice-233-patient-portal-message-encryption-readiness` plan to create cleanup-backed encrypted inbox rows, verify API/workflow evidence, assert modernized Portal encrypted-message rendering, and ensure the raw synthetic body text is not browser-visible.
+- Added Workbench-managed Slice 233 plan actions for both legacy and modernized targets and updated the functionality progress ledger for patient portal secure-message encrypted-body readiness.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 233 portal secure-message encrypted-body contract.
+- Left permanent seed counts unchanged; the slice creates only cleanup-backed temporary encrypted mailbox rows and keeps the 400-row permanent portal mailbox projection intact.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-233-patient-portal-message-encryption-readiness` plus `workflow-patient-portal-message-encryption`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-WebRequest -UseBasicParsing -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-233-patient-portal-message-encryption-readiness -Reset test` passed as run `2026-06-24T154750-549Z-legacy-openemr-plan-slice-233-patient-portal-message-encryption-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-233-patient-portal-message-encryption-readiness -Reset test` passed as run `2026-06-24T154818-661Z-modernized-openemr-plan-slice-233-patient-portal-message-encryption-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-233-patient-portal-message-encryption-readiness` passed as comparison `2026-06-24T154842-357Z-legacy-openemr-vs-modernized-openemr-plan-slice-233-patient-portal-message-encryption-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-message-encryption/patient-portal-message-encryption.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Patient portal encrypted secure-message body hardening, attachments, routing queues, notification delivery, broader audit reporting policy, richer report template fidelity, email/delivery integrations, and production identity hardening.
+- Patient portal full encryption key-management/decryption policy, attachments, routing queues, notification delivery, broader audit reporting policy, richer report template fidelity, email/delivery integrations, and production identity hardening.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
