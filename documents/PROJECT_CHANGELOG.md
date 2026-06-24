@@ -15169,7 +15169,7 @@ Primary files:
 Started: 2026-06-24T06:30:00-04:00
 Finished: 2026-06-24T07:01:13.5598120-04:00
 Duration: 00:31:13
-Commit: pending
+Commit: 4d83cfb1
 
 Implemented Slice 226: patient portal generated medical report PDF readiness. The modernized target now exports a deterministic PDF package for the signed-in patient portal generated medical-history report, exposes that behavior through the Portal workspace, and verifies it side by side with legacy OpenEMR's generated-report PDF POST path for the `MOD-PAT-0004` portal account.
 
