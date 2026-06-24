@@ -16211,6 +16211,59 @@ Primary files:
 - `AGENTS.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 284. Slice 242 Patient Portal Secure Message Mark-All-Read Readiness
+
+Started: 2026-06-24T16:34:00.0000000-04:00
+Finished: 2026-06-24T16:53:31.6232538-04:00
+Commit: pending
+
+Implemented Slice 242: patient portal secure-message mark-all-read readiness. The modernized Portal now mirrors legacy OpenEMR's visible secure-message toolbar behavior by changing current inbox rows from `New` to `Read` in the browser without persisting that status change to the mailbox row.
+
+Code changes:
+
+- Files changed: 11
+- Lines added: 298
+- Lines deleted: 34
+- Net lines: +264
+- Total churn: 332
+
+Key outcomes:
+
+- Added a modernized patient portal `Mark all as read` toolbar action that applies local read-state overrides to active `New` secure-message rows.
+- Matched legacy OpenEMR's browser-only `readAll()` behavior by clearing the local read-state overrides when mailbox data is refreshed and leaving persisted mailbox rows unchanged.
+- Added the `workflow-patient-portal-message-mark-all-read` Playwright suite and `slice-242-patient-portal-message-mark-all-read-readiness` plan.
+- Added Workbench-managed Slice 242 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 242 mark-all-read contract.
+
+Verified test runs:
+
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list -- --plan slice-242-patient-portal-message-mark-all-read-readiness` passed via `cmd.exe /c` and listed `slice-242-patient-portal-message-mark-all-read-readiness` plus `workflow-patient-portal-message-mark-all-read`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build frontend` passed and rebuilt/restarted the modernized frontend stack.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `Invoke-WebRequest -Uri http://localhost:3000 -UseBasicParsing` returned HTTP 200 for the modernized frontend.
+- `Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing` returned HTTP 200 for the legacy OpenEMR endpoint.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-242-patient-portal-message-mark-all-read-readiness -Reset test` passed as run `2026-06-24T205224-618Z-legacy-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-242-patient-portal-message-mark-all-read-readiness -Reset test` passed as run `2026-06-24T205257-792Z-modernized-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-242-patient-portal-message-mark-all-read-readiness` passed as comparison `2026-06-24T205322-377Z-legacy-openemr-vs-modernized-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/tests/workflow-patient-portal-message-mark-all-read/patient-portal-message-mark-all-read.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

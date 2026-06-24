@@ -1149,6 +1149,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-242-patient-portal-message-mark-all-read-readiness",
+      "name": "Slice 242 Patient Portal Secure Message Mark-All-Read Readiness",
+      "description": "Patient portal confidence plan that verifies the legacy secure-message toolbar mark-all-read behavior as a browser-visible, non-persistent status change on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-message-mark-all-read"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-242", "patients", "portal", "messages", "secure-messaging", "read-status", "toolbar", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4335,6 +4344,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-pagination",
       "tags": ["slice241", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "pagination", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-mark-all-read",
+      "name": "Patient Portal Secure Message Mark-All-Read Readiness",
+      "description": "Verifies signed-in patient portal secure-message toolbar mark-all-read behavior without persisting mailbox status.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-mark-all-read",
+      "tags": ["slice242", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "read-status", "toolbar", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
