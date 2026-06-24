@@ -1113,6 +1113,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-238-patient-portal-message-recipient-directory-readiness",
+      "name": "Slice 238 Patient Portal Secure Message Recipient Directory Readiness",
+      "description": "Patient portal confidence plan that verifies secure-message recipient directory fallback routing and compose-recipient selector rendering on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-message-recipients"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-238", "patients", "portal", "messages", "secure-messaging", "recipients", "routing", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4259,6 +4268,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-procedure-artifacts",
       "tags": ["slice237", "workflow", "mutation", "patients", "portal", "reports", "medical-report", "procedure-orders", "pdf", "package", "zip", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-recipients",
+      "name": "Patient Portal Secure Message Recipient Directory Readiness",
+      "description": "Verifies signed-in patient portal secure-message recipient fallback routing and compose-recipient selector rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-recipients",
+      "tags": ["slice238", "workflow", "read-only", "patients", "portal", "messages", "secure-messaging", "recipients", "routing", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

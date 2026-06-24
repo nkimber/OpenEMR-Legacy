@@ -649,6 +649,30 @@ export type PatientPortalMessagesResult = {
   sessionSource: string;
 };
 
+export type PatientPortalMessageRecipientOption = {
+  id: string;
+  displayName: string;
+  type: string;
+  active: boolean;
+  fallback: boolean;
+};
+
+export type PatientPortalMessageRecipientsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  recipientCount: number;
+  recipients: PatientPortalMessageRecipientOption[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalDocumentItem = {
   id: number;
   documentKey: string;
@@ -3409,6 +3433,62 @@ ORDER BY date DESC, id DESC;
       allMessages: allRows.map(mapRow),
       deletedMessageCount: deletedRows.length,
       deletedMessages: deletedRows.map(mapRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalMessageRecipients(username: string, password: string): Promise<PatientPortalMessageRecipientsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalMessageRecipientsResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    let rows = await this.db.queryRows<Record<string, string>>(`
+SELECT username AS id,
+  COALESCE(NULLIF(TRIM(CONCAT(fname, ' ', lname)), ''), username) AS displayName,
+  'user' AS type,
+  CAST(active AS CHAR) AS active,
+  '0' AS fallback
+FROM users
+WHERE active = 1
+  AND portal_user = 1
+ORDER BY id;
+`);
+
+    if (rows.length === 0) {
+      rows = await this.db.queryRows<Record<string, string>>(`
+SELECT username AS id,
+  COALESCE(NULLIF(TRIM(CONCAT(fname, ' ', lname)), ''), username) AS displayName,
+  'user' AS type,
+  CAST(active AS CHAR) AS active,
+  '1' AS fallback
+FROM users
+WHERE id = 1
+LIMIT 1;
+`);
+    }
+
+    const recipients = rows.map((row): PatientPortalMessageRecipientOption => ({
+      id: row.id,
+      displayName: row.displayName || row.id,
+      type: row.type || "user",
+      active: row.active === "1",
+      fallback: row.fallback === "1"
+    }));
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      recipientCount: recipients.length,
+      recipients,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -8585,6 +8665,24 @@ function buildEmptyPortalMessagesResult(username: string, failureReason: string)
     allMessages: [],
     deletedMessageCount: 0,
     deletedMessages: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalMessageRecipientsResult(username: string, failureReason: string): PatientPortalMessageRecipientsResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    recipientCount: 0,
+    recipients: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };

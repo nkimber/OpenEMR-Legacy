@@ -84,7 +84,7 @@ test.describe("patient portal secure-message compose parity @slice211 @workflow-
         await expectLegacyPatientPortalSentMessage(page, target, title);
       } else {
         await openAuthenticatedModernizedPatientPortal(page, target, portalLoginUsername, portalPassword);
-        await page.getByLabel("Secure message recipient").fill("admin");
+        await page.getByLabel("Secure message recipient").selectOption("admin");
         await page.getByLabel("Secure message subject").fill(title);
         await page.getByLabel("Secure message body").fill(body);
         await page.getByRole("button", { name: "Send secure message" }).click();
