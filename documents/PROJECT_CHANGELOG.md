@@ -15836,6 +15836,61 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 276. Slice 236 Patient Portal Generated Medical Report Procedure-Order Selection Readiness
+
+Started: 2026-06-24T13:22:50.0002640-04:00
+Finished: 2026-06-24T13:46:18.7813929-04:00
+Commit: pending
+
+Implemented Slice 236: patient portal generated medical-report procedure-order selection readiness. The modernized target now gives selected procedure orders explicit generated-report evidence in the Portal UI, while the shared parity harness creates cleanup-backed temporary procedure orders for `MOD-PAT-0004`, selects those orders in customized medical-history report generation, and proves the same selected-order contract side by side against legacy OpenEMR.
+
+Code changes:
+
+- Files changed: 13
+- Lines added: 351
+- Lines deleted: 24
+- Net lines: +327
+- Total churn: 375
+
+Key outcomes:
+
+- Added a dedicated `workflow-patient-portal-report-procedures` Playwright parity suite that creates temporary procedure orders, verifies report-builder procedure-order choices, generates selected procedure-order report content, checks portal UI behavior, and deletes the temporary order tree.
+- Added the `slice-236-patient-portal-generated-medical-report-procedure-selection-readiness` named plan to the parity manifest and runner allow-list for both legacy and modernized targets.
+- Updated the modernized Portal generated-report summary to display the selected procedure-order count alongside selected report sections, issues, and encounter forms.
+- Added Workbench-managed Slice 236 plan actions for both legacy and modernized targets and updated the functionality progress ledger for patient portal generated-report procedure-order selection readiness.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 236 contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-236-patient-portal-generated-medical-report-procedure-selection-readiness` plus `workflow-patient-portal-report-procedures`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness -Reset test` passed as run `2026-06-24T174320-151Z-legacy-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness -Reset test` passed as run `2026-06-24T174455-986Z-modernized-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness` passed as comparison `2026-06-24T174555-986Z-legacy-openemr-vs-modernized-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/tests/workflow-patient-portal-report-procedures/patient-portal-report-procedures.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

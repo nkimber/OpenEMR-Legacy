@@ -216,6 +216,7 @@ param(
         "workflow-patient-portal-message-encryption",
         "workflow-patient-portal-message-forward",
         "workflow-patient-portal-deleted-messages",
+        "workflow-patient-portal-report-procedures",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

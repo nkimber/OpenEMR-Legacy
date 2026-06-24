@@ -1093,7 +1093,17 @@
       "resetMode": "test",
       "tags": ["readiness", "mutation", "slice-235", "patients", "portal", "messages", "secure-messaging", "deleted-folder", "archive", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"]
-    },    {
+    },
+    {
+      "id": "slice-236-patient-portal-generated-medical-report-procedure-selection-readiness",
+      "name": "Slice 236 Patient Portal Generated Medical Report Procedure Selection Readiness",
+      "description": "Patient portal confidence plan that verifies explicitly selected procedure orders appear in generated customized medical-history reports on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-report-procedures"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-236", "patients", "portal", "reports", "medical-report", "procedure-orders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4222,7 +4232,18 @@
       "tags": ["slice235", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "deleted-folder", "archive", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
-    },    {
+    },
+    {
+      "id": "workflow-patient-portal-report-procedures",
+      "name": "Patient Portal Generated Medical Report Procedure Selection Readiness",
+      "description": "Verifies selected patient procedure orders are included in generated customized medical-history reports.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-report-procedures",
+      "tags": ["slice236", "workflow", "mutation", "patients", "portal", "reports", "medical-report", "procedure-orders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
       "id": "workflow-clinical-list-protection",
       "name": "Clinical List Protection Readiness",
       "description": "Verifies clinical-list pages and APIs are not visible without a valid session and become visible while a session is active.",
