@@ -15335,7 +15335,7 @@ Primary files:
 
 Started: 2026-06-24T07:45:00-04:00
 Finished: 2026-06-24T08:08:11.0747237-04:00
-Commit: pending
+Commit: 6b6ab4a0
 
 Implemented Slice 228: patient portal generated medical report encounter-form selection readiness. The modernized target now lets a signed-in portal patient select individual encounter form rows for a generated customized medical-history report, carries those selections through API and PDF generation requests, renders the selected Encounter Forms section in the Portal workspace, and verifies that behavior side by side with legacy OpenEMR's `formdir_formid` checkbox report POST flow for the `MOD-PAT-0004` portal account.
 
