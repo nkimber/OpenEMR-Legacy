@@ -15232,7 +15232,7 @@ Primary files:
 
 Started: 2026-06-24T07:04:00-04:00
 Finished: 2026-06-24T07:36:13.8690203-04:00
-Commit: pending
+Commit: 89572b28
 
 Implemented Slice 227: patient portal generated medical report issue selection readiness. The modernized target now lets a signed-in portal patient select individual clinical issue rows for a generated customized medical-history report, carries those selections through API and PDF generation requests, renders the selected Issues section in the Portal workspace, and verifies that behavior side by side with legacy OpenEMR's issue-checkbox report POST flow for the `MOD-PAT-0004` portal account.
 
