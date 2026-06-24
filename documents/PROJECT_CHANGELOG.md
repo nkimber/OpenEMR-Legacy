@@ -15523,12 +15523,78 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 270. Slice 231 Patient Portal Generated Medical Report Lifecycle Audit Readiness
+
+Started: 2026-06-24T10:25:20.0000000-04:00
+Finished: 2026-06-24T10:56:39.7177273-04:00
+Commit: pending
+
+Implemented Slice 231: patient portal generated medical report lifecycle audit readiness. The modernized target now records generated-report, PDF-download, and generated-report ZIP-package lifecycle events in PostgreSQL, exposes those facts through a session-protected audit endpoint, renders a Report Audit timeline in the Portal generated-report panel, and verifies normalized audit evidence side by side with legacy OpenEMR generated-report source actions for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 892
+- Lines deleted: 25
+- Net lines: +867
+- Total churn: 917
+
+Key outcomes:
+
+- Added modernized PostgreSQL schema generation for `patient_portal_report_audit_events` with patient/session linkage, event type/label, artifact metadata, included report selections, summary text, timestamps, and audit indexes.
+- Added session-protected `GET /api/patient-portal/medical-report/audit` plus repository write/read helpers that record `generated_report`, `pdf_downloaded`, and `package_downloaded` events without double-counting internal report generation during file downloads.
+- Extended generated-report DTOs, frontend API types, and parity workflow result contracts with normalized audit event metadata.
+- Updated the modernized Portal generated-report panel to render a compact Report Audit timeline and refresh audit history after PDF or package downloads.
+- Added the `workflow-patient-portal-report-audit` Playwright suite, `slice-231-patient-portal-generated-medical-report-audit-readiness` plan, PowerShell runner suite allow-list entry, and Workbench managed actions for both legacy and modernized targets.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 231 portal generated medical-report audit contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `node .\scripts\generate-postgres-seed.mjs` passed in `modernized-openemr/` and regenerated PostgreSQL seed SQL with `patient_portal_report_audit_events`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-231-patient-portal-generated-medical-report-audit-readiness` plus `workflow-patient-portal-report-audit`.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` and `openemr` healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-231-patient-portal-generated-medical-report-audit-readiness -Reset test` passed as run `2026-06-24T145446-770Z-legacy-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-231-patient-portal-generated-medical-report-audit-readiness -Reset test` passed as run `2026-06-24T145529-716Z-modernized-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-231-patient-portal-generated-medical-report-audit-readiness` passed as comparison `2026-06-24T145558-365Z-legacy-openemr-vs-modernized-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness` with no differences.
+- Verification note: the first legacy Slice 231 run exposed that the legacy printable artifact does not include the literal generated-report title string, even though it carries the expected facility and patient header evidence. The assertion now checks those stable legacy header facts and keeps the normalized generated-report title assertion in the workflow-adapter result.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-report-audit/patient-portal-report-audit.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
 - Legacy-native Panther test-container enablement if practical.
-- Patient portal richer report template fidelity, report lifecycle audit history, email/delivery integrations, and production identity hardening.
+- Patient portal richer report template fidelity, email/delivery integrations, broader portal audit policy, and production identity hardening.
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.

@@ -1050,6 +1050,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-231-patient-portal-generated-medical-report-audit-readiness",
+      "name": "Slice 231 Patient Portal Generated Medical Report Audit Readiness",
+      "description": "Patient portal confidence plan that verifies generated medical-report lifecycle audit events for generation, PDF download, ZIP package download, and Portal audit rendering.",
+      "suites": ["workflow-patient-portal-report-audit"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-231", "patients", "portal", "reports", "medical-report", "generated-report", "audit", "lifecycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4126,6 +4135,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-package",
       "tags": ["slice230", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "package", "zip", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-report-audit",
+      "name": "Patient Portal Generated Medical Report Audit Readiness",
+      "description": "Verifies signed-in patient portal generated medical-report lifecycle audit events, modernized stored audit history, and Portal audit rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-report-audit",
+      "tags": ["slice231", "workflow", "read-only", "patients", "portal", "reports", "medical-report", "generated-report", "audit", "lifecycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

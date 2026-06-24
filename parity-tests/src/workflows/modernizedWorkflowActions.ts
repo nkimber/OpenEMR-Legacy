@@ -5018,6 +5018,8 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     reportSections: [],
     summaryLineCount: 0,
     summaryLines: [],
+    auditEventCount: 0,
+    auditEvents: [],
     failureReason,
     sessionSource
   };
@@ -5063,6 +5065,23 @@ function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPorta
     })),
     summaryLineCount: result.summaryLineCount ?? 0,
     summaryLines: result.summaryLines ?? [],
+    auditEventCount: result.auditEventCount ?? 0,
+    auditEvents: (result.auditEvents ?? []).map((event: any) => ({
+      id: event.id ?? 0,
+      eventType: event.eventType ?? "",
+      eventLabel: event.eventLabel ?? "",
+      eventAt: event.eventAt ?? "",
+      reportTitle: event.reportTitle ?? "",
+      generatedOn: event.generatedOn ?? "",
+      artifactName: event.artifactName ?? null,
+      artifactContentType: event.artifactContentType ?? null,
+      includedSectionIds: event.includedSectionIds ?? [],
+      includedIssueIds: event.includedIssueIds ?? [],
+      includedEncounterFormIds: event.includedEncounterFormIds ?? [],
+      includedProcedureOrderIds: event.includedProcedureOrderIds ?? [],
+      summary: event.summary ?? "",
+      eventSource: event.eventSource ?? ""
+    })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

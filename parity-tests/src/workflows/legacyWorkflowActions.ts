@@ -431,6 +431,23 @@ export type PatientPortalGeneratedMedicalReportPackageMetadata = {
   summaryAvailable: boolean;
 };
 
+export type PatientPortalGeneratedMedicalReportAuditEvent = {
+  id: number;
+  eventType: string;
+  eventLabel: string;
+  eventAt: string;
+  reportTitle: string;
+  generatedOn: string;
+  artifactName: string | null;
+  artifactContentType: string | null;
+  includedSectionIds: string[];
+  includedIssueIds: string[];
+  includedEncounterFormIds: string[];
+  includedProcedureOrderIds: string[];
+  summary: string;
+  eventSource: string;
+};
+
 export type PatientPortalGeneratedMedicalReportResult = {
   authenticated: boolean;
   username: string;
@@ -456,6 +473,8 @@ export type PatientPortalGeneratedMedicalReportResult = {
   reportSections: PatientPortalGeneratedMedicalReportSection[];
   summaryLineCount: number;
   summaryLines: string[];
+  auditEventCount: number;
+  auditEvents: PatientPortalGeneratedMedicalReportAuditEvent[];
   failureReason: string | null;
   sessionSource: string;
 };
@@ -7828,6 +7847,8 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     reportSections: [],
     summaryLineCount: 0,
     summaryLines: [],
+    auditEventCount: 0,
+    auditEvents: [],
     failureReason,
     sessionSource
   };
@@ -8167,6 +8188,14 @@ function buildPatientPortalGeneratedMedicalReportResult(
     report.canonicalId,
     generatedOn
   );
+  const auditEvents = buildPatientPortalGeneratedMedicalReportAuditEvents({
+    generatedOn,
+    includedSectionIds,
+    includedIssueIds: includedIssues.map((issue) => issue.id),
+    includedEncounterFormIds: includedEncounterForms.map((item) => item.selectionId),
+    includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
+    sessionSource
+  });
 
   return {
     authenticated: true,
@@ -8193,6 +8222,8 @@ function buildPatientPortalGeneratedMedicalReportResult(
     reportSections,
     summaryLineCount: summaryLines.length,
     summaryLines,
+    auditEventCount: auditEvents.length,
+    auditEvents,
     failureReason: null,
     sessionSource
   };
@@ -8209,6 +8240,36 @@ function buildGeneratedMedicalReportSection(
     lineCount: lines.length,
     lines
   };
+}
+
+function buildPatientPortalGeneratedMedicalReportAuditEvents(input: {
+  generatedOn: string;
+  includedSectionIds: string[];
+  includedIssueIds: string[];
+  includedEncounterFormIds: string[];
+  includedProcedureOrderIds: string[];
+  sessionSource: string;
+}): PatientPortalGeneratedMedicalReportAuditEvent[] {
+  const selectionSummary = `${input.includedSectionIds.length} sections, ${input.includedIssueIds.length} issues, `
+    + `${input.includedEncounterFormIds.length} forms, ${input.includedProcedureOrderIds.length} procedure orders`;
+  return [
+    {
+      id: 0,
+      eventType: "generated_report",
+      eventLabel: "Generated report",
+      eventAt: `${input.generatedOn} 00:00 UTC`,
+      reportTitle: "Customized Medical History Report",
+      generatedOn: input.generatedOn,
+      artifactName: "portal_custom_report.php",
+      artifactContentType: "text/html",
+      includedSectionIds: input.includedSectionIds,
+      includedIssueIds: input.includedIssueIds,
+      includedEncounterFormIds: input.includedEncounterFormIds,
+      includedProcedureOrderIds: input.includedProcedureOrderIds,
+      summary: `Generated Customized Medical History Report with ${selectionSummary}.`,
+      eventSource: input.sessionSource
+    }
+  ];
 }
 
 function buildPatientPortalEncounterFormSelectionId(form: PatientPortalMedicalReportEncounterForm): string {
