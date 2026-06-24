@@ -67,6 +67,22 @@ type ContainerStatus = {
   ports: string;
 };
 
+type RuntimeSummary = {
+  state: "healthy" | "unhealthy" | "stopped" | "partial" | "error";
+  label: string;
+  detail: string;
+};
+
+type RuntimeGuidance = {
+  severity: "info" | "warning" | "error";
+  title: string;
+  message: string;
+  detail?: string;
+  primaryAction?: "start" | "restart";
+  canStartFromWorkbench: boolean;
+  dockerDesktopLikelyUnavailable: boolean;
+};
+
 type DemoLogin = {
   available: boolean;
   username?: string;
@@ -1622,7 +1638,7 @@ function parseComposeStatus(stdout: string): ContainerStatus[] {
     });
 }
 
-function summarizeRuntime(containers: ContainerStatus[], result: CommandResult) {
+function summarizeRuntime(containers: ContainerStatus[], result: CommandResult): RuntimeSummary {
   if (result.exitCode !== 0) {
     return {
       state: "error",
@@ -1658,6 +1674,104 @@ function summarizeRuntime(containers: ContainerStatus[], result: CommandResult) 
     label: "Healthy",
     detail: `${containers.length} service(s) running.`
   };
+}
+
+function commandOutput(result: CommandResult) {
+  return [result.stderr, result.stdout].filter(Boolean).join("\n").trim();
+}
+
+function isDockerDesktopLikelyUnavailable(result: CommandResult) {
+  if (result.exitCode === 0) {
+    return false;
+  }
+
+  const output = commandOutput(result).toLowerCase();
+  return [
+    "cannot connect to the docker daemon",
+    "docker daemon is not running",
+    "error during connect",
+    "dockerdesktoplinuxengine",
+    "dockerdesktopvm",
+    "docker desktop",
+    "open //./pipe/docker",
+    "open \\\\.\\pipe\\docker",
+    "the system cannot find the file specified"
+  ].some((marker) => output.includes(marker));
+}
+
+function buildRuntimeGuidance(
+  managedApp: ManagedApp,
+  runtime: RuntimeSummary,
+  health: { ok: boolean; statusCode: number | null; durationMs: number; error?: string },
+  containers: ContainerStatus[],
+  statusResult: CommandResult
+): RuntimeGuidance | null {
+  if (managedApp.kind !== "docker-compose") {
+    return null;
+  }
+
+  const dockerDesktopLikelyUnavailable = isDockerDesktopLikelyUnavailable(statusResult);
+  if (dockerDesktopLikelyUnavailable) {
+    return {
+      severity: "error",
+      title: "Docker Desktop is not reachable",
+      message: `${managedApp.name} is configured to run through Docker Compose, but Docker is not responding. Start Docker Desktop, wait until the engine is running, then use Start all apps or the app Start button.`,
+      detail: preview(commandOutput(statusResult) || runtime.detail, 420),
+      primaryAction: "start",
+      canStartFromWorkbench: true,
+      dockerDesktopLikelyUnavailable
+    };
+  }
+
+  if (runtime.state === "stopped") {
+    return {
+      severity: "warning",
+      title: `${managedApp.name} is stopped`,
+      message: "Docker Compose reports no running containers for this app. Use Start to run the configured compose stack.",
+      detail: runtime.detail,
+      primaryAction: "start",
+      canStartFromWorkbench: true,
+      dockerDesktopLikelyUnavailable
+    };
+  }
+
+  if (runtime.state === "partial") {
+    return {
+      severity: "warning",
+      title: `${managedApp.name} is partially running`,
+      message: "Some compose services are not running. Use Start to recreate missing containers or Restart if the stack is wedged.",
+      detail: runtime.detail,
+      primaryAction: "start",
+      canStartFromWorkbench: true,
+      dockerDesktopLikelyUnavailable
+    };
+  }
+
+  if (runtime.state === "unhealthy" || runtime.state === "error") {
+    return {
+      severity: "error",
+      title: `${managedApp.name} runtime needs attention`,
+      message: "Docker Compose is reachable, but the app is not in a healthy runtime state. Restart the app and then check logs if it remains unhealthy.",
+      detail: runtime.detail,
+      primaryAction: "restart",
+      canStartFromWorkbench: true,
+      dockerDesktopLikelyUnavailable
+    };
+  }
+
+  if (containers.length > 0 && !health.ok) {
+    return {
+      severity: "warning",
+      title: `${managedApp.name} is running but not reachable yet`,
+      message: `Compose containers are running, but the health endpoint has not responded successfully at ${managedApp.healthUrl}. Wait briefly, refresh, or restart the app if it stays unavailable.`,
+      detail: health.error ?? `HTTP ${health.statusCode ?? "unavailable"} in ${health.durationMs} ms`,
+      primaryAction: "restart",
+      canStartFromWorkbench: true,
+      dockerDesktopLikelyUnavailable
+    };
+  }
+
+  return null;
 }
 
 async function checkHttp(url: string) {
@@ -2104,6 +2218,7 @@ async function getAppSnapshot(managedApp: ManagedApp) {
   const containers = parseComposeStatus(statusResult.stdout);
   const runtime = summarizeRuntime(containers, statusResult);
   const health = await checkHttp(managedApp.healthUrl);
+  const runtimeGuidance = buildRuntimeGuidance(managedApp, runtime, health, containers, statusResult);
   const source = await getSourceInfo(managedApp).catch((error) => ({
     tag: "unknown",
     commit: "unknown",
@@ -2135,6 +2250,7 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     healthUrl: managedApp.healthUrl,
     documentationPath: managedApp.documentationPath,
     runtime,
+    runtimeGuidance,
     health,
     source,
     containers,
@@ -2211,6 +2327,34 @@ app.get("/api/apps/:appId/logs", async (request, response, next) => {
     const managedApp = await getManagedApp(request.params.appId);
     const result = await runCommand(managedApp, "logs", 60000);
     response.json({ result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/apps/actions/start-all", async (_request, response, next) => {
+  try {
+    const config = await readConfig();
+    const runnableApps = config.apps.filter((managedApp) => managedApp.kind === "docker-compose" && managedApp.commands.start);
+    const results = [];
+
+    for (const managedApp of runnableApps) {
+      const result = await runCommand(managedApp, "start", 180000);
+      const event = eventFromCommand(managedApp.id, "start", result);
+      await saveEvent(event);
+      results.push({
+        appId: managedApp.id,
+        name: managedApp.name,
+        status: event.status,
+        result,
+        event
+      });
+    }
+
+    response.json({
+      results,
+      apps: await Promise.all(config.apps.map(getAppSnapshot))
+    });
   } catch (error) {
     next(error);
   }

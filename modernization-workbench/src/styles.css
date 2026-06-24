@@ -418,6 +418,162 @@ p {
   margin-bottom: 18px;
 }
 
+.runtime-banner {
+  display: grid;
+  gap: 13px;
+  margin-bottom: 18px;
+  border: 1px solid #d3e0e6;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 15px;
+  box-shadow: 0 10px 28px rgba(20, 31, 43, 0.05);
+}
+
+.runtime-banner-ready {
+  border-color: #bfdcc9;
+  background: #f3fbf6;
+}
+
+.runtime-banner-warning {
+  border-color: #efcf92;
+  background: #fff8e8;
+}
+
+.runtime-banner-error {
+  border-color: #efc0ba;
+  background: #fff0ed;
+}
+
+.runtime-banner-header,
+.runtime-banner-title,
+.runtime-action-button {
+  display: flex;
+  align-items: center;
+}
+
+.runtime-banner-header {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.runtime-banner-title {
+  gap: 10px;
+  min-width: 0;
+}
+
+.runtime-banner-title svg {
+  flex: 0 0 auto;
+  color: #246b73;
+}
+
+.runtime-banner-error .runtime-banner-title svg {
+  color: #a9362b;
+}
+
+.runtime-banner-warning .runtime-banner-title svg {
+  color: #8a5e0f;
+}
+
+.runtime-banner-title strong {
+  display: block;
+  color: #142332;
+}
+
+.runtime-banner-title p {
+  margin-top: 3px;
+  font-size: 0.9rem;
+}
+
+.runtime-action-button {
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.runtime-app-list {
+  display: grid;
+  gap: 8px;
+}
+
+.runtime-app-readiness {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(143, 162, 176, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 10px 11px;
+}
+
+.runtime-app-readiness strong,
+.runtime-app-readiness span,
+.runtime-app-readiness small {
+  display: block;
+}
+
+.runtime-app-readiness strong {
+  color: #1d2c3b;
+  font-size: 0.92rem;
+}
+
+.runtime-app-readiness span {
+  margin-top: 2px;
+  color: #5c6b7b;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.runtime-app-readiness small {
+  margin-top: 4px;
+  color: #7a4b44;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.app-runtime-guidance {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 18px;
+  border: 1px solid #efd3a0;
+  border-radius: 8px;
+  background: #fff8e8;
+  color: #5f4610;
+  padding: 11px 12px;
+}
+
+.app-runtime-guidance svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.app-runtime-guidance strong,
+.app-runtime-guidance span {
+  display: block;
+}
+
+.app-runtime-guidance strong {
+  color: #4f390b;
+  font-size: 0.9rem;
+}
+
+.app-runtime-guidance span {
+  margin-top: 2px;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.app-runtime-guidance-error {
+  border-color: #efc0ba;
+  background: #fff0ed;
+  color: #8a2c23;
+}
+
+.app-runtime-guidance-error strong {
+  color: #7e281f;
+}
+
 .credential-strip {
   display: flex;
   align-items: center;
@@ -1184,6 +1340,11 @@ p {
   border-color: #8fb5c3;
   background: #eef7fa;
   outline: none;
+}
+
+.text-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .progress-history-chart-wrap {
@@ -2395,6 +2556,7 @@ dd {
 
   .app-header,
   .panel-header,
+  .runtime-banner-header,
   .progress-history-header,
   .progress-history-caption,
   .lower-grid,
@@ -2462,5 +2624,22 @@ dd {
   .header-actions,
   .seed-contract-metrics {
     justify-content: flex-start;
+  }
+
+  .runtime-banner-header {
+    align-items: stretch;
+  }
+
+  .runtime-app-readiness {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .runtime-app-readiness .status-pill {
+    justify-self: start;
+  }
+
+  .runtime-action-button {
+    justify-content: center;
   }
 }

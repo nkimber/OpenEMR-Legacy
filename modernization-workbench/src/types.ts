@@ -1,5 +1,15 @@
 export type RuntimeState = "healthy" | "unhealthy" | "stopped" | "partial" | "error";
 
+export type RuntimeGuidance = {
+  severity: "info" | "warning" | "error";
+  title: string;
+  message: string;
+  detail?: string;
+  primaryAction?: "start" | "restart";
+  canStartFromWorkbench: boolean;
+  dockerDesktopLikelyUnavailable: boolean;
+};
+
 export type ContainerStatus = {
   name: string;
   service: string;
@@ -255,6 +265,7 @@ export type AppSnapshot = {
     label: string;
     detail: string;
   };
+  runtimeGuidance: RuntimeGuidance | null;
   health: {
     ok: boolean;
     statusCode: number | null;

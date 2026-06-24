@@ -58,6 +58,8 @@ type BusyState = {
   label: string;
 } | null;
 
+const allAppsBusyId = "all-apps";
+
 const pageIds = ["dashboard", "applications", "timeline", "progress", "architecture", "tests", "seed-data"] as const;
 type PageId = (typeof pageIds)[number];
 
@@ -489,6 +491,86 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
   );
 }
 
+function RuntimeReadinessBanner({
+  apps,
+  busy,
+  onAction,
+  onStartAll
+}: {
+  apps: AppSnapshot[];
+  busy: BusyState;
+  onAction: (appId: string, action: "start" | "restart") => void;
+  onStartAll: () => void;
+}) {
+  if (apps.length === 0) {
+    return null;
+  }
+
+  const guidedApps = apps.filter((app) => app.runtimeGuidance);
+  const hasDockerDesktopIssue = guidedApps.some((app) => app.runtimeGuidance?.dockerDesktopLikelyUnavailable);
+  const hasError = guidedApps.some((app) => app.runtimeGuidance?.severity === "error");
+  const hasIssues = guidedApps.length > 0;
+  const allReady = apps.every((app) => app.runtime.state === "healthy" && app.health.ok);
+  const severity = hasError ? "error" : hasIssues ? "warning" : "ready";
+  const BannerIcon = severity === "ready" ? CheckCircle2 : CircleAlert;
+  const title = hasDockerDesktopIssue
+    ? "Docker Desktop is not reachable"
+    : hasIssues
+      ? "Local app runtime needs attention"
+      : "Docker apps are running";
+  const message = hasDockerDesktopIssue
+    ? "Start Docker Desktop from Windows, wait until the engine is running, then start the configured compose stacks from here."
+    : hasIssues
+      ? "One or more local app stacks is stopped, unhealthy, or not reachable. Use Start all apps or the per-app action below."
+      : allReady
+        ? "Legacy OpenEMR and the modernized app are both running and their health endpoints are reachable."
+        : "The configured app stacks have no active runtime warnings.";
+  const busyNow = Boolean(busy);
+
+  return (
+    <section className={`runtime-banner runtime-banner-${severity}`} aria-live="polite">
+      <div className="runtime-banner-header">
+        <div className="runtime-banner-title">
+          <BannerIcon size={20} />
+          <div>
+            <strong>{title}</strong>
+            <p>{message}</p>
+          </div>
+        </div>
+        <button className="text-button runtime-action-button" type="button" onClick={onStartAll} disabled={busyNow}>
+          <Power size={14} />
+          Start all apps
+        </button>
+      </div>
+      <div className="runtime-app-list">
+        {apps.map((app) => {
+          const guidance = app.runtimeGuidance;
+          const primaryAction = guidance?.canStartFromWorkbench ? guidance.primaryAction : undefined;
+          const detail = guidance?.detail?.replace(/\s+/g, " ").trim();
+          const rowMessage = guidance?.message ?? `${app.runtime.detail} Health endpoint ${app.health.ok ? `responded in ${formatDuration(app.health.durationMs)}` : "is not reachable"}.`;
+
+          return (
+            <div className="runtime-app-readiness" key={app.id}>
+              <StatusPill state={app.runtime.state} label={app.runtime.label} />
+              <div>
+                <strong>{app.name}</strong>
+                <span>{rowMessage}</span>
+                {detail ? <small>{truncateText(detail, 280)}</small> : null}
+              </div>
+              {primaryAction ? (
+                <button className="text-button runtime-action-button" type="button" onClick={() => onAction(app.id, primaryAction)} disabled={busyNow}>
+                  {primaryAction === "restart" ? <RotateCw size={14} /> : <Power size={14} />}
+                  {primaryAction === "restart" ? "Restart" : "Start"}
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function LegacyAppPanel({
   app,
   busy,
@@ -508,7 +590,7 @@ function LegacyAppPanel({
   seedDatasets: SeedDataset[];
   logs: string;
 }) {
-  const busyForApp = busy?.appId === app.id;
+  const busyForApp = busy?.appId === app.id || busy?.appId === allAppsBusyId;
   const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data" || row.tableName === "patients")?.rowCount ?? 0;
   const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter" || row.tableName === "encounters")?.rowCount ?? 0;
   const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events" || row.tableName === "appointments")?.rowCount ?? 0;
@@ -555,6 +637,16 @@ function LegacyAppPanel({
           <Terminal size={18} />
         </IconButton>
       </div>
+
+      {app.runtimeGuidance ? (
+        <div className={`app-runtime-guidance app-runtime-guidance-${app.runtimeGuidance.severity}`}>
+          <CircleAlert size={17} />
+          <div>
+            <strong>{app.runtimeGuidance.title}</strong>
+            <span>{app.runtimeGuidance.message}</span>
+          </div>
+        </div>
+      ) : null}
 
       <div className={`credential-strip${app.demoLogin.available ? "" : " warning"}`}>
         <div className="credential-heading">
@@ -2611,6 +2703,7 @@ function DashboardPage({
   modernizedApp,
   busy,
   onAction,
+  onStartAll,
   onRunTest,
   onRunSeed,
   onLoadLogs,
@@ -2623,7 +2716,8 @@ function DashboardPage({
   legacyApp?: AppSnapshot;
   modernizedApp?: AppSnapshot;
   busy: BusyState;
-  onAction: (action: "start" | "stop" | "restart") => void;
+  onAction: (appId: string, action: "start" | "stop" | "restart") => void;
+  onStartAll: () => void;
   onRunTest: (testId: string) => void;
   onRunSeed: (seedId: string) => void;
   onLoadLogs: () => void;
@@ -2636,8 +2730,14 @@ function DashboardPage({
   return (
     <>
       <OverviewGrid legacyApp={legacyApp} modernizedApp={modernizedApp} progress={progress} changelog={changelog} />
+      <RuntimeReadinessBanner
+        apps={[legacyApp, modernizedApp].filter((app): app is AppSnapshot => Boolean(app))}
+        busy={busy}
+        onAction={onAction}
+        onStartAll={onStartAll}
+      />
       {legacyApp ? (
-        <LegacyAppPanel app={legacyApp} busy={busy} onAction={onAction} onRunTest={onRunTest} onRunSeed={onRunSeed} onLoadLogs={onLoadLogs} seedDatasets={seedDatasets} logs={logs} />
+        <LegacyAppPanel app={legacyApp} busy={busy} onAction={(action) => onAction(legacyApp.id, action)} onRunTest={onRunTest} onRunSeed={onRunSeed} onLoadLogs={onLoadLogs} seedDatasets={seedDatasets} logs={logs} />
       ) : (
         <section className="panel">
           <EmptyState text="Loading managed applications." />
@@ -2658,6 +2758,7 @@ function PageBody({
   modernizedApp,
   busy,
   onAction,
+  onStartAll,
   onRunTest,
   onRunSeed,
   onLoadLogs,
@@ -2683,6 +2784,7 @@ function PageBody({
   modernizedApp?: AppSnapshot;
   busy: BusyState;
   onAction: (appId: string, action: "start" | "stop" | "restart") => void;
+  onStartAll: () => void;
   onRunTest: (appId: string, testId: string) => void;
   onRunSeed: (appId: string, seedId: string) => void;
   onLoadLogs: (appId: string) => void;
@@ -2730,6 +2832,7 @@ function PageBody({
   if (page === "applications") {
     return apps.length ? (
       <div className="page-stack">
+        <RuntimeReadinessBanner apps={apps} busy={busy} onAction={onAction} onStartAll={onStartAll} />
         {apps.map((app) => (
           <LegacyAppPanel
             key={app.id}
@@ -2755,7 +2858,8 @@ function PageBody({
       legacyApp={legacyApp}
       modernizedApp={modernizedApp}
       busy={busy}
-      onAction={(action) => legacyApp && onAction(legacyApp.id, action)}
+      onAction={onAction}
+      onStartAll={onStartAll}
       onRunTest={(testId) => legacyApp && onRunTest(legacyApp.id, testId)}
       onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)}
       onLoadLogs={() => legacyApp && onLoadLogs(legacyApp.id)}
@@ -2865,6 +2969,13 @@ export function App() {
     });
   };
 
+  const handleStartAllApps = () => {
+    void runWithBusy(allAppsBusyId, "starting all apps", async () => {
+      const response = await api.startAllApps();
+      setApps(response.apps);
+    });
+  };
+
   const handleRunTest = (appId: string, testId: string) => {
     void runWithBusy(appId, `running ${testId}`, async () => {
       const response = await api.runTest(appId, testId);
@@ -2923,6 +3034,7 @@ export function App() {
           modernizedApp={modernizedApp}
           busy={busy}
           onAction={handleAction}
+          onStartAll={handleStartAllApps}
           onRunTest={handleRunTest}
           onRunSeed={handleRunSeed}
           onLoadLogs={handleLoadLogs}

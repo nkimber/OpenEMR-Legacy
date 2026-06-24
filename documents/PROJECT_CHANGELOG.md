@@ -15289,6 +15289,48 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 266. Workbench Docker Runtime Readiness Guidance
+
+Started: 2026-06-24T07:37:00-04:00
+Finished: 2026-06-24T07:44:03.3215743-04:00
+Commit: pending
+
+Enhanced the Modernization Workbench runtime status model so operators can immediately see whether the legacy and modernized local apps are actually running through Docker Desktop, why a stack is not reachable, and what to do next.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: 501
+- Lines deleted: 6
+- Net lines: +495
+- Total churn: 507
+
+Key outcomes:
+
+- Added server-side Docker runtime guidance to each managed app snapshot, distinguishing healthy stacks from stopped compose stacks, partial/unhealthy containers, unreachable health endpoints, and likely Docker Desktop engine failures.
+- Added a bulk `POST /api/apps/actions/start-all` action that runs the configured Docker Compose start command for every managed Docker app and returns refreshed app snapshots.
+- Added Dashboard and Applications readiness banners with per-app runtime rows, Docker Desktop guidance, and a Start all apps button.
+- Added per-app runtime guidance directly under the managed application lifecycle controls so stopped or unhealthy apps explain the next action near Start/Stop/Restart.
+- Synchronized the Workbench documentation with the new runtime readiness behavior.
+
+Verified test runs:
+
+- `npm run typecheck` passed in `modernization-workbench`.
+- `npm run build` passed in `modernization-workbench`.
+- `GET http://127.0.0.1:5174/api/apps` returned `runtimeGuidance` for app snapshots and reported both managed apps healthy in the current Docker Desktop session.
+- `POST http://127.0.0.1:5174/api/apps/actions/start-all` succeeded for both `legacy-openemr` and `modernized-openemr`.
+- A Playwright DOM smoke check confirmed the Dashboard and Applications pages each render the runtime readiness banner, two app rows, and a visible Start all apps button.
+
+Primary files:
+
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/api.ts`
+- `modernization-workbench/src/styles.css`
+- `modernization-workbench/src/types.ts`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

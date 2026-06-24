@@ -38,6 +38,11 @@ export const api = {
       method: "POST"
     });
   },
+  async startAllApps() {
+    return requestJson<{ apps: AppSnapshot[] }>("/api/apps/actions/start-all", {
+      method: "POST"
+    });
+  },
   async runTest(appId: string, testId: string) {
     return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/tests/${testId}/run`, {
       method: "POST"
