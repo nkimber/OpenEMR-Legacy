@@ -16268,7 +16268,7 @@ Primary files:
 
 Started: 2026-06-24T18:08:00.0000000-04:00
 Finished: 2026-06-24T18:30:18.0000000-04:00
-Commit: pending
+Commit: 80779456
 
 Implemented Slice 243: patient portal prescription modified-date readiness. The modernized patient portal now carries active prescription modified-date values from the generated Postgres seed through the clinical-summary API and into visible Portal prescription cards, matching legacy OpenEMR's portal prescriptions `Last Modified` table.
 
