@@ -16381,6 +16381,57 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 287. Slice 245 Patient Portal Prescription End-Date Readiness
+
+Started: 2026-06-24T18:52:00.0000000-04:00
+Finished: 2026-06-24T19:08:13.3145839-04:00
+Commit: pending
+
+Implemented Slice 245: patient portal prescription end-date filtering readiness. The modernized patient portal now proves the same active-prescription filtering behavior as legacy OpenEMR by excluding cleanup-backed ended prescriptions from the signed-in patient's Portal prescription list while preserving null end dates for active prescriptions.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 249
+- Lines deleted: 23
+- Net lines: +226
+- Total churn: 272
+
+Key outcomes:
+
+- Added the `workflow-patient-portal-prescription-end-date` Playwright suite and `slice-245-patient-portal-prescription-end-date-readiness` plan.
+- Added cleanup-backed parity coverage that creates a temporary `MOD-PAT-0004` prescription, deactivates it with an end date, verifies both targets still return only the three active permanent prescriptions, and deletes the temporary prescription.
+- Normalized legacy workflow optional date/timestamp handling so MariaDB `NULL`/`\N` sentinel text maps to null instead of date-like strings.
+- Aligned the modernized Portal prescription card label with legacy OpenEMR's `End Date` column while keeping active prescriptions visibly marked as active.
+- Added Workbench-managed Slice 245 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 245 prescription end-date filtering contract.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run list -- --plan slice-245-patient-portal-prescription-end-date-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-prescription-end-date`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build frontend` passed and rebuilt/restarted the modernized frontend service.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-245-patient-portal-prescription-end-date-readiness -Reset test` passed as run `2026-06-24T230638-324Z-legacy-openemr-plan-slice-245-patient-portal-prescription-end-date-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-245-patient-portal-prescription-end-date-readiness -Reset test` passed as run `2026-06-24T230723-026Z-modernized-openemr-plan-slice-245-patient-portal-prescription-end-date-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-245-patient-portal-prescription-end-date-readiness` passed as comparison `2026-06-24T230759-428Z-legacy-openemr-vs-modernized-openemr-plan-slice-245-patient-portal-prescription-end-date-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-prescription-end-date/patient-portal-prescription-end-date.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

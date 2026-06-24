@@ -9000,7 +9000,7 @@ function appointmentCategoryLabel(categoryId: number | null): string | null {
 }
 
 function normalizeDateText(value: string): string {
-  if (!value) {
+  if (!value || isNullText(value)) {
     return "";
   }
 
@@ -9020,7 +9020,7 @@ function normalizeOptionalDateText(value: string | null | undefined): string | n
 }
 
 function normalizeOptionalDateTimeText(value: string | null | undefined): string | null {
-  if (!value) {
+  if (!value || isNullText(value)) {
     return null;
   }
 
@@ -9029,12 +9029,16 @@ function normalizeOptionalDateTimeText(value: string | null | undefined): string
 }
 
 function normalizeOptionalTimestampText(value: string | null | undefined): string | null {
-  if (!value) {
+  if (!value || isNullText(value)) {
     return null;
   }
 
   const normalized = value.trim();
   return normalized.length === 0 ? null : normalized.slice(0, 19);
+}
+
+function isNullText(value: string) {
+  return value === "NULL" || value === "\\N";
 }
 
 function normalizeNullableText(value: string | null | undefined): string | null {

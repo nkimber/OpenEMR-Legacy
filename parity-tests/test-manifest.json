@@ -1176,6 +1176,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-245-patient-portal-prescription-end-date-readiness",
+      "name": "Slice 245 Patient Portal Prescription End-Date Readiness",
+      "description": "Patient portal confidence plan that verifies ended prescriptions are excluded from the active portal prescription list and active prescriptions expose null end dates.",
+      "suites": ["workflow-patient-portal-prescription-end-date"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-245", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4392,6 +4401,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-prescription-start-date",
       "tags": ["slice244", "workflow", "read-only", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-prescription-end-date",
+      "name": "Patient Portal Prescription End-Date Readiness",
+      "description": "Verifies signed-in patient portal active-prescription end-date filtering and rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-prescription-end-date",
+      "tags": ["slice245", "workflow", "mutation", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
