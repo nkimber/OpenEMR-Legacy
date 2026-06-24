@@ -16327,7 +16327,7 @@ Primary files:
 
 Started: 2026-06-24T18:36:00.0000000-04:00
 Finished: 2026-06-24T18:50:54.8141581-04:00
-Commit: pending
+Commit: bf8b408c
 
 Implemented Slice 244: patient portal prescription start-date readiness. The modernized patient portal now carries active prescription `date_added` timestamps from the generated Postgres seed through the clinical-summary API and into visible Portal prescription cards, matching legacy OpenEMR's portal prescriptions `Start Date` table column.
 
