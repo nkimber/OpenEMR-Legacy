@@ -1086,6 +1086,14 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-235-patient-portal-deleted-messages-readiness",
+      "name": "Slice 235 Patient Portal Secure Message Deleted Folder Readiness",
+      "description": "Patient portal confidence plan that verifies archived secure messages stay out of active folders and appear in Deleted/Archive mailbox views on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-deleted-messages"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-235", "patients", "portal", "messages", "secure-messaging", "deleted-folder", "archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4206,6 +4214,15 @@
       "defaultResetMode": "test"
     },
     {
+      "id": "workflow-patient-portal-deleted-messages",
+      "name": "Patient Portal Secure Message Deleted Folder Readiness",
+      "description": "Verifies archived patient-owned secure messages are hidden from active folders and visible in the portal Deleted/Archive mailbox.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-deleted-messages",
+      "tags": ["slice235", "workflow", "mutation", "patients", "portal", "messages", "secure-messaging", "deleted-folder", "archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },    {
       "id": "workflow-clinical-list-protection",
       "name": "Clinical List Protection Readiness",
       "description": "Verifies clinical-list pages and APIs are not visible without a valid session and become visible while a session is active.",

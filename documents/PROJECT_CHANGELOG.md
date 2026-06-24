@@ -15774,6 +15774,67 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 275. Slice 235 Patient Portal Secure Message Deleted-Folder Readiness
+
+Started: 2026-06-24T12:45:30.0000000-04:00
+Finished: 2026-06-24T13:04:49.2194622-04:00
+Commit: pending
+
+Implemented Slice 235: patient portal secure-message Deleted-folder readiness. The modernized target now exposes owner-scoped archived portal mailbox rows through the session-protected portal messages response, renders a read-only Portal Deleted section, keeps archived rows hidden from Inbox, Sent, and All, and verifies the same cleanup-backed behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 338
+- Lines deleted: 26
+- Net lines: +312
+- Total churn: 364
+
+Key outcomes:
+
+- Extended `GET /api/patient-portal/messages` with `deletedMessageCount` and `deletedMessages`, using OpenEMR-compatible owner-scoped archived mailbox semantics.
+- Added a modernized Portal Deleted secure-message section that renders archived message status and sender/recipient context without active-message actions.
+- Extended legacy and modernized workflow adapters so Deleted-folder facts participate in the shared normalized portal messages contract.
+- Added the `workflow-patient-portal-deleted-messages` Playwright suite and `slice-235-patient-portal-deleted-messages-readiness` plan to verify workflow and UI behavior on both targets.
+- Added Workbench-managed Slice 235 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 235 Deleted-folder contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-235-patient-portal-deleted-messages-readiness` plus `workflow-patient-portal-deleted-messages`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-235-patient-portal-deleted-messages-readiness -Reset test` passed as run `2026-06-24T170034-747Z-legacy-openemr-plan-slice-235-patient-portal-deleted-messages-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-235-patient-portal-deleted-messages-readiness -Reset test` passed as run `2026-06-24T170317-417Z-modernized-openemr-plan-slice-235-patient-portal-deleted-messages-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-235-patient-portal-deleted-messages-readiness` passed as comparison `2026-06-24T170427-914Z-legacy-openemr-vs-modernized-openemr-plan-slice-235-patient-portal-deleted-messages-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-deleted-messages/patient-portal-deleted-messages.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
 
 ## Next Expected Entries
 

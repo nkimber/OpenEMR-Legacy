@@ -422,7 +422,7 @@
       "id": "messaging-portal",
       "name": "Messaging And Portal-Facing Data",
       "status": "in-progress",
-      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder and forward-to-practice behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
+      "summary": "Patient message visibility, lifecycle, assignment, content editing, basic reply threading, portal metadata preservation, pnotes-compatible update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder/deleted-folder and forward-to-practice behavior, protected message access, ACL-authorized patient-notes access, and mutation-specific Patient Notes authorization are covered; richer communication workflows remain open.",
       "completed": [
         {
           "label": "Patient messages and portal-enabled state",
@@ -460,9 +460,9 @@
           "evidence": ["slice-187-message-mutation-authorization-policy-readiness"]
         },
         {
-          "label": "Patient portal secure-message inbox, compose, reply, thread view, archive, read status, batch archive, and All folder",
-          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, archive selected messages together, and view the active All-folder mailbox projection.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness"]
+          "label": "Patient portal secure-message inbox, compose, reply, thread view, archive, read status, batch archive, All folder, and Deleted folder",
+          "detail": "The signed-in patient portal can render inbox messages, compose sent and practice copies, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, archive selected messages together, view the active All-folder mailbox projection, and inspect owner-scoped archived rows in the Deleted folder.",
+          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness", "slice-235-patient-portal-deleted-messages-readiness"]
         },
         {
           "label": "Patient portal secure-message lifecycle audit readiness",
@@ -486,10 +486,10 @@
       "deferred": [
         "Patient portal account provisioning and external notification providers."
       ],
-      "completionEstimatePercent": 69,
+      "completionEstimatePercent": 70,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Messaging is a smaller domain in the current target, with most remaining depth around portal communications and notifications.",
-      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder and forward-to-practice behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, richer routing, notifications, and broader audit reporting policy remain substantial."
+      "estimateRationale": "Message visibility, lifecycle, basic reply append behavior, portal metadata preservation, update metadata stamping, portal inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder/deleted-folder and forward-to-practice behavior, secure-message lifecycle audit, encrypted-body protection at the portal API/UI boundary, protected message access, ACL-backed Patient Notes authorization, and mutation-specific add/write Patient Notes policy enforcement are covered; full encryption key management, attachments, richer routing, notifications, and broader audit reporting policy remain substantial."
     },
     {
       "id": "billing-revenue-cycle",

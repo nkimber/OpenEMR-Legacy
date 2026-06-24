@@ -1053,6 +1053,8 @@ LIMIT 1;
         sentMessages: [],
         allMessageCount: 0,
         allMessages: [],
+        deletedMessageCount: 0,
+        deletedMessages: [],
         failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
         sessionSource: "modernized-openemr-portal"
       };
@@ -5276,6 +5278,8 @@ function mapPatientPortalMessagesResult(result: any): PatientPortalMessagesResul
     sentMessages: (result.sentMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     allMessageCount: result.allMessageCount ?? 0,
     allMessages: (result.allMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
+    deletedMessageCount: result.deletedMessageCount ?? 0,
+    deletedMessages: (result.deletedMessages ?? []).map((message: any) => mapPatientPortalMessageItem(message, result.portalUsername)),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };
