@@ -66,6 +66,7 @@ import type {
   PatientPortalAccountAccessState,
   PatientPortalArchiveMessagesResult,
   PatientPortalAppointmentRequestInput,
+  PatientPortalAppointmentRequestOptionsResult,
   PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
   PatientPortalComposeMessageInput,
@@ -756,6 +757,53 @@ LIMIT 1;
       }
 
       return mapPatientPortalAppointmentsResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalAppointmentRequestOptions(
+    username: string,
+    password: string
+  ): Promise<PatientPortalAppointmentRequestOptionsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        datasetVersion: "unknown",
+        asOfDate: new Date().toISOString().slice(0, 10),
+        categories: [],
+        providers: [],
+        facilities: [],
+        defaults: {
+          categoryId: null,
+          providerId: null,
+          facilityId: null,
+          durationMinutes: 0,
+          date: "",
+          startTime: ""
+        },
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/appointments/request-options`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal appointment request options failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalAppointmentRequestOptionsResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4544,6 +4592,48 @@ function mapPatientPortalAppointmentsResult(result: any): PatientPortalAppointme
     upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
     pastAppointmentCount: result.pastAppointmentCount ?? 0,
     pastAppointments: (result.pastAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalAppointmentRequestOptionsResult(result: any): PatientPortalAppointmentRequestOptionsResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    categories: (result.categories ?? []).map((category: any) => ({
+      id: category.id ?? 0,
+      name: category.name ?? "",
+      constantId: category.constantId ?? "",
+      durationMinutes: category.durationMinutes ?? 0
+    })),
+    providers: (result.providers ?? []).map((provider: any) => ({
+      id: provider.id ?? 0,
+      username: provider.username ?? "",
+      displayName: provider.displayName ?? "",
+      facilityId: provider.facilityId ?? null,
+      facilityName: provider.facilityName ?? null
+    })),
+    facilities: (result.facilities ?? []).map((facility: any) => ({
+      id: facility.id ?? 0,
+      name: facility.name ?? "",
+      code: facility.code ?? null
+    })),
+    defaults: {
+      categoryId: result.defaults?.categoryId ?? null,
+      providerId: result.defaults?.providerId ?? null,
+      facilityId: result.defaults?.facilityId ?? null,
+      durationMinutes: result.defaults?.durationMinutes ?? 0,
+      date: result.defaults?.date ?? "",
+      startTime: result.defaults?.startTime ?? ""
+    },
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

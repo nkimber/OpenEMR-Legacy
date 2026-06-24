@@ -227,6 +227,54 @@ export type PatientPortalAppointmentsResult = {
   sessionSource: string;
 };
 
+export type PatientPortalAppointmentCategoryOption = {
+  id: number;
+  name: string;
+  constantId: string;
+  durationMinutes: number;
+};
+
+export type PatientPortalAppointmentProviderOption = {
+  id: number;
+  username: string;
+  displayName: string;
+  facilityId: number | null;
+  facilityName: string | null;
+};
+
+export type PatientPortalAppointmentFacilityOption = {
+  id: number;
+  name: string;
+  code: string | null;
+};
+
+export type PatientPortalAppointmentRequestDefaults = {
+  categoryId: number | null;
+  providerId: number | null;
+  facilityId: number | null;
+  durationMinutes: number;
+  date: string;
+  startTime: string;
+};
+
+export type PatientPortalAppointmentRequestOptionsResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  categories: PatientPortalAppointmentCategoryOption[];
+  providers: PatientPortalAppointmentProviderOption[];
+  facilities: PatientPortalAppointmentFacilityOption[];
+  defaults: PatientPortalAppointmentRequestDefaults;
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalAppointmentRequestInput = {
   providerId: number;
   facilityId: number;
@@ -2311,6 +2359,94 @@ WHERE pc_pid = ${integer(login.pid)}
       upcomingAppointments: upcomingRows.map(mapPortalAppointmentRow),
       pastAppointmentCount: Number(pastCountRows[0]?.appointmentCount ?? pastRows.length),
       pastAppointments: pastRows.map(mapPortalAppointmentRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalAppointmentRequestOptions(
+    username: string,
+    password: string
+  ): Promise<PatientPortalAppointmentRequestOptionsResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalAppointmentRequestOptionsResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const patientRows = await this.db.queryRows<Record<string, string>>(`
+SELECT providerID AS providerId
+FROM patient_data
+WHERE pid = ${integer(login.pid)}
+LIMIT 1;
+`);
+    const categoryRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  pc_catid AS id,
+  COALESCE(pc_catname, '') AS name,
+  COALESCE(pc_constant_id, '') AS constantId,
+  ROUND(CASE WHEN pc_end_all_day = 1 THEN 86400 ELSE pc_duration END / 60) AS durationMinutes
+FROM openemr_postcalendar_categories
+WHERE pc_active = 1
+  AND pc_cattype = 0
+  AND pc_constant_id <> 'no_show'
+  AND pc_duration > 0
+ORDER BY pc_seq, pc_catid;
+`);
+    const providerRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  u.id,
+  u.username,
+  TRIM(CONCAT(COALESCE(u.lname, ''), ', ', COALESCE(u.fname, ''))) AS displayName,
+  COALESCE(CAST(u.facility_id AS CHAR), '') AS facilityId,
+  COALESCE(f.name, u.facility, '') AS facilityName
+FROM users u
+LEFT JOIN facility f ON f.id = u.facility_id
+WHERE u.authorized != 0
+  AND u.active = 1
+  AND u.username > ''
+ORDER BY u.lname, u.fname, u.id;
+`);
+    const facilityRows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, COALESCE(name, '') AS name, COALESCE(facility_code, '') AS code
+FROM facility
+WHERE inactive = 0
+ORDER BY name, id;
+`);
+
+    const categories = categoryRows.map(mapPortalAppointmentCategoryOptionRow);
+    const providers = providerRows.map(mapPortalAppointmentProviderOptionRow);
+    const facilities = facilityRows.map(mapPortalAppointmentFacilityOptionRow);
+    const patientProviderId = patientRows[0]?.providerId ? Number(patientRows[0].providerId) : null;
+    const defaultProviderId = providers.some((provider) => provider.id === patientProviderId)
+      ? patientProviderId
+      : providers[0]?.id ?? null;
+    const defaultProvider = providers.find((provider) => provider.id === defaultProviderId);
+    const defaultFacilityId = facilities.some((facility) => facility.id === defaultProvider?.facilityId)
+      ? defaultProvider?.facilityId ?? null
+      : facilities[0]?.id ?? null;
+    const defaultCategory = categories.find((category) => category.id === 9) ?? categories[0] ?? null;
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      categories,
+      providers,
+      facilities,
+      defaults: {
+        categoryId: defaultCategory?.id ?? null,
+        providerId: defaultProviderId,
+        facilityId: defaultFacilityId,
+        durationMinutes: defaultCategory?.durationMinutes ?? 0,
+        date: "2026-09-22",
+        startTime: "09:30"
+      },
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -6889,6 +7025,36 @@ function buildEmptyPortalAppointmentsResult(username: string, failureReason: str
   };
 }
 
+function buildEmptyPortalAppointmentRequestOptionsResult(
+  username: string,
+  failureReason: string
+): PatientPortalAppointmentRequestOptionsResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    categories: [],
+    providers: [],
+    facilities: [],
+    defaults: {
+      categoryId: null,
+      providerId: null,
+      facilityId: null,
+      durationMinutes: 0,
+      date: "",
+      startTime: ""
+    },
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
 function buildEmptyPortalAppointmentRequestResult(
   username: string,
   failureReason: string
@@ -6906,6 +7072,33 @@ function buildEmptyPortalAppointmentRequestResult(
     reminder: null,
     failureReason,
     sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function mapPortalAppointmentCategoryOptionRow(row: Record<string, string>): PatientPortalAppointmentCategoryOption {
+  return {
+    id: Number(row.id),
+    name: row.name,
+    constantId: row.constantId,
+    durationMinutes: Number(row.durationMinutes)
+  };
+}
+
+function mapPortalAppointmentProviderOptionRow(row: Record<string, string>): PatientPortalAppointmentProviderOption {
+  return {
+    id: Number(row.id),
+    username: row.username,
+    displayName: row.displayName,
+    facilityId: row.facilityId ? Number(row.facilityId) : null,
+    facilityName: row.facilityName || null
+  };
+}
+
+function mapPortalAppointmentFacilityOptionRow(row: Record<string, string>): PatientPortalAppointmentFacilityOption {
+  return {
+    id: Number(row.id),
+    name: row.name,
+    code: row.code || null
   };
 }
 

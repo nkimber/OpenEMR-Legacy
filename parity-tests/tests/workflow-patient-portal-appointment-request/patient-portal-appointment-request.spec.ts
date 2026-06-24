@@ -126,8 +126,8 @@ test.describe("patient portal appointment request parity @slice220 @workflow-pat
       await appointmentsRegion.getByLabel("Portal appointment time").fill("09:30");
       await appointmentsRegion.getByLabel("Portal appointment visit").selectOption("9");
       await appointmentsRegion.getByLabel("Portal appointment duration").fill("30");
-      await appointmentsRegion.getByLabel("Portal appointment provider ID").fill("105");
-      await appointmentsRegion.getByLabel("Portal appointment facility ID").fill("11");
+      await appointmentsRegion.getByLabel("Portal appointment provider").selectOption("105");
+      await appointmentsRegion.getByLabel("Portal appointment facility").selectOption("11");
       await appointmentsRegion.getByLabel("Portal appointment reason").fill(requestReason);
       await appointmentsRegion.getByRole("button", { name: "Request appointment" }).click();
 

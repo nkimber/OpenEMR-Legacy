@@ -960,6 +960,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-221-patient-portal-appointment-options-readiness",
+      "name": "Slice 221 Patient Portal Appointment Request Options Readiness",
+      "description": "Patient portal confidence plan that verifies signed-in appointment request category, provider, facility, duration, and default option readiness on API/workflow and UI surfaces.",
+      "suites": ["workflow-patient-portal-appointment-options"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-221", "patients", "portal", "appointments", "scheduling", "request-options", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3936,6 +3945,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-appointment-request",
       "tags": ["slice220", "workflow", "mutation", "patients", "portal", "appointments", "scheduling", "request", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-appointment-options",
+      "name": "Patient Portal Appointment Request Options Readiness",
+      "description": "Verifies signed-in patient portal appointment request categories, providers, facilities, duration defaults, and form rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-appointment-options",
+      "tags": ["slice221", "workflow", "read-only", "patients", "portal", "appointments", "scheduling", "request-options", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
