@@ -16385,7 +16385,7 @@ Primary files:
 
 Started: 2026-06-24T18:52:00.0000000-04:00
 Finished: 2026-06-24T19:08:13.3145839-04:00
-Commit: pending
+Commit: 9e2b8507
 
 Implemented Slice 245: patient portal prescription end-date filtering readiness. The modernized patient portal now proves the same active-prescription filtering behavior as legacy OpenEMR by excluding cleanup-backed ended prescriptions from the signed-in patient's Portal prescription list while preserving null end dates for active prescriptions.
 
