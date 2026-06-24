@@ -14866,7 +14866,7 @@ Primary files:
 Started: 2026-06-23T20:23:00-04:00
 Finished: 2026-06-23T20:51:52-04:00
 Duration: 00:28:52
-Commit: pending
+Commit: c7789616
 
 Implemented Slice 221: patient portal appointment request options readiness. The modernized target now exposes session-protected request-form option data for signed-in portal patients, renders named visit/provider/facility/duration controls in the Portal workspace, derives provider/facility defaults from the seeded patient/provider relationship, and proves the same request-option behavior against legacy OpenEMR for the `MOD-PAT-0004` portal account.
 
