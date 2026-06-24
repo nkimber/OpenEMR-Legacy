@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary prescription modified-date/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary prescription modified-date/start-date/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -209,6 +209,11 @@
           "evidence": ["slice-243-patient-portal-prescription-modified-date-readiness"]
         },
         {
+          "label": "Patient portal prescription start-date readiness",
+          "detail": "The modernized patient portal clinical-summary API and Portal page now preserve and render active prescription date-added timestamps as portal start dates in line with legacy OpenEMR's portal prescription table.",
+          "evidence": ["slice-244-patient-portal-prescription-start-date-readiness"]
+        },
+        {
           "label": "Patient portal lab results readiness",
           "detail": "The modernized patient portal API and Portal page now render signed-in patient lab orders, reports, and final result rows, while parity compares the same portal lab-results facts against legacy OpenEMR.",
           "evidence": ["slice-223-patient-portal-lab-results-readiness"]
@@ -274,7 +279,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary prescription modified-date/lab-results/medical-report/generated-report/PDF export/issue selection/encounter-form selection/procedure-order selection/procedure-order artifact delivery/printable template metadata/report package delivery/report lifecycle audit/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, broader lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary prescription modified-date/start-date/lab-results/medical-report/generated-report/PDF export/issue selection/encounter-form selection/procedure-order selection/procedure-order artifact delivery/printable template metadata/report package delivery/report lifecycle audit/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, broader lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
@@ -398,7 +403,7 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, prescription, patient-portal clinical summary including prescription modified dates, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, prescription, patient-portal clinical summary including prescription modified dates and date-added start timestamps, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
@@ -422,8 +427,8 @@
         },
         {
           "label": "Patient portal clinical summary readiness",
-          "detail": "Signed-in portal patients can see the same problem, allergy, medication-list, active-prescription, and active-prescription modified-date summary facts that legacy OpenEMR exposes through the portal clinical-list pages.",
-          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-243-patient-portal-prescription-modified-date-readiness"]
+          "detail": "Signed-in portal patients can see the same problem, allergy, medication-list, active-prescription, active-prescription modified-date, and prescription date-added/start-date summary facts that legacy OpenEMR exposes through the portal clinical-list pages.",
+          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-243-patient-portal-prescription-modified-date-readiness", "slice-244-patient-portal-prescription-start-date-readiness"]
         }
       ],
       "outstanding": [
@@ -433,10 +438,10 @@
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 59,
+      "completionEstimatePercent": 60,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, and patient portal clinical-summary projection now includes active prescription modified-date fidelity; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, and patient portal clinical-summary projection now includes active prescription modified-date and date-added/start-date fidelity; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
     },
     {
       "id": "messaging-portal",

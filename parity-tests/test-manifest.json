@@ -1167,6 +1167,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-244-patient-portal-prescription-start-date-readiness",
+      "name": "Slice 244 Patient Portal Prescription Start-Date Readiness",
+      "description": "Patient portal confidence plan that verifies active prescription date-added timestamps are exposed as portal start dates on both legacy and modernized targets.",
+      "suites": ["workflow-patient-portal-prescription-start-date"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-244", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4373,6 +4382,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-prescription-modified-date",
       "tags": ["slice243", "workflow", "read-only", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-prescription-start-date",
+      "name": "Patient Portal Prescription Start-Date Readiness",
+      "description": "Verifies signed-in patient portal active prescription date-added timestamps and start-date rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-prescription-start-date",
+      "tags": ["slice244", "workflow", "read-only", "patients", "portal", "clinical-lists", "prescriptions", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -16323,6 +16323,64 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 286. Slice 244 Patient Portal Prescription Start-Date Readiness
+
+Started: 2026-06-24T18:36:00.0000000-04:00
+Finished: 2026-06-24T18:50:54.8141581-04:00
+Commit: pending
+
+Implemented Slice 244: patient portal prescription start-date readiness. The modernized patient portal now carries active prescription `date_added` timestamps from the generated Postgres seed through the clinical-summary API and into visible Portal prescription cards, matching legacy OpenEMR's portal prescriptions `Start Date` table column.
+
+Code changes:
+
+- Files changed: 15
+- Lines added: 238
+- Lines deleted: 26
+- Net lines: +212
+- Total churn: 264
+
+Key outcomes:
+
+- Added `date_added` to the generated modernized Postgres `prescriptions` table and populated it with the deterministic legacy-compatible `startDate 10:00:00` timestamp.
+- Projected patient portal prescription `StartDate` from `date_added` in the modernized clinical-summary API while preserving a start-date fallback.
+- Updated modernized prescription creation to write `date_added` values alongside `start_date` and `modified_date`.
+- Rendered prescription start timestamps in the modernized patient Portal prescription cards.
+- Updated the legacy workflow adapter to preserve prescription portal start timestamps instead of trimming them to date-only values.
+- Added the `workflow-patient-portal-prescription-start-date` Playwright suite and `slice-244-patient-portal-prescription-start-date-readiness` plan.
+- Added Workbench-managed Slice 244 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 244 prescription start-date contract.
+
+Verified test runs:
+
+- `node .\scripts\generate-postgres-seed.mjs` passed from `modernized-openemr/` and regenerated `modernized-openemr/artifacts/postgres/seed-gold.sql`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list -- --plan slice-244-patient-portal-prescription-start-date-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-prescription-start-date`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `dotnet build .\modernized-openemr\OpenEmr.Modernized.slnx` passed.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed and rebuilt/restarted the modernized API/frontend services.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-244-patient-portal-prescription-start-date-readiness -Reset test` passed as run `2026-06-24T225003-776Z-legacy-openemr-plan-slice-244-patient-portal-prescription-start-date-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-244-patient-portal-prescription-start-date-readiness -Reset test` passed as run `2026-06-24T225027-114Z-modernized-openemr-plan-slice-244-patient-portal-prescription-start-date-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-244-patient-portal-prescription-start-date-readiness` passed as comparison `2026-06-24T225042-211Z-legacy-openemr-vs-modernized-openemr-plan-slice-244-patient-portal-prescription-start-date-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ClinicalListRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-prescription-start-date/patient-portal-prescription-start-date.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

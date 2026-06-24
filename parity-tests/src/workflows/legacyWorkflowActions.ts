@@ -2800,7 +2800,7 @@ ORDER BY begdate, id;
 SELECT
   CAST(id AS CHAR) AS id,
   COALESCE(drug, '') AS drug,
-  DATE_FORMAT(start_date, '%Y-%m-%d') AS startDate,
+  DATE_FORMAT(date_added, '%Y-%m-%d %H:%i:%s') AS startDate,
   DATE_FORMAT(date_modified, '%Y-%m-%d') AS modifiedDate,
   DATE_FORMAT(end_date, '%Y-%m-%d') AS endDate,
   COALESCE(dosage, '') AS dosage,
@@ -8291,7 +8291,7 @@ function mapPortalPrescriptionRow(row: Record<string, string>): PatientPortalPre
   return {
     id: row.id,
     drug: row.drug,
-    startDate: normalizeOptionalDateText(row.startDate),
+    startDate: normalizeOptionalTimestampText(row.startDate),
     modifiedDate: normalizeOptionalDateText(row.modifiedDate),
     endDate: normalizeOptionalDateText(row.endDate),
     dosage: row.dosage || null,
@@ -9026,6 +9026,15 @@ function normalizeOptionalDateTimeText(value: string | null | undefined): string
 
   const normalized = value.trim();
   return normalized.length === 0 ? null : normalized.slice(0, 16);
+}
+
+function normalizeOptionalTimestampText(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length === 0 ? null : normalized.slice(0, 19);
 }
 
 function normalizeNullableText(value: string | null | undefined): string | null {
