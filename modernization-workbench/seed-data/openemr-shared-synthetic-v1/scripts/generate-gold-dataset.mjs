@@ -702,7 +702,7 @@ patients.forEach((patient, index) => {
   for (let sequence = 1; sequence <= count; sequence += 1) {
     const [drug, dosage, route, diagnosis] = medicationCatalog[(index + sequence) % medicationCatalog.length];
     const startDate = addDays(baseDate, -168 + ((index * 13 + sequence * 29) % 365));
-    medicationLists.push({ id: `MED-${patient.canonicalId}-${sequence}`, patientId: patient.canonicalId, pid: patient.pid, type: "medication", title: `${drug} ${dosage}`, diagnosis: `ICD10:${diagnosis}`, date: startDate, comments: "Active synthetic medication list entry." });
+    medicationLists.push({ id: `MED-${patient.canonicalId}-${sequence}`, patientId: patient.canonicalId, pid: patient.pid, type: "medication", title: `${drug} ${dosage}`, diagnosis: `ICD10:${diagnosis}`, date: startDate, modifiedDate: startDate, comments: "Active synthetic medication list entry." });
     prescriptions.push({ id: `RX-${patient.canonicalId}-${sequence}`, patientId: patient.canonicalId, pid: patient.pid, providerId: patient.providerId, encounter: patient.pid * 10 + 1, startDate, drug, dosage, route, diagnosis: `ICD10:${diagnosis}` });
   }
 });
@@ -1103,6 +1103,7 @@ function listRows(items) {
     type: item.type,
     title: item.title,
     begdate: `${item.date} 00:00:00`,
+    modifydate: `${item.modifiedDate ?? item.date} 00:00:00`,
     diagnosis: item.diagnosis ?? "",
     activity: 1,
     comments: item.comments ?? "",
@@ -1654,7 +1655,7 @@ function buildLegacySql() {
   })), 200));
 
   statements.push(insert("forms", ["id", "date", "encounter", "form_name", "form_id", "pid", "user", "groupname", "authorized", "deleted", "formdir", "provider_id"], formsRows, 300));
-  statements.push(insert("lists", ["uuid", "date", "type", "title", "begdate", "diagnosis", "activity", "comments", "pid", "user", "groupname", "reaction", "severity_al", "list_option_id"], listRows([...problems, ...allergies, ...medicationLists]), 200));
+  statements.push(insert("lists", ["uuid", "date", "type", "title", "begdate", "modifydate", "diagnosis", "activity", "comments", "pid", "user", "groupname", "reaction", "severity_al", "list_option_id"], listRows([...problems, ...allergies, ...medicationLists]), 200));
 
   statements.push(insert("prescriptions", ["uuid", "patient_id", "filled_by_id", "date_added", "date_modified", "provider_id", "encounter", "start_date", "drug", "rxnorm_drugcode", "dosage", "quantity", "route", "refills", "medication", "note", "active", "datetime", "user", "site", "txDate", "usage_category_title", "request_intent_title", "diagnosis", "created_by", "updated_by"], prescriptions.map((prescription) => ({
     uuid: raw(sqlUuid(prescription.id)),

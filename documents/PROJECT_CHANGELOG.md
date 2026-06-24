@@ -16432,6 +16432,63 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 288. Slice 246 Patient Portal Medication Date Columns Readiness
+
+Started: 2026-06-24T19:21:58-04:00
+Finished: 2026-06-24T19:30:45-04:00
+Commit: pending
+
+Implemented Slice 246: patient portal medication date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_medications.php` medication table by exposing deterministic start, last-modified, and end-date facts, including cleanup-backed ended medication-list rows that legacy still renders.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 7,111
+- Lines deleted: 4,674
+- Net lines: +2,437
+- Total churn: 11,785
+
+Key outcomes:
+
+- Added deterministic medication `modifiedDate` values to the canonical gold dataset and wrote them to legacy `lists.modifydate`.
+- Added `medications.modified_date` to the generated modernized Postgres seed/schema and mapped it through the patient portal clinical-summary API.
+- Removed the active-only filter from the modernized portal medication projection so ended medication-list rows match legacy portal visibility.
+- Updated modernized Portal medication cards to render legacy-aligned `Last Modified` and `End Date` labels.
+- Added the `workflow-patient-portal-medication-date-columns` Playwright suite and `slice-246-patient-portal-medication-date-columns-readiness` plan.
+- Added Workbench-managed Slice 246 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 246 medication date-column contract.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, `modernization-workbench/config/functionality-progress.json`, `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`, and `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/summary.json`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run list -- --plan slice-246-patient-portal-medication-date-columns-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-medication-date-columns`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed and rebuilt/restarted the modernized API and frontend services.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-246-patient-portal-medication-date-columns-readiness -Reset test` passed as run `2026-06-24T232939-410Z-legacy-openemr-plan-slice-246-patient-portal-medication-date-columns-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-246-patient-portal-medication-date-columns-readiness -Reset test` passed as run `2026-06-24T233013-580Z-modernized-openemr-plan-slice-246-patient-portal-medication-date-columns-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-246-patient-portal-medication-date-columns-readiness` passed as comparison `2026-06-24T233040-133Z-legacy-openemr-vs-modernized-openemr-plan-slice-246-patient-portal-medication-date-columns-readiness` with no differences.
+
+Primary files:
+
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/scripts/generate-gold-dataset.mjs`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/canonical/gold-dataset.json`
+- `modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/legacy-mariadb/seed-gold.sql`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/ClinicalListRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/tests/workflow-patient-portal-medication-date-columns/patient-portal-medication-date-columns.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
