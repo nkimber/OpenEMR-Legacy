@@ -16070,7 +16070,7 @@ Primary files:
 
 Started: 2026-06-24T15:20:00.0000000-04:00
 Finished: 2026-06-24T15:48:32.5370097-04:00
-Commit: pending
+Commit: c2f3296c
 
 Implemented Slice 240: patient portal secure-message HTML body rendering readiness. The modernized Portal now renders secure-message bodies through the same DOMPurify HTML-profile policy used by legacy OpenEMR, preserving raw HTML at the workflow/API boundary while allowing safe formatting and stripping links/images at the UI boundary.
 
