@@ -72,6 +72,7 @@ import type {
   PatientPortalClinicalSummaryResult,
   PatientPortalMedicalReportGenerationInput,
   PatientPortalGeneratedMedicalReportResult,
+  PatientPortalGeneratedMedicalReportPackageMetadata,
   PatientPortalGeneratedMedicalReportTemplateMetadata,
   PatientPortalLabResultsResult,
   PatientPortalMedicalReportResult,
@@ -874,6 +875,7 @@ LIMIT 1;
           includedProcedureOrderIds: [],
           includedEncounterFormIds: [],
           templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
+          packageMetadata: buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(),
           summaryLineCount: 0,
           summaryLines: []
         },
@@ -4940,6 +4942,7 @@ function mapPatientPortalMedicalReportResult(result: any): PatientPortalMedicalR
         generatedOnLabel: result.reportPreview?.templateMetadata?.generatedOnLabel ?? "",
         signatureLineAvailable: Boolean(result.reportPreview?.templateMetadata?.signatureLineAvailable)
       },
+      packageMetadata: mapPatientPortalGeneratedMedicalReportPackageMetadata(result.reportPreview?.packageMetadata),
       summaryLineCount: result.reportPreview?.summaryLineCount ?? 0,
       summaryLines: result.reportPreview?.summaryLines ?? []
     },
@@ -4958,6 +4961,30 @@ function buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(): Patien
     patientHeaderLine: "",
     generatedOnLabel: "",
     signatureLineAvailable: false
+  };
+}
+
+function buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(): PatientPortalGeneratedMedicalReportPackageMetadata {
+  return {
+    fileName: "",
+    contentType: "",
+    entryNames: [],
+    manifestAvailable: false,
+    pdfAvailable: false,
+    summaryAvailable: false
+  };
+}
+
+function mapPatientPortalGeneratedMedicalReportPackageMetadata(
+  metadata: any
+): PatientPortalGeneratedMedicalReportPackageMetadata {
+  return {
+    fileName: metadata?.fileName ?? "",
+    contentType: metadata?.contentType ?? "",
+    entryNames: metadata?.entryNames ?? [],
+    manifestAvailable: Boolean(metadata?.manifestAvailable),
+    pdfAvailable: Boolean(metadata?.pdfAvailable),
+    summaryAvailable: Boolean(metadata?.summaryAvailable)
   };
 }
 
@@ -4985,6 +5012,8 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
+    packageDownloadAvailable: false,
+    packageMetadata: buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(),
     reportSectionCount: 0,
     reportSections: [],
     summaryLineCount: 0,
@@ -5023,6 +5052,8 @@ function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPorta
     includedEncounterFormIds: result.includedEncounterFormIds ?? [],
     printableVersionAvailable: Boolean(result.printableVersionAvailable),
     pdfDownloadAvailable: Boolean(result.pdfDownloadAvailable),
+    packageDownloadAvailable: Boolean(result.packageDownloadAvailable),
+    packageMetadata: mapPatientPortalGeneratedMedicalReportPackageMetadata(result.packageMetadata),
     reportSectionCount: result.reportSectionCount ?? 0,
     reportSections: (result.reportSections ?? []).map((section: any) => ({
       id: section.id ?? "",

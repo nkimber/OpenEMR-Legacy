@@ -392,6 +392,7 @@ export type PatientPortalGeneratedMedicalReport = {
   includedProcedureOrderIds: string[];
   includedEncounterFormIds: string[];
   templateMetadata: PatientPortalGeneratedMedicalReportTemplateMetadata;
+  packageMetadata: PatientPortalGeneratedMedicalReportPackageMetadata;
   summaryLineCount: number;
   summaryLines: string[];
 };
@@ -421,6 +422,15 @@ export type PatientPortalGeneratedMedicalReportTemplateMetadata = {
   signatureLineAvailable: boolean;
 };
 
+export type PatientPortalGeneratedMedicalReportPackageMetadata = {
+  fileName: string;
+  contentType: string;
+  entryNames: string[];
+  manifestAvailable: boolean;
+  pdfAvailable: boolean;
+  summaryAvailable: boolean;
+};
+
 export type PatientPortalGeneratedMedicalReportResult = {
   authenticated: boolean;
   username: string;
@@ -440,6 +450,8 @@ export type PatientPortalGeneratedMedicalReportResult = {
   includedEncounterFormIds: string[];
   printableVersionAvailable: boolean;
   pdfDownloadAvailable: boolean;
+  packageDownloadAvailable: boolean;
+  packageMetadata: PatientPortalGeneratedMedicalReportPackageMetadata;
   reportSectionCount: number;
   reportSections: PatientPortalGeneratedMedicalReportSection[];
   summaryLineCount: number;
@@ -7777,6 +7789,7 @@ function buildEmptyPortalMedicalReportResult(username: string, failureReason: st
       includedProcedureOrderIds: [],
       includedEncounterFormIds: [],
       templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
+      packageMetadata: buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(),
       summaryLineCount: 0,
       summaryLines: []
     },
@@ -7809,6 +7822,8 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
+    packageDownloadAvailable: false,
+    packageMetadata: buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(),
     reportSectionCount: 0,
     reportSections: [],
     summaryLineCount: 0,
@@ -8016,6 +8031,7 @@ function buildPatientPortalGeneratedMedicalReport(
     includedProcedureOrderIds,
     includedEncounterFormIds: [],
     templateMetadata: buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(),
+    packageMetadata: buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(),
     summaryLineCount: summaryLines.length,
     summaryLines
   };
@@ -8145,6 +8161,12 @@ function buildPatientPortalGeneratedMedicalReportResult(
       ? [`Encounter Forms: ${includedEncounterForms.length} selected for this customized report.`]
       : [])
   ];
+  const generatedOn = new Date().toISOString().slice(0, 10);
+  const packageMetadata = buildPatientPortalGeneratedMedicalReportPackageMetadata(
+    report.pubpid,
+    report.canonicalId,
+    generatedOn
+  );
 
   return {
     authenticated: true,
@@ -8157,7 +8179,7 @@ function buildPatientPortalGeneratedMedicalReportResult(
     datasetVersion: report.datasetVersion,
     asOfDate: report.asOfDate,
     title: "Customized Medical History Report",
-    generatedOn: new Date().toISOString().slice(0, 10),
+    generatedOn,
     templateMetadata,
     includedSectionIds,
     includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
@@ -8165,6 +8187,8 @@ function buildPatientPortalGeneratedMedicalReportResult(
     includedEncounterFormIds: includedEncounterForms.map((item) => item.selectionId),
     printableVersionAvailable: true,
     pdfDownloadAvailable: true,
+    packageDownloadAvailable: true,
+    packageMetadata,
     reportSectionCount: reportSections.length,
     reportSections,
     summaryLineCount: summaryLines.length,
@@ -8202,6 +8226,49 @@ function buildEmptyPatientPortalGeneratedMedicalReportTemplateMetadata(): Patien
     generatedOnLabel: "",
     signatureLineAvailable: false
   };
+}
+
+function buildEmptyPatientPortalGeneratedMedicalReportPackageMetadata(): PatientPortalGeneratedMedicalReportPackageMetadata {
+  return {
+    fileName: "",
+    contentType: "",
+    entryNames: [],
+    manifestAvailable: false,
+    pdfAvailable: false,
+    summaryAvailable: false
+  };
+}
+
+function buildPatientPortalGeneratedMedicalReportPackageMetadata(
+  pubpid: string,
+  canonicalId: string,
+  generatedOn: string
+): PatientPortalGeneratedMedicalReportPackageMetadata {
+  const fileStem = buildPatientPortalGeneratedMedicalReportFileStem(pubpid, canonicalId, generatedOn);
+  return {
+    fileName: `${fileStem}.zip`,
+    contentType: "application/zip",
+    entryNames: [
+      "manifest.json",
+      `${fileStem}.pdf`,
+      "summary.txt"
+    ],
+    manifestAvailable: true,
+    pdfAvailable: true,
+    summaryAvailable: true
+  };
+}
+
+function buildPatientPortalGeneratedMedicalReportFileStem(
+  pubpid: string,
+  canonicalId: string,
+  generatedOn: string
+): string {
+  const patientId = pubpid.trim() === "" ? canonicalId : pubpid;
+  const generatedDate = generatedOn.trim() === ""
+    ? new Date().toISOString().slice(0, 10).replaceAll("-", "")
+    : generatedOn.replaceAll("-", "");
+  return `medical-report-${patientId}-${generatedDate}`;
 }
 
 function buildPatientPortalGeneratedMedicalReportTemplateMetadata(

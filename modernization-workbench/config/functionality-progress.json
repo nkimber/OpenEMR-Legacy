@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal generated-report issue selection, encounter-form selection, and printable template metadata, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal generated-report issue selection, encounter-form selection, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -232,6 +232,11 @@
           "label": "Patient portal generated medical report printable template readiness",
           "detail": "The modernized patient portal API, Portal page, and PDF payload now expose printable generated-report facility, patient header, generated-on, and signature-line metadata while parity compares the same legacy printable report header behavior.",
           "evidence": ["slice-229-patient-portal-generated-medical-report-template-readiness"]
+        },
+        {
+          "label": "Patient portal generated medical report package readiness",
+          "detail": "The modernized patient portal API and Portal page now expose and download a generated medical-report ZIP package containing manifest, PDF, and summary entries while parity compares legacy source report artifacts and modernized package delivery.",
+          "evidence": ["slice-230-patient-portal-generated-medical-report-package-readiness"]
         }
       ],
       "outstanding": [
@@ -244,7 +249,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/generated-report/PDF export/issue selection/encounter-form selection/printable template metadata/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/generated-report/PDF export/issue selection/encounter-form selection/printable template metadata/report package delivery/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",
