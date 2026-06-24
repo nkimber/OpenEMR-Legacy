@@ -14802,7 +14802,7 @@ Primary files:
 Started: 2026-06-23T20:12:34-04:00
 Finished: 2026-06-23T20:18:37-04:00
 Duration: 00:06:03
-Commit: pending
+Commit: 0d2119f3
 
 Implemented Slice 220: patient portal appointment request readiness. The modernized target now lets a signed-in patient create a pending portal appointment request, records the matching provider-facing reminder note, renders the request workflow in the Portal workspace, and proves the same cleanup-backed behavior against legacy OpenEMR portal appointment request storage for the `MOD-PAT-0004` account.
 
