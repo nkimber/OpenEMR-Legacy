@@ -15717,7 +15717,7 @@ Primary files:
 
 Started: 2026-06-24T11:58:00.0000000-04:00
 Finished: 2026-06-24T12:28:48.6959981-04:00
-Commit: pending
+Commit: d6c4efa8
 
 Implemented Slice 234: patient portal secure message forward-to-practice readiness. The modernized target now forwards an inbound portal secure message into the practice-side patient-message queue, marks the original portal message `Sent`, exposes a modernized Portal `Forward to practice` control, and verifies the same cleanup-backed behavior side by side against legacy OpenEMR for the `MOD-PAT-0004` portal account.
 
