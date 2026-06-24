@@ -15891,6 +15891,60 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 277. Slice 237 Patient Portal Generated Medical Report Procedure-Order Artifact Readiness
+
+Started: 2026-06-24T13:59:36.8107072-04:00
+Finished: 2026-06-24T14:08:17.5381166-04:00
+Commit: pending
+
+Implemented Slice 237: patient portal generated medical-report procedure-order artifact readiness. The shared parity harness now creates cleanup-backed temporary procedure orders for `MOD-PAT-0004`, selects those orders for generated report delivery, verifies legacy printable/PDF source artifacts, and inspects the modernized PDF plus generated ZIP package entries so selected procedure-order evidence survives into downloadable artifacts.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 476
+- Lines deleted: 22
+- Net lines: +454
+- Total churn: 498
+
+Key outcomes:
+
+- Added a dedicated `workflow-patient-portal-report-procedure-artifacts` Playwright parity suite that creates temporary procedure orders, verifies selected-order delivery metadata, checks legacy printable/PDF source artifacts, and cleans up the temporary order tree.
+- Added modernized artifact assertions that inspect generated report PDF text, ZIP `manifest.json`, `summary.txt`, and the packaged PDF entry for selected procedure-order ID, name, code, diagnosis, status, and summary evidence.
+- Added the `slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness` named plan to the parity manifest, runner allow-list, and Workbench managed actions for both legacy and modernized targets.
+- Updated the Workbench functionality progress ledger for selected procedure-order artifact delivery readiness.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 237 contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness` plus `workflow-patient-portal-report-procedure-artifacts`.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed legacy OpenEMR and MariaDB healthy.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `Invoke-RestMethod -Uri http://localhost:5001/health` returned healthy for the modernized API.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness -Reset test` passed as run `2026-06-24T180706-274Z-legacy-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness -Reset test` passed as run `2026-06-24T180741-714Z-modernized-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness` passed as comparison `2026-06-24T180805-651Z-legacy-openemr-vs-modernized-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness` with no differences.
+
+Primary files:
+
+- `parity-tests/tests/workflow-patient-portal-report-procedure-artifacts/patient-portal-report-procedure-artifacts.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

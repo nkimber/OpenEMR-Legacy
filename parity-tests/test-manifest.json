@@ -1104,6 +1104,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness",
+      "name": "Slice 237 Patient Portal Generated Medical Report Procedure Artifacts Readiness",
+      "description": "Patient portal confidence plan that verifies selected procedure-order report content is carried into generated medical-report PDF and package delivery artifacts.",
+      "suites": ["workflow-patient-portal-report-procedure-artifacts"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-237", "patients", "portal", "reports", "medical-report", "procedure-orders", "pdf", "package", "zip", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4240,6 +4249,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-report-procedures",
       "tags": ["slice236", "workflow", "mutation", "patients", "portal", "reports", "medical-report", "procedure-orders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-report-procedure-artifacts",
+      "name": "Patient Portal Generated Medical Report Procedure Artifact Readiness",
+      "description": "Verifies selected procedure-order details are preserved in generated medical-report PDF and ZIP package artifacts.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-report-procedure-artifacts",
+      "tags": ["slice237", "workflow", "mutation", "patients", "portal", "reports", "medical-report", "procedure-orders", "pdf", "package", "zip", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

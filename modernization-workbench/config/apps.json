@@ -142,6 +142,7 @@
         "parityPatientPortalMessageForwardPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-234-patient-portal-message-forward-readiness", "-Reset", "test"],
         "parityPatientPortalDeletedMessagesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-235-patient-portal-deleted-messages-readiness", "-Reset", "test"],
         "parityPatientPortalGeneratedMedicalReportProcedurePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-236-patient-portal-generated-medical-report-procedure-selection-readiness", "-Reset", "test"],
+        "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -1418,6 +1419,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness.json"
         },
         {
+          "id": "parity-plan-patient-portal-generated-medical-report-procedure-artifacts",
+          "name": "Slice 237 patient portal generated report procedure artifacts plan",
+          "description": "Runs the shared patient portal generated medical-report procedure-order PDF and package artifact readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness.json"
+        },
+        {
           "id": "parity-plan-document-authorization-policy",
           "name": "Slice 179 patient document authorization policy plan",
           "description": "Runs the shared patient document authorization-policy readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2336,6 +2345,7 @@
         "parityPatientPortalMessageForwardPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-234-patient-portal-message-forward-readiness", "-Reset", "test"],
         "parityPatientPortalDeletedMessagesPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-235-patient-portal-deleted-messages-readiness", "-Reset", "test"],
         "parityPatientPortalGeneratedMedicalReportProcedurePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-236-patient-portal-generated-medical-report-procedure-selection-readiness", "-Reset", "test"],
+        "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -3536,6 +3546,14 @@
           "layer": "plan",
           "commandName": "parityPatientPortalGeneratedMedicalReportProcedurePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-generated-medical-report-procedure-artifacts",
+          "name": "Slice 237 patient portal generated report procedure artifacts plan",
+          "description": "Runs the shared patient portal generated medical-report procedure-order PDF and package artifact readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalGeneratedMedicalReportProcedureArtifactsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness.json"
         },
         {
           "id": "parity-plan-document-authorization-policy",

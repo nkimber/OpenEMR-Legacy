@@ -217,6 +217,7 @@ param(
         "workflow-patient-portal-message-forward",
         "workflow-patient-portal-deleted-messages",
         "workflow-patient-portal-report-procedures",
+        "workflow-patient-portal-report-procedure-artifacts",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",
