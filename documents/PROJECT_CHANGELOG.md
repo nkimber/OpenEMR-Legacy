@@ -15293,7 +15293,7 @@ Primary files:
 
 Started: 2026-06-24T07:37:00-04:00
 Finished: 2026-06-24T07:44:03.3215743-04:00
-Commit: pending
+Commit: 2230a311
 
 Enhanced the Modernization Workbench runtime status model so operators can immediately see whether the legacy and modernized local apps are actually running through Docker Desktop, why a stack is not reachable, and what to do next.
 
