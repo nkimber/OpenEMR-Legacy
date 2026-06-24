@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal generated-report issue selection, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -217,6 +217,11 @@
           "label": "Patient portal generated medical report PDF readiness",
           "detail": "The modernized patient portal API and Portal page now export the generated customized medical-history report as a deterministic PDF while parity compares legacy portal PDF POST behavior and modernized PDF download behavior.",
           "evidence": ["slice-226-patient-portal-generated-medical-report-pdf-readiness"]
+        },
+        {
+          "label": "Patient portal generated medical report issue selection readiness",
+          "detail": "The modernized patient portal API and Portal page now include selected issue rows in generated customized medical-history reports while parity compares legacy issue-checkbox POST behavior and modernized issue ID and checkbox behavior.",
+          "evidence": ["slice-227-patient-portal-generated-medical-report-issue-selection-readiness"]
         }
       ],
       "outstanding": [
@@ -229,7 +234,7 @@
       "completionEstimatePercent": 99,
       "estimatedScopeWeight": 9,
       "scopeWeightRationale": "Broad core workflow surface, but several patient-administration details are smaller than billing, encounters, and labs.",
-      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/generated-report/PDF export/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
+      "estimateRationale": "Strong chart, protected and ACL-authorized patient access, mutation-specific patient authorization, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/clinical-summary/lab-results/medical-report/generated-report/PDF export/issue selection/appointments/appointment-request/request-options/secure-message inbox/compose/reply/thread-view/archive/read-status/batch-archive/all-folder readiness, portal document list/download readiness, demographics, insurance, registration, and immunization coverage; merge, broader guarantor workflows, address validation, lifecycle audit, and broader administration depth remain."
     },
     {
       "id": "scheduling",

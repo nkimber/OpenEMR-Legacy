@@ -394,6 +394,12 @@ export type PatientPortalGeneratedMedicalReport = {
   summaryLines: string[];
 };
 
+export type PatientPortalMedicalReportGenerationInput = {
+  sectionIds?: string[];
+  procedureOrderIds?: string[];
+  issueIds?: string[];
+};
+
 export type PatientPortalGeneratedMedicalReportSection = {
   id: string;
   title: string;
@@ -415,6 +421,7 @@ export type PatientPortalGeneratedMedicalReportResult = {
   generatedOn: string;
   includedSectionIds: string[];
   includedProcedureOrderIds: string[];
+  includedIssueIds: string[];
   printableVersionAvailable: boolean;
   pdfDownloadAvailable: boolean;
   reportSectionCount: number;
@@ -2959,7 +2966,8 @@ ORDER BY po.date_ordered DESC, po.procedure_order_id DESC;
 
   async generatePatientPortalMedicalReport(
     username: string,
-    password: string
+    password: string,
+    input: PatientPortalMedicalReportGenerationInput = {}
   ): Promise<PatientPortalGeneratedMedicalReportResult> {
     const report = await this.getPatientPortalMedicalReport(username, password);
     if (!report.authenticated || report.pid === null) {
@@ -2997,7 +3005,7 @@ CROSS JOIN (
 ) payments;
 `);
     const billing = mapPatientPortalGeneratedMedicalReportBillingSummary(billingRows[0]);
-    return buildPatientPortalGeneratedMedicalReportResult(report, billing, "legacy-openemr-portal");
+    return buildPatientPortalGeneratedMedicalReportResult(report, billing, "legacy-openemr-portal", input);
   }
 
   async getPatientPortalAppointmentRequestOptions(
@@ -7756,6 +7764,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     generatedOn: new Date().toISOString().slice(0, 10),
     includedSectionIds: [],
     includedProcedureOrderIds: [],
+    includedIssueIds: [],
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -7985,28 +7994,66 @@ function mapPatientPortalGeneratedMedicalReportBillingSummary(
 function buildPatientPortalGeneratedMedicalReportResult(
   report: PatientPortalMedicalReportResult,
   billing: PatientPortalGeneratedMedicalReportBillingSummary,
-  sessionSource: string
+  sessionSource: string,
+  input: PatientPortalMedicalReportGenerationInput = {}
 ): PatientPortalGeneratedMedicalReportResult {
-  const includedSectionIds = patientPortalMedicalReportSections
-    .filter((section) => section.selected)
-    .map((section) => section.id);
-  const includedProcedureOrders = report.procedureOrders.slice(0, 1);
-  const reportSections: PatientPortalGeneratedMedicalReportSection[] = [
-    buildGeneratedMedicalReportSection("demographics", "Patient Data", [
-      `Patient: ${report.displayName}`,
-      `Patient ID: ${report.pubpid}`,
-      `Portal username: ${report.portalUsername}`
-    ]),
-    buildGeneratedMedicalReportSection("billing", "Billing Information", [
-      `Billing lines: ${billing.lineCount}`,
-      `Payment rows: ${billing.paymentCount}`,
-      `Total charges: ${formatReportMoney(billing.chargeAmount)}`,
-      `Payments: ${formatReportMoney(billing.paymentAmount)}`,
-      `Adjustments: ${formatReportMoney(billing.adjustmentAmount)}`,
-      `Balance: ${formatReportMoney(billing.balanceAmount)}`,
-      `Last billing date: ${billing.lastBillingDate ?? "Not recorded"}`
-    ])
-  ];
+  const validSectionIds = new Set(patientPortalMedicalReportSections.map((section) => section.id));
+  const includedSectionIds = input.sectionIds === undefined
+    ? patientPortalMedicalReportSections.filter((section) => section.selected).map((section) => section.id)
+    : [...new Set(input.sectionIds.map((sectionId) => sectionId.trim()).filter((sectionId) => validSectionIds.has(sectionId)))];
+  const requestedProcedureOrderIds = input.procedureOrderIds === undefined
+    ? undefined
+    : [...new Set(input.procedureOrderIds.map((orderId) => orderId.trim()).filter(Boolean))];
+  const requestedProcedureOrderIdSet = new Set(requestedProcedureOrderIds ?? []);
+  const includedProcedureOrders = requestedProcedureOrderIds === undefined
+    ? report.procedureOrders.slice(0, 1)
+    : report.procedureOrders.filter((order) => requestedProcedureOrderIdSet.has(order.id));
+  const requestedIssueIds = [...new Set((input.issueIds ?? []).map((issueId) => issueId.trim()).filter(Boolean))];
+  const requestedIssueIdSet = new Set(requestedIssueIds);
+  const includedIssues = report.issues.filter((issue) => requestedIssueIdSet.has(issue.id));
+  const reportSections: PatientPortalGeneratedMedicalReportSection[] = [];
+
+  for (const sectionId of includedSectionIds) {
+    switch (sectionId) {
+      case "demographics":
+        reportSections.push(buildGeneratedMedicalReportSection("demographics", "Patient Data", [
+          `Patient: ${report.displayName}`,
+          `Patient ID: ${report.pubpid}`,
+          `Portal username: ${report.portalUsername}`
+        ]));
+        break;
+      case "billing":
+        reportSections.push(buildGeneratedMedicalReportSection("billing", "Billing Information", [
+          `Billing lines: ${billing.lineCount}`,
+          `Payment rows: ${billing.paymentCount}`,
+          `Total charges: ${formatReportMoney(billing.chargeAmount)}`,
+          `Payments: ${formatReportMoney(billing.paymentAmount)}`,
+          `Adjustments: ${formatReportMoney(billing.adjustmentAmount)}`,
+          `Balance: ${formatReportMoney(billing.balanceAmount)}`,
+          `Last billing date: ${billing.lastBillingDate ?? "Not recorded"}`
+        ]));
+        break;
+      case "history":
+        reportSections.push(buildGeneratedMedicalReportSection("history", "History Data", [
+          `Issues available: ${report.issues.length}`,
+          `Encounters available: ${report.encounters.length}`
+        ]));
+        break;
+      default: {
+        const section = patientPortalMedicalReportSections.find((candidate) => candidate.id === sectionId);
+        reportSections.push(buildGeneratedMedicalReportSection(sectionId, section?.label ?? sectionId, [
+          `${section?.label ?? sectionId} was selected for the customized medical history report.`
+        ]));
+        break;
+      }
+    }
+  }
+
+  if (includedIssues.length > 0) {
+    reportSections.push(buildGeneratedMedicalReportSection("issues", "Issues", includedIssues.map((issue) =>
+      `${issue.typeLabel}: ${issue.title} (${issue.status}; begin ${issue.beginDate ?? "Not recorded"}; end ${issue.endDate ?? "Active"})`
+    )));
+  }
 
   reportSections.push(...includedProcedureOrders.map((order) =>
     buildGeneratedMedicalReportSection(`procedure-${order.id}`, "Procedure Order", [
@@ -8027,7 +8074,8 @@ function buildPatientPortalGeneratedMedicalReportResult(
     `Issues available: ${report.issues.length}; Encounters available: ${report.encounters.length}.`,
     ...includedProcedureOrders.map((order) =>
       `Procedure Order: ${order.procedureName} ordered ${order.orderDate} with ${order.resultCount} result rows.`
-    )
+    ),
+    ...(includedIssues.length > 0 ? [`Issues: ${includedIssues.length} selected for this customized report.`] : [])
   ];
 
   return {
@@ -8044,6 +8092,7 @@ function buildPatientPortalGeneratedMedicalReportResult(
     generatedOn: new Date().toISOString().slice(0, 10),
     includedSectionIds,
     includedProcedureOrderIds: includedProcedureOrders.map((order) => order.id),
+    includedIssueIds: includedIssues.map((issue) => issue.id),
     printableVersionAvailable: true,
     pdfDownloadAvailable: true,
     reportSectionCount: reportSections.length,

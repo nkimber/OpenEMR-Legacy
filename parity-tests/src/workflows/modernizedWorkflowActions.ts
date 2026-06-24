@@ -70,6 +70,7 @@ import type {
   PatientPortalAppointmentRequestResult,
   PatientPortalAppointmentsResult,
   PatientPortalClinicalSummaryResult,
+  PatientPortalMedicalReportGenerationInput,
   PatientPortalGeneratedMedicalReportResult,
   PatientPortalLabResultsResult,
   PatientPortalMedicalReportResult,
@@ -895,7 +896,8 @@ LIMIT 1;
 
   async generatePatientPortalMedicalReport(
     username: string,
-    password: string
+    password: string,
+    input: PatientPortalMedicalReportGenerationInput = {}
   ): Promise<PatientPortalGeneratedMedicalReportResult> {
     const login = await this.verifyPatientPortalLogin(username, password);
     if (!login.authenticated || !login.sessionId) {
@@ -913,7 +915,7 @@ LIMIT 1;
           "Content-Type": "application/json",
           "X-OpenEMR-Patient-Portal-Session": login.sessionId
         },
-        body: JSON.stringify({})
+        body: JSON.stringify(input)
       });
 
       if (!response.ok) {
@@ -4951,6 +4953,7 @@ function buildEmptyGeneratedPortalMedicalReportResult(
     generatedOn: new Date().toISOString().slice(0, 10),
     includedSectionIds: [],
     includedProcedureOrderIds: [],
+    includedIssueIds: [],
     printableVersionAvailable: false,
     pdfDownloadAvailable: false,
     reportSectionCount: 0,
@@ -4977,6 +4980,7 @@ function mapPatientPortalGeneratedMedicalReportResult(result: any): PatientPorta
     generatedOn: result.generatedOn ?? "",
     includedSectionIds: result.includedSectionIds ?? [],
     includedProcedureOrderIds: result.includedProcedureOrderIds ?? [],
+    includedIssueIds: result.includedIssueIds ?? [],
     printableVersionAvailable: Boolean(result.printableVersionAvailable),
     pdfDownloadAvailable: Boolean(result.pdfDownloadAvailable),
     reportSectionCount: result.reportSectionCount ?? 0,

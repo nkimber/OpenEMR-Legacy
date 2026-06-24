@@ -15228,6 +15228,67 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 265. Slice 227 Patient Portal Generated Medical Report Issue Selection Readiness
+
+Started: 2026-06-24T07:04:00-04:00
+Finished: 2026-06-24T07:36:13.8690203-04:00
+Commit: pending
+
+Implemented Slice 227: patient portal generated medical report issue selection readiness. The modernized target now lets a signed-in portal patient select individual clinical issue rows for a generated customized medical-history report, carries those selections through API and PDF generation requests, renders the selected Issues section in the Portal workspace, and verifies that behavior side by side with legacy OpenEMR's issue-checkbox report POST flow for the `MOD-PAT-0004` portal account.
+
+Code changes:
+
+- Files changed: 19
+- Lines added: 539
+- Lines deleted: 65
+- Net lines: +474
+- Total churn: 604
+
+Key outcomes:
+
+- Extended the modernized patient portal generated-report request contract with selected `issueIds`, included issue IDs in generated report responses, and preserved those selections in the deterministic PDF payload.
+- Updated the modernized Portal medical-report builder to render report sections, all issue choices, and procedure orders as selectable checkboxes, then reuse the same selection state for Generate Report and Download Report PDF actions.
+- Added normalized legacy and modernized workflow-action support for selected issue inclusion, including selected problem, allergy, and medication rows in the generated report summary.
+- Added the `workflow-patient-portal-report-issues` Playwright suite and `slice-227-patient-portal-generated-medical-report-issue-selection-readiness` plan to the parity manifest, PowerShell runner allow-list, and Workbench managed actions for both targets.
+- Synchronized the project index, project context, modernization plan, Workbench documentation, test architecture, test data strategy, project changelog, and functionality progress ledger with the Slice 227 portal generated medical-report issue-selection contract.
+
+Verified test runs:
+
+- `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr\frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `Get-Content ... | ConvertFrom-Json` checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list` passed via `cmd.exe /c` and listed `slice-227-patient-portal-generated-medical-report-issue-selection-readiness` plus `workflow-patient-portal-report-issues`.
+- `docker compose -f modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f legacy-openemr\docker-compose.yml ps` showed `mysql` and `openemr` healthy after Docker Desktop startup.
+- `docker compose -f modernized-openemr\docker-compose.yml ps` showed `postgres` healthy and `api` plus `frontend` running.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-227-patient-portal-generated-medical-report-issue-selection-readiness -Reset test` passed as run `2026-06-24T113437-609Z-legacy-openemr-plan-slice-227-patient-portal-generated-medical-report-issue-selection-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-227-patient-portal-generated-medical-report-issue-selection-readiness -Reset test` passed as run `2026-06-24T113530-473Z-modernized-openemr-plan-slice-227-patient-portal-generated-medical-report-issue-selection-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-227-patient-portal-generated-medical-report-issue-selection-readiness` passed as comparison `2026-06-24T113550-844Z-legacy-openemr-vs-modernized-openemr-plan-slice-227-patient-portal-generated-medical-report-issue-selection-readiness` with no differences.
+- Verification note: the first legacy Slice 227 run exposed an order-sensitive test expectation for included issue IDs. The assertion was corrected to compare the same selected IDs without requiring request-order preservation, and the rerun passed.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/App.css`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/tests/workflow-patient-portal-report-issues/patient-portal-report-issues.spec.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/PROJECT_CONTEXT.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
