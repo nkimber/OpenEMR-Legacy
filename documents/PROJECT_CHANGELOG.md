@@ -16493,7 +16493,7 @@ Primary files:
 
 Started: 2026-06-24T19:31:00-04:00
 Finished: 2026-06-24T19:48:35-04:00
-Commit: pending
+Commit: 988b82ad
 
 Implemented Slice 247: patient portal problem date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_problems.php` problem table by exposing reported, start, and end-date facts, including cleanup-backed ended problem-list rows that legacy still renders.
 
