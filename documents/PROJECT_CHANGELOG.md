@@ -16436,7 +16436,7 @@ Primary files:
 
 Started: 2026-06-24T19:21:58-04:00
 Finished: 2026-06-24T19:30:45-04:00
-Commit: pending
+Commit: a6638d3f
 
 Implemented Slice 246: patient portal medication date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_medications.php` medication table by exposing deterministic start, last-modified, and end-date facts, including cleanup-backed ended medication-list rows that legacy still renders.
 
