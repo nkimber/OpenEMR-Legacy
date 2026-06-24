@@ -15464,7 +15464,7 @@ Primary files:
 
 Started: 2026-06-24T10:19:40.4872791-04:00
 Finished: 2026-06-24T10:24:51.2919292-04:00
-Commit: Pending
+Commit: 23293f0c
 
 Implemented Slice 230: patient portal generated medical report package readiness. The modernized target now exposes deterministic generated-report package metadata, downloads a session-protected ZIP package containing `manifest.json`, the generated report PDF, and `summary.txt`, renders package availability and a `Download report package` action in the Portal, and verifies the behavior side by side with legacy OpenEMR's printable and PDF generated-report source artifacts for the `MOD-PAT-0004` portal account.
 
