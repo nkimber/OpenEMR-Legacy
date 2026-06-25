@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openUserAdministrationDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -8,7 +9,7 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const suffix = workflowSuffix();
     const user = {
       username: `slice19-${suffix.toLowerCase()}`,
@@ -30,10 +31,61 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
     const beforeTempUsers = await countTemporaryUsers(target.type, targetDb);
     let userId: number | null = null;
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-19-admin-user-mutation-precondition",
+      description: "Captures the Slice 19 administration user mutation starting count and proposed active user payload.",
+      expected: {
+        user: {
+          usernamePrefix: "slice19-",
+          firstName: "Morgan",
+          role: "frontdesk",
+          calendar: false,
+          facilityId: 10,
+          active: true
+        },
+        counts: {
+          temporaryUsers: beforeTempUsers
+        }
+      },
+      actual: {
+        beforeTempUsers,
+        proposed: user
+      },
+      context: {
+        suite: "workflow-admin-users",
+        workflow: "admin-user-mutation"
+      }
+    });
+
     try {
       userId = await workflow.createUser(user);
-      await expect(workflow.getUser(userId)).resolves.toMatchObject(user);
-      await expect(countTemporaryUsers(target.type, targetDb)).resolves.toBe(beforeTempUsers + 1);
+      const created = await workflow.getUser(userId);
+      const afterCreateTempUsers = await countTemporaryUsers(target.type, targetDb);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-19-admin-user-mutation-created",
+        description: "Captures the temporary active administration user row immediately after Slice 19 creates it, including the temporary user count increment.",
+        expected: {
+          user,
+          counts: {
+            temporaryUsers: beforeTempUsers + 1
+          }
+        },
+        actual: {
+          beforeTempUsers,
+          afterCreateTempUsers,
+          userId,
+          created
+        },
+        context: {
+          suite: "workflow-admin-users",
+          workflow: "admin-user-mutation-created"
+        }
+      });
+
+      expect(created).toMatchObject(user);
+      expect(afterCreateTempUsers).toBe(beforeTempUsers + 1);
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -48,7 +100,33 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
       }
 
       await workflow.updateUser(userId, updatedUser);
-      await expect(workflow.getUser(userId)).resolves.toMatchObject(updatedUser);
+      const updated = await workflow.getUser(userId);
+      const afterUpdateTempUsers = await countTemporaryUsers(target.type, targetDb);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-19-admin-user-mutation-deactivated",
+        description: "Captures the temporary administration user row after Slice 19 updates the last name and deactivates it before cleanup.",
+        expected: {
+          user: updatedUser,
+          counts: {
+            temporaryUsers: beforeTempUsers + 1
+          }
+        },
+        actual: {
+          beforeTempUsers,
+          afterUpdateTempUsers,
+          userId,
+          created,
+          updated
+        },
+        context: {
+          suite: "workflow-admin-users",
+          workflow: "admin-user-mutation-deactivated"
+        }
+      });
+
+      expect(updated).toMatchObject(updatedUser);
+      expect(afterUpdateTempUsers).toBe(beforeTempUsers + 1);
 
       if (target.type === "legacy-openemr") {
         await openUserAdministrationDirect(page, target);
@@ -65,9 +143,33 @@ test.describe("user administration mutation parity @slice19 @workflow-admin-user
       }
     }
 
-    await expect(countTemporaryUsers(target.type, targetDb)).resolves.toBe(beforeTempUsers);
+    const afterCleanupTempUsers = await countTemporaryUsers(target.type, targetDb);
+    const deleted = userId !== null ? await workflow.getUser(userId) : null;
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-19-admin-user-mutation-cleanup",
+      description: "Captures the Slice 19 cleanup state after hard-deleting the temporary administration user.",
+      expected: {
+        counts: {
+          temporaryUsers: beforeTempUsers
+        },
+        deletedUser: null
+      },
+      actual: {
+        beforeTempUsers,
+        afterCleanupTempUsers,
+        userId,
+        deleted
+      },
+      context: {
+        suite: "workflow-admin-users",
+        workflow: "admin-user-mutation-cleanup"
+      }
+    });
+
+    expect(afterCleanupTempUsers).toBe(beforeTempUsers);
     if (userId !== null) {
-      await expect(workflow.getUser(userId)).resolves.toBeNull();
+      expect(deleted).toBeNull();
     }
   });
 });

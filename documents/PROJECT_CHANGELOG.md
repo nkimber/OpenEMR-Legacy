@@ -17788,6 +17788,39 @@ Code changes:
 - Net lines: +138
 - Total churn: 190
 
+## 324. Slice 280 Slice 19 Administration User Mutation Probe Payload Attachments
+
+Started: 2026-06-25T03:18:00-04:00
+Finished: 2026-06-25T03:24:41-04:00
+Commit: pending
+
+Implemented Slice 280: Slice 19 administration user mutation probe payload attachments. The user mutation parity suite now writes path-backed JSON Playwright attachments for the proposed active user payload, temporary user count baseline/increment, created user row, deactivated user row, and hard-delete cleanup state so Workbench comparison drill-ins can preview administration user mutation database evidence.
+
+Changes:
+- Added Slice 19 admin user precondition payload attachments for the temporary user baseline count and proposed active user create payload.
+- Added Slice 19 created-user payload attachments that capture the temporary user row and temporary user count increment immediately after creation.
+- Added Slice 19 deactivated-user payload attachments that capture the updated inactive user row before cleanup.
+- Added Slice 19 cleanup payload attachments that capture restored temporary user counts and deleted user lookup after the temporary row is removed.
+- Preserved the existing Slice 19 assertions and side-by-side behavior while making user mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 19 administration user mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 280 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:admin-user-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T072333-608Z-modernized-openemr-plan-slice-19-admin-user-mutation-readiness`.
+- `npm run test:legacy:plan:admin-user-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T072351-905Z-legacy-openemr-plan-slice-19-admin-user-mutation-readiness`.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 19 runs recorded file paths for all four new `db-probe-slice-19-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-19-admin-user-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T072416-047Z-legacy-openemr-vs-modernized-openemr-plan-slice-19-admin-user-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 157
+- Lines deleted: 21
+- Net lines: +136
+- Total churn: 178
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17797,5 +17830,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 18.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 19.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
