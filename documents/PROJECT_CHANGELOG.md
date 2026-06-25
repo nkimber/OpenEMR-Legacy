@@ -22064,7 +22064,7 @@ Code changes:
 
 Started: 2026-06-25T18:37:35.2111666-04:00
 Finished: 2026-06-25T18:40:35.6511877-04:00
-Commit: pending
+Commit: 8319914b
 
 Implemented Slice 408: Slice 153 procedure report bulk sign-off probe payload attachments. The procedure report bulk sign-off parity suite now writes path-backed JSON Playwright attachments for temporary encounter/order/report inputs, unreviewed queue precondition, bulk sign-off action state, reviewed queue transition, browser/API rendering facts, and cleanup count restoration so Workbench comparison drill-ins can preview procedure report bulk sign-off evidence.
 
