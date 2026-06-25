@@ -17886,6 +17886,41 @@ Code changes:
 - Net lines: +172
 - Total churn: 208
 
+## 327. Slice 283 Slice 22 User Group Membership Probe Payload Attachments
+
+Started: 2026-06-25T03:47:00-04:00
+Finished: 2026-06-25T03:52:55-04:00
+Commit: pending
+
+Implemented Slice 283: Slice 22 user group membership probe payload attachments. The administration user group membership mutation parity suite now writes path-backed JSON Playwright attachments for the proposed temporary user, created user before membership, granted Front Office membership, revoked membership, and final cleanup/deleted-user state so Workbench comparison drill-ins can preview ACL user-membership mutation database evidence.
+
+Changes:
+- Added Slice 22 precondition payload attachments for the proposed temporary `slice22-*` user, Front Office membership target, baseline temporary-user count, and baseline ACL membership count.
+- Added Slice 22 created-user payload attachments that capture the new temporary user before Front Office membership assignment.
+- Added Slice 22 granted-membership payload attachments that capture the Front Office membership and ACL membership-count increment.
+- Added Slice 22 revoked-membership payload attachments that capture the missing membership, restored ACL membership count, and temporary user still awaiting cleanup.
+- Added Slice 22 cleanup payload attachments that confirm the temporary user is deleted and ACL membership counts return to baseline.
+- Preserved the existing Slice 22 assertions and side-by-side behavior while making user-membership mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 22 administration user group membership mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 283 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan for Slice 21/Slice 282 wording passed with no matches.
+- `npm run test:modernized:plan:user-group-membership-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T075117-512Z-modernized-openemr-plan-slice-22-user-group-membership-mutation-readiness`.
+- `npm run test:legacy:plan:user-group-membership-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T075146-598Z-legacy-openemr-plan-slice-22-user-group-membership-mutation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 22 runs recorded all five new `db-probe-slice-22-user-group-membership-mutation-*` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-22-user-group-membership-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T075225-906Z-legacy-openemr-vs-modernized-openemr-plan-slice-22-user-group-membership-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 241
+- Lines deleted: 21
+- Net lines: +220
+- Total churn: 262
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17895,5 +17930,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 21.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 22.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
