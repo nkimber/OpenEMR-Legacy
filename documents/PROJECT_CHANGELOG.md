@@ -17857,7 +17857,7 @@ Code changes:
 
 Started: 2026-06-25T03:35:00-04:00
 Finished: 2026-06-25T03:42:05-04:00
-Commit: pending
+Commit: 229f74e6
 
 Implemented Slice 282: Slice 21 access-permission mutation probe payload attachments. The administration access-permission mutation parity suite now writes path-backed JSON Playwright attachments for the focused Front Office demographics ACL assignment precondition, revoked state, restored state, and final cleanup restoration so Workbench comparison drill-ins can preview ACL permission mutation database evidence.
 
