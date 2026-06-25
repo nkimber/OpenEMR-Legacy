@@ -21802,7 +21802,7 @@ Code changes:
 
 Started: 2026-06-25T17:56:49.0492556-04:00
 Finished: 2026-06-25T17:58:12.0453388-04:00
-Commit: pending
+Commit: 6b713e21
 
 Implemented Slice 400: Slice 141 procedure lab provider lifecycle probe payload attachments. The procedure lab provider lifecycle parity suite now writes path-backed JSON Playwright attachments for temporary provider create inputs, created active-provider state, active browser/API rendering, deactivated include-inactive state, inactive browser/API rendering, and cleanup deletion so Workbench comparison drill-ins can preview focused provider lifecycle mutation evidence.
 
