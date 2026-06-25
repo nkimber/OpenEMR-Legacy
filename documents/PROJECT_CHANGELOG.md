@@ -17341,6 +17341,37 @@ Code changes:
 - Net lines: +110
 - Total churn: 176
 
+## 310. Slice 268 Slice 7 Billing Probe Payload Attachments
+
+Started: 2026-06-25T01:25:50-04:00
+Finished: 2026-06-25T01:32:30-04:00
+Commit: pending
+
+Implemented Slice 268: Slice 7 billing probe payload attachments. The fee-sheet billing parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, latest encounter, seeded CPT fee-sheet charge lines, and billing UI steering precondition so Workbench comparison drill-ins can preview billing workflow database evidence.
+
+Changes:
+- Added Slice 7 billing payload attachments for the anchor patient, latest encounter, selected office-visit CPT line, selected venipuncture CPT line, and complete active billing-line lookup.
+- Added Slice 7 UI precondition payload attachments that capture the same fee-sheet billing lookup before steering the legacy fee sheet UI or the modernized Fees page.
+- Preserved the existing Slice 7 assertions and side-by-side behavior while making billing evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 7 billing database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 268 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:billing` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- `npm run test:legacy:plan:billing` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 7 runs recorded file paths for both new `db-probe-slice-7-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-7-billing-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 152
+- Lines deleted: 50
+- Net lines: +102
+- Total churn: 202
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17350,5 +17381,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 6.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 7.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
