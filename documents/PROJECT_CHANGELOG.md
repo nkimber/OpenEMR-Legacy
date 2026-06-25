@@ -22526,6 +22526,41 @@ Code changes:
 - Net lines: 260
 - Total churn: 290
 
+## 468. Slice 421 Slice 167 Appointment Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:54:56.3612300-04:00
+Finished: 2026-06-25T19:56:09.4209787-04:00
+Commit: pending
+
+Implemented Slice 421: Slice 167 appointment protection probe payload attachments. The appointment protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API appointment blocking facts, unauthenticated modernized create rejection facts, authenticated legacy/API appointment search/detail visibility facts, and modernized Calendar-page rendering facts so Workbench comparison drill-ins can preview appointment protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 167 precondition payload attachments for the MOD-PAT-0003 patient anchor, future appointment anchor, protected legacy appointment edit route, modernized appointment search/detail/create APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving the appointment title is not visible before sign-in.
+- Added legacy authenticated payload attachments proving appointment title, patient, and date fields render after admin login.
+- Added modernized unauthenticated search payload attachments proving appointment search rejects requests without an active session.
+- Added modernized unauthenticated create payload attachments proving appointment creation is rejected without an active session.
+- Added modernized authenticated search and detail payload attachments proving an active admin session can read the anchored appointment with the session identifier redacted.
+- Added modernized Calendar-page rendered payload attachments proving signed-out prompts and disabled controls appear before login and appointment facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 167 appointment protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 421 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-appointment-protection/appointment-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-167-appointment-protection-readiness` passed with run ID `2026-06-25T235529-522Z-legacy-openemr-plan-slice-167-appointment-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-167-appointment-protection-readiness` passed with run ID `2026-06-25T235529-522Z-modernized-openemr-plan-slice-167-appointment-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-167-appointment-protection-readiness` matched with comparison ID `2026-06-25T235558-563Z-legacy-openemr-vs-modernized-openemr-plan-slice-167-appointment-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-167-appointment-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-167-appointment-protection-precondition`, `unauthenticated-search`, `unauthenticated-create`, `authenticated-search`, `authenticated-detail`, and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 257
+- Lines deleted: 15
+- Net lines: 242
+- Total churn: 272
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22535,5 +22570,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, and 166.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, and 167.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
