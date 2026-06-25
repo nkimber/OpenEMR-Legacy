@@ -18474,7 +18474,7 @@ Code changes:
 
 Started: 2026-06-25T06:28:32-04:00
 Finished: 2026-06-25T06:31:20-04:00
-Commit: pending
+Commit: e24af14e
 
 Implemented Slice 301: Slice 40 patient document denial probe payload attachments. The document denial parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed reviewed text document payload, created pending document row and count increment, denied review row, archived row with active-document count semantics, and final hard-delete cleanup state so Workbench comparison drill-ins can preview denied-document lifecycle evidence.
 
