@@ -22321,7 +22321,7 @@ Code changes:
 
 Started: 2026-06-25T19:21:05.5247541-04:00
 Finished: 2026-06-25T19:24:25.3940567-04:00
-Commit: pending
+Commit: b7b7125d
 
 Implemented Slice 415: Slice 161 admin session probe payload attachments. The admin session readiness parity suite now writes path-backed JSON Playwright attachments for redacted session preconditions, legacy session cookie/logout markers, modernized login/current-session/logout API facts, auth session persistence rows, and modernized Admin-page session rendering facts so Workbench comparison drill-ins can preview admin session evidence without storing password or live session material.
 
