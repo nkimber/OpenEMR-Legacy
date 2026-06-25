@@ -17986,6 +17986,38 @@ Code changes:
 - Net lines: +147
 - Total churn: 181
 
+## 330. Slice 286 Slice 25 Patient Documents Probe Payload Attachments
+
+Started: 2026-06-25T04:12:00-04:00
+Finished: 2026-06-25T04:19:03-04:00
+Commit: pending
+
+Implemented Slice 286: Slice 25 patient documents probe payload attachments. The patient documents parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, filed document metadata, document categories, storage mode, text previews, and UI-steering precondition so Workbench comparison drill-ins can preview patient-document database evidence.
+
+Changes:
+- Added Slice 25 document-anchor payload attachments for the `MOD-PAT-0001` patient, the Medical Record intake packet, the Advance Directive acknowledgement, document dates, MIME types, storage mode, and expected text-preview anchors.
+- Added Slice 25 UI-precondition payload attachments that capture the same document rows before steering the legacy document tree and modernized document-card UI flows.
+- Preserved the existing Slice 25 assertions and side-by-side behavior while making patient-document evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 25 patient document database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 286 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan for Slice 24/Slice 285 wording passed with no matches.
+- `npm run test:modernized:plan:documents` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T081757-894Z-modernized-openemr-plan-slice-25-documents-readiness`.
+- `npm run test:legacy:plan:documents` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T081816-321Z-legacy-openemr-plan-slice-25-documents-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 25 runs recorded both new `db-probe-slice-25-patient-documents-*` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-25-documents-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T081837-336Z-legacy-openemr-vs-modernized-openemr-plan-slice-25-documents-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 155
+- Lines deleted: 24
+- Net lines: +131
+- Total churn: 179
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17995,5 +18027,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 24.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 25.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
