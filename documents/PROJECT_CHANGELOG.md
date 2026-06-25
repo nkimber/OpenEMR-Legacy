@@ -18438,6 +18438,38 @@ Code changes:
 - Net lines: +197
 - Total churn: 251
 
+## 344. Slice 300 Slice 39 Document External-Link Probe Payload Attachments
+
+Started: 2026-06-25T06:21:56-04:00
+Finished: 2026-06-25T06:25:21-04:00
+Commit: pending
+
+Implemented Slice 300: Slice 39 patient document external-link probe payload attachments. The document external-link parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed URL-backed document payload, created external-link row and document-count increment, archived row with active-document count semantics, and final hard-delete cleanup state so Workbench comparison drill-ins can preview URL-backed document lifecycle evidence.
+
+Changes:
+- Added Slice 39 precondition payload attachments for the anchor patient, baseline document count, expected `text/uri-list` / `web_url` storage facts, and proposed temporary external-link document payload.
+- Added Slice 39 created-row payload attachments that capture the temporary URL-backed document row and active document-count increment after create.
+- Added Slice 39 archived-row payload attachments that capture soft-delete/archive state and the restored active document count before hard-delete cleanup.
+- Added Slice 39 cleanup payload attachments that capture final hard-delete state and restored baseline document count.
+- Updated the Workbench functionality progress ledger so Slice 39 patient document external-link database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 300 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 38 workflow payload boundary.
+- `npm run test:modernized:plan:document-external-link` in `parity-tests/` passed with 1 expected test; run `2026-06-25T102421-866Z-modernized-openemr-plan-slice-39-document-external-link-readiness`.
+- `npm run test:legacy:plan:document-external-link` in `parity-tests/` passed with 1 expected test; run `2026-06-25T102441-682Z-legacy-openemr-plan-slice-39-document-external-link-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 39 Playwright reports recorded the shared `db-probe-slice-39-document-external-link-precondition`, `db-probe-slice-39-document-external-link-created`, `db-probe-slice-39-document-external-link-archived`, and `db-probe-slice-39-document-external-link-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-39-document-external-link-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T102504-870Z-legacy-openemr-vs-modernized-openemr-plan-slice-39-document-external-link-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 193
+- Lines deleted: 27
+- Net lines: +166
+- Total churn: 220
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18447,5 +18479,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 38.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 39.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
