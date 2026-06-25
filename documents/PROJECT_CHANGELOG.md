@@ -22386,6 +22386,41 @@ Code changes:
 - Net lines: 250
 - Total churn: 282
 
+## 464. Slice 417 Slice 163 Admin Directory Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:32:18.2918100-04:00
+Finished: 2026-06-25T19:34:52.6349779-04:00
+Commit: pending
+
+Implemented Slice 417: Slice 163 admin directory protection probe payload attachments. The admin directory protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API directory blocking facts, unauthenticated modernized mutation rejection facts, authenticated legacy/API directory visibility facts, and modernized Admin-page directory rendering facts so Workbench comparison drill-ins can preview administration directory protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 163 precondition payload attachments for the protected legacy user/facility pages, modernized directory and facility-mutation APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving user and facility administration markers are not visible before sign-in.
+- Added legacy authenticated payload attachments proving user and facility administration pages render expected markers after admin login while cookie values remain redacted.
+- Added modernized unauthenticated directory payload attachments proving `/api/administration/directory` returns `401` and a structured session failure before sign-in.
+- Added modernized unauthenticated mutation payload attachments proving facility creation is rejected without an admin session.
+- Added modernized authenticated directory payload attachments proving an active admin session can read user, facility, and access-group counts plus seeded directory anchors with the session identifier redacted.
+- Added modernized Admin-page rendered payload attachments proving the directory panel shows the signed-out prompt before login and seeded directory facts after login.
+- Updated the Workbench functionality progress ledger so Slice 163 admin directory protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 417 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-admin-directory-protection/directory-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-163-admin-directory-protection-readiness` passed with run ID `2026-06-25T233343-548Z-legacy-openemr-plan-slice-163-admin-directory-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-163-admin-directory-protection-readiness` passed with run ID `2026-06-25T233413-555Z-modernized-openemr-plan-slice-163-admin-directory-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-163-admin-directory-protection-readiness` matched with comparison ID `2026-06-25T233440-212Z-legacy-openemr-vs-modernized-openemr-plan-slice-163-admin-directory-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-163-admin-directory-protection-precondition`, `unauthenticated`, and `authenticated` entries in both legacy and modernized Playwright JSON reports, plus `db-probe-slice-163-admin-directory-protection-unauthenticated-mutation` and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 270
+- Lines deleted: 16
+- Net lines: 254
+- Total churn: 286
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22395,5 +22430,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, and 162.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, and 163.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

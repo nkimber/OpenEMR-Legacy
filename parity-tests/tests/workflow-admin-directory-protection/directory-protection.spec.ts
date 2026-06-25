@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 
@@ -35,7 +36,34 @@ type AdministrationDirectoryResponse = {
 };
 
 test.describe("admin directory protection parity @workflow-admin-directory-protection @slice163 @admin @security", () => {
-  test("requires an authenticated admin session before administration directory evidence is visible", async ({ page, target }) => {
+  test("requires an authenticated admin session before administration directory evidence is visible", async ({ page, target }, testInfo) => {
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-163-admin-directory-protection-precondition",
+      description:
+        "Captures the Slice 163 admin-directory protection precondition without storing password, cookie, or session material.",
+      expected: {
+        username: "admin",
+        legacyProtectedUserPath: "/interface/usergroup/usergroup_admin.php",
+        legacyProtectedFacilityPath: "/interface/usergroup/facilities.php",
+        modernizedProtectedDirectoryPath: "/api/administration/directory",
+        modernizedProtectedMutationPath: "/api/administration/facilities",
+        requiresAuthenticatedAdminSession: true,
+        secretMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        publicUrl: target.publicUrl,
+        apiBaseUrl: target.apiBaseUrl,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true
+      },
+      context: {
+        suite: "workflow-admin-directory-protection",
+        workflow: "admin-directory-protection-precondition"
+      }
+    });
+
     if (target.type === "legacy-openemr") {
       const unauthenticatedUsers = await requestText(`${target.publicUrl}/interface/usergroup/usergroup_admin.php`);
       expect(unauthenticatedUsers.body).not.toContain("Add User");
@@ -44,6 +72,38 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
       const unauthenticatedFacilities = await requestText(`${target.publicUrl}/interface/usergroup/facilities.php`);
       expect(unauthenticatedFacilities.body).not.toContain("North County Clinic");
       expect(unauthenticatedFacilities.body).not.toContain("East County Care Center");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-163-admin-directory-protection-unauthenticated",
+        description:
+          "Captures legacy OpenEMR administration directory protection markers before an admin session is established.",
+        expected: {
+          containsAddUser: false,
+          containsGoldProvider02: false,
+          containsNorthCountyClinic: false,
+          containsEastCountyCareCenter: false
+        },
+        actual: {
+          unauthenticatedUsers: {
+            statusCode: unauthenticatedUsers.statusCode,
+            containsAddUser: unauthenticatedUsers.body.includes("Add User"),
+            containsGoldProvider02: unauthenticatedUsers.body.includes("gold-provider-02"),
+            bodyLength: unauthenticatedUsers.body.length,
+            bodyPreview: unauthenticatedUsers.body.slice(0, 240)
+          },
+          unauthenticatedFacilities: {
+            statusCode: unauthenticatedFacilities.statusCode,
+            containsNorthCountyClinic: unauthenticatedFacilities.body.includes("North County Clinic"),
+            containsEastCountyCareCenter: unauthenticatedFacilities.body.includes("East County Care Center"),
+            bodyLength: unauthenticatedFacilities.body.length,
+            bodyPreview: unauthenticatedFacilities.body.slice(0, 240)
+          }
+        },
+        context: {
+          suite: "workflow-admin-directory-protection",
+          workflow: "admin-directory-protection-unauthenticated"
+        }
+      });
 
       const login = await legacyLogin(target, target.credentials.password);
       expect(login.statusCode).toBe(200);
@@ -62,6 +122,47 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
       expect(authenticatedFacilities.statusCode).toBe(200);
       expect(authenticatedFacilities.body).toContain("North County Clinic");
       expect(authenticatedFacilities.body).toContain("East County Care Center");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-163-admin-directory-protection-authenticated",
+        description:
+          "Captures legacy OpenEMR administration directory visibility markers after an admin session is established, with cookies redacted.",
+        expected: {
+          loginStatusCode: 200,
+          openEmrCookieIssued: true,
+          authenticatedUsersStatusCode: 200,
+          authenticatedFacilitiesStatusCode: 200,
+          containsAddUser: true,
+          containsNorthCountyClinic: true,
+          containsEastCountyCareCenter: true
+        },
+        actual: {
+          login: {
+            statusCode: login.statusCode,
+            containsPatientDataTemplate: login.body.includes("patient-data-template"),
+            openEmrCookieIssued: Boolean(getCookie(login.cookies, "OpenEMR")),
+            cookieNames: getCookieNames(login.cookies),
+            cookieValuesRedacted: true
+          },
+          authenticatedUsers: {
+            statusCode: authenticatedUsers.statusCode,
+            containsAddUser: authenticatedUsers.body.includes("Add User"),
+            bodyLength: authenticatedUsers.body.length,
+            bodyPreview: authenticatedUsers.body.slice(0, 240)
+          },
+          authenticatedFacilities: {
+            statusCode: authenticatedFacilities.statusCode,
+            containsNorthCountyClinic: authenticatedFacilities.body.includes("North County Clinic"),
+            containsEastCountyCareCenter: authenticatedFacilities.body.includes("East County Care Center"),
+            bodyLength: authenticatedFacilities.body.length,
+            bodyPreview: authenticatedFacilities.body.slice(0, 240)
+          }
+        },
+        context: {
+          suite: "workflow-admin-directory-protection",
+          workflow: "admin-directory-protection-authenticated"
+        }
+      });
       return;
     }
 
@@ -73,6 +174,26 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
       sessionSource: "modernized-openemr"
     });
     expect(unauthenticatedSession.failureReason).toMatch(/valid (admin|OpenEMR) session/i);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-163-admin-directory-protection-unauthenticated",
+      description:
+        "Captures modernized administration directory API protection facts before an admin session is established.",
+      expected: {
+        statusCode: 401,
+        authenticated: false,
+        sessionSource: "modernized-openemr",
+        failureReasonPattern: "valid admin or OpenEMR session"
+      },
+      actual: {
+        statusCode: unauthenticatedDirectory.statusCode,
+        body: unauthenticatedSession
+      },
+      context: {
+        suite: "workflow-admin-directory-protection",
+        workflow: "admin-directory-protection-unauthenticated"
+      }
+    });
 
     const unauthenticatedMutation = await requestText(`${target.apiBaseUrl}/api/administration/facilities`, {
       method: "POST",
@@ -86,6 +207,27 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
       })
     });
     expect(unauthenticatedMutation.statusCode).toBe(401);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-163-admin-directory-protection-unauthenticated-mutation",
+      description:
+        "Captures modernized administration mutation protection facts before an admin session is established.",
+      expected: {
+        statusCode: 401,
+        attemptedFacilityCode: "NOAUTH",
+        attemptedFacilityName: "No Auth Facility",
+        mutationRejected: true
+      },
+      actual: {
+        statusCode: unauthenticatedMutation.statusCode,
+        bodyLength: unauthenticatedMutation.body.length,
+        bodyPreview: unauthenticatedMutation.body.slice(0, 240)
+      },
+      context: {
+        suite: "workflow-admin-directory-protection",
+        workflow: "admin-directory-protection-unauthenticated-mutation"
+      }
+    });
 
     const login = await modernizedLogin(target, target.credentials.password);
     expect(login).toMatchObject({
@@ -109,6 +251,46 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
     expect(directory.counts.accessGroups).toBeGreaterThan(0);
     expect(directory.users.some((user) => user.username === "gold-provider-02")).toBe(true);
     expect(directory.facilities.some((facility) => facility.code === "NORTH" && facility.name === "North County Clinic")).toBe(true);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-163-admin-directory-protection-authenticated",
+      description:
+        "Captures modernized administration directory API visibility facts after an admin session is established, with the session identifier redacted.",
+      expected: {
+        loginAuthenticated: true,
+        authenticatedDirectoryStatusCode: 200,
+        usersAtLeast: 20,
+        facilitiesAtLeast: 3,
+        accessGroupsGreaterThanZero: true,
+        includesGoldProvider02: true,
+        includesNorthCountyClinic: true,
+        sessionIdentifierRedacted: true
+      },
+      actual: {
+        login: {
+          authenticated: login.authenticated,
+          username: login.username,
+          displayName: login.displayName,
+          role: login.role,
+          sessionIssued: Boolean(login.sessionId),
+          sessionIdRedacted: true
+        },
+        authenticatedDirectory: {
+          statusCode: authenticatedDirectory.statusCode,
+          counts: directory.counts,
+          includesGoldProvider02: directory.users.some((user) => user.username === "gold-provider-02"),
+          includesNorthCountyClinic: directory.facilities.some(
+            (facility) => facility.code === "NORTH" && facility.name === "North County Clinic"
+          ),
+          sampleUsers: directory.users.slice(0, 5),
+          sampleFacilities: directory.facilities.slice(0, 5)
+        }
+      },
+      context: {
+        suite: "workflow-admin-directory-protection",
+        workflow: "admin-directory-protection-authenticated"
+      }
+    });
 
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
@@ -124,6 +306,38 @@ test.describe("admin directory protection parity @workflow-admin-directory-prote
     await expect(page.locator("body")).toContainText("Users And Facilities");
     await expect(page.locator("body")).toContainText("gold-provider-02");
     await expect(page.locator("body")).toContainText("North County Clinic");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-163-admin-directory-protection-rendered",
+      description:
+        "Captures modernized Admin-page directory protection rendering facts before and after login.",
+      expected: {
+        rendersSignedOutPrompt: "Sign in to load the users and facilities directory",
+        hidesUsersAndFacilitiesBeforeLogin: true,
+        rendersAdministrationDirectory: "Administration Directory",
+        rendersUsersAndFacilities: "Users And Facilities",
+        rendersGoldProvider02: "gold-provider-02",
+        rendersNorthCountyClinic: "North County Clinic"
+      },
+      actual: {
+        surfaceFacts: {
+          modernizedAdminDirectoryPanel: {
+            renderedSignedOutPrompt: "Sign in to load the users and facilities directory",
+            didNotRenderUsersAndFacilitiesBeforeLogin: true,
+            renderedAdministrationDirectory: "Administration Directory",
+            renderedUsersAndFacilities: "Users And Facilities",
+            renderedGoldProvider02: "gold-provider-02",
+            renderedNorthCountyClinic: "North County Clinic",
+            passwordRedacted: true,
+            sessionIdRedacted: true
+          }
+        }
+      },
+      context: {
+        suite: "workflow-admin-directory-protection",
+        workflow: "admin-directory-protection-rendered"
+      }
+    });
   });
 });
 
@@ -167,4 +381,8 @@ async function modernizedLogin(target: RuntimeTarget, password: string): Promise
 
 function getCookie(cookies: string[], name: string) {
   return cookies.find((cookie) => cookie.toLowerCase().startsWith(`${name.toLowerCase()}=`));
+}
+
+function getCookieNames(cookies: string[]) {
+  return cookies.map((cookie) => cookie.split("=", 1)[0]).filter(Boolean);
 }
