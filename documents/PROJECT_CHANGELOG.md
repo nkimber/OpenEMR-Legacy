@@ -16593,7 +16593,7 @@ Primary files:
 
 Started: 2026-06-24T20:08:00-04:00
 Finished: 2026-06-24T20:29:54-04:00
-Commit: pending
+Commit: 5adcfbcf
 
 Implemented Slice 249: patient portal home immunization readiness. The modernized patient portal home now mirrors legacy OpenEMR's portal health snapshot by projecting and rendering signed-in patient immunizations, including entered-in-error rows that the legacy portal home still displays.
 
