@@ -19318,7 +19318,7 @@ Code changes:
 
 Started: 2026-06-25T09:30:02-04:00
 Finished: 2026-06-25T09:34:06-04:00
-Commit: pending
+Commit: 52f3127a
 
 Implemented Slice 327: Slice 66 patient-message content probe payload attachments. The message content parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0004` anchor patient, proposed temporary pnotes-compatible message, planned title/body edit, created row, message-count increment, edited title/body row, count stability, soft-delete/archive state, and final cleanup counts so Workbench comparison drill-ins can preview message content-edit lifecycle evidence.
 
@@ -19340,10 +19340,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 171
-- Lines deleted: 23
-- Net lines: +148
-- Total churn: 194
+- Lines added: 185
+- Lines deleted: 27
+- Net lines: +158
+- Total churn: 212
 
 ## Next Expected Entries
 
