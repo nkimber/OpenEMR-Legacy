@@ -21081,6 +21081,38 @@ Code changes:
 - Net lines: +171
 - Total churn: 247
 
+## 424. Slice 378 Slice 117 Appointment Provider Overlap Probe Payload Attachments
+
+Started: 2026-06-25T15:30:18.4148223-04:00
+Finished: 2026-06-25T15:36:05.3250108-04:00
+Commit: pending
+
+Implemented Slice 378: Slice 117 appointment provider overlap probe payload attachments. The appointment provider overlap parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` and `MOD-PAT-0004` seeded patient anchors, shared provider/date/time precondition, temporary same-provider overlapping appointment rows, overlap query results, legacy appointment rendering facts, modernized provider-overlap rendering anchors, count deltas, and cleanup deletion so Workbench comparison drill-ins can preview non-blocking schedule-overlap evidence.
+
+Changes:
+- Added Slice 117 precondition payload attachments for the two seeded patients, shared provider, overlap date/time window, expected status/category/room, baseline appointment counts, and generated temporary appointment titles.
+- Added Slice 117 created-state payload attachments for the temporary overlapping appointments, normalized overlap query rows, appointment-count deltas, legacy direct appointment rendering facts, and modernized provider-overlap rendering anchors.
+- Added Slice 117 cleanup payload attachments for deleting both temporary overlapping appointments and restoring both seeded patients' appointment counts.
+- Replaced non-null patient assumptions in the Slice 117 suite with explicit seeded-patient guards before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 117 appointment provider overlap database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 378 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed.
+- Legacy Slice 117 parity run `2026-06-25T193516-790Z-legacy-openemr-plan-slice-117-appointment-provider-overlap-readiness` passed.
+- Modernized Slice 117 parity run `2026-06-25T193516-999Z-modernized-openemr-plan-slice-117-appointment-provider-overlap-readiness` passed.
+- Slice 117 side-by-side comparison `2026-06-25T193559-091Z-legacy-openemr-vs-modernized-openemr-plan-slice-117-appointment-provider-overlap-readiness` matched with no differences.
+- Slice 117 probe attachment report check passed for precondition, created-state, and cleanup JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 223
+- Lines removed: 34
+- Net lines: +189
+- Total churn: 257
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21090,5 +21122,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 116.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 117.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
