@@ -16715,7 +16715,7 @@ Primary files:
 
 Started: 2026-06-24T21:03:58-04:00
 Finished: 2026-06-24T21:42:31-04:00
-Commit: pending
+Commit: 05d67734
 
 Implemented Slice 251: patient portal profile change request readiness. The modernized patient portal now mirrors legacy OpenEMR's pending profile-review behavior by accepting signed-in patient profile edits, storing them as waiting review requests, and showing the same `Edit Pending Changes.` state without mutating the medical-record demographics.
 
