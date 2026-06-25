@@ -21573,7 +21573,7 @@ Code changes:
 
 Started: 2026-06-25T17:04:11.6159690-04:00
 Finished: 2026-06-25T17:08:06.7180555-04:00
-Commit: pending
+Commit: b0a679fe
 
 Implemented Slice 393: Slice 134 procedure report sign-off probe payload attachments. The procedure report sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/report/result creation, pending-review report state, reviewed-by/reviewed-at sign-off facts, preserved linked result projection, legacy Procedure Results rendering facts, modernized Procedures sign-off UI facts, and cleanup deletion so Workbench comparison drill-ins can preview procedure report sign-off evidence.
 
