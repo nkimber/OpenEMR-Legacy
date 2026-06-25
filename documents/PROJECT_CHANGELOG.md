@@ -19646,7 +19646,7 @@ Code changes:
 
 Started: 2026-06-25T10:45:14-04:00
 Finished: 2026-06-25T10:49:26-04:00
-Commit: pending
+Commit: 8fec6cc0
 
 Implemented Slice 337: Slice 76 encounter procedure-result entry probe payload attachments. The encounter procedure-result entry parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, temporary `80053` laboratory order, reviewed final report, `2345-7` Glucose result, baseline/create/cleanup count movement, legacy Procedure Results rendering, modernized encounter-detail API report/result rows, and Encounters workspace procedure result-entry/linkage UI anchors so Workbench comparison drill-ins can preview encounter procedure-result entry mutation evidence.
 
@@ -19673,9 +19673,9 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 373
-- Lines deleted: 61
-- Net lines: +312
-- Total churn: 434
+- Lines deleted: 59
+- Net lines: +314
+- Total churn: 432
 
 ## Next Expected Entries
 
