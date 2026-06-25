@@ -22159,6 +22159,64 @@ Code changes:
 - Lines deleted: 22
 - Net lines: 211
 - Total churn: 255
+## 457. Slice 411 Slice 157 Patient Message Portal Metadata Probe Payload Attachments
+
+Started: 2026-06-25T18:57:11.1358561-04:00
+Finished: 2026-06-25T19:00:40.0423211-04:00
+Commit: pending
+
+Implemented Slice 411: Slice 157 patient-message portal metadata probe payload attachments. The patient-message portal metadata parity suite now writes path-backed JSON Playwright attachments for seeded pnotes portal relation metadata, plaintext encryption flags, legacy Patient Notes rendering facts, and modernized Messages card rendering facts so Workbench comparison drill-ins can preview patient-message portal metadata evidence.
+
+Changes:
+- Added Slice 157 seeded metadata payload attachments for the `MOD-PAT-0004` portal message, expected `portal:MOD-PAT-0004` relation, plaintext encryption state, and the non-portal care-team comparison message.
+- Added Slice 157 rendered payload attachments for legacy Patient Notes title rendering and modernized Messages portal relation/plaintext labels.
+- Updated the Workbench functionality progress ledger so Slice 157 patient-message portal metadata database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 411 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-157-message-portal-metadata-readiness` passed with run ID `2026-06-25T225940-162Z-legacy-openemr-plan-slice-157-message-portal-metadata-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-157-message-portal-metadata-readiness` passed with run ID `2026-06-25T230004-071Z-modernized-openemr-plan-slice-157-message-portal-metadata-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-157-message-portal-metadata-readiness` matched with comparison ID `2026-06-25T230031-083Z-legacy-openemr-vs-modernized-openemr-plan-slice-157-message-portal-metadata-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-157-message-portal-metadata-seeded` and `db-probe-slice-157-message-portal-metadata-rendered` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 168
+- Lines deleted: 12
+- Net lines: 156
+- Total churn: 180
+
+## 458. Workbench Capability Rollups For Slice Granularity
+
+Started: 2026-06-25T18:57:14.0906056-04:00
+Finished: 2026-06-25T18:58:14.0062024-04:00
+Commit: pending
+
+Implemented the Workbench capability rollup model so the project can keep small parity-safe development slices while reporting progress through parent capability families. The Progress page now loads curated rollups from `modernization-workbench/config/capability-rollups.json`, renders them above the granular functionality ledger, classifies child work as capability, coverage, evidence, Workbench platform, seed-data, or hardening, and keeps evidence IDs expandable underneath each parent capability.
+
+Changes:
+- Added the curated capability rollup config with parent groups for Patient Chart and Portal, Scheduling and Appointments, Encounters and Clinical Documentation, Documents and Attachments, Revenue Cycle, Labs and Procedures, Administration/Security/Audit, Workbench Evidence and Operations, and Seed Data/Migration/Production Readiness.
+- Extended `/api/progress` so it returns the capability rollup model alongside the existing functionality ledger, progress history, and forecast.
+- Added typed React state and Progress page rendering for the capability rollups, including summary metrics, slice-type legend, expandable parent capability rows, child group status, evidence chips, and outstanding work lists.
+- Documented the slice classification policy in the modernization plan, test architecture, and Workbench overview so future slices remain small where useful but roll up into operator-facing capabilities.
+
+Verification:
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('capability-rollups.json ok')"` passed.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npm run build` passed in `modernization-workbench/`.
+- `git diff --check` passed for the capability-rollup implementation files with only existing CRLF normalization warnings.
+- Live `GET http://127.0.0.1:5174/api/progress` returned HTTP 200 with 9 capability rollups and 6 slice types.
+
+Code changes:
+- Files changed: pending isolated commit stats
+- Lines added: pending isolated commit stats
+- Lines deleted: pending isolated commit stats
+- Net lines: pending isolated commit stats
+- Total churn: pending isolated commit stats
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22168,5 +22226,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, and 156.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, and 157.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

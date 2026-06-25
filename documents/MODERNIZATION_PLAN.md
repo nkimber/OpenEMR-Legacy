@@ -86,6 +86,17 @@ Each slice follows the same loop:
 8. Update Workbench progress and project docs.
 9. Commit the completed slice to Git, and push to the configured remote when available.
 
+Slice size is intentionally small for parity safety, but not every slice should be treated as a top-level product milestone. Future planning should roll granular slice work up into parent capability families before reporting progress or choosing priorities. Use these slice classifications consistently:
+
+- **Capability** - user-visible workflow or domain behavior.
+- **Coverage** - validation, permissions, edge-case, alternate-state, or risk-focused tests for an existing capability.
+- **Evidence** - probe payloads, comparison artifacts, screenshots, drill-ins, or reliability summaries.
+- **Workbench platform** - orchestration, lifecycle, timeline, progress, reporting, or operator tooling.
+- **Seed data** - gold dataset, fixture anchors, target seed mapping, or reset contracts.
+- **Hardening** - security, audit, authorization, cleanup, reliability, migration, or production-readiness work.
+
+The Workbench Capability Rollups are the operator-facing parent layer for these classifications. Keep implementation slices small when parity risk calls for it, but update the rollup model when new work changes the parent capability story.
+
 ## Slice Order
 
 ### Slice 1: Patient Search And Chart Summary
@@ -4884,3 +4895,4 @@ As of 2026-06-20:
 - The four-hundred-eighth implementation slice extends normalized database payload attachments into the Slice 153 procedure report bulk sign-off suite. It records temporary encounter/order/report inputs, unreviewed queue precondition, bulk sign-off action state, reviewed queue transition, browser/API rendering facts, and cleanup count restoration as path-backed JSON evidence while preserving a matched side-by-side Slice 153 comparison.
 - The four-hundred-ninth implementation slice extends normalized database payload attachments into the Slice 154 procedure report reopen-review suite. It records temporary encounter/order/report inputs, reviewed queue precondition, reopen action state, received/unreviewed queue transition, browser/API rendering facts, and cleanup count restoration as path-backed JSON evidence while preserving a matched side-by-side Slice 154 comparison.
 - The four-hundred-tenth implementation slice extends normalized database payload attachments into the Slice 156 patient-message reply suite. It records temporary pnotes-compatible message creation, reply append state, browser/API rendering facts, soft-delete state, and cleanup count restoration as path-backed JSON evidence while preserving a matched side-by-side Slice 156 comparison.
+- The four-hundred-eleventh implementation slice extends normalized database payload attachments into the Slice 157 patient-message portal metadata suite. It records seeded pnotes portal relation metadata, plaintext encryption flags, legacy Patient Notes rendering facts, and modernized Messages card rendering facts as path-backed JSON evidence while preserving a matched side-by-side Slice 157 comparison.
