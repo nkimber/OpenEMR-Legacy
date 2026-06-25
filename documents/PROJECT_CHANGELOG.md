@@ -21772,7 +21772,7 @@ Code changes:
 
 Started: 2026-06-25T17:50:38.7769023-04:00
 Finished: 2026-06-25T17:53:39.3333326-04:00
-Commit: pending
+Commit: f8853c51
 
 Implemented Slice 399: Slice 140 procedure lab provider directory probe payload attachments. The procedure lab provider directory parity suite now writes path-backed JSON Playwright attachments for the permanent five-provider gold-data procedure lab directory, active/inactive provider counts, per-provider order/report/future-order counts, legacy Procedure Providers rendering facts, and modernized Reports directory rendering facts so Workbench comparison drill-ins can preview provider-directory evidence.
 
