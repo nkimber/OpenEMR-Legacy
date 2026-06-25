@@ -22163,7 +22163,7 @@ Code changes:
 
 Started: 2026-06-25T18:57:11.1358561-04:00
 Finished: 2026-06-25T19:00:40.0423211-04:00
-Commit: pending
+Commit: ca6253b5
 
 Implemented Slice 411: Slice 157 patient-message portal metadata probe payload attachments. The patient-message portal metadata parity suite now writes path-backed JSON Playwright attachments for seeded pnotes portal relation metadata, plaintext encryption flags, legacy Patient Notes rendering facts, and modernized Messages card rendering facts so Workbench comparison drill-ins can preview patient-message portal metadata evidence.
 
