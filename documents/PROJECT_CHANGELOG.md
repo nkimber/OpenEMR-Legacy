@@ -18951,7 +18951,7 @@ Code changes:
 
 Started: 2026-06-25T08:09:37-04:00
 Finished: 2026-06-25T08:13:32-04:00
-Commit: pending
+Commit: e6844d38
 
 Implemented Slice 316: Slice 55 document replacement revision probe payload attachments. The document replacement revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed temporary document and replacement payload, created current-version facts, replaced revision timestamp/hash movement, archived state, and hard-delete cleanup so Workbench comparison drill-ins can preview mutation lifecycle evidence.
 
