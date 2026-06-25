@@ -348,6 +348,72 @@ type ParityComparisonReport = {
   durationMs: number;
 };
 
+type ParityRunTrendPoint = {
+  runId: string;
+  target: string;
+  selectionKind: string;
+  selectionId: string;
+  selectedSuites: string[];
+  passed: boolean;
+  expected: number;
+  skipped: number;
+  unexpected: number;
+  flaky: number;
+  durationMs: number;
+  finishedAt: string;
+  artifactPath: string;
+};
+
+type ParityComparisonTrendPoint = {
+  comparisonId: string;
+  selectionKind: string;
+  selectionId: string;
+  status: string;
+  passed: boolean;
+  differenceCount: number;
+  acceptedDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  totalCheckCount: number;
+  targetDurationMs: number;
+  finishedAt: string;
+  artifactPath: string;
+};
+
+type ParityReliabilitySelectionSummary = {
+  selectionKind: string;
+  selectionId: string;
+  totalComparisons: number;
+  matchedComparisons: number;
+  differentComparisons: number;
+  passRatePercent: number;
+  averageDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  latestStatus: string;
+  latestFinishedAt: string;
+};
+
+type ParityReliabilitySummary = {
+  runCount: number;
+  runPassRatePercent: number;
+  failedRunCount: number;
+  averageRunDurationMs: number;
+  comparisonCount: number;
+  comparisonPassRatePercent: number;
+  differentComparisonCount: number;
+  averageComparisonDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  averageComparisonTargetDurationMs: number;
+};
+
+type ParityReliabilityReport = {
+  generatedAt: string;
+  windowSize: number;
+  summary: ParityReliabilitySummary;
+  runTrend: ParityRunTrendPoint[];
+  comparisonTrend: ParityComparisonTrendPoint[];
+  selectionSummaries: ParityReliabilitySelectionSummary[];
+};
+
 type VisualArtifact = {
   path: string;
   name: string;
@@ -472,6 +538,7 @@ const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.jso
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
 const parityComparisonsRoot = path.join(repoRoot, "parity-tests", "artifacts", "comparisons");
+const parityRunsRoot = path.join(repoRoot, "parity-tests", "artifacts", "runs");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
@@ -1913,6 +1980,15 @@ function toNumber(value: unknown, fallback = 0) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function average(values: number[]) {
+  const finiteValues = values.filter((value) => Number.isFinite(value));
+  return finiteValues.length ? finiteValues.reduce((sum, value) => sum + value, 0) / finiteValues.length : 0;
+}
+
+function percentage(numerator: number, denominator: number) {
+  return denominator > 0 ? (numerator / denominator) * 100 : 0;
+}
+
 function toStringArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
@@ -2327,6 +2403,213 @@ async function readParityComparisons(limit = 20) {
     }
     throw error;
   }
+}
+
+function normalizeRunTrendPoint(value: unknown, fallbackModifiedAt: number): ParityRunTrendPoint | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const run = value as Record<string, unknown>;
+  const stats = run.stats && typeof run.stats === "object" ? (run.stats as Record<string, unknown>) : {};
+  const reports = normalizeRunReportLinks(run.reports);
+  const runId = typeof run.runId === "string" ? run.runId : "";
+  const finishedAt = typeof run.finishedAt === "string" ? run.finishedAt : new Date(fallbackModifiedAt).toISOString();
+  if (!runId || !finishedAt) {
+    return null;
+  }
+
+  return {
+    runId,
+    target: typeof run.target === "string" ? run.target : "unknown",
+    selectionKind: typeof run.selectionKind === "string" ? run.selectionKind : "unknown",
+    selectionId: typeof run.selectionId === "string" ? run.selectionId : typeof run.suite === "string" ? run.suite : "unknown",
+    selectedSuites: toStringArray(run.selectedSuites),
+    passed: Boolean(run.passed),
+    expected: toNumber(stats.expected),
+    skipped: toNumber(stats.skipped),
+    unexpected: toNumber(stats.unexpected),
+    flaky: toNumber(stats.flaky),
+    durationMs: toNumber(run.durationMs, toNumber(stats.duration)),
+    finishedAt,
+    artifactPath: reports.runJson || (typeof run.artifactDirectory === "string" ? `${run.artifactDirectory}/run.json` : "")
+  };
+}
+
+function normalizeComparisonTrendPoint(value: unknown, artifactDirectory: string, acceptedDifferences: AcceptedDifferenceEntry[]): ParityComparisonTrendPoint | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const comparison = value as Record<string, unknown>;
+  const left = normalizeComparisonSide(comparison.left);
+  const right = normalizeComparisonSide(comparison.right);
+  if (!left || !right || typeof comparison.comparisonId !== "string") {
+    return null;
+  }
+
+  const reports = comparison.reports && typeof comparison.reports === "object" ? (comparison.reports as Record<string, unknown>) : {};
+  const differences = Array.isArray(comparison.differences) ? comparison.differences : [];
+  const startedAt = typeof comparison.startedAt === "string" ? comparison.startedAt : "";
+  const finishedAt = typeof comparison.finishedAt === "string" ? comparison.finishedAt : startedAt;
+  const selectionKind = typeof comparison.selectionKind === "string" ? comparison.selectionKind : "unknown";
+  const selectionId = typeof comparison.selectionId === "string" ? comparison.selectionId : "unknown";
+  const acceptance = buildDifferenceAcceptanceSummary(differences, { selectionKind, selectionId }, acceptedDifferences);
+
+  return {
+    comparisonId: comparison.comparisonId,
+    selectionKind,
+    selectionId,
+    status: typeof comparison.status === "string" ? comparison.status : "unknown",
+    passed: Boolean(comparison.passed),
+    differenceCount: differences.length,
+    acceptedDifferenceCount: acceptance.acceptedCount,
+    unacceptedDifferenceCount: acceptance.unacceptedCount,
+    totalCheckCount: left.stats.expected + right.stats.expected,
+    targetDurationMs: left.stats.duration + right.stats.duration,
+    finishedAt,
+    artifactPath: typeof reports.comparisonJson === "string" ? reports.comparisonJson : `${artifactDirectory}/comparison.json`
+  };
+}
+
+function buildSelectionSummaries(comparisonTrend: ParityComparisonTrendPoint[]) {
+  const groups = new Map<string, ParityComparisonTrendPoint[]>();
+  for (const point of comparisonTrend) {
+    const key = `${point.selectionKind}:${point.selectionId}`;
+    groups.set(key, [...(groups.get(key) ?? []), point]);
+  }
+
+  return Array.from(groups.values())
+    .map((points) => {
+      const sortedPoints = [...points].sort((left, right) => Date.parse(right.finishedAt) - Date.parse(left.finishedAt));
+      const latest = sortedPoints[0];
+      const matchedComparisons = points.filter((point) => point.passed).length;
+      return {
+        selectionKind: latest.selectionKind,
+        selectionId: latest.selectionId,
+        totalComparisons: points.length,
+        matchedComparisons,
+        differentComparisons: points.length - matchedComparisons,
+        passRatePercent: percentage(matchedComparisons, points.length),
+        averageDifferenceCount: average(points.map((point) => point.differenceCount)),
+        unacceptedDifferenceCount: points.reduce((sum, point) => sum + point.unacceptedDifferenceCount, 0),
+        latestStatus: latest.status,
+        latestFinishedAt: latest.finishedAt
+      };
+    })
+    .sort((left, right) => {
+      if (left.passRatePercent !== right.passRatePercent) {
+        return left.passRatePercent - right.passRatePercent;
+      }
+      if (left.unacceptedDifferenceCount !== right.unacceptedDifferenceCount) {
+        return right.unacceptedDifferenceCount - left.unacceptedDifferenceCount;
+      }
+      return Date.parse(right.latestFinishedAt) - Date.parse(left.latestFinishedAt);
+    })
+    .slice(0, 12);
+}
+
+async function readParityComparisonTrend(limit = 120) {
+  try {
+    const [entries, acceptedDifferencesConfig] = await Promise.all([
+      fs.readdir(parityComparisonsRoot, { withFileTypes: true }),
+      readAcceptedDifferences().catch(() => ({ version: "missing", lastUpdated: "", entries: [] }))
+    ]);
+    const acceptedDifferences = acceptedDifferencesConfig.entries;
+    const candidates = await Promise.all(
+      entries
+        .filter((entry) => entry.isDirectory())
+        .map(async (entry) => {
+          const artifactDirectory = path.join(parityComparisonsRoot, entry.name);
+          const comparisonPath = path.join(artifactDirectory, "comparison.json");
+          const [json, stats] = await Promise.all([
+            readJsonIfExists(comparisonPath),
+            fs.stat(comparisonPath).catch(() => null)
+          ]);
+          const relativeArtifactDirectory = path.relative(repoRoot, artifactDirectory).replaceAll("\\", "/");
+          const point = normalizeComparisonTrendPoint(json, relativeArtifactDirectory, acceptedDifferences);
+          return point ? { point, modifiedAt: stats?.mtimeMs ?? 0 } : null;
+        })
+    );
+
+    return candidates
+      .filter((candidate): candidate is { point: ParityComparisonTrendPoint; modifiedAt: number } => candidate !== null)
+      .sort((left, right) => {
+        const rightTime = Date.parse(right.point.finishedAt);
+        const leftTime = Date.parse(left.point.finishedAt);
+        return (Number.isNaN(rightTime) ? right.modifiedAt : rightTime) - (Number.isNaN(leftTime) ? left.modifiedAt : leftTime);
+      })
+      .slice(0, limit)
+      .map((candidate) => candidate.point);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
+}
+
+async function readParityRunTrend(limit = 120) {
+  try {
+    const entries = await fs.readdir(parityRunsRoot, { withFileTypes: true });
+    const candidates = await Promise.all(
+      entries
+        .filter((entry) => entry.isDirectory())
+        .map(async (entry) => {
+          const runPath = path.join(parityRunsRoot, entry.name, "run.json");
+          const [json, stats] = await Promise.all([
+            readJsonIfExists(runPath),
+            fs.stat(runPath).catch(() => null)
+          ]);
+          const point = normalizeRunTrendPoint(json, stats?.mtimeMs ?? 0);
+          return point ? { point, modifiedAt: stats?.mtimeMs ?? 0 } : null;
+        })
+    );
+
+    return candidates
+      .filter((candidate): candidate is { point: ParityRunTrendPoint; modifiedAt: number } => candidate !== null)
+      .sort((left, right) => {
+        const rightTime = Date.parse(right.point.finishedAt);
+        const leftTime = Date.parse(left.point.finishedAt);
+        return (Number.isNaN(rightTime) ? right.modifiedAt : rightTime) - (Number.isNaN(leftTime) ? left.modifiedAt : leftTime);
+      })
+      .slice(0, limit)
+      .map((candidate) => candidate.point);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
+}
+
+async function readParityReliability(windowSize = 120): Promise<ParityReliabilityReport> {
+  const [runTrend, comparisonTrend] = await Promise.all([
+    readParityRunTrend(windowSize),
+    readParityComparisonTrend(windowSize)
+  ]);
+  const passedRuns = runTrend.filter((point) => point.passed).length;
+  const passedComparisons = comparisonTrend.filter((point) => point.passed).length;
+
+  return {
+    generatedAt: new Date().toISOString(),
+    windowSize,
+    summary: {
+      runCount: runTrend.length,
+      runPassRatePercent: percentage(passedRuns, runTrend.length),
+      failedRunCount: runTrend.length - passedRuns,
+      averageRunDurationMs: average(runTrend.map((point) => point.durationMs)),
+      comparisonCount: comparisonTrend.length,
+      comparisonPassRatePercent: percentage(passedComparisons, comparisonTrend.length),
+      differentComparisonCount: comparisonTrend.length - passedComparisons,
+      averageComparisonDifferenceCount: average(comparisonTrend.map((point) => point.differenceCount)),
+      unacceptedDifferenceCount: comparisonTrend.reduce((sum, point) => sum + point.unacceptedDifferenceCount, 0),
+      averageComparisonTargetDurationMs: average(comparisonTrend.map((point) => point.targetDurationMs))
+    },
+    runTrend,
+    comparisonTrend,
+    selectionSummaries: buildSelectionSummaries(comparisonTrend)
+  };
 }
 
 async function readEnvFile(cwd: string) {
@@ -2800,6 +3083,14 @@ app.get("/api/parity-manifest", async (_request, response, next) => {
 app.get("/api/parity-comparisons", async (_request, response, next) => {
   try {
     response.json({ comparisons: await readParityComparisons() });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/parity-reliability", async (_request, response, next) => {
+  try {
+    response.json(await readParityReliability());
   } catch (error) {
     next(error);
   }

@@ -176,6 +176,72 @@ export type ParityComparisonReport = {
   durationMs: number;
 };
 
+export type ParityRunTrendPoint = {
+  runId: string;
+  target: string;
+  selectionKind: string;
+  selectionId: string;
+  selectedSuites: string[];
+  passed: boolean;
+  expected: number;
+  skipped: number;
+  unexpected: number;
+  flaky: number;
+  durationMs: number;
+  finishedAt: string;
+  artifactPath: string;
+};
+
+export type ParityComparisonTrendPoint = {
+  comparisonId: string;
+  selectionKind: string;
+  selectionId: string;
+  status: string;
+  passed: boolean;
+  differenceCount: number;
+  acceptedDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  totalCheckCount: number;
+  targetDurationMs: number;
+  finishedAt: string;
+  artifactPath: string;
+};
+
+export type ParityReliabilitySelectionSummary = {
+  selectionKind: string;
+  selectionId: string;
+  totalComparisons: number;
+  matchedComparisons: number;
+  differentComparisons: number;
+  passRatePercent: number;
+  averageDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  latestStatus: string;
+  latestFinishedAt: string;
+};
+
+export type ParityReliabilitySummary = {
+  runCount: number;
+  runPassRatePercent: number;
+  failedRunCount: number;
+  averageRunDurationMs: number;
+  comparisonCount: number;
+  comparisonPassRatePercent: number;
+  differentComparisonCount: number;
+  averageComparisonDifferenceCount: number;
+  unacceptedDifferenceCount: number;
+  averageComparisonTargetDurationMs: number;
+};
+
+export type ParityReliabilityReport = {
+  generatedAt: string;
+  windowSize: number;
+  summary: ParityReliabilitySummary;
+  runTrend: ParityRunTrendPoint[];
+  comparisonTrend: ParityComparisonTrendPoint[];
+  selectionSummaries: ParityReliabilitySelectionSummary[];
+};
+
 export type NativeRunResult = {
   name: string;
   passed: boolean;

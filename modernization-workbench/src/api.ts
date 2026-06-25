@@ -7,6 +7,7 @@ import type {
   LifecycleEvent,
   ParityManifest,
   ParityComparisonReport,
+  ParityReliabilityReport,
   ParityRunResult,
   ProgressResponse,
   ProjectChangelog,
@@ -80,6 +81,9 @@ export const api = {
   },
   async getParityComparisons() {
     return requestJson<{ comparisons: ParityComparisonReport[] }>("/api/parity-comparisons");
+  },
+  async getParityReliability() {
+    return requestJson<ParityReliabilityReport>("/api/parity-reliability");
   },
   async getChangelog() {
     return requestJson<ProjectChangelog>("/api/changelog");

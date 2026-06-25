@@ -43,6 +43,7 @@ import type {
   NativeRunResult,
   ParityComparisonReport,
   ParityManifest,
+  ParityReliabilityReport,
   ParityResetMode,
   ParityRunResult,
   ProgressSlice,
@@ -2136,6 +2137,7 @@ function TestsPage({
   busy,
   parityManifest,
   parityComparisons,
+  parityReliability,
   onRunTest,
   onRunCustomParity
 }: {
@@ -2143,6 +2145,7 @@ function TestsPage({
   busy: BusyState;
   parityManifest: ParityManifest | null;
   parityComparisons: ParityComparisonReport[];
+  parityReliability: ParityReliabilityReport | null;
   onRunTest: (appId: string, testId: string) => void;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
@@ -2154,6 +2157,7 @@ function TestsPage({
 
   return (
     <div className="page-stack">
+      <ParityReliabilityPanel reliability={parityReliability} />
       <ParityComparisonPanel comparisons={parityComparisons} />
       {visibleApps.length ? (
         visibleApps.map((app) => {
@@ -2206,6 +2210,115 @@ function TestsPage({
         <section className="panel">
           <EmptyState text={apps.length ? "No managed test actions are configured." : "Managed application data is loading."} />
         </section>
+      )}
+    </div>
+  );
+}
+
+function ParityReliabilityPanel({ reliability }: { reliability: ParityReliabilityReport | null }) {
+  if (!reliability || (!reliability.summary.runCount && !reliability.summary.comparisonCount)) {
+    return (
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Reliability trends</div>
+            <h2>
+              <Activity size={20} />
+              Parity Reliability
+            </h2>
+            <p>Rolling pass-rate and timing trends will appear after parity run artifacts are recorded.</p>
+          </div>
+        </div>
+        <EmptyState text="No parity reliability history is available yet." />
+      </section>
+    );
+  }
+
+  const latestRuns = reliability.runTrend.slice(0, 18).reverse();
+  const latestComparisons = reliability.comparisonTrend.slice(0, 18).reverse();
+  const summary = reliability.summary;
+
+  return (
+    <section className="panel">
+      <div className="panel-header">
+        <div>
+          <div className="section-kicker">Reliability trends</div>
+          <h2>
+            <Activity size={20} />
+            Parity Reliability
+          </h2>
+          <p>Recent run and comparison health derived from stored parity artifacts.</p>
+        </div>
+        <span className="quiet-chip">Window {reliability.windowSize}</span>
+      </div>
+
+      <div className="reliability-metrics">
+        <Metric label="Run pass rate" value={formatProgressPercent(summary.runPassRatePercent)} detail={`${summary.runCount} runs / ${summary.failedRunCount} failed`} />
+        <Metric label="Comparison match rate" value={formatProgressPercent(summary.comparisonPassRatePercent)} detail={`${summary.comparisonCount} comparisons / ${summary.differentComparisonCount} different`} />
+        <Metric label="Avg run duration" value={formatDuration(summary.averageRunDurationMs)} detail="Recent parity run artifacts" />
+        <Metric label="Unreviewed differences" value={formatCount(summary.unacceptedDifferenceCount)} detail={`${summary.averageComparisonDifferenceCount.toFixed(1)} avg differences`} />
+      </div>
+
+      <div className="reliability-trend-grid">
+        <ReliabilityBarStrip
+          label="Recent runs"
+          points={latestRuns.map((point) => ({
+            id: point.runId,
+            passed: point.passed,
+            title: `${point.target} ${point.selectionId} ${point.passed ? "passed" : "failed"} at ${formatDate(point.finishedAt)}`
+          }))}
+        />
+        <ReliabilityBarStrip
+          label="Recent comparisons"
+          points={latestComparisons.map((point) => ({
+            id: point.comparisonId,
+            passed: point.passed,
+            title: `${point.selectionId} ${point.status} at ${formatDate(point.finishedAt)}`
+          }))}
+        />
+      </div>
+
+      {reliability.selectionSummaries.length ? (
+        <div className="reliability-selection-list">
+          {reliability.selectionSummaries.slice(0, 6).map((selection) => (
+            <article className="reliability-selection-row" key={`${selection.selectionKind}-${selection.selectionId}`}>
+              <div>
+                <strong>{selection.selectionId}</strong>
+                <span>{selection.selectionKind} / latest {formatDate(selection.latestFinishedAt)}</span>
+              </div>
+              <div className="evidence-metrics">
+                <span>{formatProgressPercent(selection.passRatePercent)} matched</span>
+                <span>{selection.differentComparisons} different</span>
+                <span>{selection.unacceptedDifferenceCount} unreviewed</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ReliabilityBarStrip({ label, points }: { label: string; points: Array<{ id: string; passed: boolean; title: string }> }) {
+  return (
+    <div className="reliability-strip">
+      <div className="reliability-strip-header">
+        <span>{label}</span>
+        <small>{points.length} points</small>
+      </div>
+      {points.length ? (
+        <div className="reliability-bars" aria-label={label}>
+          {points.map((point) => (
+            <span
+              className={point.passed ? "reliability-bar passed" : "reliability-bar failed"}
+              key={point.id}
+              title={point.title}
+              aria-label={point.title}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState text="No trend points recorded." />
       )}
     </div>
   );
@@ -2974,6 +3087,7 @@ function PageBody({
   changelog,
   parityManifest,
   parityComparisons,
+  parityReliability,
   onRunCustomParity
 }: {
   page: PageId;
@@ -3000,6 +3114,7 @@ function PageBody({
   changelog: ProjectChangelog | null;
   parityManifest: ParityManifest | null;
   parityComparisons: ParityComparisonReport[];
+  parityReliability: ParityReliabilityReport | null;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
   if (page === "timeline") {
@@ -3022,7 +3137,17 @@ function PageBody({
     return <ArchitecturePanel architecture={architecture} />;
   }
   if (page === "tests") {
-    return <TestsPage apps={apps} busy={busy} parityManifest={parityManifest} parityComparisons={parityComparisons} onRunTest={onRunTest} onRunCustomParity={onRunCustomParity} />;
+    return (
+      <TestsPage
+        apps={apps}
+        busy={busy}
+        parityManifest={parityManifest}
+        parityComparisons={parityComparisons}
+        parityReliability={parityReliability}
+        onRunTest={onRunTest}
+        onRunCustomParity={onRunCustomParity}
+      />
+    );
   }
   if (page === "seed-data") {
     return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)} />;
@@ -3084,6 +3209,7 @@ export function App() {
   const [seedDatasets, setSeedDatasets] = useState<SeedDataset[]>([]);
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
+  const [parityReliability, setParityReliability] = useState<ParityReliabilityReport | null>(null);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
@@ -3096,7 +3222,7 @@ export function App() {
 
   const loadDashboard = useCallback(async () => {
     setError(null);
-    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, parityComparisonData, changelogData] = await Promise.all([
+    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, parityComparisonData, parityReliabilityData, changelogData] = await Promise.all([
       api.getApps(),
       api.getArchitecture(),
       api.getProgress(),
@@ -3104,6 +3230,7 @@ export function App() {
       api.getSeedDatasets(),
       api.getParityManifest(),
       api.getParityComparisons(),
+      api.getParityReliability(),
       api.getChangelog()
     ]);
     setApps(appData.apps);
@@ -3119,6 +3246,7 @@ export function App() {
     setSeedDatasets(seedData.datasets);
     setParityManifest(parityManifestData);
     setParityComparisons(parityComparisonData.comparisons);
+    setParityReliability(parityReliabilityData);
     setChangelog(changelogData);
   }, []);
 
@@ -3251,6 +3379,7 @@ export function App() {
           changelog={changelog}
           parityManifest={parityManifest}
           parityComparisons={parityComparisons}
+          parityReliability={parityReliability}
           onRunCustomParity={handleRunCustomParity}
         />
       </main>

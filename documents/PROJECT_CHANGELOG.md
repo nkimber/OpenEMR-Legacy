@@ -17076,6 +17076,35 @@ Code changes:
 - Net lines: +320
 - Total churn: 372
 
+## 301. Slice 259 Workbench Reliability Trend Summaries
+
+Started: 2026-06-25T00:10:00-04:00
+Finished: 2026-06-25T00:22:13-04:00
+Duration: 12m 13s
+Commit: pending
+
+Implemented Slice 259: Workbench reliability trend summaries. The Workbench now derives rolling parity health from stored run and comparison artifacts so Test Runs can show pass-rate, match-rate, duration, pass/fail, and selection-level trend signals without opening raw artifact folders.
+
+Changes:
+- Added `/api/parity-reliability` to the Workbench API.
+- Added lightweight bounded artifact scanning for recent `run.json` and `comparison.json` files without loading screenshot or Playwright probe payloads.
+- Added normalized reliability summary types for run trends, comparison trends, and selection-level comparison summaries.
+- Added a Test Runs reliability panel with run pass rate, comparison match rate, average run duration, unreviewed differences, recent pass/fail strips, and selection-level rows.
+- Updated the Workbench functionality progress ledger so reliability trend summaries are completed evidence scope while deeper historical charts, retention policy, and richer reports remain outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 259 evidence-analytics contract.
+
+Verification:
+- `npm run build` in `modernization-workbench/` passed.
+- Runtime probe of `http://127.0.0.1:5174/api/parity-reliability` returned a summary for 120 recent run artifacts and 120 recent comparison artifacts.
+- Confirmed the temporary API listener used for the runtime probe was stopped.
+
+Code changes:
+- Files changed: 12
+- Lines added: 648
+- Lines deleted: 22
+- Net lines: +626
+- Total churn: 670
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17085,4 +17114,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench reliability trends and historical progress charts.
+- Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

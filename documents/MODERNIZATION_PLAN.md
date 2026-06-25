@@ -70,7 +70,7 @@ The implementation should not preserve legacy technical constraints:
 
 - Modernized OpenEMR becomes a managed application in `modernization-workbench/config/apps.json`.
 - Workbench can start, stop, restart, health-check, seed, and run tests for the modernized target.
-- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, accepted/unreviewed difference counts, artifact paths, Slice 124 expandable drill-ins, Slice 125 safe links to run/comparison artifact files, Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML report files, Slice 256 screenshot thumbnails, Slice 257 normalized probe detail views, and Slice 258 accepted-difference tracking; reliability and trend charts remain future work.
+- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, accepted/unreviewed difference counts, artifact paths, Slice 124 expandable drill-ins, Slice 125 safe links to run/comparison artifact files, Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML report files, Slice 256 screenshot thumbnails, Slice 257 normalized probe detail views, Slice 258 accepted-difference tracking, and Slice 259 reliability trend summaries; deeper historical reliability charts remain future work.
 
 ## Vertical Slice Strategy
 
@@ -1326,7 +1326,31 @@ Acceptance:
 
 Current limitations:
 
-- This slice tracks curated accepted differences only. It does not add an in-browser editor for the registry, reliability trend charts, historical failure-rate analytics, or long-term evidence-retention policy.
+- This slice tracks curated accepted differences only. It does not add an in-browser editor for the registry, reliability trend summaries, historical failure-rate analytics, or long-term evidence-retention policy.
+
+### Slice 259: Workbench Reliability Trend Summaries
+
+Status:
+
+- Implemented as a Workbench evidence-analytics slice under `modernization-workbench/`.
+- Verification is the Workbench production build plus a runtime probe of `/api/parity-reliability` against stored parity artifacts.
+
+Scope:
+
+- The Workbench API now exposes `/api/parity-reliability`.
+- The endpoint scans bounded recent `parity-tests/artifacts/runs/*/run.json` and `parity-tests/artifacts/comparisons/*/comparison.json` artifacts without loading screenshot or Playwright probe payloads.
+- The Test Runs page now shows rolling run pass rate, comparison match rate, failed run count, different comparison count, average run duration, unreviewed differences, recent pass/fail strips, and selection-level comparison summaries.
+- The functionality progress ledger records reliability trend summaries as completed Workbench evidence scope.
+
+Acceptance:
+
+- Recent comparison cards continue to render the richer drill-ins from `/api/parity-comparisons`.
+- The reliability panel remains read-only and derived from stored artifacts rather than inventing a separate test history.
+- The reliability endpoint responds quickly enough for the Workbench polling cycle because it uses lightweight summary artifacts.
+
+Current limitations:
+
+- This slice adds rolling summaries, not a full historical reliability chart, saved report definition model, or long-term evidence-retention policy.
 
 ### Slice 156: Patient Message Reply Readiness
 
@@ -4612,4 +4636,5 @@ As of 2026-06-20:
 - The two-hundred-fifty-fifth modernized vertical slice implements patient portal secure-message notification readiness by adding a generated PostgreSQL `patient_reminders` projection, merging active recent reminders into portal secure-message Inbox and All-style results as read-only `Notification` rows, excluding them from Sent and Deleted, documenting that the observed legacy v8.1.0 Secure Messaging UI does not render those reminder rows, and rendering the modernized Portal notification rows without thread, reply, read-mark, archive, or forward actions. This closes the focused legacy `getPortalPatientNotifications` projection gap while leaving outbound notification delivery, attachment handling, and richer messaging policy for future slices.
 - The two-hundred-fifty-sixth implementation slice improves Workbench comparison evidence by enriching comparison sides with screenshot/image artifact metadata, rendering compact thumbnails on Test Runs comparison cards, rendering larger visual evidence lists in drill-ins, and preserving all image access through the safe artifact endpoint. This closes the first screenshot-preview evidence gap; Slice 257 adds normalized Playwright probe detail views, while accepted-difference tracking, reliability trends, historical trend charts, and long-term evidence-retention policy remain for future Workbench slices.
 - The two-hundred-fifty-seventh implementation slice improves Workbench comparison evidence by enriching comparison sides with normalized Playwright probe details from run-level JSON reports, rendering probe counts on comparison-side summaries, and showing probe titles, statuses, files, durations, tags, attachment counts, and errors in expanded drill-ins. This closes the first normalized probe detail gap while leaving database-probe payload normalization, accepted-difference tracking, reliability trends, historical trend charts, and long-term evidence-retention policy for future Workbench slices.
-- The two-hundred-fifty-eighth implementation slice improves Workbench comparison governance by adding a curated accepted-difference registry, applying active acceptance rules to side-by-side comparison artifacts, rendering accepted/unreviewed counts on comparison cards, and showing accepted rule IDs plus reasons in drill-ins. This closes the first accepted-difference tracking gap while leaving an in-browser registry editor, reliability trends, historical trend charts, and long-term evidence-retention policy for future Workbench slices.
+- The two-hundred-fifty-eighth implementation slice improves Workbench comparison governance by adding a curated accepted-difference registry, applying active acceptance rules to side-by-side comparison artifacts, rendering accepted/unreviewed counts on comparison cards, and showing accepted rule IDs plus reasons in drill-ins. This closes the first accepted-difference tracking gap while leaving an in-browser registry editor, reliability trend summaries, historical trend charts, and long-term evidence-retention policy for future Workbench slices.
+- The two-hundred-fifty-ninth implementation slice improves Workbench evidence analytics by adding a lightweight `/api/parity-reliability` route over recent run/comparison artifacts and rendering rolling pass-rate, match-rate, duration, pass/fail strip, and selection-level summaries on the Test Runs page. This closes the first reliability trend summary gap while leaving deeper historical reliability charts, saved report definitions, and long-term evidence-retention policy for future Workbench slices.
