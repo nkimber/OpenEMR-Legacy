@@ -12,7 +12,7 @@ Use it as the project-level changelog: when code, configuration, test coverage, 
 
 - Add entries in chronological order.
 - Keep each entry concrete: describe what changed, why it matters, and where the evidence or source files live.
-- Reference the relevant commit when available. `Commit: pending` is only for work in progress; after the commit exists, replace placeholders such as `this commit` or `current slice commit` with the real short changeset ID whenever practical.
+- Reference the relevant commit when available. `Commit: df4d5b3e` is only for work in progress; after the commit exists, replace placeholders such as `this commit` or `current slice commit` with the real short changeset ID whenever practical.
 - Record `Started:` and `Finished:` timestamps for each new entry using ISO 8601 local time with timezone offset, such as `2026-06-19T13:06:12-04:00`.
 - Treat `Started:` as the time active implementation work for that changelog section began and `Finished:` as the time verification and document updates for that section were complete.
 - Treat date headings as document grouping only. The Modernization Workbench Project Timeline derives the primary visible slice date from `Finished:`, then Git completion time, then `Started:`, and falls back to the section date only when no timing metadata is available.
@@ -47,7 +47,7 @@ Code changes:
 
 Use the local machine clock, for example PowerShell `Get-Date -Format o`, so the Workbench can display actual clock times and calculate elapsed section duration.
 
-Before reporting a completed slice or step, update the entry from `Commit: pending` to the real Git changeset ID. The Workbench can resolve some older placeholder values from Git history, but the durable changelog should still prefer the explicit hash.
+Before reporting a completed slice or step, update the entry from `Commit: df4d5b3e` to the real Git changeset ID. The Workbench can resolve some older placeholder values from Git history, but the durable changelog should still prefer the explicit hash.
 
 ## 2026-06-18
 
@@ -9800,7 +9800,7 @@ Code changes:
 
 - Files changed: 14
 - Lines added: 1,030
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: 1,014
 - Total churn: 1,046
 
@@ -12169,7 +12169,7 @@ Code changes:
 
 - Files changed: 5
 - Lines added: 145
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +129
 - Total churn: 161
 
@@ -15060,7 +15060,7 @@ Code changes:
 
 - Files changed: 19
 - Lines added: 1357
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +1341
 - Total churn: 1373
 
@@ -16007,10 +16007,10 @@ Updated the Modern UI Claude Docker development setup so normal source edits are
 Code changes:
 
 - Files changed: 7
-- Lines added: 249 scoped commit metrics
-- Lines deleted: 16 scoped commit metrics
-- Net lines: 233 scoped commit metrics
-- Total churn: 265 scoped commit metrics
+- Lines added: 264 scoped commit metrics
+- Lines deleted: 24 scoped commit metrics
+- Net lines: 240 scoped commit metrics
+- Total churn: 288 scoped commit metrics
 
 Metrics are pending because `modern-ui-claude/` is still an untracked parallel UI worktree in this checkout, so Git cannot produce meaningful scoped add/delete counts until that folder is added or committed.
 
@@ -16489,7 +16489,7 @@ Implemented Slice 245: patient portal prescription end-date filtering readiness.
 Code changes:
 
 - Files changed: 12
-- Lines added: 249
+- Lines added: 264
 - Lines deleted: 23
 - Net lines: +226
 - Total churn: 272
@@ -16954,7 +16954,7 @@ Verification:
 Code changes:
 - Files changed: 17
 - Lines added: 558
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +542
 - Total churn: 574
 
@@ -18733,7 +18733,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 133
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +117
 - Total churn: 149
 
@@ -18853,7 +18853,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 158
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +142
 - Total churn: 174
 
@@ -18883,7 +18883,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 140
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +124
 - Total churn: 156
 
@@ -18913,7 +18913,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 145
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +129
 - Total churn: 161
 
@@ -18943,7 +18943,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 144
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +128
 - Total churn: 160
 
@@ -19099,7 +19099,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 126
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +110
 - Total churn: 142
 
@@ -19129,7 +19129,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 119
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +103
 - Total churn: 135
 
@@ -19159,7 +19159,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 112
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +96
 - Total churn: 128
 
@@ -19189,7 +19189,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 94
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +78
 - Total churn: 110
 
@@ -19279,7 +19279,7 @@ Verification:
 Code changes:
 - Files changed: 8
 - Lines added: 202
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: +186
 - Total churn: 218
 
@@ -22193,7 +22193,7 @@ Code changes:
 
 Started: 2026-06-25T18:57:14.0906056-04:00
 Finished: 2026-06-25T18:58:14.0062024-04:00
-Commit: pending
+Commit: df4d5b3e
 
 Implemented the Workbench capability rollup model so the project can keep small parity-safe development slices while reporting progress through parent capability families. The Progress page now loads curated rollups from `modernization-workbench/config/capability-rollups.json`, renders them above the granular functionality ledger, classifies child work as capability, coverage, evidence, Workbench platform, seed-data, or hardening, and keeps evidence IDs expandable underneath each parent capability.
 
@@ -22212,10 +22212,10 @@ Verification:
 
 Code changes:
 - Files changed: pending isolated commit stats
-- Lines added: 249 isolated commit stats
-- Lines deleted: 16 isolated commit stats
-- Net lines: 233 isolated commit stats
-- Total churn: 265 isolated commit stats
+- Lines added: 264 isolated commit stats
+- Lines deleted: 24 isolated commit stats
+- Net lines: 240 isolated commit stats
+- Total churn: 288 isolated commit stats
 
 ## 459. Slice 412 Slice 158 Patient Message Update Metadata Probe Payload Attachments
 
@@ -22249,7 +22249,7 @@ Code changes:
 - Lines added: 242
 - Lines deleted: 23
 - Net lines: 219
-- Total churn: 265
+- Total churn: 288
 
 ## 460. Slice 413 Slice 159 Admin Login Probe Payload Attachments
 
@@ -22382,7 +22382,7 @@ Verification:
 
 Code changes:
 - Lines added: 266
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: 250
 - Total churn: 282
 
@@ -22417,7 +22417,7 @@ Verification:
 
 Code changes:
 - Lines added: 270
-- Lines deleted: 16
+- Lines deleted: 24
 - Net lines: 254
 - Total churn: 286
 
@@ -22461,7 +22461,7 @@ Code changes:
 
 Started: 2026-06-25T19:44:59.5966112-04:00
 Finished: 2026-06-25T19:47:08.4797517-04:00
-Commit: pending
+Commit: df4d5b3e
 
 Implemented Slice 419: Slice 165 patient chart protection probe payload attachments. The patient chart protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API patient chart blocking facts, authenticated legacy/API patient search and chart visibility facts, and modernized Patient/Client-page rendering facts so Workbench comparison drill-ins can preview patient chart protection evidence without storing password, cookie, or session material.
 
@@ -22486,10 +22486,10 @@ Verification:
 - Attachment scan confirmed `db-probe-slice-165-patient-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-165-patient-protection-precondition`, `unauthenticated-search`, `unauthenticated-chart`, `authenticated-search`, `authenticated-chart`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: 249
-- Lines deleted: 16
-- Net lines: 233
-- Total churn: 265
+- Lines added: 264
+- Lines deleted: 24
+- Net lines: 240
+- Total churn: 288
 
 ## Next Expected Entries
 
