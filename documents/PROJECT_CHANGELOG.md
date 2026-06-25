@@ -19073,6 +19073,36 @@ Code changes:
 - Net lines: +186
 - Total churn: 256
 
+## 364. Slice 320 Slice 59 Statement Generation Probe Payload Attachments
+
+Started: 2026-06-25T08:35:05-04:00
+Finished: 2026-06-25T08:38:26-04:00
+Commit: pending
+
+Implemented Slice 320: Slice 59 statement generation probe payload attachments. The patient statement generation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` billing anchor, statement summary, ledger source rows, deterministic statement number, generated text, line totals, and ending balance so Workbench comparison drill-ins can preview printable statement generation evidence.
+
+Changes:
+- Added Slice 59 source payload attachments for the billing anchor patient, statement summary, and ledger rows used to generate the statement.
+- Added Slice 59 generated-document payload attachments that capture the deterministic statement number, payment instructions, generated text anchors, line totals, and ending balance.
+- Updated the Workbench functionality progress ledger so Slice 59 statement generation database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 320 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 58 workflow payload boundary.
+- `npm run test:modernized:plan:statement-generation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T123721-844Z-modernized-openemr-plan-slice-59-statement-generation-readiness`.
+- `npm run test:legacy:plan:statement-generation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T123748-120Z-legacy-openemr-plan-slice-59-statement-generation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 59 Playwright reports recorded the shared `db-probe-slice-59-statement-generation-source` and `db-probe-slice-59-statement-generation-document` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-59-statement-generation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T123809-936Z-legacy-openemr-vs-modernized-openemr-plan-slice-59-statement-generation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 116
+- Lines deleted: 16
+- Net lines: +100
+- Total churn: 132
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19082,5 +19112,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 58.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 59.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

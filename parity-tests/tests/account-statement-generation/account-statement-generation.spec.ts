@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { AccountLedgerEntry, PatientStatementSummary } from "../../src/db/legacyMariaDbProbe.js";
 
@@ -30,7 +31,7 @@ test.describe("patient statement generation parity @slice59 @account-statement-g
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(statementGenerationAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -39,6 +40,52 @@ test.describe("patient statement generation parity @slice59 @account-statement-g
     expect(statement).not.toBeNull();
 
     const expectedDocument = buildStatementDocument(patient!.pubpid, statement!, ledgerEntries);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-59-statement-generation-source",
+      description: "Captures the Slice 59 statement-generation source rows: billing anchor patient, statement summary, and ledger entries used to build the printable statement.",
+      expected: {
+        patient: {
+          pubpid: statementGenerationAnchorPatientId
+        },
+        statement: {
+          statementStatus: "Past due review",
+          statementDate: "2026-06-25",
+          dueDate: "2026-07-25",
+          statementPeriodStart: "2025-06-22",
+          statementPeriodEnd: "2026-06-25",
+          balanceDueAmount: "364.75",
+          ledgerEntryCount: 10
+        },
+        ledger: {
+          lineCount: 10,
+          firstEntry: {
+            entryDate: "2025-06-22",
+            encounter: 1000051,
+            entryType: "Charge",
+            description: "Routine venipuncture",
+            code: "36415"
+          },
+          lastEntry: {
+            entryDate: "2026-06-25",
+            encounter: 1000053,
+            entryType: "Adjustment",
+            description: "Contractual adjustment",
+            code: "99214"
+          }
+        }
+      },
+      actual: {
+        patient,
+        statement,
+        ledgerEntries
+      },
+      context: {
+        canonicalId: statementGenerationAnchorPatientId,
+        suite: "account-statement-generation",
+        workflow: "statement-generation-source"
+      }
+    });
     expect(expectedDocument.statementNumber).toBe("STMT-MOD-PAT-0005-20260625");
     expect(expectedDocument.paymentInstructions).toBe("Please pay $364.75 by 2026-07-25.");
     expect(expectedDocument.generatedText).toContain("Patient Statement STMT-MOD-PAT-0005-20260625");
@@ -69,6 +116,38 @@ test.describe("patient statement generation parity @slice59 @account-statement-g
       code: "99214",
       adjustmentAmount: 22.25,
       balanceAmount: 364.75
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-59-statement-generation-document",
+      description: "Captures the deterministic Slice 59 printable patient statement document derived from the shared billing ledger.",
+      expected: {
+        statementNumber: "STMT-MOD-PAT-0005-20260625",
+        paymentInstructions: "Please pay $364.75 by 2026-07-25.",
+        generatedTextContains: [
+          "Patient Statement STMT-MOD-PAT-0005-20260625",
+          "Elias Morgan",
+          "Period 2025-06-22 to 2026-06-25",
+          "Balance due $364.75"
+        ],
+        lineItems: {
+          count: 10,
+          chargeTotal: 635,
+          paymentTotal: 206,
+          adjustmentTotal: 64.25,
+          endingBalance: 364.75
+        }
+      },
+      actual: {
+        patient,
+        statement,
+        expectedDocument
+      },
+      context: {
+        canonicalId: statementGenerationAnchorPatientId,
+        suite: "account-statement-generation",
+        workflow: "statement-generation-document"
+      }
     });
 
     if (target.type === "legacy-openemr") {
