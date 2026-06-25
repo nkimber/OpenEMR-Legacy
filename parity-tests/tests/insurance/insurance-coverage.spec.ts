@@ -1,15 +1,54 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientInsuranceBrowseDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const insuranceAnchorPatientId = "MOD-PAT-0005";
 
 test.describe("patient insurance coverage parity @slice28 @insurance", () => {
-  test("stable insurance anchor has primary and secondary coverage", async ({ targetDb }) => {
+  test("stable insurance anchor has primary and secondary coverage", async ({ target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(insuranceAnchorPatientId);
     expect(patient).not.toBeNull();
 
     const coverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-28-insurance-coverage-anchor",
+      description: "Verifies the Slice 28 insurance anchor patient and normalized primary/secondary coverage facts.",
+      expected: {
+        patient: {
+          pubpid: insuranceAnchorPatientId
+        },
+        insurance: [
+          {
+            type: "primary",
+            provider: "Northstar HMO",
+            planName: "Medicare Advantage",
+            policyNumber: "POL100005",
+            groupNumber: "GRP104",
+            relationship: "self"
+          },
+          {
+            type: "secondary",
+            provider: "Acme Health",
+            planName: "Family Choice",
+            policyNumber: "SEC100005",
+            groupNumber: "GRP204",
+            relationship: "spouse"
+          }
+        ]
+      },
+      actual: {
+        patient,
+        coverage
+      },
+      context: {
+        canonicalId: insuranceAnchorPatientId,
+        suite: "insurance",
+        workflow: "patient-insurance-coverage"
+      }
+    });
+
     expect(coverage.patientId).toBe(patient!.pid);
     expect(coverage.insurance).toMatchObject([
       {
@@ -31,13 +70,51 @@ test.describe("patient insurance coverage parity @slice28 @insurance", () => {
     ]);
   });
 
-  test("insurance coverage is visible in the application UI", async ({ page, target, targetDb }) => {
+  test("insurance coverage is visible in the application UI", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(insuranceAnchorPatientId);
     expect(patient).not.toBeNull();
 
     const coverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
     const primary = coverage.insurance[0];
     const secondary = coverage.insurance[1];
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-28-insurance-ui-precondition",
+      description: "Captures the Slice 28 primary and secondary insurance rows before steering legacy insurance browse screens or the modernized chart Insurance panel.",
+      expected: {
+        patient: {
+          pubpid: insuranceAnchorPatientId,
+          displayName: "Morgan, Elias"
+        },
+        visibleCoverage: [
+          {
+            type: "primary",
+            provider: "Northstar HMO",
+            planName: "Medicare Advantage",
+            policyNumber: "POL100005",
+            groupNumber: "GRP104"
+          },
+          {
+            type: "secondary",
+            provider: "Acme Health",
+            planName: "Family Choice",
+            policyNumber: "SEC100005",
+            groupNumber: "GRP204"
+          }
+        ]
+      },
+      actual: {
+        patient,
+        coverage,
+        primary,
+        secondary
+      },
+      context: {
+        canonicalId: insuranceAnchorPatientId,
+        suite: "insurance",
+        workflow: "patient-insurance-ui"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
