@@ -223,6 +223,59 @@ export type PatientPortalHomeSummary = {
   sessionSource: string;
 };
 
+export type PatientPortalProfileDemographics = {
+  firstName: string;
+  lastName: string;
+  preferredName: string | null;
+  dateOfBirth: string | null;
+  sex: string | null;
+  email: string | null;
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  phoneHome: string | null;
+  phoneCell: string | null;
+  phoneContact: string | null;
+  contactRelationship: string | null;
+  motherName: string | null;
+  guardianName: string | null;
+  guardianRelationship: string | null;
+  guardianPhone: string | null;
+  guardianEmail: string | null;
+};
+
+export type PatientPortalProfileInsurance = {
+  type: string;
+  provider: string | null;
+  planName: string | null;
+  policyNumber: string | null;
+  groupNumber: string | null;
+  subscriberFirstName: string | null;
+  subscriberLastName: string | null;
+  subscriberName: string | null;
+  subscriberRelationship: string | null;
+  subscriberDateOfBirth: string | null;
+};
+
+export type PatientPortalProfileResult = {
+  authenticated: boolean;
+  username: string;
+  portalUsername: string;
+  canonicalId: string;
+  pid: number | null;
+  pubpid: string;
+  displayName: string;
+  datasetVersion: string;
+  asOfDate: string;
+  hasPendingProfileChanges: boolean;
+  demographics: PatientPortalProfileDemographics;
+  insuranceCount: number;
+  insurance: PatientPortalProfileInsurance[];
+  failureReason: string | null;
+  sessionSource: string;
+};
+
 export type PatientPortalAppointmentsResult = {
   authenticated: boolean;
   username: string;
@@ -2713,6 +2766,115 @@ ORDER BY i.administered_date DESC, i.id DESC;
       upcomingAppointments: appointmentRows.map(mapPortalAppointmentRow),
       immunizationCount: immunizationRows.length,
       immunizations: immunizationRows.map(mapPortalHomeImmunizationRow),
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async getPatientPortalProfile(username: string, password: string): Promise<PatientPortalProfileResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalProfileResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const profileRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  fname AS firstName,
+  lname AS lastName,
+  COALESCE(preferred_name, '') AS preferredName,
+  DATE_FORMAT(DOB, '%Y-%m-%d') AS dateOfBirth,
+  COALESCE(sex, '') AS sex,
+  COALESCE(email, '') AS email,
+  COALESCE(street, '') AS street,
+  COALESCE(city, '') AS city,
+  COALESCE(state, '') AS state,
+  COALESCE(postal_code, '') AS postalCode,
+  COALESCE(phone_home, '') AS phoneHome,
+  COALESCE(phone_cell, '') AS phoneCell,
+  COALESCE(phone_contact, '') AS phoneContact,
+  COALESCE(contact_relationship, '') AS contactRelationship,
+  COALESCE(mothersname, '') AS motherName,
+  COALESCE(guardiansname, '') AS guardianName,
+  COALESCE(guardianrelationship, '') AS guardianRelationship,
+  COALESCE(guardianphone, '') AS guardianPhone,
+  COALESCE(guardianemail, '') AS guardianEmail
+FROM patient_data
+WHERE pid = ${integer(login.pid)}
+LIMIT 1;
+`);
+    const profileRow = profileRows[0];
+    if (!profileRow) {
+      return buildEmptyPortalProfileResult(username, "Patient profile was not found.");
+    }
+
+    const insuranceRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  i.type,
+  COALESCE(ic.name, CAST(i.provider AS CHAR), '') AS provider,
+  COALESCE(i.plan_name, '') AS planName,
+  COALESCE(i.policy_number, '') AS policyNumber,
+  COALESCE(i.group_number, '') AS groupNumber,
+  COALESCE(i.subscriber_fname, '') AS subscriberFirstName,
+  COALESCE(i.subscriber_lname, '') AS subscriberLastName,
+  COALESCE(i.subscriber_relationship, '') AS subscriberRelationship,
+  DATE_FORMAT(i.subscriber_DOB, '%Y-%m-%d') AS subscriberDateOfBirth
+FROM insurance_data i
+LEFT JOIN insurance_companies ic ON ic.id = i.provider
+WHERE i.pid = ${integer(login.pid)}
+ORDER BY FIELD(i.type, 'primary', 'secondary', 'tertiary'), i.date DESC;
+`);
+
+    return {
+      authenticated: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      datasetVersion: "openemr-shared-synthetic-v1",
+      asOfDate: new Date().toISOString().slice(0, 10),
+      hasPendingProfileChanges: false,
+      demographics: {
+        firstName: profileRow.firstName,
+        lastName: profileRow.lastName,
+        preferredName: profileRow.preferredName || null,
+        dateOfBirth: profileRow.dateOfBirth || null,
+        sex: profileRow.sex || null,
+        email: profileRow.email || null,
+        street: profileRow.street || null,
+        city: profileRow.city || null,
+        state: profileRow.state || null,
+        postalCode: profileRow.postalCode || null,
+        phoneHome: profileRow.phoneHome || null,
+        phoneCell: profileRow.phoneCell || null,
+        phoneContact: profileRow.phoneContact || null,
+        contactRelationship: profileRow.contactRelationship || null,
+        motherName: profileRow.motherName || null,
+        guardianName: profileRow.guardianName || null,
+        guardianRelationship: profileRow.guardianRelationship || null,
+        guardianPhone: profileRow.guardianPhone || null,
+        guardianEmail: profileRow.guardianEmail || null
+      },
+      insuranceCount: insuranceRows.length,
+      insurance: insuranceRows.map((insurance) => {
+        const subscriberName = [insurance.subscriberFirstName, insurance.subscriberLastName]
+          .filter((value) => value && value.trim() !== "")
+          .join(" ");
+
+        return {
+          type: insurance.type,
+          provider: insurance.provider || null,
+          planName: insurance.planName || null,
+          policyNumber: insurance.policyNumber || null,
+          groupNumber: insurance.groupNumber || null,
+          subscriberFirstName: insurance.subscriberFirstName || null,
+          subscriberLastName: insurance.subscriberLastName || null,
+          subscriberName: subscriberName || null,
+          subscriberRelationship: insurance.subscriberRelationship || null,
+          subscriberDateOfBirth: insurance.subscriberDateOfBirth || null
+        };
+      }),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -8055,6 +8217,46 @@ function buildEmptyPortalHomeSummary(username: string, failureReason: string): P
     upcomingAppointments: [],
     immunizationCount: 0,
     immunizations: [],
+    failureReason,
+    sessionSource: "legacy-openemr-portal"
+  };
+}
+
+function buildEmptyPortalProfileResult(username: string, failureReason: string): PatientPortalProfileResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    hasPendingProfileChanges: false,
+    demographics: {
+      firstName: "",
+      lastName: "",
+      preferredName: null,
+      dateOfBirth: null,
+      sex: null,
+      email: null,
+      street: null,
+      city: null,
+      state: null,
+      postalCode: null,
+      phoneHome: null,
+      phoneCell: null,
+      phoneContact: null,
+      contactRelationship: null,
+      motherName: null,
+      guardianName: null,
+      guardianRelationship: null,
+      guardianPhone: null,
+      guardianEmail: null
+    },
+    insuranceCount: 0,
+    insurance: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };

@@ -85,6 +85,7 @@ import type {
   PatientPortalDocumentsDownloadResult,
   PatientPortalDocumentsResult,
   PatientPortalHomeSummary,
+  PatientPortalProfileResult,
   PatientPortalInboxMessageInput,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
@@ -734,6 +735,27 @@ LIMIT 1;
       }
 
       return mapPatientPortalHomeSummary(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async getPatientPortalProfile(username: string, password: string): Promise<PatientPortalProfileResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return buildEmptyModernizedPortalProfileResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/profile`, {
+        headers: { "X-OpenEMR-Patient-Portal-Session": login.sessionId }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal profile failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalProfileResult(await response.json());
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
@@ -4925,6 +4947,46 @@ function sqlString(value: string) {
   return `'${value.replaceAll("\\", "\\\\").replaceAll("'", "''")}'`;
 }
 
+function buildEmptyModernizedPortalProfileResult(username: string, failureReason: string): PatientPortalProfileResult {
+  return {
+    authenticated: false,
+    username,
+    portalUsername: "",
+    canonicalId: "",
+    pid: null,
+    pubpid: "",
+    displayName: "",
+    datasetVersion: "unknown",
+    asOfDate: new Date().toISOString().slice(0, 10),
+    hasPendingProfileChanges: false,
+    demographics: {
+      firstName: "",
+      lastName: "",
+      preferredName: null,
+      dateOfBirth: null,
+      sex: null,
+      email: null,
+      street: null,
+      city: null,
+      state: null,
+      postalCode: null,
+      phoneHome: null,
+      phoneCell: null,
+      phoneContact: null,
+      contactRelationship: null,
+      motherName: null,
+      guardianName: null,
+      guardianRelationship: null,
+      guardianPhone: null,
+      guardianEmail: null
+    },
+    insuranceCount: 0,
+    insurance: [],
+    failureReason,
+    sessionSource: "modernized-openemr-portal"
+  };
+}
+
 function mapPatientPortalSessionResult(result: any): PatientPortalSessionResult {
   return {
     authenticated: Boolean(result.authenticated),
@@ -4966,6 +5028,57 @@ function mapPatientPortalHomeSummary(result: any): PatientPortalHomeSummary {
     upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
     immunizationCount: result.immunizationCount ?? 0,
     immunizations: (result.immunizations ?? []).map(mapPatientPortalHomeImmunizationItem),
+    failureReason: result.failureReason ?? null,
+    sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapPatientPortalProfileResult(result: any): PatientPortalProfileResult {
+  return {
+    authenticated: Boolean(result.authenticated),
+    username: result.username ?? "",
+    portalUsername: result.portalUsername ?? "",
+    canonicalId: result.canonicalId ?? "",
+    pid: result.legacyPid ?? null,
+    pubpid: result.pubpid ?? "",
+    displayName: result.displayName ?? "",
+    datasetVersion: result.datasetVersion ?? "",
+    asOfDate: result.asOfDate ?? "",
+    hasPendingProfileChanges: Boolean(result.hasPendingProfileChanges),
+    demographics: {
+      firstName: result.demographics?.firstName ?? "",
+      lastName: result.demographics?.lastName ?? "",
+      preferredName: result.demographics?.preferredName ?? null,
+      dateOfBirth: result.demographics?.dateOfBirth ?? null,
+      sex: result.demographics?.sex ?? null,
+      email: result.demographics?.email ?? null,
+      street: result.demographics?.street ?? null,
+      city: result.demographics?.city ?? null,
+      state: result.demographics?.state ?? null,
+      postalCode: result.demographics?.postalCode ?? null,
+      phoneHome: result.demographics?.phoneHome ?? null,
+      phoneCell: result.demographics?.phoneCell ?? null,
+      phoneContact: result.demographics?.phoneContact ?? null,
+      contactRelationship: result.demographics?.contactRelationship ?? null,
+      motherName: result.demographics?.motherName ?? null,
+      guardianName: result.demographics?.guardianName ?? null,
+      guardianRelationship: result.demographics?.guardianRelationship ?? null,
+      guardianPhone: result.demographics?.guardianPhone ?? null,
+      guardianEmail: result.demographics?.guardianEmail ?? null
+    },
+    insuranceCount: result.insuranceCount ?? 0,
+    insurance: (result.insurance ?? []).map((insurance: any) => ({
+      type: insurance.type ?? "",
+      provider: insurance.provider ?? null,
+      planName: insurance.planName ?? null,
+      policyNumber: insurance.policyNumber ?? null,
+      groupNumber: insurance.groupNumber ?? null,
+      subscriberFirstName: insurance.subscriberFirstName ?? null,
+      subscriberLastName: insurance.subscriberLastName ?? null,
+      subscriberName: insurance.subscriberName ?? null,
+      subscriberRelationship: insurance.subscriberRelationship ?? null,
+      subscriberDateOfBirth: insurance.subscriberDateOfBirth ?? null
+    })),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };

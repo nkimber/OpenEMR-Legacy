@@ -1221,6 +1221,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-250-patient-portal-profile-readiness",
+      "name": "Slice 250 Patient Portal Profile Readiness",
+      "description": "Patient portal confidence plan that verifies the signed-in profile card renders patient demographics and insurance facts from the medical record.",
+      "suites": ["workflow-patient-portal-profile"],
+      "resetMode": "test",
+      "tags": ["readiness", "read-only", "slice-250", "patients", "portal", "profile", "demographics", "insurance", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4487,6 +4496,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-home-immunizations",
       "tags": ["slice249", "workflow", "mutation", "patients", "portal", "home", "immunizations", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-profile",
+      "name": "Patient Portal Profile Readiness",
+      "description": "Verifies signed-in patient portal profile demographics and insurance facts plus profile-card rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-profile",
+      "tags": ["slice250", "workflow", "read-only", "patients", "portal", "profile", "demographics", "insurance", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

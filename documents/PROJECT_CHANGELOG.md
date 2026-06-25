@@ -15713,6 +15713,7 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+
 ## 274. Slice 234 Patient Portal Secure Message Forward-To-Practice Readiness
 
 Started: 2026-06-24T11:58:00.0000000-04:00
@@ -15943,6 +15944,7 @@ Primary files:
 - `documents/TEST_ARCHITECTURE.md`
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
+
 
 ## 279. Slice 238 Patient Portal Secure Message Recipient Directory Readiness
 
@@ -16640,6 +16642,68 @@ Primary files:
 - `parity-tests/test-manifest.json`
 - `modernization-workbench/config/apps.json`
 - `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
+## 292. Slice 250 Patient Portal Profile Readiness
+
+Started: 2026-06-24T20:31:00-04:00
+Finished: 2026-06-24T21:03:58-04:00
+Commit: pending
+
+Implemented Slice 250: patient portal profile readiness. The modernized patient portal now mirrors legacy OpenEMR's `Profile From Medical Records` portal fragment by exposing signed-in patient demographics plus primary and secondary insurance facts through a session-protected profile API and rendering them in the Portal workspace.
+
+Code changes:
+
+- Files changed: 18
+- Lines added: 1,023
+- Lines deleted: 13
+- Net lines: 1,010
+- Total churn: 1,036
+
+Key outcomes:
+
+- Added the `GET /api/patient-portal/profile` endpoint and profile DTOs for medical-record demographics and insurance facts.
+- Extended the modernized Portal workspace to load profile data during sign-in/refresh and render a `Profile From Medical Records` card with patient identity, contact, guardian, and insurance facts.
+- Extended legacy and modernized workflow adapters with a normalized `getPatientPortalProfile` action.
+- Added the `workflow-patient-portal-profile` Playwright suite and `slice-250-patient-portal-profile-readiness` plan.
+- Added Workbench-managed Slice 250 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Updated the modernized baseline smoke script to assert the portal profile API, demographics, insurance count, and primary/secondary insurance facts.
+- Fixed the modernized Portal workspace's nested insurance region label so the profile card and insurance list expose distinct accessible regions.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 250 portal profile contract.
+
+Verified test runs:
+
+- JSON validation passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run list -- --plan slice-250-patient-portal-profile-readiness` passed via `cmd.exe /c`.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build frontend` passed after the accessible-label fix.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed; latest artifact: `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- Legacy parity passed: `2026-06-25T010103-743Z-legacy-openemr-plan-slice-250-patient-portal-profile-readiness`.
+- Modernized parity passed after the accessible-label fix: `2026-06-25T010234-325Z-modernized-openemr-plan-slice-250-patient-portal-profile-readiness`.
+- Comparison matched with no differences: `2026-06-25T010256-470Z-legacy-openemr-vs-modernized-openemr-plan-slice-250-patient-portal-profile-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `parity-tests/tests/workflow-patient-portal-profile/patient-portal-profile.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
 - `documents/INDEX.md`
 - `documents/MODERNIZATION_PLAN.md`
 - `documents/MODERNIZATION_WORKBENCH.md`

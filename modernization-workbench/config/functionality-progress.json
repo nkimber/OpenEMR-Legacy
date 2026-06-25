@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home plus home immunization health-snapshot/clinical-summary problem, allergy, and medication date-column plus prescription modified-date/start-date/end-date filtering/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/profile demographics and insurance plus home immunization health-snapshot/clinical-summary problem, allergy, and medication date-column plus prescription modified-date/start-date/end-date filtering/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -137,6 +137,11 @@
           "label": "Patient portal home immunization readiness",
           "detail": "The modernized patient portal home API and Portal page now render the legacy health-snapshot immunization list, including entered-in-error rows that legacy OpenEMR's portal home still displays.",
           "evidence": ["slice-249-patient-portal-home-immunizations-readiness"]
+        },
+        {
+          "label": "Patient portal profile readiness",
+          "detail": "The modernized patient portal profile API and Portal page now render legacy-style medical-record demographics plus primary and secondary insurance facts for the signed-in patient.",
+          "evidence": ["slice-250-patient-portal-profile-readiness"]
         },
         {
           "label": "Patient portal secure-message readiness",
