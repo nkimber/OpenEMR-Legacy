@@ -19958,6 +19958,42 @@ Code changes:
 - Net lines: +299
 - Total churn: 381
 
+## 391. Slice 345 Slice 84 Encounter Document Content Replacement Probe Payload Attachments
+
+Started: 2026-06-25T11:50:09-04:00
+Finished: 2026-06-25T11:52:05-04:00
+Commit: pending
+
+Implemented Slice 345: Slice 84 encounter document content replacement probe payload attachments. The encounter document content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary original text attachment, replacement text payload, original/replaced content and revision facts, legacy Documents category rendering, modernized encounter-detail API replacement rows, Encounters attached-document replacement UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document content replacement evidence.
+
+Changes:
+- Added Slice 84 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, proposed original text document payload, planned replacement payload, and expected count movement.
+- Added Slice 84 created payload attachments for the temporary original encounter document row, original stored content projection, encounter-scoped document list, and document count increment.
+- Added Slice 84 replaced payload attachments for the replacement content projection, revision hash/timestamp facts, current-version document projection, preserved encounter link, and preserved count increment.
+- Added Slice 84 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail API replacement rows and Encounters attached-document replacement UI anchors.
+- Added Slice 84 cleanup payload attachments for temporary replaced document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 84 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 84 encounter document content replacement database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 345 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 83 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-document-content-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T155055-465Z-modernized-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+- `npm run test:legacy:plan:encounter-document-content-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T155125-677Z-legacy-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+- Artifact inspection confirmed the modernized Slice 84 Playwright report recorded `db-probe-slice-84-encounter-document-content-replace-precondition`, `db-probe-slice-84-encounter-document-content-replace-created`, `db-probe-slice-84-encounter-document-content-replace-replaced`, `db-probe-slice-84-encounter-document-content-replace-surface`, and `db-probe-slice-84-encounter-document-content-replace-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 84 Playwright report recorded `db-probe-slice-84-encounter-document-content-replace-precondition`, `db-probe-slice-84-encounter-document-content-replace-created`, `db-probe-slice-84-encounter-document-content-replace-replaced`, `db-probe-slice-84-encounter-document-content-replace-surface`, and `db-probe-slice-84-encounter-document-content-replace-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-84-encounter-document-content-replace-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T155155-451Z-legacy-openemr-vs-modernized-openemr-plan-slice-84-encounter-document-content-replace-readiness`.
+- `git diff --check` for Slice 345 files passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 338
+- Lines deleted: 41
+- Net lines: +297
+- Total churn: 379
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19967,5 +20003,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 83.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 84.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
