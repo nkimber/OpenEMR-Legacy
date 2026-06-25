@@ -17890,7 +17890,7 @@ Code changes:
 
 Started: 2026-06-25T03:47:00-04:00
 Finished: 2026-06-25T03:52:55-04:00
-Commit: pending
+Commit: 6b3e39fa
 
 Implemented Slice 283: Slice 22 user group membership probe payload attachments. The administration user group membership mutation parity suite now writes path-backed JSON Playwright attachments for the proposed temporary user, created user before membership, granted Front Office membership, revoked membership, and final cleanup/deleted-user state so Workbench comparison drill-ins can preview ACL user-membership mutation database evidence.
 
