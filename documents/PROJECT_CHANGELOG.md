@@ -22491,6 +22491,41 @@ Code changes:
 - Net lines: 240
 - Total churn: 288
 
+## 467. Slice 420 Slice 166 Clinical-List Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:50:15.8549471-04:00
+Finished: 2026-06-25T19:51:48.9399042-04:00
+Commit: pending
+
+Implemented Slice 420: Slice 166 clinical-list protection probe payload attachments. The clinical-list protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API clinical-list blocking facts, unauthenticated modernized mutation rejection facts, authenticated legacy/API list visibility facts, and modernized Lists-page rendering facts so Workbench comparison drill-ins can preview clinical-list protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 166 precondition payload attachments for the MOD-PAT-0001 patient anchor, seeded problem/allergy/medication/prescription anchors, protected legacy patient-summary route, modernized clinical-list API, allergy mutation API, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving clinical-list markers are not visible before sign-in.
+- Added legacy authenticated payload attachments proving problem, allergy, medication, and prescription markers render after admin login.
+- Added modernized unauthenticated list payload attachments proving clinical-list APIs reject requests without an active session.
+- Added modernized unauthenticated mutation payload attachments proving allergy creation is rejected without an active session.
+- Added modernized authenticated list payload attachments proving an active admin session can read the anchored clinical-list summary with the session identifier redacted.
+- Added modernized Lists-page rendered payload attachments proving signed-out prompts appear before login and seeded clinical-list facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 166 clinical-list protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 420 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/` after removing an invalid prescription-id assumption from the new payload summary.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-clinical-list-protection/clinical-list-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-166-clinical-list-protection-readiness` passed with run ID `2026-06-25T235103-684Z-legacy-openemr-plan-slice-166-clinical-list-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-166-clinical-list-protection-readiness` passed with run ID `2026-06-25T235103-638Z-modernized-openemr-plan-slice-166-clinical-list-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-166-clinical-list-protection-readiness` matched with comparison ID `2026-06-25T235141-998Z-legacy-openemr-vs-modernized-openemr-plan-slice-166-clinical-list-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-166-clinical-list-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-166-clinical-list-protection-precondition`, `unauthenticated`, `unauthenticated-mutation`, `authenticated`, and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 267
+- Lines deleted: 15
+- Net lines: 252
+- Total churn: 282
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22500,5 +22535,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, and 165.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, and 166.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
