@@ -16873,7 +16873,7 @@ Primary files:
 Started: 2026-06-24T22:23:42-04:00
 Finished: 2026-06-24T22:32:24-04:00
 Duration: 8m 42s
-Commit: pending
+Commit: 77481f15
 
 Implemented Slice 252: patient portal profile review queue readiness. The modernized administration workspace now mirrors the read-only staff review view for waiting patient portal profile edits by exposing OpenEMR-style waiting audit counts, request identity, status, narrative, and requested demographics.
 
@@ -16894,6 +16894,34 @@ Verification:
 - `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-252-patient-portal-profile-review-queue-readiness -Reset test`
 - `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-252-patient-portal-profile-review-queue-readiness -Reset test`
 - `cmd.exe /c npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-252-patient-portal-profile-review-queue-readiness`
+
+## 295. Slice 253 Patient Portal Profile Review Accept Readiness
+
+Started: 2026-06-24T22:47:56-04:00
+Finished: 2026-06-24T22:54:37-04:00
+Duration: 6m 41s
+Commit: pending
+
+Implemented Slice 253: patient portal profile review accept readiness. The modernized administration workspace now mirrors the staff-side positive review outcome for patient-submitted portal profile edits by committing requested demographics to the chart, closing the waiting review request, and exposing the same cleanup-backed behavior through parity tests.
+
+Changes:
+- Added an administration API accept endpoint for waiting portal profile review requests, including chart demographic updates and OpenEMR-style closed/completed/accept metadata.
+- Added a modernized Admin `Commit to Chart` action for portal profile review cards and refreshed the administration directory after acceptance.
+- Extended the legacy and modernized workflow adapters with profile-review accept and restore operations so mutation tests can return `MOD-PAT-0004` to its seeded profile state.
+- Added the `workflow-patient-portal-profile-review-accept` suite and `slice-253-patient-portal-profile-review-accept-readiness` plan, including modernized Admin UI verification of the commit action.
+- Added Workbench-managed Slice 253 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 253 review accept contract.
+
+Verification:
+- `node` JSON validation for the parity manifest, Workbench apps config, and functionality progress ledger passed.
+- `cmd.exe /c npm --prefix parity-tests run list -- --plan slice-253-patient-portal-profile-review-accept-readiness` passed.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `cmd.exe /c npm --prefix parity-tests run typecheck` passed.
+- `cmd.exe /c npm --prefix modernized-openemr/frontend run build` passed with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- Legacy parity passed: `2026-06-25T025337-658Z-legacy-openemr-plan-slice-253-patient-portal-profile-review-accept-readiness`.
+- Modernized parity passed: `2026-06-25T025409-352Z-modernized-openemr-plan-slice-253-patient-portal-profile-review-accept-readiness`.
+- Side-by-side comparison passed with no differences: `2026-06-25T025429-212Z-legacy-openemr-vs-modernized-openemr-plan-slice-253-patient-portal-profile-review-accept-readiness`.
 
 ## Next Expected Entries
 

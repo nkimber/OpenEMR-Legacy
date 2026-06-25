@@ -307,6 +307,21 @@ export type PatientPortalProfileReviewQueueResult = {
   profileReviewRequests: PatientPortalProfileReviewRequest[];
 };
 
+export type PatientPortalProfileReviewAcceptResult = {
+  accepted: boolean;
+  id: string;
+  patientId: string;
+  pid: number;
+  status: string;
+  pendingAction: string;
+  actionTaken: string;
+  narrative: string;
+  tableAction: string;
+  actionUser: string | null;
+  actionTakenAt: string | null;
+  demographics: PatientPortalProfileDemographics;
+};
+
 export type PatientPortalProfileResult = {
   authenticated: boolean;
   username: string;
@@ -3043,6 +3058,25 @@ WHERE patient_id = ${integer(login.pid)}
 `);
   }
 
+  async restorePatientPortalProfileAfterReview(
+    username: string,
+    password: string,
+    demographics: PatientPortalProfileDemographics
+  ): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return;
+    }
+
+    await this.updateLegacyPortalProfileDemographics(login.pid, demographics);
+    await this.db.execute(`
+DELETE FROM onsite_portal_activity
+WHERE patient_id = ${integer(login.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1;
+`);
+  }
+
   async getPatientPortalProfileReviewQueue(): Promise<PatientPortalProfileReviewQueueResult> {
     const countRows = await this.db.queryRows<Record<string, string>>(`
 SELECT
@@ -3108,6 +3142,149 @@ ORDER BY opa.date DESC, opa.id DESC;
       waitingProfileReviewCount: Number(counts.waitingProfileReviewCount ?? 0),
       profileReviewRequests: rows.map(mapLegacyPortalProfileReviewRequest)
     };
+  }
+
+  async acceptPatientPortalProfileReview(requestId: string | number): Promise<PatientPortalProfileReviewAcceptResult | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  opa.id,
+  opa.patient_id AS patientId,
+  pd.pid,
+  COALESCE(opa.table_args, '') AS tableArgs,
+  COALESCE(pd.fname, '') AS firstName,
+  COALESCE(pd.lname, '') AS lastName,
+  COALESCE(pd.preferred_name, '') AS preferredName,
+  DATE_FORMAT(pd.DOB, '%Y-%m-%d') AS dateOfBirth,
+  COALESCE(pd.sex, '') AS sex,
+  COALESCE(pd.email, '') AS email,
+  COALESCE(pd.street, '') AS street,
+  COALESCE(pd.city, '') AS city,
+  COALESCE(pd.state, '') AS state,
+  COALESCE(pd.postal_code, '') AS postalCode,
+  COALESCE(pd.phone_home, '') AS phoneHome,
+  COALESCE(pd.phone_cell, '') AS phoneCell,
+  COALESCE(pd.phone_contact, '') AS phoneContact,
+  COALESCE(pd.contact_relationship, '') AS contactRelationship,
+  COALESCE(pd.mothersname, '') AS motherName,
+  COALESCE(pd.guardiansname, '') AS guardianName,
+  COALESCE(pd.guardianrelationship, '') AS guardianRelationship,
+  COALESCE(pd.guardianphone, '') AS guardianPhone,
+  COALESCE(pd.guardianemail, '') AS guardianEmail
+FROM onsite_portal_activity opa
+JOIN patient_data pd ON pd.pid = opa.patient_id
+WHERE opa.id = ${integer(Number(requestId))}
+  AND opa.status = 'waiting'
+  AND opa.activity = 'profile'
+  AND opa.require_audit = 1
+  AND opa.pending_action = 'review'
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    const current: PatientPortalProfileDemographics = {
+      firstName: row.firstName ?? "",
+      lastName: row.lastName ?? "",
+      preferredName: row.preferredName || null,
+      dateOfBirth: row.dateOfBirth || null,
+      sex: row.sex || null,
+      email: row.email || null,
+      street: row.street || null,
+      city: row.city || null,
+      state: row.state || null,
+      postalCode: row.postalCode || null,
+      phoneHome: row.phoneHome || null,
+      phoneCell: row.phoneCell || null,
+      phoneContact: row.phoneContact || null,
+      contactRelationship: row.contactRelationship || null,
+      motherName: row.motherName || null,
+      guardianName: row.guardianName || null,
+      guardianRelationship: row.guardianRelationship || null,
+      guardianPhone: row.guardianPhone || null,
+      guardianEmail: row.guardianEmail || null
+    };
+    const fields = parseLegacyPortalProfileTableArgs(row.tableArgs);
+    const demographics = mapLegacyPortalProfileFields(fields, current);
+    const tableArgs = buildLegacyPortalProfileTableArgs(Number(row.pid), demographics);
+
+    await this.updateLegacyPortalProfileDemographics(Number(row.pid), demographics);
+    await this.db.execute(`
+UPDATE onsite_portal_activity
+SET pending_action = 'completed',
+    action_taken = 'accept',
+    status = 'closed',
+    narrative = 'Changes reviewed and committed to demographics.',
+    table_action = 'update',
+    table_args = ${sqlString(tableArgs)},
+    action_user = 1,
+    action_taken_time = NOW(),
+    checksum = '0'
+WHERE id = ${integer(Number(row.id))};
+`);
+
+    const acceptedRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  id,
+  patient_id AS patientId,
+  patient_id AS pid,
+  COALESCE(status, '') AS status,
+  COALESCE(pending_action, '') AS pendingAction,
+  COALESCE(action_taken, '') AS actionTaken,
+  COALESCE(narrative, '') AS narrative,
+  COALESCE(table_action, '') AS tableAction,
+  NULLIF(action_user, '') AS actionUser,
+  DATE_FORMAT(action_taken_time, '%Y-%m-%d %H:%i:%s') AS actionTakenAt
+FROM onsite_portal_activity
+WHERE id = ${integer(Number(row.id))}
+LIMIT 1;
+`);
+    const accepted = acceptedRows[0];
+
+    return {
+      accepted: true,
+      id: String(accepted?.id ?? row.id),
+      patientId: String(accepted?.patientId ?? row.patientId),
+      pid: Number(accepted?.pid ?? row.pid),
+      status: accepted?.status ?? "closed",
+      pendingAction: accepted?.pendingAction ?? "completed",
+      actionTaken: accepted?.actionTaken ?? "accept",
+      narrative: accepted?.narrative ?? "Changes reviewed and committed to demographics.",
+      tableAction: accepted?.tableAction ?? "update",
+      actionUser: accepted?.actionUser ?? "1",
+      actionTakenAt: accepted?.actionTakenAt ?? null,
+      demographics
+    };
+  }
+
+  private async updateLegacyPortalProfileDemographics(
+    pid: number,
+    demographics: PatientPortalProfileDemographics
+  ): Promise<void> {
+    await this.db.execute(`
+UPDATE patient_data
+SET fname = ${sqlString(demographics.firstName)},
+    lname = ${sqlString(demographics.lastName)},
+    preferred_name = ${sqlStringOrEmpty(demographics.preferredName)},
+    DOB = ${sqlStringOrEmpty(demographics.dateOfBirth)},
+    sex = ${sqlStringOrEmpty(demographics.sex)},
+    email = ${sqlStringOrEmpty(demographics.email)},
+    street = ${sqlStringOrEmpty(demographics.street)},
+    city = ${sqlStringOrEmpty(demographics.city)},
+    state = ${sqlStringOrEmpty(demographics.state)},
+    postal_code = ${sqlStringOrEmpty(demographics.postalCode)},
+    phone_home = ${sqlStringOrEmpty(demographics.phoneHome)},
+    phone_cell = ${sqlStringOrEmpty(demographics.phoneCell)},
+    phone_contact = ${sqlStringOrEmpty(demographics.phoneContact)},
+    contact_relationship = ${sqlStringOrEmpty(demographics.contactRelationship)},
+    mothersname = ${sqlStringOrEmpty(demographics.motherName)},
+    guardiansname = ${sqlStringOrEmpty(demographics.guardianName)},
+    guardianrelationship = ${sqlStringOrEmpty(demographics.guardianRelationship)},
+    guardianphone = ${sqlStringOrEmpty(demographics.guardianPhone)},
+    guardianemail = ${sqlStringOrEmpty(demographics.guardianEmail)}
+WHERE pid = ${integer(pid)};
+`);
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {

@@ -80,6 +80,8 @@ import type {
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalProfileChangeInput,
+  PatientPortalProfileDemographics,
+  PatientPortalProfileReviewAcceptResult,
   PatientPortalProfileReviewQueueResult,
   PatientPortalForwardMessageInput,
   PatientPortalForwardMessageResult,
@@ -809,6 +811,25 @@ WHERE pid = ${integer(login.pid)}
 `);
   }
 
+  async restorePatientPortalProfileAfterReview(
+    username: string,
+    password: string,
+    demographics: PatientPortalProfileDemographics
+  ): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return;
+    }
+
+    await this.updateModernizedPortalProfileDemographics(login.canonicalId, demographics);
+    await this.db.execute(`
+DELETE FROM patient_portal_profile_change_requests
+WHERE pid = ${integer(login.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1;
+`);
+  }
+
   async getPatientPortalProfileReviewQueue(): Promise<PatientPortalProfileReviewQueueResult> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/administration/directory`, {
       headers: await this.getAdminSessionHeaders()
@@ -827,6 +848,54 @@ WHERE pid = ${integer(login.pid)}
     };
 
     return mapModernizedPortalProfileReviewQueue(directory.portalActivity);
+  }
+
+  async acceptPatientPortalProfileReview(requestId: string | number): Promise<PatientPortalProfileReviewAcceptResult | null> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/administration/portal-activity/profile-reviews/${encodeURIComponent(String(requestId))}/accept`,
+      {
+        method: "PUT",
+        headers: await this.getAdminSessionHeaders()
+      }
+    );
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Modernized portal profile review accept failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return mapModernizedPortalProfileReviewAccept(await response.json());
+  }
+
+  private async updateModernizedPortalProfileDemographics(
+    patientId: string,
+    demographics: PatientPortalProfileDemographics
+  ): Promise<void> {
+    await this.db.execute(`
+UPDATE patients
+SET first_name = ${sqlString(demographics.firstName)},
+    last_name = ${sqlString(demographics.lastName)},
+    preferred_name = ${sqlNullableString(demographics.preferredName)},
+    date_of_birth = ${sqlNullableString(demographics.dateOfBirth)},
+    sex = ${sqlNullableString(demographics.sex)},
+    email = ${sqlNullableString(demographics.email)},
+    street = ${sqlNullableString(demographics.street)},
+    city = ${sqlNullableString(demographics.city)},
+    state = ${sqlNullableString(demographics.state)},
+    postal_code = ${sqlNullableString(demographics.postalCode)},
+    phone_home = ${sqlNullableString(demographics.phoneHome)},
+    phone_cell = ${sqlNullableString(demographics.phoneCell)},
+    phone = ${sqlNullableString(demographics.phoneContact)},
+    guardian_relationship = ${sqlNullableString(demographics.guardianRelationship ?? demographics.contactRelationship)},
+    mother_name = ${sqlNullableString(demographics.motherName)},
+    guardian_name = ${sqlNullableString(demographics.guardianName)},
+    guardian_phone = ${sqlNullableString(demographics.guardianPhone)},
+    guardian_email = ${sqlNullableString(demographics.guardianEmail)}
+WHERE canonical_id = ${sqlString(patientId)};
+`);
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
@@ -5015,6 +5084,10 @@ function sqlString(value: string) {
   return `'${value.replaceAll("\\", "\\\\").replaceAll("'", "''")}'`;
 }
 
+function sqlNullableString(value: string | null | undefined) {
+  return value === null || value === undefined ? "NULL" : sqlString(value);
+}
+
 function buildEmptyModernizedPortalProfileResult(username: string, failureReason: string): PatientPortalProfileResult {
   return {
     authenticated: false,
@@ -5210,6 +5283,23 @@ function mapModernizedPortalProfileReviewQueue(portalActivity: any): PatientPort
       checksum: request.checksum ?? "",
       requestedDemographics: mapModernizedPortalReviewDemographics(request.requestedDemographics)
     }))
+  };
+}
+
+function mapModernizedPortalProfileReviewAccept(result: any): PatientPortalProfileReviewAcceptResult {
+  return {
+    accepted: true,
+    id: String(result?.id ?? ""),
+    patientId: result?.patientId ?? "",
+    pid: Number(result?.legacyPid ?? 0),
+    status: result?.status ?? "",
+    pendingAction: result?.pendingAction ?? "",
+    actionTaken: result?.actionTaken ?? "",
+    narrative: result?.narrative ?? "",
+    tableAction: result?.tableAction ?? "",
+    actionUser: result?.actionUser ?? null,
+    actionTakenAt: result?.actionTakenAt ?? null,
+    demographics: mapModernizedPortalReviewDemographics(result?.requestedDemographics)
   };
 }
 

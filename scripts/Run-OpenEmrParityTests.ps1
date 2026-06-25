@@ -222,6 +222,7 @@ param(
         "workflow-patient-portal-profile",
         "workflow-patient-portal-profile-change-request",
         "workflow-patient-portal-profile-review-queue",
+        "workflow-patient-portal-profile-review-accept",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

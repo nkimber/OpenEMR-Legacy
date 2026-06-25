@@ -1248,6 +1248,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-253-patient-portal-profile-review-accept-readiness",
+      "name": "Slice 253 Patient Portal Profile Review Accept Readiness",
+      "description": "Patient portal and administration confidence plan that verifies staff-reviewed profile edits can be committed to chart demographics and closed from the waiting queue.",
+      "suites": ["workflow-patient-portal-profile-review-accept"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-253", "patients", "portal", "profile", "administration", "review-accept", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4544,6 +4553,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-profile-review-queue",
       "tags": ["slice252", "workflow", "mutation", "patients", "portal", "profile", "administration", "review-queue", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-profile-review-accept",
+      "name": "Patient Portal Profile Review Accept Readiness",
+      "description": "Verifies staff-side patient portal profile review acceptance commits requested demographics to the chart and closes the waiting request.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-profile-review-accept",
+      "tags": ["slice253", "workflow", "mutation", "patients", "portal", "profile", "administration", "review-accept", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
