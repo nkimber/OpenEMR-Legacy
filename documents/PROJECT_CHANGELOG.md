@@ -21117,7 +21117,7 @@ Code changes:
 
 Started: 2026-06-25T15:38:50.6044116-04:00
 Finished: 2026-06-25T15:40:59.4920606-04:00
-Commit: pending
+Commit: 8d157931
 
 Implemented Slice 379: Slice 118 appointment patient overlap probe payload attachments. The appointment patient overlap parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` seeded patient anchor, primary and secondary provider IDs, shared date/time precondition, temporary same-patient overlapping appointment rows, overlap query results, legacy appointment rendering facts, modernized patient-overlap rendering anchors, count deltas, and cleanup deletion so Workbench comparison drill-ins can preview patient double-booking tolerance evidence.
 
