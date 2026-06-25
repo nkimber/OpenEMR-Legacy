@@ -18347,7 +18347,7 @@ Code changes:
 
 Started: 2026-06-25T06:00:26-04:00
 Finished: 2026-06-25T06:06:02-04:00
-Commit: pending
+Commit: 3a9d14ab
 
 Implemented Slice 297: Slice 36 patient demographics mutation probe payload attachments. The patient demographics mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0010` anchor patient, original demographics row, proposed identity, DOB, address, marital-status, and occupation update, updated row state, and restored cleanup state so Workbench comparison drill-ins can preview demographics mutation lifecycle evidence.
 
