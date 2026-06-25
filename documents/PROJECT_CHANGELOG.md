@@ -17345,7 +17345,7 @@ Code changes:
 
 Started: 2026-06-25T01:25:50-04:00
 Finished: 2026-06-25T01:32:30-04:00
-Commit: pending
+Commit: 11d25dce
 
 Implemented Slice 268: Slice 7 billing probe payload attachments. The fee-sheet billing parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, latest encounter, seeded CPT fee-sheet charge lines, and billing UI steering precondition so Workbench comparison drill-ins can preview billing workflow database evidence.
 
