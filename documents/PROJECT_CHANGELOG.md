@@ -17462,7 +17462,7 @@ Code changes:
 
 Started: 2026-06-25T01:42:10-04:00
 Finished: 2026-06-25T01:50:35-04:00
-Commit: pending
+Commit: 4324c242
 
 Implemented Slice 270: Slice 9 reports probe payload attachments. The operational reports parity suite now writes path-backed JSON Playwright attachments for gold-data counts, selected provider activity, selected facility activity, selected clinical-condition summaries, and reports UI steering precondition so Workbench comparison drill-ins can preview operational reporting database evidence.
 
