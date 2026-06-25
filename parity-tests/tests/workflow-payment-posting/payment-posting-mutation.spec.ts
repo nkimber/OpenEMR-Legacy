@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 
 const paymentPostingMutationAnchorPatientId = "MOD-PAT-0005";
@@ -10,7 +11,7 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(paymentPostingMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -21,28 +22,78 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
     const beforeLedger = await targetDb.getAccountLedgerForPatient(patient!.pid);
     const reference = `EOB-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
     const payerClaimNumber = `NSTAR-CLM-PARITY-${Math.floor(Math.random() * 100000)}`;
+    const paymentInput = {
+      patientId: patient!.pid,
+      encounter: paymentPostingEncounter,
+      payerId: 9005,
+      payerName: "Northstar HMO",
+      payerType: 1,
+      reference,
+      postDate: "2026-06-18",
+      paymentType: "insurance_payment",
+      paymentMethod: "check_payment",
+      codeType: "CPT4",
+      code: "99214",
+      memo: "Parity payment posting",
+      payAmount: "21.00",
+      adjustmentAmount: "3.50",
+      accountCode: "CO45",
+      reasonCode: "CO-45",
+      payerClaimNumber
+    };
     let paymentPostingId: number | string | null = null;
 
     try {
-      paymentPostingId = await workflow.createPaymentPosting({
-        patientId: patient!.pid,
-        encounter: paymentPostingEncounter,
-        payerId: 9005,
-        payerName: "Northstar HMO",
-        payerType: 1,
-        reference,
-        postDate: "2026-06-18",
-        paymentType: "insurance_payment",
-        paymentMethod: "check_payment",
-        codeType: "CPT4",
-        code: "99214",
-        memo: "Parity payment posting",
-        payAmount: "21.00",
-        adjustmentAmount: "3.50",
-        accountCode: "CO45",
-        reasonCode: "CO-45",
-        payerClaimNumber
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-56-payment-posting-mutation-precondition",
+        description: "Captures the Slice 56 payment posting anchor patient, baseline payment counts, account balance, ledger count, and proposed temporary insurance payment posting.",
+        expected: {
+          patient: {
+            pubpid: paymentPostingMutationAnchorPatientId
+          },
+          encounter: paymentPostingEncounter,
+          create: {
+            payerName: "Northstar HMO",
+            payerType: 1,
+            payAmount: "21.00",
+            adjustmentAmount: "3.50",
+            reasonCode: "CO-45",
+            accountCode: "CO45"
+          },
+          countChange: {
+            paymentSessionsAfterCreate: beforeCounts.paymentSessions + 1,
+            paymentActivitiesAfterCreate: beforeCounts.paymentActivities + 1,
+            paymentSessionsAfterVoid: beforeCounts.paymentSessions + 1,
+            paymentActivitiesAfterVoid: beforeCounts.paymentActivities,
+            paymentSessionsAfterCleanup: beforeCounts.paymentSessions,
+            paymentActivitiesAfterCleanup: beforeCounts.paymentActivities
+          },
+          balanceChange: {
+            paymentAmountDelta: 21,
+            adjustmentAmountDelta: 3.5,
+            balanceAmountDelta: -24.5
+          },
+          ledgerChange: {
+            entriesAfterCreate: beforeLedger.length + 2
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          beforeAnchorBalance,
+          beforeLedgerCount: beforeLedger.length,
+          proposedPayment: paymentInput
+        },
+        context: {
+          canonicalId: paymentPostingMutationAnchorPatientId,
+          encounter: paymentPostingEncounter,
+          suite: "workflow-payment-posting",
+          workflow: "payment-posting-mutation"
+        }
       });
+
+      paymentPostingId = await workflow.createPaymentPosting(paymentInput);
 
       const created = await workflow.getPaymentPosting(paymentPostingId);
       expect(created).toMatchObject({
@@ -110,6 +161,56 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
           })
         ])
       );
+      const createdLedgerEntries = afterCreateLedger.filter((entry) => entry.reference === reference);
+
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-56-payment-posting-mutation-created",
+        description: "Captures the temporary Slice 56 payment posting after create, including active posting row, payment/adjustment balance movement, and ledger entries.",
+        expected: {
+          posting: {
+            encounter: paymentPostingEncounter,
+            payerName: "Northstar HMO",
+            reference,
+            payAmount: "21.00",
+            adjustmentAmount: "3.50",
+            reasonCode: "CO-45",
+            payerClaimNumber,
+            deleted: ""
+          },
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions + 1,
+            paymentActivities: beforeCounts.paymentActivities + 1
+          },
+          balance: {
+            paymentAmount: money(beforeAnchorBalance!.paymentAmount) + 21,
+            adjustmentAmount: money(beforeAnchorBalance!.adjustmentAmount) + 3.5,
+            balanceAmount: money(beforeAnchorBalance!.balanceAmount) - 24.5
+          },
+          ledger: {
+            count: beforeLedger.length + 2,
+            paymentEntryAmount: "-21.00",
+            adjustmentEntryAmount: "-3.50"
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          paymentPostingId,
+          created,
+          postings: postings.filter((posting) => posting.reference === reference),
+          beforeAnchorBalance,
+          afterCreateAnchorBalance,
+          createdLedgerEntries
+        },
+        context: {
+          canonicalId: paymentPostingMutationAnchorPatientId,
+          encounter: paymentPostingEncounter,
+          suite: "workflow-payment-posting",
+          workflow: "payment-posting-created"
+        }
+      });
 
       if (target.type !== "legacy-openemr") {
         await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
@@ -131,12 +232,51 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
       const afterVoidCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
       expect(afterVoidCounts.paymentSessions).toBe(beforeCounts.paymentSessions + 1);
       expect(afterVoidCounts.paymentActivities).toBe(beforeCounts.paymentActivities);
+      const afterVoidPostings = await targetDb.getPaymentPostingsForPatient(patient!.pid);
       const afterVoidBalances = await targetDb.getAccountBalancesForPatient(patient!.pid);
       const afterVoidAnchorBalance = balanceForEncounter(afterVoidBalances, paymentPostingEncounter);
       expect(afterVoidAnchorBalance).not.toBeNull();
       expectMoney(afterVoidAnchorBalance!.paymentAmount, money(beforeAnchorBalance!.paymentAmount));
       expectMoney(afterVoidAnchorBalance!.adjustmentAmount, money(beforeAnchorBalance!.adjustmentAmount));
       expectMoney(afterVoidAnchorBalance!.balanceAmount, money(beforeAnchorBalance!.balanceAmount));
+      const afterVoidLedger = await targetDb.getAccountLedgerForPatient(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-56-payment-posting-mutation-voided",
+        description: "Captures the temporary Slice 56 payment posting after void, including inactive posting state, active-row hiding, and balance rollback.",
+        expected: {
+          posting: {
+            deletedIsNotBlank: true
+          },
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions + 1,
+            paymentActivities: beforeCounts.paymentActivities
+          },
+          balance: {
+            paymentAmount: money(beforeAnchorBalance!.paymentAmount),
+            adjustmentAmount: money(beforeAnchorBalance!.adjustmentAmount),
+            balanceAmount: money(beforeAnchorBalance!.balanceAmount)
+          },
+          activePostingsWithReference: 0
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterVoidCounts,
+          paymentPostingId,
+          voided,
+          afterVoidActivePostings: afterVoidPostings.filter((posting) => posting.reference === reference),
+          beforeAnchorBalance,
+          afterVoidAnchorBalance,
+          afterVoidLedgerEntries: afterVoidLedger.filter((entry) => entry.reference === reference)
+        },
+        context: {
+          canonicalId: paymentPostingMutationAnchorPatientId,
+          encounter: paymentPostingEncounter,
+          suite: "workflow-payment-posting",
+          workflow: "payment-posting-voided"
+        }
+      });
     } finally {
       if (paymentPostingId !== null) {
         await workflow.deletePaymentPosting(paymentPostingId);
@@ -147,7 +287,33 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
     expect(afterCleanupCounts.paymentSessions).toBe(beforeCounts.paymentSessions);
     expect(afterCleanupCounts.paymentActivities).toBe(beforeCounts.paymentActivities);
     if (paymentPostingId !== null) {
-      await expect(workflow.getPaymentPosting(paymentPostingId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPaymentPosting(paymentPostingId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-56-payment-posting-mutation-cleanup",
+        description: "Captures the final Slice 56 hard-delete cleanup state for the temporary payment posting session and activity rows.",
+        expected: {
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions,
+            paymentActivities: beforeCounts.paymentActivities
+          },
+          deletedPaymentPosting: null
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCleanupCounts,
+          paymentPostingId,
+          afterCleanup
+        },
+        context: {
+          canonicalId: paymentPostingMutationAnchorPatientId,
+          encounter: paymentPostingEncounter,
+          suite: "workflow-payment-posting",
+          workflow: "payment-posting-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
