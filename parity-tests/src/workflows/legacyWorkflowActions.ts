@@ -258,6 +258,26 @@ export type PatientPortalProfileInsurance = {
   subscriberDateOfBirth: string | null;
 };
 
+export type PatientPortalProfileChangeInput = {
+  email?: string | null;
+  phoneHome?: string | null;
+  phoneCell?: string | null;
+  street?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+};
+
+export type PatientPortalProfilePendingChange = {
+  id: number;
+  status: string;
+  pendingAction: string;
+  narrative: string;
+  requestedAt: string;
+  updatedAt: string | null;
+  demographics: PatientPortalProfileDemographics;
+};
+
 export type PatientPortalProfileResult = {
   authenticated: boolean;
   username: string;
@@ -272,6 +292,7 @@ export type PatientPortalProfileResult = {
   demographics: PatientPortalProfileDemographics;
   insuranceCount: number;
   insurance: PatientPortalProfileInsurance[];
+  pendingChange: PatientPortalProfilePendingChange | null;
   failureReason: string | null;
   sessionSource: string;
 };
@@ -2824,6 +2845,49 @@ WHERE i.pid = ${integer(login.pid)}
 ORDER BY FIELD(i.type, 'primary', 'secondary', 'tertiary'), i.date DESC;
 `);
 
+    const demographics: PatientPortalProfileDemographics = {
+      firstName: profileRow.firstName,
+      lastName: profileRow.lastName,
+      preferredName: profileRow.preferredName || null,
+      dateOfBirth: profileRow.dateOfBirth || null,
+      sex: profileRow.sex || null,
+      email: profileRow.email || null,
+      street: profileRow.street || null,
+      city: profileRow.city || null,
+      state: profileRow.state || null,
+      postalCode: profileRow.postalCode || null,
+      phoneHome: profileRow.phoneHome || null,
+      phoneCell: profileRow.phoneCell || null,
+      phoneContact: profileRow.phoneContact || null,
+      contactRelationship: profileRow.contactRelationship || null,
+      motherName: profileRow.motherName || null,
+      guardianName: profileRow.guardianName || null,
+      guardianRelationship: profileRow.guardianRelationship || null,
+      guardianPhone: profileRow.guardianPhone || null,
+      guardianEmail: profileRow.guardianEmail || null
+    };
+    const pendingRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  id,
+  COALESCE(status, '') AS status,
+  COALESCE(pending_action, '') AS pendingAction,
+  COALESCE(narrative, '') AS narrative,
+  COALESCE(table_args, '') AS tableArgs,
+  DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') AS requestedAt,
+  DATE_FORMAT(action_taken_time, '%Y-%m-%d %H:%i:%s') AS updatedAt
+FROM onsite_portal_activity
+WHERE patient_id = ${integer(login.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1
+  AND status = 'waiting'
+  AND pending_action = 'review'
+ORDER BY date, id
+LIMIT 1;
+`);
+    const pendingChange = pendingRows[0]
+      ? mapLegacyPortalProfilePendingChange(pendingRows[0], demographics)
+      : null;
+
     return {
       authenticated: true,
       username: login.username,
@@ -2834,28 +2898,8 @@ ORDER BY FIELD(i.type, 'primary', 'secondary', 'tertiary'), i.date DESC;
       displayName: login.displayName,
       datasetVersion: "openemr-shared-synthetic-v1",
       asOfDate: new Date().toISOString().slice(0, 10),
-      hasPendingProfileChanges: false,
-      demographics: {
-        firstName: profileRow.firstName,
-        lastName: profileRow.lastName,
-        preferredName: profileRow.preferredName || null,
-        dateOfBirth: profileRow.dateOfBirth || null,
-        sex: profileRow.sex || null,
-        email: profileRow.email || null,
-        street: profileRow.street || null,
-        city: profileRow.city || null,
-        state: profileRow.state || null,
-        postalCode: profileRow.postalCode || null,
-        phoneHome: profileRow.phoneHome || null,
-        phoneCell: profileRow.phoneCell || null,
-        phoneContact: profileRow.phoneContact || null,
-        contactRelationship: profileRow.contactRelationship || null,
-        motherName: profileRow.motherName || null,
-        guardianName: profileRow.guardianName || null,
-        guardianRelationship: profileRow.guardianRelationship || null,
-        guardianPhone: profileRow.guardianPhone || null,
-        guardianEmail: profileRow.guardianEmail || null
-      },
+      hasPendingProfileChanges: pendingChange !== null,
+      demographics,
       insuranceCount: insuranceRows.length,
       insurance: insuranceRows.map((insurance) => {
         const subscriberName = [insurance.subscriberFirstName, insurance.subscriberLastName]
@@ -2875,9 +2919,99 @@ ORDER BY FIELD(i.type, 'primary', 'secondary', 'tertiary'), i.date DESC;
           subscriberDateOfBirth: insurance.subscriberDateOfBirth || null
         };
       }),
+      pendingChange,
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
+  }
+
+  async submitPatientPortalProfileChange(
+    username: string,
+    password: string,
+    input: PatientPortalProfileChangeInput
+  ): Promise<PatientPortalProfileResult> {
+    const profile = await this.getPatientPortalProfile(username, password);
+    if (!profile.authenticated || profile.pid === null) {
+      return profile;
+    }
+
+    const requestedDemographics = applyPortalProfileChangeInput(profile.demographics, input);
+    const tableArgs = buildLegacyPortalProfileTableArgs(profile.pid, requestedDemographics);
+    const existingRows = await this.db.queryRows<{ id: string }>(`
+SELECT id
+FROM onsite_portal_activity
+WHERE patient_id = ${integer(profile.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1
+  AND status = 'waiting'
+  AND pending_action = 'review'
+ORDER BY date, id
+LIMIT 1;
+`);
+
+    if (existingRows[0]?.id) {
+      await this.db.execute(`
+UPDATE onsite_portal_activity
+SET table_args = ${sqlString(tableArgs)},
+    narrative = 'Patient request changes to demographics.',
+    table_action = '',
+    action_user = 0,
+    action_taken = '',
+    action_taken_time = NULL,
+    checksum = '0'
+WHERE id = ${integer(Number(existingRows[0].id))};
+`);
+    } else {
+      await this.db.execute(`
+INSERT INTO onsite_portal_activity (
+  date,
+  patient_id,
+  activity,
+  require_audit,
+  pending_action,
+  action_taken,
+  status,
+  narrative,
+  table_action,
+  table_args,
+  action_user,
+  action_taken_time,
+  checksum
+) VALUES (
+  NOW(),
+  ${integer(profile.pid)},
+  'profile',
+  1,
+  'review',
+  '',
+  'waiting',
+  'Patient request changes to demographics.',
+  '',
+  ${sqlString(tableArgs)},
+  0,
+  NULL,
+  '0'
+);
+`);
+    }
+
+    return await this.getPatientPortalProfile(username, password);
+  }
+
+  async cleanupPatientPortalProfileChange(username: string, password: string): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return;
+    }
+
+    await this.db.execute(`
+DELETE FROM onsite_portal_activity
+WHERE patient_id = ${integer(login.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1
+  AND status = 'waiting'
+  AND pending_action = 'review';
+`);
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
@@ -8151,6 +8285,120 @@ function portalWorkflowAccessStatusLabel(portalEnabled: boolean, portalUsername:
   return portalUsername ? "Access disabled" : "Pending";
 }
 
+function applyPortalProfileChangeInput(
+  current: PatientPortalProfileDemographics,
+  input: PatientPortalProfileChangeInput
+): PatientPortalProfileDemographics {
+  return {
+    ...current,
+    email: applyPortalProfileChangeValue(current.email, input.email),
+    phoneHome: applyPortalProfileChangeValue(current.phoneHome, input.phoneHome),
+    phoneCell: applyPortalProfileChangeValue(current.phoneCell, input.phoneCell),
+    street: applyPortalProfileChangeValue(current.street, input.street),
+    city: applyPortalProfileChangeValue(current.city, input.city),
+    state: applyPortalProfileChangeValue(current.state, input.state),
+    postalCode: applyPortalProfileChangeValue(current.postalCode, input.postalCode)
+  };
+}
+
+function applyPortalProfileChangeValue(currentValue: string | null, requestedValue: string | null | undefined) {
+  if (requestedValue === undefined) {
+    return currentValue;
+  }
+
+  const trimmed = requestedValue === null ? "" : requestedValue.trim();
+  return trimmed === "" ? null : trimmed;
+}
+
+function buildLegacyPortalProfileTableArgs(pid: number, demographics: PatientPortalProfileDemographics) {
+  const entries: Array<[string, string | number | null]> = [
+    ["pid", pid],
+    ["fname", demographics.firstName],
+    ["lname", demographics.lastName],
+    ["preferred_name", demographics.preferredName],
+    ["DOB", demographics.dateOfBirth],
+    ["sex", demographics.sex],
+    ["email", demographics.email],
+    ["street", demographics.street],
+    ["city", demographics.city],
+    ["state", demographics.state],
+    ["postal_code", demographics.postalCode],
+    ["phone_home", demographics.phoneHome],
+    ["phone_cell", demographics.phoneCell],
+    ["phone_contact", demographics.phoneContact],
+    ["contact_relationship", demographics.contactRelationship],
+    ["mothersname", demographics.motherName],
+    ["guardiansname", demographics.guardianName],
+    ["guardianrelationship", demographics.guardianRelationship],
+    ["guardianphone", demographics.guardianPhone],
+    ["guardianemail", demographics.guardianEmail]
+  ];
+
+  return `a:${entries.length}:{${entries
+    .map(([key, value]) => `${phpSerializeString(key)}${phpSerializeValue(value)}`)
+    .join("")}}`;
+}
+
+function phpSerializeValue(value: string | number | null) {
+  if (typeof value === "number") {
+    return `i:${value};`;
+  }
+
+  return phpSerializeString(value ?? "");
+}
+
+function phpSerializeString(value: string) {
+  return `s:${Buffer.byteLength(value, "utf8")}:"${value}";`;
+}
+
+function mapLegacyPortalProfilePendingChange(
+  row: Record<string, string>,
+  current: PatientPortalProfileDemographics
+): PatientPortalProfilePendingChange {
+  const fields = parseLegacyPortalProfileTableArgs(row.tableArgs);
+  return {
+    id: Number(row.id),
+    status: row.status,
+    pendingAction: row.pendingAction,
+    narrative: row.narrative,
+    requestedAt: row.requestedAt,
+    updatedAt: row.updatedAt || null,
+    demographics: {
+      ...current,
+      firstName: fields.fname ?? current.firstName,
+      lastName: fields.lname ?? current.lastName,
+      preferredName: fields.preferred_name ?? current.preferredName,
+      dateOfBirth: fields.DOB ?? current.dateOfBirth,
+      sex: fields.sex ?? current.sex,
+      email: fields.email ?? current.email,
+      street: fields.street ?? current.street,
+      city: fields.city ?? current.city,
+      state: fields.state ?? current.state,
+      postalCode: fields.postal_code ?? current.postalCode,
+      phoneHome: fields.phone_home ?? current.phoneHome,
+      phoneCell: fields.phone_cell ?? current.phoneCell,
+      phoneContact: fields.phone_contact ?? current.phoneContact,
+      contactRelationship: fields.contact_relationship ?? current.contactRelationship,
+      motherName: fields.mothersname ?? current.motherName,
+      guardianName: fields.guardiansname ?? current.guardianName,
+      guardianRelationship: fields.guardianrelationship ?? current.guardianRelationship,
+      guardianPhone: fields.guardianphone ?? current.guardianPhone,
+      guardianEmail: fields.guardianemail ?? current.guardianEmail
+    }
+  };
+}
+
+function parseLegacyPortalProfileTableArgs(serialized: string) {
+  const fields: Record<string, string> = {};
+  const matcher = /s:\d+:"([^"]*)";(?:s:\d+:"([^"]*)";|i:(-?\d+);|N;)/g;
+  let match: RegExpExecArray | null;
+  while ((match = matcher.exec(serialized)) !== null) {
+    fields[match[1]] = match[2] ?? match[3] ?? "";
+  }
+
+  return fields;
+}
+
 const seededPortalDemoPassword = "PortalPass207!";
 
 function isSeededPortalPasswordHash(hash: string) {
@@ -8257,6 +8505,7 @@ function buildEmptyPortalProfileResult(username: string, failureReason: string):
     },
     insuranceCount: 0,
     insurance: [],
+    pendingChange: null,
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };

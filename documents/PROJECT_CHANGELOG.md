@@ -16711,6 +16711,68 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 293. Slice 251 Patient Portal Profile Change Request Readiness
+
+Started: 2026-06-24T21:03:58-04:00
+Finished: 2026-06-24T21:42:31-04:00
+Commit: pending
+
+Implemented Slice 251: patient portal profile change request readiness. The modernized patient portal now mirrors legacy OpenEMR's pending profile-review behavior by accepting signed-in patient profile edits, storing them as waiting review requests, and showing the same `Edit Pending Changes.` state without mutating the medical-record demographics.
+
+Code changes:
+
+- Files changed: 20
+- Lines added: 1,085
+- Lines deleted: 39
+- Net lines: +1,046
+- Total churn: 1,124
+
+Key outcomes:
+
+- Added a generated modernized PostgreSQL `patient_portal_profile_change_requests` table, seeded empty, to model portal profile edits awaiting staff review.
+- Added the session-protected `POST /api/patient-portal/profile/changes` endpoint and expanded the profile response with pending-review details.
+- Extended the modernized Portal `Profile From Medical Records` card with an edit form, pending-review summary, and legacy-aligned `Edit Profile` / `Edit Pending Changes.` status labels.
+- Extended the legacy and modernized workflow adapters with normalized profile-change submit and cleanup operations.
+- Added the `workflow-patient-portal-profile-change-request` Playwright suite and `slice-251-patient-portal-profile-change-request-readiness` plan.
+- Added Workbench-managed Slice 251 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 251 pending-review contract.
+
+Verified test runs:
+
+- `node` JSON validation for the parity manifest, Workbench apps config, functionality progress ledger, and generated modernized seed summary passed.
+- `cmd.exe /c npm --prefix parity-tests run list -- --plan slice-251-patient-portal-profile-change-request-readiness` passed.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `cmd.exe /c npm --prefix parity-tests run typecheck` passed.
+- `cmd.exe /c npm --prefix modernized-openemr/frontend run build` passed with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `powershell -ExecutionPolicy Bypass -File .\modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and refreshed `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- Legacy parity passed: `2026-06-25T013735-165Z-legacy-openemr-plan-slice-251-patient-portal-profile-change-request-readiness`.
+- Modernized parity passed: `2026-06-25T013817-679Z-modernized-openemr-plan-slice-251-patient-portal-profile-change-request-readiness`.
+- Side-by-side comparison passed with no differences: `2026-06-25T013857-138Z-legacy-openemr-vs-modernized-openemr-plan-slice-251-patient-portal-profile-change-request-readiness`.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Program.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/generate-postgres-seed.mjs`
+- `modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1`
+- `parity-tests/tests/workflow-patient-portal-profile-change-request/patient-portal-profile-change-request.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `scripts/Run-OpenEmrParityTests.ps1`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -1230,6 +1230,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-251-patient-portal-profile-change-request-readiness",
+      "name": "Slice 251 Patient Portal Profile Change Request Readiness",
+      "description": "Patient portal confidence plan that verifies submitted profile edits become pending review requests without mutating the medical-record demographics.",
+      "suites": ["workflow-patient-portal-profile-change-request"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-251", "patients", "portal", "profile", "demographics", "pending-review", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4506,6 +4515,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-profile",
       "tags": ["slice250", "workflow", "read-only", "patients", "portal", "profile", "demographics", "insurance", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-profile-change-request",
+      "name": "Patient Portal Profile Change Request Readiness",
+      "description": "Verifies signed-in patient portal profile edits are stored as waiting review requests while chart demographics remain unchanged.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-profile-change-request",
+      "tags": ["slice251", "workflow", "mutation", "patients", "portal", "profile", "demographics", "pending-review", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

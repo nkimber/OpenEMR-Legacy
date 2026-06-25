@@ -79,6 +79,7 @@ import type {
   PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
+  PatientPortalProfileChangeInput,
   PatientPortalForwardMessageInput,
   PatientPortalForwardMessageResult,
   PatientPortalDeleteMessageResult,
@@ -759,6 +760,52 @@ LIMIT 1;
     } finally {
       await this.endPatientPortalSession(login.sessionId);
     }
+  }
+
+  async submitPatientPortalProfileChange(
+    username: string,
+    password: string,
+    input: PatientPortalProfileChangeInput
+  ): Promise<PatientPortalProfileResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return buildEmptyModernizedPortalProfileResult(username, login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    try {
+      const response = await fetch(`${this.target.apiBaseUrl}/api/patient-portal/profile/changes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-OpenEMR-Patient-Portal-Session": login.sessionId
+        },
+        body: JSON.stringify(input)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal profile change failed with ${response.status}: ${await response.text()}`);
+      }
+
+      return mapPatientPortalProfileResult(await response.json());
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async cleanupPatientPortalProfileChange(username: string, password: string): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return;
+    }
+
+    await this.db.execute(`
+DELETE FROM patient_portal_profile_change_requests
+WHERE pid = ${integer(login.pid)}
+  AND activity = 'profile'
+  AND require_audit = 1
+  AND status = 'waiting'
+  AND pending_action = 'review';
+`);
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
@@ -4982,6 +5029,7 @@ function buildEmptyModernizedPortalProfileResult(username: string, failureReason
     },
     insuranceCount: 0,
     insurance: [],
+    pendingChange: null,
     failureReason,
     sessionSource: "modernized-openemr-portal"
   };
@@ -5079,6 +5127,37 @@ function mapPatientPortalProfileResult(result: any): PatientPortalProfileResult 
       subscriberRelationship: insurance.subscriberRelationship ?? null,
       subscriberDateOfBirth: insurance.subscriberDateOfBirth ?? null
     })),
+    pendingChange: result.pendingChange
+      ? {
+          id: result.pendingChange.id ?? 0,
+          status: result.pendingChange.status ?? "",
+          pendingAction: result.pendingChange.pendingAction ?? "",
+          narrative: result.pendingChange.narrative ?? "",
+          requestedAt: result.pendingChange.requestedAt ?? "",
+          updatedAt: result.pendingChange.updatedAt ?? null,
+          demographics: {
+            firstName: result.pendingChange.demographics?.firstName ?? "",
+            lastName: result.pendingChange.demographics?.lastName ?? "",
+            preferredName: result.pendingChange.demographics?.preferredName ?? null,
+            dateOfBirth: result.pendingChange.demographics?.dateOfBirth ?? null,
+            sex: result.pendingChange.demographics?.sex ?? null,
+            email: result.pendingChange.demographics?.email ?? null,
+            street: result.pendingChange.demographics?.street ?? null,
+            city: result.pendingChange.demographics?.city ?? null,
+            state: result.pendingChange.demographics?.state ?? null,
+            postalCode: result.pendingChange.demographics?.postalCode ?? null,
+            phoneHome: result.pendingChange.demographics?.phoneHome ?? null,
+            phoneCell: result.pendingChange.demographics?.phoneCell ?? null,
+            phoneContact: result.pendingChange.demographics?.phoneContact ?? null,
+            contactRelationship: result.pendingChange.demographics?.contactRelationship ?? null,
+            motherName: result.pendingChange.demographics?.motherName ?? null,
+            guardianName: result.pendingChange.demographics?.guardianName ?? null,
+            guardianRelationship: result.pendingChange.demographics?.guardianRelationship ?? null,
+            guardianPhone: result.pendingChange.demographics?.guardianPhone ?? null,
+            guardianEmail: result.pendingChange.demographics?.guardianEmail ?? null
+          }
+        }
+      : null,
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };
