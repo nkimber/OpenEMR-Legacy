@@ -18218,7 +18218,7 @@ Code changes:
 
 Started: 2026-06-25T05:22:00-04:00
 Finished: 2026-06-25T05:30:32-04:00
-Commit: pending
+Commit: f9b44777
 
 Implemented Slice 293: Slice 32 patient medication-list mutation probe payload attachments. The medication-list mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0006` anchor patient, proposed temporary medication payload, created row and count increment, deactivated row state, and final hard-delete cleanup state so Workbench comparison drill-ins can preview medication lifecycle evidence.
 
