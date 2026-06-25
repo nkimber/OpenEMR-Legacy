@@ -16928,7 +16928,7 @@ Verification:
 Started: 2026-06-24T22:58:41-04:00
 Finished: 2026-06-24T23:12:23-04:00
 Duration: 13m 42s
-Commit: pending
+Commit: d9f7d65a
 
 Implemented Slice 254: patient portal profile review revert readiness. Legacy OpenEMR does not expose a separate reject outcome for this portal profile-review path; its staff modal provides `Revert Edits`, which discards the submitted edits by restoring chart-original values before closing the activity with `closed` / `completed` / `accept` metadata. The modernized administration workflow now mirrors that behavior without mutating chart demographics.
 
