@@ -20211,6 +20211,43 @@ Code changes:
 - Net lines: +266
 - Total churn: 338
 
+## 398. Slice 352 Slice 91 Patient Document Lifecycle Timeline Probe Payload Attachments
+
+Started: 2026-06-25T12:42:35-04:00
+Finished: 2026-06-25T12:44:47-04:00
+Commit: pending
+
+Implemented Slice 352: Slice 91 patient document lifecycle timeline probe payload attachments. The patient document lifecycle timeline parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary text document payload, filed/current-version/review-pending/active create facts, review-approved sign-off facts, archived lifecycle facts, restored active lifecycle facts, legacy Documents category rendering, modernized Documents lifecycle API/card/viewer anchors, and final cleanup so Workbench comparison drill-ins can preview patient document lifecycle timeline evidence.
+
+Changes:
+- Added Slice 91 precondition payload attachments for the anchor patient, baseline workflow counts, proposed text document payload, expected lifecycle transitions, and expected count movement.
+- Added Slice 91 created payload attachments for the temporary patient document row, filed/current-version/review-pending/active lifecycle codes, and document count increment.
+- Added Slice 91 signed payload attachments for the approved review row, reviewer metadata, filed/current-version/review-approved/active lifecycle codes, and modernized lifecycle API projection.
+- Added Slice 91 archived payload attachments for the archived document row, filed/current-version/review-approved/archived lifecycle codes, and active document-count return.
+- Added Slice 91 restored payload attachments for the restored active document row, restored content preview, and active document-count increment.
+- Added Slice 91 application-surface payload attachments for legacy Documents category rendering plus modernized Documents lifecycle API/card/viewer anchors.
+- Added Slice 91 cleanup payload attachments for temporary lifecycle document deletion, restored workflow counts, and final document absence.
+- Replaced non-null assertions in the Slice 91 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 91 patient document lifecycle timeline database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 352 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale Slice 90/Slice 351 latest references remain in the synchronized documents and Workbench progress ledger.
+- Passed `git diff --check -- documents modernization-workbench\config\functionality-progress.json parity-tests\tests\workflow-document-lifecycle\document-lifecycle.spec.ts` with only existing line-ending normalization warnings.
+- Passed `npm run test:modernized:plan:document-lifecycle`, producing run `2026-06-25T164355-455Z-modernized-openemr-plan-slice-91-document-lifecycle-readiness`.
+- Passed `npm run test:legacy:plan:document-lifecycle`, producing run `2026-06-25T164355-637Z-legacy-openemr-plan-slice-91-document-lifecycle-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-91-document-lifecycle-readiness`, producing matched comparison `2026-06-25T164434-017Z-legacy-openemr-vs-modernized-openemr-plan-slice-91-document-lifecycle-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 91 precondition, created, signed, archived, restored, surface, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 337
+- Lines removed: 40
+- Net lines: +297
+- Total churn: 377
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20220,5 +20257,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 90.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 91.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
