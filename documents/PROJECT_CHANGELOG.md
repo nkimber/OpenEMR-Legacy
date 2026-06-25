@@ -21375,7 +21375,7 @@ Code changes:
 
 Started: 2026-06-25T16:22:33.8554915-04:00
 Finished: 2026-06-25T16:25:04.2134781-04:00
-Commit: pending
+Commit: 5e298715
 
 Implemented Slice 387: Slice 128 patient binary document content replacement probe payload attachments. The patient binary content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, temporary original PDF document, replacement PDF bytes, preview/download metadata, revision hash movement, legacy Documents rendering facts, modernized Documents binary replacement form/API/card/download anchors, and cleanup deletion so Workbench comparison drill-ins can preview patient binary replacement evidence.
 
