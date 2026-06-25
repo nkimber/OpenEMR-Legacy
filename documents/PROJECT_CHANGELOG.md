@@ -19283,6 +19283,37 @@ Code changes:
 - Net lines: +186
 - Total churn: 218
 
+## 371. Slice 326 Slice 65 Message Assignment Probe Payload Attachments
+
+Started: 2026-06-25T09:21:53-04:00
+Finished: 2026-06-25T09:27:33-04:00
+Commit: pending
+
+Implemented Slice 326: Slice 65 patient-message assignment probe payload attachments. The message assignment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0004` anchor patient, proposed temporary pnotes-compatible message, created admin-assigned row, message-count increment, billing-reassigned row, count stability, soft-delete/archive state, and final cleanup counts so Workbench comparison drill-ins can preview message reassignment lifecycle evidence.
+
+Changes:
+- Added Slice 65 precondition payload attachments for the anchor patient, starting workflow counts, assignment expectations, and proposed temporary message.
+- Added Slice 65 create/reassign/archive/cleanup payload attachments that capture message row state, assignment movement from `admin` to `billing`, message-count deltas, UI/render text anchors, soft-delete state, and restored cleanup counts.
+- Updated the Workbench functionality progress ledger so Slice 65 message assignment database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 326 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 64 workflow payload boundary.
+- `npm run test:modernized:plan:message-assignment` in `parity-tests/` passed with 1 expected test; run `2026-06-25T132625-441Z-modernized-openemr-plan-slice-65-message-assignment-readiness`.
+- `npm run test:legacy:plan:message-assignment` in `parity-tests/` passed with 1 expected test; run `2026-06-25T132651-908Z-legacy-openemr-plan-slice-65-message-assignment-readiness`.
+- Artifact inspection confirmed the modernized Slice 65 Playwright report recorded `db-probe-slice-65-message-assignment-precondition`, `created`, `reassigned`, `soft-deleted`, and `cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 65 Playwright report recorded `db-probe-slice-65-message-assignment-precondition`, `created`, `reassigned`, `soft-deleted`, and `cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-65-message-assignment-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T132723-461Z-legacy-openemr-vs-modernized-openemr-plan-slice-65-message-assignment-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 179
+- Lines deleted: 24
+- Net lines: +155
+- Total churn: 203
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19292,5 +19323,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 64.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 65.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
