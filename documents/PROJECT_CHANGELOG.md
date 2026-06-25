@@ -21834,7 +21834,7 @@ Code changes:
 
 Started: 2026-06-25T18:00:39.3999730-04:00
 Finished: 2026-06-25T18:02:19.3970258-04:00
-Commit: pending
+Commit: 87307134
 
 Implemented Slice 401: Slice 142 procedure lab provider configuration probe payload attachments. The procedure lab provider configuration parity suite now writes path-backed JSON Playwright attachments for initial direct-lab provider settings, updated SFTP transport settings, browser/API rendering facts, and cleanup deletion so Workbench comparison drill-ins can preview provider transport configuration evidence.
 
