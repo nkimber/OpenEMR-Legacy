@@ -19713,6 +19713,41 @@ Code changes:
 - Net lines: +347
 - Total churn: 441
 
+## 384. Slice 339 Slice 78 Encounter Document Upload Probe Payload Attachments
+
+Started: 2026-06-25T11:05:24-04:00
+Finished: 2026-06-25T11:09:34-04:00
+Commit: pending
+
+Implemented Slice 339: Slice 78 encounter document upload probe payload attachments. The encounter document upload parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary text attachment, normalized document projection, legacy Documents category rendering, modernized encounter-detail API document rows, Encounters attached-document UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document upload mutation evidence.
+
+Changes:
+- Added Slice 78 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, and proposed text document payload.
+- Added Slice 78 created payload attachments for the uploaded document row, normalized patient document projection, encounter document list, content preview, and document count increment.
+- Added Slice 78 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail API/UI attached-document anchors.
+- Added Slice 78 cleanup payload attachments for temporary document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 78 suite with explicit anchor-patient and uploaded-document guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 78 encounter document upload database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 339 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 77 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-document-upload` in `parity-tests/` passed with 1 expected test; run `2026-06-25T150652-065Z-modernized-openemr-plan-slice-78-encounter-document-upload-readiness`.
+- `npm run test:legacy:plan:encounter-document-upload` in `parity-tests/` passed with 1 expected test; run `2026-06-25T150748-938Z-legacy-openemr-plan-slice-78-encounter-document-upload-readiness`.
+- Artifact inspection confirmed the modernized Slice 78 Playwright report recorded `db-probe-slice-78-encounter-document-upload-precondition`, `db-probe-slice-78-encounter-document-upload-created`, `db-probe-slice-78-encounter-document-upload-surface`, and `db-probe-slice-78-encounter-document-upload-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 78 Playwright report recorded `db-probe-slice-78-encounter-document-upload-precondition`, `db-probe-slice-78-encounter-document-upload-created`, `db-probe-slice-78-encounter-document-upload-surface`, and `db-probe-slice-78-encounter-document-upload-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-78-encounter-document-upload-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T150921-473Z-legacy-openemr-vs-modernized-openemr-plan-slice-78-encounter-document-upload-readiness`.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 262
+- Lines deleted: 36
+- Net lines: +226
+- Total churn: 298
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19722,5 +19757,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 77.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 78.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
