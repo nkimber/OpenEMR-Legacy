@@ -17110,7 +17110,7 @@ Code changes:
 Started: 2026-06-25T00:24:35-04:00
 Finished: 2026-06-25T00:31:58-04:00
 Duration: 7m 23s
-Commit: pending
+Commit: ea1d5a57
 
 Implemented Slice 260: Workbench probe attachment payload previews. The Workbench comparison drill-ins now expose safe text-like Playwright probe attachments as capped inline previews while keeping binary artifacts as links/metadata, and the comparison API now slices recent comparison directories before deep enrichment.
 
