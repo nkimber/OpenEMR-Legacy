@@ -21181,7 +21181,7 @@ Code changes:
 
 Started: 2026-06-25T15:51:55.5077386-04:00
 Finished: 2026-06-25T15:54:49.4308961-04:00
-Commit: pending
+Commit: 61d28831
 
 Implemented Slice 381: Slice 120 appointment reminders probe payload attachments. The appointment reminders parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0191` seeded patient anchor, future preventive-care appointment, contact-consent and reminder-channel derivation, legacy appointment rendering facts, and modernized reminder-detail rendering anchors so Workbench comparison drill-ins can preview reminder-readiness evidence.
 
