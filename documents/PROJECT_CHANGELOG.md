@@ -18737,6 +18737,36 @@ Code changes:
 - Net lines: +117
 - Total churn: 149
 
+## 353. Slice 309 Slice 48 Payment Posting Probe Payload Attachments
+
+Started: 2026-06-25T07:27:06-04:00
+Finished: 2026-06-25T07:30:11-04:00
+Commit: pending
+
+Implemented Slice 309: Slice 48 payment posting probe payload attachments. The payment posting parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, encounter `1000052`, seeded `EOB-NSTAR-1000052` insurance payment and contractual adjustment rows, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only AR posting evidence.
+
+Changes:
+- Added Slice 48 anchor payload attachments for the billing anchor patient, encounter-specific payment postings, all patient posting rows, and selected insurance payment/contractual adjustment examples.
+- Added Slice 48 rendering-precondition payload attachments that capture the exact payment and adjustment rows plus visible text expectations used by the modernized Fees rendering assertions.
+- Updated the Workbench functionality progress ledger so Slice 48 payment posting database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 309 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 47 workflow payload boundary.
+- `npm run test:modernized:plan:payments` in `parity-tests/` passed with 1 expected test; run `2026-06-25T112927-462Z-modernized-openemr-plan-slice-48-payment-posting-readiness`.
+- `npm run test:legacy:plan:payments` in `parity-tests/` passed with 1 expected test; run `2026-06-25T112946-285Z-legacy-openemr-plan-slice-48-payment-posting-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 48 Playwright reports recorded the shared `db-probe-slice-48-payment-posting-anchor` and `db-probe-slice-48-payment-posting-render-precondition` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-48-payment-posting-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T113001-103Z-legacy-openemr-vs-modernized-openemr-plan-slice-48-payment-posting-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 133
+- Lines deleted: 21
+- Net lines: +112
+- Total churn: 154
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18746,5 +18776,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 47.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 48.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
