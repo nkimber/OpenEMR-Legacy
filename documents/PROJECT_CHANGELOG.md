@@ -17921,6 +17921,39 @@ Code changes:
 - Net lines: +220
 - Total churn: 262
 
+## 328. Slice 284 Slice 23 Pending Procedure Order Probe Payload Attachments
+
+Started: 2026-06-25T03:55:00-04:00
+Finished: 2026-06-25T04:02:07-04:00
+Commit: pending
+
+Implemented Slice 284: Slice 23 pending procedure order probe payload attachments. The pending scheduled procedure-order parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0701` anchor patient, future scheduled CBC order, zero-report order projection, and UI-steering precondition so Workbench comparison drill-ins can preview reportless scheduled procedure-order database evidence.
+
+Changes:
+- Added Slice 23 anchor payload attachments for the `MOD-PAT-0701` patient, scheduled `Complete blood count` order, expected order date/status/code/name, and zero linked report rows.
+- Added Slice 23 UI-precondition payload attachments that capture the same pending scheduled procedure order before steering the legacy and modernized procedure UI flows.
+- Tightened the selected order assertion so a missing order projection fails as `null` rather than merely being defined.
+- Preserved the existing Slice 23 assertions and side-by-side behavior while making pending procedure-order evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 23 pending scheduled procedure-order database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 284 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan for Slice 22/Slice 283 wording passed with no matches.
+- `npm run test:modernized:plan:procedure-pending-orders` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T080054-736Z-modernized-openemr-plan-slice-23-procedure-pending-orders-readiness`.
+- `npm run test:legacy:plan:procedure-pending-orders` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T080115-431Z-legacy-openemr-plan-slice-23-procedure-pending-orders-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 23 runs recorded both new `db-probe-slice-23-pending-procedure-order-*` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-23-procedure-pending-orders-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T080141-596Z-legacy-openemr-vs-modernized-openemr-plan-slice-23-procedure-pending-orders-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 138
+- Lines deleted: 30
+- Net lines: +108
+- Total churn: 168
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17930,5 +17963,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 22.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 23.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
