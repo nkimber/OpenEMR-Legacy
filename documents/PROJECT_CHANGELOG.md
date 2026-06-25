@@ -20180,7 +20180,7 @@ Code changes:
 
 Started: 2026-06-25T12:36:29-04:00
 Finished: 2026-06-25T12:39:34-04:00
-Commit: pending
+Commit: 11a19164
 
 Implemented Slice 351: Slice 90 patient PDF document inline-preview probe payload attachments. The patient PDF document preview parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary `application/pdf` binary payload, normalized inline PDF preview metadata, legacy Documents category rendering, modernized Documents card/viewer iframe UI anchors, byte-preserving download facts, archive state, and final cleanup so Workbench comparison drill-ins can preview patient PDF document preview evidence.
 
