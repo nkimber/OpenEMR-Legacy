@@ -19103,6 +19103,36 @@ Code changes:
 - Net lines: +110
 - Total churn: 142
 
+## 365. Slice 321 Slice 60 Statement PDF Probe Payload Attachments
+
+Started: 2026-06-25T08:40:12-04:00
+Finished: 2026-06-25T08:43:24-04:00
+Commit: pending
+
+Implemented Slice 321: Slice 60 statement PDF probe payload attachments. The patient statement PDF export parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` billing anchor, statement summary, ledger source rows, deterministic PDF filename/content type/header, text anchors, line totals, and ending balance so Workbench comparison drill-ins can preview statement PDF export evidence.
+
+Changes:
+- Added Slice 60 source payload attachments for the billing anchor patient, statement summary, and ledger rows used for deterministic PDF export.
+- Added Slice 60 PDF contract payload attachments that capture expected filename, content type, PDF header, text anchors, line totals, and ending balance.
+- Updated the Workbench functionality progress ledger so Slice 60 statement PDF export database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 321 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 59 workflow payload boundary.
+- `npm run test:modernized:plan:statement-pdf` in `parity-tests/` passed with 1 expected test; run `2026-06-25T124224-309Z-modernized-openemr-plan-slice-60-statement-pdf-export-readiness`.
+- `npm run test:legacy:plan:statement-pdf` in `parity-tests/` passed with 1 expected test; run `2026-06-25T124246-803Z-legacy-openemr-plan-slice-60-statement-pdf-export-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 60 Playwright reports recorded the shared `db-probe-slice-60-statement-pdf-source` and `db-probe-slice-60-statement-pdf-contract` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-60-statement-pdf-export-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T124309-400Z-legacy-openemr-vs-modernized-openemr-plan-slice-60-statement-pdf-export-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 109
+- Lines deleted: 16
+- Net lines: +93
+- Total churn: 125
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19112,5 +19142,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 59.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 60.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

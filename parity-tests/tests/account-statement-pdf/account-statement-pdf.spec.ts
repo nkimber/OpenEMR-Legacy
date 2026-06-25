@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { AccountLedgerEntry, PatientStatementSummary } from "../../src/db/legacyMariaDbProbe.js";
 
@@ -29,7 +30,7 @@ test.describe("patient statement PDF export parity @slice60 @account-statement-p
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(statementPdfAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -38,6 +39,40 @@ test.describe("patient statement PDF export parity @slice60 @account-statement-p
     expect(statement).not.toBeNull();
 
     const expectedDocument = buildStatementDocument(patient!.pubpid, statement!, ledgerEntries);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-60-statement-pdf-source",
+      description: "Captures the Slice 60 statement PDF source rows: billing anchor patient, statement summary, and ledger entries used for deterministic PDF export.",
+      expected: {
+        patient: {
+          pubpid: statementPdfAnchorPatientId
+        },
+        statement: {
+          statementStatus: "Past due review",
+          statementDate: "2026-06-25",
+          dueDate: "2026-07-25",
+          statementPeriodStart: "2025-06-22",
+          statementPeriodEnd: "2026-06-25",
+          balanceDueAmount: "364.75",
+          ledgerEntryCount: 10
+        },
+        ledger: {
+          lineCount: 10,
+          paymentReference: "EOB-NSTAR-1000052",
+          endingBalance: "364.75"
+        }
+      },
+      actual: {
+        patient,
+        statement,
+        ledgerEntries
+      },
+      context: {
+        canonicalId: statementPdfAnchorPatientId,
+        suite: "account-statement-pdf",
+        workflow: "statement-pdf-source"
+      }
+    });
     expect(expectedDocument.statementNumber).toBe("STMT-MOD-PAT-0005-20260625");
     expect(expectedDocument.paymentInstructions).toBe("Please pay $364.75 by 2026-07-25.");
     expect(expectedDocument.lineItems).toHaveLength(10);
@@ -58,6 +93,43 @@ test.describe("patient statement PDF export parity @slice60 @account-statement-p
       code: "99214",
       adjustmentAmount: 22.25,
       balanceAmount: 364.75
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-60-statement-pdf-contract",
+      description: "Captures the deterministic Slice 60 patient statement PDF contract derived from the shared statement document.",
+      expected: {
+        statementNumber: "STMT-MOD-PAT-0005-20260625",
+        fileName: "STMT-MOD-PAT-0005-20260625.pdf",
+        contentType: "application/pdf",
+        pdfHeader: "%PDF-1.4",
+        textAnchors: [
+          "Patient Statement STMT-MOD-PAT-0005-20260625",
+          "Elias Morgan",
+          "Period 2025-06-22 to 2026-06-25",
+          "Balance due $364.75",
+          "Please pay $364.75 by 2026-07-25.",
+          "Northstar HMO insurance payment",
+          "EOB-NSTAR-1000052"
+        ],
+        lineItems: {
+          count: 10,
+          chargeTotal: 635,
+          paymentTotal: 206,
+          adjustmentTotal: 64.25,
+          endingBalance: 364.75
+        }
+      },
+      actual: {
+        patient,
+        statement,
+        expectedDocument
+      },
+      context: {
+        canonicalId: statementPdfAnchorPatientId,
+        suite: "account-statement-pdf",
+        workflow: "statement-pdf-contract"
+      }
     });
 
     if (target.type === "legacy-openemr") {
