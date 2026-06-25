@@ -19255,7 +19255,7 @@ Code changes:
 
 Started: 2026-06-25T09:14:55-04:00
 Finished: 2026-06-25T09:19:17-04:00
-Commit: pending
+Commit: ecffcc3b
 
 Implemented Slice 325: Slice 64 collections follow-up task probe payload attachments. The collections follow-up task parity suite now writes path-backed JSON Playwright attachments for the selected collections queue account, proposed pnotes-compatible task payload, created task row, patient message-count increment, closed task row, modernized Fees UI-created row, soft-delete/archive state, and final cleanup counts so Workbench comparison drill-ins can preview task lifecycle evidence.
 
