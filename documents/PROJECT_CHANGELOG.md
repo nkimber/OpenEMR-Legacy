@@ -18741,7 +18741,7 @@ Code changes:
 
 Started: 2026-06-25T07:27:06-04:00
 Finished: 2026-06-25T07:30:11-04:00
-Commit: pending
+Commit: 0d60fe5e
 
 Implemented Slice 309: Slice 48 payment posting probe payload attachments. The payment posting parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, encounter `1000052`, seeded `EOB-NSTAR-1000052` insurance payment and contractual adjustment rows, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only AR posting evidence.
 
