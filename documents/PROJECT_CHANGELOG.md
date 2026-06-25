@@ -17990,7 +17990,7 @@ Code changes:
 
 Started: 2026-06-25T04:12:00-04:00
 Finished: 2026-06-25T04:19:03-04:00
-Commit: pending
+Commit: 26d7ed73
 
 Implemented Slice 286: Slice 25 patient documents probe payload attachments. The patient documents parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, filed document metadata, document categories, storage mode, text previews, and UI-steering precondition so Workbench comparison drill-ins can preview patient-document database evidence.
 
