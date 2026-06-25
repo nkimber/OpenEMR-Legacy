@@ -4576,6 +4576,29 @@
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-32-medication-list-mutation-readiness.json"
         }
       ]
+    },
+    {
+      "id": "modern-ui-claude",
+      "name": "Modern UI Claude",
+      "stage": "Design-first frontend",
+      "description": "Separate Calm Clinical React frontend for the modernized OpenEMR backend API.",
+      "kind": "docker-compose",
+      "workingDirectory": "../modern-ui-claude",
+      "publicUrl": "http://localhost:3100",
+      "healthUrl": "http://localhost:3100/",
+      "documentationPath": "../documents/MODERN_UI_CLAUDE.md",
+      "sourcePath": "../modern-ui-claude",
+      "expectedSourceTag": "",
+      "commands": {
+        "status": ["docker", "compose", "ps", "--format", "json"],
+        "start": ["docker", "compose", "up", "-d", "--build"],
+        "stop": ["docker", "compose", "down"],
+        "restart": ["docker", "compose", "restart"],
+        "logs": ["docker", "compose", "logs", "--tail", "160"]
+      },
+      "services": ["modern-ui-claude"],
+      "seeds": [],
+      "tests": []
     }
   ]
 }

@@ -260,6 +260,7 @@ export type AppSnapshot = {
   publicUrl: string;
   healthUrl: string;
   documentationPath: string;
+  services: string[];
   runtime: {
     state: RuntimeState;
     label: string;
@@ -288,6 +289,11 @@ export type AppSnapshot = {
     available: boolean;
     username?: string;
     password?: string;
+    entries?: {
+      label: string;
+      username: string;
+      password: string;
+    }[];
     source: string;
     error?: string;
   };

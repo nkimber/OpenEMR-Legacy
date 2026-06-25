@@ -19,6 +19,7 @@ Current entry points:
 - `documents/TEST_DATA_STRATEGY.md` - gold synthetic dataset strategy, expected counts, canonical ID rules, and seed-data operating model.
 - `documents/TEST_ARCHITECTURE.md` - parity test harness, database/HTTP/UI test layers, reset modes, artifacts, and Workbench test orchestration.
 - `documents/GITHUB_CONNECTION.md` - local Git and future GitHub remote connection state.
+- `documents/MODERN_UI_CLAUDE.md` - plan for the future redesigned frontend in `modern-ui-claude/`, kept separate from `modernized-openemr/`.
 
 ## Project Direction
 

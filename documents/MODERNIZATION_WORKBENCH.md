@@ -35,6 +35,7 @@ Workbench URLs:
 
 The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, start all configured Docker Compose app stacks, surface Docker Desktop and compose readiness guidance on the Dashboard and Applications pages, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, render recent side-by-side comparison artifacts with expandable drill-ins, safe artifact links, and direct run/report links, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline with timing and code-change metrics, and show architecture/progress views. The Progress page now renders both delivery milestone rows and a curated functionality progress ledger that separates completed, outstanding, and deferred project scope by domain area, with scope-adjusted completion estimates for each area. The Architecture page now presents a tabbed model with a versioned stack matrix, project topology map, architecture decisions, source inventory statistics, and per-system detail views for the legacy baseline, Workbench, and modernized target.
 
+Modern UI Claude is also registered as a managed frontend-only Docker Compose application. The Applications page shows the `modern-ui-claude` service status, checks `http://localhost:3100/`, exposes Start/Stop/Restart/Open/Logs actions, and keeps its database profile separate by pointing operators back to the modernized OpenEMR backend app for database state. Its compose stack is configured for Vite live reload by bind-mounting the app folder into the container; source edits should not require a rebuild unless dependencies or container configuration change.
 
 Current pages:
 
@@ -88,6 +89,7 @@ Verified behavior:
 - The Architecture page renders a versioned visual stack matrix, source inventory statistics, project topology diagram, architecture-decision notes, and detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
 - The API can read legacy OpenEMR status.
 - The API can classify Docker Compose runtime readiness for managed apps, including stopped stacks, partial stacks, unhealthy containers, unreachable health endpoints, and likely Docker Desktop engine failures.
+- The Dashboard and Applications pages render Docker runtime readiness guidance for the legacy, modernized, and Modern UI Claude apps, including a Start all apps action that runs the configured Docker Compose start commands and then refreshes app snapshots.
 - The API can load recent Docker Compose logs.
 - The API can run the baseline smoke test.
 - The API can run the containerized OpenEMR-native isolated PHPUnit stable suite.

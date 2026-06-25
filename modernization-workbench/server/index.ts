@@ -50,11 +50,11 @@ type ManagedApp = {
   healthUrl: string;
   documentationPath: string;
   sourcePath: string;
-  expectedSourceTag: string;
+  expectedSourceTag?: string;
   commands: Record<string, string[]>;
-  services: string[];
-  seeds: ManagedSeed[];
-  tests: ManagedTest[];
+  services?: string[];
+  seeds?: ManagedSeed[];
+  tests?: ManagedTest[];
 };
 
 type ContainerStatus = {
@@ -87,6 +87,11 @@ type DemoLogin = {
   available: boolean;
   username?: string;
   password?: string;
+  entries?: {
+    label: string;
+    username: string;
+    password: string;
+  }[];
   source: string;
   error?: string;
 };
@@ -2016,6 +2021,14 @@ async function readEnvFile(cwd: string) {
 async function getDataProfile(managedApp: ManagedApp) {
   const cwd = resolveProjectPath(managedApp.workingDirectory);
   try {
+    if (managedApp.id === "modern-ui-claude") {
+      return {
+        available: false,
+        rows: [],
+        error: "Modern UI Claude is a frontend-only client; use the modernized OpenEMR app for the backend database profile."
+      };
+    }
+
     if (managedApp.id === "modernized-openemr") {
       const query =
         "SELECT 'patients' AS table_name, COUNT(*) AS row_count FROM patients UNION ALL " +
@@ -2158,6 +2171,17 @@ async function getDataProfile(managedApp: ManagedApp) {
 }
 
 async function getDemoLogin(managedApp: ManagedApp): Promise<DemoLogin> {
+  if (managedApp.id === "modern-ui-claude") {
+    return {
+      available: true,
+      source: "modern-ui-claude demo sign-in screens",
+      entries: [
+        { label: "Staff", username: "admin", password: "pass" },
+        { label: "Portal", username: "mod-pat-0004@example.test", password: "PortalPass207!" }
+      ]
+    };
+  }
+
   if (managedApp.id === "modernized-openemr") {
     return {
       available: false,
@@ -2225,12 +2249,13 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     matchesExpectedTag: false,
     error: error instanceof Error ? error.message : String(error)
   }));
-  const latestTest = managedApp.tests[0]
-    ? await readJsonIfExists(resolveProjectPath(managedApp.tests[0].resultPath))
+  const managedTests = managedApp.tests ?? [];
+  const latestTest = managedTests[0]
+    ? await readJsonIfExists(resolveProjectPath(managedTests[0].resultPath))
     : null;
   const latestTests = Object.fromEntries(
     await Promise.all(
-      managedApp.tests.map(async (test) => [test.id, await readJsonIfExists(resolveProjectPath(test.resultPath))])
+      managedTests.map(async (test) => [test.id, await readJsonIfExists(resolveProjectPath(test.resultPath))])
     )
   );
   const managedSeeds = managedApp.seeds ?? [];
@@ -2249,13 +2274,14 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     publicUrl: managedApp.publicUrl,
     healthUrl: managedApp.healthUrl,
     documentationPath: managedApp.documentationPath,
+    services: managedApp.services ?? [],
     runtime,
     runtimeGuidance,
     health,
     source,
     containers,
     seeds: managedSeeds,
-    tests: managedApp.tests,
+    tests: managedTests,
     latestSeed,
     latestTest,
     latestTests,
@@ -2363,7 +2389,7 @@ app.post("/api/apps/actions/start-all", async (_request, response, next) => {
 app.post("/api/apps/:appId/seeds/:seedId/run", async (request, response, next) => {
   try {
     const managedApp = await getManagedApp(request.params.appId);
-    const seed = managedApp.seeds.find((candidate) => candidate.id === request.params.seedId);
+    const seed = (managedApp.seeds ?? []).find((candidate) => candidate.id === request.params.seedId);
     if (!seed) {
       response.status(404).json({ error: `Unknown seed: ${request.params.seedId}` });
       return;
@@ -2398,7 +2424,7 @@ app.post("/api/apps/:appId/actions/:action", async (request, response, next) => 
 app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) => {
   try {
     const managedApp = await getManagedApp(request.params.appId);
-    const test = managedApp.tests.find((candidate) => candidate.id === request.params.testId);
+    const test = (managedApp.tests ?? []).find((candidate) => candidate.id === request.params.testId);
     if (!test) {
       response.status(404).json({ error: `Unknown test: ${request.params.testId}` });
       return;

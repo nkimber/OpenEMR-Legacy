@@ -15713,6 +15713,57 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 273. Workbench Modern UI Claude Application Registration
+
+Started: 2026-06-24T12:02:00.0000000-04:00
+Finished: 2026-06-24T12:25:06.9969231-04:00
+Commit: pending
+
+Registered `modern-ui-claude/` as a Workbench-managed Docker Compose frontend so operators can see whether the new Calm Clinical UI container is running, open it, start it with the Workbench, stop/restart it, and read recent compose logs from the Applications page.
+
+Code changes:
+
+- Files changed: 8
+- Lines added: 3000
+- Lines deleted: 25
+- Net lines: +2975
+- Total churn: 3025
+
+Metrics count the scoped tracked Workbench/document diff plus the new `.dockerignore` and `package-lock.json` support files. Pre-existing untracked Modern UI Claude source files from the parallel UI build are not included.
+
+Key outcomes:
+
+- Added the `modern-ui-claude` managed app entry to `modernization-workbench/config/apps.json` with status, start, stop, restart, logs, `http://localhost:3100/` health, `http://localhost:3100` open link, and the expected `modern-ui-claude` service.
+- Updated the Workbench API snapshot model so managed apps can omit tests/seeds, expose expected compose services, return multiple local demo login entries, and avoid trying to query a database profile for frontend-only apps.
+- Updated the Applications and Dashboard UI so all configured apps participate in runtime readiness, frontend-only apps show compose/action metrics instead of patient counts, expected stopped services remain visible, and apps with no parity/test actions stay out of the Test Runs controls.
+- Added `modern-ui-claude/package-lock.json` and `.dockerignore` so the Workbench start path can build the Dockerfile's `npm ci` step deterministically without copying local dependency/build folders into the image.
+- Updated `documents/MODERN_UI_CLAUDE.md`, `documents/MODERNIZATION_WORKBENCH.md`, and `modern-ui-claude/README.md` to record the Workbench registration and operating behavior.
+
+Verified test runs:
+
+- `Get-Content -Raw modernization-workbench/config/apps.json | ConvertFrom-Json` passed and listed `modern-ui-claude`.
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- `docker compose -f modern-ui-claude/docker-compose.yml config` passed.
+- `npm ci` passed in `modern-ui-claude/`.
+- `npm run build` passed in `modern-ui-claude/`.
+- `docker compose -f modern-ui-claude/docker-compose.yml build` passed and verified the Dockerfile `npm ci` path.
+- Temporary Workbench API smoke check for `/api/apps/modern-ui-claude` returned the app as stopped with one expected service, two demo login entries, no seed/test actions, and the frontend-only database-profile note.
+- `node` JSON parse checks passed for `modernization-workbench/config/apps.json` and `modern-ui-claude/package-lock.json`.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+
+Primary files:
+
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/server/index.ts`
+- `modernization-workbench/src/App.tsx`
+- `modernization-workbench/src/types.ts`
+- `modern-ui-claude/.dockerignore`
+- `modern-ui-claude/package-lock.json`
+- `modern-ui-claude/README.md`
+- `documents/MODERN_UI_CLAUDE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
 
 ## 274. Slice 234 Patient Portal Secure Message Forward-To-Practice Readiness
 
@@ -15945,6 +15996,50 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 278. Modern UI Claude Docker Live Reload Setup
+
+Started: 2026-06-24T14:20:00.0000000-04:00
+Finished: 2026-06-24T14:33:25.1096925-04:00
+Commit: pending
+
+Updated the Modern UI Claude Docker development setup so normal source edits are reflected by the running Vite dev server without rebuilding the image every time.
+
+Code changes:
+
+- Files changed: 7
+- Lines added: pending scoped commit metrics
+- Lines deleted: pending scoped commit metrics
+- Net lines: pending scoped commit metrics
+- Total churn: pending scoped commit metrics
+
+Metrics are pending because `modern-ui-claude/` is still an untracked parallel UI worktree in this checkout, so Git cannot produce meaningful scoped add/delete counts until that folder is added or committed.
+
+Key outcomes:
+
+- Added a Docker Compose bind mount from `modern-ui-claude/` into `/app` so host source edits are visible inside the running container.
+- Added a named `/app/node_modules` Docker volume so the container keeps Linux dependencies even when the source folder is mounted from Windows.
+- Enabled polling-based Vite file watching for Docker Desktop through `CHOKIDAR_USEPOLLING=true` and Vite `server.watch.usePolling`.
+- Synced `package-lock.json` with the UI's `lucide-react` dependency so local and Docker builds can resolve the updated UI imports.
+- Updated Modern UI Claude and Workbench documentation to explain that source edits should hot-reload or appear after refresh, while dependency/Dockerfile/container-config changes still require rebuilds.
+
+Verified test runs:
+
+- `docker compose -f modern-ui-claude/docker-compose.yml config` passed and showed the source bind mount plus named `node_modules` volume.
+- `npm install` passed in `modern-ui-claude/` and added `lucide-react` to the lockfile.
+- `npm run build` passed in `modern-ui-claude/`.
+- `docker compose -f modern-ui-claude/docker-compose.yml up -d --build --force-recreate` passed and created the named `modern-ui-claude-node-modules` volume.
+- `Invoke-WebRequest http://localhost:3100` returned HTTP 200.
+- A temporary host marker file appeared inside `/app` in the running container, verifying the bind mount is live.
+
+Primary files:
+
+- `modern-ui-claude/docker-compose.yml`
+- `modern-ui-claude/vite.config.ts`
+- `modern-ui-claude/package-lock.json`
+- `modern-ui-claude/README.md`
+- `documents/MODERN_UI_CLAUDE.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/PROJECT_CHANGELOG.md`
 
 ## 279. Slice 238 Patient Portal Secure Message Recipient Directory Readiness
 

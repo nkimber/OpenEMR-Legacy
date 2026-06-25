@@ -1,8 +1,8 @@
 {
   "version": "0.1.0",
   "lastUpdated": "2026-06-22",
-  "generatedAt": "2026-06-23T12:58:12.243Z",
-  "durationMs": 11735,
+  "generatedAt": "2026-06-23T14:01:13.138Z",
+  "durationMs": 37784,
   "method": "Physical source lines counted from configured source roots. Dependency folders, generated output, runtime artifacts, and local environment files are excluded. Counts include comments; non-blank lines are shown separately in the UI.",
   "systems": [
     {
@@ -10,8 +10,8 @@
       "summary": "The legacy system is a PHP monolith with server-rendered interface screens, separate browser assets/templates, MariaDB DDL scripts, native tests, and local Docker/PowerShell orchestration.",
       "totals": {
         "files": 5163,
-        "totalLines": 1423372,
-        "nonBlankLines": 1284670,
+        "totalLines": 1423373,
+        "nonBlankLines": 1284671,
         "blankLines": 138702
       },
       "components": [
@@ -171,8 +171,8 @@
             "/legacy-openemr/source/"
           ],
           "files": 6,
-          "totalLines": 1164,
-          "nonBlankLines": 1024,
+          "totalLines": 1165,
+          "nonBlankLines": 1025,
           "blankLines": 140,
           "samplePaths": [
             "/legacy-openemr/docker-compose.yml",
@@ -223,10 +223,10 @@
       "systemId": "modernization-workbench",
       "summary": "The Workbench is a React operator UI plus a local Express orchestration API, configuration contracts, and the shared parity/evidence harness it surfaces.",
       "totals": {
-        "files": 244,
-        "totalLines": 66055,
-        "nonBlankLines": 60757,
-        "blankLines": 5298
+        "files": 245,
+        "totalLines": 66921,
+        "nonBlankLines": 61563,
+        "blankLines": 5358
       },
       "components": [
         {
@@ -243,9 +243,9 @@
             ".css"
           ],
           "files": 6,
-          "totalLines": 5761,
-          "nonBlankLines": 5233,
-          "blankLines": 528,
+          "totalLines": 6232,
+          "nonBlankLines": 5674,
+          "blankLines": 558,
           "samplePaths": [
             "/modernization-workbench/src/App.tsx",
             "/modernization-workbench/src/api.ts",
@@ -268,9 +268,9 @@
             ".json"
           ],
           "files": 1,
-          "totalLines": 2331,
-          "nonBlankLines": 2118,
-          "blankLines": 213,
+          "totalLines": 2385,
+          "nonBlankLines": 2166,
+          "blankLines": 219,
           "samplePaths": [
             "/modernization-workbench/server/index.ts"
           ],
@@ -291,8 +291,8 @@
             "/modernization-workbench/config/source-inventory.snapshot.json"
           ],
           "files": 3,
-          "totalLines": 4799,
-          "nonBlankLines": 4799,
+          "totalLines": 4822,
+          "nonBlankLines": 4822,
           "blankLines": 0,
           "samplePaths": [
             "/modernization-workbench/config/apps.json",
@@ -318,9 +318,9 @@
             "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/generated/"
           ],
           "files": 4,
-          "totalLines": 2124,
-          "nonBlankLines": 1998,
-          "blankLines": 126,
+          "totalLines": 2162,
+          "nonBlankLines": 2033,
+          "blankLines": 129,
           "samplePaths": [
             "/modernization-workbench/seed-data/manifest.json",
             "/modernization-workbench/seed-data/openemr-shared-synthetic-v1/README.md",
@@ -346,10 +346,10 @@
           "excludePathIncludes": [
             "/parity-tests/artifacts/"
           ],
-          "files": 227,
-          "totalLines": 50965,
-          "nonBlankLines": 46535,
-          "blankLines": 4430,
+          "files": 228,
+          "totalLines": 51245,
+          "nonBlankLines": 46794,
+          "blankLines": 4451,
           "samplePaths": [
             "/parity-tests/config/targets.json",
             "/parity-tests/package-lock.json",
@@ -401,9 +401,9 @@
       "summary": "The modernized target is a React/TypeScript SPA, ASP.NET Core API, PostgreSQL seed/schema generator, parity evidence, and Docker/PowerShell runtime scripts.",
       "totals": {
         "files": 38,
-        "totalLines": 59596,
-        "nonBlankLines": 55061,
-        "blankLines": 4535
+        "totalLines": 59883,
+        "nonBlankLines": 55328,
+        "blankLines": 4555
       },
       "components": [
         {
@@ -420,9 +420,9 @@
             ".css"
           ],
           "files": 5,
-          "totalLines": 27416,
-          "nonBlankLines": 25468,
-          "blankLines": 1948,
+          "totalLines": 27534,
+          "nonBlankLines": 25578,
+          "blankLines": 1956,
           "samplePaths": [
             "/modernized-openemr/frontend/src/App.css",
             "/modernized-openemr/frontend/src/App.tsx",
@@ -445,9 +445,9 @@
             ".json"
           ],
           "files": 29,
-          "totalLines": 20727,
-          "nonBlankLines": 18878,
-          "blankLines": 1849,
+          "totalLines": 20879,
+          "nonBlankLines": 19018,
+          "blankLines": 1861,
           "samplePaths": [
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AdministrationRepository.cs",
             "/modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/AppointmentRepository.cs",
@@ -470,8 +470,8 @@
             ".sql"
           ],
           "files": 3,
-          "totalLines": 11412,
-          "nonBlankLines": 10677,
+          "totalLines": 11429,
+          "nonBlankLines": 10694,
           "blankLines": 735,
           "samplePaths": [
             "/modernized-openemr/scripts/Seed-ModernizedGoldDataset.ps1",

@@ -523,7 +523,7 @@ function RuntimeReadinessBanner({
     : hasIssues
       ? "One or more local app stacks is stopped, unhealthy, or not reachable. Use Start all apps or the per-app action below."
       : allReady
-        ? "Legacy OpenEMR and the modernized app are both running and their health endpoints are reachable."
+        ? "All configured Docker apps are running and their health endpoints are reachable."
         : "The configured app stacks have no active runtime warnings.";
   const busyNow = Boolean(busy);
 
@@ -591,6 +591,7 @@ function LegacyAppPanel({
   logs: string;
 }) {
   const busyForApp = busy?.appId === app.id || busy?.appId === allAppsBusyId;
+  const hasDatabaseMetrics = app.dataProfile.available && app.dataProfile.rows.length > 0;
   const patientCount = app.dataProfile.rows.find((row) => row.tableName === "patient_data" || row.tableName === "patients")?.rowCount ?? 0;
   const encounterCount = app.dataProfile.rows.find((row) => row.tableName === "form_encounter" || row.tableName === "encounters")?.rowCount ?? 0;
   const appointmentCount = app.dataProfile.rows.find((row) => row.tableName === "openemr_postcalendar_events" || row.tableName === "appointments")?.rowCount ?? 0;
@@ -600,6 +601,11 @@ function LegacyAppPanel({
   const latestSeedDetail = app.latestSeed
     ? `${app.latestSeed.mode ?? "seeded"} ${app.latestSeed.expectedPatients} gold patients`
     : seedDataset?.currentSeedLevel ?? "Synthetic seed data pending";
+  const demoLoginEntries = app.demoLogin.entries?.length
+    ? app.demoLogin.entries
+    : app.demoLogin.username && app.demoLogin.password
+      ? [{ label: "Default", username: app.demoLogin.username, password: app.demoLogin.password }]
+      : [];
 
   return (
     <section className="panel primary-panel">
@@ -656,12 +662,11 @@ function LegacyAppPanel({
         </div>
         {app.demoLogin.available ? (
           <div className="credential-values">
-            <span>
-              Username <code>{app.demoLogin.username}</code>
-            </span>
-            <span>
-              Password <code>{app.demoLogin.password}</code>
-            </span>
+            {demoLoginEntries.map((entry) => (
+              <span key={`${app.id}-${entry.label}`}>
+                {entry.label} <code>{entry.username}</code> / <code>{entry.password}</code>
+              </span>
+            ))}
           </div>
         ) : (
           <span className="credential-error">{app.demoLogin.error ?? "Credential unavailable."}</span>
@@ -692,8 +697,17 @@ function LegacyAppPanel({
       <div className="metric-grid">
         <Metric label="Health endpoint" value={app.health.ok ? "OK" : "Issue"} detail={`HTTP ${app.health.statusCode ?? "-"} in ${formatDuration(app.health.durationMs)}`} />
         <Metric label="Source tag" value={app.source.tag} detail={app.source.matchesExpectedTag ? "Pinned tag verified" : "Check source tag"} />
-        <Metric label="Patients" value={patientCount} detail={latestSeedDetail} />
-        <Metric label="Encounters" value={encounterCount} detail={`${appointmentCount} appointments`} />
+        {hasDatabaseMetrics ? (
+          <>
+            <Metric label="Patients" value={patientCount} detail={latestSeedDetail} />
+            <Metric label="Encounters" value={encounterCount} detail={`${appointmentCount} appointments`} />
+          </>
+        ) : (
+          <>
+            <Metric label="Compose services" value={app.services.length || app.containers.length} detail={app.runtime.detail} />
+            <Metric label="Managed actions" value={`${app.tests.length} tests`} detail={`${app.seeds.length} seed actions`} />
+          </>
+        )}
       </div>
 
       <div className="two-column">
@@ -735,6 +749,14 @@ function ServicesPanel({ app }: { app: AppSnapshot }) {
               <span>{container.health || "n/a"}</span>
             </div>
           ))
+        ) : app.services.length ? (
+          app.services.map((service) => (
+            <div className="table-row" key={`${app.id}-${service}`}>
+              <span>{service}</span>
+              <span>stopped</span>
+              <span>n/a</span>
+            </div>
+          ))
         ) : (
           <EmptyState text="No containers reported by Docker Compose." />
         )}
@@ -744,6 +766,18 @@ function ServicesPanel({ app }: { app: AppSnapshot }) {
 }
 
 function LatestSmokePanel({ app }: { app: AppSnapshot }) {
+  if (app.tests.length === 0) {
+    return (
+      <div className="subsection">
+        <h3>
+          <TestTube2 size={17} />
+          Latest Smoke Test
+        </h3>
+        <EmptyState text="No smoke-test action is configured for this managed app." />
+      </div>
+    );
+  }
+
   return (
     <div className="subsection">
       <h3>
@@ -2112,15 +2146,24 @@ function TestsPage({
   onRunTest: (appId: string, testId: string) => void;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
 }) {
+  const parityAppIds = new Set([
+    ...(parityManifest?.suites.flatMap((suite) => suite.targets) ?? []),
+    ...(parityManifest?.plans.flatMap((plan) => plan.targets) ?? [])
+  ]);
+  const visibleApps = apps.filter((app) => app.tests.length > 0 || parityAppIds.has(app.id));
+
   return (
     <div className="page-stack">
       <ParityComparisonPanel comparisons={parityComparisons} />
-      {apps.length ? (
-        apps.map((app) => {
+      {visibleApps.length ? (
+        visibleApps.map((app) => {
           const busyForApp = busy?.appId === app.id;
+          const supportsCustomParity = parityAppIds.has(app.id);
           return (
             <Fragment key={app.id}>
-              <CustomParityRunPanel app={app} busy={busy} parityManifest={parityManifest} onRunCustomParity={(request) => onRunCustomParity(app.id, request)} />
+              {supportsCustomParity ? (
+                <CustomParityRunPanel app={app} busy={busy} parityManifest={parityManifest} onRunCustomParity={(request) => onRunCustomParity(app.id, request)} />
+              ) : null}
               <section className="panel">
               <div className="panel-header">
                 <div>
@@ -2161,7 +2204,7 @@ function TestsPage({
         })
       ) : (
         <section className="panel">
-          <EmptyState text="Managed application data is loading." />
+          <EmptyState text={apps.length ? "No managed test actions are configured." : "Managed application data is loading."} />
         </section>
       )}
     </div>
@@ -2699,6 +2742,7 @@ function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapsho
 }
 
 function DashboardPage({
+  apps,
   legacyApp,
   modernizedApp,
   busy,
@@ -2713,6 +2757,7 @@ function DashboardPage({
   events,
   changelog
 }: {
+  apps: AppSnapshot[];
   legacyApp?: AppSnapshot;
   modernizedApp?: AppSnapshot;
   busy: BusyState;
@@ -2731,7 +2776,7 @@ function DashboardPage({
     <>
       <OverviewGrid legacyApp={legacyApp} modernizedApp={modernizedApp} progress={progress} changelog={changelog} />
       <RuntimeReadinessBanner
-        apps={[legacyApp, modernizedApp].filter((app): app is AppSnapshot => Boolean(app))}
+        apps={apps}
         busy={busy}
         onAction={onAction}
         onStartAll={onStartAll}
@@ -2855,6 +2900,7 @@ function PageBody({
   }
   return (
     <DashboardPage
+      apps={apps}
       legacyApp={legacyApp}
       modernizedApp={modernizedApp}
       busy={busy}
