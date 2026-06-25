@@ -273,10 +273,23 @@ type ProjectChangelog = {
   entries: ChangelogEntry[];
 };
 
+type ProjectChangelogSummary = {
+  sourcePath: string;
+  updatedAt: string;
+  totalEntries: number;
+  latestEntry?: Pick<ChangelogEntry, "id" | "title" | "date" | "startedAt" | "finishedAt" | "timelineDate" | "timelineDateSource" | "commit">;
+};
+
+type ParsedChangelogCache = {
+  mtimeMs: number;
+  updatedAt: string;
+  entries: ChangelogEntry[];
+};
+
 type ChangelogCache = {
   mtimeMs: number;
   updatedAt: string;
-  commitScanLimit?: number;
+  commitScanLimit: number;
   entries: ChangelogEntry[];
 };
 
@@ -572,7 +585,10 @@ const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
+const changelogGitEnrichmentCommitLimit = 150;
+let parsedChangelogCache: ParsedChangelogCache | null = null;
 let changelogCache: ChangelogCache | null = null;
+let changelogCacheBuild: { mtimeMs: number; promise: Promise<ChangelogCache> } | null = null;
 const sourceInventoryCacheMs = 10 * 1000;
 const progressHistoryCacheMs = 30 * 1000;
 let sourceInventoryCache: { expiresAt: number; inventory: SourceInventory } | null = null;
@@ -1648,25 +1664,58 @@ function enrichChangelogEntries(entries: ChangelogEntry[], commits: GitCommitInf
   });
 }
 
-async function readCachedChangelogEntries(commitScanLimit?: number) {
+function getChangelogSourcePath() {
+  return path.relative(repoRoot, changelogPath).replaceAll("\\", "/");
+}
+
+async function readParsedChangelogEntries() {
   const stats = await fs.stat(changelogPath);
-  const cacheCoversRequest =
-    changelogCache?.mtimeMs === stats.mtimeMs &&
-    (changelogCache.commitScanLimit === undefined ||
-      commitScanLimit === undefined ||
-      changelogCache.commitScanLimit >= commitScanLimit);
-  if (cacheCoversRequest && changelogCache) {
-    return changelogCache;
+  if (parsedChangelogCache?.mtimeMs === stats.mtimeMs) {
+    return parsedChangelogCache;
   }
 
   const text = await fs.readFile(changelogPath, "utf8");
-  changelogCache = {
+  parsedChangelogCache = {
     mtimeMs: stats.mtimeMs,
     updatedAt: stats.mtime.toISOString(),
-    commitScanLimit,
-    entries: enrichChangelogEntries(parseProjectChangelog(text), await readGitCommitInfo(commitScanLimit))
+    entries: parseProjectChangelog(text)
   };
-  return changelogCache;
+  if (changelogCache?.mtimeMs !== stats.mtimeMs) {
+    changelogCache = null;
+  }
+  return parsedChangelogCache;
+}
+
+async function readCachedChangelogEntries() {
+  const parsed = await readParsedChangelogEntries();
+  if (changelogCache?.mtimeMs === parsed.mtimeMs) {
+    return changelogCache;
+  }
+
+  if (changelogCacheBuild?.mtimeMs === parsed.mtimeMs) {
+    return await changelogCacheBuild.promise;
+  }
+
+  const buildPromise = (async () => {
+    const commits = await readGitCommitInfo(changelogGitEnrichmentCommitLimit);
+    const cache = {
+      mtimeMs: parsed.mtimeMs,
+      updatedAt: parsed.updatedAt,
+      commitScanLimit: changelogGitEnrichmentCommitLimit,
+      entries: enrichChangelogEntries(parsed.entries, commits)
+    };
+    changelogCache = cache;
+    return cache;
+  })();
+  changelogCacheBuild = { mtimeMs: parsed.mtimeMs, promise: buildPromise };
+
+  try {
+    return await buildPromise;
+  } finally {
+    if (changelogCacheBuild?.promise === buildPromise) {
+      changelogCacheBuild = null;
+    }
+  }
 }
 
 function normalizeChangelogOffset(value: unknown) {
@@ -1685,8 +1734,7 @@ function normalizeChangelogOrder(value: unknown): ChangelogOrder {
 }
 
 async function readProjectChangelog({ offset = 0, limit, order = "asc" }: { offset?: number; limit?: number; order?: ChangelogOrder } = {}): Promise<ProjectChangelog> {
-  const commitScanLimit = limit === undefined ? undefined : offset + limit + 50;
-  const cached = await readCachedChangelogEntries(commitScanLimit);
+  const cached = await readCachedChangelogEntries();
   const orderedEntries = order === "desc" ? [...cached.entries].reverse() : cached.entries;
   const normalizedOffset = Math.min(Math.max(offset, 0), orderedEntries.length);
   const normalizedLimit = limit === undefined ? orderedEntries.length : Math.min(Math.max(limit, 1), 500);
@@ -1695,7 +1743,7 @@ async function readProjectChangelog({ offset = 0, limit, order = "asc" }: { offs
   const hasMore = nextOffset < orderedEntries.length;
 
   return {
-    sourcePath: path.relative(repoRoot, changelogPath).replaceAll("\\", "/"),
+    sourcePath: getChangelogSourcePath(),
     updatedAt: cached.updatedAt,
     totalEntries: cached.entries.length,
     offset: normalizedOffset,
@@ -1705,6 +1753,29 @@ async function readProjectChangelog({ offset = 0, limit, order = "asc" }: { offs
     nextOffset: hasMore ? nextOffset : undefined,
     order,
     entries
+  };
+}
+
+async function readProjectChangelogSummary(): Promise<ProjectChangelogSummary> {
+  const parsed = await readParsedChangelogEntries();
+  const entries = enrichChangelogEntries(parsed.entries, []);
+  const latestEntry = entries[entries.length - 1];
+  return {
+    sourcePath: getChangelogSourcePath(),
+    updatedAt: parsed.updatedAt,
+    totalEntries: entries.length,
+    latestEntry: latestEntry
+      ? {
+          id: latestEntry.id,
+          title: latestEntry.title,
+          date: latestEntry.date,
+          startedAt: latestEntry.startedAt,
+          finishedAt: latestEntry.finishedAt,
+          timelineDate: latestEntry.timelineDate,
+          timelineDateSource: latestEntry.timelineDateSource,
+          commit: latestEntry.commit
+        }
+      : undefined
   };
 }
 
@@ -3352,6 +3423,14 @@ app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => 
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(selection.latestPath));
     response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp, { includeDetails: false }) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/changelog/summary", async (_request, response, next) => {
+  try {
+    response.json(await readProjectChangelogSummary());
   } catch (error) {
     next(error);
   }

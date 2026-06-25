@@ -48,6 +48,7 @@ import type {
   ParityRunResult,
   ProgressSlice,
   ProjectChangelog,
+  ProjectChangelogSummary,
   RuntimeState,
   SeedDataset,
   SmokeResult,
@@ -496,7 +497,7 @@ function AppHeader({
   );
 }
 
-function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legacyApp?: AppSnapshot; modernizedApp?: AppSnapshot; progress: ProgressSlice[]; changelog: ProjectChangelog | null }) {
+function OverviewGrid({ legacyApp, modernizedApp, progress, changelogSummary }: { legacyApp?: AppSnapshot; modernizedApp?: AppSnapshot; progress: ProgressSlice[]; changelogSummary: ProjectChangelogSummary | null }) {
   const patientCount = legacyApp?.dataProfile.rows.find((row) => row.tableName === "patient_data")?.rowCount ?? 0;
   const verifiedProgress = progress.filter((slice) => slice.status === "verified").length;
 
@@ -536,7 +537,7 @@ function OverviewGrid({ legacyApp, modernizedApp, progress, changelog }: { legac
         <History size={21} />
         <div>
           <strong>Timeline steps</strong>
-          <span>{changelog?.totalEntries ?? 0}</span>
+          <span>{changelogSummary?.totalEntries ?? 0}</span>
         </div>
       </div>
       <div className="overview-item">
@@ -3121,7 +3122,7 @@ function DashboardPage({
   logs,
   progress,
   events,
-  changelog
+  changelogSummary
 }: {
   apps: AppSnapshot[];
   legacyApp?: AppSnapshot;
@@ -3136,11 +3137,11 @@ function DashboardPage({
   logs: string;
   progress: ProgressSlice[];
   events: LifecycleEvent[];
-  changelog: ProjectChangelog | null;
+  changelogSummary: ProjectChangelogSummary | null;
 }) {
   return (
     <>
-      <OverviewGrid legacyApp={legacyApp} modernizedApp={modernizedApp} progress={progress} changelog={changelog} />
+      <OverviewGrid legacyApp={legacyApp} modernizedApp={modernizedApp} progress={progress} changelogSummary={changelogSummary} />
       <RuntimeReadinessBanner
         apps={apps}
         busy={busy}
@@ -3184,6 +3185,7 @@ function PageBody({
   functionalityForecast,
   events,
   architecture,
+  changelogSummary,
   changelog,
   parityManifest,
   parityComparisons,
@@ -3213,6 +3215,7 @@ function PageBody({
   functionalityForecast?: FunctionalityProgressForecast;
   events: LifecycleEvent[];
   architecture: ArchitectureModel | null;
+  changelogSummary: ProjectChangelogSummary | null;
   changelog: ProjectChangelog | null;
   parityManifest: ParityManifest | null;
   parityComparisons: ParityComparisonReport[];
@@ -3295,7 +3298,7 @@ function PageBody({
       logs={legacyApp ? (logs[legacyApp.id] ?? "") : ""}
       progress={progress}
       events={events}
-      changelog={changelog}
+      changelogSummary={changelogSummary}
     />
   );
 }
@@ -3314,6 +3317,7 @@ export function App() {
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
   const [parityReliability, setParityReliability] = useState<ParityReliabilityReport | null>(null);
+  const [changelogSummary, setChangelogSummary] = useState<ProjectChangelogSummary | null>(null);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [changelogLoading, setChangelogLoading] = useState(false);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
@@ -3377,6 +3381,11 @@ export function App() {
     setParityReliability(parityReliabilityData);
   }, []);
 
+  const loadChangelogSummary = useCallback(async () => {
+    const changelogSummaryData = await api.getChangelogSummary();
+    setChangelogSummary(changelogSummaryData);
+  }, []);
+
   const loadChangelogPage = useCallback(async (offset: number) => {
     setChangelogLoading(true);
     try {
@@ -3389,6 +3398,12 @@ export function App() {
   const loadChangelog = useCallback(async () => {
     const changelogData = await loadChangelogPage(0);
     setChangelog(changelogData);
+    setChangelogSummary({
+      sourcePath: changelogData.sourcePath,
+      updatedAt: changelogData.updatedAt,
+      totalEntries: changelogData.totalEntries,
+      latestEntry: changelogData.entries[0]
+    });
   }, [loadChangelogPage]);
 
   const handleLoadMoreChangelog = useCallback(() => {
@@ -3448,7 +3463,7 @@ export function App() {
       case "dashboard":
         await Promise.all([
           loadWithErrorBanner("Progress", loadProgress),
-          loadWithErrorBanner("Timeline", loadChangelog)
+          loadWithErrorBanner("Timeline", loadChangelogSummary)
         ]);
         break;
       case "applications":
@@ -3468,7 +3483,7 @@ export function App() {
       case "seed-data":
         break;
     }
-  }, [loadArchitecture, loadChangelog, loadProgress, loadTestData, loadWithErrorBanner]);
+  }, [loadArchitecture, loadChangelog, loadChangelogSummary, loadProgress, loadTestData, loadWithErrorBanner]);
 
   const refreshOperationalData = useCallback(async () => {
     await Promise.allSettled([
@@ -3636,6 +3651,7 @@ export function App() {
           functionalityForecast={functionalityForecast}
           events={events}
           architecture={architecture}
+          changelogSummary={changelogSummary}
           changelog={changelog}
           parityManifest={parityManifest}
           parityComparisons={parityComparisons}

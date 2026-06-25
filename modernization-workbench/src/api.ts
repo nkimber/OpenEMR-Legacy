@@ -13,6 +13,7 @@ import type {
   ParityRunResult,
   ProgressResponse,
   ProjectChangelog,
+  ProjectChangelogSummary,
   SeedDataset,
   SeedResult,
   SmokeResult,
@@ -106,5 +107,8 @@ export const api = {
     const queryString = query.toString();
     const suffix = queryString ? `?${queryString}` : "";
     return requestJson<ProjectChangelog>(`/api/changelog${suffix}`);
+  },
+  async getChangelogSummary() {
+    return requestJson<ProjectChangelogSummary>("/api/changelog/summary");
   }
 };

@@ -691,6 +691,13 @@ export type ProjectChangelog = {
   entries: ChangelogEntry[];
 };
 
+export type ProjectChangelogSummary = {
+  sourcePath: string;
+  updatedAt: string;
+  totalEntries: number;
+  latestEntry?: Pick<ChangelogEntry, "id" | "title" | "date" | "startedAt" | "finishedAt" | "timelineDate" | "timelineDateSource" | "commit">;
+};
+
 export type ParityResetMode = "none" | "run" | "suite" | "test";
 
 export type ParitySuite = {
