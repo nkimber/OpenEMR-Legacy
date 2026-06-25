@@ -21707,7 +21707,7 @@ Code changes:
 
 Started: 2026-06-25T17:37:26.1344886-04:00
 Finished: 2026-06-25T17:43:29.7582235-04:00
-Commit: pending
+Commit: fe3b32da
 
 Implemented Slice 397: Slice 138 procedure report review queue lab filter probe payload attachments. The procedure report review queue lab filter parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary lab-provider and alternate-lab-provider creation, temporary encounter/order/report creation, processing-lab filter inclusion, alternate-lab exclusion, reviewed lab-filter movement after sign-off, legacy lab-filtered queue rendering facts, modernized Reports lab filter rendering facts, and cleanup removal from lab-filtered queues plus temporary lab providers so Workbench comparison drill-ins can preview lab filter evidence.
 
