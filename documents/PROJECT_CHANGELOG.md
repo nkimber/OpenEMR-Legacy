@@ -20072,7 +20072,7 @@ Code changes:
 
 Started: 2026-06-25T12:17:20-04:00
 Finished: 2026-06-25T12:18:59-04:00
-Commit: pending
+Commit: e36df9b1
 
 Implemented Slice 348: Slice 87 encounter external-link document probe payload attachments. The encounter external-link document parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary URL-backed `text/uri-list` document payload, `web_url` storage metadata, legacy Documents category rendering, modernized encounter-detail API external-link rows, Encounters attached-document Open Link UI anchors, archive state, and final cleanup so Workbench comparison drill-ins can preview encounter external-link document evidence.
 
