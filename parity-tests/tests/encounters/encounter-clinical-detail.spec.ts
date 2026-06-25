@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openEncounterDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -6,13 +7,48 @@ const encounterAnchorPatientId = "MOD-PAT-0001";
 const encounterAnchorFromDate = "2026-01-01";
 
 test.describe("encounter clinical detail parity @slice3 @encounters", () => {
-  test("stable encounter anchor has SOAP and vitals facts", async ({ targetDb }) => {
+  test("stable encounter anchor has SOAP and vitals facts", async ({ target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterAnchorPatientId);
-    expect(patient).not.toBeNull();
+    const encounter = patient ? await targetDb.getLatestEncounterForPatient(patient.pid) : null;
+    const clinical = patient && encounter ? await targetDb.getEncounterClinicalDetail(patient.pid, encounter.encounter) : null;
 
-    const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-3-encounter-clinical-detail-anchor",
+      description: "Verifies the Slice 3 encounter anchor patient, latest encounter, SOAP note, and vitals database facts.",
+      expected: {
+        patient: {
+          pubpid: encounterAnchorPatientId
+        },
+        encounter: {
+          patientId: patient?.pid ?? 100001,
+          encounter: "latest seeded encounter id",
+          date: `>= ${encounterAnchorFromDate}`,
+          reason: "non-empty"
+        },
+        clinical: {
+          patientId: patient?.pid ?? 100001,
+          encounter: encounter?.encounter ?? "latest seeded encounter id",
+          reason: "non-empty",
+          assessment: "contains 'monitored during visit'",
+          bloodPressure: "systolic/diastolic"
+        }
+      },
+      actual: {
+        patient,
+        encounter,
+        clinical
+      },
+      context: {
+        canonicalId: encounterAnchorPatientId,
+        fromDate: encounterAnchorFromDate,
+        suite: "encounters",
+        workflow: "encounter-clinical-detail"
+      }
+    });
+
+    expect(patient).not.toBeNull();
     expect(encounter).not.toBeNull();
-    const clinical = await targetDb.getEncounterClinicalDetail(patient!.pid, encounter!.encounter);
     expect(clinical).not.toBeNull();
 
     expect(clinical!.patientId).toBe(patient!.pid);
@@ -22,12 +58,43 @@ test.describe("encounter clinical detail parity @slice3 @encounters", () => {
     expect(clinical!.reason).toBeTruthy();
   });
 
-  test("encounter SOAP and vitals are visible in the application UI", async ({ page, target, targetDb }) => {
+  test("encounter SOAP and vitals are visible in the application UI", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterAnchorPatientId);
+    const encounter = patient ? await targetDb.getLatestEncounterForPatient(patient.pid) : null;
+    const clinical = patient && encounter ? await targetDb.getEncounterClinicalDetail(patient.pid, encounter.encounter) : null;
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-3-encounter-ui-precondition",
+      description: "Captures the patient, latest encounter, SOAP note, and vitals database rows used before steering the Slice 3 encounter UI parity flow.",
+      expected: {
+        patient: {
+          pubpid: encounterAnchorPatientId
+        },
+        encounter: {
+          reason: "visible encounter topic",
+          date: `>= ${encounterAnchorFromDate}`
+        },
+        clinical: {
+          bloodPressure: "visible blood pressure",
+          assessment: "visible assessment text"
+        }
+      },
+      actual: {
+        patient,
+        encounter,
+        clinical
+      },
+      context: {
+        canonicalId: encounterAnchorPatientId,
+        fromDate: encounterAnchorFromDate,
+        suite: "encounters",
+        workflow: "encounter-clinical-detail-ui"
+      }
+    });
+
     expect(patient).not.toBeNull();
-    const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
     expect(encounter).not.toBeNull();
-    const clinical = await targetDb.getEncounterClinicalDetail(patient!.pid, encounter!.encounter);
     expect(clinical).not.toBeNull();
 
     if (target.type === "legacy-openemr") {
