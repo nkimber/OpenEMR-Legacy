@@ -20393,7 +20393,7 @@ Code changes:
 
 Started: 2026-06-25T13:09:09-04:00
 Finished: 2026-06-25T13:11:22-04:00
-Commit: pending
+Commit: cc1265dd
 
 Implemented Slice 357: Slice 96 appointment no-show probe payload attachments. The appointment no-show parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, no-show `?` status/title facts, legacy appointment edit rendering, modernized Calendar no-show action/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment no-show evidence.
 
