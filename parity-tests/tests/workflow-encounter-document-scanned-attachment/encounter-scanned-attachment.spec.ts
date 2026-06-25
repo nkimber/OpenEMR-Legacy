@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
@@ -17,38 +18,92 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterScannedAttachmentAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded encounter scanned attachment patient ${encounterScannedAttachmentAnchorPatientId}`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const beforeEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterScannedAttachmentAnchorEncounter
     );
     const suffix = workflowSuffix();
     const fileName = `Parity Encounter Scanned Attachment ${suffix}.pdf`;
     const notes = "Scan source: front-desk scanner; OCR pending; Created by the parity encounter scanned attachment suite.";
     const contentBase64 = buildScannedPdfFixtureBase64(fileName);
+    const sizeBytes = Buffer.from(contentBase64, "base64").length;
+    const scannedDocumentInput = {
+      patientId: patient.pid,
+      encounter: encounterScannedAttachmentAnchorEncounter,
+      categoryId: 3,
+      categoryName: "Medical Record",
+      name: fileName,
+      docDate: "2026-06-20",
+      fileName,
+      mimetype: "application/pdf",
+      contentBase64,
+      notes
+    };
     let documentId: number | string | null = null;
+    let created: Awaited<ReturnType<typeof workflow.getPatientDocument>> = null;
+    let createdContent: Awaited<ReturnType<typeof targetDb.getPatientDocumentContent>> = null;
+    let afterCreateCounts: Awaited<ReturnType<typeof targetDb.getPatientWorkflowCounts>> | null = null;
+    let afterCreateEncounterDocuments: Awaited<ReturnType<typeof targetDb.getPatientDocumentsForEncounter>> | null = null;
+    let attachedDocument: Record<string, unknown> | undefined;
 
     try {
-      documentId = await workflow.createEncounterBinaryDocument({
-        patientId: patient!.pid,
-        encounter: encounterScannedAttachmentAnchorEncounter,
-        categoryId: 3,
-        categoryName: "Medical Record",
-        name: fileName,
-        docDate: "2026-06-20",
-        fileName,
-        mimetype: "application/pdf",
-        contentBase64,
-        notes
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-126-encounter-document-scanned-attachment-precondition",
+        description:
+          "Seeded encounter scanned-attachment patient, encounter baseline, proposed scanned PDF payload, and expected scan-readiness metadata before create.",
+        expected: {
+          patientCanonicalId: encounterScannedAttachmentAnchorPatientId,
+          encounterId: encounterScannedAttachmentAnchorEncounter,
+          categoryId: 3,
+          categoryName: "Medical Record",
+          docDate: "2026-06-20",
+          expectedDocumentDelta: 1,
+          expectedEncounterDocumentDelta: 1,
+          scanReadiness: {
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            isScannedAttachment: true,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending",
+            deleted: 0
+          }
+        },
+        actual: {
+          patient: {
+            pid: patient.pid,
+            pubpid: patient.pubpid,
+            fname: patient.fname,
+            lname: patient.lname
+          },
+          beforeCounts,
+          beforeEncounterDocuments,
+          proposedDocument: {
+            ...scannedDocumentInput,
+            contentBase64Length: contentBase64.length,
+            sizeBytes
+          }
+        }
       });
 
-      const created = await workflow.getPatientDocument(documentId);
+      documentId = await workflow.createEncounterBinaryDocument(scannedDocumentInput);
+
+      created = await workflow.getPatientDocument(documentId);
       expect(created).toMatchObject({
-        patientId: patient!.pid,
+        patientId: patient.pid,
         categoryId: 3,
         categoryName: "Medical Record",
         name: fileName,
@@ -64,8 +119,9 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         scanPageCount: 1,
         ocrStatus: "OCR pending"
       });
+      expect(created!.sizeBytes).toBe(sizeBytes);
 
-      const createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
+      createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(createdContent).not.toBeNull();
       expect(createdContent).toMatchObject({
         id: Number(documentId),
@@ -81,16 +137,17 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         scanPageCount: 1,
         ocrStatus: "OCR pending"
       });
+      expect(createdContent!.sizeBytes).toBe(sizeBytes);
 
-      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
 
-      const afterCreateEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-        patient!.pid,
+      afterCreateEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
+        patient.pid,
         encounterScannedAttachmentAnchorEncounter
       );
       expect(afterCreateEncounterDocuments.documents).toHaveLength(beforeEncounterDocuments.documents.length + 1);
-      const attachedDocument = afterCreateEncounterDocuments.documents.find((document) => document.name === fileName);
+      attachedDocument = afterCreateEncounterDocuments.documents.find((document) => document.name === fileName);
       expect(attachedDocument).toMatchObject({
         categoryName: "Medical Record",
         encounter: encounterScannedAttachmentAnchorEncounter,
@@ -108,12 +165,91 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         ocrStatus: "OCR pending"
       });
 
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-126-encounter-document-scanned-attachment-created",
+        description:
+          "Temporary encounter-scoped scanned PDF document was created with normalized content metadata, scan-readiness facts, and encounter document count increment.",
+        expected: {
+          document: {
+            patientId: patient.pid,
+            encounter: encounterScannedAttachmentAnchorEncounter,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: fileName,
+            docDate: "2026-06-20",
+            mimetype: "application/pdf",
+            fileName,
+            storageMethod: "database",
+            deleted: 0,
+            sizeBytes
+          },
+          scanReadiness: {
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            canPreviewInline: true,
+            canDownload: true,
+            isScannedAttachment: true,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending",
+            contentBase64
+          },
+          counts: {
+            documents: beforeCounts.documents + 1,
+            encounterDocuments: beforeEncounterDocuments.documents.length + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          beforeEncounterDocuments,
+          afterCreateEncounterDocuments,
+          documentId,
+          created,
+          createdContent,
+          attachedDocument
+        }
+      });
+
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
-        await openPatientDocumentsDirect(page, target, patient!.pid);
+        await openPatientDocumentsDirect(page, target, patient.pid);
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-126-encounter-document-scanned-attachment-surface",
+          description:
+            "Legacy Documents category rendering facts for the temporary encounter-scoped scanned PDF attachment.",
+          expected: {
+            category: "Medical Record",
+            documentName: fileName,
+            encounterId: encounterScannedAttachmentAnchorEncounter,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending"
+          },
+          actual: {
+            patient,
+            documentId,
+            created,
+            createdContent,
+            attachedDocument,
+            surface: {
+              application: "legacy-openemr",
+              page: "patient-documents",
+              patientPid: patient.pid,
+              expandedCategory: "Medical Record",
+              renderedDocumentName: fileName
+            }
+          }
+        });
       } else {
         const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterScannedAttachmentAnchorEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
@@ -121,9 +257,9 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         const apiDocument = detailPayload.documents.find((document: { name: string }) => document.name === fileName);
         expect(apiDocument).toMatchObject({
           categoryName: "Medical Record",
-          mimetype: "application/pdf",
-          previewKind: "pdf",
-          previewStatus: "Inline PDF preview",
+            mimetype: "application/pdf",
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
           thumbnailLabel: "PDF",
           canPreviewInline: true,
           canDownload: true,
@@ -147,6 +283,51 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
         await expect(documentCard).toContainText("front-desk scanner");
         await expect(documentCard).toContainText("1 scanned page");
         await expect(documentCard).toContainText("OCR pending");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-126-encounter-document-scanned-attachment-surface",
+          description:
+            "Modernized encounter detail API and attached-document card rendering anchors for the temporary scanned PDF attachment.",
+          expected: {
+            apiDocument: {
+              categoryName: "Medical Record",
+              mimetype: "application/pdf",
+              previewKind: "pdf",
+              previewStatus: "Inline PDF preview",
+              thumbnailLabel: "PDF",
+              canPreviewInline: true,
+              canDownload: true,
+              isScannedAttachment: true,
+              scanStatus: "Scanned attachment",
+              captureSource: "front-desk scanner",
+              scanPageCount: 1,
+              ocrStatus: "OCR pending"
+            },
+            card: {
+              documentName: fileName,
+              scanStatus: "Scanned attachment",
+              captureSource: "front-desk scanner",
+              scanPageCountText: "1 scanned page",
+              ocrStatus: "OCR pending"
+            }
+          },
+          actual: {
+            patient,
+            documentId,
+            created,
+            createdContent,
+            attachedDocument,
+            apiDocument,
+            surface: {
+              application: "modernized-openemr",
+              page: "encounters",
+              searchPatientId: patient.pubpid,
+              fromDate: encounterScannedAttachmentFromDate,
+              encounterId: encounterScannedAttachmentAnchorEncounter,
+              renderedCard: await documentCard.innerText()
+            }
+          }
+        });
       }
     } finally {
       if (documentId !== null) {
@@ -154,16 +335,37 @@ test.describe("encounter scanned attachment parity @slice126 @workflow-encounter
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
     const afterCleanupEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterScannedAttachmentAnchorEncounter
     );
     expect(afterCleanupEncounterDocuments.documents).toHaveLength(beforeEncounterDocuments.documents.length);
+    const afterCleanup = documentId !== null ? await workflow.getPatientDocument(documentId) : null;
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      expect(afterCleanup).toBeNull();
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-126-encounter-document-scanned-attachment-cleanup",
+      description:
+        "Temporary encounter scanned attachment was hard-deleted and patient/encounter document counts returned to baseline.",
+      expected: {
+        documentDeleted: true,
+        documentCountRestored: true,
+        encounterDocumentCountRestored: true
+      },
+      actual: {
+        documentId,
+        beforeCounts,
+        afterCleanupCounts,
+        beforeEncounterDocuments,
+        afterCleanupEncounterDocuments,
+        afterCleanup
+      }
+    });
   });
 });
 
