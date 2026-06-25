@@ -20068,6 +20068,41 @@ Code changes:
 - Net lines: +330
 - Total churn: 420
 
+## 394. Slice 348 Slice 87 Encounter External-Link Document Probe Payload Attachments
+
+Started: 2026-06-25T12:17:20-04:00
+Finished: 2026-06-25T12:18:59-04:00
+Commit: pending
+
+Implemented Slice 348: Slice 87 encounter external-link document probe payload attachments. The encounter external-link document parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary URL-backed `text/uri-list` document payload, `web_url` storage metadata, legacy Documents category rendering, modernized encounter-detail API external-link rows, Encounters attached-document Open Link UI anchors, archive state, and final cleanup so Workbench comparison drill-ins can preview encounter external-link document evidence.
+
+Changes:
+- Added Slice 87 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, proposed URL-backed document payload, expected external-link storage metadata, and expected count movement.
+- Added Slice 87 created payload attachments for the temporary external-link encounter document row, `text/uri-list` MIME type, `web_url` storage method, URL preview, encounter-scoped document list, and document count increment.
+- Added Slice 87 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail API rows and Encounters attached-document Open Link UI anchors.
+- Added Slice 87 archived payload attachments for the archived URL-backed document row, preserved encounter link, preserved external URL metadata, active document-count return, and encounter document-list return.
+- Added Slice 87 cleanup payload attachments for temporary external-link document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 87 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 87 encounter external-link document database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 348 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale Slice 86/Slice 347 latest references remain in the synchronized documents and Workbench progress ledger.
+- Passed `git diff --check -- documents modernization-workbench\config\functionality-progress.json parity-tests\tests\workflow-encounter-document-external-link\encounter-document-external-link.spec.ts`.
+- Passed `npm run test:modernized:plan:encounter-document-external-link`, producing run `2026-06-25T161809-704Z-modernized-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+- Passed `npm run test:legacy:plan:encounter-document-external-link`, producing run `2026-06-25T161809-743Z-legacy-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-87-encounter-document-external-link-readiness`, producing matched comparison `2026-06-25T161849-328Z-legacy-openemr-vs-modernized-openemr-plan-slice-87-encounter-document-external-link-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 87 precondition, created, surface, archived, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 300
+- Lines removed: 36
+- Net lines: +264
+- Total churn: 336
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20077,5 +20112,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 86.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 87.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
