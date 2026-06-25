@@ -19998,7 +19998,7 @@ Code changes:
 
 Started: 2026-06-25T11:59:40-04:00
 Finished: 2026-06-25T12:01:45-04:00
-Commit: pending
+Commit: 97bfdb64
 
 Implemented Slice 346: Slice 85 encounter document archive/restore probe payload attachments. The encounter document archive/restore parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary text attachment, archived hidden-content state, restored active document facts, legacy Documents category rendering, modernized active/archived encounter-detail API rows, Encounters attached-document Archive/Restore UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document archive/restore evidence.
 
@@ -20026,10 +20026,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 349
+- Lines added: 361
 - Lines deleted: 44
-- Net lines: +305
-- Total churn: 393
+- Net lines: +317
+- Total churn: 405
 
 ## Next Expected Entries
 
