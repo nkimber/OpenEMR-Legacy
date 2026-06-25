@@ -17525,7 +17525,7 @@ Code changes:
 
 Started: 2026-06-25T02:02:20-04:00
 Finished: 2026-06-25T02:08:56-04:00
-Commit: pending
+Commit: e19f541d
 
 Implemented Slice 272: Slice 11 appointment mutation probe payload attachments. The appointment mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, proposed future appointment create payload, created appointment database row, cancelled appointment database row, and deleted cleanup state so Workbench comparison drill-ins can preview appointment mutation database evidence.
 
