@@ -17954,6 +17954,38 @@ Code changes:
 - Net lines: +108
 - Total churn: 168
 
+## 329. Slice 285 Slice 24 Reports Export Probe Payload Attachments
+
+Started: 2026-06-25T04:04:00-04:00
+Finished: 2026-06-25T04:10:21-04:00
+Commit: pending
+
+Implemented Slice 285: Slice 24 reports export probe payload attachments. The operational reports CSV export parity suite now writes path-backed JSON Playwright attachments for the normalized 79-row export set, representative CSV anchor rows, and UI/API export precondition so Workbench comparison drill-ins can preview report-export database evidence.
+
+Changes:
+- Added Slice 24 normalized export-row payload attachments for the 79-row operational report export contract and representative count, billing, provider, facility, and clinical-condition anchors.
+- Added Slice 24 UI/API precondition payload attachments that capture the selected export anchors before steering the legacy CSV affordance and modernized CSV API checks.
+- Preserved the existing Slice 24 assertions and side-by-side behavior while making report-export evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 24 operational reports CSV export database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 285 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan for Slice 23/Slice 284 wording passed with no matches.
+- `npm run test:modernized:plan:reports-export` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T080911-961Z-modernized-openemr-plan-slice-24-reports-export-readiness`.
+- `npm run test:legacy:plan:reports-export` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T080935-571Z-legacy-openemr-plan-slice-24-reports-export-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 24 runs recorded both new `db-probe-slice-24-operational-reports-export-*` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-24-reports-export-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T080958-496Z-legacy-openemr-vs-modernized-openemr-plan-slice-24-reports-export-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 164
+- Lines deleted: 17
+- Net lines: +147
+- Total churn: 181
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17963,5 +17995,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 23.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 24.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
