@@ -19926,7 +19926,7 @@ Code changes:
 
 Started: 2026-06-25T11:42:22-04:00
 Finished: 2026-06-25T11:44:53-04:00
-Commit: pending
+Commit: c3f63e9a
 
 Implemented Slice 344: Slice 83 encounter document move probe payload attachments. The encounter document move parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, source encounter `1000013`, target encounter `1000011`, baseline source and target encounter document lists, temporary text attachment, source-to-target movement facts, legacy Documents category rendering, modernized source/target encounter-detail API rows, Encounters attached-document move UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document movement evidence.
 
@@ -19953,10 +19953,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 341
-- Lines deleted: 39
-- Net lines: +302
-- Total churn: 380
+- Lines added: 340
+- Lines deleted: 41
+- Net lines: +299
+- Total churn: 381
 
 ## Next Expected Entries
 
