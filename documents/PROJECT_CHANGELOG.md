@@ -17925,7 +17925,7 @@ Code changes:
 
 Started: 2026-06-25T03:55:00-04:00
 Finished: 2026-06-25T04:02:07-04:00
-Commit: pending
+Commit: c3418843
 
 Implemented Slice 284: Slice 23 pending procedure order probe payload attachments. The pending scheduled procedure-order parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0701` anchor patient, future scheduled CBC order, zero-report order projection, and UI-steering precondition so Workbench comparison drill-ins can preview reportless scheduled procedure-order database evidence.
 
