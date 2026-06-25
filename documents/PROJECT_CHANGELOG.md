@@ -20322,7 +20322,7 @@ Code changes:
 
 Started: 2026-06-25T12:59:36-04:00
 Finished: 2026-06-25T13:01:48-04:00
-Commit: pending
+Commit: 54262a77
 
 Implemented Slice 355: Slice 94 appointment arrival probe payload attachments. The appointment arrival parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, arrived status/title facts, legacy appointment edit rendering, modernized Calendar arrival action/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment arrival evidence.
 
