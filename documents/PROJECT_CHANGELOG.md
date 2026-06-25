@@ -15717,7 +15717,7 @@ Primary files:
 
 Started: 2026-06-24T12:02:00.0000000-04:00
 Finished: 2026-06-24T12:25:06.9969231-04:00
-Commit: pending
+Commit: 77481f15
 
 Registered `modern-ui-claude/` as a Workbench-managed Docker Compose frontend so operators can see whether the new Calm Clinical UI container is running, open it, start it with the Workbench, stop/restart it, and read recent compose logs from the Applications page.
 
