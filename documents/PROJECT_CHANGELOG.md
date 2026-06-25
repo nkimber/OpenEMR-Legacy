@@ -18771,7 +18771,7 @@ Code changes:
 
 Started: 2026-06-25T07:33:18-04:00
 Finished: 2026-06-25T07:35:27-04:00
-Commit: pending
+Commit: 9b49544a
 
 Implemented Slice 310: Slice 49 account balance probe payload attachments. The account balance parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, encounter `1000052`, patient-level charge/payment/adjustment/balance totals, encounter-level rollups, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only account balance evidence.
 
