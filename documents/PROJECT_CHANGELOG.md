@@ -22098,7 +22098,7 @@ Code changes:
 
 Started: 2026-06-25T18:43:22.2285786-04:00
 Finished: 2026-06-25T18:46:09.6942891-04:00
-Commit: pending
+Commit: ed2317de
 
 Implemented Slice 409: Slice 154 procedure report reopen-review probe payload attachments. The procedure report reopen-review parity suite now writes path-backed JSON Playwright attachments for temporary encounter/order/report inputs, reviewed queue precondition, reopen action state, received/unreviewed queue transition, browser/API rendering facts, and cleanup count restoration so Workbench comparison drill-ins can preview procedure report reopen-review evidence.
 
