@@ -20957,7 +20957,7 @@ Code changes:
 
 Started: 2026-06-25T15:03:39.9408911-04:00
 Finished: 2026-06-25T15:07:07.2068068-04:00
-Commit: pending
+Commit: 3a59fb20
 
 Implemented Slice 374: Slice 113 appointment recurrence unit matrix probe payload attachments. The appointment recurrence unit matrix parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, temporary daily, workday, and yearly recurring root creation, generated occurrence expansion, legacy repeat-control rendering facts, modernized Calendar recurrence-unit rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview recurrence-unit evidence.
 
