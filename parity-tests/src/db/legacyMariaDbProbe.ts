@@ -1101,6 +1101,7 @@ UNION ALL SELECT 'procedureOrderCatalogItems', COUNT(*) FROM procedure_type WHER
 UNION ALL SELECT 'labReports', COUNT(*) FROM procedure_report
 UNION ALL SELECT 'labResults', COUNT(*) FROM procedure_result
 UNION ALL SELECT 'messages', COUNT(*) FROM pnotes
+UNION ALL SELECT 'portalMailboxMessages', COUNT(*) FROM onsite_mail
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM documents WHERE id BETWEEN 8000001 AND 8001200 AND deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims

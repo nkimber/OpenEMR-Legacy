@@ -120,6 +120,7 @@ UNION ALL SELECT 'procedureOrderCatalogItems', COUNT(*) FROM lab_order_catalog
 UNION ALL SELECT 'labReports', COUNT(*) FROM lab_reports
 UNION ALL SELECT 'labResults', COUNT(*) FROM lab_results
 UNION ALL SELECT 'messages', COUNT(*) FROM messages
+UNION ALL SELECT 'portalMailboxMessages', COUNT(*) FROM portal_mailbox_messages
 UNION ALL SELECT 'patientDocuments', COUNT(*) FROM patient_documents WHERE deleted = 0
 UNION ALL SELECT 'billingLineItems', COUNT(*) FROM billing
 UNION ALL SELECT 'claims', COUNT(*) FROM claims

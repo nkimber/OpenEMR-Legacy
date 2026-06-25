@@ -17136,6 +17136,35 @@ Code changes:
 - Net lines: +238
 - Total churn: 292
 
+## 303. Slice 261 Database Probe Payload Attachments
+
+Started: 2026-06-25T00:36:18-04:00
+Finished: 2026-06-25T00:44:39-04:00
+Duration: 8m 21s
+Commit: pending
+
+Implemented Slice 261: database probe payload attachments. The database gold-seed contract suite now writes path-backed JSON Playwright attachments for expected/actual count, temporal coverage, anchor-patient, and related-record probes so Workbench comparison drill-ins can preview durable database evidence payloads.
+
+Changes:
+- Added a reusable database probe evidence helper that writes JSON payloads into the Playwright test output directory and attaches them by path.
+- Added database contract attachments for generated gold count checks, temporal coverage checks, stable workflow anchor patients, and selected anchor related-record counts.
+- Extended the legacy MariaDB and modernized PostgreSQL count probes to report `portalMailboxMessages`, matching the shared generated summary contract.
+- Updated the Workbench functionality progress ledger so database contract probe payload attachments are completed evidence scope while broader workflow and mutation pre/post payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 261 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `npm run test:legacy:database` in `parity-tests/` passed with 4 expected tests after reset/reseed and emitted four path-backed `db-probe-*` JSON attachments.
+- `npm run test:modernized:database` in `parity-tests/` passed with 4 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed the legacy database run recorded file paths for all four database probe attachments.
+
+Code changes:
+- Files changed: 11
+- Lines added: 198
+- Lines deleted: 43
+- Net lines: +155
+- Total churn: 241
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17145,5 +17174,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for parity probes.
+- Normalized database query/result attachment generation for workflow and mutation parity probes.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

@@ -1375,7 +1375,30 @@ Acceptance:
 
 Current limitations:
 
-- This slice renders probe attachment payloads when Playwright artifacts provide them. Broader parity tests still need to attach normalized database query/result payloads for richer database-probe evidence.
+- This slice renders probe attachment payloads when Playwright artifacts provide them. Slice 261 starts that payload generation in the database contract suite; broader workflow and mutation parity tests still need normalized database query/result payload attachments for richer database-probe evidence.
+
+### Slice 261: Database Probe Payload Attachments
+
+Status:
+
+- Implemented as parity-test evidence infrastructure under `parity-tests/`.
+- Verification is the parity typecheck plus legacy and modernized database suite runs.
+
+Scope:
+
+- Added a reusable `attachDatabaseProbeEvidence` helper that writes JSON evidence files into Playwright test output directories and attaches them by path.
+- The gold-seed database contract suite now emits expected/actual payload attachments for dataset counts, temporal coverage, stable workflow anchors, and selected anchor related-record counts.
+- Legacy MariaDB and modernized PostgreSQL count probes now include `portalMailboxMessages` so the shared generated summary, database adapters, and attachment payloads agree.
+
+Acceptance:
+
+- `npm run test:legacy:database` and `npm run test:modernized:database` pass against freshly reseeded targets.
+- The Playwright JSON report records `db-probe-*` attachments with file paths, allowing the Workbench Slice 260 preview path to render their JSON payloads.
+- The generated count contract continues to validate `portalMailboxMessages` instead of silently omitting the table from actual counts.
+
+Current limitations:
+
+- This slice covers the database gold-seed contract suite only. Workflow and mutation suites still need richer pre/post database probe payload attachments.
 
 ### Slice 156: Patient Message Reply Readiness
 
@@ -4664,3 +4687,4 @@ As of 2026-06-20:
 - The two-hundred-fifty-eighth implementation slice improves Workbench comparison governance by adding a curated accepted-difference registry, applying active acceptance rules to side-by-side comparison artifacts, rendering accepted/unreviewed counts on comparison cards, and showing accepted rule IDs plus reasons in drill-ins. This closes the first accepted-difference tracking gap while leaving an in-browser registry editor, reliability trend summaries, historical trend charts, and long-term evidence-retention policy for future Workbench slices.
 - The two-hundred-fifty-ninth implementation slice improves Workbench evidence analytics by adding a lightweight `/api/parity-reliability` route over recent run/comparison artifacts and rendering rolling pass-rate, match-rate, duration, pass/fail strip, and selection-level summaries on the Test Runs page. This closes the first reliability trend summary gap while leaving deeper historical reliability charts, saved report definitions, and long-term evidence-retention policy for future Workbench slices.
 - The two-hundred-sixtieth implementation slice improves Workbench comparison evidence by extending normalized probe details with safe text-like attachment previews, keeping binary trace artifacts as metadata/links, and optimizing comparison artifact enrichment so the latest comparison cards are sliced before deep report enrichment. This closes the first probe-payload rendering gap while leaving broader database query/result attachment generation for future parity-test slices.
+- The two-hundred-sixty-first implementation slice makes the database gold-seed contract suite produce the first normalized database payload attachments. It writes path-backed JSON evidence for count, temporal coverage, anchor-patient, and related-record probes, and aligns both target count adapters with the shared `portalMailboxMessages` contract so the Workbench can preview those database probe payloads from comparison drill-ins.
