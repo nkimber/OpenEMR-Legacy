@@ -1,11 +1,12 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 const contactAnchorPatientId = "MOD-PAT-0001";
 
 test.describe("patient contact mutation parity @slice10 @workflow-contact @mutation", () => {
-  test("updates, renders, and restores patient contact data", async ({ page, target, targetDb, workflow }) => {
+  test("updates, renders, and restores patient contact data", async ({ page, target, targetDb, workflow }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(contactAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -24,10 +25,58 @@ test.describe("patient contact mutation parity @slice10 @workflow-contact @mutat
       hipaaAllowEmail: "YES"
     };
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-10-patient-contact-mutation-precondition",
+      description: "Captures the Slice 10 contact mutation anchor patient, original contact database state, and proposed update before the mutation runs.",
+      expected: {
+        patient: {
+          pubpid: contactAnchorPatientId
+        },
+        update: {
+          phoneHome: "(619) 555-9101",
+          phoneCell: "(619) 555-9102",
+          hipaaAllowSms: "YES",
+          hipaaAllowEmail: "YES",
+          emailPrefix: "parity-contact-"
+        }
+      },
+      actual: {
+        patient,
+        original,
+        proposed: updated
+      },
+      context: {
+        canonicalId: contactAnchorPatientId,
+        suite: "workflow-contact",
+        workflow: "patient-contact-mutation"
+      }
+    });
+
     try {
       await workflow.updatePatientContact(updated);
 
       const actual = await workflow.getPatientContact(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-10-patient-contact-mutation-post-update",
+        description: "Captures the patient contact database row after the Slice 10 contact mutation and before browser-visible rendering assertions.",
+        expected: {
+          updated
+        },
+        actual: {
+          patient,
+          original,
+          updated,
+          actual
+        },
+        context: {
+          canonicalId: contactAnchorPatientId,
+          suite: "workflow-contact",
+          workflow: "patient-contact-mutation-post-update"
+        }
+      });
+
       expect(actual).toEqual(updated);
 
       if (target.type === "legacy-openemr") {
@@ -52,6 +101,25 @@ test.describe("patient contact mutation parity @slice10 @workflow-contact @mutat
     }
 
     const restored = await workflow.getPatientContact(patient!.pid);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-10-patient-contact-mutation-restored",
+      description: "Captures the restored patient contact database row after the Slice 10 contact mutation cleanup runs.",
+      expected: {
+        original
+      },
+      actual: {
+        patient,
+        updated,
+        restored
+      },
+      context: {
+        canonicalId: contactAnchorPatientId,
+        suite: "workflow-contact",
+        workflow: "patient-contact-mutation-restored"
+      }
+    });
+
     expect(restored).toEqual(original);
   });
 });

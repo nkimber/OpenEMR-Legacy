@@ -17489,6 +17489,38 @@ Code changes:
 - Net lines: +140
 - Total churn: 190
 
+## 315. Slice 271 Slice 10 Contact Mutation Probe Payload Attachments
+
+Started: 2026-06-25T01:51:10-04:00
+Finished: 2026-06-25T02:00:54-04:00
+Commit: pending
+
+Implemented Slice 271: Slice 10 contact mutation probe payload attachments. The patient contact mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, original contact database state, proposed contact update, post-update contact state, and restored cleanup state so Workbench comparison drill-ins can preview mutation database evidence.
+
+Changes:
+- Added Slice 10 contact mutation precondition payload attachments for the anchor patient, original contact state, and proposed phone/email/HIPAA consent update.
+- Added Slice 10 post-update payload attachments that capture the contact database row after mutation and before browser-visible assertions.
+- Added Slice 10 restored-state payload attachments that capture the cleanup-backed database row after the mutation test restores the original contact data.
+- Preserved the existing Slice 10 assertions and side-by-side behavior while making contact mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 10 contact mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 271 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:contact-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T055957-250Z-modernized-openemr-plan-slice-10-contact-mutation-readiness`.
+- `npm run test:legacy:plan:contact-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T060012-231Z-legacy-openemr-plan-slice-10-contact-mutation-readiness`.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 10 runs recorded file paths for all three new `db-probe-slice-10-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-10-contact-mutation-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 119
+- Lines deleted: 18
+- Net lines: +101
+- Total churn: 137
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17498,5 +17530,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 9.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 10.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
