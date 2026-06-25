@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import type { AppointmentRecord, AppointmentUpdate } from "../../src/workflows/legacyWorkflowActions.js";
 
@@ -19,25 +20,41 @@ const updatedRoom = "Series Meta";
 const updatedComments = "Slice 111 recurring root metadata propagation check.";
 
 test.describe("appointment series root metadata parity @slice111 @workflow-appointment-series-root-metadata @mutation", () => {
-  test("updates recurring appointment root metadata and propagates it to generated occurrences", async ({ page, target, targetDb, workflow }) => {
+  test("updates recurring appointment root metadata and propagates it to generated occurrences", async ({ page, target, targetDb, workflow }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(appointmentSeriesPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Anchor patient ${appointmentSeriesPatientId} was not found.`);
+    }
 
-    const beforeOccurrences = await workflow.getAppointmentSeriesOccurrences(patient!.pid, occurrenceSearchDate);
+    const beforeOccurrences = await workflow.getAppointmentSeriesOccurrences(patient.pid, occurrenceSearchDate);
     const preventiveCareBefore = beforeOccurrences.filter((occurrence) => occurrence.title === originalTitle);
     expect(preventiveCareBefore.map((occurrence) => occurrence.date)).toEqual(expectedSeriesDates);
     expect(preventiveCareBefore.map((occurrence) => occurrence.occurrenceNumber)).toEqual(expectedOccurrenceNumbers);
 
     const seriesRoot = preventiveCareBefore.find((occurrence) => occurrence.date === occurrenceSearchDate);
     expect(seriesRoot).toBeDefined();
-    expect(seriesRoot!.isVirtualOccurrence).toBe(false);
+    if (!seriesRoot) {
+      throw new Error(`Series root occurrence ${occurrenceSearchDate} was not found.`);
+    }
+    expect(seriesRoot.isVirtualOccurrence).toBe(false);
 
-    const seriesRootId = seriesRoot!.seriesRootId;
+    const generatedOccurrenceBefore = preventiveCareBefore.find((occurrence) => occurrence.date === generatedOccurrenceDate);
+    expect(generatedOccurrenceBefore).toBeDefined();
+    if (!generatedOccurrenceBefore) {
+      throw new Error(`Generated series occurrence ${generatedOccurrenceDate} was not found.`);
+    }
+    expect(generatedOccurrenceBefore.isVirtualOccurrence).toBe(true);
+
+    const seriesRootId = seriesRoot.seriesRootId;
     const originalRoot = await workflow.getAppointment(seriesRootId);
     expect(originalRoot).not.toBeNull();
+    if (!originalRoot) {
+      throw new Error(`Series root appointment ${seriesRootId} was not found.`);
+    }
 
-    const originalDurationSeconds = durationSecondsBetween(originalRoot!.startTime, originalRoot!.endTime);
-    const updateInput = appointmentUpdateFromRecord(originalRoot!, {
+    const originalDurationSeconds = durationSecondsBetween(originalRoot.startTime, originalRoot.endTime);
+    const updateInput = appointmentUpdateFromRecord(originalRoot, {
       providerId: updatedProviderId,
       facilityId: updatedFacilityId,
       billingLocationId: updatedBillingLocationId,
@@ -47,14 +64,59 @@ test.describe("appointment series root metadata parity @slice111 @workflow-appoi
       homeText: updatedComments,
       durationSeconds: originalDurationSeconds
     });
-    const restoreInput = appointmentUpdateFromRecord(originalRoot!, {
+    const restoreInput = appointmentUpdateFromRecord(originalRoot, {
       durationSeconds: originalDurationSeconds
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-111-appointment-series-root-metadata-precondition",
+      description: "Captures the Slice 111 appointment series root metadata anchor patient, recurring root, generated occurrence expansion, and seeded skipped date before editing root metadata.",
+      expected: {
+        patient: {
+          pubpid: appointmentSeriesPatientId,
+          providerId: patient.providerId
+        },
+        root: {
+          title: originalTitle,
+          occurrenceSearchDate,
+          recurrenceExdates: [seededExceptionDate]
+        },
+        generatedOccurrence: {
+          date: generatedOccurrenceDate,
+          isVirtualOccurrence: true
+        },
+        occurrenceDates: expectedSeriesDates,
+        occurrenceNumbers: expectedOccurrenceNumbers,
+        update: {
+          providerId: updatedProviderId,
+          facilityId: updatedFacilityId,
+          billingLocationId: updatedBillingLocationId,
+          categoryId: updatedCategoryId,
+          categoryName: updatedCategoryName,
+          status: updatedStatus,
+          room: updatedRoom,
+          comments: updatedComments
+        }
+      },
+      actual: {
+        patient,
+        seriesRoot,
+        originalRoot,
+        generatedOccurrenceBefore,
+        beforeOccurrenceCount: preventiveCareBefore.length,
+        beforeOccurrences: preventiveCareBefore
+      },
+      context: {
+        canonicalId: appointmentSeriesPatientId,
+        suite: "workflow-appointment-series-root-metadata",
+        workflow: "appointment-series-root-metadata-precondition"
+      }
     });
 
     try {
       if (target.type === "modernized-openemr") {
         await openAuthenticatedModernizedCalendar(page, target);
-        await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
+        await page.getByLabel("Appointment patient ID").fill(patient.pubpid);
         await page.getByLabel("Appointment from date").fill(occurrenceSearchDate);
 
         const seriesRootButton = page.getByRole("button", { name: /Preventive Care[\s\S]*2026-11-04/i }).first();
@@ -91,7 +153,10 @@ test.describe("appointment series root metadata parity @slice111 @workflow-appoi
 
       const rootAfterEdit = await workflow.getAppointment(seriesRootId);
       expect(rootAfterEdit).not.toBeNull();
-      expect(rootAfterEdit!).toMatchObject({
+      if (!rootAfterEdit) {
+        throw new Error(`Updated series root appointment ${seriesRootId} was not found.`);
+      }
+      expect(rootAfterEdit).toMatchObject({
         providerId: updatedProviderId,
         facilityId: updatedFacilityId,
         billingLocationId: updatedBillingLocationId,
@@ -101,9 +166,9 @@ test.describe("appointment series root metadata parity @slice111 @workflow-appoi
         room: updatedRoom,
         homeText: updatedComments
       });
-      expect(rootAfterEdit!.recurrenceExdates).toEqual([seededExceptionDate]);
+      expect(rootAfterEdit.recurrenceExdates).toEqual([seededExceptionDate]);
 
-      const afterOccurrences = await workflow.getAppointmentSeriesOccurrences(patient!.pid, occurrenceSearchDate);
+      const afterOccurrences = await workflow.getAppointmentSeriesOccurrences(patient.pid, occurrenceSearchDate);
       const preventiveCareAfter = afterOccurrences.filter((occurrence) => occurrence.title === originalTitle);
       expect(preventiveCareAfter.map((occurrence) => occurrence.date)).toEqual(expectedSeriesDates);
       expect(preventiveCareAfter.map((occurrence) => occurrence.occurrenceNumber)).toEqual(expectedOccurrenceNumbers);
@@ -119,30 +184,143 @@ test.describe("appointment series root metadata parity @slice111 @workflow-appoi
 
       const generatedOccurrenceAfter = preventiveCareAfter.find((occurrence) => occurrence.date === generatedOccurrenceDate);
       expect(generatedOccurrenceAfter).toBeDefined();
-      expect(generatedOccurrenceAfter!.isVirtualOccurrence).toBe(true);
-      expect(generatedOccurrenceAfter!.seriesRootId).toBe(seriesRootId);
+      if (!generatedOccurrenceAfter) {
+        throw new Error(`Updated generated series occurrence ${generatedOccurrenceDate} was not found.`);
+      }
+      expect(generatedOccurrenceAfter.isVirtualOccurrence).toBe(true);
+      expect(generatedOccurrenceAfter.seriesRootId).toBe(seriesRootId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-111-appointment-series-root-metadata-updated",
+        description: "Captures the recurring root and generated occurrence expansion after Slice 111 updates root metadata.",
+        expected: {
+          root: {
+            providerId: updatedProviderId,
+            facilityId: updatedFacilityId,
+            billingLocationId: updatedBillingLocationId,
+            categoryId: updatedCategoryId,
+            categoryName: updatedCategoryName,
+            status: updatedStatus,
+            room: updatedRoom,
+            homeText: updatedComments,
+            recurrenceExdates: [seededExceptionDate]
+          },
+          occurrenceDates: expectedSeriesDates,
+          occurrenceNumbers: expectedOccurrenceNumbers,
+          propagatedProviderIds: expectedSeriesDates.map(() => updatedProviderId),
+          propagatedFacilityIds: expectedSeriesDates.map(() => updatedFacilityId),
+          propagatedBillingLocationIds: expectedSeriesDates.map(() => updatedBillingLocationId),
+          propagatedCategoryIds: expectedSeriesDates.map(() => updatedCategoryId),
+          propagatedStatuses: expectedSeriesDates.map(() => updatedStatus),
+          propagatedRooms: expectedSeriesDates.map(() => updatedRoom),
+          propagatedComments: expectedSeriesDates.map(() => updatedComments),
+          seededExceptionPreserved: true
+        },
+        actual: {
+          patient,
+          seriesRoot,
+          originalRoot,
+          rootAfterEdit,
+          generatedOccurrenceAfter,
+          afterOccurrenceCount: preventiveCareAfter.length,
+          afterOccurrences: preventiveCareAfter,
+          surface: target.type === "modernized-openemr"
+            ? {
+                application: target.type,
+                page: "calendar",
+                editedProviderId: updatedProviderId,
+                editedFacilityId: updatedFacilityId,
+                editedBillingLocationId: updatedBillingLocationId,
+                editedCategory: `${updatedCategoryName} (${updatedCategoryId})`,
+                editedStatus: updatedStatus,
+                editedRoom: updatedRoom,
+                editedComments: updatedComments,
+                generatedOccurrenceVisible: generatedOccurrenceDate,
+                generatedOccurrenceLabel: "Generated occurrence 2"
+              }
+            : {
+                application: target.type,
+                page: "workflow-projection"
+              }
+        },
+        context: {
+          canonicalId: appointmentSeriesPatientId,
+          suite: "workflow-appointment-series-root-metadata",
+          workflow: "appointment-series-root-metadata-updated"
+        }
+      });
     } finally {
       await workflow.updateAppointment(seriesRootId, restoreInput);
     }
 
     const restoredRoot = await workflow.getAppointment(seriesRootId);
     expect(restoredRoot).not.toBeNull();
-    expect(restoredRoot!).toMatchObject({
-      providerId: originalRoot!.providerId,
-      facilityId: originalRoot!.facilityId,
-      billingLocationId: originalRoot!.billingLocationId,
-      categoryId: originalRoot!.categoryId,
-      categoryName: originalRoot!.categoryName,
-      status: originalRoot!.status,
-      room: originalRoot!.room,
-      homeText: originalRoot!.homeText
+    if (!restoredRoot) {
+      throw new Error(`Restored series root appointment ${seriesRootId} was not found.`);
+    }
+    expect(restoredRoot).toMatchObject({
+      providerId: originalRoot.providerId,
+      facilityId: originalRoot.facilityId,
+      billingLocationId: originalRoot.billingLocationId,
+      categoryId: originalRoot.categoryId,
+      categoryName: originalRoot.categoryName,
+      status: originalRoot.status,
+      room: originalRoot.room,
+      homeText: originalRoot.homeText
     });
-    expect(restoredRoot!.recurrenceExdates).toEqual([seededExceptionDate]);
+    expect(restoredRoot.recurrenceExdates).toEqual([seededExceptionDate]);
 
-    const restoredOccurrences = await workflow.getAppointmentSeriesOccurrences(patient!.pid, occurrenceSearchDate);
+    const restoredOccurrences = await workflow.getAppointmentSeriesOccurrences(patient.pid, occurrenceSearchDate);
     const preventiveCareRestored = restoredOccurrences.filter((occurrence) => occurrence.title === originalTitle);
     expect(preventiveCareRestored.map((occurrence) => occurrence.date)).toEqual(expectedSeriesDates);
     expect(preventiveCareRestored.map((occurrence) => occurrence.occurrenceNumber)).toEqual(expectedOccurrenceNumbers);
+    expect(preventiveCareRestored.map((occurrence) => occurrence.providerId)).toEqual(expectedSeriesDates.map(() => originalRoot.providerId));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.facilityId)).toEqual(expectedSeriesDates.map(() => originalRoot.facilityId));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.billingLocationId)).toEqual(expectedSeriesDates.map(() => originalRoot.billingLocationId));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.categoryId)).toEqual(expectedSeriesDates.map(() => originalRoot.categoryId));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.status)).toEqual(expectedSeriesDates.map(() => originalRoot.status));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.room)).toEqual(expectedSeriesDates.map(() => originalRoot.room));
+    expect(preventiveCareRestored.map((occurrence) => occurrence.comments)).toEqual(expectedSeriesDates.map(() => originalRoot.homeText));
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-111-appointment-series-root-metadata-cleanup",
+      description: "Captures the Slice 111 cleanup state after restoring recurring root metadata while preserving the seeded skipped date.",
+      expected: {
+        root: {
+          providerId: originalRoot.providerId,
+          facilityId: originalRoot.facilityId,
+          billingLocationId: originalRoot.billingLocationId,
+          categoryId: originalRoot.categoryId,
+          categoryName: originalRoot.categoryName,
+          status: originalRoot.status,
+          room: originalRoot.room,
+          homeText: originalRoot.homeText,
+          recurrenceExdates: [seededExceptionDate]
+        },
+        occurrenceDates: expectedSeriesDates,
+        occurrenceNumbers: expectedOccurrenceNumbers,
+        restoredProviderIds: expectedSeriesDates.map(() => originalRoot.providerId),
+        restoredFacilityIds: expectedSeriesDates.map(() => originalRoot.facilityId),
+        restoredBillingLocationIds: expectedSeriesDates.map(() => originalRoot.billingLocationId),
+        restoredCategoryIds: expectedSeriesDates.map(() => originalRoot.categoryId),
+        restoredStatuses: expectedSeriesDates.map(() => originalRoot.status),
+        restoredRooms: expectedSeriesDates.map(() => originalRoot.room),
+        restoredComments: expectedSeriesDates.map(() => originalRoot.homeText)
+      },
+      actual: {
+        patient,
+        seriesRoot,
+        originalRoot,
+        restoredRoot,
+        restoredOccurrenceCount: preventiveCareRestored.length,
+        restoredOccurrences: preventiveCareRestored
+      },
+      context: {
+        canonicalId: appointmentSeriesPatientId,
+        suite: "workflow-appointment-series-root-metadata",
+        workflow: "appointment-series-root-metadata-cleanup"
+      }
+    });
   });
 });
 
