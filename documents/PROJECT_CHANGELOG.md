@@ -17170,7 +17170,7 @@ Code changes:
 Started: 2026-06-25T00:45:20-04:00
 Finished: 2026-06-25T00:49:33-04:00
 Duration: 4m 13s
-Commit: pending
+Commit: 63653e8d
 
 Implemented Slice 262: Slice 1 workflow probe payload attachments. The patient search/chart summary parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` workflow database facts and the chart UI steering precondition so Workbench comparison drill-ins can preview workflow-level database evidence, not only seed-contract evidence.
 
