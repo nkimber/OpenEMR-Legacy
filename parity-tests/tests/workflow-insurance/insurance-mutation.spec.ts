@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import type { Page } from "@playwright/test";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientInsuranceBrowseDirect } from "../../src/ui/legacyOpenEmr.js";
@@ -12,7 +13,7 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(insuranceMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -37,6 +38,52 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
     let insuranceId: number | string | null = null;
 
     try {
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-34-insurance-mutation-precondition",
+        description: "Captures the Slice 34 insurance mutation anchor patient, baseline coverage rows, and proposed temporary tertiary insurance payloads before create.",
+        expected: {
+          patient: {
+            pubpid: insuranceMutationAnchorPatientId,
+            displayName: "Morgan, Elias"
+          },
+          baseline: {
+            coverageTypes: ["primary", "secondary"],
+            createDelta: 1,
+            cleanupDeltaFromBaseline: 0
+          },
+          proposedCoverage: {
+            create: {
+              type: "tertiary",
+              provider: "Acme Health",
+              planNamePrefix: "Parity Bridge ",
+              policyNumberPrefix: "PAR",
+              groupNumberPrefix: "PGRP",
+              relationship: "self"
+            },
+            update: {
+              type: "tertiary",
+              provider: "Northstar HMO",
+              planNamePrefix: "Parity Updated ",
+              policyNumberPrefix: "UPD",
+              groupNumberPrefix: "UGRP",
+              relationship: "self"
+            }
+          }
+        },
+        actual: {
+          patient,
+          beforeCoverage,
+          createdCoverage,
+          updatedCoverage
+        },
+        context: {
+          canonicalId: insuranceMutationAnchorPatientId,
+          suite: "workflow-insurance",
+          workflow: "patient-insurance-mutation"
+        }
+      });
+
       insuranceId = await workflow.createPatientInsurance(createdCoverage);
       const created = await workflow.getPatientInsurance(insuranceId);
       expect(created).toMatchObject({
@@ -50,6 +97,28 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
       });
 
       const afterCreateCoverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-34-insurance-mutation-created",
+        description: "Captures the temporary Slice 34 tertiary insurance row and coverage-count increment immediately after create.",
+        expected: {
+          createdCoverage,
+          countChange: {
+            insurance: beforeCoverage.insurance.length + 1
+          }
+        },
+        actual: {
+          insuranceId,
+          created,
+          beforeCoverage,
+          afterCreateCoverage
+        },
+        context: {
+          canonicalId: insuranceMutationAnchorPatientId,
+          suite: "workflow-insurance",
+          workflow: "patient-insurance-mutation-created"
+        }
+      });
       expect(afterCreateCoverage.insurance).toHaveLength(beforeCoverage.insurance.length + 1);
 
       if (target.type === "legacy-openemr") {
@@ -60,7 +129,7 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
         await expectRenderedText(page, createdCoverage.policyNumber);
         await expectRenderedText(page, createdCoverage.groupNumber);
       } else {
-      await openModernizedPatientChart(page, target, patient!.pubpid);
+        await openModernizedPatientChart(page, target, patient!.pubpid);
         const insurancePanel = page.getByLabel("Insurance coverage", { exact: true });
         await expect(insurancePanel).toContainText(createdCoverage.provider);
         await expect(insurancePanel).toContainText(createdCoverage.planName);
@@ -81,6 +150,31 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
         relationship: updatedCoverage.relationship
       });
 
+      const afterUpdateCoverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-34-insurance-mutation-updated",
+        description: "Captures the temporary Slice 34 tertiary insurance row after payer, plan, policy, and group updates.",
+        expected: {
+          updatedCoverage,
+          countChange: {
+            insurance: beforeCoverage.insurance.length + 1
+          }
+        },
+        actual: {
+          insuranceId,
+          updated,
+          beforeCoverage,
+          afterUpdateCoverage
+        },
+        context: {
+          canonicalId: insuranceMutationAnchorPatientId,
+          suite: "workflow-insurance",
+          workflow: "patient-insurance-mutation-updated"
+        }
+      });
+      expect(afterUpdateCoverage.insurance).toHaveLength(beforeCoverage.insurance.length + 1);
+
       if (target.type === "legacy-openemr") {
         await openPatientInsuranceBrowseDirect(page, target, patient!.pid, "tertiary");
         await expectRenderedText(page, updatedCoverage.provider);
@@ -88,7 +182,7 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
         await expectRenderedText(page, updatedCoverage.policyNumber);
         await expectRenderedText(page, updatedCoverage.groupNumber);
       } else {
-      await openModernizedPatientChart(page, target, patient!.pubpid);
+        await openModernizedPatientChart(page, target, patient!.pubpid);
         const insurancePanel = page.getByLabel("Insurance coverage", { exact: true });
         await expect(insurancePanel).toContainText(updatedCoverage.provider);
         await expect(insurancePanel).toContainText(updatedCoverage.planName);
@@ -104,7 +198,30 @@ test.describe("patient insurance mutation parity @slice34 @workflow-insurance @m
     const afterCleanupCoverage = await targetDb.getPatientInsuranceForPatient(patient!.pid);
     expect(afterCleanupCoverage.insurance).toHaveLength(beforeCoverage.insurance.length);
     if (insuranceId !== null) {
-      await expect(workflow.getPatientInsurance(insuranceId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPatientInsurance(insuranceId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-34-insurance-mutation-cleanup",
+        description: "Captures the final Slice 34 hard-delete cleanup state for the temporary tertiary insurance row.",
+        expected: {
+          deletedCoverage: null,
+          countChange: {
+            insurance: beforeCoverage.insurance.length
+          }
+        },
+        actual: {
+          insuranceId,
+          afterCleanup,
+          beforeCoverage,
+          afterCleanupCoverage
+        },
+        context: {
+          canonicalId: insuranceMutationAnchorPatientId,
+          suite: "workflow-insurance",
+          workflow: "patient-insurance-mutation-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });

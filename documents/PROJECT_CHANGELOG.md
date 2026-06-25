@@ -18279,6 +18279,38 @@ Code changes:
 - Net lines: +154
 - Total churn: 216
 
+## 339. Slice 295 Slice 34 Insurance Mutation Probe Payload Attachments
+
+Started: 2026-06-25T05:44:00-04:00
+Finished: 2026-06-25T05:50:02-04:00
+Commit: pending
+
+Implemented Slice 295: Slice 34 patient insurance mutation probe payload attachments. The insurance mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, baseline primary/secondary coverage rows, proposed temporary tertiary coverage payloads, created row and coverage-count increment, updated payer/plan/policy/group row state, and final hard-delete cleanup state so Workbench comparison drill-ins can preview insurance lifecycle evidence.
+
+Changes:
+- Added Slice 34 precondition payload attachments for the anchor patient, baseline insurance rows, and proposed create/update tertiary coverage payloads.
+- Added Slice 34 created-row payload attachments that capture the temporary tertiary insurance row and coverage-count increment after create.
+- Added Slice 34 updated-row payload attachments that capture payer, plan, policy, and group-number mutation state while preserving the coverage-count increment.
+- Added Slice 34 cleanup payload attachments that capture the final hard-delete state and restored baseline coverage count.
+- Updated the Workbench functionality progress ledger so Slice 34 patient insurance mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 295 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:insurance-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T094910-754Z-modernized-openemr-plan-slice-34-insurance-mutation-readiness`.
+- `npm run test:legacy:plan:insurance-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T094910-755Z-legacy-openemr-plan-slice-34-insurance-mutation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 34 Playwright reports recorded the shared `db-probe-slice-34-insurance-mutation-precondition`, `db-probe-slice-34-insurance-mutation-created`, `db-probe-slice-34-insurance-mutation-updated`, and `db-probe-slice-34-insurance-mutation-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-34-insurance-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T094945-481Z-legacy-openemr-vs-modernized-openemr-plan-slice-34-insurance-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 171
+- Lines deleted: 23
+- Net lines: +148
+- Total churn: 194
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18288,5 +18320,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 33.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 34.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
