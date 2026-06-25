@@ -20357,7 +20357,7 @@ Code changes:
 
 Started: 2026-06-25T13:04:20-04:00
 Finished: 2026-06-25T13:06:39-04:00
-Commit: pending
+Commit: 78cbe986
 
 Implemented Slice 356: Slice 95 appointment check-out probe payload attachments. The appointment check-out parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, arrived `@` state, checked-out `>` state, legacy appointment edit rendering, modernized Calendar arrival/check-out action anchors, and final cleanup so Workbench comparison drill-ins can preview appointment check-out evidence.
 
