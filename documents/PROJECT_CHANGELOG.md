@@ -20463,7 +20463,7 @@ Code changes:
 
 Started: 2026-06-25T13:20:00-04:00
 Finished: 2026-06-25T13:26:29-04:00
-Commit: pending
+Commit: 70b8c37e
 
 Implemented Slice 359: Slice 98 appointment pending-status probe payload attachments. The appointment pending-status parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, pending `~` status/title facts, legacy appointment edit rendering, modernized Calendar pending-status selector/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment pending-status evidence.
 
