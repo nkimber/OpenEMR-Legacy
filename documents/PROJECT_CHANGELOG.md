@@ -21924,6 +21924,39 @@ Code changes:
 - Lines deleted: 11
 - Net lines: 146
 - Total churn: 168
+
+## 450. Slice 404 Slice 147 Procedure Order Catalog Lifecycle Probe Payload Attachments
+
+Started: 2026-06-25T18:15:24.7831900-04:00
+Finished: 2026-06-25T18:17:00.0170014-04:00
+Commit: pending
+
+Implemented Slice 404: Slice 147 procedure order catalog lifecycle probe payload attachments. The procedure order catalog lifecycle parity suite now writes path-backed JSON Playwright attachments for temporary catalog item create inputs, created and updated rows, rendered create/update facts, deactivation facts, and cleanup deletion so Workbench comparison drill-ins can preview focused procedure order catalog lifecycle evidence.
+
+Changes:
+- Added Slice 147 precondition payload attachments for the temporary catalog item create, update, and deactivation payloads under the Pacific Women's Health Laboratory provider group.
+- Added created-state payload attachments for the temporary active blood laboratory order row.
+- Added created-rendered payload attachments for legacy AJAX rendering and modernized Reports catalog rendering after create.
+- Added updated-state payload attachments for changed name, code, serum specimen, standard code, sequence, and description.
+- Added updated-rendered payload attachments for legacy AJAX rendering and modernized Reports catalog rendering after update.
+- Added deactivated-state and cleanup payload attachments proving the temporary catalog item is deactivated and then deleted.
+- Updated the Workbench functionality progress ledger so Slice 147 procedure order catalog lifecycle database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 404 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-147-procedure-order-catalog-lifecycle-readiness` passed with run ID `2026-06-25T221557-710Z-legacy-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-147-procedure-order-catalog-lifecycle-readiness` passed with run ID `2026-06-25T221626-913Z-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-147-procedure-order-catalog-lifecycle-readiness` matched with comparison ID `2026-06-25T221647-375Z-legacy-openemr-vs-modernized-openemr-plan-slice-147-procedure-order-catalog-lifecycle-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-147-procedure-order-catalog-lifecycle-precondition`, `created`, `created-rendered`, `updated`, `updated-rendered`, `deactivated`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 217
+- Lines deleted: 50
+- Net lines: 167
+- Total churn: 267
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21933,5 +21966,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144 and 145.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, and 147.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
