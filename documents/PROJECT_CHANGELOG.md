@@ -22351,6 +22351,41 @@ Code changes:
 - Net lines: 291
 - Total churn: 321
 
+## 463. Slice 416 Slice 162 Admin Audit Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:27:24.4039937-04:00
+Finished: 2026-06-25T19:29:45.1244544-04:00
+Commit: pending
+
+Implemented Slice 416: Slice 162 admin audit protection probe payload attachments. The admin audit protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API blocking facts, authenticated legacy/API visibility facts, ended-session rejection facts, and modernized Admin-page audit rendering facts so Workbench comparison drill-ins can preview admin audit protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 162 precondition payload attachments for the protected legacy and modernized audit surfaces, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving the OpenEMR log viewer does not render `Logs Viewer` before sign-in.
+- Added legacy authenticated payload attachments proving the OpenEMR log viewer renders `Logs Viewer` and `Main Log` after admin login while cookie values remain redacted.
+- Added modernized unauthenticated payload attachments proving `/api/auth/login-audit` returns `401` and a structured session failure before sign-in.
+- Added modernized authenticated payload attachments proving an active admin session can read login-audit counts and recent events with the session identifier redacted.
+- Added modernized ended-session payload attachments proving an ended admin session cannot read login-audit evidence.
+- Added modernized Admin-page rendered payload attachments proving the audit panel shows the signed-out prompt before login and audit facts after login.
+- Updated the Workbench functionality progress ledger so Slice 162 admin audit protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 416 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-admin-audit-protection/audit-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-162-admin-audit-protection-readiness` passed with run ID `2026-06-25T232848-082Z-legacy-openemr-plan-slice-162-admin-audit-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-162-admin-audit-protection-readiness` passed with run ID `2026-06-25T232910-225Z-modernized-openemr-plan-slice-162-admin-audit-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-162-admin-audit-protection-readiness` matched with comparison ID `2026-06-25T232932-304Z-legacy-openemr-vs-modernized-openemr-plan-slice-162-admin-audit-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-162-admin-audit-protection-precondition`, `unauthenticated`, and `authenticated` entries in both legacy and modernized Playwright JSON reports, plus `db-probe-slice-162-admin-audit-protection-ended-session` and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 266
+- Lines deleted: 16
+- Net lines: 250
+- Total churn: 282
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22360,5 +22395,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, and 161.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, and 162.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 
@@ -30,11 +31,57 @@ type AuthAuditResponse = {
 };
 
 test.describe("admin audit protection parity @workflow-admin-audit-protection @slice162 @admin @security @audit", () => {
-  test("requires an authenticated admin session before login audit evidence is visible", async ({ page, target }) => {
+  test("requires an authenticated admin session before login audit evidence is visible", async ({ page, target }, testInfo) => {
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-162-admin-audit-protection-precondition",
+      description:
+        "Captures the Slice 162 admin-audit protection precondition without storing password, cookie, or session material.",
+      expected: {
+        username: "admin",
+        legacyProtectedPath: "/interface/logview/logview.php",
+        modernizedProtectedPath: "/api/auth/login-audit?limit=5",
+        requiresAuthenticatedAdminSession: true,
+        secretMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        publicUrl: target.publicUrl,
+        apiBaseUrl: target.apiBaseUrl,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true
+      },
+      context: {
+        suite: "workflow-admin-audit-protection",
+        workflow: "admin-audit-protection-precondition"
+      }
+    });
+
     if (target.type === "legacy-openemr") {
       const unauthenticatedLogView = await requestText(`${target.publicUrl}/interface/logview/logview.php`);
       expect(unauthenticatedLogView.statusCode).not.toBe(200);
       expect(unauthenticatedLogView.body).not.toContain("Logs Viewer");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-162-admin-audit-protection-unauthenticated",
+        description:
+          "Captures legacy OpenEMR log viewer protection markers before an admin session is established.",
+        expected: {
+          statusCodeIsNot200: true,
+          containsLogsViewer: false
+        },
+        actual: {
+          statusCode: unauthenticatedLogView.statusCode,
+          statusCodeIsNot200: unauthenticatedLogView.statusCode !== 200,
+          containsLogsViewer: unauthenticatedLogView.body.includes("Logs Viewer"),
+          bodyLength: unauthenticatedLogView.body.length,
+          bodyPreview: unauthenticatedLogView.body.slice(0, 240)
+        },
+        context: {
+          suite: "workflow-admin-audit-protection",
+          workflow: "admin-audit-protection-unauthenticated"
+        }
+      });
 
       const login = await legacyLogin(target, target.credentials.password);
       expect(login.statusCode).toBe(200);
@@ -47,6 +94,39 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
       expect(authenticatedLogView.statusCode).toBe(200);
       expect(authenticatedLogView.body).toContain("Logs Viewer");
       expect(authenticatedLogView.body).toContain("Main Log");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-162-admin-audit-protection-authenticated",
+        description:
+          "Captures legacy OpenEMR log viewer visibility markers after an admin session is established, with cookies redacted.",
+        expected: {
+          loginStatusCode: 200,
+          openEmrCookieIssued: true,
+          authenticatedLogViewStatusCode: 200,
+          containsLogsViewer: true,
+          containsMainLog: true
+        },
+        actual: {
+          login: {
+            statusCode: login.statusCode,
+            containsPatientDataTemplate: login.body.includes("patient-data-template"),
+            openEmrCookieIssued: Boolean(getCookie(login.cookies, "OpenEMR")),
+            cookieNames: getCookieNames(login.cookies),
+            cookieValuesRedacted: true
+          },
+          authenticatedLogView: {
+            statusCode: authenticatedLogView.statusCode,
+            containsLogsViewer: authenticatedLogView.body.includes("Logs Viewer"),
+            containsMainLog: authenticatedLogView.body.includes("Main Log"),
+            bodyLength: authenticatedLogView.body.length,
+            bodyPreview: authenticatedLogView.body.slice(0, 240)
+          }
+        },
+        context: {
+          suite: "workflow-admin-audit-protection",
+          workflow: "admin-audit-protection-authenticated"
+        }
+      });
       return;
     }
 
@@ -58,6 +138,26 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
       sessionSource: "modernized-openemr"
     });
     expect(unauthenticatedSession.failureReason).toMatch(/valid (?:admin|OpenEMR) session/i);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-162-admin-audit-protection-unauthenticated",
+      description:
+        "Captures modernized login-audit API protection facts before an admin session is established.",
+      expected: {
+        statusCode: 401,
+        authenticated: false,
+        sessionSource: "modernized-openemr",
+        failureReasonPattern: "valid admin or OpenEMR session"
+      },
+      actual: {
+        statusCode: unauthenticatedAudit.statusCode,
+        body: unauthenticatedSession
+      },
+      context: {
+        suite: "workflow-admin-audit-protection",
+        workflow: "admin-audit-protection-unauthenticated"
+      }
+    });
 
     const login = await modernizedLogin(target, target.credentials.password);
     expect(login).toMatchObject({
@@ -79,6 +179,39 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
     expect(audit.totalEvents).toBeGreaterThanOrEqual(1);
     expect(audit.successfulLogins).toBeGreaterThanOrEqual(1);
     expect(audit.events.some((event) => event.username === "admin" && event.success && event.logSource === "modernized-openemr")).toBe(true);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-162-admin-audit-protection-authenticated",
+      description:
+        "Captures modernized login-audit API visibility facts after an admin session is established, with the session identifier redacted.",
+      expected: {
+        loginAuthenticated: true,
+        authenticatedAuditStatusCode: 200,
+        totalEventsAtLeast: 1,
+        successfulLoginsAtLeast: 1,
+        includesAdminSuccessFromModernizedSource: true,
+        sessionIdentifierRedacted: true
+      },
+      actual: {
+        login: {
+          authenticated: login.authenticated,
+          username: login.username,
+          displayName: login.displayName,
+          role: login.role,
+          sessionIssued: Boolean(login.sessionId),
+          sessionIdRedacted: true
+        },
+        authenticatedAudit: {
+          statusCode: authenticatedAudit.statusCode,
+          summary: summarizeAudit(audit),
+          sampleEvents: audit.events.slice(0, 5)
+        }
+      },
+      context: {
+        suite: "workflow-admin-audit-protection",
+        workflow: "admin-audit-protection-authenticated"
+      }
+    });
 
     const logout = await modernizedLogout(target, sessionId);
     expect(logout.authenticated).toBe(false);
@@ -92,6 +225,42 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
     const endedSession = JSON.parse(endedSessionAudit.body) as ModernizedSessionResponse;
     expect(endedSession.authenticated).toBe(false);
     expect(endedSession.failureReason).toMatch(/not active/i);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-162-admin-audit-protection-ended-session",
+      description:
+        "Captures modernized login-audit API protection facts after the admin session has been ended, with the session identifier redacted.",
+      expected: {
+        logoutAuthenticated: false,
+        endedSessionAuditStatusCode: 401,
+        endedSessionAuthenticated: false,
+        failureReasonPattern: "not active",
+        sessionIdentifierRedacted: true
+      },
+      actual: {
+        logout: {
+          authenticated: logout.authenticated,
+          sessionIssued: Boolean(logout.sessionId),
+          sessionIdRedacted: true,
+          sessionSource: logout.sessionSource
+        },
+        endedSessionAudit: {
+          statusCode: endedSessionAudit.statusCode,
+          body: {
+            authenticated: endedSession.authenticated,
+            username: endedSession.username,
+            failureReason: endedSession.failureReason,
+            sessionSource: endedSession.sessionSource,
+            sessionIssued: Boolean(endedSession.sessionId),
+            sessionIdRedacted: true
+          }
+        }
+      },
+      context: {
+        suite: "workflow-admin-audit-protection",
+        workflow: "admin-audit-protection-ended-session"
+      }
+    });
 
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
@@ -109,6 +278,36 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
     await expect(auditPanel).toContainText("admin");
     await expect(auditPanel).toContainText("Success");
     await expect(auditPanel).toContainText("modernized-openemr");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-162-admin-audit-protection-rendered",
+      description:
+        "Captures modernized Admin-page audit protection rendering facts before and after login.",
+      expected: {
+        rendersSignedOutPrompt: "Sign in to view login audit events",
+        rendersLoginAuditHeading: "Login Audit",
+        rendersUsername: "admin",
+        rendersSuccess: "Success",
+        rendersLogSource: "modernized-openemr"
+      },
+      actual: {
+        surfaceFacts: {
+          modernizedAdminLoginAuditPanel: {
+            renderedSignedOutPrompt: "Sign in to view login audit events",
+            renderedHeading: "Login Audit",
+            renderedUsername: "admin",
+            renderedSuccess: "Success",
+            renderedLogSource: "modernized-openemr",
+            passwordRedacted: true,
+            sessionIdRedacted: true
+          }
+        }
+      },
+      context: {
+        suite: "workflow-admin-audit-protection",
+        workflow: "admin-audit-protection-rendered"
+      }
+    });
   });
 });
 
@@ -167,4 +366,19 @@ async function modernizedLogout(target: RuntimeTarget, sessionId: string): Promi
 
 function getCookie(cookies: string[], name: string) {
   return cookies.find((cookie) => cookie.toLowerCase().startsWith(`${name.toLowerCase()}=`));
+}
+
+function getCookieNames(cookies: string[]) {
+  return cookies.map((cookie) => cookie.split("=", 1)[0]).filter(Boolean);
+}
+
+function summarizeAudit(audit: AuthAuditResponse) {
+  return {
+    totalEvents: audit.totalEvents,
+    successfulLogins: audit.successfulLogins,
+    failedLogins: audit.failedLogins,
+    eventCount: audit.events.length,
+    usernames: [...new Set(audit.events.map((event) => event.username.toLowerCase()))],
+    logSources: [...new Set(audit.events.map((event) => event.logSource))]
+  };
 }
