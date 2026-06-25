@@ -16963,7 +16963,7 @@ Code changes:
 Started: 2026-06-24T23:29:50-04:00
 Finished: 2026-06-24T23:40:49-04:00
 Duration: 10m 59s
-Commit: pending
+Commit: 7d2d0c1e
 
 Implemented Slice 255: patient portal secure-message notification readiness. Legacy OpenEMR's helper-level notification projection can merge active recent `patient_reminders` rows into Inbox and All-style secure-message results, while the observed v8.1.0 portal UI does not render those notification rows because its page passes the portal username into a numeric `patient_reminders.pid` predicate. The modernized patient portal API now supports the intended notification projection and renders those rows as read-only notifications.
 
