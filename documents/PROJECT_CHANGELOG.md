@@ -19163,6 +19163,36 @@ Code changes:
 - Net lines: +96
 - Total churn: 128
 
+## 367. Slice 323 Slice 62 Statement Batch Package Probe Payload Attachments
+
+Started: 2026-06-25T08:57:22-04:00
+Finished: 2026-06-25T09:05:06-04:00
+Commit: pending
+
+Implemented Slice 323: Slice 62 statement batch package probe payload attachments. The statement batch package parity suite now writes path-backed JSON Playwright attachments for ranked package source candidates, deterministic package ID and ZIP filename, manifest fields, summary CSV anchors, package PDF filenames, first-PDF header/text anchors, and UI export affordance facts so Workbench comparison drill-ins can preview statement batch package export readiness evidence.
+
+Changes:
+- Added Slice 62 source payload attachments for ranked package candidates, all-candidate totals, selected top-five statement package inputs, deterministic package ID, and required package entries.
+- Added Slice 62 package contract payload attachments that capture expected ZIP filename, content type, manifest/summary filenames, summary CSV header, PDF filenames, first-PDF header, and first-PDF text anchors.
+- Updated the Workbench functionality progress ledger so Slice 62 statement batch package export database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 323 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 61 workflow payload boundary.
+- `npm run test:modernized:plan:statement-batch-package` in `parity-tests/` passed with 1 expected test; run `2026-06-25T130342-301Z-modernized-openemr-plan-slice-62-statement-batch-package-readiness`.
+- `npm run test:legacy:plan:statement-batch-package` in `parity-tests/` passed with 1 expected test; run `2026-06-25T130420-436Z-legacy-openemr-plan-slice-62-statement-batch-package-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 62 Playwright reports recorded the shared `db-probe-slice-62-statement-batch-package-source` and `db-probe-slice-62-statement-batch-package-contract` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-62-statement-batch-package-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T130456-260Z-legacy-openemr-vs-modernized-openemr-plan-slice-62-statement-batch-package-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 94
+- Lines deleted: 16
+- Net lines: +78
+- Total churn: 110
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19172,5 +19202,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 61.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 62.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

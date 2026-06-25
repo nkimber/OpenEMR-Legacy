@@ -1,5 +1,6 @@
 import { inflateRawSync } from "node:zlib";
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { StatementBatchSummary } from "../../src/db/legacyMariaDbProbe.js";
 
@@ -34,13 +35,59 @@ test.describe("statement batch package parity @slice62 @account-statement-batch-
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const expectedBatch = await targetDb.getStatementBatchCandidates(5);
     const expectedPackage = buildExpectedPackage(expectedBatch);
     expect(expectedPackage.asOfDate).toBe("2026-06-18");
     expect(expectedPackage.packageId).toBe("STMT-BATCH-20260618-TOP5");
     expect(expectedPackage.includedStatementCount).toBe(5);
     expect(expectedPackage.entries).toHaveLength(5);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-62-statement-batch-package-source",
+      description: "Captures the Slice 62 statement batch package source rows: ranked candidates, all-candidate totals, and selected top-five statement package inputs.",
+      expected: {
+        asOfDate: "2026-06-18",
+        packageId: "STMT-BATCH-20260618-TOP5",
+        selectedCandidateLimit: 5,
+        includedStatementCount: 5,
+        requiredPackageEntries: ["manifest.json", "summary.csv", "statements/*.pdf"]
+      },
+      actual: {
+        batch: expectedBatch,
+        package: expectedPackage
+      },
+      context: {
+        suite: "account-statement-batch-package",
+        workflow: "statement-batch-package-source"
+      }
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-62-statement-batch-package-contract",
+      description: "Captures the deterministic Slice 62 package export contract: ZIP name, manifest fields, summary CSV anchors, PDF filenames, and first PDF text anchors.",
+      expected: {
+        zipFileName: "statement-batch-20260618-top5.zip",
+        contentType: "application/zip",
+        manifestFile: "manifest.json",
+        summaryFile: "summary.csv",
+        summaryHeader: "StatementNumber,Pubpid,PatientDisplayName",
+        firstPdfHeader: "%PDF-1.4",
+        firstPdfTextAnchors: [
+          `Patient Statement ${expectedPackage.entries[0].statementNumber}`,
+          `Balance due ${formatMoney(Number(expectedPackage.entries[0].balanceDueAmount))}`
+        ]
+      },
+      actual: {
+        package: expectedPackage,
+        files: expectedPackage.entries.map((entry) => entry.fileName),
+        firstEntry: expectedPackage.entries[0]
+      },
+      context: {
+        suite: "account-statement-batch-package",
+        workflow: "statement-batch-package-contract"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;
