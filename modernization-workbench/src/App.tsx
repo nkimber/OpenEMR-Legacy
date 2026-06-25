@@ -130,6 +130,10 @@ function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
+function describeLoadError(value: unknown) {
+  return value instanceof Error ? value.message : String(value);
+}
+
 function formatHistoryAxisTick(value: number, includeDate: boolean) {
   return new Intl.DateTimeFormat(undefined, includeDate ? {
     month: "short",
@@ -3238,21 +3242,18 @@ export function App() {
   const refreshedAt = apps[0]?.refreshedAt;
   const pageTitle = pageTitles[activePage];
 
-  const loadDashboard = useCallback(async () => {
-    setError(null);
-    const [appData, architectureData, progressData, eventData, seedData, parityManifestData, parityComparisonData, parityReliabilityData, changelogData] = await Promise.all([
-      api.getApps(),
-      api.getArchitecture(),
-      api.getProgress(),
-      api.getEvents(),
-      api.getSeedDatasets(),
-      api.getParityManifest(),
-      api.getParityComparisons(),
-      api.getParityReliability(),
-      api.getChangelog()
-    ]);
+  const loadApps = useCallback(async () => {
+    const appData = await api.getApps();
     setApps(appData.apps);
+  }, []);
+
+  const loadArchitecture = useCallback(async () => {
+    const architectureData = await api.getArchitecture();
     setArchitecture(architectureData);
+  }, []);
+
+  const loadProgress = useCallback(async () => {
+    const progressData = await api.getProgress();
     setProgress(progressData.slices);
     setFunctionalityAreas(progressData.functionalityAreas);
     setFunctionalityVersion(progressData.functionalityVersion);
@@ -3260,13 +3261,105 @@ export function App() {
     setFunctionalitySummary(progressData.functionalitySummary);
     setFunctionalityHistory(progressData.functionalityHistory);
     setFunctionalityForecast(progressData.functionalityForecast);
+  }, []);
+
+  const loadEvents = useCallback(async () => {
+    const eventData = await api.getEvents();
     setEvents(eventData.events);
+  }, []);
+
+  const loadSeedDatasets = useCallback(async () => {
+    const seedData = await api.getSeedDatasets();
     setSeedDatasets(seedData.datasets);
+  }, []);
+
+  const loadParityManifest = useCallback(async () => {
+    const parityManifestData = await api.getParityManifest();
     setParityManifest(parityManifestData);
+  }, []);
+
+  const loadParityComparisons = useCallback(async () => {
+    const parityComparisonData = await api.getParityComparisons();
     setParityComparisons(parityComparisonData.comparisons);
+  }, []);
+
+  const loadParityReliability = useCallback(async () => {
+    const parityReliabilityData = await api.getParityReliability();
     setParityReliability(parityReliabilityData);
+  }, []);
+
+  const loadChangelog = useCallback(async () => {
+    const changelogData = await api.getChangelog();
     setChangelog(changelogData);
   }, []);
+
+  const loadWithErrorBanner = useCallback(async (label: string, load: () => Promise<void>) => {
+    try {
+      await load();
+    } catch (loadError) {
+      setError(`${label}: ${describeLoadError(loadError)}`);
+    }
+  }, []);
+
+  const loadCoreData = useCallback(async () => {
+    await Promise.all([
+      loadWithErrorBanner("Applications", loadApps),
+      loadWithErrorBanner("Events", loadEvents),
+      loadWithErrorBanner("Seed data", loadSeedDatasets)
+    ]);
+  }, [loadApps, loadEvents, loadSeedDatasets, loadWithErrorBanner]);
+
+  const loadTestData = useCallback(async () => {
+    await Promise.all([
+      loadWithErrorBanner("Parity manifest", loadParityManifest),
+      loadWithErrorBanner("Parity comparisons", loadParityComparisons),
+      loadWithErrorBanner("Parity reliability", loadParityReliability)
+    ]);
+  }, [loadParityComparisons, loadParityManifest, loadParityReliability, loadWithErrorBanner]);
+
+  const loadPageData = useCallback(async (page: PageId) => {
+    switch (page) {
+      case "dashboard":
+        await Promise.all([
+          loadWithErrorBanner("Progress", loadProgress),
+          loadWithErrorBanner("Timeline", loadChangelog)
+        ]);
+        break;
+      case "applications":
+        break;
+      case "timeline":
+        await loadWithErrorBanner("Timeline", loadChangelog);
+        break;
+      case "progress":
+        await loadWithErrorBanner("Progress", loadProgress);
+        break;
+      case "architecture":
+        await loadWithErrorBanner("Architecture", loadArchitecture);
+        break;
+      case "tests":
+        await loadTestData();
+        break;
+      case "seed-data":
+        break;
+    }
+  }, [loadArchitecture, loadChangelog, loadProgress, loadTestData, loadWithErrorBanner]);
+
+  const refreshOperationalData = useCallback(async () => {
+    await Promise.allSettled([
+      loadApps(),
+      loadEvents()
+    ]);
+  }, [loadApps, loadEvents]);
+
+  const refreshCurrentPage = useCallback(async (clearError = true) => {
+    if (clearError) {
+      setError(null);
+    }
+    await Promise.all([
+      loadCoreData(),
+      loadPageData(activePage)
+    ]);
+  }, [activePage, loadCoreData, loadPageData]);
 
   useEffect(() => {
     const onHashChange = () => setActivePage(parseHashPage());
@@ -3275,12 +3368,19 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    loadDashboard().catch((loadError) => setError(loadError instanceof Error ? loadError.message : String(loadError)));
+    void loadCoreData();
+  }, [loadCoreData]);
+
+  useEffect(() => {
+    void loadPageData(activePage);
+  }, [activePage, loadPageData]);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
-      loadDashboard().catch(() => undefined);
+      void refreshOperationalData();
     }, 15000);
     return () => window.clearInterval(timer);
-  }, [loadDashboard]);
+  }, [refreshOperationalData]);
 
   const legacyApp = useMemo(() => apps.find((app) => app.id === "legacy-openemr"), [apps]);
   const modernizedApp = useMemo(() => apps.find((app) => app.id === "modernized-openemr"), [apps]);
@@ -3298,10 +3398,10 @@ export function App() {
     setError(null);
     try {
       await work();
-      await loadDashboard();
+      await refreshCurrentPage();
     } catch (workError) {
-      setError(workError instanceof Error ? workError.message : String(workError));
-      await loadDashboard().catch(() => undefined);
+      setError(describeLoadError(workError));
+      await refreshCurrentPage(false);
     } finally {
       setBusy(null);
     }
@@ -3360,7 +3460,9 @@ export function App() {
         <AppHeader
           title={pageTitle.title}
           subtitle={pageTitle.subtitle}
-          onRefresh={() => loadDashboard().catch((loadError) => setError(loadError instanceof Error ? loadError.message : String(loadError)))}
+          onRefresh={() => {
+            void refreshCurrentPage();
+          }}
           busy={busy}
           refreshedAt={refreshedAt}
         />

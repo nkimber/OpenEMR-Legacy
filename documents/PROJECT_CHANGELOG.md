@@ -17372,6 +17372,32 @@ Code changes:
 - Net lines: +102
 - Total churn: 202
 
+## 311. Workbench Route-Scoped Data Hydration
+
+Started: 2026-06-25T01:33:40-04:00
+Finished: 2026-06-25T01:36:20-04:00
+Commit: pending
+
+Improved the Modernization Workbench loading model so application status can render quickly without waiting for the full set of progress, timeline, architecture, parity, reliability, and comparison datasets.
+
+Changes:
+- Replaced the monolithic Workbench dashboard fetch with focused loaders for app snapshots, lifecycle events, seed data, progress, timeline, architecture, and parity evidence.
+- Kept initial load and recurring 15-second polling focused on operational app status plus events, with dashboard progress/timeline summaries and route-specific datasets loaded independently.
+- Updated header refresh and post-action refresh behavior to reload the operational snapshot plus the active page instead of forcing every Workbench endpoint after each action.
+- Documented the route-scoped hydration contract in the Workbench project document.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- `git diff --check -- documents/PROJECT_CHANGELOG.md documents/MODERNIZATION_WORKBENCH.md modernization-workbench/src/App.tsx` passed with only existing Windows line-ending warnings.
+
+Code changes:
+- Files changed: 3
+- Lines added: 151
+- Lines deleted: 20
+- Net lines: +131
+- Total churn: 171
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
