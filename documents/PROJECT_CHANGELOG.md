@@ -19612,7 +19612,7 @@ Code changes:
 
 Started: 2026-06-25T10:38:18-04:00
 Finished: 2026-06-25T10:41:48-04:00
-Commit: pending
+Commit: dd773f5f
 
 Implemented Slice 336: Slice 75 encounter procedure-order entry probe payload attachments. The encounter procedure-order entry parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, temporary `80053` pending laboratory order, baseline/create/cleanup count movement, legacy Procedure Orders and Reports rendering, modernized encounter-detail API procedure-order rows, and Encounters workspace procedure-order entry/linkage UI anchors so Workbench comparison drill-ins can preview encounter procedure-order entry mutation evidence.
 
