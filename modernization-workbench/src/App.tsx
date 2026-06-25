@@ -2258,6 +2258,11 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
                   <ComparisonSideSummary side={comparison.right} />
                 </div>
 
+                <div className="comparison-side-grid">
+                  <ComparisonVisualEvidence side={comparison.left} />
+                  <ComparisonVisualEvidence side={comparison.right} />
+                </div>
+
                 <div className="evidence-metrics">
                   <span>{comparison.differenceCount} differences</span>
                   <span>{comparison.left.stats.expected + comparison.right.stats.expected} checks</span>
@@ -2347,6 +2352,44 @@ function ComparisonArtifactDetail({ label, side }: { label: string; side: Parity
         {side.runId} / {side.exists ? "artifact present" : "artifact missing"}
       </small>
       <ComparisonReportLinks side={side} />
+      <ComparisonVisualEvidence side={side} detailed />
+    </div>
+  );
+}
+
+function ComparisonVisualEvidence({ side, detailed = false }: { side: ParityComparisonReport["left"]; detailed?: boolean }) {
+  const visualArtifacts = side.visualArtifacts ?? [];
+
+  if (!visualArtifacts.length) {
+    return detailed ? <small>No screenshot artifacts recorded for this run.</small> : <div className="comparison-visual-empty">No screenshots</div>;
+  }
+
+  return (
+    <div className={detailed ? "comparison-visuals detailed" : "comparison-visuals"} aria-label={`${side.target} screenshot artifacts`}>
+      <div className="comparison-visuals-header">
+        <span>{detailed ? "Screenshot artifacts" : side.target}</span>
+        <strong>{visualArtifacts.length}</strong>
+      </div>
+      <div className="comparison-thumbnail-grid">
+        {visualArtifacts.slice(0, detailed ? 8 : 3).map((artifact) => (
+          <a
+            href={`/api/artifacts/file?path=${encodeURIComponent(artifact.path)}`}
+            key={`${side.runId}-${artifact.path}`}
+            target="_blank"
+            rel="noreferrer"
+            title={`Open ${side.target} ${artifact.name}`}
+            aria-label={`Open ${side.target} ${artifact.name}`}
+          >
+            <img src={`/api/artifacts/file?path=${encodeURIComponent(artifact.path)}`} alt={`${side.target} ${artifact.kind}`} loading="lazy" />
+            {detailed ? (
+              <span>
+                <strong>{formatVisualArtifactKind(artifact.kind)}</strong>
+                <small>{formatBytes(artifact.sizeBytes)}</small>
+              </span>
+            ) : null}
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2427,6 +2470,29 @@ function formatComparisonDifference(difference: unknown) {
     }
   }
   return JSON.stringify(difference);
+}
+
+function formatBytes(value: number) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return "0 B";
+  }
+  if (value < 1024) {
+    return `${Math.round(value)} B`;
+  }
+  if (value < 1024 * 1024) {
+    return `${(value / 1024).toFixed(1)} KB`;
+  }
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatVisualArtifactKind(kind: string) {
+  if (kind === "test-screenshot") {
+    return "Test screenshot";
+  }
+  if (kind === "html-report-image") {
+    return "HTML report image";
+  }
+  return "Image artifact";
 }
 
 function CustomParityRunPanel({

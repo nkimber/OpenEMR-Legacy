@@ -16995,6 +16995,32 @@ Code changes:
 - Net lines: +516
 - Total churn: 832
 
+## 298. Slice 256 Workbench Comparison Screenshot Thumbnail Readiness
+
+Started: 2026-06-24T23:41:18-04:00
+Finished: 2026-06-24T23:53:24-04:00
+Duration: 12m 06s
+Commit: pending
+
+Implemented Slice 256: Workbench comparison screenshot thumbnail readiness. The Workbench now enriches recent side-by-side parity comparison reports with run-level visual artifact metadata and renders screenshot/image thumbnails directly on the Test Runs comparison cards and expanded drill-ins.
+
+Changes:
+- Added Workbench API visual artifact collection for comparison-side run directories, classifying PNG/JPEG/WebP evidence as test screenshots, HTML report images, or generic image artifacts.
+- Preserved the existing `/api/artifacts/file` safe artifact boundary for thumbnail images and open-image links.
+- Added compact comparison-card thumbnails plus expanded drill-in visual evidence lists with file-size metadata and empty states for runs without screenshots.
+- Updated the Workbench functionality progress ledger so screenshot thumbnails are completed evidence scope while normalized probe details, accepted differences, reliability trends, and historical charts remain outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 256 evidence-inspection contract.
+
+Verification:
+- `npm run build` in `modernization-workbench/` passed.
+
+Code changes:
+- Files changed: 11
+- Lines added: 335
+- Lines deleted: 17
+- Net lines: +318
+- Total churn: 352
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17004,4 +17030,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench comparison screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
+- Workbench normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.

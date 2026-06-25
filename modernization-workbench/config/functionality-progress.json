@@ -896,7 +896,7 @@
       "id": "reports-workbench-evidence",
       "name": "Reports, Workbench, And Evidence",
       "status": "in-progress",
-      "summary": "Operational reports, CSV export, Workbench orchestration, test management, comparison artifacts, drill-ins, safe artifact links, and direct run/report links are implemented; richer evidence exploration remains future scope.",
+      "summary": "Operational reports, CSV export, Workbench orchestration, test management, comparison artifacts, drill-ins, safe artifact links, direct run/report links, and screenshot thumbnail previews are implemented; richer evidence exploration remains future scope.",
       "completed": [
         {
           "label": "Operational reporting",
@@ -905,21 +905,21 @@
         },
         {
           "label": "Workbench orchestration and evidence",
-          "detail": "Managed lifecycle controls, seed actions, native tests, parity plans, custom parity runs, side-by-side comparisons, drill-ins, artifact links, direct run/report evidence links, timeline, architecture, and progress views are implemented.",
-          "evidence": ["workbench-v1", "slice-124-comparison-drill-ins", "slice-125-artifact-links", "slice-155-comparison-report-links"]
+          "detail": "Managed lifecycle controls, seed actions, native tests, parity plans, custom parity runs, side-by-side comparisons, drill-ins, artifact links, direct run/report evidence links, screenshot thumbnail previews, timeline, architecture, and progress views are implemented.",
+          "evidence": ["workbench-v1", "slice-124-comparison-drill-ins", "slice-125-artifact-links", "slice-155-comparison-report-links", "slice-256-comparison-screenshot-thumbnails"]
         }
       ],
       "outstanding": [
-        "Screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.",
+        "Normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.",
         "Saved report definitions and richer downloadable report formats."
       ],
       "deferred": [
         "Future CI integration and long-term evidence retention policy."
       ],
-      "completionEstimatePercent": 74,
+      "completionEstimatePercent": 76,
       "estimatedScopeWeight": 5,
       "scopeWeightRationale": "Workbench evidence is strategically important but smaller than the clinical, billing, document, lab, and production modernization domains.",
-      "estimateRationale": "Operational reporting, Workbench orchestration, comparisons, drill-ins, direct report links, timeline, architecture, and progress views are substantial; screenshots, trends, and report depth remain."
+      "estimateRationale": "Operational reporting, Workbench orchestration, comparisons, drill-ins, direct report links, screenshot thumbnails, timeline, architecture, and progress views are substantial; normalized probe details, accepted differences, trends, and report depth remain."
     },
     {
       "id": "integrations-migration-production",

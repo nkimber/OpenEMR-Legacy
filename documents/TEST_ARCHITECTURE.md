@@ -23,6 +23,8 @@ Technology stack:
 - A run-summary comparator for side-by-side parity evidence.
 - JSON, JUnit, HTML, screenshots, videos, and Playwright traces as test evidence.
 
+The Workbench Test Runs page now reads recent side-by-side comparison artifacts and surfaces comparison-side screenshot/image artifacts as thumbnails when they exist, while still linking run JSON, Playwright JSON, JUnit XML, HTML reports, and the comparison JSON through the safe artifact endpoint.
+
 The legacy baseline is the first implemented target:
 
 - Target id: `legacy-openemr`
@@ -1576,6 +1578,6 @@ Next parity steps:
 1. Add additional modernized workflow actions behind the same mutation-test intent as CRUD slices are implemented.
 2. Add modernized UI helpers behind the same browser workflow intent for each new mutation slice.
 3. Add additional slice readiness plans or graduate slices into the full parity plan once both targets support them.
-4. Expand the Workbench comparison artifact drill-ins with screenshot thumbnails, normalized probe details, accepted-difference tracking, and historical trend charts.
+4. Expand the Workbench comparison artifact drill-ins with normalized probe details, accepted-difference tracking, and historical trend charts.
 
 The test code should continue to assert observable behavior and normalized domain state, not identical implementation details.

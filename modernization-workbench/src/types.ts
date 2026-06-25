@@ -95,6 +95,14 @@ export type ParityRunResult = {
   stderrPreview: string;
 };
 
+export type VisualArtifact = {
+  path: string;
+  name: string;
+  kind: "test-screenshot" | "html-report-image" | "image";
+  sizeBytes: number;
+  modifiedAt: string;
+};
+
 export type ParityComparisonSide = {
   target: string;
   runId: string;
@@ -115,6 +123,7 @@ export type ParityComparisonSide = {
     junit: string;
     html: string;
   };
+  visualArtifacts: VisualArtifact[];
 };
 
 export type ParityComparisonReport = {

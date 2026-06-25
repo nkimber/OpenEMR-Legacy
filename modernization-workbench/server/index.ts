@@ -324,6 +324,7 @@ type ParityComparisonSide = {
     junit: string;
     html: string;
   };
+  visualArtifacts: VisualArtifact[];
 };
 
 type ParityComparisonReport = {
@@ -343,6 +344,14 @@ type ParityComparisonReport = {
   startedAt: string;
   finishedAt: string;
   durationMs: number;
+};
+
+type VisualArtifact = {
+  path: string;
+  name: string;
+  kind: "test-screenshot" | "html-report-image" | "image";
+  sizeBytes: number;
+  modifiedAt: string;
 };
 
 type SourceInventoryConfig = {
@@ -1857,6 +1866,74 @@ function normalizeRunReportLinks(value: unknown) {
   };
 }
 
+function isVisualArtifactFile(filePath: string) {
+  return [".png", ".jpg", ".jpeg", ".webp"].includes(path.extname(filePath).toLowerCase());
+}
+
+function classifyVisualArtifact(filePath: string): VisualArtifact["kind"] {
+  const normalized = filePath.replaceAll("\\", "/").toLowerCase();
+  if (normalized.includes("/test-results/")) {
+    return "test-screenshot";
+  }
+  if (normalized.includes("/html-report/data/")) {
+    return "html-report-image";
+  }
+  return "image";
+}
+
+async function collectVisualArtifacts(runArtifactDirectory: string, limit = 8): Promise<VisualArtifact[]> {
+  const visualArtifacts: VisualArtifact[] = [];
+  const pendingDirectories = [runArtifactDirectory];
+
+  while (pendingDirectories.length && visualArtifacts.length < 250) {
+    const currentDirectory = pendingDirectories.shift();
+    if (!currentDirectory) {
+      continue;
+    }
+
+    let entries: import("node:fs").Dirent[] = [];
+    try {
+      entries = await fs.readdir(currentDirectory, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    await Promise.all(entries.map(async (entry) => {
+      const entryPath = path.join(currentDirectory, entry.name);
+      if (entry.isDirectory()) {
+        pendingDirectories.push(entryPath);
+        return;
+      }
+      if (!entry.isFile() || !isVisualArtifactFile(entryPath)) {
+        return;
+      }
+
+      try {
+        const stats = await fs.stat(entryPath);
+        visualArtifacts.push({
+          path: path.relative(repoRoot, entryPath).replaceAll("\\", "/"),
+          name: entry.name,
+          kind: classifyVisualArtifact(entryPath),
+          sizeBytes: stats.size,
+          modifiedAt: stats.mtime.toISOString()
+        });
+      } catch {
+        // Ignore artifacts that disappear while the Workbench is refreshing.
+      }
+    }));
+  }
+
+  const kindRank: Record<VisualArtifact["kind"], number> = {
+    "test-screenshot": 0,
+    "html-report-image": 1,
+    image: 2
+  };
+
+  return visualArtifacts
+    .sort((left, right) => kindRank[left.kind] - kindRank[right.kind] || new Date(right.modifiedAt).getTime() - new Date(left.modifiedAt).getTime() || left.name.localeCompare(right.name))
+    .slice(0, limit);
+}
+
 async function getExistingArtifactPath(projectPath: string) {
   if (!projectPath) {
     return "";
@@ -1905,7 +1982,8 @@ function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
       flaky: toNumber(stats.flaky),
       duration: toNumber(stats.duration)
     },
-    reports: normalizeRunReportLinks(reports)
+    reports: normalizeRunReportLinks(reports),
+    visualArtifacts: []
   };
 }
 
@@ -1921,7 +1999,9 @@ async function enrichComparisonSide(side: ParityComparisonSide) {
     const reports = runSummaryObject.reports && typeof runSummaryObject.reports === "object"
       ? await normalizeExistingRunReportLinks(runSummaryObject.reports)
       : side.reports;
-    return { ...side, reports };
+    const runArtifactDirectory = path.dirname(runSummaryPath);
+    const visualArtifacts = await collectVisualArtifacts(runArtifactDirectory);
+    return { ...side, reports, visualArtifacts };
   } catch {
     return side;
   }

@@ -886,6 +886,115 @@ p {
   white-space: nowrap;
 }
 
+.comparison-visuals,
+.comparison-visual-empty {
+  min-width: 0;
+  border: 1px solid #e4ebf1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.comparison-visual-empty {
+  display: flex;
+  align-items: center;
+  min-height: 92px;
+  color: #687789;
+  font-size: 0.82rem;
+  font-weight: 720;
+}
+
+.comparison-visuals {
+  display: grid;
+  gap: 8px;
+}
+
+.comparison-visuals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.comparison-visuals-header span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #687789;
+  font-size: 0.74rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.comparison-visuals-header strong {
+  color: #263747;
+  font-size: 0.82rem;
+}
+
+.comparison-thumbnail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.comparison-thumbnail-grid a {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid #dce6ec;
+  border-radius: 8px;
+  background: #f5f8fa;
+  color: #2d4655;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.comparison-thumbnail-grid a:hover {
+  border-color: #9bb8c2;
+  background: #eef8f7;
+}
+
+.comparison-thumbnail-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #e7edf2;
+}
+
+.comparison-thumbnail-grid span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 7px 7px;
+}
+
+.comparison-thumbnail-grid span strong,
+.comparison-thumbnail-grid span small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-thumbnail-grid span strong {
+  color: #263747;
+  font-size: 0.74rem;
+}
+
+.comparison-thumbnail-grid span small {
+  color: #687789;
+  font-size: 0.72rem;
+}
+
+.comparison-visuals.detailed {
+  margin-top: 4px;
+}
+
+.comparison-visuals.detailed .comparison-thumbnail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+}
+
 .comparison-differences {
   display: grid;
   gap: 6px;

@@ -205,4 +205,4 @@ Each slice should include:
 1. Continue implementing modernized workflow slices until the major OpenEMR clinical, billing, lab, message, administration, reports, documents, integration, and mutation paths have parity coverage.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
-4. Expand Workbench comparison views with screenshot thumbnails, normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
+4. Expand Workbench comparison views with normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
