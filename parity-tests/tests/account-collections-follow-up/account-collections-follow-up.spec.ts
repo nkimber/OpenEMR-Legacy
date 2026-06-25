@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { escapeSql } from "../../src/db/legacyMariaDbProbe.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientNotesDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedFees, openAuthenticatedModernizedMessages } from "../../src/ui/modernizedOpenEmr.js";
@@ -9,7 +10,7 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const queue = await targetDb.getCollectionsWorkQueue(5);
     expect(queue.items).toHaveLength(5);
     const item = queue.items[0];
@@ -21,6 +22,45 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
     let uiTaskId: string | null = null;
 
     try {
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-64-collections-follow-up-precondition",
+        description: "Captures the Slice 64 collections follow-up task precondition: selected queue account, starting patient workflow counts, and proposed pnotes-compatible task payload.",
+        expected: {
+          selectedQueueLimit: 5,
+          requiredInitialMessages: beforeCounts.messages,
+          lifecycle: ["create", "close", "render", "soft-delete", "hard-delete-cleanup"],
+          assignedTo: "billing",
+          statusAfterCreate: "New",
+          statusAfterClose: "Done"
+        },
+        actual: {
+          selectedQueueItem: item,
+          beforeCounts,
+          proposedTask: {
+            patientId: item.patientId,
+            pubpid: item.pubpid,
+            patientDisplayName: item.patientDisplayName,
+            title,
+            statementNumber: item.statementNumber,
+            action: item.recommendedAction,
+            collectionTier: item.collectionTier,
+            pastDueAmount: item.pastDueAmount,
+            over90Amount: item.over90Amount,
+            balanceDueAmount: item.balanceDueAmount,
+            oldestOpenDate: item.oldestOpenDate,
+            oldestOpenAgeDays: item.oldestOpenAgeDays,
+            dueDate: item.dueDate,
+            assignedTo: "billing",
+            note
+          }
+        },
+        context: {
+          suite: "account-collections-follow-up",
+          workflow: "collections-follow-up-precondition"
+        }
+      });
+
       taskId = await workflow.createCollectionsFollowUpTask({
         patientId: item.patientId,
         pubpid: item.pubpid,
@@ -53,12 +93,59 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(item.patientId);
       expect(afterCreateCounts.messages).toBe(beforeCounts.messages + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-64-collections-follow-up-created",
+        description: "Captures the created Slice 64 follow-up task row and confirms the patient message count increment.",
+        expected: {
+          title,
+          status: "New",
+          assignedTo: "billing",
+          deleted: 0,
+          messageCountDelta: 1,
+          requiredBodyFragments: [item.statementNumber, `Action: ${item.recommendedAction}`, `Priority: ${item.collectionTier}`, note]
+        },
+        actual: {
+          taskId,
+          created,
+          beforeCounts,
+          afterCreateCounts,
+          messageCountDelta: afterCreateCounts.messages - beforeCounts.messages
+        },
+        context: {
+          suite: "account-collections-follow-up",
+          workflow: "collections-follow-up-created"
+        }
+      });
 
       await workflow.updatePatientMessageStatus(taskId, "Done", closeBody);
       const closed = await workflow.getPatientMessage(taskId);
       expect(closed).toMatchObject({
         body: closeBody,
         status: "Done"
+      });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-64-collections-follow-up-closed",
+        description: "Captures the closed Slice 64 follow-up task row after status/body update, before UI rendering checks.",
+        expected: {
+          status: "Done",
+          body: closeBody,
+          uiTextAnchors: [title, closeBody, "Done"]
+        },
+        actual: {
+          taskId,
+          closed,
+          selectedQueueItem: {
+            patientId: item.patientId,
+            pubpid: item.pubpid,
+            statementNumber: item.statementNumber
+          }
+        },
+        context: {
+          suite: "account-collections-follow-up",
+          workflow: "collections-follow-up-closed"
+        }
       });
 
       if (target.type === "legacy-openemr") {
@@ -79,13 +166,57 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
         await queuePanel.getByRole("button", { name: "Create Task" }).first().click();
         await expect(queuePanel).toContainText(`Created ${title} assigned to billing`);
         uiTaskId = await getModernizedMessageId(targetDb, item.patientId, title, "modernized Fees collections work queue");
-        expect(uiTaskId).not.toBeNull();
+        if (uiTaskId === null) {
+          throw new Error("Modernized Fees collections work queue did not create a follow-up task.");
+        }
+        const uiCreated = await workflow.getPatientMessage(uiTaskId);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-64-collections-follow-up-ui-created",
+          description: "Captures the modernized Fees UI-created follow-up task row so the Workbench can compare API/UI task creation evidence.",
+          expected: {
+            title,
+            assignedTo: "billing",
+            bodyFragment: "modernized Fees collections work queue"
+          },
+          actual: {
+            uiTaskId,
+            uiCreated,
+            uiAction: {
+              panelLabel: "Collections work queue",
+              button: "Create Task",
+              confirmation: `Created ${title} assigned to billing`
+            }
+          },
+          context: {
+            suite: "account-collections-follow-up",
+            workflow: "collections-follow-up-ui-created"
+          }
+        });
       }
 
       await workflow.softDeletePatientMessage(taskId);
       const deleted = await workflow.getPatientMessage(taskId);
       expect(deleted).toMatchObject({
         deleted: 1
+      });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-64-collections-follow-up-soft-deleted",
+        description: "Captures the Slice 64 follow-up task after OpenEMR-compatible soft-delete/archive state is applied.",
+        expected: {
+          deleted: 1,
+          cleanupWillHardDelete: true
+        },
+        actual: {
+          taskId,
+          deleted,
+          uiTaskId
+        },
+        context: {
+          suite: "account-collections-follow-up",
+          workflow: "collections-follow-up-soft-deleted"
+        }
       });
     } finally {
       if (target.type === "modernized-openemr" && uiTaskId === null) {
@@ -104,6 +235,28 @@ test.describe("collections follow-up task parity @slice64 @account-collections-f
     if (taskId !== null) {
       await expect(workflow.getPatientMessage(taskId)).resolves.toBeNull();
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-64-collections-follow-up-cleanup",
+      description: "Captures the Slice 64 final cleanup state after hard-deleting temporary follow-up tasks and restoring the patient message count.",
+      expected: {
+        messageCountRestored: true,
+        finalMessageCount: beforeCounts.messages,
+        primaryTaskRemoved: taskId !== null,
+        uiTaskRemoved: target.type === "modernized-openemr" ? uiTaskId !== null : "not-applicable"
+      },
+      actual: {
+        taskId,
+        uiTaskId,
+        beforeCounts,
+        afterCleanupCounts,
+        messageCountRestored: afterCleanupCounts.messages === beforeCounts.messages
+      },
+      context: {
+        suite: "account-collections-follow-up",
+        workflow: "collections-follow-up-cleanup"
+      }
+    });
   });
 });
 
