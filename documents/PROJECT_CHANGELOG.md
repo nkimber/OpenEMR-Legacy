@@ -21053,7 +21053,7 @@ Code changes:
 
 Started: 2026-06-25T15:23:50.4174793-04:00
 Finished: 2026-06-25T15:26:57.7479751-04:00
-Commit: pending
+Commit: 1dcdb182
 
 Implemented Slice 377: Slice 116 appointment series recurrence update probe payload attachments. The appointment series recurrence update parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` seeded recurring root, original every-two-weeks cadence, temporary every-three-weeks update, recurrence end-date change, skipped-date preservation, generated occurrence expansion, legacy repeat-control rendering facts, modernized Calendar recurrence update anchors, and cleanup restoration so Workbench comparison drill-ins can preview seeded recurring-series update evidence.
 
