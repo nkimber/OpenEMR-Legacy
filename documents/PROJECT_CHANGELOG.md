@@ -18947,6 +18947,37 @@ Code changes:
 - Net lines: +128
 - Total churn: 160
 
+## 360. Slice 316 Slice 55 Document Replacement Revision Probe Payload Attachments
+
+Started: 2026-06-25T08:09:37-04:00
+Finished: 2026-06-25T08:13:32-04:00
+Commit: pending
+
+Implemented Slice 316: Slice 55 document replacement revision probe payload attachments. The document replacement revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed temporary document and replacement payload, created current-version facts, replaced revision timestamp/hash movement, archived state, and hard-delete cleanup so Workbench comparison drill-ins can preview mutation lifecycle evidence.
+
+Changes:
+- Added Slice 55 precondition payload attachments for the document anchor patient, baseline document count, proposed temporary text document, and replacement payload.
+- Added Slice 55 created and replaced payload attachments that capture current-version facts, revision timestamps, revision hash parity, hash movement, content replacement, and stable active document counts.
+- Added Slice 55 archive and cleanup payload attachments that capture soft-delete/archive state and final hard-delete cleanup state.
+- Updated the Workbench functionality progress ledger so Slice 55 document replacement revision database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 316 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 54 workflow payload boundary.
+- `npm run test:modernized:plan:document-revision-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T121139-083Z-modernized-openemr-plan-slice-55-document-revision-replace-readiness`.
+- `npm run test:legacy:plan:document-revision-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T121210-024Z-legacy-openemr-plan-slice-55-document-revision-replace-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 55 Playwright reports recorded the shared `db-probe-slice-55-document-revision-replace-precondition`, `db-probe-slice-55-document-revision-replace-created`, `db-probe-slice-55-document-revision-replace-replaced`, `db-probe-slice-55-document-revision-replace-archived`, and `db-probe-slice-55-document-revision-replace-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-55-document-revision-replace-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T121305-253Z-legacy-openemr-vs-modernized-openemr-plan-slice-55-document-revision-replace-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 245
+- Lines deleted: 30
+- Net lines: +215
+- Total churn: 275
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18956,5 +18987,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 54.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 55.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
