@@ -21962,7 +21962,7 @@ Code changes:
 
 Started: 2026-06-25T18:20:05.4898607-04:00
 Finished: 2026-06-25T18:21:58.1782098-04:00
-Commit: pending
+Commit: 36096b83
 
 Implemented Slice 405: Slice 148 procedure vendor compendium import probe payload attachments. The procedure vendor compendium import parity suite now writes path-backed JSON Playwright attachments for temporary import group inputs, first and second PathGroup CSV payloads, created/updated/deactivated/reactivated order and result rows, rendering facts, and cleanup deletion so Workbench comparison drill-ins can preview vendor compendium import evidence.
 
