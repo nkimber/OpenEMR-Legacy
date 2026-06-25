@@ -19223,6 +19223,34 @@ Code changes:
 - Net lines: +99
 - Total churn: 129
 
+## 369. Workbench Project Timeline Paged Loading
+
+Started: 2026-06-25T09:05:16-04:00
+Finished: 2026-06-25T09:13:06-04:00
+Commit: 69ad7e70
+
+Improved Modernization Workbench loading behavior by paging the Project Timeline instead of loading the full project changelog and Git-enriched history up front.
+
+Changes:
+- Added `/api/changelog` pagination metadata and query handling for `offset`, `limit`, and newest-first ordering.
+- Cached parsed changelog entries and bounded Git enrichment in memory until `documents/PROJECT_CHANGELOG.md` changes.
+- Updated the Dashboard and Project Timeline route loaders to request the newest 100 entries first.
+- Added a Timeline load-more action, loaded-count summary, and responsive footer styling for requesting additional 100-entry pages.
+- Documented the paged changelog hydration behavior in the Modernization Workbench guide.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- `GET http://127.0.0.1:5174/api/changelog` returned the newest 100 entries with `hasMore: true`, `order: desc`, and `nextOffset: 100`.
+- `GET http://127.0.0.1:5173` returned HTTP 200 for the running Workbench UI.
+
+Code changes:
+- Files changed: 6
+- Lines added: 198
+- Lines deleted: 19
+- Net lines: +179
+- Total churn: 217
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
