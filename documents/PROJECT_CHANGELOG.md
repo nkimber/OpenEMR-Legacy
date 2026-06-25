@@ -16543,7 +16543,7 @@ Primary files:
 
 Started: 2026-06-24T19:49:00-04:00
 Finished: 2026-06-24T20:07:14-04:00
-Commit: pending
+Commit: 0994879b
 
 Implemented Slice 248: patient portal allergy date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_allergies.php` allergy table by exposing reported, start, end, and referrer facts, including cleanup-backed ended allergy rows that legacy still renders.
 
