@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -6,11 +7,40 @@ const schedulingAnchorPatientId = "MOD-PAT-0003";
 const schedulingAnchorDate = "2026-06-18";
 
 test.describe("scheduling appointment parity @slice2 @scheduling", () => {
-  test("stable scheduling anchor has a future appointment fact", async ({ targetDb }) => {
+  test("stable scheduling anchor has a future appointment fact", async ({ target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(schedulingAnchorPatientId);
+    const appointment = patient ? await targetDb.getFutureAppointmentForPatient(patient.pid, schedulingAnchorDate) : null;
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-2-future-appointment-anchor",
+      description: "Verifies the Slice 2 scheduling anchor patient and future appointment database facts.",
+      expected: {
+        patient: {
+          pubpid: schedulingAnchorPatientId
+        },
+        appointment: {
+          patientId: patient?.pid ?? 100003,
+          eventDate: `> ${schedulingAnchorDate}`,
+          title: "non-empty",
+          startTime: "HH:mm",
+          status: "non-empty"
+        }
+      },
+      actual: {
+        patient,
+        appointment
+      },
+      context: {
+        canonicalId: schedulingAnchorPatientId,
+        afterDate: schedulingAnchorDate,
+        suite: "scheduling",
+        workflow: "future-appointment-readiness"
+      }
+    });
+
     expect(patient).not.toBeNull();
 
-    const appointment = await targetDb.getFutureAppointmentForPatient(patient!.pid, schedulingAnchorDate);
     expect(appointment).not.toBeNull();
     expect(appointment!.patientId).toBe(patient!.pid);
     expect(appointment!.eventDate > schedulingAnchorDate).toBe(true);
@@ -18,10 +48,35 @@ test.describe("scheduling appointment parity @slice2 @scheduling", () => {
     expect(appointment!.startTime).toMatch(/^\d{2}:\d{2}/);
   });
 
-  test("future appointment detail is visible in the application UI", async ({ page, target, targetDb }) => {
+  test("future appointment detail is visible in the application UI", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(schedulingAnchorPatientId);
+    const appointment = patient ? await targetDb.getFutureAppointmentForPatient(patient.pid, schedulingAnchorDate) : null;
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-2-appointment-ui-precondition",
+      description: "Captures the patient and future appointment database rows used before steering the Slice 2 scheduling UI parity flow.",
+      expected: {
+        patient: {
+          pubpid: schedulingAnchorPatientId
+        },
+        appointment: {
+          eventDate: `> ${schedulingAnchorDate}`,
+          title: "visible appointment title",
+          startTime: "visible appointment time"
+        }
+      },
+      actual: {
+        patient,
+        appointment
+      },
+      context: {
+        canonicalId: schedulingAnchorPatientId,
+        afterDate: schedulingAnchorDate,
+        suite: "scheduling",
+        workflow: "future-appointment-ui"
+      }
+    });
     expect(patient).not.toBeNull();
-    const appointment = await targetDb.getFutureAppointmentForPatient(patient!.pid, schedulingAnchorDate);
     expect(appointment).not.toBeNull();
 
     if (target.type === "legacy-openemr") {

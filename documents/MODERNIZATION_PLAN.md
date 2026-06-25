@@ -1423,6 +1423,29 @@ Current limitations:
 
 - This slice covers the first read-only workflow suite only. Additional read-only and mutation suites still need normalized pre/post database payload attachments.
 
+### Slice 263: Slice 2 Scheduling Probe Payload Attachments
+
+Status:
+
+- Implemented as parity-test evidence infrastructure under `parity-tests/`.
+- Verification is the parity typecheck, legacy and modernized Slice 2 scheduling readiness plans, and the side-by-side Slice 2 comparison.
+
+Scope:
+
+- Extended the Slice 2 scheduling suite with path-backed JSON database probe attachments.
+- The future appointment database fact test now attaches the scheduling anchor patient plus selected future appointment facts after `2026-06-18`.
+- The scheduling UI test now attaches the database patient and appointment lookup used before steering the legacy or modernized scheduling surface.
+
+Acceptance:
+
+- Both legacy and modernized `slice-2-scheduling-readiness` plan runs pass with 2 expected tests.
+- Both Playwright JSON reports record `db-probe-slice-2-*` attachments with file paths, allowing Workbench probe attachment previews to show the scheduling payloads.
+- The side-by-side `slice-2-scheduling-readiness` comparison remains matched with no differences.
+
+Current limitations:
+
+- This slice covers the second read-only workflow suite only. Additional read-only and mutation suites still need normalized pre/post database payload attachments.
+
 ### Slice 156: Patient Message Reply Readiness
 
 Status:
@@ -4712,3 +4735,4 @@ As of 2026-06-20:
 - The two-hundred-sixtieth implementation slice improves Workbench comparison evidence by extending normalized probe details with safe text-like attachment previews, keeping binary trace artifacts as metadata/links, and optimizing comparison artifact enrichment so the latest comparison cards are sliced before deep report enrichment. This closes the first probe-payload rendering gap while leaving broader database query/result attachment generation for future parity-test slices.
 - The two-hundred-sixty-first implementation slice makes the database gold-seed contract suite produce the first normalized database payload attachments. It writes path-backed JSON evidence for count, temporal coverage, anchor-patient, and related-record probes, and aligns both target count adapters with the shared `portalMailboxMessages` contract so the Workbench can preview those database probe payloads from comparison drill-ins.
 - The two-hundred-sixty-second implementation slice extends normalized database payload attachments into the Slice 1 patient search/chart summary workflow suite. It records the `MOD-PAT-0001` demographics, activity counts, and UI steering precondition as path-backed JSON evidence on both legacy and modernized runs while preserving a matched side-by-side Slice 1 comparison.
+- The two-hundred-sixty-third implementation slice extends normalized database payload attachments into the Slice 2 scheduling workflow suite. It records the `MOD-PAT-0003` future appointment anchor and scheduling UI steering precondition as path-backed JSON evidence on both legacy and modernized runs while preserving a matched side-by-side Slice 2 comparison.
