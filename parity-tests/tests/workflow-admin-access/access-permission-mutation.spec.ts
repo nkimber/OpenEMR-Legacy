@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openAccessControlDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -8,7 +9,7 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const assignment = {
       groupValue: "front",
       sectionValue: "patients",
@@ -17,6 +18,41 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
     };
 
     const original = await workflow.getAccessPermissionAssignment(assignment);
+    const beforeAccess = await targetDb.getAdministrationAccessControl();
+    const beforeFrontOffice = beforeAccess.groups.find((group) => group.value === "front") ?? null;
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-21-access-permission-mutation-precondition",
+      description: "Captures the Slice 21 focused ACL assignment before revoking the Front Office demographics permission.",
+      expected: {
+        assignment: {
+          ...assignment,
+          permissionName: "Demographics (write,addonly optional)"
+        },
+        counts: {
+          groupPermissions: 203
+        },
+        frontOffice: {
+          permissionCount: 6
+        }
+      },
+      actual: {
+        assignment,
+        original,
+        counts: {
+          groups: beforeAccess.groups.length,
+          permissions: beforeAccess.permissions.length,
+          groupPermissions: beforeAccess.groupPermissions.length,
+          userMemberships: beforeAccess.userMemberships.length
+        },
+        frontOffice: beforeFrontOffice
+      },
+      context: {
+        suite: "workflow-admin-access",
+        workflow: "access-permission-mutation"
+      }
+    });
+
     expect(original).toMatchObject({
       ...assignment,
       permissionName: "Demographics (write,addonly optional)"
@@ -24,9 +60,41 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
 
     try {
       await workflow.revokeAccessPermission(assignment);
-      await expect(workflow.getAccessPermissionAssignment(assignment)).resolves.toBeNull();
+      const revoked = await workflow.getAccessPermissionAssignment(assignment);
+      expect(revoked).toBeNull();
 
       const afterRevoke = await targetDb.getAdministrationAccessControl();
+      const revokedFrontOffice = afterRevoke.groups.find((group) => group.value === "front") ?? null;
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-21-access-permission-mutation-revoked",
+        description: "Captures the Slice 21 ACL assignment state after revoking the Front Office demographics permission.",
+        expected: {
+          assignment: null,
+          counts: {
+            groupPermissions: 202
+          },
+          frontOffice: {
+            permissionCount: 5
+          }
+        },
+        actual: {
+          assignment,
+          revoked,
+          counts: {
+            groups: afterRevoke.groups.length,
+            permissions: afterRevoke.permissions.length,
+            groupPermissions: afterRevoke.groupPermissions.length,
+            userMemberships: afterRevoke.userMemberships.length
+          },
+          frontOffice: revokedFrontOffice
+        },
+        context: {
+          suite: "workflow-admin-access",
+          workflow: "access-permission-mutation-revoked"
+        }
+      });
+
       expect(afterRevoke.groupPermissions).toHaveLength(202);
       expect(afterRevoke.groups).toEqual(
         expect.arrayContaining([
@@ -46,9 +114,42 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
       }
 
       await workflow.grantAccessPermission(assignment);
-      await expect(workflow.getAccessPermissionAssignment(assignment)).resolves.toMatchObject(original!);
+      const restored = await workflow.getAccessPermissionAssignment(assignment);
+      expect(restored).toMatchObject(original!);
 
       const afterRestore = await targetDb.getAdministrationAccessControl();
+      const restoredFrontOffice = afterRestore.groups.find((group) => group.value === "front") ?? null;
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-21-access-permission-mutation-restored",
+        description: "Captures the Slice 21 ACL assignment state after restoring the Front Office demographics permission.",
+        expected: {
+          assignment: original,
+          counts: {
+            groupPermissions: 203
+          },
+          frontOffice: {
+            permissionCount: 6
+          }
+        },
+        actual: {
+          assignment,
+          original,
+          restored,
+          counts: {
+            groups: afterRestore.groups.length,
+            permissions: afterRestore.permissions.length,
+            groupPermissions: afterRestore.groupPermissions.length,
+            userMemberships: afterRestore.userMemberships.length
+          },
+          frontOffice: restoredFrontOffice
+        },
+        context: {
+          suite: "workflow-admin-access",
+          workflow: "access-permission-mutation-restored"
+        }
+      });
+
       expect(afterRestore.groupPermissions).toHaveLength(203);
       expect(afterRestore.groups).toEqual(
         expect.arrayContaining([
@@ -67,5 +168,42 @@ test.describe("access-control permission mutation parity @slice21 @workflow-admi
     } finally {
       await workflow.grantAccessPermission(assignment);
     }
+
+    const afterCleanup = await targetDb.getAdministrationAccessControl();
+    const cleanupAssignment = await workflow.getAccessPermissionAssignment(assignment);
+    const cleanupFrontOffice = afterCleanup.groups.find((group) => group.value === "front") ?? null;
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-21-access-permission-mutation-cleanup",
+      description: "Captures the Slice 21 cleanup state after ensuring the Front Office demographics permission is restored.",
+      expected: {
+        assignment: original,
+        counts: {
+          groupPermissions: 203
+        },
+        frontOffice: {
+          permissionCount: 6
+        }
+      },
+      actual: {
+        assignment,
+        original,
+        cleanupAssignment,
+        counts: {
+          groups: afterCleanup.groups.length,
+          permissions: afterCleanup.permissions.length,
+          groupPermissions: afterCleanup.groupPermissions.length,
+          userMemberships: afterCleanup.userMemberships.length
+        },
+        frontOffice: cleanupFrontOffice
+      },
+      context: {
+        suite: "workflow-admin-access",
+        workflow: "access-permission-mutation-cleanup"
+      }
+    });
+
+    expect(cleanupAssignment).toMatchObject(original!);
+    expect(afterCleanup.groupPermissions).toHaveLength(203);
   });
 });

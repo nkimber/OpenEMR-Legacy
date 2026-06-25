@@ -17853,6 +17853,39 @@ Code changes:
 - Net lines: +240
 - Total churn: 274
 
+## 326. Slice 282 Slice 21 Access-Permission Mutation Probe Payload Attachments
+
+Started: 2026-06-25T03:35:00-04:00
+Finished: 2026-06-25T03:42:05-04:00
+Commit: pending
+
+Implemented Slice 282: Slice 21 access-permission mutation probe payload attachments. The administration access-permission mutation parity suite now writes path-backed JSON Playwright attachments for the focused Front Office demographics ACL assignment precondition, revoked state, restored state, and final cleanup restoration so Workbench comparison drill-ins can preview ACL permission mutation database evidence.
+
+Changes:
+- Added Slice 21 access-permission precondition payload attachments for the focused `front` / `patients:demo` / `write` ACL assignment and baseline access-control counts.
+- Added Slice 21 revoked-state payload attachments that capture the missing assignment, reduced group-permission count, and Front Office permission-count decrement.
+- Added Slice 21 restored-state payload attachments that capture the restored assignment, restored group-permission count, and Front Office permission-count increment.
+- Added Slice 21 cleanup payload attachments that confirm the focused ACL assignment remains restored after the test's cleanup path.
+- Preserved the existing Slice 21 assertions and side-by-side behavior while making ACL permission mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 21 administration access-permission mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 282 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:access-permission-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T074034-748Z-modernized-openemr-plan-slice-21-access-permission-mutation-readiness`.
+- `npm run test:legacy:plan:access-permission-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T074103-755Z-legacy-openemr-plan-slice-21-access-permission-mutation-readiness`.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 21 runs recorded file paths for all four new `db-probe-slice-21-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-21-access-permission-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T074141-800Z-legacy-openemr-vs-modernized-openemr-plan-slice-21-access-permission-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 190
+- Lines deleted: 18
+- Net lines: +172
+- Total churn: 208
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17862,5 +17895,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 20.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 21.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
