@@ -22390,7 +22390,7 @@ Code changes:
 
 Started: 2026-06-25T19:32:18.2918100-04:00
 Finished: 2026-06-25T19:34:52.6349779-04:00
-Commit: pending
+Commit: 0a7bc657
 
 Implemented Slice 417: Slice 163 admin directory protection probe payload attachments. The admin directory protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API directory blocking facts, unauthenticated modernized mutation rejection facts, authenticated legacy/API directory visibility facts, and modernized Admin-page directory rendering facts so Workbench comparison drill-ins can preview administration directory protection evidence without storing password, cookie, or session material.
 
