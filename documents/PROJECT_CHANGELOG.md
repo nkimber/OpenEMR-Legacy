@@ -19540,6 +19540,40 @@ Code changes:
 - Net lines: +248
 - Total churn: 334
 
+## 379. Slice 334 Slice 73 Encounter Diagnosis Mutation Probe Payload Attachments
+
+Started: 2026-06-25T10:22:08-04:00
+Finished: 2026-06-25T10:25:25-04:00
+Commit: pending
+
+Implemented Slice 334: Slice 73 encounter diagnosis coding mutation probe payload attachments. The encounter diagnosis mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, temporary `R73.03` ICD10 diagnosis billing row, baseline/create/inactive/cleanup count movement, legacy Fee Sheet rendering, modernized encounter-detail API rows, and Encounters workspace diagnosis-coding UI anchors so Workbench comparison drill-ins can preview encounter diagnosis mutation evidence.
+
+Changes:
+- Added Slice 73 precondition payload attachments for the anchor patient, billing encounter, baseline workflow counts, active encounter billing rows, and proposed temporary ICD10 diagnosis row.
+- Added Slice 73 created payload attachments for the created ICD10 billing row, encounter billing projection, and billing-line count increment.
+- Added Slice 73 application-surface payload attachments for legacy Fee Sheet rendering and modernized encounter detail API/UI diagnosis-coding anchors.
+- Added Slice 73 inactive and cleanup payload attachments for billed/inactive row state, active encounter projection removal, hard-delete cleanup, and restored workflow counts.
+- Replaced non-null assertions in the Slice 73 suite with explicit anchor-patient and billing-encounter guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 73 encounter diagnosis coding mutation database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 334 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 72 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-diagnosis-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T142341-298Z-modernized-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+- `npm run test:legacy:plan:encounter-diagnosis-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T142418-056Z-legacy-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+- Artifact inspection confirmed the modernized Slice 73 Playwright report recorded `db-probe-slice-73-encounter-diagnosis-mutation-precondition`, `db-probe-slice-73-encounter-diagnosis-mutation-created`, `db-probe-slice-73-encounter-diagnosis-mutation-surface`, `db-probe-slice-73-encounter-diagnosis-mutation-inactive`, and `db-probe-slice-73-encounter-diagnosis-mutation-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 73 Playwright report recorded `db-probe-slice-73-encounter-diagnosis-mutation-precondition`, `db-probe-slice-73-encounter-diagnosis-mutation-created`, `db-probe-slice-73-encounter-diagnosis-mutation-surface`, `db-probe-slice-73-encounter-diagnosis-mutation-inactive`, and `db-probe-slice-73-encounter-diagnosis-mutation-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-73-encounter-diagnosis-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T142506-385Z-legacy-openemr-vs-modernized-openemr-plan-slice-73-encounter-diagnosis-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 293
+- Lines deleted: 43
+- Net lines: +250
+- Total churn: 336
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19549,5 +19583,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 72.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 73.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
