@@ -1163,6 +1163,55 @@ p {
   font-size: 0.76rem;
 }
 
+.comparison-probe-attachments {
+  display: grid;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.comparison-probe-attachment {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid #dfe7ed;
+  border-radius: 8px;
+  background: #f8fafb;
+  padding: 8px;
+}
+
+.comparison-probe-attachment-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comparison-probe-attachment-header strong {
+  color: #263747;
+  font-size: 0.8rem;
+}
+
+.comparison-probe-attachment-header span {
+  flex-shrink: 0;
+  color: #687789;
+  font-size: 0.74rem;
+}
+
+.comparison-probe-attachment pre {
+  max-height: 160px;
+  overflow: auto;
+  border: 1px solid #e1e8ee;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #2f3d4c;
+  padding: 8px;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
 .comparison-differences {
   display: grid;
   gap: 6px;

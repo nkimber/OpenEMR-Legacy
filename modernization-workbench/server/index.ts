@@ -435,6 +435,16 @@ type ProbeDetail = {
   tags: string[];
   errorMessages: string[];
   attachmentCount: number;
+  attachments: ProbeAttachmentDetail[];
+};
+
+type ProbeAttachmentDetail = {
+  name: string;
+  contentType: string;
+  path: string;
+  sizeBytes: number;
+  preview: string;
+  previewTruncated: boolean;
 };
 
 type AcceptedDifferenceEntry = {
@@ -2018,11 +2028,81 @@ function classifyVisualArtifact(filePath: string): VisualArtifact["kind"] {
   return "image";
 }
 
+function toReadableArtifactProjectPath(filePath: string) {
+  if (!filePath || filePath.includes("\0")) {
+    return "";
+  }
+
+  const normalizedInput = filePath.replaceAll("\\", "/");
+  const absolutePath = path.isAbsolute(filePath) ? path.resolve(filePath) : path.resolve(repoRoot, normalizedInput);
+  if (!readableArtifactRoots.some((root) => isPathInside(absolutePath, root))) {
+    return "";
+  }
+
+  return path.relative(repoRoot, absolutePath).replaceAll("\\", "/");
+}
+
+function isTextAttachment(contentType: string, filePath: string) {
+  const normalizedType = contentType.toLowerCase();
+  const extension = path.extname(filePath).toLowerCase();
+  return normalizedType.startsWith("text/")
+    || normalizedType.includes("json")
+    || normalizedType.includes("xml")
+    || [".txt", ".md", ".json", ".xml", ".csv", ".log"].includes(extension);
+}
+
+async function readAttachmentPreview(projectPath: string, contentType: string, maxBytes = 4096) {
+  if (!projectPath || !isTextAttachment(contentType, projectPath)) {
+    return { sizeBytes: 0, preview: "", previewTruncated: false };
+  }
+
+  try {
+    const resolvedPath = resolveReadableArtifactPath(projectPath);
+    const stats = await fs.stat(resolvedPath);
+    if (!stats.isFile()) {
+      return { sizeBytes: 0, preview: "", previewTruncated: false };
+    }
+    const handle = await fs.open(resolvedPath, "r");
+    try {
+      const byteCount = Math.min(stats.size, maxBytes);
+      const buffer = Buffer.alloc(byteCount);
+      await handle.read(buffer, 0, byteCount, 0);
+      return {
+        sizeBytes: stats.size,
+        preview: buffer.toString("utf8").replace(/\u0000/g, "").trim(),
+        previewTruncated: stats.size > maxBytes
+      };
+    } finally {
+      await handle.close();
+    }
+  } catch {
+    return { sizeBytes: 0, preview: "", previewTruncated: false };
+  }
+}
+
+async function normalizeProbeAttachments(results: unknown[], limit = 4): Promise<ProbeAttachmentDetail[]> {
+  const rawAttachments = results
+    .flatMap((resultValue) => getArray(getRecord(resultValue).attachments))
+    .map((attachmentValue) => getRecord(attachmentValue))
+    .map((attachment) => ({
+      name: typeof attachment.name === "string" ? attachment.name : "attachment",
+      contentType: typeof attachment.contentType === "string" ? attachment.contentType : "",
+      path: typeof attachment.path === "string" ? toReadableArtifactProjectPath(attachment.path) : ""
+    }))
+    .filter((attachment) => attachment.path)
+    .slice(0, limit);
+
+  return Promise.all(rawAttachments.map(async (attachment) => {
+    const preview = await readAttachmentPreview(attachment.path, attachment.contentType);
+    return { ...attachment, ...preview };
+  }));
+}
+
 async function collectVisualArtifacts(runArtifactDirectory: string, limit = 8): Promise<VisualArtifact[]> {
   const visualArtifacts: VisualArtifact[] = [];
   const pendingDirectories = [runArtifactDirectory];
 
-  while (pendingDirectories.length && visualArtifacts.length < 250) {
+  while (pendingDirectories.length && visualArtifacts.length < limit) {
     const currentDirectory = pendingDirectories.shift();
     if (!currentDirectory) {
       continue;
@@ -2037,6 +2117,9 @@ async function collectVisualArtifacts(runArtifactDirectory: string, limit = 8): 
 
     await Promise.all(entries.map(async (entry) => {
       const entryPath = path.join(currentDirectory, entry.name);
+      if (visualArtifacts.length >= limit) {
+        return;
+      }
       if (entry.isDirectory()) {
         pendingDirectories.push(entryPath);
         return;
@@ -2095,14 +2178,17 @@ function readErrorMessages(value: unknown) {
     .slice(0, 3);
 }
 
-function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): ProbeDetail[] {
+async function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): Promise<ProbeDetail[]> {
   const probes: ProbeDetail[] = [];
 
-  function visitSuite(value: unknown, inheritedFile = "") {
+  async function visitSuite(value: unknown, inheritedFile = "") {
     const suite = getRecord(value);
     const suiteFile = typeof suite.file === "string" ? suite.file : inheritedFile;
 
     for (const specValue of getArray(suite.specs)) {
+      if (probes.length >= limit) {
+        break;
+      }
       const spec = getRecord(specValue);
       const tests = getArray(spec.tests);
       const firstTest = getRecord(tests[0]);
@@ -2111,6 +2197,7 @@ function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): P
       const durationMs = results.reduce<number>((total, resultValue) => total + toNumber(getRecord(resultValue).duration), 0);
       const errorMessages = results.flatMap((resultValue) => readErrorMessages(getRecord(resultValue).errors)).slice(0, 3);
       const attachmentCount = results.reduce<number>((total, resultValue) => total + getArray(getRecord(resultValue).attachments).length, 0);
+      const attachments = await normalizeProbeAttachments(results);
 
       probes.push({
         title: typeof spec.title === "string" ? spec.title : "Untitled probe",
@@ -2128,17 +2215,21 @@ function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): P
         retry: toNumber(firstResult.retry),
         tags: toStringArray(spec.tags),
         errorMessages,
-        attachmentCount
+        attachmentCount,
+        attachments
       });
     }
 
     for (const childSuite of getArray(suite.suites)) {
-      visitSuite(childSuite, suiteFile);
+      if (probes.length >= limit) {
+        break;
+      }
+      await visitSuite(childSuite, suiteFile);
     }
   }
 
   for (const suite of getArray(getRecord(report).suites)) {
-    visitSuite(suite);
+    await visitSuite(suite);
     if (probes.length >= limit) {
       break;
     }
@@ -2372,19 +2463,28 @@ async function readParityComparisons(limit = 20) {
       readAcceptedDifferences().catch(() => ({ version: "missing", lastUpdated: "", entries: [] }))
     ]);
     const acceptedDifferences = acceptedDifferencesConfig.entries;
-    const candidates = await Promise.all(
+    const comparisonDirectories = await Promise.all(
       entries
         .filter((entry) => entry.isDirectory())
         .map(async (entry) => {
           const artifactDirectory = path.join(parityComparisonsRoot, entry.name);
           const comparisonPath = path.join(artifactDirectory, "comparison.json");
-          const [json, stats] = await Promise.all([
-            readJsonIfExists(comparisonPath),
-            fs.stat(comparisonPath).catch(() => null)
-          ]);
+          const stats = await fs.stat(comparisonPath).catch(() => null);
+          return stats ? { entry, modifiedAt: stats.mtimeMs } : null;
+        })
+    );
+    const candidates = await Promise.all(
+      comparisonDirectories
+        .filter((candidate): candidate is { entry: import("node:fs").Dirent; modifiedAt: number } => candidate !== null)
+        .sort((left, right) => right.modifiedAt - left.modifiedAt)
+        .slice(0, limit)
+        .map(async ({ entry, modifiedAt }) => {
+          const artifactDirectory = path.join(parityComparisonsRoot, entry.name);
+          const comparisonPath = path.join(artifactDirectory, "comparison.json");
+          const json = await readJsonIfExists(comparisonPath);
           const relativeArtifactDirectory = path.relative(repoRoot, artifactDirectory).replaceAll("\\", "/");
           const comparison = await normalizeParityComparison(json, relativeArtifactDirectory, acceptedDifferences);
-          return comparison ? { comparison, modifiedAt: stats?.mtimeMs ?? 0 } : null;
+          return comparison ? { comparison, modifiedAt } : null;
         })
     );
 

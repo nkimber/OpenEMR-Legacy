@@ -2538,6 +2538,24 @@ function ComparisonProbeDetails({ side }: { side: ParityComparisonReport["left"]
                 ))}
               </ul>
             ) : null}
+            {probe.attachments.length ? (
+              <div className="comparison-probe-attachments">
+                {probe.attachments.map((attachment) => (
+                  <div className="comparison-probe-attachment" key={`${side.runId}-${probe.title}-${attachment.path}`}>
+                    <div className="comparison-probe-attachment-header">
+                      <strong>{attachment.name}</strong>
+                      <span>{attachment.contentType || "artifact"} / {formatBytes(attachment.sizeBytes)}</span>
+                    </div>
+                    <ArtifactPathValue path={attachment.path} linkable={Boolean(attachment.path)} label={`${probe.title} ${attachment.name}`} />
+                    {attachment.preview ? (
+                      <pre>{attachment.preview}{attachment.previewTruncated ? "\n..." : ""}</pre>
+                    ) : (
+                      <small>Preview unavailable for this artifact type.</small>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </li>
         ))}
       </ol>

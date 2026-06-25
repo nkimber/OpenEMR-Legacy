@@ -116,6 +116,16 @@ export type ProbeDetail = {
   tags: string[];
   errorMessages: string[];
   attachmentCount: number;
+  attachments: ProbeAttachmentDetail[];
+};
+
+export type ProbeAttachmentDetail = {
+  name: string;
+  contentType: string;
+  path: string;
+  sizeBytes: number;
+  preview: string;
+  previewTruncated: boolean;
 };
 
 export type DifferenceAcceptance = {

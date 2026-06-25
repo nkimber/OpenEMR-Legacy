@@ -17105,6 +17105,37 @@ Code changes:
 - Net lines: +626
 - Total churn: 670
 
+## 302. Slice 260 Workbench Probe Attachment Payload Previews
+
+Started: 2026-06-25T00:24:35-04:00
+Finished: 2026-06-25T00:31:58-04:00
+Duration: 7m 23s
+Commit: pending
+
+Implemented Slice 260: Workbench probe attachment payload previews. The Workbench comparison drill-ins now expose safe text-like Playwright probe attachments as capped inline previews while keeping binary artifacts as links/metadata, and the comparison API now slices recent comparison directories before deep enrichment.
+
+Changes:
+- Extended normalized probe details with attachment metadata and safe preview fields.
+- Added guarded artifact-path normalization for Playwright attachment paths under the existing readable artifact roots.
+- Added capped inline previews for Markdown, text, JSON, XML, CSV, and log attachments.
+- Kept binary artifacts such as traces out of inline previews while preserving safe artifact links.
+- Updated Test Runs comparison drill-ins with attachment name, content type, size, artifact link, and preview blocks.
+- Optimized `/api/parity-comparisons` so it sorts and slices comparison directories before loading deep run evidence, screenshots, probes, and attachment previews.
+- Updated the Workbench functionality progress ledger so probe attachment previews are completed evidence scope while broader normalized database query/result attachment generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 260 evidence-detail contract.
+
+Verification:
+- `npm run build` in `modernization-workbench/` passed.
+- Runtime probe of `http://127.0.0.1:5174/api/parity-comparisons` returned 20 recent comparisons after the pre-enrichment slicing optimization.
+- Confirmed the temporary API listener used for the runtime probe was stopped.
+
+Code changes:
+- Files changed: 11
+- Lines added: 265
+- Lines deleted: 27
+- Net lines: +238
+- Total churn: 292
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17114,4 +17145,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
+- Normalized database query/result attachment generation for parity probes.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
