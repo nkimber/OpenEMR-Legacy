@@ -20861,7 +20861,7 @@ Code changes:
 
 Started: 2026-06-25T14:42:40.6980165-04:00
 Finished: 2026-06-25T14:47:09.5840867-04:00
-Commit: pending
+Commit: cc5f6446
 
 Implemented Slice 371: Slice 110 appointment series root update probe payload attachments. The appointment series root update parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, recurring root title/time update, generated occurrence propagation, seeded exception preservation, modernized Calendar root edit rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview recurring root update evidence.
 
