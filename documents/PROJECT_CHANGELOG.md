@@ -21371,6 +21371,40 @@ Code changes:
 - Net lines: +333
 - Total churn: 419
 
+## 433. Slice 387 Slice 128 Patient Binary Content Replacement Probe Payload Attachments
+
+Started: 2026-06-25T16:22:33.8554915-04:00
+Finished: 2026-06-25T16:25:04.2134781-04:00
+Commit: pending
+
+Implemented Slice 387: Slice 128 patient binary document content replacement probe payload attachments. The patient binary content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, temporary original PDF document, replacement PDF bytes, preview/download metadata, revision hash movement, legacy Documents rendering facts, modernized Documents binary replacement form/API/card/download anchors, and cleanup deletion so Workbench comparison drill-ins can preview patient binary replacement evidence.
+
+Changes:
+- Added Slice 128 precondition payload attachments for the seeded patient, baseline document counts, proposed original PDF document, and replacement PDF payload.
+- Added Slice 128 created-state payload attachments for the temporary original binary document, original bytes, preview metadata, current-version revision facts, and count delta.
+- Added Slice 128 replaced-state payload attachments for replacement bytes, changed hash, revision-hash parity, preview metadata, and preserved single-current-version metadata.
+- Added Slice 128 rendered-surface payload attachments for legacy Documents category anchors and modernized Documents binary replacement form/API/card/download anchors.
+- Added Slice 128 cleanup payload attachments for deleting the temporary binary document and restoring patient document counts.
+- Replaced non-null patient assumptions in the Slice 128 suite with an explicit seeded-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 128 patient binary content replacement database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 387 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-128-document-binary-content-replace-readiness` passed with run `2026-06-25T202357-693Z-legacy-openemr-plan-slice-128-document-binary-content-replace-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-128-document-binary-content-replace-readiness` passed with run `2026-06-25T202427-596Z-modernized-openemr-plan-slice-128-document-binary-content-replace-readiness`.
+- Slice 128 side-by-side comparison `2026-06-25T202452-709Z-legacy-openemr-vs-modernized-openemr-plan-slice-128-document-binary-content-replace-readiness` matched with no differences.
+- Slice 128 probe attachment report check passed for precondition, created-state, replaced-state, rendered-surface, and cleanup JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 345
+- Lines removed: 44
+- Net lines: +301
+- Total churn: 389
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21380,5 +21414,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 127.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 128.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

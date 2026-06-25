@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   getModernizedAdminSessionHeaders,
   openAuthenticatedModernizedDocuments
@@ -18,37 +19,107 @@ test.describe("patient binary document content replacement parity @slice128 @wor
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(binaryContentReplaceAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded patient binary content replacement patient ${binaryContentReplaceAnchorPatientId}`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const suffix = workflowSuffix();
     const documentName = `Parity Patient Binary Replace Document ${suffix}`;
     const originalFileName = `${documentName} Original.pdf`;
     const replacementFileName = `${documentName} Replacement.pdf`;
     const originalContentBase64 = buildPdfFixtureBase64(originalFileName, "Original patient binary replacement payload");
     const replacementContentBase64 = buildPdfFixtureBase64(replacementFileName, "Replacement patient binary replacement payload");
+    const originalBytes = Buffer.from(originalContentBase64, "base64");
     const replacementBytes = Buffer.from(replacementContentBase64, "base64");
+    const originalDocumentInput = {
+      patientId: patient.pid,
+      categoryId: 3,
+      categoryName: "Medical Record",
+      name: documentName,
+      docDate: "2026-06-18",
+      encounter: 1000013,
+      fileName: originalFileName,
+      mimetype: "application/pdf",
+      contentBase64: originalContentBase64,
+      notes: "Created by the parity patient binary document content replacement suite."
+    };
+    const replacementInput = {
+      fileName: replacementFileName,
+      mimetype: "application/pdf",
+      contentBase64: replacementContentBase64
+    };
     let documentId: number | string | null = null;
+    let created: Awaited<ReturnType<typeof workflow.getPatientDocument>> = null;
+    let createdContent: Awaited<ReturnType<typeof targetDb.getPatientDocumentContent>> = null;
+    let replaced: Awaited<ReturnType<typeof workflow.getPatientDocument>> = null;
+    let replacedContent: Awaited<ReturnType<typeof targetDb.getPatientDocumentContent>> = null;
+    let afterCreateCounts: Awaited<ReturnType<typeof targetDb.getPatientWorkflowCounts>> | null = null;
+    let afterReplaceCounts: Awaited<ReturnType<typeof targetDb.getPatientWorkflowCounts>> | null = null;
+    let surfaceFacts: Record<string, unknown> = {};
 
     try {
-      documentId = await workflow.createPatientBinaryDocument({
-        patientId: patient!.pid,
-        categoryId: 3,
-        categoryName: "Medical Record",
-        name: documentName,
-        docDate: "2026-06-18",
-        encounter: 1000013,
-        fileName: originalFileName,
-        mimetype: "application/pdf",
-        contentBase64: originalContentBase64,
-        notes: "Created by the parity patient binary document content replacement suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-128-document-binary-content-replace-precondition",
+        description:
+          "Seeded patient, baseline document counts, proposed original patient PDF document, and replacement PDF payload before binary content replacement.",
+        expected: {
+          patientCanonicalId: binaryContentReplaceAnchorPatientId,
+          categoryId: 3,
+          categoryName: "Medical Record",
+          encounter: 1000013,
+          docDate: "2026-06-18",
+          original: {
+            fileName: originalFileName,
+            mimetype: "application/pdf",
+            sizeBytes: originalBytes.length,
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview"
+          },
+          replacement: {
+            fileName: replacementFileName,
+            mimetype: "application/pdf",
+            sizeBytes: replacementBytes.length,
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            contentChanges: true
+          },
+          countChange: {
+            documentsAfterCreate: beforeCounts.documents + 1,
+            documentsAfterReplace: beforeCounts.documents + 1,
+            documentsAfterCleanup: beforeCounts.documents
+          }
+        },
+        actual: {
+          patient: {
+            pid: patient.pid,
+            pubpid: patient.pubpid,
+            fname: patient.fname,
+            lname: patient.lname
+          },
+          beforeCounts,
+          proposedDocument: {
+            ...originalDocumentInput,
+            contentBase64Length: originalContentBase64.length,
+            sizeBytes: originalBytes.length
+          },
+          proposedReplacement: {
+            ...replacementInput,
+            contentBase64Length: replacementContentBase64.length,
+            sizeBytes: replacementBytes.length
+          }
+        }
       });
 
-      const created = await workflow.getPatientDocument(documentId);
+      documentId = await workflow.createPatientBinaryDocument(originalDocumentInput);
+
+      created = await workflow.getPatientDocument(documentId);
       expect(created).toMatchObject({
-        patientId: patient!.pid,
+        patientId: patient.pid,
         categoryId: 3,
         categoryName: "Medical Record",
         name: documentName,
@@ -58,8 +129,9 @@ test.describe("patient binary document content replacement parity @slice128 @wor
         deleted: 0,
         contentBase64: originalContentBase64
       });
+      expect(created!.sizeBytes).toBe(originalBytes.length);
 
-      const createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
+      createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(createdContent).not.toBeNull();
       expect(createdContent).toMatchObject({
         name: documentName,
@@ -75,20 +147,60 @@ test.describe("patient binary document content replacement parity @slice128 @wor
       });
       expect(createdContent!.contentBase64).toBe(originalContentBase64);
       expect(createdContent!.revisionHash).toBe(createdContent!.hash);
+      expect(createdContent!.sizeBytes).toBe(originalBytes.length);
       const createdRevisionAt = timestampSeconds(createdContent!.revisionAt);
       const createdHash = createdContent!.hash;
 
-      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-128-document-binary-content-replace-created",
+        description:
+          "Temporary patient PDF document was created with original bytes, current-version revision facts, preview metadata, and active document count increment.",
+        expected: {
+          document: {
+            patientId: patient.pid,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: documentName,
+            docDate: "2026-06-18",
+            encounter: 1000013,
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            deleted: 0,
+            fileName: originalFileName,
+            sizeBytes: originalBytes.length,
+            contentBase64: originalContentBase64
+          },
+          content: {
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            canPreviewInline: true,
+            canDownload: true,
+            versionLabel: "Version 1",
+            versionStatus: "Current version",
+            revisionHashEqualsHash: true
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          documentId,
+          created,
+          createdContent
+        }
+      });
 
       if (target.type === "legacy-openemr") {
-        await workflow.replacePatientDocumentBinaryContent(documentId, {
-          fileName: replacementFileName,
-          mimetype: "application/pdf",
-          contentBase64: replacementContentBase64
-        });
+        await workflow.replacePatientDocumentBinaryContent(documentId, replacementInput);
       } else {
-        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: documentName }).first();
         await expect(documentCard).toBeVisible();
@@ -106,11 +218,20 @@ test.describe("patient binary document content replacement parity @slice128 @wor
         await expect(documentCard).toContainText(replacementFileName);
         await expect(documentCard).toContainText("Inline PDF preview");
         await expect(documentCard).not.toContainText(originalFileName);
+        surfaceFacts = {
+          modernizedReplacementForm: {
+            searchPatientId: patient.pubpid,
+            documentName,
+            originalFileName,
+            replacementFileName,
+            renderedAfterSave: await documentCard.innerText()
+          }
+        };
       }
 
-      const replaced = await workflow.getPatientDocument(documentId);
+      replaced = await workflow.getPatientDocument(documentId);
       expect(replaced).toMatchObject({
-        patientId: patient!.pid,
+        patientId: patient.pid,
         categoryId: 3,
         categoryName: "Medical Record",
         name: documentName,
@@ -145,14 +266,92 @@ test.describe("patient binary document content replacement parity @slice128 @wor
       expect(replacedContent!.revisionHash).toBe(replacedContent!.hash);
       expect(timestampSeconds(replacedContent!.revisionAt)).toBeGreaterThanOrEqual(createdRevisionAt);
 
-      const afterReplaceCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      afterReplaceCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterReplaceCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-128-document-binary-content-replace-replaced",
+        description:
+          "Temporary patient PDF document was replaced in place with new bytes, changed hash, preserved single-current-version facts, and stable active count.",
+        expected: {
+          document: {
+            patientId: patient.pid,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: documentName,
+            docDate: "2026-06-18",
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            deleted: 0,
+            contentBase64: replacementContentBase64,
+            sizeBytes: replacementBytes.length
+          },
+          content: {
+            originalContentRemoved: true,
+            hashChanged: true,
+            revisionHashEqualsHash: true,
+            revisionAtAfterOrEqualCreated: true,
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            canPreviewInline: true,
+            canDownload: true,
+            versionLabel: "Version 1",
+            versionStatus: "Current version",
+            hasPriorVersions: false
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterReplaceCounts,
+          documentId,
+          created,
+          createdContent,
+          createdHash,
+          createdRevisionAt,
+          replaced,
+          replacedContent,
+          replacementInput,
+          surfaceFacts
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
-        await openPatientDocumentsDirect(page, target, patient!.pid);
+        await openPatientDocumentsDirect(page, target, patient.pid);
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-128-document-binary-content-replace-surface",
+          description:
+            "Legacy Documents category rendering facts for the temporary patient binary replacement document after byte replacement.",
+          expected: {
+            category: "Medical Record",
+            documentName,
+            replacementFileName,
+            mimetype: "application/pdf",
+            sizeBytes: replacementBytes.length,
+            renderedDocumentName: documentName
+          },
+          actual: {
+            patient,
+            documentId,
+            replaced,
+            replacedContent,
+            surface: {
+              application: "legacy-openemr",
+              page: "patient-documents",
+              patientPid: patient.pid,
+              expandedCategory: "Medical Record",
+              renderedDocumentName: documentName
+            }
+          }
+        });
       } else {
         const headers = await getModernizedAdminSessionHeaders(page, target);
         const response = await page.request.get(`${target.apiBaseUrl}/api/documents/${documentId}/content`, {
@@ -178,7 +377,8 @@ test.describe("patient binary document content replacement parity @slice128 @wor
         });
         expect(download.ok()).toBe(true);
         expect(download.headers()["content-type"]).toContain("application/pdf");
-        expect((await download.body()).toString("base64")).toBe(replacementContentBase64);
+        const downloadContentBase64 = (await download.body()).toString("base64");
+        expect(downloadContentBase64).toBe(replacementContentBase64);
 
         const replacedCard = page.locator(".document-card").filter({ hasText: documentName }).first();
         await expect(replacedCard).toBeVisible();
@@ -186,6 +386,55 @@ test.describe("patient binary document content replacement parity @slice128 @wor
         await expect(replacedCard).toContainText("No prior versions");
         await expect(replacedCard).toContainText(replacementFileName);
         await expect(replacedCard).toContainText("PDF");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-128-document-binary-content-replace-surface",
+          description:
+            "Modernized patient document content API, byte-preserving download response, and Documents card anchors after binary content replacement.",
+          expected: {
+            apiDocument: {
+              name: documentName,
+              fileName: replacementFileName,
+              mimetype: "application/pdf",
+              previewKind: "pdf",
+              previewStatus: "Inline PDF preview",
+              thumbnailLabel: "PDF",
+              canPreviewInline: true,
+              canDownload: true,
+              revisionHash: replacedContent!.hash,
+              hash: replacedContent!.hash
+            },
+            download: {
+              contentTypeIncludes: "application/pdf",
+              contentBase64: replacementContentBase64
+            },
+            card: {
+              versionText: "Version 1 / Current version",
+              priorVersionText: "No prior versions",
+              replacementFileName,
+              thumbnailLabel: "PDF"
+            }
+          },
+          actual: {
+            patient,
+            documentId,
+            replaced,
+            replacedContent,
+            apiDocument,
+            download: {
+              contentType: download.headers()["content-type"],
+              contentBase64: downloadContentBase64
+            },
+            surface: {
+              application: "modernized-openemr",
+              contentApi: `/api/documents/${documentId}/content`,
+              downloadApi: `/api/documents/${documentId}/download`,
+              page: "documents",
+              searchPatientId: patient.pubpid,
+              renderedCard: await replacedCard.innerText()
+            }
+          }
+        });
       }
     } finally {
       if (documentId !== null) {
@@ -193,11 +442,28 @@ test.describe("patient binary document content replacement parity @slice128 @wor
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
+    const afterCleanup = documentId !== null ? await workflow.getPatientDocument(documentId) : null;
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      expect(afterCleanup).toBeNull();
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-128-document-binary-content-replace-cleanup",
+      description:
+        "Temporary patient binary replacement document was hard-deleted and patient document counts returned to baseline.",
+      expected: {
+        documentDeleted: true,
+        documentCountRestored: true
+      },
+      actual: {
+        documentId,
+        beforeCounts,
+        afterCleanupCounts,
+        afterCleanup
+      }
+    });
   });
 });
 
