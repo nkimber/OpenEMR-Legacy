@@ -21606,7 +21606,7 @@ Code changes:
 
 Started: 2026-06-25T17:12:05.7792634-04:00
 Finished: 2026-06-25T17:18:24.6080706-04:00
-Commit: pending
+Commit: f05a52ba
 
 Implemented Slice 394: Slice 135 procedure report review queue probe payload attachments. The procedure report review queue parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/report creation, unreviewed queue membership, reviewed queue movement after sign-off, legacy review queue rendering facts, modernized Reports queue rendering facts, and cleanup removal from both queues so Workbench comparison drill-ins can preview procedure report review queue evidence.
 
