@@ -20107,7 +20107,7 @@ Code changes:
 
 Started: 2026-06-25T12:23:48-04:00
 Finished: 2026-06-25T12:28:35-04:00
-Commit: pending
+Commit: c70c0431
 
 Implemented Slice 349: Slice 88 patient image document preview probe payload attachments. The patient image document preview parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary `image/svg+xml` binary payload, normalized image preview metadata, legacy Documents category rendering, modernized Documents card/viewer inline image UI anchors, byte-preserving download facts, archive state, and final cleanup so Workbench comparison drill-ins can preview patient image document preview evidence.
 
