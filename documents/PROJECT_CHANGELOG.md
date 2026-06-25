@@ -10458,7 +10458,7 @@ Implemented the one-hundred-fifty-eighth project slice and latest modernized Ope
 Code changes:
 
 - Files changed: 15
-- Lines added: 257
+- Lines added: 265
 - Lines deleted: 18
 - Net lines: +239
 - Total churn: 275
@@ -16492,7 +16492,7 @@ Code changes:
 - Lines added: 264
 - Lines deleted: 23
 - Net lines: +226
-- Total churn: 272
+- Total churn: 280
 
 Key outcomes:
 
@@ -17848,7 +17848,7 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 257
+- Lines added: 265
 - Lines deleted: 17
 - Net lines: +240
 - Total churn: 274
@@ -19036,7 +19036,7 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 257
+- Lines added: 265
 - Lines deleted: 47
 - Net lines: +210
 - Total churn: 304
@@ -22530,7 +22530,7 @@ Code changes:
 
 Started: 2026-06-25T19:54:56.3612300-04:00
 Finished: 2026-06-25T19:56:09.4209787-04:00
-Commit: pending
+Commit: d39f797a
 
 Implemented Slice 421: Slice 167 appointment protection probe payload attachments. The appointment protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API appointment blocking facts, unauthenticated modernized create rejection facts, authenticated legacy/API appointment search/detail visibility facts, and modernized Calendar-page rendering facts so Workbench comparison drill-ins can preview appointment protection evidence without storing password, cookie, or session material.
 
@@ -22556,10 +22556,10 @@ Verification:
 - Attachment scan confirmed `db-probe-slice-167-appointment-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-167-appointment-protection-precondition`, `unauthenticated-search`, `unauthenticated-create`, `authenticated-search`, `authenticated-detail`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: 257
+- Lines added: 265
 - Lines deleted: 15
-- Net lines: 242
-- Total churn: 272
+- Net lines: 250
+- Total churn: 280
 
 ## Next Expected Entries
 
