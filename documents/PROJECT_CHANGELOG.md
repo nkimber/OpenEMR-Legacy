@@ -20600,6 +20600,39 @@ Code changes:
 - Net lines: +217
 - Total churn: 321
 
+## 409. Slice 363 Slice 102 Appointment Comments Probe Payload Attachments
+
+Started: 2026-06-25T13:53:36.3636634-04:00
+Finished: 2026-06-25T13:55:23.8508123-04:00
+Commit: pending
+
+Implemented Slice 363: Slice 102 appointment comments probe payload attachments. The appointment comments parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, initial and updated comments, updated title/comment facts, legacy appointment edit rendering, modernized Calendar comments control/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment comment-update evidence.
+
+Changes:
+- Added Slice 102 precondition payload attachments for the anchor patient, baseline workflow counts, proposed scheduled appointment payload, expected comment update, preserved schedule/location/category facts, and expected count movement.
+- Added Slice 102 created payload attachments for the temporary scheduled appointment row with initial comments plus appointment-count increment.
+- Added Slice 102 updated payload attachments for updated comments, updated title, preserved schedule/location/category/room/status facts, and appointment-count preservation.
+- Added Slice 102 application-surface payload attachments for legacy appointment edit rendering plus modernized Calendar comments control/rendering anchors.
+- Added Slice 102 cleanup payload attachments for temporary appointment deletion, restored workflow counts, and final appointment absence.
+- Replaced non-null assertions in the Slice 102 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 102 appointment comments database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 363 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `npm run test:modernized:plan:appointment-comments` passed as run `2026-06-25T175433-493Z-modernized-openemr-plan-slice-102-appointment-comments-readiness`.
+- `npm run test:legacy:plan:appointment-comments` passed as run `2026-06-25T175433-493Z-legacy-openemr-plan-slice-102-appointment-comments-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-102-appointment-comments-readiness` passed as comparison `2026-06-25T175510-759Z-legacy-openemr-vs-modernized-openemr-plan-slice-102-appointment-comments-readiness`, status `matched`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include Slice 102 precondition, created, updated, surface, and cleanup DB probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 271
+- Lines removed: 52
+- Net lines: +219
+- Total churn: 323
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20609,5 +20642,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 101.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 102.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
