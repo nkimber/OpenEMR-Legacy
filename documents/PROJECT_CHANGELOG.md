@@ -19886,6 +19886,42 @@ Code changes:
 - Net lines: +265
 - Total churn: 331
 
+## 389. Slice 343 Slice 82 Encounter Document Metadata Probe Payload Attachments
+
+Started: 2026-06-25T11:36:11-04:00
+Finished: 2026-06-25T11:38:27-04:00
+Commit: pending
+
+Implemented Slice 343: Slice 82 encounter document metadata probe payload attachments. The encounter document metadata parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary text attachment, original Medical Record metadata, refiled Advance Directive metadata, legacy Documents category rendering, modernized encounter-detail API metadata rows, Encounters attached-document metadata UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document metadata mutation evidence.
+
+Changes:
+- Added Slice 82 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, proposed text document payload, planned metadata update, and expected count movement.
+- Added Slice 82 created payload attachments for the temporary original encounter document row, encounter-scoped document list, and document count increment.
+- Added Slice 82 updated payload attachments for the refiled category, name, date, notes, preserved encounter link, and preserved count increment.
+- Added Slice 82 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail API metadata rows and Encounters attached-document metadata UI anchors.
+- Added Slice 82 cleanup payload attachments for temporary refiled document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 82 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 82 encounter document metadata database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 343 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 81 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-document-metadata` in `parity-tests/` passed with 1 expected test; run `2026-06-25T153707-041Z-modernized-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- `npm run test:legacy:plan:encounter-document-metadata` in `parity-tests/` passed with 1 expected test; run `2026-06-25T153739-010Z-legacy-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- Artifact inspection confirmed the modernized Slice 82 Playwright report recorded `db-probe-slice-82-encounter-document-metadata-precondition`, `db-probe-slice-82-encounter-document-metadata-created`, `db-probe-slice-82-encounter-document-metadata-updated`, `db-probe-slice-82-encounter-document-metadata-surface`, and `db-probe-slice-82-encounter-document-metadata-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 82 Playwright report recorded `db-probe-slice-82-encounter-document-metadata-precondition`, `db-probe-slice-82-encounter-document-metadata-created`, `db-probe-slice-82-encounter-document-metadata-updated`, `db-probe-slice-82-encounter-document-metadata-surface`, and `db-probe-slice-82-encounter-document-metadata-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-82-encounter-document-metadata-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T153816-198Z-legacy-openemr-vs-modernized-openemr-plan-slice-82-encounter-document-metadata-readiness`.
+- `git diff --check` for Slice 343 files passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 311
+- Lines deleted: 45
+- Net lines: +266
+- Total churn: 356
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19895,5 +19931,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 81.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 82.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
