@@ -18542,7 +18542,7 @@ Code changes:
 
 Started: 2026-06-25T06:38:00-04:00
 Finished: 2026-06-25T06:43:01-04:00
-Commit: pending
+Commit: d1e4806c
 
 Implemented Slice 303: Slice 42 patient document archive/restore probe payload attachments. The document archive/restore parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed restorable text document payload, created document row and count increment, archived row with hidden-content projection, restored row and active-count return, and final hard-delete cleanup state so Workbench comparison drill-ins can preview archive/restore lifecycle evidence.
 
