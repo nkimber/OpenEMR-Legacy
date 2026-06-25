@@ -16653,7 +16653,7 @@ Primary files:
 
 Started: 2026-06-24T20:31:00-04:00
 Finished: 2026-06-24T21:03:58-04:00
-Commit: pending
+Commit: b4ef818e
 
 Implemented Slice 250: patient portal profile readiness. The modernized patient portal now mirrors legacy OpenEMR's `Profile From Medical Records` portal fragment by exposing signed-in patient demographics plus primary and secondary insurance facts through a session-protected profile API and rendering them in the Portal workspace.
 
