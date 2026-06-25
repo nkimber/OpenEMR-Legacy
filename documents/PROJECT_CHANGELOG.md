@@ -21797,6 +21797,38 @@ Code changes:
 - Lines deleted: 15
 - Net lines: 124
 - Total churn: 154
+
+## 446. Slice 400 Slice 141 Procedure Lab Provider Lifecycle Probe Payload Attachments
+
+Started: 2026-06-25T17:56:49.0492556-04:00
+Finished: 2026-06-25T17:58:12.0453388-04:00
+Commit: pending
+
+Implemented Slice 400: Slice 141 procedure lab provider lifecycle probe payload attachments. The procedure lab provider lifecycle parity suite now writes path-backed JSON Playwright attachments for temporary provider create inputs, created active-provider state, active browser/API rendering, deactivated include-inactive state, inactive browser/API rendering, and cleanup deletion so Workbench comparison drill-ins can preview focused provider lifecycle mutation evidence.
+
+Changes:
+- Added Slice 141 precondition payload attachments for the temporary provider name, inactive rename, NPI, protocol, and active-state transition.
+- Added created-state payload attachments for the temporary active provider row after creation.
+- Added active rendered payload attachments for legacy Procedure Providers rendering and modernized Reports lab provider directory rendering.
+- Added deactivated-state and inactive rendered payload attachments proving default active filtering and include-inactive rendering.
+- Added cleanup payload attachments proving the temporary lab provider is deleted after lifecycle assertions complete.
+- Updated the Workbench functionality progress ledger so Slice 141 procedure lab provider lifecycle database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 400 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-141-procedure-lab-provider-lifecycle-readiness` passed with run ID `2026-06-25T215719-132Z-legacy-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-141-procedure-lab-provider-lifecycle-readiness` passed with run ID `2026-06-25T215741-657Z-modernized-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-141-procedure-lab-provider-lifecycle-readiness` matched with comparison ID `2026-06-25T215800-588Z-legacy-openemr-vs-modernized-openemr-plan-slice-141-procedure-lab-provider-lifecycle-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-141-procedure-lab-provider-lifecycle-precondition`, `created`, `active-rendered`, `deactivated`, `inactive-rendered`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 186
+- Lines deleted: 14
+- Net lines: 172
+- Total churn: 200
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
