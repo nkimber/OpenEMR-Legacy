@@ -17592,7 +17592,7 @@ Code changes:
 
 Started: 2026-06-25T02:21:49-04:00
 Finished: 2026-06-25T02:26:09-04:00
-Commit: pending
+Commit: bba68c78
 
 Implemented Slice 274: Slice 13 clinical-list mutation probe payload attachments. The clinical-list allergy mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0006` anchor patient, proposed allergy create payload, created allergy database row with count increment, deactivated allergy database row, and deleted cleanup state so Workbench comparison drill-ins can preview allergy mutation database evidence.
 
