@@ -22217,6 +22217,40 @@ Code changes:
 - Net lines: pending isolated commit stats
 - Total churn: pending isolated commit stats
 
+## 459. Slice 412 Slice 158 Patient Message Update Metadata Probe Payload Attachments
+
+Started: 2026-06-25T19:03:39.3292076-04:00
+Finished: 2026-06-25T19:07:04.7597473-04:00
+Commit: pending
+
+Implemented Slice 412: Slice 158 patient-message update metadata probe payload attachments. The patient-message update metadata parity suite now writes path-backed JSON Playwright attachments for temporary pnotes-compatible message creation, edited title/body state, OpenEMR-compatible updated-by and updated-at metadata, browser/API rendering facts, soft-delete state, and cleanup count restoration so Workbench comparison drill-ins can preview patient-message update metadata evidence.
+
+Changes:
+- Added Slice 158 precondition payload attachments for the anchor patient, baseline workflow counts, proposed temporary message, and edit payload.
+- Added created-state payload attachments proving the temporary message row starts with blank update metadata and increments message counts.
+- Added edited-state payload attachments proving title/body edits stamp `updated_by` and timestamp metadata while message counts remain stable.
+- Added rendered payload attachments for legacy Patient Notes rendering and modernized Messages updated-by rendering after the edit.
+- Added soft-delete payload attachments proving OpenEMR-compatible archive state before hard-delete cleanup.
+- Added cleanup payload attachments proving patient message counts are restored and the temporary message row is deleted.
+- Updated the Workbench functionality progress ledger so Slice 158 patient-message update metadata database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 412 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-message-update-metadata/message-update-metadata.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-158-message-update-metadata-readiness` passed with run ID `2026-06-25T230554-467Z-legacy-openemr-plan-slice-158-message-update-metadata-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-158-message-update-metadata-readiness` passed with run ID `2026-06-25T230628-487Z-modernized-openemr-plan-slice-158-message-update-metadata-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-158-message-update-metadata-readiness` matched with comparison ID `2026-06-25T230654-913Z-legacy-openemr-vs-modernized-openemr-plan-slice-158-message-update-metadata-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-158-message-update-metadata-precondition`, `created`, `edited`, `rendered`, `soft-deleted`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 242
+- Lines deleted: 23
+- Net lines: 219
+- Total churn: 265
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22226,5 +22260,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, and 157.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, and 158.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
