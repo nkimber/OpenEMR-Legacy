@@ -17312,6 +17312,35 @@ Code changes:
 - Net lines: +94
 - Total churn: 154
 
+## 309. Slice 267 Slice 6 Procedure Probe Payload Attachments
+
+Started: 2026-06-25T01:19:20-04:00
+Finished: 2026-06-25T01:24:36-04:00
+Commit: pending
+
+Implemented Slice 267: Slice 6 procedure probe payload attachments. The procedure results parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` anchor patient, completed CBC order, completed report, final Hemoglobin result, and procedure-results UI steering precondition so Workbench comparison drill-ins can preview procedure workflow database evidence.
+
+Changes:
+- Added Slice 6 procedure payload attachments for the anchor patient, completed CBC order, completed report, and selected final Hemoglobin result.
+- Added Slice 6 UI precondition payload attachments that capture the same procedure order/report/result lookup before steering the legacy procedure-results UI or the modernized Procedures page.
+- Preserved the existing Slice 6 assertions and side-by-side behavior while making procedure-result evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 6 procedure database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 267 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `npm run test:modernized:plan:procedures` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- `npm run test:legacy:plan:procedures` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 6 runs recorded file paths for both new `db-probe-slice-6-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-6-procedures-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 143
+- Lines deleted: 33
+- Net lines: +110
+- Total churn: 176
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17321,5 +17350,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 5.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 6.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
