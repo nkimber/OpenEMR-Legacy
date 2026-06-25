@@ -18283,7 +18283,7 @@ Code changes:
 
 Started: 2026-06-25T05:44:00-04:00
 Finished: 2026-06-25T05:50:02-04:00
-Commit: pending
+Commit: 0d976da3
 
 Implemented Slice 295: Slice 34 patient insurance mutation probe payload attachments. The insurance mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, baseline primary/secondary coverage rows, proposed temporary tertiary coverage payloads, created row and coverage-count increment, updated payer/plan/policy/group row state, and final hard-delete cleanup state so Workbench comparison drill-ins can preview insurance lifecycle evidence.
 
