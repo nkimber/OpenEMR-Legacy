@@ -21240,6 +21240,37 @@ Code changes:
 - Net lines: +169
 - Total churn: 227
 
+## 429. Slice 383 Slice 122 Encounter Document Revision Probe Payload Attachments
+
+Started: 2026-06-25T16:01:17.5112265-04:00
+Finished: 2026-06-25T16:02:57.7106964-04:00
+Commit: pending
+
+Implemented Slice 383: Slice 122 encounter document revision probe payload attachments. The encounter document revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, encounter `1000013`, two current-version encounter documents, revision timestamps, hash parity, API document projection, and modernized attached-document card rendering anchors so Workbench comparison drill-ins can preview revision-readiness evidence.
+
+Changes:
+- Added Slice 122 readiness payload attachments for the seeded patient, encounter-attached document list, full content lookups, current-version metadata, revision timestamps, and revision-hash parity.
+- Added Slice 122 rendered-state payload attachments for modernized encounter-detail API documents and attached-document card text covering current-version labels, revision times, and no-prior-version state.
+- Replaced non-null patient assumptions in the Slice 122 suite with an explicit seeded-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 122 encounter document revision database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 383 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- Legacy Slice 122 parity run `2026-06-25T200225-683Z-legacy-openemr-plan-slice-122-encounter-document-revision-readiness` passed.
+- Modernized Slice 122 parity run `2026-06-25T200225-777Z-modernized-openemr-plan-slice-122-encounter-document-revision-readiness` passed.
+- Slice 122 side-by-side comparison `2026-06-25T200248-943Z-legacy-openemr-vs-modernized-openemr-plan-slice-122-encounter-document-revision-readiness` matched with no differences.
+- Slice 122 probe attachment report check passed for readiness JSON payloads in both legacy and modernized reports and rendered-state JSON payloads in the modernized report.
+
+Code changes:
+- Files changed: 8
+- Lines added: 116
+- Lines removed: 18
+- Net lines: +98
+- Total churn: 134
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21249,5 +21280,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 121.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 122.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

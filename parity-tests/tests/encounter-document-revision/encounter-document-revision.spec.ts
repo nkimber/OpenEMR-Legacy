@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 
 const encounterDocumentRevisionAnchorPatientId = "MOD-PAT-0001";
@@ -44,16 +45,20 @@ test.describe("encounter document revision readiness parity @slice122 @encounter
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterDocumentRevisionAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded encounter document revision patient ${encounterDocumentRevisionAnchorPatientId}`);
+    }
 
     const documents = await targetDb.getPatientDocumentsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterDocumentRevisionAnchorEncounter
     );
-    expect(documents.patientId).toBe(patient!.pid);
+    expect(documents.patientId).toBe(patient.pid);
     expect(documents.documents).toHaveLength(2);
+    const contentDocuments: RevisionDocument[] = [];
 
     for (const expectedDocument of expectedRevisionDocuments) {
       const document = documents.documents.find((candidate) => candidate.documentKey === expectedDocument.documentKey);
@@ -63,7 +68,38 @@ test.describe("encounter document revision readiness parity @slice122 @encounter
       const content = await targetDb.getPatientDocumentContent(document!.id);
       expect(content).toBeTruthy();
       expectRevisionDocument(content as RevisionDocument, expectedDocument);
+      contentDocuments.push(content as RevisionDocument);
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-122-encounter-document-revision-readiness",
+      description:
+        "Seeded encounter-attached documents expose current-version metadata, revision timestamps, and hash parity through the database probe.",
+      expected: {
+        patientCanonicalId: encounterDocumentRevisionAnchorPatientId,
+        encounterId: encounterDocumentRevisionAnchorEncounter,
+        documentCount: 2,
+        documents: expectedRevisionDocuments.map((document) => ({
+          ...document,
+          currentVersion: 1,
+          versionLabel: "Version 1",
+          versionStatus: "Current version",
+          versionHistoryCount: 1,
+          hasPriorVersions: false
+        }))
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname
+        },
+        documentList: documents,
+        contentDocuments
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;
@@ -80,7 +116,7 @@ test.describe("encounter document revision readiness parity @slice122 @encounter
       expectRevisionDocument(apiDocument!, expectedDocument);
     }
 
-    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentRevisionFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient.pubpid, encounterDocumentRevisionFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
     await expect(encounterButton).toBeVisible();
@@ -88,6 +124,7 @@ test.describe("encounter document revision readiness parity @slice122 @encounter
 
     const attachments = page.getByRole("region", { name: "Encounter attached documents" });
     await expect(attachments).toBeVisible();
+    const renderedCards: Array<Record<string, string>> = [];
 
     for (const expectedDocument of expectedRevisionDocuments) {
       const card = attachments.locator(".encounter-document-card").filter({ hasText: expectedDocument.name }).first();
@@ -96,7 +133,42 @@ test.describe("encounter document revision readiness parity @slice122 @encounter
       await expect(card).toContainText("Version 1 / Current version");
       await expect(card).toContainText(expectedRevisionText(expectedDocument.revisionAt));
       await expect(card).toContainText("No prior versions");
+      renderedCards.push({
+        documentKey: expectedDocument.documentKey,
+        name: expectedDocument.name,
+        text: await card.innerText()
+      });
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-122-encounter-document-revision-rendered",
+      description:
+        "The modernized encounter UI renders the seeded document current-version labels, revision timestamps, and no-prior-version state.",
+      expected: {
+        patientCanonicalId: encounterDocumentRevisionAnchorPatientId,
+        encounterId: encounterDocumentRevisionAnchorEncounter,
+        searchFromDate: encounterDocumentRevisionFromDate,
+        documentCards: expectedRevisionDocuments.map((document) => ({
+          documentKey: document.documentKey,
+          name: document.name,
+          categoryName: document.categoryName,
+          versionText: "Version 1 / Current version",
+          revisionText: expectedRevisionText(document.revisionAt),
+          historyText: "No prior versions"
+        }))
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname
+        },
+        apiDocuments: detailPayload.documents,
+        renderedCards
+      }
+    });
   });
 });
 
