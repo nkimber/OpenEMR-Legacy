@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 
 const accountLedgerAnchorPatientId = "MOD-PAT-0005";
@@ -101,7 +102,7 @@ test.describe("account ledger parity @slice51 @account-ledger @billing", () => {
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(accountLedgerAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -132,6 +133,12 @@ test.describe("account ledger parity @slice51 @account-ledger @billing", () => {
       .filter((entry) => entry.entryType === "Adjustment")
       .reduce((sum, entry) => sum + Math.abs(Number(entry.amount)), 0);
     const finalRunningBalance = Number(ledgerEntries.at(-1)?.runningBalanceAmount ?? 0);
+    const entryTypeCounts = ledgerEntries.reduce<Record<string, number>>((counts, entry) => {
+      counts[entry.entryType] = (counts[entry.entryType] ?? 0) + 1;
+      return counts;
+    }, {});
+    const firstEntry = ledgerEntries[0];
+    const lastEntry = ledgerEntries.at(-1);
 
     expect(chargeAmount).toBe(635);
     expect(paymentAmount).toBe(206);
@@ -146,6 +153,110 @@ test.describe("account ledger parity @slice51 @account-ledger @billing", () => {
     );
     expect(northstarPayment).toBeDefined();
     expect(northstarAdjustment).toBeDefined();
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-51-account-ledger-anchor",
+      description: "Verifies the Slice 51 billing anchor patient and chronological account ledger database rows before application rendering.",
+      expected: {
+        patient: {
+          pubpid: accountLedgerAnchorPatientId
+        },
+        entryCount: expectedLedger.length,
+        entries: expectedLedger,
+        totals: {
+          chargeAmount: 635,
+          paymentAmount: 206,
+          adjustmentAmount: 64.25,
+          finalRunningBalance: 364.75
+        },
+        entryTypeCounts: {
+          Charge: 6,
+          Payment: 2,
+          Adjustment: 2
+        },
+        firstEntry: {
+          entryDate: "2025-06-22",
+          encounter: 1000051,
+          entryType: "Charge",
+          code: "36415",
+          runningBalanceAmount: 18
+        },
+        lastEntry: {
+          entryDate: "2026-06-25",
+          encounter: 1000053,
+          entryType: "Adjustment",
+          reference: "EOB-NSTAR-1000053",
+          runningBalanceAmount: 364.75
+        },
+        referenceExamples: {
+          northstarPayment: "EOB-NSTAR-1000052",
+          northstarAdjustment: "EOB-NSTAR-1000052"
+        }
+      },
+      actual: {
+        patient,
+        ledgerEntries,
+        totals: {
+          chargeAmount,
+          paymentAmount,
+          adjustmentAmount,
+          finalRunningBalance
+        },
+        entryTypeCounts,
+        firstEntry,
+        lastEntry,
+        referenceExamples: {
+          northstarPayment,
+          northstarAdjustment
+        }
+      },
+      context: {
+        canonicalId: accountLedgerAnchorPatientId,
+        suite: "account-ledger",
+        workflow: "account-ledger-readiness"
+      }
+    });
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-51-account-ledger-render-precondition",
+      description: "Captures the account ledger rows and totals used by the Slice 51 Fees ledger rendering assertions.",
+      expected: {
+        visibleText: [
+          "Account Ledger",
+          "Entries 10",
+          "First entry 2025-06-22",
+          "Last entry 2026-06-25",
+          "Ending balance $364.75",
+          "Northstar HMO insurance payment",
+          "EOB-NSTAR-1000052",
+          "Running $364.75"
+        ]
+      },
+      actual: {
+        patient,
+        ledgerEntries,
+        totals: {
+          chargeAmount,
+          paymentAmount,
+          adjustmentAmount,
+          finalRunningBalance
+        },
+        entryTypeCounts,
+        firstEntry,
+        lastEntry,
+        referenceExamples: {
+          northstarPayment,
+          northstarAdjustment
+        }
+      },
+      context: {
+        canonicalId: accountLedgerAnchorPatientId,
+        suite: "account-ledger",
+        workflow: "account-ledger-rendering"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;
