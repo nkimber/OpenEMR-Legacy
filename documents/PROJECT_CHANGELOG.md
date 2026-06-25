@@ -16958,6 +16958,43 @@ Code changes:
 - Net lines: +542
 - Total churn: 574
 
+## 297. Slice 255 Patient Portal Secure-Message Notification Readiness
+
+Started: 2026-06-24T23:29:50-04:00
+Finished: 2026-06-24T23:40:49-04:00
+Duration: 10m 59s
+Commit: pending
+
+Implemented Slice 255: patient portal secure-message notification readiness. Legacy OpenEMR's helper-level notification projection can merge active recent `patient_reminders` rows into Inbox and All-style secure-message results, while the observed v8.1.0 portal UI does not render those notification rows because its page passes the portal username into a numeric `patient_reminders.pid` predicate. The modernized patient portal API now supports the intended notification projection and renders those rows as read-only notifications.
+
+Changes:
+- Added generated modernized PostgreSQL `patient_reminders` schema support, count reporting, and an index for patient/active/created lookup.
+- Extended the modernized patient portal message API to return `type` metadata and merge active reminder notifications into Inbox and All counts/results.
+- Updated the modernized Portal secure-message UI so notification rows are visible but do not expose thread, reply, forward, mark-read, archive, or selection behavior.
+- Extended the legacy and modernized parity workflow adapters with cleanup-backed patient reminder notification create/remove helpers.
+- Added the `workflow-patient-portal-message-notifications` suite and `slice-255-patient-portal-message-notifications-readiness` plan, including explicit legacy UI absence coverage and modernized read-only notification UI coverage.
+- Added Workbench-managed Slice 255 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 255 notification contract.
+
+Verification:
+- `node` JSON validation for the parity manifest, Workbench apps config, and functionality progress ledger passed.
+- `cmd.exe /c npm --prefix parity-tests run list -- --plan slice-255-patient-portal-message-notifications-readiness` passed.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `cmd.exe /c npm --prefix parity-tests run typecheck` passed.
+- `cmd.exe /c npm --prefix modernized-openemr/frontend run build` passed with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api` passed after the backend reader-scope fix.
+- Legacy parity passed: `2026-06-25T033743-086Z-legacy-openemr-plan-slice-255-patient-portal-message-notifications-readiness`.
+- Modernized parity passed: `2026-06-25T033954-478Z-modernized-openemr-plan-slice-255-patient-portal-message-notifications-readiness`.
+- Side-by-side comparison passed with no differences: `2026-06-25T034032-138Z-legacy-openemr-vs-modernized-openemr-suite-all`.
+
+Code changes:
+- Files changed: 19
+- Lines added: 674
+- Lines deleted: 158
+- Net lines: +516
+- Total churn: 832
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

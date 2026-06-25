@@ -93,6 +93,7 @@ import type {
   PatientPortalInboxMessageInput,
   PatientPortalLoginResult,
   PatientPortalMessageItem,
+  PatientPortalNotificationInput,
   PatientPortalMessageComposeOptionsResult,
   PatientPortalMessageRecipientsResult,
   PatientPortalMessageThreadResult,
@@ -1679,6 +1680,7 @@ VALUES (
 
     return {
       id: String(messageId),
+      type: "Message",
       date: messageDate,
       title,
       body: isEncrypted ? protectedPatientPortalMessageBody : body,
@@ -1693,6 +1695,80 @@ VALUES (
       portalRelation: "portal:inbox-setup",
       isEncrypted
     };
+  }
+
+  async cleanupPatientPortalNotification(
+    username: string,
+    password: string,
+    input: PatientPortalNotificationInput
+  ): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId || login.pid === null) {
+      return;
+    }
+
+    try {
+      await this.db.execute(`
+DELETE FROM patient_reminders
+WHERE pid = ${integer(login.pid)}
+  AND due_status = ${sqlString(input.dueStatus)}
+  AND category = ${sqlString(input.category)}
+  AND item = ${sqlString(input.item)};
+`);
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async createPatientPortalNotification(
+    username: string,
+    password: string,
+    input: PatientPortalNotificationInput
+  ): Promise<PatientPortalMessageItem> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId || login.pid === null) {
+      throw new Error(`Patient portal sign-in was rejected: ${login.failureReason ?? "no portal session"}`);
+    }
+
+    const dueStatus = input.dueStatus.trim();
+    const category = input.category.trim();
+    const item = input.item.trim();
+    const createdAt = input.createdAt?.trim() || new Date().toISOString().slice(0, 19).replace("T", " ");
+    if (!dueStatus || !category || !item) {
+      throw new Error("Patient portal notification due status, category, and item are required.");
+    }
+
+    try {
+      await this.db.execute(`
+DELETE FROM patient_reminders
+WHERE pid = ${integer(login.pid)}
+  AND due_status = ${sqlString(dueStatus)}
+  AND category = ${sqlString(category)}
+  AND item = ${sqlString(item)};
+`);
+      const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9550000) + 1, 9550001) AS "nextId"
+FROM patient_reminders;
+`);
+      const reminderId = Number(idRows[0]?.nextId ?? 9550001);
+
+      await this.db.execute(`
+INSERT INTO patient_reminders
+  (id, active, date_inactivated, reason_inactivated, due_status, pid, category, item, date_created, date_sent, voice_status, sms_status, email_status, mail_status)
+VALUES
+  (${integer(reminderId)}, 1, NULL, '', ${sqlString(dueStatus)}, ${integer(login.pid)}, ${sqlString(category)}, ${sqlString(item)}, ${sqlString(createdAt)}, NULL, 0, 0, 0, 0);
+`);
+
+      const refreshed = await this.getPatientPortalMessages(username, password);
+      const notification = refreshed.messages.find((message) => message.id === String(reminderId) && message.type === "Notification");
+      if (!notification) {
+        throw new Error("Patient portal notification was inserted but was not visible in the inbox.");
+      }
+
+      return notification;
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
   }
 
   async readPatientPortalMessage(
@@ -5941,9 +6017,10 @@ function mapPatientPortalReadMessageResult(
 }
 
 function mapPatientPortalMessageItem(message: any, portalUsername: string): PatientPortalMessageItem {
-  return {
-    id: message.id ?? "",
-    date: message.date ?? "",
+    return {
+      id: message.id ?? "",
+      type: message.type ?? "Message",
+      date: message.date ?? "",
     title: message.title ?? "",
     body: message.body ?? "",
     status: message.status ?? "",

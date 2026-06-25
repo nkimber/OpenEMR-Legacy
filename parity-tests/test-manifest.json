@@ -1266,6 +1266,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-255-patient-portal-message-notifications-readiness",
+      "name": "Slice 255 Patient Portal Secure-Message Notification Readiness",
+      "description": "Patient portal messaging confidence plan that verifies active patient reminders appear as read-only secure-message Notifications in Inbox and All but not Sent or Deleted.",
+      "suites": ["workflow-patient-portal-message-notifications"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-255", "patients", "portal", "messages", "notifications", "patient-reminders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4582,6 +4591,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-profile-review-revert",
       "tags": ["slice254", "workflow", "mutation", "patients", "portal", "profile", "administration", "review-revert", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-notifications",
+      "name": "Patient Portal Secure-Message Notification Readiness",
+      "description": "Verifies active patient reminders are projected into patient portal secure-message Inbox and All folders as read-only Notification rows.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-notifications",
+      "tags": ["slice255", "workflow", "mutation", "patients", "portal", "messages", "notifications", "patient-reminders", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

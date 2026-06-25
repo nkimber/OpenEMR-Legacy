@@ -743,6 +743,7 @@ export type PatientPortalAppointmentRequestResult = {
 
 export type PatientPortalMessageItem = {
   id: string;
+  type: string;
   date: string;
   title: string;
   body: string;
@@ -756,6 +757,13 @@ export type PatientPortalMessageItem = {
   replyMailChain: number;
   portalRelation: string | null;
   isEncrypted: boolean;
+};
+
+export type PatientPortalNotificationInput = {
+  dueStatus: string;
+  category: string;
+  item: string;
+  createdAt?: string;
 };
 
 export const protectedPatientPortalMessageBody = "Encrypted secure message body is protected.";
@@ -4146,8 +4154,35 @@ WHERE deleted = 1
   AND owner = ${sqlString(login.portalUsername)}
 ORDER BY date DESC, id DESC;
 `);
+    const notificationRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  CAST(pr.id AS CHAR) AS id,
+  DATE_FORMAT(pr.date_created, '%Y-%m-%d') AS messageDate,
+  COALESCE(pr.due_status, '') AS title,
+  CONCAT(COALESCE(lo.title, pr.category, ''), ':', COALESCE(lo2.title, pr.item, '')) AS body,
+  '' AS status,
+  '' AS assignedTo,
+  '' AS senderId,
+  'Patient Reminders' AS senderName,
+  ${sqlString(login.portalUsername)} AS recipientId,
+  '' AS recipientName,
+  COALESCE(CAST(pr.id AS CHAR), '0') AS mailChain,
+  COALESCE(CAST(pr.id AS CHAR), '0') AS replyMailChain,
+  '0' AS isEncrypted,
+  'Notification' AS type
+FROM patient_reminders pr
+LEFT JOIN list_options lo ON lo.list_id = 'rule_action_category'
+  AND lo.option_id = pr.category
+LEFT JOIN list_options lo2 ON lo2.list_id = 'rule_action'
+  AND lo2.option_id = pr.item
+WHERE pr.pid = ${integer(login.pid)}
+  AND pr.active = 1
+  AND pr.date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
+ORDER BY pr.date_created DESC, pr.id DESC;
+`);
     const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
       id: row.id,
+      type: row.type || "Message",
       date: normalizeDateText(row.messageDate),
       title: row.title,
       body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
@@ -4162,6 +4197,8 @@ ORDER BY date DESC, id DESC;
       portalRelation: null,
       isEncrypted: row.isEncrypted === "1"
     });
+    const messages = sortPatientPortalMessages([...rows.map(mapRow), ...notificationRows.map(mapRow)]);
+    const allMessages = sortPatientPortalMessages([...allRows.map(mapRow), ...notificationRows.map(mapRow)]);
 
     return {
       authenticated: true,
@@ -4173,12 +4210,12 @@ ORDER BY date DESC, id DESC;
       displayName: login.displayName,
       datasetVersion: "openemr-shared-synthetic-v1",
       asOfDate: new Date().toISOString().slice(0, 10),
-      messageCount: rows.length,
-      messages: rows.map(mapRow),
+      messageCount: messages.length,
+      messages,
       sentMessageCount: sentRows.length,
       sentMessages: sentRows.map(mapRow),
-      allMessageCount: allRows.length,
-      allMessages: allRows.map(mapRow),
+      allMessageCount: allMessages.length,
+      allMessages,
       deletedMessageCount: deletedRows.length,
       deletedMessages: deletedRows.map(mapRow),
       failureReason: null,
@@ -4428,6 +4465,7 @@ LIMIT 1;
 
     const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
       id: row.id,
+      type: "Message",
       date: normalizeDateText(row.messageDate),
       title: row.title,
       body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
@@ -4516,6 +4554,7 @@ FROM onsite_mail;
     const messageDate = new Date().toISOString().slice(0, 10);
     const sentMessage: PatientPortalMessageItem = {
       id: String(sentId),
+      type: "Message",
       date: messageDate,
       title,
       body,
@@ -4615,6 +4654,7 @@ VALUES
 
     return {
       id: String(messageId),
+      type: "Message",
       date: messageDate,
       title,
       body: normalizePatientPortalMessageBody(body, isEncrypted),
@@ -4629,6 +4669,66 @@ VALUES
       portalRelation: null,
       isEncrypted
     };
+  }
+
+  async cleanupPatientPortalNotification(
+    username: string,
+    password: string,
+    input: PatientPortalNotificationInput
+  ): Promise<void> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return;
+    }
+
+    await this.db.execute(`
+DELETE FROM patient_reminders
+WHERE pid = ${integer(login.pid)}
+  AND due_status = ${sqlString(input.dueStatus)}
+  AND category = ${sqlString(input.category)}
+  AND item = ${sqlString(input.item)};
+`);
+  }
+
+  async createPatientPortalNotification(
+    username: string,
+    password: string,
+    input: PatientPortalNotificationInput
+  ): Promise<PatientPortalMessageItem> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      throw new Error(`Patient portal sign-in was rejected: ${login.failureReason ?? "no portal session"}`);
+    }
+
+    const dueStatus = input.dueStatus.trim();
+    const category = input.category.trim();
+    const item = input.item.trim();
+    const createdAt = input.createdAt?.trim() || new Date().toISOString().slice(0, 19).replace("T", " ");
+    if (!dueStatus || !category || !item) {
+      throw new Error("Patient portal notification due status, category, and item are required.");
+    }
+
+    await this.cleanupPatientPortalNotification(username, password, { dueStatus, category, item });
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9550000) + 1, 9550001) AS nextId
+FROM patient_reminders;
+`);
+    const reminderId = Number(idRows[0]?.nextId ?? 9550001);
+
+    await this.db.execute(`
+INSERT INTO patient_reminders
+  (id, active, date_inactivated, reason_inactivated, due_status, pid, category, item, date_created, date_sent, voice_status, sms_status, email_status, mail_status)
+VALUES
+  (${integer(reminderId)}, 1, NULL, '', ${sqlString(dueStatus)}, ${integer(login.pid)}, ${sqlString(category)}, ${sqlString(item)}, ${sqlString(createdAt)}, NULL, 0, 0, 0, 0);
+`);
+
+    const refreshed = await this.getPatientPortalMessages(username, password);
+    const notification = refreshed.messages.find((message) => message.id === String(reminderId) && message.type === "Notification");
+    if (!notification) {
+      throw new Error("Patient portal notification was inserted but was not visible in the inbox.");
+    }
+
+    return notification;
   }
 
   async readPatientPortalMessage(
@@ -4699,6 +4799,7 @@ LIMIT 1;
     const row = readRows[0];
     const message = row ? {
       id: row.id,
+      type: "Message",
       date: normalizeDateText(row.messageDate),
       title: row.title,
       body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
@@ -4802,6 +4903,7 @@ ORDER BY date ASC, id ASC;
 `);
     const mapRow = (row: Record<string, string>): PatientPortalMessageItem => ({
       id: row.id,
+      type: "Message",
       date: normalizeDateText(row.messageDate),
       title: row.title,
       body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
@@ -4910,6 +5012,7 @@ ORDER BY date ASC, id ASC;
 `);
     const archivedMessages = archivedRows.map((row): PatientPortalMessageItem => ({
       id: row.id,
+      type: "Message",
       date: normalizeDateText(row.messageDate),
       title: row.title,
       body: normalizePatientPortalMessageBody(row.body, row.isEncrypted === "1"),
@@ -4990,6 +5093,7 @@ LIMIT 1;
 
     const originalMessage: PatientPortalMessageItem = {
       id: originalRow.id,
+      type: "Message",
       date: normalizeDateText(originalRow.messageDate),
       title: originalRow.title,
       body: originalRow.body,
@@ -5018,6 +5122,7 @@ FROM onsite_mail;
     const messageDate = new Date().toISOString().slice(0, 10);
     const sentMessage: PatientPortalMessageItem = {
       id: String(sentId),
+      type: "Message",
       date: messageDate,
       title: originalMessage.title,
       body,
@@ -5113,6 +5218,7 @@ LIMIT 1;
 
     const originalMessage: PatientPortalMessageItem = {
       id: originalRow.id,
+      type: "Message",
       date: normalizeDateText(originalRow.messageDate),
       title: originalRow.title,
       body: normalizePatientPortalMessageBody(originalRow.body, originalRow.isEncrypted === "1"),
@@ -9950,6 +10056,17 @@ function normalizeDateText(value: string): string {
 
 function normalizePatientPortalMessageBody(body: string, isEncrypted: boolean): string {
   return isEncrypted ? protectedPatientPortalMessageBody : body;
+}
+
+function sortPatientPortalMessages(messages: PatientPortalMessageItem[]): PatientPortalMessageItem[] {
+  return messages.sort((left, right) => {
+    const dateComparison = right.date.localeCompare(left.date);
+    if (dateComparison !== 0) {
+      return dateComparison;
+    }
+
+    return Number(right.id || 0) - Number(left.id || 0);
+  });
 }
 
 function normalizeOptionalDateText(value: string | null | undefined): string | null {
