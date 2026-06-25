@@ -368,6 +368,7 @@ export type SeedResult = {
 };
 
 export type AppSnapshot = {
+  detailLevel: "summary" | "detail";
   id: string;
   name: string;
   stage: string;

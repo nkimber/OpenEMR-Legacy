@@ -57,6 +57,10 @@ type ManagedApp = {
   tests?: ManagedTest[];
 };
 
+type AppSnapshotOptions = {
+  includeDetails: boolean;
+};
+
 type ContainerStatus = {
   name: string;
   service: string;
@@ -2946,7 +2950,23 @@ async function getSourceInfo(managedApp: ManagedApp) {
   };
 }
 
-async function getAppSnapshot(managedApp: ManagedApp) {
+function getDeferredDataProfile(managedApp: ManagedApp) {
+  if (managedApp.id === "modern-ui-claude") {
+    return {
+      available: false,
+      rows: [],
+      error: "Modern UI Claude is a frontend-only client; use the modernized OpenEMR app for the backend database profile."
+    };
+  }
+
+  return {
+    available: false,
+    rows: [],
+    error: "Data profile loads with application details."
+  };
+}
+
+async function getAppSnapshot(managedApp: ManagedApp, options: AppSnapshotOptions = { includeDetails: true }) {
   const statusResult = await runCommand(managedApp, "status", 30000);
   const containers = parseComposeStatus(statusResult.stdout);
   const runtime = summarizeRuntime(containers, statusResult);
@@ -2959,22 +2979,23 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     error: error instanceof Error ? error.message : String(error)
   }));
   const managedTests = managedApp.tests ?? [];
-  const latestTest = managedTests[0]
-    ? await readJsonIfExists(resolveProjectPath(managedTests[0].resultPath))
-    : null;
-  const latestTests = Object.fromEntries(
-    await Promise.all(
-      managedTests.map(async (test) => [test.id, await readJsonIfExists(resolveProjectPath(test.resultPath))])
-    )
-  );
   const managedSeeds = managedApp.seeds ?? [];
-  const latestSeed = managedSeeds[0]
-    ? await readJsonIfExists(resolveProjectPath(managedSeeds[0].resultPath))
-    : null;
-  const dataProfile = await getDataProfile(managedApp);
   const demoLogin = await getDemoLogin(managedApp);
+  const [latestTests, latestSeed, dataProfile] = options.includeDetails
+    ? await Promise.all([
+      Promise.all(
+        managedTests.map(async (test) => [test.id, await readJsonIfExists(resolveProjectPath(test.resultPath))] as const)
+      ).then((entries) => Object.fromEntries(entries)),
+      managedSeeds[0] ? readJsonIfExists(resolveProjectPath(managedSeeds[0].resultPath)) : Promise.resolve(null),
+      getDataProfile(managedApp)
+    ])
+    : [{}, null, getDeferredDataProfile(managedApp)];
+  const latestTest = managedTests[0]
+    ? latestTests[managedTests[0].id] ?? null
+    : null;
 
   return {
+    detailLevel: options.includeDetails ? "detail" : "summary",
     id: managedApp.id,
     name: managedApp.name,
     stage: managedApp.stage,
@@ -2989,8 +3010,8 @@ async function getAppSnapshot(managedApp: ManagedApp) {
     health,
     source,
     containers,
-    seeds: managedSeeds,
-    tests: managedTests,
+    seeds: options.includeDetails ? managedSeeds : [],
+    tests: options.includeDetails ? managedTests : [],
     latestSeed,
     latestTest,
     latestTests,
@@ -3040,10 +3061,11 @@ app.get("/api/system", async (_request, response) => {
   });
 });
 
-app.get("/api/apps", async (_request, response, next) => {
+app.get("/api/apps", async (request, response, next) => {
   try {
     const config = await readConfig();
-    response.json({ apps: await Promise.all(config.apps.map(getAppSnapshot)) });
+    const includeDetails = request.query.details === "true";
+    response.json({ apps: await Promise.all(config.apps.map((managedApp) => getAppSnapshot(managedApp, { includeDetails }))) });
   } catch (error) {
     next(error);
   }
@@ -3051,7 +3073,7 @@ app.get("/api/apps", async (_request, response, next) => {
 
 app.get("/api/apps/:appId", async (request, response, next) => {
   try {
-    response.json(await getAppSnapshot(await getManagedApp(request.params.appId)));
+    response.json(await getAppSnapshot(await getManagedApp(request.params.appId), { includeDetails: true }));
   } catch (error) {
     next(error);
   }
@@ -3088,7 +3110,7 @@ app.post("/api/apps/actions/start-all", async (_request, response, next) => {
 
     response.json({
       results,
-      apps: await Promise.all(config.apps.map(getAppSnapshot))
+      apps: await Promise.all(config.apps.map((managedApp) => getAppSnapshot(managedApp, { includeDetails: false })))
     });
   } catch (error) {
     next(error);
@@ -3107,7 +3129,7 @@ app.post("/api/apps/:appId/seeds/:seedId/run", async (request, response, next) =
     const event = eventFromCommand(managedApp.id, `seed:${seed.id}`, result);
     await saveEvent(event);
     const latestSeed = await readJsonIfExists(resolveProjectPath(seed.resultPath));
-    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestSeed, snapshot: await getAppSnapshot(managedApp) });
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestSeed, snapshot: await getAppSnapshot(managedApp, { includeDetails: false }) });
   } catch (error) {
     next(error);
   }
@@ -3124,7 +3146,7 @@ app.post("/api/apps/:appId/actions/:action", async (request, response, next) => 
     const result = await runCommand(managedApp, action, action === "start" ? 180000 : 120000);
     const event = eventFromCommand(managedApp.id, action, result);
     await saveEvent(event);
-    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, snapshot: await getAppSnapshot(managedApp) });
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, snapshot: await getAppSnapshot(managedApp, { includeDetails: false }) });
   } catch (error) {
     next(error);
   }
@@ -3150,7 +3172,7 @@ app.post("/api/apps/:appId/tests/:testId/run", async (request, response, next) =
     const event = eventFromCommand(managedApp.id, `test:${test.id}`, result);
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(test.resultPath));
-    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp) });
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp, { includeDetails: false }) });
   } catch (error) {
     next(error);
   }
@@ -3250,7 +3272,7 @@ app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => 
     const event = eventFromCommand(managedApp.id, `parity:${selection.selectionKind}:${selection.selectionId}`, result);
     await saveEvent(event);
     const latestTest = await readJsonIfExists(resolveProjectPath(selection.latestPath));
-    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp) });
+    response.status(result.exitCode === 0 ? 200 : 500).json({ result, event, latestTest, snapshot: await getAppSnapshot(managedApp, { includeDetails: false }) });
   } catch (error) {
     next(error);
   }

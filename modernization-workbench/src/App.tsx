@@ -134,6 +134,59 @@ function describeLoadError(value: unknown) {
   return value instanceof Error ? value.message : String(value);
 }
 
+function pageUsesAppDetails(page: PageId) {
+  return page === "dashboard" || page === "applications" || page === "tests" || page === "seed-data";
+}
+
+function isSmokeResult(value: AppSnapshot["latestTests"][string]): value is SmokeResult {
+  return Boolean(value && "checks" in value && "baseUrl" in value);
+}
+
+function mergeAppSnapshot(existing: AppSnapshot | undefined, incoming: AppSnapshot): AppSnapshot {
+  if (existing?.detailLevel === "detail" && incoming.detailLevel === "summary") {
+    return {
+      ...existing,
+      ...incoming,
+      detailLevel: existing.detailLevel,
+      seeds: existing.seeds,
+      tests: existing.tests,
+      latestSeed: existing.latestSeed,
+      latestTest: existing.latestTest,
+      latestTests: existing.latestTests,
+      dataProfile: existing.dataProfile
+    };
+  }
+  return incoming;
+}
+
+function mergeAppSnapshots(current: AppSnapshot[], incoming: AppSnapshot[]) {
+  const currentById = new Map(current.map((app) => [app.id, app]));
+  return incoming.map((snapshot) => mergeAppSnapshot(currentById.get(snapshot.id), snapshot));
+}
+
+function updateAppSnapshot(current: AppSnapshot[], incoming: AppSnapshot, transform: (snapshot: AppSnapshot) => AppSnapshot = (snapshot) => snapshot) {
+  let found = false;
+  const next = current.map((app) => {
+    if (app.id !== incoming.id) {
+      return app;
+    }
+    found = true;
+    return transform(mergeAppSnapshot(app, incoming));
+  });
+  return found ? next : [...next, transform(incoming)];
+}
+
+function mergeLatestTestResult(app: AppSnapshot, testId: string, latestTest: AppSnapshot["latestTests"][string]) {
+  return {
+    ...app,
+    latestTest: testId === app.tests[0]?.id ? (isSmokeResult(latestTest) ? latestTest : null) : app.latestTest,
+    latestTests: {
+      ...app.latestTests,
+      [testId]: latestTest
+    }
+  };
+}
+
 function formatHistoryAxisTick(value: number, includeDate: boolean) {
   return new Intl.DateTimeFormat(undefined, includeDate ? {
     month: "short",
@@ -3244,7 +3297,13 @@ export function App() {
 
   const loadApps = useCallback(async () => {
     const appData = await api.getApps();
-    setApps(appData.apps);
+    setApps((current) => mergeAppSnapshots(current, appData.apps));
+    return appData.apps;
+  }, []);
+
+  const loadAppDetails = useCallback(async (appId: string) => {
+    const appDetails = await api.getAppDetails(appId);
+    setApps((current) => updateAppSnapshot(current, appDetails));
   }, []);
 
   const loadArchitecture = useCallback(async () => {
@@ -3293,20 +3352,27 @@ export function App() {
     setChangelog(changelogData);
   }, []);
 
-  const loadWithErrorBanner = useCallback(async (label: string, load: () => Promise<void>) => {
+  const loadWithErrorBanner = useCallback(async <T,>(label: string, load: () => Promise<T>) => {
     try {
-      await load();
+      return await load();
     } catch (loadError) {
       setError(`${label}: ${describeLoadError(loadError)}`);
+      return undefined;
     }
   }, []);
 
+  const loadAppDetailsForIds = useCallback(async (appIds: string[]) => {
+    const uniqueAppIds = [...new Set(appIds)];
+    await Promise.all(uniqueAppIds.map((appId) => loadWithErrorBanner(`Application details (${appId})`, () => loadAppDetails(appId))));
+  }, [loadAppDetails, loadWithErrorBanner]);
+
   const loadCoreData = useCallback(async () => {
-    await Promise.all([
+    const [loadedApps] = await Promise.all([
       loadWithErrorBanner("Applications", loadApps),
       loadWithErrorBanner("Events", loadEvents),
       loadWithErrorBanner("Seed data", loadSeedDatasets)
     ]);
+    return loadedApps ?? [];
   }, [loadApps, loadEvents, loadSeedDatasets, loadWithErrorBanner]);
 
   const loadTestData = useCallback(async () => {
@@ -3355,11 +3421,12 @@ export function App() {
     if (clearError) {
       setError(null);
     }
+    const loadedApps = await loadCoreData();
     await Promise.all([
-      loadCoreData(),
-      loadPageData(activePage)
+      loadPageData(activePage),
+      pageUsesAppDetails(activePage) ? loadAppDetailsForIds(loadedApps.map((app) => app.id)) : Promise.resolve()
     ]);
-  }, [activePage, loadCoreData, loadPageData]);
+  }, [activePage, loadAppDetailsForIds, loadCoreData, loadPageData]);
 
   useEffect(() => {
     const onHashChange = () => setActivePage(parseHashPage());
@@ -3374,6 +3441,16 @@ export function App() {
   useEffect(() => {
     void loadPageData(activePage);
   }, [activePage, loadPageData]);
+
+  useEffect(() => {
+    if (!pageUsesAppDetails(activePage)) {
+      return;
+    }
+    const appIdsNeedingDetails = apps.filter((app) => app.detailLevel === "summary").map((app) => app.id);
+    if (appIdsNeedingDetails.length) {
+      void loadAppDetailsForIds(appIdsNeedingDetails);
+    }
+  }, [activePage, apps, loadAppDetailsForIds]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -3410,21 +3487,21 @@ export function App() {
   const handleAction = (appId: string, action: "start" | "stop" | "restart") => {
     void runWithBusy(appId, `${action} ${appId}`, async () => {
       const response = await api.runAction(appId, action);
-      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+      setApps((current) => updateAppSnapshot(current, response.snapshot));
     });
   };
 
   const handleStartAllApps = () => {
     void runWithBusy(allAppsBusyId, "starting all apps", async () => {
       const response = await api.startAllApps();
-      setApps(response.apps);
+      setApps((current) => mergeAppSnapshots(current, response.apps));
     });
   };
 
   const handleRunTest = (appId: string, testId: string) => {
     void runWithBusy(appId, `running ${testId}`, async () => {
       const response = await api.runTest(appId, testId);
-      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+      setApps((current) => updateAppSnapshot(current, response.snapshot, (snapshot) => mergeLatestTestResult(snapshot, testId, response.latestTest)));
     });
   };
 
@@ -3432,14 +3509,17 @@ export function App() {
     const label = request.selectionKind === "plan" ? `running ${request.plan}` : `running ${request.suite}`;
     void runWithBusy(appId, label, async () => {
       const response = await api.runCustomParity(appId, request);
-      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+      setApps((current) => updateAppSnapshot(current, response.snapshot));
     });
   };
 
   const handleRunSeed = (appId: string, seedId: string) => {
     void runWithBusy(appId, `seeding ${seedId}`, async () => {
       const response = await api.runSeed(appId, seedId);
-      setApps((current) => current.map((item) => (item.id === appId ? response.snapshot : item)));
+      setApps((current) => updateAppSnapshot(current, response.snapshot, (snapshot) => ({
+        ...snapshot,
+        latestSeed: response.latestSeed
+      })));
     });
   };
 

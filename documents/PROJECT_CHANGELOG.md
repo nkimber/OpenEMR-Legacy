@@ -17430,6 +17430,34 @@ Code changes:
 - Net lines: +136
 - Total churn: 224
 
+## 313. Workbench Lightweight App Summary Endpoint
+
+Started: 2026-06-25T01:39:10-04:00
+Finished: 2026-06-25T01:46:50-04:00
+Commit: pending
+
+Split the Workbench managed-application API into fast operational summaries and on-demand rich details so app status no longer waits for large latest-test artifacts, database profile queries, or hundreds of configured test definitions.
+
+Changes:
+- Changed `/api/apps` to return lightweight app summaries by default, with runtime, health, source, container, and guidance data but without heavy test results, database profile rows, or large test/seed definition lists.
+- Kept full app details available through `/api/apps/:appId` and optional all-app details through `/api/apps?details=true`.
+- Updated the React app to merge summary snapshots without clobbering already-hydrated detail fields, then hydrate full app details for Dashboard, Applications, Test Runs, and Seed Data pages.
+- Preserved latest test and seed results returned by run actions while keeping lifecycle and post-action snapshots lightweight.
+- Documented the two-tier app snapshot loading contract in the Workbench project document.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- Live API smoke checks showed `/api/apps` returning `200` in 1.54 seconds with a 4,512 byte summary payload, while full details remained available through `/api/apps/legacy-openemr`.
+- Live UI smoke check showed `http://127.0.0.1:5173` returning `200`.
+
+Code changes:
+- Files changed: 6
+- Lines added: 176
+- Lines deleted: 38
+- Net lines: +138
+- Total churn: 214
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

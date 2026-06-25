@@ -5,6 +5,8 @@ import type {
   ArchitectureSystemSummary,
   CustomParityRunRequest,
   LifecycleEvent,
+  NativeJestRunResult,
+  NativeRunResult,
   ParityManifest,
   ParityComparisonReport,
   ParityReliabilityReport,
@@ -12,6 +14,8 @@ import type {
   ProgressResponse,
   ProjectChangelog,
   SeedDataset,
+  SeedResult,
+  SmokeResult,
   SourceInventory
 } from "./types";
 
@@ -34,6 +38,9 @@ export const api = {
   async getApps() {
     return requestJson<{ apps: AppSnapshot[] }>("/api/apps");
   },
+  async getAppDetails(appId: string) {
+    return requestJson<AppSnapshot>(`/api/apps/${appId}`);
+  },
   async runAction(appId: string, action: "start" | "stop" | "restart") {
     return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/actions/${action}`, {
       method: "POST"
@@ -45,7 +52,7 @@ export const api = {
     });
   },
   async runTest(appId: string, testId: string) {
-    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/tests/${testId}/run`, {
+    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent; latestTest: SmokeResult | ParityRunResult | NativeRunResult | NativeJestRunResult | null }>(`/api/apps/${appId}/tests/${testId}/run`, {
       method: "POST"
     });
   },
@@ -56,7 +63,7 @@ export const api = {
     });
   },
   async runSeed(appId: string, seedId: string) {
-    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent }>(`/api/apps/${appId}/seeds/${seedId}/run`, {
+    return requestJson<{ snapshot: AppSnapshot; event: LifecycleEvent; latestSeed: SeedResult | null }>(`/api/apps/${appId}/seeds/${seedId}/run`, {
       method: "POST"
     });
   },
