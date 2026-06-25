@@ -21212,7 +21212,7 @@ Code changes:
 
 Started: 2026-06-25T15:57:12.6171287-04:00
 Finished: 2026-06-25T15:59:16.7980909-04:00
-Commit: pending
+Commit: 8316ce89
 
 Implemented Slice 382: Slice 121 encounter co-signature probe payload attachments. The encounter co-signature parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0002` seeded patient anchor, temporary encounter, ordered admin/provider signature rows, lock/hash/amendment facts, legacy patient-summary rendering facts, modernized sign-off panel rendering anchors, signature deletion, and encounter cleanup so Workbench comparison drill-ins can preview two-signer encounter lock evidence.
 
