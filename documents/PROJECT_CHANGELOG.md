@@ -19994,6 +19994,43 @@ Code changes:
 - Net lines: +297
 - Total churn: 379
 
+## 392. Slice 346 Slice 85 Encounter Document Archive/Restore Probe Payload Attachments
+
+Started: 2026-06-25T11:59:40-04:00
+Finished: 2026-06-25T12:01:45-04:00
+Commit: pending
+
+Implemented Slice 346: Slice 85 encounter document archive/restore probe payload attachments. The encounter document archive/restore parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary text attachment, archived hidden-content state, restored active document facts, legacy Documents category rendering, modernized active/archived encounter-detail API rows, Encounters attached-document Archive/Restore UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document archive/restore evidence.
+
+Changes:
+- Added Slice 85 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, proposed text document payload, expected archive/restore state, and expected count movement.
+- Added Slice 85 created payload attachments for the temporary encounter document row, encounter-scoped document list, and document count increment.
+- Added Slice 85 archived payload attachments for the archived document row, hidden active-content projection, active-detail hiding, archived-detail projection, and restored baseline document and encounter-document counts.
+- Added Slice 85 restored payload attachments for the restored active document row, restored content preview, active document-count increment, and encounter document-list increment.
+- Added Slice 85 application-surface payload attachments for legacy Documents category rendering plus modernized active/archived encounter detail API rows and Encounters attached-document Archive/Restore UI anchors.
+- Added Slice 85 cleanup payload attachments for temporary restored document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 85 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 85 encounter document archive/restore database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 346 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 84 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-document-archive` in `parity-tests/` passed with 1 expected test; run `2026-06-25T160028-738Z-modernized-openemr-plan-slice-85-encounter-document-archive-readiness`.
+- `npm run test:legacy:plan:encounter-document-archive` in `parity-tests/` passed with 1 expected test; run `2026-06-25T160059-837Z-legacy-openemr-plan-slice-85-encounter-document-archive-readiness`.
+- Artifact inspection confirmed the modernized Slice 85 Playwright report recorded `db-probe-slice-85-encounter-document-archive-precondition`, `db-probe-slice-85-encounter-document-archive-created`, `db-probe-slice-85-encounter-document-archive-archived`, `db-probe-slice-85-encounter-document-archive-restored`, `db-probe-slice-85-encounter-document-archive-surface`, and `db-probe-slice-85-encounter-document-archive-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 85 Playwright report recorded `db-probe-slice-85-encounter-document-archive-precondition`, `db-probe-slice-85-encounter-document-archive-created`, `db-probe-slice-85-encounter-document-archive-archived`, `db-probe-slice-85-encounter-document-archive-restored`, `db-probe-slice-85-encounter-document-archive-surface`, and `db-probe-slice-85-encounter-document-archive-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-85-encounter-document-archive-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T160131-747Z-legacy-openemr-vs-modernized-openemr-plan-slice-85-encounter-document-archive-readiness`.
+- `git diff --check` for Slice 346 files passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 349
+- Lines deleted: 44
+- Net lines: +305
+- Total churn: 393
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20003,5 +20040,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 84.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 85.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
