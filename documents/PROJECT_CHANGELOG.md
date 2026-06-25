@@ -22255,7 +22255,7 @@ Code changes:
 
 Started: 2026-06-25T19:08:56.8032390-04:00
 Finished: 2026-06-25T19:12:27.7550774-04:00
-Commit: pending
+Commit: 9b9cf7eb
 
 Implemented Slice 413: Slice 159 admin login probe payload attachments. The admin login readiness parity suite now writes path-backed JSON Playwright attachments for redacted configured-credential preconditions, legacy HTTP success and invalid-password rejection markers, modernized API success and rejection responses, and modernized Admin-page login rendering facts so Workbench comparison drill-ins can preview admin login evidence without storing password material.
 
