@@ -17402,7 +17402,7 @@ Code changes:
 
 Started: 2026-06-25T01:33:10-04:00
 Finished: 2026-06-25T01:41:50-04:00
-Commit: pending
+Commit: bda2f656
 
 Implemented Slice 269: Slice 8 administration probe payload attachments. The administration directory parity suite now writes path-backed JSON Playwright attachments for seeded user counts, provider/calendar counts, selected provider and billing users, seeded facilities, and administration UI steering precondition so Workbench comparison drill-ins can preview administration workflow database evidence.
 
