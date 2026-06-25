@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openFacilitiesDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -8,7 +9,7 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const suffix = workflowSuffix();
     const facility = {
       code: `P${suffix.slice(-8).toUpperCase()}`,
@@ -31,10 +32,60 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
     const beforeTempFacilities = await countTemporaryFacilities(target.type, targetDb);
     let facilityId: number | null = null;
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-18-admin-facility-mutation-precondition",
+      description: "Captures the Slice 18 administration facility mutation starting count and proposed active facility payload.",
+      expected: {
+        facility: {
+          codePrefix: "P",
+          namePrefix: "Parity Facility",
+          active: true,
+          state: "CA",
+          postalCode: "92109"
+        },
+        counts: {
+          temporaryFacilities: beforeTempFacilities
+        }
+      },
+      actual: {
+        beforeTempFacilities,
+        proposed: facility
+      },
+      context: {
+        suite: "workflow-admin",
+        workflow: "admin-facility-mutation"
+      }
+    });
+
     try {
       facilityId = await workflow.createFacility(facility);
-      await expect(workflow.getFacility(facilityId)).resolves.toMatchObject(facility);
-      await expect(countTemporaryFacilities(target.type, targetDb)).resolves.toBe(beforeTempFacilities + 1);
+      const created = await workflow.getFacility(facilityId);
+      const afterCreateTempFacilities = await countTemporaryFacilities(target.type, targetDb);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-18-admin-facility-mutation-created",
+        description: "Captures the temporary active facility row immediately after Slice 18 creates it, including the temporary facility count increment.",
+        expected: {
+          facility,
+          counts: {
+            temporaryFacilities: beforeTempFacilities + 1
+          }
+        },
+        actual: {
+          beforeTempFacilities,
+          afterCreateTempFacilities,
+          facilityId,
+          created
+        },
+        context: {
+          suite: "workflow-admin",
+          workflow: "admin-facility-mutation-created"
+        }
+      });
+
+      expect(created).toMatchObject(facility);
+      expect(afterCreateTempFacilities).toBe(beforeTempFacilities + 1);
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -47,7 +98,33 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
       }
 
       await workflow.updateFacility(facilityId, updatedFacility);
-      await expect(workflow.getFacility(facilityId)).resolves.toMatchObject(updatedFacility);
+      const updated = await workflow.getFacility(facilityId);
+      const afterUpdateTempFacilities = await countTemporaryFacilities(target.type, targetDb);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-18-admin-facility-mutation-deactivated",
+        description: "Captures the temporary facility row after Slice 18 updates the facility name/phone and deactivates it before cleanup.",
+        expected: {
+          facility: updatedFacility,
+          counts: {
+            temporaryFacilities: beforeTempFacilities + 1
+          }
+        },
+        actual: {
+          beforeTempFacilities,
+          afterUpdateTempFacilities,
+          facilityId,
+          created,
+          updated
+        },
+        context: {
+          suite: "workflow-admin",
+          workflow: "admin-facility-mutation-deactivated"
+        }
+      });
+
+      expect(updated).toMatchObject(updatedFacility);
+      expect(afterUpdateTempFacilities).toBe(beforeTempFacilities + 1);
 
       if (target.type === "legacy-openemr") {
         await openFacilitiesDirect(page, target);
@@ -63,9 +140,33 @@ test.describe("facility administration mutation parity @slice18 @workflow-admin 
       }
     }
 
-    await expect(countTemporaryFacilities(target.type, targetDb)).resolves.toBe(beforeTempFacilities);
+    const afterCleanupTempFacilities = await countTemporaryFacilities(target.type, targetDb);
+    const deleted = facilityId !== null ? await workflow.getFacility(facilityId) : null;
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-18-admin-facility-mutation-cleanup",
+      description: "Captures the Slice 18 cleanup state after hard-deleting the temporary administration facility.",
+      expected: {
+        counts: {
+          temporaryFacilities: beforeTempFacilities
+        },
+        deletedFacility: null
+      },
+      actual: {
+        beforeTempFacilities,
+        afterCleanupTempFacilities,
+        facilityId,
+        deleted
+      },
+      context: {
+        suite: "workflow-admin",
+        workflow: "admin-facility-mutation-cleanup"
+      }
+    });
+
+    expect(afterCleanupTempFacilities).toBe(beforeTempFacilities);
     if (facilityId !== null) {
-      await expect(workflow.getFacility(facilityId)).resolves.toBeNull();
+      expect(deleted).toBeNull();
     }
   });
 });

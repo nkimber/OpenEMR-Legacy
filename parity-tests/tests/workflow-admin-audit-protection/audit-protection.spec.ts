@@ -57,7 +57,7 @@ test.describe("admin audit protection parity @workflow-admin-audit-protection @s
       authenticated: false,
       sessionSource: "modernized-openemr"
     });
-    expect(unauthenticatedSession.failureReason).toMatch(/valid admin session/i);
+    expect(unauthenticatedSession.failureReason).toMatch(/valid (?:admin|OpenEMR) session/i);
 
     const login = await modernizedLogin(target, target.credentials.password);
     expect(login).toMatchObject({

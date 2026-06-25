@@ -55,8 +55,9 @@ test.describe("user group membership mutation parity @slice22 @workflow-admin-me
         await expectRenderedText(page, /Access Control List Administration|Groups and Access Controls/i);
       } else {
         await openAuthenticatedModernizedAdmin(page, target);
-        await expect(page.locator("body")).toContainText(user.username);
-        await expect(page.locator("body")).toContainText("Front Office membership");
+        const userCard = page.locator(".admin-user-card", { hasText: user.username }).first();
+        await expect(userCard).toBeVisible();
+        await expect(userCard).toContainText("Front Office membership");
       }
 
       await workflow.revokeAccessGroupMembership(membership);
@@ -72,8 +73,9 @@ test.describe("user group membership mutation parity @slice22 @workflow-admin-me
 
       if (target.type !== "legacy-openemr") {
         await openAuthenticatedModernizedAdmin(page, target);
-        await expect(page.locator("body")).toContainText(user.username);
-        await expect(page.locator("body")).not.toContainText("Front Office membership");
+        const userCard = page.locator(".admin-user-card", { hasText: user.username }).first();
+        await expect(userCard).toBeVisible();
+        await expect(userCard).not.toContainText("Front Office membership");
       }
     } finally {
       await workflow.revokeAccessGroupMembership(membership);
