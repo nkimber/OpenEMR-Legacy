@@ -17821,6 +17821,38 @@ Code changes:
 - Net lines: +136
 - Total churn: 178
 
+## 325. Slice 281 Slice 20 Access-Control Probe Payload Attachments
+
+Started: 2026-06-25T03:28:00-04:00
+Finished: 2026-06-25T03:33:13-04:00
+Commit: pending
+
+Implemented Slice 281: Slice 20 access-control probe payload attachments. The administration access-control read-model parity suite now writes path-backed JSON Playwright attachments for ACL group, permission, group-permission assignment, user-membership counts and anchors plus UI-steering access-control matrix facts so Workbench comparison drill-ins can preview administration ACL database evidence.
+
+Changes:
+- Added Slice 20 access-control matrix payload attachments for ACL group, permission, group-permission assignment, and user-membership counts.
+- Added Slice 20 access-control anchor payloads for the required OpenEMR groups, permission objects, representative assignment rows, and user memberships.
+- Added Slice 20 UI-precondition payload attachments for the legacy and modernized access-control matrix text rendered by the browser flow.
+- Preserved the existing Slice 20 assertions and side-by-side behavior while making ACL read-model evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 20 administration access-control database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 281 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:access-control` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T073209-311Z-modernized-openemr-plan-slice-20-access-control-readiness`.
+- `npm run test:legacy:plan:access-control` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T073228-205Z-legacy-openemr-plan-slice-20-access-control-readiness`.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 20 runs recorded file paths for both new `db-probe-slice-20-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-20-access-control-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T073248-747Z-legacy-openemr-vs-modernized-openemr-plan-slice-20-access-control-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 257
+- Lines deleted: 17
+- Net lines: +240
+- Total churn: 274
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17830,5 +17862,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 19.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 20.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

@@ -1,14 +1,190 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openAccessControlDirect } from "../../src/ui/legacyOpenEmr.js";
 
 test.describe("administration access-control parity @slice20 @admin-access-control", () => {
-  test("stable ACL groups and permissions match the legacy default matrix", async ({ page, target, targetDb }) => {
+  test("stable ACL groups and permissions match the legacy default matrix", async ({ page, target, targetDb }, testInfo) => {
     const accessControl = await targetDb.getAdministrationAccessControl();
+    const groupAnchors = {
+      users: accessControl.groups.find((group) => group.value === "users") ?? null,
+      admin: accessControl.groups.find((group) => group.value === "admin") ?? null,
+      clinician: accessControl.groups.find((group) => group.value === "clin") ?? null,
+      physician: accessControl.groups.find((group) => group.value === "doc") ?? null,
+      frontOffice: accessControl.groups.find((group) => group.value === "front") ?? null,
+      accounting: accessControl.groups.find((group) => group.value === "back") ?? null,
+      emergencyLogin: accessControl.groups.find((group) => group.value === "breakglass") ?? null
+    };
+    const permissionAnchors = {
+      aclAdministration:
+        accessControl.permissions.find(
+          (permission) =>
+            permission.sectionValue === "admin" &&
+            permission.value === "acl" &&
+            permission.name === "ACL Administration"
+        ) ?? null,
+      patientDemographics:
+        accessControl.permissions.find(
+          (permission) =>
+            permission.sectionValue === "patients" &&
+            permission.value === "demo" &&
+            permission.name === "Demographics (write,addonly optional)"
+        ) ?? null,
+      prescriptions:
+        accessControl.permissions.find(
+          (permission) =>
+            permission.sectionValue === "patients" &&
+            permission.value === "rx" &&
+            permission.name === "Prescriptions (write,addonly optional)"
+        ) ?? null,
+      highSensitivity:
+        accessControl.permissions.find(
+          (permission) =>
+            permission.sectionValue === "sensitivities" &&
+            permission.value === "high" &&
+            permission.name === "High"
+        ) ?? null
+    };
+    const assignmentAnchors = {
+      adminAcl:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "admin" &&
+            assignment.sectionValue === "admin" &&
+            assignment.permissionValue === "acl" &&
+            assignment.returnValue === "write"
+        ) ?? null,
+      breakglassSuper:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "breakglass" &&
+            assignment.sectionValue === "admin" &&
+            assignment.permissionValue === "super" &&
+            assignment.returnValue === "write"
+        ) ?? null,
+      physicianPrescriptions:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "doc" &&
+            assignment.sectionValue === "patients" &&
+            assignment.permissionValue === "rx" &&
+            assignment.returnValue === "write"
+        ) ?? null,
+      clinicianPatientReport:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "clin" &&
+            assignment.sectionValue === "patients" &&
+            assignment.permissionValue === "pat_rep" &&
+            assignment.returnValue === "view"
+        ) ?? null,
+      frontOfficeDemographics:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "front" &&
+            assignment.sectionValue === "patients" &&
+            assignment.permissionValue === "demo" &&
+            assignment.returnValue === "write"
+        ) ?? null,
+      accountingEob:
+        accessControl.groupPermissions.find(
+          (assignment) =>
+            assignment.groupValue === "back" &&
+            assignment.sectionValue === "acct" &&
+            assignment.permissionValue === "eob" &&
+            assignment.returnValue === "write"
+        ) ?? null
+    };
+    const membershipAnchors = {
+      admin:
+        accessControl.userMemberships.find(
+          (membership) =>
+            membership.userValue === "admin" &&
+            membership.groupValue === "admin" &&
+            membership.groupName === "Administrators"
+        ) ?? null,
+      oeSystem:
+        accessControl.userMemberships.find(
+          (membership) =>
+            membership.userValue === "oe-system" &&
+            membership.groupValue === "admin" &&
+            membership.groupName === "Administrators"
+        ) ?? null,
+      frontDesk:
+        accessControl.userMemberships.find(
+          (membership) =>
+            membership.userValue === "gold-frontdesk-01" &&
+            membership.groupValue === "front" &&
+            membership.groupName === "Front Office"
+        ) ?? null,
+      provider:
+        accessControl.userMemberships.find(
+          (membership) =>
+            membership.userValue === "gold-provider-01" &&
+            membership.groupValue === "clin" &&
+            membership.groupName === "Clinicians"
+        ) ?? null
+    };
+    const expectedMembershipCount = target.type === "modernized-openemr" ? 4 : 2;
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-20-access-control-matrix",
+      description: "Captures the Slice 20 administration access-control read-model counts and ACL matrix anchors.",
+      expected: {
+        counts: {
+          groups: 7,
+          permissions: 65,
+          groupPermissions: 203,
+          userMemberships: expectedMembershipCount
+        },
+        groups: {
+          requiredValues: ["users", "admin", "clin", "doc", "front", "back", "breakglass"]
+        },
+        permissions: {
+          requiredObjects: ["admin:acl", "patients:demo", "patients:rx", "sensitivities:high"]
+        },
+        groupPermissions: {
+          requiredAssignments: [
+            "admin:admin:acl:write",
+            "breakglass:admin:super:write",
+            "doc:patients:rx:write",
+            "clin:patients:pat_rep:view",
+            "front:patients:demo:write",
+            "back:acct:eob:write"
+          ]
+        },
+        memberships: {
+          requiredUsers:
+            target.type === "modernized-openemr"
+              ? ["admin", "oe-system", "gold-frontdesk-01", "gold-provider-01"]
+              : ["admin", "oe-system"]
+        }
+      },
+      actual: {
+        accessControl,
+        counts: {
+          groups: accessControl.groups.length,
+          permissions: accessControl.permissions.length,
+          groupPermissions: accessControl.groupPermissions.length,
+          userMemberships: accessControl.userMemberships.length
+        },
+        anchors: {
+          groups: groupAnchors,
+          permissions: permissionAnchors,
+          groupPermissions: assignmentAnchors,
+          memberships: membershipAnchors
+        }
+      },
+      context: {
+        suite: "admin-access-control",
+        workflow: "administration-access-control"
+      }
+    });
 
     expect(accessControl.groups).toHaveLength(7);
     expect(accessControl.permissions).toHaveLength(65);
     expect(accessControl.groupPermissions).toHaveLength(203);
-    expect(accessControl.userMemberships).toHaveLength(target.type === "modernized-openemr" ? 4 : 2);
+    expect(accessControl.userMemberships).toHaveLength(expectedMembershipCount);
 
     expect(accessControl.groups).toEqual(
       expect.arrayContaining([
@@ -56,6 +232,37 @@ test.describe("administration access-control parity @slice20 @admin-access-contr
         ])
       );
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-20-access-control-ui-precondition",
+      description: "Captures the ACL matrix facts used before steering the Slice 20 administration access-control UI parity flow.",
+      expected: {
+        legacyText: ["User Memberships", "Groups and Access Controls"],
+        modernizedText: [
+          "Access Control Matrix",
+          "Access memberships",
+          "Administrators",
+          "Physicians",
+          "Clinicians",
+          "Front Office",
+          "ACL Administration",
+          "patients:demo write"
+        ]
+      },
+      actual: {
+        anchors: {
+          groups: groupAnchors,
+          permissions: permissionAnchors,
+          groupPermissions: assignmentAnchors,
+          memberships: membershipAnchors
+        }
+      },
+      context: {
+        suite: "admin-access-control",
+        workflow: "administration-access-control-ui"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
