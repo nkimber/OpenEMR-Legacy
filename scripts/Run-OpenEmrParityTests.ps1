@@ -221,6 +221,7 @@ param(
         "workflow-patient-portal-home-immunizations",
         "workflow-patient-portal-profile",
         "workflow-patient-portal-profile-change-request",
+        "workflow-patient-portal-profile-review-queue",
         "workflow-clinical-list-protection",
         "workflow-appointment-protection",
         "workflow-appointment-authorization-policy",

@@ -16868,6 +16868,33 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 294. Slice 252 Patient Portal Profile Review Queue Readiness
+
+Started: 2026-06-24T22:23:42-04:00
+Finished: 2026-06-24T22:32:24-04:00
+Duration: 8m 42s
+Commit: pending
+
+Implemented Slice 252: patient portal profile review queue readiness. The modernized administration workspace now mirrors the read-only staff review view for waiting patient portal profile edits by exposing OpenEMR-style waiting audit counts, request identity, status, narrative, and requested demographics.
+
+Changes:
+- Extended the modernized administration directory API with portal activity summary counts and waiting profile review request rows backed by `patient_portal_profile_change_requests`.
+- Rendered a new Admin `Portal Activity Review` panel showing waiting audit/profile counts and per-patient requested demographic changes.
+- Added target-neutral parity workflow actions for legacy `onsite_portal_activity` rows and modernized administration API output.
+- Added the `workflow-patient-portal-profile-review-queue` suite and `slice-252-patient-portal-profile-review-queue-readiness` plan, including modernized Admin UI verification.
+- Added Workbench-managed Slice 252 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 252 review queue contract.
+
+Verification:
+- `cmd.exe /c npm --prefix parity-tests run list -- --plan slice-252-patient-portal-profile-review-queue-readiness`
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`
+- `cmd.exe /c npm --prefix parity-tests run typecheck`
+- `cmd.exe /c npm --prefix modernized-openemr/frontend run build`
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-252-patient-portal-profile-review-queue-readiness -Reset test`
+- `powershell -ExecutionPolicy Bypass -File .\scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-252-patient-portal-profile-review-queue-readiness -Reset test`
+- `cmd.exe /c npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-252-patient-portal-profile-review-queue-readiness`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

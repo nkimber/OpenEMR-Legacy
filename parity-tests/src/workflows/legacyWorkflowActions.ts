@@ -278,6 +278,35 @@ export type PatientPortalProfilePendingChange = {
   demographics: PatientPortalProfileDemographics;
 };
 
+export type PatientPortalProfileReviewRequest = {
+  id: string;
+  requestedAt: string;
+  patientId: string;
+  pid: number;
+  pubpid: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  patientName: string;
+  activity: string;
+  requireAudit: number;
+  pendingAction: string;
+  actionTaken: string;
+  status: string;
+  narrative: string;
+  tableAction: string;
+  actionUser: string | null;
+  actionTakenAt: string | null;
+  checksum: string;
+  requestedDemographics: PatientPortalProfileDemographics;
+};
+
+export type PatientPortalProfileReviewQueueResult = {
+  waitingAuditCount: number;
+  waitingProfileReviewCount: number;
+  profileReviewRequests: PatientPortalProfileReviewRequest[];
+};
+
 export type PatientPortalProfileResult = {
   authenticated: boolean;
   username: string;
@@ -3012,6 +3041,73 @@ WHERE patient_id = ${integer(login.pid)}
   AND status = 'waiting'
   AND pending_action = 'review';
 `);
+  }
+
+  async getPatientPortalProfileReviewQueue(): Promise<PatientPortalProfileReviewQueueResult> {
+    const countRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  COUNT(CASE WHEN status = 'waiting' THEN 1 END) AS waitingAuditCount,
+  COUNT(CASE
+    WHEN status = 'waiting'
+      AND activity = 'profile'
+      AND require_audit = 1
+      AND pending_action = 'review'
+    THEN 1
+  END) AS waitingProfileReviewCount
+FROM onsite_portal_activity;
+`);
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  opa.id,
+  DATE_FORMAT(opa.date, '%Y-%m-%d %H:%i:%s') AS requestedAt,
+  opa.patient_id AS patientId,
+  pd.pid,
+  COALESCE(pd.pubpid, '') AS pubpid,
+  COALESCE(pd.fname, '') AS firstName,
+  COALESCE(pd.mname, '') AS middleName,
+  COALESCE(pd.lname, '') AS lastName,
+  COALESCE(opa.activity, '') AS activity,
+  COALESCE(opa.require_audit, 0) AS requireAudit,
+  COALESCE(opa.pending_action, '') AS pendingAction,
+  COALESCE(opa.action_taken, '') AS actionTaken,
+  COALESCE(opa.status, '') AS status,
+  COALESCE(opa.narrative, '') AS narrative,
+  COALESCE(opa.table_action, '') AS tableAction,
+  COALESCE(opa.table_args, '') AS tableArgs,
+  NULLIF(opa.action_user, '') AS actionUser,
+  DATE_FORMAT(opa.action_taken_time, '%Y-%m-%d %H:%i:%s') AS actionTakenAt,
+  COALESCE(opa.checksum, '') AS checksum,
+  COALESCE(pd.DOB, '') AS dateOfBirth,
+  COALESCE(pd.sex, '') AS sex,
+  COALESCE(pd.email, '') AS email,
+  COALESCE(pd.street, '') AS street,
+  COALESCE(pd.city, '') AS city,
+  COALESCE(pd.state, '') AS state,
+  COALESCE(pd.postal_code, '') AS postalCode,
+  COALESCE(pd.phone_home, '') AS phoneHome,
+  COALESCE(pd.phone_cell, '') AS phoneCell,
+  COALESCE(pd.phone_contact, '') AS phoneContact,
+  COALESCE(pd.contact_relationship, '') AS contactRelationship,
+  COALESCE(pd.mothersname, '') AS motherName,
+  COALESCE(pd.guardiansname, '') AS guardianName,
+  COALESCE(pd.guardianrelationship, '') AS guardianRelationship,
+  COALESCE(pd.guardianphone, '') AS guardianPhone,
+  COALESCE(pd.guardianemail, '') AS guardianEmail
+FROM onsite_portal_activity opa
+JOIN patient_data pd ON pd.pid = opa.patient_id
+WHERE opa.status = 'waiting'
+  AND opa.activity = 'profile'
+  AND opa.require_audit = 1
+  AND opa.pending_action = 'review'
+ORDER BY opa.date DESC, opa.id DESC;
+`);
+
+    const counts = countRows[0] ?? {};
+    return {
+      waitingAuditCount: Number(counts.waitingAuditCount ?? 0),
+      waitingProfileReviewCount: Number(counts.waitingProfileReviewCount ?? 0),
+      profileReviewRequests: rows.map(mapLegacyPortalProfileReviewRequest)
+    };
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
@@ -8363,28 +8459,86 @@ function mapLegacyPortalProfilePendingChange(
     narrative: row.narrative,
     requestedAt: row.requestedAt,
     updatedAt: row.updatedAt || null,
-    demographics: {
-      ...current,
-      firstName: fields.fname ?? current.firstName,
-      lastName: fields.lname ?? current.lastName,
-      preferredName: fields.preferred_name ?? current.preferredName,
-      dateOfBirth: fields.DOB ?? current.dateOfBirth,
-      sex: fields.sex ?? current.sex,
-      email: fields.email ?? current.email,
-      street: fields.street ?? current.street,
-      city: fields.city ?? current.city,
-      state: fields.state ?? current.state,
-      postalCode: fields.postal_code ?? current.postalCode,
-      phoneHome: fields.phone_home ?? current.phoneHome,
-      phoneCell: fields.phone_cell ?? current.phoneCell,
-      phoneContact: fields.phone_contact ?? current.phoneContact,
-      contactRelationship: fields.contact_relationship ?? current.contactRelationship,
-      motherName: fields.mothersname ?? current.motherName,
-      guardianName: fields.guardiansname ?? current.guardianName,
-      guardianRelationship: fields.guardianrelationship ?? current.guardianRelationship,
-      guardianPhone: fields.guardianphone ?? current.guardianPhone,
-      guardianEmail: fields.guardianemail ?? current.guardianEmail
-    }
+    demographics: mapLegacyPortalProfileFields(fields, current)
+  };
+}
+
+function mapLegacyPortalProfileReviewRequest(row: Record<string, string>): PatientPortalProfileReviewRequest {
+  const current: PatientPortalProfileDemographics = {
+    firstName: row.firstName ?? "",
+    lastName: row.lastName ?? "",
+    preferredName: null,
+    dateOfBirth: row.dateOfBirth || null,
+    sex: row.sex || null,
+    email: row.email || null,
+    street: row.street || null,
+    city: row.city || null,
+    state: row.state || null,
+    postalCode: row.postalCode || null,
+    phoneHome: row.phoneHome || null,
+    phoneCell: row.phoneCell || null,
+    phoneContact: row.phoneContact || null,
+    contactRelationship: row.contactRelationship || null,
+    motherName: row.motherName || null,
+    guardianName: row.guardianName || null,
+    guardianRelationship: row.guardianRelationship || null,
+    guardianPhone: row.guardianPhone || null,
+    guardianEmail: row.guardianEmail || null
+  };
+  const fields = parseLegacyPortalProfileTableArgs(row.tableArgs);
+  const firstName = row.firstName ?? "";
+  const middleName = row.middleName ?? "";
+  const lastName = row.lastName ?? "";
+
+  return {
+    id: String(row.id ?? ""),
+    requestedAt: row.requestedAt ?? "",
+    patientId: String(row.patientId ?? ""),
+    pid: Number(row.pid ?? row.patientId ?? 0),
+    pubpid: row.pubpid ?? "",
+    firstName,
+    middleName,
+    lastName,
+    patientName: [firstName, middleName, lastName].filter((part) => part.trim() !== "").join(" "),
+    activity: row.activity ?? "",
+    requireAudit: Number(row.requireAudit ?? 0),
+    pendingAction: row.pendingAction ?? "",
+    actionTaken: row.actionTaken ?? "",
+    status: row.status ?? "",
+    narrative: row.narrative ?? "",
+    tableAction: row.tableAction ?? "",
+    actionUser: row.actionUser || null,
+    actionTakenAt: row.actionTakenAt || null,
+    checksum: row.checksum ?? "",
+    requestedDemographics: mapLegacyPortalProfileFields(fields, current)
+  };
+}
+
+function mapLegacyPortalProfileFields(
+  fields: Record<string, string>,
+  current: PatientPortalProfileDemographics
+): PatientPortalProfileDemographics {
+  return {
+    ...current,
+    firstName: fields.fname ?? current.firstName,
+    lastName: fields.lname ?? current.lastName,
+    preferredName: fields.preferred_name ?? current.preferredName,
+    dateOfBirth: fields.DOB ?? current.dateOfBirth,
+    sex: fields.sex ?? current.sex,
+    email: fields.email ?? current.email,
+    street: fields.street ?? current.street,
+    city: fields.city ?? current.city,
+    state: fields.state ?? current.state,
+    postalCode: fields.postal_code ?? current.postalCode,
+    phoneHome: fields.phone_home ?? current.phoneHome,
+    phoneCell: fields.phone_cell ?? current.phoneCell,
+    phoneContact: fields.phone_contact ?? current.phoneContact,
+    contactRelationship: fields.contact_relationship ?? current.contactRelationship,
+    motherName: fields.mothersname ?? current.motherName,
+    guardianName: fields.guardiansname ?? current.guardianName,
+    guardianRelationship: fields.guardianrelationship ?? current.guardianRelationship,
+    guardianPhone: fields.guardianphone ?? current.guardianPhone,
+    guardianEmail: fields.guardianemail ?? current.guardianEmail
   };
 }
 

@@ -80,6 +80,7 @@ import type {
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalProfileChangeInput,
+  PatientPortalProfileReviewQueueResult,
   PatientPortalForwardMessageInput,
   PatientPortalForwardMessageResult,
   PatientPortalDeleteMessageResult,
@@ -806,6 +807,26 @@ WHERE pid = ${integer(login.pid)}
   AND status = 'waiting'
   AND pending_action = 'review';
 `);
+  }
+
+  async getPatientPortalProfileReviewQueue(): Promise<PatientPortalProfileReviewQueueResult> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/administration/directory`, {
+      headers: await this.getAdminSessionHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized portal profile review queue failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const directory = await response.json() as {
+      portalActivity?: {
+        waitingAuditCount?: number;
+        waitingProfileReviewCount?: number;
+        profileReviewRequests?: any[];
+      };
+    };
+
+    return mapModernizedPortalProfileReviewQueue(directory.portalActivity);
   }
 
   async getPatientPortalAppointments(username: string, password: string): Promise<PatientPortalAppointmentsResult> {
@@ -5160,6 +5181,59 @@ function mapPatientPortalProfileResult(result: any): PatientPortalProfileResult 
       : null,
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
+  };
+}
+
+function mapModernizedPortalProfileReviewQueue(portalActivity: any): PatientPortalProfileReviewQueueResult {
+  return {
+    waitingAuditCount: Number(portalActivity?.waitingAuditCount ?? 0),
+    waitingProfileReviewCount: Number(portalActivity?.waitingProfileReviewCount ?? 0),
+    profileReviewRequests: (portalActivity?.profileReviewRequests ?? []).map((request: any) => ({
+      id: String(request.id ?? ""),
+      requestedAt: request.requestedAt ?? "",
+      patientId: request.patientId ?? "",
+      pid: Number(request.legacyPid ?? 0),
+      pubpid: request.pubpid ?? "",
+      firstName: request.firstName ?? "",
+      middleName: request.middleName ?? "",
+      lastName: request.lastName ?? "",
+      patientName: request.patientName ?? "",
+      activity: request.activity ?? "",
+      requireAudit: Number(request.requireAudit ?? 0),
+      pendingAction: request.pendingAction ?? "",
+      actionTaken: request.actionTaken ?? "",
+      status: request.status ?? "",
+      narrative: request.narrative ?? "",
+      tableAction: request.tableAction ?? "",
+      actionUser: request.actionUser ?? null,
+      actionTakenAt: request.actionTakenAt ?? null,
+      checksum: request.checksum ?? "",
+      requestedDemographics: mapModernizedPortalReviewDemographics(request.requestedDemographics)
+    }))
+  };
+}
+
+function mapModernizedPortalReviewDemographics(demographics: any) {
+  return {
+    firstName: demographics?.firstName ?? "",
+    lastName: demographics?.lastName ?? "",
+    preferredName: demographics?.preferredName ?? null,
+    dateOfBirth: demographics?.dateOfBirth ?? null,
+    sex: demographics?.sex ?? null,
+    email: demographics?.email ?? null,
+    street: demographics?.street ?? null,
+    city: demographics?.city ?? null,
+    state: demographics?.state ?? null,
+    postalCode: demographics?.postalCode ?? null,
+    phoneHome: demographics?.phoneHome ?? null,
+    phoneCell: demographics?.phoneCell ?? null,
+    phoneContact: demographics?.phoneContact ?? null,
+    contactRelationship: demographics?.contactRelationship ?? null,
+    motherName: demographics?.motherName ?? null,
+    guardianName: demographics?.guardianName ?? null,
+    guardianRelationship: demographics?.guardianRelationship ?? null,
+    guardianPhone: demographics?.guardianPhone ?? null,
+    guardianEmail: demographics?.guardianEmail ?? null
   };
 }
 
