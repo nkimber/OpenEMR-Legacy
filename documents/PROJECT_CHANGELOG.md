@@ -17825,7 +17825,7 @@ Code changes:
 
 Started: 2026-06-25T03:28:00-04:00
 Finished: 2026-06-25T03:33:13-04:00
-Commit: pending
+Commit: 062be7ac
 
 Implemented Slice 281: Slice 20 access-control probe payload attachments. The administration access-control read-model parity suite now writes path-backed JSON Playwright attachments for ACL group, permission, group-permission assignment, user-membership counts and anchors plus UI-steering access-control matrix facts so Workbench comparison drill-ins can preview administration ACL database evidence.
 
