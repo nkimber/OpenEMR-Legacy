@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -18,7 +19,30 @@ test.describe("procedure order catalog parity @slice145 @workflow-procedure-orde
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-145-procedure-order-catalog-precondition",
+      description:
+        "Expected permanent gold-data procedure order catalog anchors before read-only catalog checks.",
+      expected: {
+        rootCatalogId,
+        rootCatalogName: "Gold Lab Order Catalog",
+        anchorProviderGroupId,
+        anchorLabId,
+        anchorLabName,
+        totalItems: 21,
+        groupCount: 6,
+        orderCount: 15,
+        labProviderCount: 5,
+        expectedPanelCodes,
+        expectedPanelNames
+      },
+      actual: {
+        target: target.type
+      }
+    });
+
     const catalog = await targetDb.getProcedureOrderCatalog();
 
     expect(catalog.totalItems).toBe(21);
@@ -67,6 +91,59 @@ test.describe("procedure order catalog parity @slice145 @workflow-procedure-orde
       });
       expect(order.standardCode).toBe(`CPT4:${order.code}`);
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-145-procedure-order-catalog-matched",
+      description:
+        "Database/API catalog projection contains the permanent root, five lab-provider groups, and three Pacific Women's Health Laboratory order panels.",
+      expected: {
+        totalItems: 21,
+        groupCount: 6,
+        orderCount: 15,
+        labProviderCount: 5,
+        root: {
+          id: rootCatalogId,
+          parentId: null,
+          labId: null,
+          name: "Gold Lab Order Catalog",
+          itemType: "grp",
+          childCount: 5,
+          active: true
+        },
+        providerGroupCount: 5,
+        providerGroupChildCount: 3,
+        anchorGroup: {
+          id: anchorProviderGroupId,
+          parentId: rootCatalogId,
+          labId: anchorLabId,
+          labName: anchorLabName,
+          name: anchorLabName,
+          itemType: "grp",
+          childCount: 3,
+          active: true
+        },
+        anchorOrders: expectedPanelCodes.map((code, index) => ({
+          code,
+          name: expectedPanelNames[index],
+          standardCode: `CPT4:${code}`,
+          labId: anchorLabId,
+          labName: anchorLabName,
+          itemType: "ord",
+          procedureTypeName: "laboratory",
+          specimen: "blood",
+          active: true
+        }))
+      },
+      actual: {
+        catalog,
+        root,
+        providerGroups,
+        anchorGroup,
+        anchorOrders
+      }
+    });
+
+    let surfaceFacts: Record<string, unknown> = {};
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -83,6 +160,16 @@ test.describe("procedure order catalog parity @slice145 @workflow-procedure-orde
       for (const panelCode of expectedPanelCodes) {
         await expectRenderedText(page, panelCode);
       }
+      surfaceFacts = {
+        legacyProcedureOrderCatalog: {
+          renderedRootCatalogName: "Gold Lab Order Catalog",
+          renderedAnchorLabName: anchorLabName,
+          renderedPanelNames: expectedPanelNames,
+          renderedPanelCodes: expectedPanelCodes,
+          rootCatalogAjaxId: rootCatalogId,
+          anchorProviderGroupAjaxId: anchorProviderGroupId
+        }
+      };
     } else {
       const apiResponse = await page.request.get(`${target.apiBaseUrl}/api/procedures/order-catalog`, {
         headers: await getModernizedAdminSessionHeaders(page, target)
@@ -103,6 +190,34 @@ test.describe("procedure order catalog parity @slice145 @workflow-procedure-orde
       for (const panelCode of expectedPanelCodes) {
         await expect(orderCatalog).toContainText(panelCode);
       }
+      surfaceFacts = {
+        modernizedProcedureOrderCatalog: {
+          apiOrderCount: apiPayload.orderCount,
+          renderedAnchorLabName: anchorLabName,
+          renderedLabSummary: "5 labs",
+          renderedOrderSummary: "15 orders",
+          renderedPanelNames: expectedPanelNames,
+          renderedPanelCodes: expectedPanelCodes
+        }
+      };
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-145-procedure-order-catalog-rendered",
+      description:
+        "Browser/API surface evidence for the permanent procedure order catalog root, anchor lab group, and three orderable panels.",
+      expected: {
+        rendersRootCatalogName: true,
+        rendersAnchorLabName: anchorLabName,
+        rendersLabCount: 5,
+        rendersOrderCount: 15,
+        rendersPanelCodes: expectedPanelCodes,
+        rendersPanelNames: expectedPanelNames
+      },
+      actual: {
+        anchorLabName,
+        surfaceFacts
+      }
+    });
   });
 });
