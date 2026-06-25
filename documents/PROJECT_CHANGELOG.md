@@ -21741,7 +21741,7 @@ Code changes:
 
 Started: 2026-06-25T17:46:06.0356103-04:00
 Finished: 2026-06-25T17:48:30.7916445-04:00
-Commit: pending
+Commit: fb0a1714
 
 Implemented Slice 398: Slice 139 procedure lab provider catalog probe payload attachments. The procedure lab provider catalog parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, permanent reviewed report ownership by Pacific Women's Health Laboratory, outside-lab exclusion, legacy reviewed queue rendering facts, and modernized Reports lab catalog rendering facts so Workbench comparison drill-ins can preview permanent lab-provider catalog evidence.
 
