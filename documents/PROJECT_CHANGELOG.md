@@ -18409,7 +18409,7 @@ Code changes:
 
 Started: 2026-06-25T06:12:00-04:00
 Finished: 2026-06-25T06:17:50-04:00
-Commit: pending
+Commit: e9937d2c
 
 Implemented Slice 299: Slice 38 patient document sign-off probe payload attachments. The document sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed reviewed text document payload, created pending document row and count increment, approved sign-off row, archived row with active-document count semantics, and final hard-delete cleanup state so Workbench comparison drill-ins can preview document review lifecycle evidence.
 
