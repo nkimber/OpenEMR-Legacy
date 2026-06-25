@@ -17316,7 +17316,7 @@ Code changes:
 
 Started: 2026-06-25T01:19:20-04:00
 Finished: 2026-06-25T01:24:36-04:00
-Commit: pending
+Commit: d376e5e5
 
 Implemented Slice 267: Slice 6 procedure probe payload attachments. The procedure results parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` anchor patient, completed CBC order, completed report, final Hemoglobin result, and procedure-results UI steering precondition so Workbench comparison drill-ins can preview procedure workflow database evidence.
 
