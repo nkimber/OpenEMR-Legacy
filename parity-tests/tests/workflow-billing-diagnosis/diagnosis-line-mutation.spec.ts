@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openEncounterDirect, openFeeSheetDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -10,30 +11,68 @@ test.describe("fee sheet diagnosis coding parity @slice44 @workflow-billing-diag
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(diagnosisMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
+    const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
+    expect(encounter).not.toBeNull();
+
     const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     const diagnosisText = `Parity Diagnosis Line ${workflowSuffix()}`;
+    const billingLineInput = {
+      patientId: patient!.pid,
+      providerId: patient!.providerId,
+      encounter: encounter!.encounter,
+      dateTime: "2026-06-18 11:15:00",
+      codeType: "ICD10",
+      code: "R73.03",
+      codeText: diagnosisText,
+      fee: "0.00",
+      units: 1,
+      justify: "R73.03"
+    };
     let billingLineId: number | string | null = null;
 
-    try {
-      const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
-      expect(encounter).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-44-billing-diagnosis-precondition",
+      description: "Captures the Slice 44 billing diagnosis anchor patient, latest encounter, baseline workflow counts, and proposed ICD10 diagnosis-line payload before create.",
+      expected: {
+        patient: {
+          pubpid: diagnosisMutationAnchorPatientId
+        },
+        create: {
+          codeType: "ICD10",
+          code: "R73.03",
+          fee: "0.00",
+          units: 1,
+          activity: 1,
+          billed: 0,
+          justify: "R73.03"
+        },
+        countChange: {
+          encountersAfterCreate: beforeCounts.encounters,
+          billingLineItemsAfterCreate: beforeCounts.billingLineItems + 1,
+          encountersAfterCleanup: beforeCounts.encounters,
+          billingLineItemsAfterCleanup: beforeCounts.billingLineItems
+        }
+      },
+      actual: {
+        patient,
+        encounter,
+        beforeCounts,
+        proposedBillingLine: billingLineInput
+      },
+      context: {
+        canonicalId: diagnosisMutationAnchorPatientId,
+        suite: "workflow-billing-diagnosis",
+        workflow: "billing-diagnosis-mutation"
+      }
+    });
 
-      billingLineId = await workflow.createBillingLine({
-        patientId: patient!.pid,
-        providerId: patient!.providerId,
-        encounter: encounter!.encounter,
-        dateTime: "2026-06-18 11:15:00",
-        codeType: "ICD10",
-        code: "R73.03",
-        codeText: diagnosisText,
-        fee: "0.00",
-        units: 1,
-        justify: "R73.03"
-      });
+    try {
+      billingLineId = await workflow.createBillingLine(billingLineInput);
 
       const created = await workflow.getBillingLine(billingLineId);
       expect(created).toMatchObject({
@@ -64,6 +103,48 @@ test.describe("fee sheet diagnosis coding parity @slice44 @workflow-billing-diag
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
       expect(afterCreateCounts.encounters).toBe(beforeCounts.encounters);
       expect(afterCreateCounts.billingLineItems).toBe(beforeCounts.billingLineItems + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-44-billing-diagnosis-created",
+        description: "Captures the temporary Slice 44 ICD10 diagnosis billing row, encounter fee-sheet projection, and billing-line count increment immediately after create.",
+        expected: {
+          billingLine: {
+            patientId: patient!.pid,
+            encounter: encounter!.encounter,
+            codeType: "ICD10",
+            code: "R73.03",
+            codeText: diagnosisText,
+            fee: "0.00",
+            units: 1,
+            activity: 1,
+            billed: 0,
+            justify: "R73.03"
+          },
+          encounterProjection: {
+            includesCodeType: "ICD10",
+            includesCode: "R73.03",
+            includesJustify: "R73.03"
+          },
+          counts: {
+            encounters: beforeCounts.encounters,
+            billingLineItems: beforeCounts.billingLineItems + 1
+          }
+        },
+        actual: {
+          patient,
+          encounter,
+          beforeCounts,
+          afterCreateCounts,
+          billingLineId,
+          created,
+          encounterLines
+        },
+        context: {
+          canonicalId: diagnosisMutationAnchorPatientId,
+          suite: "workflow-billing-diagnosis",
+          workflow: "billing-diagnosis-created"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -82,6 +163,34 @@ test.describe("fee sheet diagnosis coding parity @slice44 @workflow-billing-diag
 
       await workflow.updateBillingLineStatus(billingLineId, 1, 0);
       const inactive = await workflow.getBillingLine(billingLineId);
+      const inactiveLines = await targetDb.getBillingLinesForEncounter(patient!.pid, encounter!.encounter);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-44-billing-diagnosis-inactive",
+        description: "Captures the temporary Slice 44 ICD10 diagnosis row after it is marked billed and inactive before hard-delete cleanup.",
+        expected: {
+          billingLine: {
+            codeType: "ICD10",
+            code: "R73.03",
+            codeText: diagnosisText,
+            billed: 1,
+            activity: 0
+          }
+        },
+        actual: {
+          patient,
+          encounter,
+          billingLineId,
+          created,
+          inactive,
+          inactiveLines
+        },
+        context: {
+          canonicalId: diagnosisMutationAnchorPatientId,
+          suite: "workflow-billing-diagnosis",
+          workflow: "billing-diagnosis-inactive"
+        }
+      });
       expect(inactive).toMatchObject({
         billed: 1,
         activity: 0
@@ -96,7 +205,33 @@ test.describe("fee sheet diagnosis coding parity @slice44 @workflow-billing-diag
     expect(afterCleanupCounts.encounters).toBe(beforeCounts.encounters);
     expect(afterCleanupCounts.billingLineItems).toBe(beforeCounts.billingLineItems);
     if (billingLineId !== null) {
-      await expect(workflow.getBillingLine(billingLineId)).resolves.toBeNull();
+      const deleted = await workflow.getBillingLine(billingLineId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-44-billing-diagnosis-cleanup",
+        description: "Captures the final Slice 44 hard-delete cleanup state for the temporary ICD10 diagnosis billing row.",
+        expected: {
+          counts: {
+            encounters: beforeCounts.encounters,
+            billingLineItems: beforeCounts.billingLineItems
+          },
+          deletedBillingLine: null
+        },
+        actual: {
+          patient,
+          encounter,
+          beforeCounts,
+          afterCleanupCounts,
+          billingLineId,
+          deleted
+        },
+        context: {
+          canonicalId: diagnosisMutationAnchorPatientId,
+          suite: "workflow-billing-diagnosis",
+          workflow: "billing-diagnosis-cleanup"
+        }
+      });
+      expect(deleted).toBeNull();
     }
   });
 });
