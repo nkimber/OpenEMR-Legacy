@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -10,7 +11,12 @@ import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenE
 const demographicsAnchorPatientId = "MOD-PAT-0010";
 
 test.describe("patient demographics mutation parity @slice36 @workflow-demographics @mutation", () => {
-  test("updates, renders, and restores patient demographic data", async ({ page, target, targetDb, workflow }) => {
+  test("updates, renders, and restores patient demographic data", async ({
+    page,
+    target,
+    targetDb,
+    workflow
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(demographicsAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -35,10 +41,62 @@ test.describe("patient demographics mutation parity @slice36 @workflow-demograph
     };
 
     try {
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-36-patient-demographics-precondition",
+        description: "Captures the Slice 36 patient demographics mutation anchor patient, original row state, and proposed update payload before mutation.",
+        expected: {
+          patient: {
+            pubpid: demographicsAnchorPatientId,
+            pid: patient!.pid
+          },
+          updatedFields: {
+            firstName: "Morgan",
+            lastName: "Parity",
+            preferredName: "Slice36",
+            dateOfBirth: "1984-03-12",
+            street: "36 Parity Way",
+            city: "Bridgeport",
+            state: "CT",
+            postalCode: "06460",
+            maritalStatus: "married",
+            occupation: "Workflow Analyst"
+          }
+        },
+        actual: {
+          patient,
+          originalDemographics: original,
+          proposedDemographics: updated
+        },
+        context: {
+          canonicalId: demographicsAnchorPatientId,
+          suite: "workflow-demographics",
+          workflow: "patient-demographics-mutation"
+        }
+      });
+
       await workflow.updatePatientDemographics(updated);
 
       const actual = await workflow.getPatientDemographics(patient!.pid);
       expect(actual).toEqual(updated);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-36-patient-demographics-updated",
+        description: "Captures the Slice 36 patient demographics row after identity, DOB, address, marital-status, and occupation mutation.",
+        expected: {
+          demographics: updated
+        },
+        actual: {
+          patient,
+          originalDemographics: original,
+          updatedDemographics: actual
+        },
+        context: {
+          canonicalId: demographicsAnchorPatientId,
+          suite: "workflow-demographics",
+          workflow: "patient-demographics-mutation-updated"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -67,5 +125,22 @@ test.describe("patient demographics mutation parity @slice36 @workflow-demograph
 
     const restored = await workflow.getPatientDemographics(patient!.pid);
     expect(restored).toEqual(original);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-36-patient-demographics-restored",
+      description: "Captures the final Slice 36 cleanup state proving the original patient demographics row was restored.",
+      expected: {
+        demographics: original
+      },
+      actual: {
+        patient,
+        restoredDemographics: restored
+      },
+      context: {
+        canonicalId: demographicsAnchorPatientId,
+        suite: "workflow-demographics",
+        workflow: "patient-demographics-mutation-restored"
+      }
+    });
   });
 });

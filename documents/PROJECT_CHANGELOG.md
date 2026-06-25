@@ -18343,6 +18343,36 @@ Code changes:
 - Net lines: +166
 - Total churn: 224
 
+## 341. Slice 297 Slice 36 Patient Demographics Probe Payload Attachments
+
+Started: 2026-06-25T06:00:26-04:00
+Finished: 2026-06-25T06:06:02-04:00
+Commit: pending
+
+Implemented Slice 297: Slice 36 patient demographics mutation probe payload attachments. The patient demographics mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0010` anchor patient, original demographics row, proposed identity, DOB, address, marital-status, and occupation update, updated row state, and restored cleanup state so Workbench comparison drill-ins can preview demographics mutation lifecycle evidence.
+
+Changes:
+- Added Slice 36 precondition payload attachments for the anchor patient, original demographics row, expected field changes, and proposed update payload.
+- Added Slice 36 updated-row payload attachments that capture the persisted identity, DOB, address, marital-status, and occupation mutation state.
+- Added Slice 36 restored-row payload attachments that capture the final cleanup state and restored original demographics row.
+- Updated the Workbench functionality progress ledger so Slice 36 patient demographics mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 297 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- `npm run test:modernized:plan:patient-demographics-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T100511-250Z-modernized-openemr-plan-slice-36-patient-demographics-mutation-readiness`.
+- `npm run test:legacy:plan:patient-demographics-mutation` in `parity-tests/` passed with 1 expected test; run `2026-06-25T100511-252Z-legacy-openemr-plan-slice-36-patient-demographics-mutation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 36 Playwright reports recorded the shared `db-probe-slice-36-patient-demographics-precondition`, `db-probe-slice-36-patient-demographics-updated`, and `db-probe-slice-36-patient-demographics-restored` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-36-patient-demographics-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T100544-543Z-legacy-openemr-vs-modernized-openemr-plan-slice-36-patient-demographics-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 123
+- Lines deleted: 17
+- Net lines: +106
+- Total churn: 140
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18352,5 +18382,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 35.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 36.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
