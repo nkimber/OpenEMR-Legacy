@@ -20176,6 +20176,41 @@ Code changes:
 - Net lines: +261
 - Total churn: 327
 
+## 397. Slice 351 Slice 90 Patient PDF Document Preview Probe Payload Attachments
+
+Started: 2026-06-25T12:36:29-04:00
+Finished: 2026-06-25T12:39:34-04:00
+Commit: pending
+
+Implemented Slice 351: Slice 90 patient PDF document inline-preview probe payload attachments. The patient PDF document preview parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary `application/pdf` binary payload, normalized inline PDF preview metadata, legacy Documents category rendering, modernized Documents card/viewer iframe UI anchors, byte-preserving download facts, archive state, and final cleanup so Workbench comparison drill-ins can preview patient PDF document preview evidence.
+
+Changes:
+- Added Slice 90 precondition payload attachments for the anchor patient, baseline workflow counts, proposed PDF binary document payload, expected inline PDF preview metadata, expected byte count, and expected count movement.
+- Added Slice 90 created payload attachments for the temporary PDF document row, `application/pdf` MIME type, database storage, normalized PDF preview metadata, base64 payload, PDF data URI, and document count increment.
+- Added Slice 90 application-surface payload attachments for legacy Documents category rendering plus modernized Documents card/viewer iframe UI anchors and byte-preserving download facts.
+- Added Slice 90 archived payload attachments for the archived PDF document row, preserved binary payload facts, and active document-count return.
+- Added Slice 90 cleanup payload attachments for temporary PDF document deletion, restored workflow counts, and final document absence.
+- Replaced non-null assertions in the Slice 90 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 90 patient PDF document preview database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 351 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale Slice 89/Slice 350 latest references remain in the synchronized documents and Workbench progress ledger.
+- Passed `git diff --check -- documents modernization-workbench\config\functionality-progress.json parity-tests\tests\workflow-document-pdf-preview\pdf-document-preview.spec.ts` with only existing line-ending normalization warnings.
+- Passed `npm run test:modernized:plan:document-pdf-preview`, producing run `2026-06-25T163843-113Z-modernized-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- Passed `npm run test:legacy:plan:document-pdf-preview`, producing run `2026-06-25T163843-129Z-legacy-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-90-document-pdf-preview-readiness`, producing matched comparison `2026-06-25T163923-019Z-legacy-openemr-vs-modernized-openemr-plan-slice-90-document-pdf-preview-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 90 precondition, created, surface, archived, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 302
+- Lines removed: 36
+- Net lines: +266
+- Total churn: 338
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20185,5 +20220,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 89.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 90.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
