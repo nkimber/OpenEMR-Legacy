@@ -18711,7 +18711,7 @@ Code changes:
 
 Started: 2026-06-25T07:20:00-04:00
 Finished: 2026-06-25T07:23:19-04:00
-Commit: pending
+Commit: 98754efb
 
 Implemented Slice 308: Slice 47 claim status probe payload attachments. The claim status parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, encounter `1000052`, seeded queued/generated/cleared Northstar HMO claim rows, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only claim lifecycle evidence.
 
