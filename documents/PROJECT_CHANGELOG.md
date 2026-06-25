@@ -21929,7 +21929,7 @@ Code changes:
 
 Started: 2026-06-25T18:15:24.7831900-04:00
 Finished: 2026-06-25T18:17:00.0170014-04:00
-Commit: pending
+Commit: ea50d0fa
 
 Implemented Slice 404: Slice 147 procedure order catalog lifecycle probe payload attachments. The procedure order catalog lifecycle parity suite now writes path-backed JSON Playwright attachments for temporary catalog item create inputs, created and updated rows, rendered create/update facts, deactivation facts, and cleanup deletion so Workbench comparison drill-ins can preview focused procedure order catalog lifecycle evidence.
 
