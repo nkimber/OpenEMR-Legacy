@@ -2265,6 +2265,12 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
 
                 <div className="evidence-metrics">
                   <span>{comparison.differenceCount} differences</span>
+                  {comparison.differenceCount ? (
+                    <>
+                      <span>{comparison.acceptance.acceptedCount} accepted</span>
+                      <span>{comparison.acceptance.unacceptedCount} unreviewed</span>
+                    </>
+                  ) : null}
                   <span>{comparison.left.stats.expected + comparison.right.stats.expected} checks</span>
                   <span>{formatDuration(comparison.durationMs)}</span>
                 </div>
@@ -2278,9 +2284,15 @@ function ParityComparisonPanel({ comparisons }: { comparisons: ParityComparisonR
 
                 {comparison.differenceCount ? (
                   <ul className="comparison-differences">
-                    {comparison.differences.slice(0, 3).map((difference, index) => (
-                      <li key={`${comparison.comparisonId}-difference-${index}`}>{formatComparisonDifference(difference)}</li>
-                    ))}
+                    {comparison.differences.slice(0, 3).map((difference, index) => {
+                      const acceptance = getDifferenceAcceptance(comparison, index);
+                      return (
+                        <li key={`${comparison.comparisonId}-difference-${index}`}>
+                          <span>{formatComparisonDifference(difference)}</span>
+                          {acceptance?.accepted ? <span className="accepted-difference-chip">Accepted</span> : <span className="unaccepted-difference-chip">Unreviewed</span>}
+                        </li>
+                      );
+                    })}
                     {comparison.differenceCount > 3 ? <li>{comparison.differenceCount - 3} more differences recorded</li> : null}
                   </ul>
                 ) : (
@@ -2330,12 +2342,33 @@ function ComparisonDrillIn({ comparison, suites }: { comparison: ParityCompariso
         <span>Differences</span>
         {comparison.differenceCount ? (
           <ol className="comparison-difference-list">
-            {comparison.differences.map((difference, index) => (
-              <li key={`${comparison.comparisonId}-detail-difference-${index}`}>{formatComparisonDifference(difference)}</li>
-            ))}
+            {comparison.differences.map((difference, index) => {
+              const acceptance = getDifferenceAcceptance(comparison, index);
+              return (
+                <li key={`${comparison.comparisonId}-detail-difference-${index}`}>
+                  <div className="comparison-difference-row">
+                    <span>{formatComparisonDifference(difference)}</span>
+                    {acceptance?.accepted ? <span className="accepted-difference-chip">Accepted</span> : <span className="unaccepted-difference-chip">Unreviewed</span>}
+                  </div>
+                  {acceptance?.reasons.length ? <small>{acceptance.reasons.join("; ")}</small> : null}
+                  {acceptance?.acceptedDifferenceIds.length ? <code>{acceptance.acceptedDifferenceIds.join(", ")}</code> : null}
+                </li>
+              );
+            })}
           </ol>
         ) : (
           <div className="comparison-match-note">Legacy and modernized artifacts match for this selection.</div>
+        )}
+      </div>
+      <div className="comparison-detail-block">
+        <span>Acceptance</span>
+        {comparison.differenceCount ? (
+          <div className={comparison.acceptance.unacceptedCount ? "comparison-acceptance-warning" : "comparison-acceptance-ok"}>
+            {comparison.acceptance.acceptedCount} accepted / {comparison.acceptance.unacceptedCount} unreviewed
+            {comparison.acceptance.acceptedDifferenceIds.length ? <code>{comparison.acceptance.acceptedDifferenceIds.join(", ")}</code> : null}
+          </div>
+        ) : (
+          <div className="comparison-match-note">No accepted differences needed.</div>
         )}
       </div>
     </div>
@@ -2513,6 +2546,10 @@ function formatComparisonDifference(difference: unknown) {
     }
   }
   return JSON.stringify(difference);
+}
+
+function getDifferenceAcceptance(comparison: ParityComparisonReport, index: number) {
+  return comparison.acceptance?.differenceAcceptances.find((acceptance) => acceptance.differenceIndex === index) ?? null;
 }
 
 function formatBytes(value: number) {

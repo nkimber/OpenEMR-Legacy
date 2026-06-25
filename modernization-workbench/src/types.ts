@@ -118,6 +118,20 @@ export type ProbeDetail = {
   attachmentCount: number;
 };
 
+export type DifferenceAcceptance = {
+  differenceIndex: number;
+  accepted: boolean;
+  acceptedDifferenceIds: string[];
+  reasons: string[];
+};
+
+export type DifferenceAcceptanceSummary = {
+  acceptedCount: number;
+  unacceptedCount: number;
+  acceptedDifferenceIds: string[];
+  differenceAcceptances: DifferenceAcceptance[];
+};
+
 export type ParityComparisonSide = {
   target: string;
   runId: string;
@@ -152,6 +166,7 @@ export type ParityComparisonReport = {
   right: ParityComparisonSide;
   differences: unknown[];
   differenceCount: number;
+  acceptance: DifferenceAcceptanceSummary;
   reports: {
     comparisonJson: string;
   };

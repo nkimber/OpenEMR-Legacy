@@ -17048,6 +17048,34 @@ Code changes:
 - Net lines: +319
 - Total churn: 359
 
+## 300. Slice 258 Workbench Accepted-Difference Tracking Readiness
+
+Started: 2026-06-25T00:03:07-04:00
+Finished: 2026-06-25T00:09:19-04:00
+Duration: 6m 12s
+Commit: pending
+
+Implemented Slice 258: Workbench accepted-difference tracking readiness. The Workbench now owns a curated accepted-difference registry and uses it to separate accepted legacy-vs-modernized differences from unreviewed differences in recent side-by-side comparison artifacts.
+
+Changes:
+- Added `modernization-workbench/config/accepted-differences.json` as the curated registry for intentional differences.
+- Added Workbench API loading and matching for active accepted-difference entries scoped by selection kind, selection ID, difference path, and message text.
+- Extended comparison reports with accepted/unreviewed counts plus per-difference acceptance IDs and reasons.
+- Updated Test Runs comparison cards and drill-ins with accepted/unreviewed chips, accepted rule IDs, and accepted reasons.
+- Updated the Workbench functionality progress ledger so accepted-difference tracking is completed evidence scope while reliability trends and historical charts remain outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 258 evidence-governance contract.
+
+Verification:
+- `npm run build` in `modernization-workbench/` passed.
+- `node` JSON validation for `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/accepted-differences.json` passed.
+
+Code changes:
+- Files changed: 12
+- Lines added: 346
+- Lines deleted: 26
+- Net lines: +320
+- Total churn: 372
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17057,4 +17085,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench accepted-difference tracking, reliability trends, and historical progress charts.
+- Workbench reliability trends and historical progress charts.

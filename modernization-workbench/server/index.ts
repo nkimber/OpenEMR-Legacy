@@ -338,6 +338,7 @@ type ParityComparisonReport = {
   right: ParityComparisonSide;
   differences: unknown[];
   differenceCount: number;
+  acceptance: DifferenceAcceptanceSummary;
   reports: {
     comparisonJson: string;
   };
@@ -368,6 +369,39 @@ type ProbeDetail = {
   tags: string[];
   errorMessages: string[];
   attachmentCount: number;
+};
+
+type AcceptedDifferenceEntry = {
+  id: string;
+  status: "accepted" | "retired";
+  selectionKind?: string;
+  selectionId?: string;
+  path?: string;
+  messageIncludes?: string;
+  reason: string;
+  acceptedBy: string;
+  acceptedAt: string;
+  expiresAt?: string;
+};
+
+type AcceptedDifferencesConfig = {
+  version: string;
+  lastUpdated: string;
+  entries: AcceptedDifferenceEntry[];
+};
+
+type DifferenceAcceptance = {
+  differenceIndex: number;
+  accepted: boolean;
+  acceptedDifferenceIds: string[];
+  reasons: string[];
+};
+
+type DifferenceAcceptanceSummary = {
+  acceptedCount: number;
+  unacceptedCount: number;
+  acceptedDifferenceIds: string[];
+  differenceAcceptances: DifferenceAcceptance[];
 };
 
 type SourceInventoryConfig = {
@@ -430,6 +464,7 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const functionalityProgressPath = path.join(workbenchRoot, "config", "functionality-progress.json");
+const acceptedDifferencesPath = path.join(workbenchRoot, "config", "accepted-differences.json");
 const functionalityProgressBackfillPath = path.join(workbenchRoot, "config", "functionality-progress-backfill.json");
 const sourceInventoryPath = path.join(workbenchRoot, "config", "source-inventory.json");
 const sourceInventorySnapshotPath = path.join(workbenchRoot, "config", "source-inventory.snapshot.json");
@@ -498,6 +533,16 @@ async function readConfig(): Promise<AppConfig> {
 async function readFunctionalityProgress(): Promise<FunctionalityProgressConfig> {
   const text = await fs.readFile(functionalityProgressPath, "utf8");
   return JSON.parse(text) as FunctionalityProgressConfig;
+}
+
+async function readAcceptedDifferences(): Promise<AcceptedDifferencesConfig> {
+  const text = await fs.readFile(acceptedDifferencesPath, "utf8");
+  const config = JSON.parse(text) as AcceptedDifferencesConfig;
+  return {
+    version: typeof config.version === "string" ? config.version : "unknown",
+    lastUpdated: typeof config.lastUpdated === "string" ? config.lastUpdated : "",
+    entries: Array.isArray(config.entries) ? config.entries : []
+  };
 }
 
 async function readSourceInventoryConfig(): Promise<SourceInventoryConfig> {
@@ -2026,6 +2071,89 @@ function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): P
   return probes.slice(0, limit);
 }
 
+function normalizeDifferenceText(value: unknown) {
+  if (typeof value === "string") {
+    return { path: "", message: value, serialized: value };
+  }
+
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const pathValue = typeof record.path === "string" ? record.path : "";
+    const messageValue = typeof record.message === "string" ? record.message : "";
+    return {
+      path: pathValue,
+      message: messageValue,
+      serialized: JSON.stringify(value)
+    };
+  }
+
+  return { path: "", message: "", serialized: JSON.stringify(value) };
+}
+
+function isAcceptedDifferenceActive(entry: AcceptedDifferenceEntry, now = new Date()) {
+  if (entry.status !== "accepted") {
+    return false;
+  }
+  if (!entry.expiresAt) {
+    return true;
+  }
+  const expiresAt = new Date(entry.expiresAt);
+  return Number.isNaN(expiresAt.getTime()) || expiresAt >= now;
+}
+
+function acceptedDifferenceMatches(
+  entry: AcceptedDifferenceEntry,
+  comparison: { selectionKind: string; selectionId: string },
+  difference: unknown
+) {
+  if (!isAcceptedDifferenceActive(entry)) {
+    return false;
+  }
+  if (entry.selectionKind && entry.selectionKind !== comparison.selectionKind) {
+    return false;
+  }
+  if (entry.selectionId && entry.selectionId !== comparison.selectionId) {
+    return false;
+  }
+
+  const normalized = normalizeDifferenceText(difference);
+  if (entry.path && normalized.path !== entry.path) {
+    return false;
+  }
+  if (entry.messageIncludes) {
+    const haystack = `${normalized.message}\n${normalized.serialized}`.toLowerCase();
+    if (!haystack.includes(entry.messageIncludes.toLowerCase())) {
+      return false;
+    }
+  }
+
+  return Boolean(entry.path || entry.messageIncludes || entry.selectionId || entry.selectionKind);
+}
+
+function buildDifferenceAcceptanceSummary(
+  differences: unknown[],
+  comparison: { selectionKind: string; selectionId: string },
+  acceptedDifferences: AcceptedDifferenceEntry[]
+): DifferenceAcceptanceSummary {
+  const differenceAcceptances = differences.map((difference, differenceIndex) => {
+    const matches = acceptedDifferences.filter((entry) => acceptedDifferenceMatches(entry, comparison, difference));
+    return {
+      differenceIndex,
+      accepted: matches.length > 0,
+      acceptedDifferenceIds: matches.map((entry) => entry.id),
+      reasons: matches.map((entry) => entry.reason)
+    };
+  });
+  const acceptedDifferenceIds = Array.from(new Set(differenceAcceptances.flatMap((acceptance) => acceptance.acceptedDifferenceIds)));
+
+  return {
+    acceptedCount: differenceAcceptances.filter((acceptance) => acceptance.accepted).length,
+    unacceptedCount: differenceAcceptances.filter((acceptance) => !acceptance.accepted).length,
+    acceptedDifferenceIds,
+    differenceAcceptances
+  };
+}
+
 async function collectProbeDetails(playwrightReportPath: string): Promise<ProbeDetail[]> {
   if (!playwrightReportPath) {
     return [];
@@ -2117,7 +2245,7 @@ async function enrichComparisonSide(side: ParityComparisonSide) {
   }
 }
 
-async function normalizeParityComparison(value: unknown, artifactDirectory: string): Promise<ParityComparisonReport | null> {
+async function normalizeParityComparison(value: unknown, artifactDirectory: string, acceptedDifferences: AcceptedDifferenceEntry[]): Promise<ParityComparisonReport | null> {
   if (!value || typeof value !== "object") {
     return null;
   }
@@ -2135,18 +2263,22 @@ async function normalizeParityComparison(value: unknown, artifactDirectory: stri
   const finishedAt = typeof comparison.finishedAt === "string" ? comparison.finishedAt : "";
   const startedTime = new Date(startedAt).getTime();
   const finishedTime = new Date(finishedAt).getTime();
+  const selectionKind = typeof comparison.selectionKind === "string" ? comparison.selectionKind : "unknown";
+  const selectionId = typeof comparison.selectionId === "string" ? comparison.selectionId : "unknown";
   const [enrichedLeft, enrichedRight] = await Promise.all([enrichComparisonSide(left), enrichComparisonSide(right)]);
+  const acceptance = buildDifferenceAcceptanceSummary(differences, { selectionKind, selectionId }, acceptedDifferences);
 
   return {
     comparisonId: comparison.comparisonId,
     status: typeof comparison.status === "string" ? comparison.status : "unknown",
     passed: Boolean(comparison.passed),
-    selectionKind: typeof comparison.selectionKind === "string" ? comparison.selectionKind : "unknown",
-    selectionId: typeof comparison.selectionId === "string" ? comparison.selectionId : "unknown",
+    selectionKind,
+    selectionId,
     left: enrichedLeft,
     right: enrichedRight,
     differences,
     differenceCount: differences.length,
+    acceptance,
     reports: {
       comparisonJson: typeof reports.comparisonJson === "string" ? reports.comparisonJson : ""
     },
@@ -2159,7 +2291,11 @@ async function normalizeParityComparison(value: unknown, artifactDirectory: stri
 
 async function readParityComparisons(limit = 20) {
   try {
-    const entries = await fs.readdir(parityComparisonsRoot, { withFileTypes: true });
+    const [entries, acceptedDifferencesConfig] = await Promise.all([
+      fs.readdir(parityComparisonsRoot, { withFileTypes: true }),
+      readAcceptedDifferences().catch(() => ({ version: "missing", lastUpdated: "", entries: [] }))
+    ]);
+    const acceptedDifferences = acceptedDifferencesConfig.entries;
     const candidates = await Promise.all(
       entries
         .filter((entry) => entry.isDirectory())
@@ -2171,7 +2307,7 @@ async function readParityComparisons(limit = 20) {
             fs.stat(comparisonPath).catch(() => null)
           ]);
           const relativeArtifactDirectory = path.relative(repoRoot, artifactDirectory).replaceAll("\\", "/");
-          const comparison = await normalizeParityComparison(json, relativeArtifactDirectory);
+          const comparison = await normalizeParityComparison(json, relativeArtifactDirectory, acceptedDifferences);
           return comparison ? { comparison, modifiedAt: stats?.mtimeMs ?? 0 } : null;
         })
     );

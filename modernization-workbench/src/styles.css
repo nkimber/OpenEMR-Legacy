@@ -1094,6 +1094,76 @@ p {
   font-size: 0.84rem;
 }
 
+.comparison-differences li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.comparison-differences li span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.accepted-difference-chip,
+.unaccepted-difference-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 780;
+}
+
+.accepted-difference-chip {
+  border: 1px solid #b8d7c1;
+  background: #eef8f1;
+  color: #246b51;
+}
+
+.unaccepted-difference-chip {
+  border: 1px solid #e8c2b7;
+  background: #fff3ef;
+  color: #8a3b2f;
+}
+
+.comparison-difference-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.comparison-difference-row > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.comparison-acceptance-ok,
+.comparison-acceptance-warning {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #dce4eb;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 0.82rem;
+  font-weight: 740;
+}
+
+.comparison-acceptance-ok {
+  background: #f3faf5;
+  color: #246b51;
+}
+
+.comparison-acceptance-warning {
+  background: #fff7f2;
+  color: #8a3b2f;
+}
+
 .comparison-match-note {
   color: #246b51;
   font-size: 0.84rem;
