@@ -20498,7 +20498,7 @@ Code changes:
 
 Started: 2026-06-25T13:29:50-04:00
 Finished: 2026-06-25T13:33:15-04:00
-Commit: pending
+Commit: 7d38ad60
 
 Implemented Slice 360: Slice 99 appointment provider reassignment probe payload attachments. The appointment provider reassignment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, original and alternate provider IDs, reassigned title/provider facts, legacy appointment edit rendering, modernized Calendar provider selector/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment provider reassignment evidence.
 
