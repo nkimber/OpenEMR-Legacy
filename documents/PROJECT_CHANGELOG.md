@@ -20989,7 +20989,7 @@ Code changes:
 
 Started: 2026-06-25T15:11:31.8085574-04:00
 Finished: 2026-06-25T15:13:31.1451078-04:00
-Commit: pending
+Commit: 032f110f
 
 Implemented Slice 375: Slice 114 appointment days-of-week recurrence probe payload attachments. The appointment days-of-week recurrence parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, temporary Monday/Wednesday/Friday recurring root creation, weekday selection metadata, generated occurrence expansion, legacy `REPEAT_DAYS` rendering facts, modernized Calendar weekday rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview selected-weekday recurrence evidence.
 
