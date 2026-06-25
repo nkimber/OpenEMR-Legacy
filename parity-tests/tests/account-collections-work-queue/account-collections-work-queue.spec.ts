@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { CollectionsWorkQueueSummary } from "../../src/db/legacyMariaDbProbe.js";
 
@@ -37,7 +38,7 @@ test.describe("collections work queue parity @slice63 @account-collections-work-
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const expectedQueue = await targetDb.getCollectionsWorkQueue(5);
     expect(expectedQueue.asOfDate).toBe("2026-06-18");
     expect(expectedQueue.accountCount).toBeGreaterThan(0);
@@ -48,6 +49,73 @@ test.describe("collections work queue parity @slice63 @account-collections-work-
     expect(Number(firstItem.pastDueAmount)).toBeGreaterThan(0);
     expect(firstItem.collectionTier).toBe("High");
     expect(firstItem.recommendedAction).toBe("Final notice review");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-63-collections-work-queue-source",
+      description: "Captures the Slice 63 collections work queue source rows: full queue totals, high-priority counts, and selected top-five past-due accounts from the shared aging ledger.",
+      expected: {
+        asOfDate: "2026-06-18",
+        selectedQueueLimit: 5,
+        minimumAccountCount: 1,
+        minimumHighPriorityCount: 1,
+        requiredFirstTier: "High",
+        requiredFirstAction: "Final notice review",
+        totals: {
+          totalBalanceAmount: "positive",
+          totalPastDueAmount: "positive",
+          totalOver90Amount: "positive"
+        }
+      },
+      actual: {
+        queue: expectedQueue,
+        firstItem
+      },
+      context: {
+        suite: "account-collections-work-queue",
+        workflow: "collections-work-queue-source"
+      }
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-63-collections-work-queue-contract",
+      description: "Captures the deterministic Slice 63 queue contract: ranked account fields, aging exposure, collection tier/action metadata, contact method, and UI steering anchors.",
+      expected: {
+        collectionTierValues: ["High", "Medium", "Low"],
+        requiredFields: [
+          "pubpid",
+          "patientDisplayName",
+          "statementNumber",
+          "balanceDueAmount",
+          "pastDueAmount",
+          "over90Amount",
+          "currentDueAmount",
+          "openEncounterCount",
+          "ledgerEntryCount",
+          "oldestOpenAgeDays",
+          "oldestOpenDate",
+          "collectionTier",
+          "recommendedAction",
+          "contactMethod"
+        ],
+        uiPanelLabel: "Collections work queue",
+        uiHeading: "Collections Work Queue"
+      },
+      actual: {
+        topItems: expectedQueue.items,
+        uiAnchor: {
+          patientDisplayName: firstItem.patientDisplayName,
+          statementNumber: firstItem.statementNumber,
+          collectionTier: firstItem.collectionTier,
+          recommendedAction: firstItem.recommendedAction,
+          over90Amount: firstItem.over90Amount,
+          contactMethod: firstItem.contactMethod
+        }
+      },
+      context: {
+        suite: "account-collections-work-queue",
+        workflow: "collections-work-queue-contract"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;

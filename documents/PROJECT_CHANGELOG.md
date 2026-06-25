@@ -19193,6 +19193,36 @@ Code changes:
 - Net lines: +78
 - Total churn: 110
 
+## 368. Slice 324 Slice 63 Collections Work Queue Probe Payload Attachments
+
+Started: 2026-06-25T09:07:26-04:00
+Finished: 2026-06-25T09:10:09-04:00
+Commit: pending
+
+Implemented Slice 324: Slice 63 collections work queue probe payload attachments. The collections work queue parity suite now writes path-backed JSON Playwright attachments for ranked past-due accounts, queue and high-priority counts, balance/past-due/over-90 totals, aging fields, open encounter counts, ledger counts, collection tiers, recommended actions, contact methods, and UI/API anchors so Workbench comparison drill-ins can preview collections queue readiness evidence.
+
+Changes:
+- Added Slice 63 source payload attachments for the full collections work queue summary, high-priority counts, selected top-five past-due accounts, required first-tier/action facts, and positive balance/aging totals.
+- Added Slice 63 queue contract payload attachments that capture required account fields, tier/action/contact metadata, UI panel labels, and first-row UI steering anchors.
+- Updated the Workbench functionality progress ledger so Slice 63 collections work queue database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 324 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 62 workflow payload boundary.
+- `npm run test:modernized:plan:collections-work-queue` in `parity-tests/` passed with 1 expected test; run `2026-06-25T130902-542Z-modernized-openemr-plan-slice-63-collections-work-queue-readiness`.
+- `npm run test:legacy:plan:collections-work-queue` in `parity-tests/` passed with 1 expected test; run `2026-06-25T130930-791Z-legacy-openemr-plan-slice-63-collections-work-queue-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 63 Playwright reports recorded the shared `db-probe-slice-63-collections-work-queue-source` and `db-probe-slice-63-collections-work-queue-contract` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-63-collections-work-queue-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T131000-212Z-legacy-openemr-vs-modernized-openemr-plan-slice-63-collections-work-queue-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 114
+- Lines deleted: 15
+- Net lines: +99
+- Total churn: 129
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19202,5 +19232,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 62.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 63.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
