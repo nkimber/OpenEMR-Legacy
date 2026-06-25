@@ -20953,6 +20953,38 @@ Code changes:
 - Net lines: +164
 - Total churn: 220
 
+## 420. Slice 374 Slice 113 Appointment Recurrence Unit Matrix Probe Payload Attachments
+
+Started: 2026-06-25T15:03:39.9408911-04:00
+Finished: 2026-06-25T15:07:07.2068068-04:00
+Commit: pending
+
+Implemented Slice 374: Slice 113 appointment recurrence unit matrix probe payload attachments. The appointment recurrence unit matrix parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, temporary daily, workday, and yearly recurring root creation, generated occurrence expansion, legacy repeat-control rendering facts, modernized Calendar recurrence-unit rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview recurrence-unit evidence.
+
+Changes:
+- Added Slice 113 precondition payload attachments for the anchor patient, baseline appointment counts, temporary daily/workday/yearly recurring appointment roots, expected generated dates, generated occurrence numbers, recurrence units, and appointment-count increment.
+- Added Slice 113 rendered-state payload attachments for the legacy repeat-control assertions or modernized Calendar recurrence labels/generated occurrence rendering after the UI checks pass.
+- Added Slice 113 cleanup payload attachments for deleting all temporary recurrence-unit roots, restoring the anchor patient's appointment count, and verifying each appointment row is gone.
+- Replaced non-null patient assumptions in the Slice 113 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 113 appointment recurrence unit matrix database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 374 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed.
+- `npm run test:legacy:plan:appointment-recurrence-unit-matrix` passed as run `2026-06-25T190510-057Z-legacy-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`.
+- `npm run test:modernized:plan:appointment-recurrence-unit-matrix` passed as run `2026-06-25T190610-102Z-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-113-appointment-recurrence-unit-matrix-readiness` passed as comparison `2026-06-25T190646-576Z-legacy-openemr-vs-modernized-openemr-plan-slice-113-appointment-recurrence-unit-matrix-readiness`, status `matched`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include Slice 113 precondition, rendered, and cleanup DB probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 199
+- Lines removed: 27
+- Net lines: +172
+- Total churn: 226
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20962,5 +20994,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 112.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 113.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

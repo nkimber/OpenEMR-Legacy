@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -53,20 +54,29 @@ const recurrenceScenarios = [
 ] as const;
 
 test.describe("appointment recurrence unit matrix parity @slice113 @workflow-appointment-recurrence-unit-matrix @mutation", () => {
-  test("creates, renders, expands, and removes daily, workday, and yearly recurring appointments", async ({ page, target, targetDb, workflow }) => {
+  test("creates, renders, expands, and removes daily, workday, and yearly recurring appointments", async ({ page, target, targetDb, workflow }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(appointmentAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Anchor patient ${appointmentAnchorPatientId} was not found.`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const suffix = workflowSuffix();
-    const createdAppointments: Array<{ id: number | string; title: string; scenario: (typeof recurrenceScenarios)[number] }> = [];
+    const createdAppointments: Array<{
+      id: number | string;
+      title: string;
+      scenario: (typeof recurrenceScenarios)[number];
+      created: unknown | null;
+      occurrences: unknown[];
+    }> = [];
 
     try {
       for (const scenario of recurrenceScenarios) {
         const title = `Parity ${scenario.label} Recurrence ${suffix}`;
         const appointmentId = await workflow.createAppointment({
-          patientId: patient!.pid,
-          providerId: patient!.providerId,
+          patientId: patient.pid,
+          providerId: patient.providerId,
           title,
           eventDate: scenario.anchorDate,
           startTime: scenario.startTime,
@@ -82,12 +92,19 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
           repeatUnit: scenario.repeatUnit,
           recurrenceEndDate: scenario.endDate
         });
-        createdAppointments.push({ id: appointmentId, title, scenario });
+        const createdAppointment: (typeof createdAppointments)[number] = {
+          id: appointmentId,
+          title,
+          scenario,
+          created: null,
+          occurrences: []
+        };
+        createdAppointments.push(createdAppointment);
 
         const created = await workflow.getAppointment(appointmentId);
         expect(created).toMatchObject({
-          patientId: patient!.pid,
-          providerId: patient!.providerId,
+          patientId: patient.pid,
+          providerId: patient.providerId,
           title,
           eventDate: scenario.anchorDate,
           startTime: scenario.startTime,
@@ -102,8 +119,12 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
           repeatUnit: scenario.repeatUnit,
           recurrenceEndDate: scenario.endDate
         });
+        if (!created) {
+          throw new Error(`Created ${scenario.key} recurring appointment ${appointmentId} was not found.`);
+        }
+        createdAppointment.created = created;
 
-        const occurrences = await workflow.getAppointmentSeriesOccurrences(patient!.pid, scenario.anchorDate);
+        const occurrences = await workflow.getAppointmentSeriesOccurrences(patient.pid, scenario.anchorDate);
         const scenarioOccurrences = occurrences.filter((occurrence) => occurrence.title === title);
         expect(scenarioOccurrences.map((occurrence) => occurrence.date)).toEqual(scenario.expectedDates);
         expect(scenarioOccurrences.map((occurrence) => occurrence.occurrenceNumber)).toEqual(
@@ -111,10 +132,50 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
         expect(scenarioOccurrences.every((occurrence) => occurrence.repeatFrequency === scenario.repeatFrequency)).toBe(true);
         expect(scenarioOccurrences.every((occurrence) => occurrence.repeatUnit === scenario.repeatUnit)).toBe(true);
         expect(scenarioOccurrences[1].isVirtualOccurrence).toBe(true);
+        createdAppointment.occurrences = scenarioOccurrences;
       }
 
-      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterCreateCounts.appointments).toBe(beforeCounts.appointments + recurrenceScenarios.length);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-113-appointment-recurrence-unit-matrix-precondition",
+        description: "Captures the Slice 113 temporary daily, workday, and yearly recurring appointment roots after creation and before UI rendering.",
+        expected: {
+          patient: {
+            pubpid: appointmentAnchorPatientId,
+            providerId: patient.providerId
+          },
+          roots: recurrenceScenarios.map((scenario) => ({
+            key: scenario.key,
+            eventDate: scenario.anchorDate,
+            startTime: scenario.startTime,
+            endTime: scenario.endTime,
+            recurrenceType: 1,
+            repeatFrequency: scenario.repeatFrequency,
+            repeatUnit: scenario.repeatUnit,
+            recurrenceEndDate: scenario.endDate,
+            occurrenceDates: scenario.expectedDates,
+            generatedOccurrence: {
+              date: scenario.generatedDate,
+              occurrenceNumber: scenario.generatedOccurrenceNumber,
+              isVirtualOccurrence: true
+            }
+          })),
+          appointmentCountDelta: recurrenceScenarios.length
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          createdAppointments
+        },
+        context: {
+          canonicalId: appointmentAnchorPatientId,
+          suite: "workflow-appointment-recurrence-unit-matrix",
+          workflow: "appointment-recurrence-unit-matrix-precondition"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -130,7 +191,7 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
         }
       } else {
         await openAuthenticatedModernizedCalendar(page, target);
-        await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
+        await page.getByLabel("Appointment patient ID").fill(patient.pubpid);
 
         for (const { title, scenario } of createdAppointments) {
           await page.getByLabel("Appointment from date").fill(scenario.anchorDate);
@@ -158,17 +219,94 @@ test.describe("appointment recurrence unit matrix parity @slice113 @workflow-app
           await expect(page.locator("body")).toContainText(scenario.expectedLabel);
         }
       }
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-113-appointment-recurrence-unit-matrix-rendered",
+        description: "Captures the Slice 113 recurrence-unit rendering and expansion facts after legacy or modernized UI assertions.",
+        expected: {
+          labels: recurrenceScenarios.map((scenario) => ({
+            key: scenario.key,
+            expectedLabel: scenario.expectedLabel,
+            repeatFrequency: scenario.repeatFrequency,
+            repeatUnit: scenario.repeatUnit,
+            recurrenceEndDate: scenario.endDate,
+            generatedDate: scenario.generatedDate,
+            generatedOccurrenceNumber: scenario.generatedOccurrenceNumber
+          })),
+          appointmentCountDelta: recurrenceScenarios.length
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          createdAppointments,
+          surface: target.type === "modernized-openemr"
+            ? {
+                application: target.type,
+                page: "calendar",
+                repeatLabels: recurrenceScenarios.map((scenario) => scenario.expectedLabel),
+                generatedDates: recurrenceScenarios.map((scenario) => scenario.generatedDate)
+              }
+            : {
+                application: target.type,
+                page: "legacy-appointment-direct",
+                repeatControls: recurrenceScenarios.map((scenario) => ({
+                  key: scenario.key,
+                  repeatFrequencyControl: String(scenario.repeatFrequency),
+                  repeatUnitControl: String(scenario.repeatUnit),
+                  endDateControl: scenario.endDate
+                }))
+              }
+        },
+        context: {
+          canonicalId: appointmentAnchorPatientId,
+          suite: "workflow-appointment-recurrence-unit-matrix",
+          workflow: "appointment-recurrence-unit-matrix-rendered"
+        }
+      });
     } finally {
       for (const appointment of createdAppointments.reverse()) {
         await workflow.deleteAppointment(appointment.id);
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.appointments).toBe(beforeCounts.appointments);
+    const cleanupAppointments: Array<{ id: number | string; title: string; scenarioKey: string; appointment: unknown }> = [];
     for (const appointment of createdAppointments) {
       await expect(workflow.getAppointment(appointment.id)).resolves.toBeNull();
+      cleanupAppointments.push({
+        id: appointment.id,
+        title: appointment.title,
+        scenarioKey: appointment.scenario.key,
+        appointment: await workflow.getAppointment(appointment.id)
+      });
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-113-appointment-recurrence-unit-matrix-cleanup",
+      description: "Captures the Slice 113 cleanup state after deleting the temporary recurrence-unit appointment roots.",
+      expected: {
+        patient: {
+          pubpid: appointmentAnchorPatientId,
+          providerId: patient.providerId
+        },
+        appointmentsDeleted: createdAppointments.length === recurrenceScenarios.length,
+        appointmentCountRestored: true,
+        beforeAppointmentCount: beforeCounts.appointments
+      },
+      actual: {
+        patient,
+        beforeCounts,
+        afterCleanupCounts,
+        cleanupAppointments
+      },
+      context: {
+        canonicalId: appointmentAnchorPatientId,
+        suite: "workflow-appointment-recurrence-unit-matrix",
+        workflow: "appointment-recurrence-unit-matrix-cleanup"
+      }
+    });
   });
 });
 
