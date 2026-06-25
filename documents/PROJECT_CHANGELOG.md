@@ -18088,7 +18088,7 @@ Code changes:
 
 Started: 2026-06-25T04:41:00-04:00
 Finished: 2026-06-25T04:48:38-04:00
-Commit: pending
+Commit: 3928b05c
 
 Implemented Slice 289: Slice 28 patient insurance coverage probe payload attachments. The patient insurance coverage parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, normalized primary and secondary policy facts, subscriber relationship facts, and UI-steering precondition so Workbench comparison drill-ins can preview insurance database evidence.
 
