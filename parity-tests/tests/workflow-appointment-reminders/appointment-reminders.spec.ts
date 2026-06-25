@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -29,9 +30,15 @@ type ReminderRow = {
 };
 
 test.describe("appointment reminder readiness parity @slice120 @workflow-appointment-reminders", () => {
-  test("derives appointment reminder readiness facts from seeded appointment and contact data", async ({ target, targetDb }) => {
+  test("derives appointment reminder readiness facts from seeded appointment and contact data", async ({
+    target,
+    targetDb
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(reminderAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded appointment reminder patient ${reminderAnchorPatientId}`);
+    }
 
     const rows = await queryReminderAnchor(target.type, targetDb as QueryableDb);
     expect(rows).toHaveLength(1);
@@ -51,47 +58,126 @@ test.describe("appointment reminder readiness parity @slice120 @workflow-appoint
     } else {
       expect(facts.id).toBe(reminderAnchorAppointmentId);
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-120-appointment-reminders-readiness",
+      description:
+        "Seeded future appointment and patient contact consent rows produce the normalized reminder-readiness contract.",
+      expected: {
+        patientCanonicalId: reminderAnchorPatientId,
+        appointmentId: target.type === "modernized-openemr" ? reminderAnchorAppointmentId : "legacy numeric appointment id",
+        title: reminderTitle,
+        eventDate: reminderDate,
+        reminderDue: true,
+        reminderStatus: "Due now",
+        reminderChannel: "SMS + Email",
+        reminderContact: `${reminderPhone} / ${reminderEmail}`,
+        reminderLeadDays: 7
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname
+        },
+        reminderRows: rows,
+        facts
+      }
+    });
   });
 
-  test("renders appointment reminder readiness in the application UI", async ({ page, target, targetDb }) => {
+  test("renders appointment reminder readiness in the application UI", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(reminderAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded appointment reminder patient ${reminderAnchorPatientId}`);
+    }
+
     const rows = await queryReminderAnchor(target.type, targetDb as QueryableDb);
     expect(rows).toHaveLength(1);
     const facts = buildReminderFacts(rows[0]);
+    let surfaceFacts: Record<string, unknown>;
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
       await openAppointmentDirect(page, target, facts.id);
       await expect(page.locator('input[name="form_title"]')).toHaveValue(reminderTitle);
-      await expect(page.locator('input[name="form_patient"]')).toHaveValue(`${patient!.lname}, ${patient!.fname}`);
+      await expect(page.locator('input[name="form_patient"]')).toHaveValue(`${patient.lname}, ${patient.fname}`);
       await expect(page.locator('input[name="form_date"]')).toHaveValue(reminderDate);
-      return;
+      surfaceFacts = {
+        legacy: {
+          title: await page.locator('input[name="form_title"]').inputValue(),
+          patient: await page.locator('input[name="form_patient"]').inputValue(),
+          eventDate: await page.locator('input[name="form_date"]').inputValue()
+        }
+      };
+    } else {
+      await openAuthenticatedModernizedCalendar(page, target);
+
+      await page.getByLabel("Appointment patient ID").fill(patient.pubpid);
+      await page.getByLabel("Appointment from date").fill(reminderBaseDate);
+
+      const appointmentButton = page
+        .locator(".appointment-result")
+        .filter({ hasText: reminderTitle })
+        .filter({ hasText: reminderDate })
+        .first();
+      await expect(appointmentButton).toBeVisible();
+      await expect(appointmentButton).toContainText("Reminder due");
+      const resultText = await appointmentButton.innerText();
+      await appointmentButton.click();
+
+      await expect(page.getByRole("heading", { name: reminderTitle })).toBeVisible();
+      await expect(page.locator("body")).toContainText("Reminder status");
+      await expect(page.locator("body")).toContainText(facts.reminderStatus);
+      await expect(page.locator("body")).toContainText("Reminder channel");
+      await expect(page.locator("body")).toContainText(facts.reminderChannel);
+      await expect(page.locator("body")).toContainText("Reminder contact");
+      await expect(page.locator("body")).toContainText(facts.reminderContact);
+      await expect(page.locator("body")).toContainText("Reminder lead");
+      await expect(page.locator("body")).toContainText("7 days");
+      surfaceFacts = {
+        modernized: {
+          searchPatientId: patient.pubpid,
+          fromDate: reminderBaseDate,
+          resultText,
+          detailTitle: reminderTitle,
+          reminderStatus: facts.reminderStatus,
+          reminderChannel: facts.reminderChannel,
+          reminderContact: facts.reminderContact,
+          reminderLead: "7 days"
+        }
+      };
     }
 
-    await openAuthenticatedModernizedCalendar(page, target);
-
-    await page.getByLabel("Appointment patient ID").fill(patient!.pubpid);
-    await page.getByLabel("Appointment from date").fill(reminderBaseDate);
-
-    const appointmentButton = page
-      .locator(".appointment-result")
-      .filter({ hasText: reminderTitle })
-      .filter({ hasText: reminderDate })
-      .first();
-    await expect(appointmentButton).toBeVisible();
-    await expect(appointmentButton).toContainText("Reminder due");
-    await appointmentButton.click();
-
-    await expect(page.getByRole("heading", { name: reminderTitle })).toBeVisible();
-    await expect(page.locator("body")).toContainText("Reminder status");
-    await expect(page.locator("body")).toContainText(facts.reminderStatus);
-    await expect(page.locator("body")).toContainText("Reminder channel");
-    await expect(page.locator("body")).toContainText(facts.reminderChannel);
-    await expect(page.locator("body")).toContainText("Reminder contact");
-    await expect(page.locator("body")).toContainText(facts.reminderContact);
-    await expect(page.locator("body")).toContainText("Reminder lead");
-    await expect(page.locator("body")).toContainText("7 days");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-120-appointment-reminders-rendered",
+      description:
+        "The application UI renders the seeded appointment reminder readiness using the normalized database-derived facts.",
+      expected: {
+        patientCanonicalId: reminderAnchorPatientId,
+        title: reminderTitle,
+        eventDate: reminderDate,
+        reminderStatus: facts.reminderStatus,
+        reminderChannel: facts.reminderChannel,
+        reminderContact: facts.reminderContact,
+        reminderLead: "7 days"
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname
+        },
+        reminderRows: rows,
+        facts,
+        surfaceFacts
+      }
+    });
   });
 });
 

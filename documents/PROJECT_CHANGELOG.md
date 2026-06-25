@@ -21177,6 +21177,37 @@ Code changes:
 - Net lines: +166
 - Total churn: 234
 
+## 427. Slice 381 Slice 120 Appointment Reminders Probe Payload Attachments
+
+Started: 2026-06-25T15:51:55.5077386-04:00
+Finished: 2026-06-25T15:54:49.4308961-04:00
+Commit: pending
+
+Implemented Slice 381: Slice 120 appointment reminders probe payload attachments. The appointment reminders parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0191` seeded patient anchor, future preventive-care appointment, contact-consent and reminder-channel derivation, legacy appointment rendering facts, and modernized reminder-detail rendering anchors so Workbench comparison drill-ins can preview reminder-readiness evidence.
+
+Changes:
+- Added Slice 120 reminder-readiness payload attachments for the seeded patient, appointment row, normalized due/channel/contact facts, and expected seven-day reminder contract.
+- Added Slice 120 rendered-state payload attachments for legacy direct appointment rendering facts and modernized reminder-detail rendering anchors.
+- Replaced non-null patient assumptions in the Slice 120 suite with explicit seeded-patient guards before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 120 appointment reminders database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 381 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- Legacy Slice 120 parity run `2026-06-25T195356-175Z-legacy-openemr-plan-slice-120-appointment-reminders-readiness` passed.
+- Modernized Slice 120 parity run `2026-06-25T195356-174Z-modernized-openemr-plan-slice-120-appointment-reminders-readiness` passed.
+- Slice 120 side-by-side comparison `2026-06-25T195429-888Z-legacy-openemr-vs-modernized-openemr-plan-slice-120-appointment-reminders-readiness` matched with no differences.
+- Slice 120 probe attachment report check passed for reminder-readiness and rendered-state JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 160
+- Lines removed: 42
+- Net lines: +118
+- Total churn: 202
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21186,5 +21217,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 119.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 120.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
