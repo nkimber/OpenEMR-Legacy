@@ -20829,7 +20829,7 @@ Code changes:
 
 Started: 2026-06-25T14:35:50.7928587-04:00
 Finished: 2026-06-25T14:38:20.4717180-04:00
-Commit: pending
+Commit: 1c7d8741
 
 Implemented Slice 370: Slice 109 appointment recurrence exception-list edit probe payload attachments. The appointment recurrence exception-edit parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, recurring root, seeded skipped date, added skipped date, edited occurrence expansion, modernized Calendar skipped-date edit rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview recurrence exception-list edit evidence.
 
