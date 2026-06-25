@@ -21271,6 +21271,39 @@ Code changes:
 - Net lines: +104
 - Total churn: 140
 
+## 430. Slice 384 Slice 123 Encounter Document Replacement Revision Probe Payload Attachments
+
+Started: 2026-06-25T16:05:35.2457593-04:00
+Finished: 2026-06-25T16:07:29.7728069-04:00
+Commit: pending
+
+Implemented Slice 384: Slice 123 encounter document replacement revision probe payload attachments. The encounter document replacement revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, encounter `1000013`, temporary original document creation, replacement content/hash movement, legacy Documents rendering facts, modernized replacement form/API/card rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview replacement revision evidence.
+
+Changes:
+- Added Slice 123 precondition payload attachments for the seeded patient, baseline document counts, baseline encounter document list, and proposed temporary replacement document payload.
+- Added Slice 123 created-state payload attachments for the temporary original document, original content, initial revision timestamp/hash, and single-current-version metadata.
+- Added Slice 123 replaced-state payload attachments for replacement content, changed hash, revision-hash parity, count deltas, legacy rendering facts, modernized replacement form/API/card rendering anchors, and preserved single-current-version metadata.
+- Added Slice 123 cleanup payload attachments for deleting the temporary document and restoring patient/encounter document counts.
+- Replaced non-null patient assumptions in the Slice 123 suite with an explicit seeded-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 123 encounter document replacement revision database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 384 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- Legacy Slice 123 parity run `2026-06-25T200641-674Z-legacy-openemr-plan-slice-123-encounter-document-revision-replace-readiness` passed.
+- Modernized Slice 123 parity run `2026-06-25T200642-297Z-modernized-openemr-plan-slice-123-encounter-document-revision-replace-readiness` passed.
+- Slice 123 side-by-side comparison `2026-06-25T200719-847Z-legacy-openemr-vs-modernized-openemr-plan-slice-123-encounter-document-revision-replace-readiness` matched with no differences.
+- Slice 123 probe attachment report check passed for precondition, created-state, replaced-state, and cleanup JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 198
+- Lines removed: 29
+- Net lines: +169
+- Total churn: 227
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21280,5 +21313,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 122.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 123.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

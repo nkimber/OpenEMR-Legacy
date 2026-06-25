@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
@@ -17,13 +18,16 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterDocumentRevisionReplaceAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded encounter document replacement revision patient ${encounterDocumentRevisionReplaceAnchorPatientId}`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const beforeEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterDocumentRevisionReplaceEncounter
     );
     const suffix = workflowSuffix();
@@ -32,10 +36,50 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
     const originalBody = `Original encounter revision payload for ${documentName}.`;
     const replacementBody = `Replacement encounter revision payload for ${documentName}.`;
     let documentId: number | string | null = null;
+    let createdContent: Awaited<ReturnType<typeof targetDb.getPatientDocumentContent>> = null;
+    let replacedContent: Awaited<ReturnType<typeof targetDb.getPatientDocumentContent>> = null;
+    let afterReplaceCounts: Awaited<ReturnType<typeof targetDb.getPatientWorkflowCounts>> | null = null;
+    let afterReplaceEncounterDocuments: Awaited<ReturnType<typeof targetDb.getPatientDocumentsForEncounter>> | null = null;
+    let replacedEncounterDocument: Record<string, unknown> | undefined;
+    let surfaceFacts: Record<string, unknown> = {};
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-123-encounter-document-revision-replace-precondition",
+      description:
+        "Seeded patient, encounter, baseline document counts, and proposed temporary encounter document before replacement.",
+      expected: {
+        patientCanonicalId: encounterDocumentRevisionReplaceAnchorPatientId,
+        encounterId: encounterDocumentRevisionReplaceEncounter,
+        categoryId: 3,
+        categoryName: "Medical Record",
+        docDate: "2026-06-18",
+        expectedDocumentDelta: 1,
+        originalBody,
+        replacementFileName,
+        replacementBody
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname
+        },
+        beforeCounts,
+        beforeEncounterDocuments,
+        proposedDocument: {
+          name: documentName,
+          fileName: replacementFileName,
+          originalBody,
+          replacementBody
+        }
+      }
+    });
 
     try {
       documentId = await workflow.createEncounterDocument({
-        patientId: patient!.pid,
+        patientId: patient.pid,
         encounter: encounterDocumentRevisionReplaceEncounter,
         categoryId: 3,
         categoryName: "Medical Record",
@@ -45,7 +89,7 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
         notes: "Created by the encounter document replacement revision suite."
       });
 
-      const createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
+      createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(createdContent).not.toBeNull();
       expect(createdContent).toMatchObject({
         name: documentName,
@@ -60,13 +104,35 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
       const createdRevisionAt = timestampSeconds(createdContent!.revisionAt);
       const createdHash = createdContent!.hash;
 
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-123-encounter-document-revision-replace-created",
+        description:
+          "Temporary encounter document was created with original content and a single current-version revision contract.",
+        expected: {
+          documentCreated: true,
+          encounterId: encounterDocumentRevisionReplaceEncounter,
+          versionLabel: "Version 1",
+          versionStatus: "Current version",
+          versionHistoryCount: 1,
+          hasPriorVersions: false,
+          contentContains: originalBody
+        },
+        actual: {
+          documentId,
+          createdContent,
+          createdRevisionAt,
+          createdHash
+        }
+      });
+
       if (target.type === "legacy-openemr") {
         await workflow.replaceEncounterDocumentContent(encounterDocumentRevisionReplaceEncounter, documentId, {
           fileName: replacementFileName,
           content: replacementBody
         });
       } else {
-        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDocumentRevisionReplaceFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient.pubpid, encounterDocumentRevisionReplaceFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -85,9 +151,18 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
         await documentCard.getByRole("button", { name: "Save Content" }).click();
         await expect(documentCard).toContainText(replacementBody);
         await expect(documentCard).not.toContainText(originalBody);
+        surfaceFacts = {
+          modernizedReplacementForm: {
+            searchPatientId: patient.pubpid,
+            fromDate: encounterDocumentRevisionReplaceFromDate,
+            documentName,
+            replacementFileName,
+            renderedAfterSave: await documentCard.innerText()
+          }
+        };
       }
 
-      const replacedContent = await targetDb.getPatientDocumentContent(Number(documentId));
+      replacedContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(replacedContent).not.toBeNull();
       expect(replacedContent).toMatchObject({
         name: documentName,
@@ -104,14 +179,14 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
       expect(replacedContent!.revisionHash).toBe(replacedContent!.hash);
       expect(timestampSeconds(replacedContent!.revisionAt)).toBeGreaterThanOrEqual(createdRevisionAt);
 
-      const afterReplaceCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      afterReplaceCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterReplaceCounts.documents).toBe(beforeCounts.documents + 1);
-      const afterReplaceEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-        patient!.pid,
+      afterReplaceEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
+        patient.pid,
         encounterDocumentRevisionReplaceEncounter
       );
       expect(afterReplaceEncounterDocuments.documents).toHaveLength(beforeEncounterDocuments.documents.length + 1);
-      const replacedEncounterDocument = afterReplaceEncounterDocuments.documents.find(
+      replacedEncounterDocument = afterReplaceEncounterDocuments.documents.find(
         (document) => document.id === Number(documentId)
       );
       expect(replacedEncounterDocument).toMatchObject({
@@ -128,9 +203,16 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
-        await openPatientDocumentsDirect(page, target, patient!.pid);
+        await openPatientDocumentsDirect(page, target, patient.pid);
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, documentName);
+        surfaceFacts = {
+          legacyDocuments: {
+            patientPid: patient.pid,
+            expandedCategory: "Medical Record",
+            renderedDocumentName: documentName
+          }
+        };
       } else {
         const response = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounterDocumentRevisionReplaceEncounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(response.ok()).toBe(true);
@@ -157,23 +239,81 @@ test.describe("encounter document replacement revision parity @slice123 @workflo
         await expect(replacedCard).toContainText("Version 1 / Current version");
         await expect(replacedCard).toContainText("No prior versions");
         await expect(replacedCard).toContainText(replacementBody);
+        surfaceFacts = {
+          ...surfaceFacts,
+          modernizedApiAndCard: {
+            apiDocument,
+            renderedCard: await replacedCard.innerText()
+          }
+        };
       }
+
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-123-encounter-document-revision-replace-replaced",
+        description:
+          "Temporary encounter document replacement updates the current revision content/hash while preserving the single-current-version contract.",
+        expected: {
+          contentContains: replacementBody,
+          contentOmits: originalBody,
+          hashChanged: true,
+          revisionHashMatchesHash: true,
+          versionLabel: "Version 1",
+          versionStatus: "Current version",
+          versionHistoryCount: 1,
+          hasPriorVersions: false,
+          documentDelta: 1,
+          encounterDocumentDelta: 1
+        },
+        actual: {
+          documentId,
+          createdContent,
+          replacedContent,
+          beforeCounts,
+          afterReplaceCounts,
+          beforeEncounterDocuments,
+          afterReplaceEncounterDocuments,
+          replacedEncounterDocument,
+          surfaceFacts
+        }
+      });
     } finally {
       if (documentId !== null) {
         await workflow.deletePatientDocument(documentId);
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
     const afterCleanupEncounterDocuments = await targetDb.getPatientDocumentsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterDocumentRevisionReplaceEncounter
     );
     expect(afterCleanupEncounterDocuments.documents).toHaveLength(beforeEncounterDocuments.documents.length);
+    const documentAfterCleanup = documentId !== null ? await workflow.getPatientDocument(documentId) : null;
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      expect(documentAfterCleanup).toBeNull();
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-123-encounter-document-revision-replace-cleanup",
+      description:
+        "Temporary replacement-revision document was deleted and patient/encounter document counts returned to baseline.",
+      expected: {
+        documentDeleted: true,
+        documentCountRestored: true,
+        encounterDocumentCountRestored: true
+      },
+      actual: {
+        documentId,
+        beforeCounts,
+        afterCleanupCounts,
+        beforeEncounterDocuments,
+        afterCleanupEncounterDocuments,
+        documentAfterCleanup
+      }
+    });
   });
 });
 
