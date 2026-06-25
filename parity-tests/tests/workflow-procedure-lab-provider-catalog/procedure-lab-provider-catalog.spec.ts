@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -23,9 +24,54 @@ test.describe("procedure lab provider catalog parity @slice139 @workflow-procedu
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(anchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded procedure lab provider catalog patient ${anchorPatientId}`);
+    }
+
+    const expectedReviewedFilter = {
+      patientId: anchorPatientId,
+      labId: anchorLabId,
+      fromDate: anchorOrderDate,
+      toDate: anchorOrderDate
+    };
+    const expectedOutsideLabFilter = {
+      patientId: anchorPatientId,
+      labId: outsideLabId,
+      fromDate: anchorOrderDate,
+      toDate: anchorOrderDate
+    };
+    let anchorReport:
+      | Awaited<ReturnType<typeof targetDb.getProcedureReportReviewQueue>>["reports"][number]
+      | undefined;
+    let surfaceFacts: Record<string, unknown> = {};
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-139-procedure-lab-provider-catalog-precondition",
+      description:
+        "Seeded patient and expected permanent reviewed procedure report lab-provider ownership anchors before catalog checks.",
+      expected: {
+        patientCanonicalId: anchorPatientId,
+        anchorOrderId,
+        anchorReportId,
+        anchorLabId,
+        outsideLabId,
+        anchorLabName,
+        anchorProcedureCode,
+        anchorProcedureName,
+        anchorOrderDate,
+        anchorReportDateDisplay,
+        anchorSpecimenNumber,
+        reviewedFilter: expectedReviewedFilter,
+        outsideLabFilter: expectedOutsideLabFilter
+      },
+      actual: {
+        patient
+      }
+    });
 
     const reviewedQueue = await targetDb.getProcedureReportReviewQueue("reviewed", {
       patientId: anchorPatientId,
@@ -36,11 +82,11 @@ test.describe("procedure lab provider catalog parity @slice139 @workflow-procedu
 
     expect(reviewedQueue.labFilter).toBe(String(anchorLabId));
     expect(reviewedQueue.reviewedReports).toBeGreaterThanOrEqual(1);
-    const anchorReport = reviewedQueue.reports.find((report) => report.reportId === anchorReportId);
+    anchorReport = reviewedQueue.reports.find((report) => report.reportId === anchorReportId);
     expect(anchorReport).toMatchObject({
       reportId: anchorReportId,
       orderId: anchorOrderId,
-      patientId: patient!.pid,
+      patientId: patient.pid,
       pubpid: anchorPatientId,
       labId: anchorLabId,
       labName: anchorLabName,
@@ -63,6 +109,47 @@ test.describe("procedure lab provider catalog parity @slice139 @workflow-procedu
       toDate: anchorOrderDate
     });
     expect(outsideLabQueue.reports.some((report) => report.reportId === anchorReportId)).toBe(false);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-139-procedure-lab-provider-catalog-matched",
+      description:
+        "Permanent reviewed procedure report appears under the expected processing lab and is excluded by the outside-lab filter.",
+      expected: {
+        reviewedFilter: {
+          ...expectedReviewedFilter,
+          labFilter: String(anchorLabId),
+          containsAnchorReport: true,
+          reviewedReportsAtLeast: 1
+        },
+        outsideLabFilter: {
+          ...expectedOutsideLabFilter,
+          containsAnchorReport: false
+        },
+        anchorReport: {
+          reportId: anchorReportId,
+          orderId: anchorOrderId,
+          patientId: patient.pid,
+          pubpid: anchorPatientId,
+          labId: anchorLabId,
+          labName: anchorLabName,
+          procedureCode: anchorProcedureCode,
+          procedureName: anchorProcedureName,
+          orderDate: anchorOrderDate,
+          reportDate: anchorReportDateDisplay,
+          reportStatus: "complete",
+          reviewStatus: "reviewed",
+          reviewedBy: "admin",
+          reviewedAt: anchorReportDateDisplay,
+          specimenNumber: anchorSpecimenNumber
+        }
+      },
+      actual: {
+        patient,
+        reviewedQueue,
+        anchorReport,
+        outsideLabQueue
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -79,6 +166,18 @@ test.describe("procedure lab provider catalog parity @slice139 @workflow-procedu
       await expectRenderedText(page, anchorLabName);
       await expectRenderedText(page, anchorOrderDate);
       await expectRenderedText(page, "Reviewed");
+      surfaceFacts = {
+        legacyReviewedQueue: {
+          patientPid: patient.pid,
+          fromDate: anchorOrderDate,
+          toDate: anchorOrderDate,
+          reviewStatusFilter: "2",
+          labId: anchorLabId,
+          renderedLabName: anchorLabName,
+          renderedOrderDate: anchorOrderDate,
+          renderedReviewStatus: "Reviewed"
+        }
+      };
     } else {
       await openAuthenticatedModernizedReports(page, target);
       const reviewQueue = page.locator('[aria-label="Procedure report review queue"]');
@@ -93,6 +192,38 @@ test.describe("procedure lab provider catalog parity @slice139 @workflow-procedu
 
       await reviewQueue.getByLabel("Lab").fill(String(outsideLabId));
       await expect(reviewQueue).not.toContainText(anchorProcedureName);
+      surfaceFacts = {
+        modernizedReviewedQueue: {
+          patientInput: anchorPatientId,
+          fromDate: anchorOrderDate,
+          toDate: anchorOrderDate,
+          labId: anchorLabId,
+          outsideLabId,
+          renderedProcedureName: anchorProcedureName,
+          renderedLabName: anchorLabName,
+          renderedLabToken: `#${anchorLabId}`,
+          outsideLabExcludedProcedureName: true
+        }
+      };
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-139-procedure-lab-provider-catalog-rendered",
+      description:
+        "Browser/API surface evidence for permanent lab-provider catalog ownership on the reviewed procedure report row.",
+      expected: {
+        matchingLabRendersProcedure: true,
+        matchingLabRendersLabName: anchorLabName,
+        matchingLabRendersOrderDate: anchorOrderDate,
+        outsideLabExcludesProcedure: true
+      },
+      actual: {
+        patient,
+        anchorReport,
+        reviewedQueue,
+        outsideLabQueue,
+        surfaceFacts
+      }
+    });
   });
 });
