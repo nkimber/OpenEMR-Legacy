@@ -19197,7 +19197,7 @@ Code changes:
 
 Started: 2026-06-25T09:07:26-04:00
 Finished: 2026-06-25T09:10:09-04:00
-Commit: pending
+Commit: 84a1ba13
 
 Implemented Slice 324: Slice 63 collections work queue probe payload attachments. The collections work queue parity suite now writes path-backed JSON Playwright attachments for ranked past-due accounts, queue and high-priority counts, balance/past-due/over-90 totals, aging fields, open encounter counts, ledger counts, collection tiers, recommended actions, contact methods, and UI/API anchors so Workbench comparison drill-ins can preview collections queue readiness evidence.
 
