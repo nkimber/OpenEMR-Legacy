@@ -19681,7 +19681,7 @@ Code changes:
 
 Started: 2026-06-25T10:56:41-04:00
 Finished: 2026-06-25T11:00:53-04:00
-Commit: pending
+Commit: 4accb1cd
 
 Implemented Slice 338: Slice 77 encounter sign-off probe payload attachments. The encounter sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0002` anchor patient, temporary encounter, admin signature row, signature hash facts, signature deletion state, final encounter cleanup, legacy patient summary rendering, and modernized Encounters sign-off UI anchors so Workbench comparison drill-ins can preview encounter sign-off mutation evidence.
 
