@@ -19574,6 +19574,40 @@ Code changes:
 - Net lines: +250
 - Total churn: 336
 
+## 380. Slice 335 Slice 74 Encounter Fee Sheet Entry Probe Payload Attachments
+
+Started: 2026-06-25T10:31:23-04:00
+Finished: 2026-06-25T10:34:50-04:00
+Commit: pending
+
+Implemented Slice 335: Slice 74 encounter fee-sheet entry probe payload attachments. The encounter fee-sheet entry parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, temporary `99499` CPT row, temporary `R73.03` ICD10 diagnosis row, baseline/create/inactive/cleanup count movement, legacy Fee Sheet rendering, modernized encounter-detail API rows, and Encounters workspace fee-sheet/billing/diagnosis UI anchors so Workbench comparison drill-ins can preview encounter fee-sheet entry mutation evidence.
+
+Changes:
+- Added Slice 74 precondition payload attachments for the anchor patient, billing encounter, baseline workflow counts, active encounter billing rows, and proposed temporary CPT plus ICD10 fee-sheet rows.
+- Added Slice 74 created payload attachments for the created CPT and ICD10 rows, encounter billing projection, and billing-line count increment.
+- Added Slice 74 application-surface payload attachments for legacy Fee Sheet rendering and modernized encounter detail API/UI fee-sheet, billing, and diagnosis-coding anchors.
+- Added Slice 74 inactive and cleanup payload attachments for billed/inactive row state, active encounter projection removal, hard-delete cleanup, and restored workflow counts.
+- Replaced non-null assertions in the Slice 74 suite with explicit anchor-patient and billing-encounter guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 74 encounter fee-sheet entry database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 335 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 73 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-fee-sheet-entry` in `parity-tests/` passed with 1 expected test; run `2026-06-25T143308-252Z-modernized-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+- `npm run test:legacy:plan:encounter-fee-sheet-entry` in `parity-tests/` passed with 1 expected test; run `2026-06-25T143351-460Z-legacy-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+- Artifact inspection confirmed the modernized Slice 74 Playwright report recorded `db-probe-slice-74-encounter-fee-sheet-entry-precondition`, `db-probe-slice-74-encounter-fee-sheet-entry-created`, `db-probe-slice-74-encounter-fee-sheet-entry-surface`, `db-probe-slice-74-encounter-fee-sheet-entry-inactive`, and `db-probe-slice-74-encounter-fee-sheet-entry-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 74 Playwright report recorded `db-probe-slice-74-encounter-fee-sheet-entry-precondition`, `db-probe-slice-74-encounter-fee-sheet-entry-created`, `db-probe-slice-74-encounter-fee-sheet-entry-surface`, `db-probe-slice-74-encounter-fee-sheet-entry-inactive`, and `db-probe-slice-74-encounter-fee-sheet-entry-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-74-encounter-fee-sheet-entry-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T143441-753Z-legacy-openemr-vs-modernized-openemr-plan-slice-74-encounter-fee-sheet-entry-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 310
+- Lines deleted: 53
+- Net lines: +257
+- Total churn: 363
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19583,5 +19617,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 73.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 74.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
