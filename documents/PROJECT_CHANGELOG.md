@@ -16007,10 +16007,10 @@ Updated the Modern UI Claude Docker development setup so normal source edits are
 Code changes:
 
 - Files changed: 7
-- Lines added: pending scoped commit metrics
-- Lines deleted: pending scoped commit metrics
-- Net lines: pending scoped commit metrics
-- Total churn: pending scoped commit metrics
+- Lines added: 249 scoped commit metrics
+- Lines deleted: 16 scoped commit metrics
+- Net lines: 233 scoped commit metrics
+- Total churn: 265 scoped commit metrics
 
 Metrics are pending because `modern-ui-claude/` is still an untracked parallel UI worktree in this checkout, so Git cannot produce meaningful scoped add/delete counts until that folder is added or committed.
 
@@ -22212,10 +22212,10 @@ Verification:
 
 Code changes:
 - Files changed: pending isolated commit stats
-- Lines added: pending isolated commit stats
-- Lines deleted: pending isolated commit stats
-- Net lines: pending isolated commit stats
-- Total churn: pending isolated commit stats
+- Lines added: 249 isolated commit stats
+- Lines deleted: 16 isolated commit stats
+- Net lines: 233 isolated commit stats
+- Total churn: 265 isolated commit stats
 
 ## 459. Slice 412 Slice 158 Patient Message Update Metadata Probe Payload Attachments
 
@@ -22456,6 +22456,41 @@ Code changes:
 - Net lines: 255
 - Total churn: 289
 
+
+## 466. Slice 419 Slice 165 Patient Chart Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:44:59.5966112-04:00
+Finished: 2026-06-25T19:47:08.4797517-04:00
+Commit: pending
+
+Implemented Slice 419: Slice 165 patient chart protection probe payload attachments. The patient chart protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API patient chart blocking facts, authenticated legacy/API patient search and chart visibility facts, and modernized Patient/Client-page rendering facts so Workbench comparison drill-ins can preview patient chart protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 165 precondition payload attachments for the MOD-PAT-0001 patient anchor, protected legacy patient-summary route, modernized patient search/chart APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving patient identifiers and demographics are not visible before sign-in.
+- Added legacy authenticated payload attachments proving patient identifiers and demographics render after admin login.
+- Added modernized unauthenticated search and chart payload attachments proving patient APIs reject requests without an active session.
+- Added modernized authenticated search and chart payload attachments proving an active admin session can read the anchored patient search result and chart details with the session identifier redacted.
+- Added modernized Patient/Client-page rendered payload attachments proving signed-out prompts appear before login and patient chart facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 165 patient chart protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 419 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-protection/patient-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-165-patient-protection-readiness` passed with run ID `2026-06-25T234555-023Z-legacy-openemr-plan-slice-165-patient-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-165-patient-protection-readiness` passed with run ID `2026-06-25T234554-852Z-modernized-openemr-plan-slice-165-patient-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-165-patient-protection-readiness` matched with comparison ID `2026-06-25T234640-412Z-legacy-openemr-vs-modernized-openemr-plan-slice-165-patient-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-165-patient-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-165-patient-protection-precondition`, `unauthenticated-search`, `unauthenticated-chart`, `authenticated-search`, `authenticated-chart`, and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 249
+- Lines deleted: 16
+- Net lines: 233
+- Total churn: 265
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22465,5 +22500,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, and 164.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, and 165.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
