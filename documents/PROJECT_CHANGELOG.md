@@ -20797,7 +20797,7 @@ Code changes:
 
 Started: 2026-06-25T14:30:42.2809791-04:00
 Finished: 2026-06-25T14:33:18.9213943-04:00
-Commit: pending
+Commit: 250f0dff
 
 Implemented Slice 369: Slice 108 appointment occurrence-reschedule probe payload attachments. The appointment occurrence-reschedule parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, generated occurrence selected for movement, recurring-root exception mutation, standalone moved appointment, modernized Calendar reschedule rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview generated-occurrence reschedule evidence.
 
