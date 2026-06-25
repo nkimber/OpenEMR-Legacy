@@ -22131,7 +22131,7 @@ Code changes:
 
 Started: 2026-06-25T18:49:08.5601110-04:00
 Finished: 2026-06-25T18:52:26.4622800-04:00
-Commit: pending
+Commit: 8b49241e
 
 Implemented Slice 410: Slice 156 patient-message reply probe payload attachments. The patient-message reply parity suite now writes path-backed JSON Playwright attachments for temporary pnotes-compatible message creation, reply append state, browser/API rendering facts, soft-delete state, and cleanup count restoration so Workbench comparison drill-ins can preview patient-message reply evidence.
 
