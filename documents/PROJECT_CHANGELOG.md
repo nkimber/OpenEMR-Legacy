@@ -19349,7 +19349,7 @@ Code changes:
 
 Started: 2026-06-25T09:37:40-04:00
 Finished: 2026-06-25T09:43:37-04:00
-Commit: pending
+Commit: 3f87fd71
 
 Implemented Slice 328: Slice 67 encounter document attachment probe payload attachments. The encounter document attachment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, seeded encounter-attached documents, category/preview/download expectations, legacy document-category rendering, modernized encounter-detail API rows, and Encounters workspace UI anchors so Workbench comparison drill-ins can preview encounter document attachment readiness evidence.
 
