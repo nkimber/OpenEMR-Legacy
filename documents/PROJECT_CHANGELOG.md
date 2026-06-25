@@ -19378,6 +19378,38 @@ Code changes:
 - Net lines: +131
 - Total churn: 181
 
+## 374. Slice 329 Slice 68 Encounter Billing Probe Payload Attachments
+
+Started: 2026-06-25T09:47:17-04:00
+Finished: 2026-06-25T09:50:32-04:00
+Commit: pending
+
+Implemented Slice 329: Slice 68 encounter billing probe payload attachments. The encounter billing parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, linked CPT fee-sheet billing rows, total-fee and justification expectations, legacy Fee Sheet rendering, modernized encounter-detail API rows, and Encounters workspace billing-linkage UI anchors so Workbench comparison drill-ins can preview encounter billing readiness evidence.
+
+Changes:
+- Added Slice 68 source payload attachments for the anchor patient, latest encounter, two linked CPT billing rows, billing codes, descriptions, fees, total fee, and `E78.5` justification.
+- Added Slice 68 application-surface payload attachments for legacy Fee Sheet rendering and modernized encounter detail API/UI billing-linkage anchors.
+- Replaced non-null assertions in the Slice 68 suite with explicit anchor-patient and encounter guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 68 encounter billing database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 329 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 67 workflow payload boundary after updating the future-work note.
+- `npm run test:modernized:plan:encounter-billing` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T134924-646Z-modernized-openemr-plan-slice-68-encounter-billing-readiness`.
+- `npm run test:legacy:plan:encounter-billing` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T134952-994Z-legacy-openemr-plan-slice-68-encounter-billing-readiness`.
+- Artifact inspection confirmed the modernized Slice 68 Playwright report recorded `db-probe-slice-68-encounter-billing-source` and `db-probe-slice-68-encounter-billing-surface` payload attachments.
+- Artifact inspection confirmed the legacy Slice 68 Playwright report recorded `db-probe-slice-68-encounter-billing-source` and `db-probe-slice-68-encounter-billing-surface` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-68-encounter-billing-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T135014-551Z-legacy-openemr-vs-modernized-openemr-plan-slice-68-encounter-billing-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 158
+- Lines deleted: 24
+- Net lines: +134
+- Total churn: 182
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19387,5 +19419,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 67.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 68.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
