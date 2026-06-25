@@ -17200,7 +17200,7 @@ Code changes:
 Started: 2026-06-25T00:51:30-04:00
 Finished: 2026-06-25T00:54:37-04:00
 Duration: 3m 07s
-Commit: pending
+Commit: 2b65cd61
 
 Implemented Slice 263: Slice 2 scheduling probe payload attachments. The scheduling parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` future appointment anchor and the scheduling UI steering precondition so Workbench comparison drill-ins can preview scheduling workflow database evidence.
 
