@@ -19748,6 +19748,72 @@ Code changes:
 - Net lines: +226
 - Total churn: 298
 
+## 385. Slice 340 Slice 79 Encounter Binary Document Upload Probe Payload Attachments
+
+Started: 2026-06-25T11:13:15-04:00
+Finished: 2026-06-25T11:17:13-04:00
+Commit: pending
+
+Implemented Slice 340: Slice 79 encounter binary document upload probe payload attachments. The encounter binary document upload parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary PDF attachment, normalized binary document projection, PDF base64 and byte-size facts, modernized download response, legacy Documents category rendering, Encounters attached-document UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter binary document upload mutation evidence.
+
+Changes:
+- Added Slice 79 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, and proposed PDF payload metadata.
+- Added Slice 79 created payload attachments for the uploaded PDF document row, normalized patient document projection, binary metadata, encounter document list, and document count increment.
+- Added Slice 79 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail API, PDF download response, and attached-document UI anchors.
+- Added Slice 79 cleanup payload attachments for temporary PDF deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 79 suite with explicit anchor-patient and uploaded-document guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 79 encounter binary document upload database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 340 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 78 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-binary-document-upload` in `parity-tests/` passed with 1 expected test; run `2026-06-25T151450-611Z-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- `npm run test:legacy:plan:encounter-binary-document-upload` in `parity-tests/` passed with 1 expected test; run `2026-06-25T151604-559Z-legacy-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- Artifact inspection confirmed the modernized Slice 79 Playwright report recorded `db-probe-slice-79-encounter-binary-document-upload-precondition`, `db-probe-slice-79-encounter-binary-document-upload-created`, `db-probe-slice-79-encounter-binary-document-upload-surface`, and `db-probe-slice-79-encounter-binary-document-upload-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 79 Playwright report recorded `db-probe-slice-79-encounter-binary-document-upload-precondition`, `db-probe-slice-79-encounter-binary-document-upload-created`, `db-probe-slice-79-encounter-binary-document-upload-surface`, and `db-probe-slice-79-encounter-binary-document-upload-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-79-encounter-binary-document-upload-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T151657-642Z-legacy-openemr-vs-modernized-openemr-plan-slice-79-encounter-binary-document-upload-readiness`.
+- `git diff --check` for Slice 340 files passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 313
+- Lines deleted: 39
+- Net lines: +274
+- Total churn: 352
+
+## 386. Workbench Changelog Read Model Optimized
+
+Started: 2026-06-25T11:10:00-04:00
+Finished: 2026-06-25T11:13:18-04:00
+Commit: pending
+
+Kept `documents/PROJECT_CHANGELOG.md` as the durable Project Timeline source of truth while making the Workbench read path more efficient for the growing changelog.
+
+Changes:
+- Split parsed changelog caching from Git-enriched timeline caching in the Workbench API.
+- Added a shared in-flight enrichment promise so concurrent timeline requests reuse one bounded Git scan instead of launching duplicate `git log --numstat` work.
+- Stopped increasing the Git enrichment scan as operators page deeper through the Timeline.
+- Added `/api/changelog/summary` for the Dashboard so initial Workbench loading only needs a compact parsed count and latest-entry summary.
+- Updated the frontend dashboard route to use the summary endpoint while keeping the rich paged endpoint for the Project Timeline page.
+- Documented the summary endpoint, bounded enrichment cache, and load-more cache behavior in the Workbench guide.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- `GET http://127.0.0.1:5174/api/changelog/summary` returned entry count and latest-entry summary in 1009 ms.
+- Concurrent `GET /api/changelog` page 1 and page 2 requests shared one cold bounded enrichment build, completing in roughly 24.3 seconds wall time instead of running separate page-deepening scans.
+- After the shared enrichment cache was warm, `GET /api/changelog?offset=200&limit=100&order=desc` returned in 700 ms and `GET /api/changelog?offset=300&limit=100&order=desc` returned in 822 ms.
+- `GET http://127.0.0.1:5173` returned HTTP 200 for the running Workbench UI.
+
+Code changes:
+- Files changed: 6
+- Lines added: 161
+- Lines deleted: 26
+- Net lines: +135
+- Total churn: 187
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19757,5 +19823,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 78.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 79.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
