@@ -18610,7 +18610,7 @@ Code changes:
 
 Started: 2026-06-25T06:53:39-04:00
 Finished: 2026-06-25T06:59:13-04:00
-Commit: pending
+Commit: 8c8864ba
 
 Implemented Slice 305: Slice 44 billing diagnosis coding probe payload attachments. The billing diagnosis parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, latest encounter, proposed ICD10 diagnosis billing payload, created row and encounter fee-sheet projection, inactive row, and final hard-delete cleanup state so Workbench comparison drill-ins can preview diagnosis-line lifecycle evidence.
 
