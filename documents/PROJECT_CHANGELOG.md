@@ -20893,7 +20893,7 @@ Code changes:
 
 Started: 2026-06-25T14:48:58.6874138-04:00
 Finished: 2026-06-25T14:52:58.3096145-04:00
-Commit: pending
+Commit: 7d061aa9
 
 Implemented Slice 372: Slice 111 appointment series root metadata probe payload attachments. The appointment series root metadata parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, recurring root provider/facility/billing/category/status/room/comment metadata update, generated occurrence propagation, seeded exception preservation, modernized Calendar generated-occurrence rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview recurring root metadata evidence.
 
