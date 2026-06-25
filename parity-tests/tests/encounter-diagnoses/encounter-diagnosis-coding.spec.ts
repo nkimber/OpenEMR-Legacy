@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
@@ -19,16 +20,22 @@ const procedureDiagnosisCode = "E11.9";
 const procedureDiagnosisText = "Type 2 diabetes mellitus without complications";
 
 test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-diagnoses @encounters", () => {
-  test("stable encounter anchors expose diagnosis coding facts", async ({ targetDb }) => {
+  test("stable encounter anchors expose diagnosis coding facts", async ({ target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterDiagnosisAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (patient === null) {
+      throw new Error(`Encounter diagnosis anchor patient ${encounterDiagnosisAnchorPatientId} was not found.`);
+    }
 
-    const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
+    const encounter = await targetDb.getLatestEncounterForPatient(patient.pid);
     expect(encounter).not.toBeNull();
-    expect(encounter!.encounter).toBe(billingAnchorEncounter);
-    expect(encounter!.reason).toContain(billingDiagnosisText);
+    if (encounter === null) {
+      throw new Error(`Encounter diagnosis billing anchor encounter for ${encounterDiagnosisAnchorPatientId} was not found.`);
+    }
+    expect(encounter.encounter).toBe(billingAnchorEncounter);
+    expect(encounter.reason).toContain(billingDiagnosisText);
 
-    const billingLines = await targetDb.getBillingLinesForEncounter(patient!.pid, encounter!.encounter);
+    const billingLines = await targetDb.getBillingLinesForEncounter(patient.pid, encounter.encounter);
     expect(billingLines).toHaveLength(2);
     expect(billingLines.map((line) => line.justify)).toEqual([billingDiagnosisCode, billingDiagnosisCode]);
     expect(billingLines).toEqual(
@@ -38,35 +45,111 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
       ])
     );
 
-    const procedures = await targetDb.getProcedureResultsForEncounter(patient!.pid, procedureAnchorEncounter);
+    const procedures = await targetDb.getProcedureResultsForEncounter(patient.pid, procedureAnchorEncounter);
     expect(procedures.orders).toHaveLength(1);
     expect(procedures.orders[0]).toMatchObject({
       procedureCode: "83036",
       procedureName: "Hemoglobin A1c",
       diagnosis: procedureDiagnosisCode
     });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-71-encounter-diagnoses-source",
+      description: "Captures the Slice 71 encounter diagnosis source contract: billing encounter diagnosis, fee-sheet justifications, and procedure-order diagnosis anchors.",
+      expected: {
+        anchorCanonicalId: encounterDiagnosisAnchorPatientId,
+        billingEncounter: billingAnchorEncounter,
+        procedureEncounter: procedureAnchorEncounter,
+        billingDiagnosis: {
+          code: billingDiagnosisCode,
+          description: billingDiagnosisText,
+          billingLineCount: 2,
+          supportingBillingCodes: ["CPT4 99214", "CPT4 36415"]
+        },
+        procedureDiagnosis: {
+          code: procedureDiagnosisCode,
+          description: procedureDiagnosisText,
+          procedureOrderCount: 1,
+          procedureCode: "83036",
+          procedureName: "Hemoglobin A1c"
+        }
+      },
+      actual: {
+        patient,
+        billingEncounter: encounter,
+        billingLines,
+        procedures,
+        selectedProcedureOrder: procedures.orders[0]
+      },
+      context: {
+        suite: "encounter-diagnoses",
+        workflow: "encounter-diagnosis-source"
+      }
+    });
   });
 
-  test("encounter diagnosis coding is reachable from the application surface", async ({ page, target, targetDb }) => {
+  test("encounter diagnosis coding is reachable from the application surface", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterDiagnosisAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (patient === null) {
+      throw new Error(`Encounter diagnosis anchor patient ${encounterDiagnosisAnchorPatientId} was not found.`);
+    }
+
+    const billingEncounter = await targetDb.getLatestEncounterForPatient(patient.pid);
+    expect(billingEncounter).not.toBeNull();
+    if (billingEncounter === null) {
+      throw new Error(`Encounter diagnosis billing anchor encounter for ${encounterDiagnosisAnchorPatientId} was not found.`);
+    }
+    const billingLines = await targetDb.getBillingLinesForEncounter(patient.pid, billingAnchorEncounter);
+    const procedures = await targetDb.getProcedureResultsForEncounter(patient.pid, procedureAnchorEncounter);
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
 
-      await openEncounterDirect(page, target, patient!.pid, billingAnchorEncounter);
+      await openEncounterDirect(page, target, patient.pid, billingAnchorEncounter);
       await expectRenderedText(page, billingDiagnosisText);
 
-      await openFeeSheetDirect(page, target, patient!.pid, billingAnchorEncounter);
+      await openFeeSheetDirect(page, target, patient.pid, billingAnchorEncounter);
       await expectRenderedText(page, "Selected Fee Sheet Codes and Charges");
       await expectRenderedText(page, legacyBillingDiagnosisVisibleCode);
       await expectRenderedText(page, "99214");
       await expectRenderedText(page, "36415");
 
-      await openProcedureResultsDirect(page, target, patient!.pid);
+      await openProcedureResultsDirect(page, target, patient.pid);
       await expectRenderedText(page, "Hemoglobin A1c");
       await expectRenderedText(page, "4548-4");
       await expectRenderedText(page, "5.7");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-71-encounter-diagnoses-surface",
+        description: "Captures the Slice 71 legacy application-surface evidence: encounter reason, Fee Sheet justification code, and Procedure Results A1c anchors render through OpenEMR.",
+        expected: {
+          anchorCanonicalId: encounterDiagnosisAnchorPatientId,
+          billingEncounter: billingAnchorEncounter,
+          procedureEncounter: procedureAnchorEncounter,
+          renderedDiagnosisText: billingDiagnosisText,
+          renderedBillingDiagnosisPrefix: legacyBillingDiagnosisVisibleCode,
+          renderedBillingCodes: ["99214", "36415"],
+          renderedProcedureAnchors: ["Hemoglobin A1c", "4548-4", "5.7"]
+        },
+        actual: {
+          patient,
+          billingEncounter,
+          billingLines,
+          procedures,
+          legacySurface: {
+            encounterPage: "patient encounter",
+            feeSheetPage: "fee sheet",
+            procedurePage: "procedure results",
+            renderedDiagnosisText: billingDiagnosisText,
+            renderedBillingDiagnosisPrefix: legacyBillingDiagnosisVisibleCode
+          }
+        },
+        context: {
+          suite: "encounter-diagnoses",
+          workflow: "encounter-diagnosis-surface"
+        }
+      });
       return;
     }
 
@@ -98,7 +181,7 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
     });
     expect(procedureDiagnosis.sources).toEqual(expect.arrayContaining(["Encounter diagnosis", "Procedure order diagnosis"]));
 
-    await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterDiagnosisAnchorFromDate);
+    await openAuthenticatedModernizedEncounters(page, target, patient.pubpid, encounterDiagnosisAnchorFromDate);
 
     const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
     await expect(encounterButton).toBeVisible();
@@ -114,5 +197,50 @@ test.describe("encounter diagnosis coding readiness parity @slice71 @encounter-d
     await expect(linkage).toContainText("CPT4 99214");
     await expect(linkage).toContainText("CPT4 36415");
     await expect(linkage).toContainText("2 billing links");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-71-encounter-diagnoses-surface",
+      description: "Captures the Slice 71 modernized application-surface evidence: encounter detail API diagnosis-code rows and Encounters workspace Diagnosis Coding rendering anchors.",
+      expected: {
+        anchorCanonicalId: encounterDiagnosisAnchorPatientId,
+        billingEncounter: billingAnchorEncounter,
+        procedureEncounter: procedureAnchorEncounter,
+        billingDiagnosis: {
+          code: billingDiagnosisCode,
+          description: billingDiagnosisText,
+          sources: ["Encounter diagnosis", "Fee sheet justification"],
+          supportingBillingCodes: ["CPT4 99214", "CPT4 36415"],
+          billingLineCount: 2
+        },
+        procedureDiagnosis: {
+          code: procedureDiagnosisCode,
+          description: procedureDiagnosisText,
+          sources: ["Encounter diagnosis", "Procedure order diagnosis"],
+          procedureOrderCount: 1
+        },
+        uiPanelLabel: "Encounter diagnosis coding linkage",
+        uiHeading: "Diagnosis Coding"
+      },
+      actual: {
+        patient,
+        billingEncounter,
+        billingLines,
+        procedures,
+        apiBillingDiagnoses: billingDetailPayload.diagnosisCodes,
+        apiProcedureDiagnoses: procedureDetailPayload.diagnosisCodes,
+        selectedBillingDiagnosis: billingDiagnosis,
+        selectedProcedureDiagnosis: procedureDiagnosis,
+        modernizedSurface: {
+          fromDate: encounterDiagnosisAnchorFromDate,
+          selectedEncounterLabel: "Hyperlipidemia",
+          panelLabel: "Encounter diagnosis coding linkage",
+          renderedBillingDiagnosisCode: billingDiagnosisCode
+        }
+      },
+      context: {
+        suite: "encounter-diagnoses",
+        workflow: "encounter-diagnosis-surface"
+      }
+    });
   });
 });
