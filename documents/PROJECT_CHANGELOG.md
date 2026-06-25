@@ -21767,6 +21767,36 @@ Code changes:
 - Lines deleted: 17
 - Net lines: 163
 - Total churn: 197
+
+## 445. Slice 399 Slice 140 Procedure Lab Provider Directory Probe Payload Attachments
+
+Started: 2026-06-25T17:50:38.7769023-04:00
+Finished: 2026-06-25T17:53:39.3333326-04:00
+Commit: pending
+
+Implemented Slice 399: Slice 140 procedure lab provider directory probe payload attachments. The procedure lab provider directory parity suite now writes path-backed JSON Playwright attachments for the permanent five-provider gold-data procedure lab directory, active/inactive provider counts, per-provider order/report/future-order counts, legacy Procedure Providers rendering facts, and modernized Reports directory rendering facts so Workbench comparison drill-ins can preview provider-directory evidence.
+
+Changes:
+- Added Slice 140 precondition payload attachments for the expected five permanent procedure lab providers and the Pacific Women's Health Laboratory anchor.
+- Added matched-directory payload attachments for active/inactive totals, provider ordering, per-provider NPI/protocol/active status, and order/report/future-order counts.
+- Added rendered payload attachments for legacy Procedure Providers rendering and modernized Reports lab provider directory rendering plus inactive-provider toggle facts.
+- Updated the Workbench functionality progress ledger so Slice 140 procedure lab provider directory database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 399 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-140-procedure-lab-provider-directory-readiness` passed with run ID `2026-06-25T215253-873Z-legacy-openemr-plan-slice-140-procedure-lab-provider-directory-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-140-procedure-lab-provider-directory-readiness` passed with run ID `2026-06-25T215312-724Z-modernized-openemr-plan-slice-140-procedure-lab-provider-directory-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-140-procedure-lab-provider-directory-readiness` matched with comparison ID `2026-06-25T215329-552Z-legacy-openemr-vs-modernized-openemr-plan-slice-140-procedure-lab-provider-directory-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-140-procedure-lab-provider-directory-precondition`, `matched`, and `rendered` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 139
+- Lines deleted: 15
+- Net lines: 124
+- Total churn: 154
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21776,5 +21806,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 139.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 140.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

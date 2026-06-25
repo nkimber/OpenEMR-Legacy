@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -21,7 +22,27 @@ test.describe("procedure lab provider directory parity @slice140 @workflow-proce
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-140-procedure-lab-provider-directory-precondition",
+      description:
+        "Expected permanent gold-data procedure lab provider directory anchors before read-only directory checks.",
+      expected: {
+        includeInactive: false,
+        totalProviders: 5,
+        activeProviders: 5,
+        inactiveProviders: 0,
+        providerIds: expectedProviders.map((provider) => provider.id),
+        providers: expectedProviders,
+        anchorProvider
+      },
+      actual: {
+        expectedProviders,
+        anchorProvider
+      }
+    });
+
     const directory = await targetDb.getProcedureLabProviders(false);
 
     expect(directory.includeInactive).toBe(false);
@@ -49,6 +70,39 @@ test.describe("procedure lab provider directory parity @slice140 @workflow-proce
     expect(includeInactiveDirectory.providers.map((provider) => provider.id)).toEqual(
       expectedProviders.map((provider) => provider.id)
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-140-procedure-lab-provider-directory-matched",
+      description:
+        "Database directory projection contains the five active permanent lab providers with expected order/report/future-order counts and no inactive providers.",
+      expected: {
+        activeDirectory: {
+          includeInactive: false,
+          totalProviders: 5,
+          activeProviders: 5,
+          inactiveProviders: 0,
+          providers: expectedProviders.map((provider) => ({
+            ...provider,
+            protocol: "DL",
+            active: true,
+            orderCount: 200,
+            reportCount: 140,
+            futureOrderCount: 60
+          }))
+        },
+        includeInactiveDirectory: {
+          includeInactive: true,
+          providerIds: expectedProviders.map((provider) => provider.id),
+          inactiveProviders: 0
+        }
+      },
+      actual: {
+        directory,
+        includeInactiveDirectory
+      }
+    });
+
+    let surfaceFacts: Record<string, unknown> = {};
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -57,6 +111,14 @@ test.describe("procedure lab provider directory parity @slice140 @workflow-proce
       await expectRenderedText(page, anchorProvider.name);
       await expectRenderedText(page, anchorProvider.npi);
       await expect(page.locator("tbody tr.detail")).toHaveCount(5);
+      surfaceFacts = {
+        legacyProcedureProviders: {
+          pageTitle: "Procedure Providers",
+          renderedAnchorProviderName: anchorProvider.name,
+          renderedAnchorProviderNpi: anchorProvider.npi,
+          renderedProviderRows: 5
+        }
+      };
     } else {
       await openAuthenticatedModernizedReports(page, target);
 
@@ -72,6 +134,37 @@ test.describe("procedure lab provider directory parity @slice140 @workflow-proce
       await providerDirectory.getByLabel("Include inactive providers").check();
       await expect(providerDirectory).toContainText("0 inactive");
       await expect(providerDirectory).toContainText(anchorProvider.name);
+      surfaceFacts = {
+        modernizedProcedureLabProviderDirectory: {
+          renderedAnchorProviderName: anchorProvider.name,
+          renderedAnchorProviderNpiLabel: `NPI ${anchorProvider.npi}`,
+          renderedActiveSummary: "5 active",
+          renderedTotalSummary: "5 total",
+          renderedOrderCount: "200",
+          renderedReportCount: "140",
+          renderedFutureOrderCount: "60",
+          includeInactiveToggleChecked: true,
+          renderedInactiveSummary: "0 inactive"
+        }
+      };
     }
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-140-procedure-lab-provider-directory-rendered",
+      description:
+        "Browser/API surface evidence for the permanent procedure lab provider directory and inactive-provider toggle behavior.",
+      expected: {
+        rendersAnchorProvider: anchorProvider.name,
+        rendersAnchorProviderNpi: anchorProvider.npi,
+        rendersFiveProviders: true,
+        rendersNoInactiveProviders: true
+      },
+      actual: {
+        anchorProvider,
+        directory,
+        includeInactiveDirectory,
+        surfaceFacts
+      }
+    });
   });
 });
