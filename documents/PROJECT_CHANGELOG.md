@@ -20529,6 +20529,44 @@ Code changes:
 - Net lines: +212
 - Total churn: 318
 
+## 407. Slice 361 Slice 100 Appointment Facility Reassignment Probe Payload Attachments
+
+Started: 2026-06-25T13:36:27-04:00
+Finished: 2026-06-25T13:43:06.9407161-04:00
+Commit: pending
+
+Implemented Slice 361: Slice 100 appointment facility reassignment probe payload attachments. The appointment facility reassignment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, original and reassigned service/billing facility IDs, reassigned title/facility facts, legacy appointment edit rendering, modernized Calendar facility selector/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment facility reassignment evidence. The payload work also exposed and fixed a modernized Calendar parity gap: when service and billing facilities start aligned and the user changes only the service facility, the billing facility now follows the reassigned service facility, matching the legacy workflow while preserving the separate Slice 101 billing-location edit path.
+
+Changes:
+- Added Slice 100 precondition payload attachments for the anchor patient, baseline workflow counts, proposed scheduled appointment payload, expected service/billing facility reassignment, and expected count movement.
+- Added Slice 100 created payload attachments for the temporary scheduled appointment row with original service and billing facility IDs plus appointment-count increment.
+- Added Slice 100 reassigned payload attachments for service and billing facility transitions, reassigned title, category preservation, room, and appointment-count preservation.
+- Added Slice 100 application-surface payload attachments for legacy appointment edit rendering plus modernized Calendar facility selector/rendering anchors.
+- Added Slice 100 cleanup payload attachments for temporary appointment deletion, restored workflow counts, and final appointment absence.
+- Replaced non-null assertions in the Slice 100 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the modernized Calendar save path so a service-facility-only reassignment carries the billing facility when both facilities originally matched, while explicit billing-location edits remain independent.
+- Updated the Workbench functionality progress ledger so Slice 100 appointment facility reassignment database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 361 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run build` passed in `modernized-openemr/frontend/` with the existing Vite chunk-size warning.
+- `dotnet build src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed in `modernized-openemr/backend/`.
+- The first modernized Slice 100 rerun against the still-running pre-change frontend failed because the UI updated `facilityId` to `11` while preserving `billingLocationId` as `10`; rebuilding the Dockerized modernized frontend/API picked up the fix.
+- `docker compose up -d --build frontend` passed in `modernized-openemr/` and recreated the modernized API/frontend containers without resetting the Postgres volume.
+- `npm run test:modernized:plan:appointment-facility` passed as run `2026-06-25T174146-952Z-modernized-openemr-plan-slice-100-appointment-facility-readiness`.
+- `npm run test:legacy:plan:appointment-facility` passed as run `2026-06-25T174208-243Z-legacy-openemr-plan-slice-100-appointment-facility-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-100-appointment-facility-readiness` passed as comparison `2026-06-25T174232-016Z-legacy-openemr-vs-modernized-openemr-plan-slice-100-appointment-facility-readiness`, status `matched`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include Slice 100 precondition, created, reassigned, surface, and cleanup DB probe attachments.
+- `npm run test:modernized:plan:appointment-billing-location` passed as run `2026-06-25T174243-491Z-modernized-openemr-plan-slice-101-appointment-billing-location-readiness`, confirming explicit billing-location reassignment remains independent.
+
+Code changes:
+- Files changed: 9
+- Lines added: 282
+- Lines removed: 54
+- Net lines: +228
+- Total churn: 336
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20538,5 +20576,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 99.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 100.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
