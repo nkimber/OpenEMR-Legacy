@@ -16900,7 +16900,7 @@ Verification:
 Started: 2026-06-24T22:47:56-04:00
 Finished: 2026-06-24T22:54:37-04:00
 Duration: 6m 41s
-Commit: pending
+Commit: a76348ef
 
 Implemented Slice 253: patient portal profile review accept readiness. The modernized administration workspace now mirrors the staff-side positive review outcome for patient-submitted portal profile edits by committing requested demographics to the chart, closing the waiting review request, and exposing the same cleanup-backed behavior through parity tests.
 
