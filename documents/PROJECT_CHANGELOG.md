@@ -20287,7 +20287,7 @@ Code changes:
 
 Started: 2026-06-25T12:54:10-04:00
 Finished: 2026-06-25T12:56:52-04:00
-Commit: pending
+Commit: ccb74dda
 
 Implemented Slice 354: Slice 93 appointment reschedule probe payload attachments. The appointment reschedule parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary future appointment create payload, rescheduled title/date/time/duration/status/room facts, legacy appointment edit rendering, modernized Calendar list/detail rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment reschedule evidence.
 
