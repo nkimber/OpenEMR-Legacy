@@ -21702,6 +21702,40 @@ Code changes:
 - Lines deleted: 59
 - Net lines: 331
 - Total churn: 449
+
+## 443. Slice 397 Slice 138 Procedure Report Review Queue Lab Filter Probe Payload Attachments
+
+Started: 2026-06-25T17:37:26.1344886-04:00
+Finished: 2026-06-25T17:43:29.7582235-04:00
+Commit: pending
+
+Implemented Slice 397: Slice 138 procedure report review queue lab filter probe payload attachments. The procedure report review queue lab filter parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary lab-provider and alternate-lab-provider creation, temporary encounter/order/report creation, processing-lab filter inclusion, alternate-lab exclusion, reviewed lab-filter movement after sign-off, legacy lab-filtered queue rendering facts, modernized Reports lab filter rendering facts, and cleanup removal from lab-filtered queues plus temporary lab providers so Workbench comparison drill-ins can preview lab filter evidence.
+
+Changes:
+- Added Slice 138 precondition payload attachments for the seeded patient, baseline workflow counts, proposed temporary lab providers, proposed encounter/report payloads, and sign-off payload.
+- Added matching-lab payload attachments for the temporary received report row, count deltas, processing-lab filter inclusion, alternate-lab exclusion, created lab providers, and created encounter/order/report state.
+- Added unreviewed rendered payload attachments for legacy lab-filtered queue rendering and modernized Reports lab filter rendering plus alternate-lab exclusion.
+- Added reviewed-lab payload attachments for the signed report row, reviewer/timestamp facts, and matching lab-filtered reviewed queue projection.
+- Added reviewed rendered payload attachments for legacy reviewed lab-filter rendering and modernized Reports reviewed-tab rendering after sign-off.
+- Added cleanup payload attachments proving the temporary order/report tree, encounter, and temporary lab providers are deleted and the report disappears from lab-filtered queues.
+- Replaced non-null patient assumptions with an explicit seeded-patient guard for clearer fixture failures.
+- Updated the Workbench functionality progress ledger so Slice 138 procedure report review lab filter database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 397 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-138-procedure-report-review-queue-lab-filters-readiness` passed with run ID `2026-06-25T214144-116Z-legacy-openemr-plan-slice-138-procedure-report-review-queue-lab-filters-readiness` after removing an over-specific added assertion against `labId` on the order projection, which is proven instead by the lab provider and review-queue projections.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-138-procedure-report-review-queue-lab-filters-readiness` passed with run ID `2026-06-25T214236-422Z-modernized-openemr-plan-slice-138-procedure-report-review-queue-lab-filters-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-138-procedure-report-review-queue-lab-filters-readiness` matched with comparison ID `2026-06-25T214309-959Z-legacy-openemr-vs-modernized-openemr-plan-slice-138-procedure-report-review-queue-lab-filters-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-138-procedure-report-review-lab-filters-precondition`, `matched`, `rendered`, `reviewed`, `reviewed-rendered`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 417
+- Lines deleted: 62
+- Net lines: 355
+- Total churn: 479
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21711,5 +21745,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 137.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 138.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
