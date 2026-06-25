@@ -21996,7 +21996,7 @@ Code changes:
 
 Started: 2026-06-25T18:25:11.4610344-04:00
 Finished: 2026-06-25T18:27:02.9066095-04:00
-Commit: pending
+Commit: 8f76194d
 
 Implemented Slice 406: Slice 149 procedure order queue probe payload attachments. The procedure order queue parity suite now writes path-backed JSON Playwright attachments for temporary encounter/order/report inputs, ready-to-send queue membership, ready rendering facts, reported queue transition, reported rendering facts, and cleanup count restoration so Workbench comparison drill-ins can preview procedure order queue evidence.
 
