@@ -18917,6 +18917,36 @@ Code changes:
 - Net lines: +129
 - Total churn: 161
 
+## 359. Slice 315 Slice 54 Document Revision Probe Payload Attachments
+
+Started: 2026-06-25T08:04:02-04:00
+Finished: 2026-06-25T08:06:54-04:00
+Commit: pending
+
+Implemented Slice 315: Slice 54 document revision probe payload attachments. The document revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, current-version document rows, revision timestamps, version labels/status/counts, prior-version flags, revision hashes, content detail revision facts, and Documents rendering precondition so Workbench comparison drill-ins can preview read-only document-revision evidence.
+
+Changes:
+- Added Slice 54 anchor payload attachments for the document anchor patient, normalized current-version document rows, version labels/status/counts, revision timestamps, prior-version flags, and revision hash parity.
+- Added Slice 54 rendering-precondition payload attachments that capture the exact revision rows and visible text expectations used by the modernized Documents rendering assertions.
+- Updated the Workbench functionality progress ledger so Slice 54 document revision database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 315 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 53 workflow payload boundary.
+- `npm run test:modernized:plan:document-revision` in `parity-tests/` passed with 1 expected test; run `2026-06-25T120555-689Z-modernized-openemr-plan-slice-54-document-revision-readiness`.
+- `npm run test:legacy:plan:document-revision` in `parity-tests/` passed with 1 expected test; run `2026-06-25T120618-031Z-legacy-openemr-plan-slice-54-document-revision-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 54 Playwright reports recorded the shared `db-probe-slice-54-document-revision-anchor` and `db-probe-slice-54-document-revision-render-precondition` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-54-document-revision-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T120638-037Z-legacy-openemr-vs-modernized-openemr-plan-slice-54-document-revision-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 144
+- Lines deleted: 16
+- Net lines: +128
+- Total churn: 160
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18926,5 +18956,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 53.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 54.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

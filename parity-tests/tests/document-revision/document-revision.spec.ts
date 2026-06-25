@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 const documentRevisionAnchorPatientId = "MOD-PAT-0001";
 const intakePacketName = "Primary care intake packet";
@@ -9,7 +10,7 @@ test.describe("patient document revision readiness parity @slice54 @document-rev
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(documentRevisionAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -42,6 +43,29 @@ test.describe("patient document revision readiness parity @slice54 @document-rev
     });
     expect(advanceDirective!.revisionHash).toBe(advanceDirective!.hash);
 
+    const revisionAnchors = [intakePacket!, advanceDirective!].map((document) => ({
+      id: document.id,
+      documentKey: document.documentKey,
+      categoryId: document.categoryId,
+      categoryName: document.categoryName,
+      name: document.name,
+      docDate: document.docDate,
+      uploadedAt: document.uploadedAt,
+      revisionAt: document.revisionAt,
+      currentVersion: document.currentVersion,
+      versionLabel: document.versionLabel,
+      versionStatus: document.versionStatus,
+      versionHistoryCount: document.versionHistoryCount,
+      hasPriorVersions: document.hasPriorVersions,
+      revisionHash: document.revisionHash,
+      hash: document.hash,
+      mimetype: document.mimetype,
+      fileName: document.fileName,
+      sizeBytes: document.sizeBytes,
+      encounter: document.encounter,
+      storageMethod: document.storageMethod
+    }));
+
     const intakeContent = await targetDb.getPatientDocumentContent(intakePacket!.id);
     expect(intakeContent).toMatchObject({
       id: intakePacket!.id,
@@ -53,6 +77,79 @@ test.describe("patient document revision readiness parity @slice54 @document-rev
       revisionAt: "2026-06-10 14:30:00"
     });
     expect(intakeContent!.revisionHash).toBe(intakeContent!.hash);
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-54-document-revision-anchor",
+      description: "Verifies the Slice 54 document revision anchor patient and current-version database rows before application rendering.",
+      expected: {
+        patient: {
+          pubpid: documentRevisionAnchorPatientId
+        },
+        documentCount: 2,
+        documents: [
+          {
+            name: intakePacketName,
+            documentKey: "DOC-MOD-PAT-0001-1",
+            currentVersion: 1,
+            versionLabel: "Version 1",
+            versionStatus: "Current version",
+            versionHistoryCount: 1,
+            hasPriorVersions: false,
+            revisionAt: "2026-06-10 14:30:00"
+          },
+          {
+            name: advanceDirectiveName,
+            documentKey: "DOC-MOD-PAT-0001-2",
+            currentVersion: 1,
+            versionLabel: "Version 1",
+            versionStatus: "Current version",
+            versionHistoryCount: 1,
+            hasPriorVersions: false,
+            revisionAt: "2026-06-12 15:00:00"
+          }
+        ]
+      },
+      actual: {
+        patient,
+        documentSummary: {
+          patientId: documents.patientId,
+          documentCount: documents.documents.length
+        },
+        revisionAnchors,
+        intakeContent
+      },
+      context: {
+        canonicalId: documentRevisionAnchorPatientId,
+        suite: "document-revision",
+        workflow: "document-revision-readiness"
+      }
+    });
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-54-document-revision-render-precondition",
+      description: "Captures the document revision rows and visible text expectations used by the Slice 54 Documents rendering assertions.",
+      expected: {
+        visibleText: [
+          intakePacketName,
+          "Version 1 / Current version",
+          "2026-06-10 14:30:00",
+          "No prior versions",
+          "Document Viewer",
+          "1 current version"
+        ]
+      },
+      actual: {
+        patient,
+        revisionAnchors
+      },
+      context: {
+        canonicalId: documentRevisionAnchorPatientId,
+        suite: "document-revision",
+        workflow: "document-revision-rendering"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;
