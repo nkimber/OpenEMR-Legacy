@@ -21308,7 +21308,7 @@ Code changes:
 
 Started: 2026-06-25T16:11:53.1247409-04:00
 Finished: 2026-06-25T16:14:13.2462251-04:00
-Commit: pending
+Commit: 24401023
 
 Implemented Slice 385: Slice 126 encounter scanned attachment probe payload attachments. The encounter scanned attachment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, encounter `1000013`, temporary scanned `application/pdf` payload, normalized PDF preview metadata, scan/OCR-readiness facts, legacy Documents rendering facts, modernized encounter detail API/card rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview encounter scan evidence.
 
