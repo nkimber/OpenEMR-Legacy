@@ -18055,7 +18055,7 @@ Code changes:
 
 Started: 2026-06-25T04:31:00-04:00
 Finished: 2026-06-25T04:38:46-04:00
-Commit: pending
+Commit: 8157a196
 
 Implemented Slice 288: Slice 27 patient document content probe payload attachments. The patient document content parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, selected intake-packet metadata, full stored text content, UI-steering precondition, and modernized content/download API response facts so Workbench comparison drill-ins can preview document-content database and retrieval evidence.
 
