@@ -18377,7 +18377,7 @@ Code changes:
 
 Started: 2026-06-25T06:07:00-04:00
 Finished: 2026-06-25T06:11:46-04:00
-Commit: pending
+Commit: 5de8b73c
 
 Implemented Slice 298: Slice 37 patient registration lifecycle probe payload attachments. The patient registration parity suite now writes path-backed JSON Playwright attachments for the proposed temporary `TMP-PAT-REG-*` registration payload, baseline patient count, created demographics/contact rows and count increment, and final hard-delete cleanup state so Workbench comparison drill-ins can preview registration lifecycle evidence.
 
