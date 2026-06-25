@@ -18801,7 +18801,7 @@ Code changes:
 
 Started: 2026-06-25T07:38:56-04:00
 Finished: 2026-06-25T07:44:25-04:00
-Commit: pending
+Commit: 1feec699
 
 Implemented Slice 311: Slice 50 account aging probe payload attachments. The account aging parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, as-of date `2026-06-18`, deterministic Current/31-60/Over 90 encounter rows, bucket totals, total balance, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only AR aging evidence.
 
