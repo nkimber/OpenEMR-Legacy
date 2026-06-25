@@ -20031,6 +20031,43 @@ Code changes:
 - Net lines: +317
 - Total churn: 405
 
+## 393. Slice 347 Slice 86 Encounter Document Lifecycle Timeline Probe Payload Attachments
+
+Started: 2026-06-25T12:06:32-04:00
+Finished: 2026-06-25T12:09:22-04:00
+Commit: pending
+
+Implemented Slice 347: Slice 86 encounter document lifecycle timeline probe payload attachments. The encounter document lifecycle timeline parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary text attachment, filed/current-version/review-pending/active create facts, review-approved sign-off facts, archived lifecycle facts, restored active lifecycle facts, legacy Documents category rendering, modernized encounter-detail lifecycle API rows, Encounters attached-document lifecycle UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document lifecycle timeline evidence.
+
+Changes:
+- Added Slice 86 precondition payload attachments for the anchor patient, baseline workflow counts, encounter-scoped document baseline, proposed text document payload, expected lifecycle state transitions, and expected count movement.
+- Added Slice 86 created payload attachments for the temporary encounter document row, filed/current-version/review-pending/active lifecycle codes, encounter-scoped document list, and document count increment.
+- Added Slice 86 signed payload attachments for the approved review row, reviewer metadata, filed/current-version/review-approved/active lifecycle codes, and modernized lifecycle API projection.
+- Added Slice 86 archived payload attachments for the archived document row, filed/current-version/review-approved/archived lifecycle codes, active document count return, and encounter document-list return.
+- Added Slice 86 restored payload attachments for the restored active document row, filed/current-version/review-approved/active lifecycle codes, active document-count increment, and encounter document-list increment.
+- Added Slice 86 application-surface payload attachments for legacy Documents category rendering plus modernized encounter detail lifecycle API rows and Encounters attached-document lifecycle UI anchors.
+- Added Slice 86 cleanup payload attachments for temporary lifecycle document deletion, restored workflow counts, restored encounter document list, and final document absence.
+- Replaced non-null assertions in the Slice 86 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 86 encounter document lifecycle timeline database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 347 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale Slice 85/Slice 346 latest references remain in the synchronized documents and Workbench progress ledger.
+- Passed `git diff --check -- documents parity-tests\tests\workflow-encounter-document-lifecycle\encounter-document-lifecycle.spec.ts modernization-workbench\config\functionality-progress.json`.
+- Passed `npm run test:modernized:plan:encounter-document-lifecycle`, producing run `2026-06-25T160805-438Z-modernized-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+- Passed `npm run test:legacy:plan:encounter-document-lifecycle`, producing run `2026-06-25T160805-438Z-legacy-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-86-encounter-document-lifecycle-readiness`, producing matched comparison `2026-06-25T160901-414Z-legacy-openemr-vs-modernized-openemr-plan-slice-86-encounter-document-lifecycle-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 86 precondition, created, signed, archived, restored, surface, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 364
+- Lines removed: 45
+- Net lines: +319
+- Total churn: 409
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20040,5 +20077,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 85.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 86.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
