@@ -18857,6 +18857,36 @@ Code changes:
 - Net lines: +142
 - Total churn: 174
 
+## 357. Slice 313 Slice 52 Account Statement Probe Payload Attachments
+
+Started: 2026-06-25T07:51:16-04:00
+Finished: 2026-06-25T07:55:10-04:00
+Commit: pending
+
+Implemented Slice 313: Slice 52 account statement probe payload attachments. The account statement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, statement-ready recipient/address/contact facts, period/due-date/status facts, open encounter and ledger counts, current/past/balance due amounts, source balance/aging/ledger context, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only statement-readiness evidence.
+
+Changes:
+- Added Slice 52 anchor payload attachments for the billing anchor patient, normalized statement readiness projection, statement recipient/contact/mailing facts, due-date/status facts, open encounter and ledger counts, balance buckets, and source balance/aging/ledger context.
+- Added Slice 52 rendering-precondition payload attachments that capture the exact statement facts and visible text expectations used by the modernized Fees rendering assertions.
+- Updated the Workbench functionality progress ledger so Slice 52 account statement database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 313 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 51 workflow payload boundary.
+- `npm run test:modernized:plan:account-statement` in `parity-tests/` passed with 5 expected tests; run `2026-06-25T115316-020Z-modernized-openemr-plan-slice-52-account-statement-readiness`.
+- `npm run test:legacy:plan:account-statement` in `parity-tests/` passed with 5 expected tests; run `2026-06-25T115411-721Z-legacy-openemr-plan-slice-52-account-statement-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 52 Playwright reports recorded the shared `db-probe-slice-52-account-statement-anchor` and `db-probe-slice-52-account-statement-render-precondition` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-52-account-statement-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T115457-362Z-legacy-openemr-vs-modernized-openemr-plan-slice-52-account-statement-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 140
+- Lines deleted: 16
+- Net lines: +124
+- Total churn: 156
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18866,5 +18896,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 51.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 52.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
