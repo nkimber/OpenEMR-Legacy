@@ -19677,6 +19677,42 @@ Code changes:
 - Net lines: +314
 - Total churn: 432
 
+## 383. Slice 338 Slice 77 Encounter Sign-Off Probe Payload Attachments
+
+Started: 2026-06-25T10:56:41-04:00
+Finished: 2026-06-25T11:00:53-04:00
+Commit: pending
+
+Implemented Slice 338: Slice 77 encounter sign-off probe payload attachments. The encounter sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0002` anchor patient, temporary encounter, admin signature row, signature hash facts, signature deletion state, final encounter cleanup, legacy patient summary rendering, and modernized Encounters sign-off UI anchors so Workbench comparison drill-ins can preview encounter sign-off mutation evidence.
+
+Changes:
+- Added Slice 77 precondition payload attachments for the anchor patient, baseline workflow counts, proposed temporary encounter, and proposed admin signature payload.
+- Added Slice 77 encounter-created payload attachments for the temporary encounter and workflow count movement before signature insertion.
+- Added Slice 77 signed payload attachments for the admin signature row, signature hash facts, normalized signature query rows, and encounter-signature count increment.
+- Added Slice 77 application-surface payload attachments for legacy patient summary rendering plus modernized Encounters workspace sign-off region anchors.
+- Added Slice 77 signature-deleted and cleanup payload attachments for signature deletion, final signature-row absence, temporary encounter deletion, and restored workflow counts.
+- Replaced non-null assertions in the Slice 77 suite with explicit anchor-patient and signature guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 77 encounter sign-off database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 338 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 76 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-signoff` in `parity-tests/` passed with 1 expected test; run `2026-06-25T145837-924Z-modernized-openemr-plan-slice-77-encounter-signoff-readiness`.
+- `npm run test:legacy:plan:encounter-signoff` in `parity-tests/` passed with 1 expected test; run `2026-06-25T145938-521Z-legacy-openemr-plan-slice-77-encounter-signoff-readiness`.
+- Artifact inspection confirmed the modernized Slice 77 Playwright report recorded `db-probe-slice-77-encounter-signoff-precondition`, `db-probe-slice-77-encounter-signoff-encounter-created`, `db-probe-slice-77-encounter-signoff-signed`, `db-probe-slice-77-encounter-signoff-surface`, `db-probe-slice-77-encounter-signoff-signature-deleted`, and `db-probe-slice-77-encounter-signoff-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 77 Playwright report recorded `db-probe-slice-77-encounter-signoff-precondition`, `db-probe-slice-77-encounter-signoff-encounter-created`, `db-probe-slice-77-encounter-signoff-signed`, `db-probe-slice-77-encounter-signoff-surface`, `db-probe-slice-77-encounter-signoff-signature-deleted`, and `db-probe-slice-77-encounter-signoff-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-77-encounter-signoff-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T150039-622Z-legacy-openemr-vs-modernized-openemr-plan-slice-77-encounter-signoff-readiness`.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 394
+- Lines deleted: 47
+- Net lines: +347
+- Total churn: 441
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19686,5 +19722,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 76.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 77.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
