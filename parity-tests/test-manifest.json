@@ -1212,6 +1212,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-249-patient-portal-home-immunizations-readiness",
+      "name": "Slice 249 Patient Portal Home Immunizations Readiness",
+      "description": "Patient portal confidence plan that verifies the portal home health snapshot lists immunizations, including entered-in-error rows that legacy OpenEMR still renders.",
+      "suites": ["workflow-patient-portal-home-immunizations"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-249", "patients", "portal", "home", "immunizations", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4468,6 +4477,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-allergy-date-columns",
       "tags": ["slice248", "workflow", "mutation", "patients", "portal", "clinical-lists", "allergies", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-home-immunizations",
+      "name": "Patient Portal Home Immunizations Readiness",
+      "description": "Verifies signed-in patient portal home health-snapshot immunization facts and rendering, including entered-in-error rows.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-home-immunizations",
+      "tags": ["slice249", "workflow", "mutation", "patients", "portal", "home", "immunizations", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

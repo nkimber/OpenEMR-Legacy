@@ -717,6 +717,8 @@ LIMIT 1;
         },
         upcomingAppointmentCount: 0,
         upcomingAppointments: [],
+        immunizationCount: 0,
+        immunizations: [],
         failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
         sessionSource: "modernized-openemr-portal"
       };
@@ -4962,6 +4964,8 @@ function mapPatientPortalHomeSummary(result: any): PatientPortalHomeSummary {
     },
     upcomingAppointmentCount: result.upcomingAppointmentCount ?? 0,
     upcomingAppointments: (result.upcomingAppointments ?? []).map(mapPatientPortalAppointmentItem),
+    immunizationCount: result.immunizationCount ?? 0,
+    immunizations: (result.immunizations ?? []).map(mapPatientPortalHomeImmunizationItem),
     failureReason: result.failureReason ?? null,
     sessionSource: result.sessionSource ?? ""
   };
@@ -5386,6 +5390,20 @@ function mapPatientPortalAppointmentItem(appointment: any) {
     providerName: appointment.providerName ?? null,
     facilityName: appointment.facilityName ?? null,
     comments: appointment.comments ?? null
+  };
+}
+
+function mapPatientPortalHomeImmunizationItem(immunization: any) {
+  return {
+    id: Number(immunization.id ?? 0),
+    administeredDate: immunization.administeredDate ?? null,
+    administeredFormatted: immunization.administeredFormatted ?? null,
+    immunizationId: immunization.immunizationId ?? null,
+    cvxCode: immunization.cvxCode ?? null,
+    codeText: immunization.codeText ?? "",
+    note: immunization.note ?? null,
+    completionStatus: immunization.completionStatus ?? null,
+    addedErroneously: Number(immunization.addedErroneously ?? 0)
   };
 }
 

@@ -192,6 +192,18 @@ export type PatientPortalHomeAppointmentSummary = {
   comments: string | null;
 };
 
+export type PatientPortalHomeImmunizationSummary = {
+  id: number;
+  administeredDate: string | null;
+  administeredFormatted: string | null;
+  immunizationId: number | null;
+  cvxCode: string | null;
+  codeText: string;
+  note: string | null;
+  completionStatus: string | null;
+  addedErroneously: number;
+};
+
 export type PatientPortalHomeSummary = {
   authenticated: boolean;
   username: string;
@@ -205,6 +217,8 @@ export type PatientPortalHomeSummary = {
   messages: PatientPortalHomeMessageSummary;
   upcomingAppointmentCount: number;
   upcomingAppointments: PatientPortalHomeAppointmentSummary[];
+  immunizationCount: number;
+  immunizations: PatientPortalHomeImmunizationSummary[];
   failureReason: string | null;
   sessionSource: string;
 };
@@ -2657,6 +2671,23 @@ FROM openemr_postcalendar_events
 WHERE pc_pid = ${integer(login.pid)}
   AND pc_eventDate >= CURDATE();
 `);
+    const immunizationRows = await this.db.queryRows<Record<string, string>>(`
+SELECT
+  i.id,
+  DATE(i.administered_date) AS administeredDate,
+  DATE_FORMAT(i.administered_date, '%m/%d/%Y') AS administeredFormatted,
+  COALESCE(i.immunization_id, 0) AS immunizationId,
+  COALESCE(i.cvx_code, '') AS cvxCode,
+  COALESCE(cd.code_text, '') AS codeText,
+  COALESCE(i.note, '') AS note,
+  COALESCE(i.completion_status, '') AS completionStatus,
+  COALESCE(i.added_erroneously, 0) AS addedErroneously
+FROM immunizations AS i
+LEFT JOIN code_types AS ctype ON ctype.ct_key = 'CVX'
+LEFT JOIN codes AS cd ON cd.code = i.cvx_code AND cd.code_type = ctype.ct_id
+WHERE i.patient_id = ${integer(login.pid)}
+ORDER BY i.administered_date DESC, i.id DESC;
+`);
 
     const messageRow = messageRows[0] ?? {};
     const latestMessage = latestMessageRows[0] ?? {};
@@ -2680,6 +2711,8 @@ WHERE pc_pid = ${integer(login.pid)}
       },
       upcomingAppointmentCount: Number(appointmentCountRows[0]?.appointmentCount ?? appointmentRows.length),
       upcomingAppointments: appointmentRows.map(mapPortalAppointmentRow),
+      immunizationCount: immunizationRows.length,
+      immunizations: immunizationRows.map(mapPortalHomeImmunizationRow),
       failureReason: null,
       sessionSource: "legacy-openemr-portal"
     };
@@ -8020,6 +8053,8 @@ function buildEmptyPortalHomeSummary(username: string, failureReason: string): P
     },
     upcomingAppointmentCount: 0,
     upcomingAppointments: [],
+    immunizationCount: 0,
+    immunizations: [],
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };
@@ -8251,6 +8286,20 @@ function mapPortalAppointmentRow(row: Record<string, string>): PatientPortalHome
     providerName: row.providerName || null,
     facilityName: row.facilityName || null,
     comments: row.comments || null
+  };
+}
+
+function mapPortalHomeImmunizationRow(row: Record<string, string>): PatientPortalHomeImmunizationSummary {
+  return {
+    id: Number(row.id),
+    administeredDate: normalizeOptionalDateText(row.administeredDate),
+    administeredFormatted: row.administeredFormatted || null,
+    immunizationId: row.immunizationId ? Number(row.immunizationId) : null,
+    cvxCode: row.cvxCode || null,
+    codeText: row.codeText || "",
+    note: row.note || null,
+    completionStatus: row.completionStatus || null,
+    addedErroneously: Number(row.addedErroneously ?? 0)
   };
 }
 

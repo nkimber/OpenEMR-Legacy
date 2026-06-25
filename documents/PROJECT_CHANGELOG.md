@@ -16589,6 +16589,64 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 291. Slice 249 Patient Portal Home Immunizations Readiness
+
+Started: 2026-06-24T20:08:00-04:00
+Finished: 2026-06-24T20:29:54-04:00
+Commit: pending
+
+Implemented Slice 249: patient portal home immunization readiness. The modernized patient portal home now mirrors legacy OpenEMR's portal health snapshot by projecting and rendering signed-in patient immunizations, including entered-in-error rows that the legacy portal home still displays.
+
+Code changes:
+
+- Files changed: 17
+- Lines added: 435
+- Lines deleted: 13
+- Net lines: +422
+- Total churn: 448
+
+Key outcomes:
+
+- Added `PatientPortalHomeImmunizationSummary` to the modernized portal-home contract and populated it from `immunizations` without applying the clinician-facing entered-in-error filter.
+- Rendered a modernized Portal `Patient Immunization` health-snapshot card with administered date, CVX/code text, note, completion status, and an entered-in-error marker.
+- Extended legacy and modernized workflow adapters so portal home summaries normalize permanent and cleanup-backed immunization rows on both targets.
+- Added the `workflow-patient-portal-home-immunizations` Playwright suite and `slice-249-patient-portal-home-immunizations-readiness` plan.
+- Added Workbench-managed Slice 249 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Updated the modernized smoke script to assert the seeded `MOD-PAT-0004` portal-home influenza immunization.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 249 portal home immunization contract.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run list -- --plan slice-249-patient-portal-home-immunizations-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-home-immunizations`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed and rebuilt/restarted the modernized API and frontend services.
+- `powershell -ExecutionPolicy Bypass -File modernized-openemr\scripts\Test-ModernizedBaseline.ps1` passed and wrote `modernized-openemr/artifacts/latest-modernized-smoke-test.json`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-249-patient-portal-home-immunizations-readiness -Reset test` passed as run `2026-06-25T002845-326Z-legacy-openemr-plan-slice-249-patient-portal-home-immunizations-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-249-patient-portal-home-immunizations-readiness -Reset test` passed as run `2026-06-25T002909-225Z-modernized-openemr-plan-slice-249-patient-portal-home-immunizations-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-249-patient-portal-home-immunizations-readiness` passed as comparison `2026-06-25T002933-168Z-legacy-openemr-vs-modernized-openemr-plan-slice-249-patient-portal-home-immunizations-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `modernized-openemr/frontend/src/api.ts`
+- `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`
+- `parity-tests/tests/workflow-patient-portal-home-immunizations/patient-portal-home-immunizations.spec.ts`
+- `parity-tests/src/workflows/legacyWorkflowActions.ts`
+- `parity-tests/src/workflows/modernizedWorkflowActions.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
