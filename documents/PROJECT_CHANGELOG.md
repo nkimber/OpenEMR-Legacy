@@ -17258,7 +17258,7 @@ Code changes:
 
 Started: 2026-06-25T01:06:20-04:00
 Finished: 2026-06-25T01:11:26-04:00
-Commit: pending
+Commit: 0e77e86c
 
 Implemented Slice 265: Slice 4 clinical-list probe payload attachments. The clinical lists and medications parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, problem, allergy, medication-list, prescription, and clinical-list UI steering precondition facts so Workbench comparison drill-ins can preview clinical-list workflow database evidence.
 
