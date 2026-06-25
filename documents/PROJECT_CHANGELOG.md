@@ -17458,6 +17458,37 @@ Code changes:
 - Net lines: +138
 - Total churn: 214
 
+## 314. Slice 270 Slice 9 Reports Probe Payload Attachments
+
+Started: 2026-06-25T01:42:10-04:00
+Finished: 2026-06-25T01:50:35-04:00
+Commit: pending
+
+Implemented Slice 270: Slice 9 reports probe payload attachments. The operational reports parity suite now writes path-backed JSON Playwright attachments for gold-data counts, selected provider activity, selected facility activity, selected clinical-condition summaries, and reports UI steering precondition so Workbench comparison drill-ins can preview operational reporting database evidence.
+
+Changes:
+- Added Slice 9 reports payload attachments for the operational report count contract, selected provider activity, selected facility activity, and selected clinical-condition summary facts.
+- Added Slice 9 UI precondition payload attachments that capture the same operational report lookup before steering the legacy report screens or the modernized Reports page.
+- Preserved the existing Slice 9 assertions and side-by-side behavior while making operational reporting evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 9 reports database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 270 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:reports` in `parity-tests/` passed with 4 expected tests after reset/reseed.
+- `npm run test:legacy:plan:reports` in `parity-tests/` passed with 4 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 9 runs recorded file paths for both new `db-probe-slice-9-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-9-reports-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 165
+- Lines deleted: 25
+- Net lines: +140
+- Total churn: 190
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17467,5 +17498,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 8.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 9.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
