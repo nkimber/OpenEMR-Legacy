@@ -18891,7 +18891,7 @@ Code changes:
 
 Started: 2026-06-25T07:57:01-04:00
 Finished: 2026-06-25T08:00:14-04:00
-Commit: pending
+Commit: 2f0cbfe6
 
 Implemented Slice 314: Slice 53 document preview probe payload attachments. The document preview parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, deterministic text document preview rows, document keys/categories/storage metadata, preview kind/status, thumbnail labels/text, inline/download flags, and Documents rendering precondition so Workbench comparison drill-ins can preview read-only document-preview evidence.
 
