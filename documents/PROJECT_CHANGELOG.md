@@ -17958,7 +17958,7 @@ Code changes:
 
 Started: 2026-06-25T04:04:00-04:00
 Finished: 2026-06-25T04:10:21-04:00
-Commit: pending
+Commit: bab03451
 
 Implemented Slice 285: Slice 24 reports export probe payload attachments. The operational reports CSV export parity suite now writes path-backed JSON Playwright attachments for the normalized 79-row export set, representative CSV anchor rows, and UI/API export precondition so Workbench comparison drill-ins can preview report-export database evidence.
 
