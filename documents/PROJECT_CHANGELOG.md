@@ -17021,6 +17021,33 @@ Code changes:
 - Net lines: +318
 - Total churn: 352
 
+## 299. Slice 257 Workbench Comparison Probe Detail Readiness
+
+Started: 2026-06-24T23:55:55-04:00
+Finished: 2026-06-24T23:59:29-04:00
+Duration: 3m 34s
+Commit: pending
+
+Implemented Slice 257: Workbench comparison probe detail readiness. The Workbench now enriches recent side-by-side parity comparison reports with normalized Playwright probe details and renders probe counts plus human-readable drill-in probe lists for each comparison side.
+
+Changes:
+- Added Workbench API extraction for Playwright JSON reports, normalizing spec titles, file/line locations, statuses, expected statuses, projects, durations, retries, tags, error messages, and attachment counts.
+- Extended comparison-side DTOs so normalized probe details travel with the existing report links and screenshot metadata.
+- Added Test Runs comparison-side probe counts and expanded drill-in lists that show probe status, duration, source file, tags, attachment count, and any recorded errors.
+- Updated the Workbench functionality progress ledger so normalized probe detail views are completed evidence scope while accepted differences, reliability trends, and historical charts remain outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 257 evidence-inspection contract.
+
+Verification:
+- `npm run build` in `modernization-workbench/` passed.
+- `node` JSON validation for `modernization-workbench/config/functionality-progress.json` passed.
+
+Code changes:
+- Files changed: 11
+- Lines added: 339
+- Lines deleted: 20
+- Net lines: +319
+- Total churn: 359
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17030,4 +17057,4 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Workbench normalized probe detail views, accepted-difference tracking, reliability trends, and historical progress charts.
+- Workbench accepted-difference tracking, reliability trends, and historical progress charts.

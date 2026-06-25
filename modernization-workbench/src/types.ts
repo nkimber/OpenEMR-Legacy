@@ -103,6 +103,21 @@ export type VisualArtifact = {
   modifiedAt: string;
 };
 
+export type ProbeDetail = {
+  title: string;
+  file: string;
+  line: number;
+  column: number;
+  status: string;
+  expectedStatus: string;
+  project: string;
+  durationMs: number;
+  retry: number;
+  tags: string[];
+  errorMessages: string[];
+  attachmentCount: number;
+};
+
 export type ParityComparisonSide = {
   target: string;
   runId: string;
@@ -124,6 +139,7 @@ export type ParityComparisonSide = {
     html: string;
   };
   visualArtifacts: VisualArtifact[];
+  probeDetails: ProbeDetail[];
 };
 
 export type ParityComparisonReport = {

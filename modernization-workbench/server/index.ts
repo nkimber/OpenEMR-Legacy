@@ -325,6 +325,7 @@ type ParityComparisonSide = {
     html: string;
   };
   visualArtifacts: VisualArtifact[];
+  probeDetails: ProbeDetail[];
 };
 
 type ParityComparisonReport = {
@@ -352,6 +353,21 @@ type VisualArtifact = {
   kind: "test-screenshot" | "html-report-image" | "image";
   sizeBytes: number;
   modifiedAt: string;
+};
+
+type ProbeDetail = {
+  title: string;
+  file: string;
+  line: number;
+  column: number;
+  status: string;
+  expectedStatus: string;
+  project: string;
+  durationMs: number;
+  retry: number;
+  tags: string[];
+  errorMessages: string[];
+  attachmentCount: number;
 };
 
 type SourceInventoryConfig = {
@@ -1934,6 +1950,96 @@ async function collectVisualArtifacts(runArtifactDirectory: string, limit = 8): 
     .slice(0, limit);
 }
 
+function getRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
+}
+
+function getArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function readErrorMessages(value: unknown) {
+  return getArray(value)
+    .map((item) => getRecord(item))
+    .map((item) => {
+      if (typeof item.message === "string") {
+        return item.message;
+      }
+      if (typeof item.stack === "string") {
+        return item.stack.split(/\r?\n/)[0] ?? item.stack;
+      }
+      return "";
+    })
+    .filter((item) => item.length > 0)
+    .slice(0, 3);
+}
+
+function collectProbeDetailsFromPlaywrightReport(report: unknown, limit = 20): ProbeDetail[] {
+  const probes: ProbeDetail[] = [];
+
+  function visitSuite(value: unknown, inheritedFile = "") {
+    const suite = getRecord(value);
+    const suiteFile = typeof suite.file === "string" ? suite.file : inheritedFile;
+
+    for (const specValue of getArray(suite.specs)) {
+      const spec = getRecord(specValue);
+      const tests = getArray(spec.tests);
+      const firstTest = getRecord(tests[0]);
+      const results: unknown[] = tests.flatMap((testValue) => getArray(getRecord(testValue).results));
+      const firstResult = getRecord(results[0]);
+      const durationMs = results.reduce<number>((total, resultValue) => total + toNumber(getRecord(resultValue).duration), 0);
+      const errorMessages = results.flatMap((resultValue) => readErrorMessages(getRecord(resultValue).errors)).slice(0, 3);
+      const attachmentCount = results.reduce<number>((total, resultValue) => total + getArray(getRecord(resultValue).attachments).length, 0);
+
+      probes.push({
+        title: typeof spec.title === "string" ? spec.title : "Untitled probe",
+        file: typeof spec.file === "string" ? spec.file : suiteFile,
+        line: toNumber(spec.line),
+        column: toNumber(spec.column),
+        status: typeof firstTest.status === "string"
+          ? firstTest.status
+          : typeof firstResult.status === "string" ? firstResult.status : Boolean(spec.ok) ? "expected" : "unknown",
+        expectedStatus: typeof firstTest.expectedStatus === "string" ? firstTest.expectedStatus : "",
+        project: typeof firstTest.projectName === "string"
+          ? firstTest.projectName
+          : typeof firstTest.projectId === "string" ? firstTest.projectId : "",
+        durationMs,
+        retry: toNumber(firstResult.retry),
+        tags: toStringArray(spec.tags),
+        errorMessages,
+        attachmentCount
+      });
+    }
+
+    for (const childSuite of getArray(suite.suites)) {
+      visitSuite(childSuite, suiteFile);
+    }
+  }
+
+  for (const suite of getArray(getRecord(report).suites)) {
+    visitSuite(suite);
+    if (probes.length >= limit) {
+      break;
+    }
+  }
+
+  return probes.slice(0, limit);
+}
+
+async function collectProbeDetails(playwrightReportPath: string): Promise<ProbeDetail[]> {
+  if (!playwrightReportPath) {
+    return [];
+  }
+
+  try {
+    const resolvedPath = resolveReadableArtifactPath(playwrightReportPath);
+    const report = await readJsonIfExists(resolvedPath);
+    return collectProbeDetailsFromPlaywrightReport(report);
+  } catch {
+    return [];
+  }
+}
+
 async function getExistingArtifactPath(projectPath: string) {
   if (!projectPath) {
     return "";
@@ -1983,7 +2089,8 @@ function normalizeComparisonSide(value: unknown): ParityComparisonSide | null {
       duration: toNumber(stats.duration)
     },
     reports: normalizeRunReportLinks(reports),
-    visualArtifacts: []
+    visualArtifacts: [],
+    probeDetails: []
   };
 }
 
@@ -2000,8 +2107,11 @@ async function enrichComparisonSide(side: ParityComparisonSide) {
       ? await normalizeExistingRunReportLinks(runSummaryObject.reports)
       : side.reports;
     const runArtifactDirectory = path.dirname(runSummaryPath);
-    const visualArtifacts = await collectVisualArtifacts(runArtifactDirectory);
-    return { ...side, reports, visualArtifacts };
+    const [visualArtifacts, probeDetails] = await Promise.all([
+      collectVisualArtifacts(runArtifactDirectory),
+      collectProbeDetails(reports.playwrightJson)
+    ]);
+    return { ...side, reports, visualArtifacts, probeDetails };
   } catch {
     return side;
   }

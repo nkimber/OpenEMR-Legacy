@@ -70,7 +70,7 @@ The implementation should not preserve legacy technical constraints:
 
 - Modernized OpenEMR becomes a managed application in `modernization-workbench/config/apps.json`.
 - Workbench can start, stop, restart, health-check, seed, and run tests for the modernized target.
-- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, Slice 124 expandable drill-ins, Slice 125 safe links to run/comparison artifact files, Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML report files, and Slice 256 screenshot thumbnails; normalized probe views and trend charts remain future work.
+- Workbench Test Runs now renders recent side-by-side comparison artifacts with matched/different status, run IDs, suite coverage, difference counts, artifact paths, Slice 124 expandable drill-ins, Slice 125 safe links to run/comparison artifact files, Slice 155 direct links to run JSON, Playwright JSON, JUnit XML, and HTML report files, Slice 256 screenshot thumbnails, and Slice 257 normalized probe detail views; accepted-difference and trend charts remain future work.
 
 ## Vertical Slice Strategy
 
@@ -1250,7 +1250,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice improves Workbench evidence navigation only. Screenshot thumbnails are added by Slice 256; normalized probe detail views, accepted-difference tracking, reliability trends, historical progress charts, and long-term evidence retention remain future scope.
+- This slice improves Workbench evidence navigation only. Screenshot thumbnails are added by Slice 256 and normalized Playwright probe detail views are added by Slice 257; accepted-difference tracking, reliability trends, historical progress charts, and long-term evidence retention remain future scope.
 
 ### Slice 256: Workbench Comparison Screenshot Thumbnail Readiness
 
@@ -1276,6 +1276,31 @@ Acceptance:
 Current limitations:
 
 - This slice surfaces existing Playwright images only. It does not force every parity test to capture passing-state screenshots, normalize database probe details, track accepted differences, calculate reliability trends, or define long-term evidence-retention policy.
+
+### Slice 257: Workbench Comparison Probe Detail Readiness
+
+Status:
+
+- Implemented as a Workbench evidence-inspection slice under `modernization-workbench/`.
+- Verification is the Workbench production build, which typechecks the Express API enrichment and React probe-detail rendering.
+
+Scope:
+
+- The Workbench `/api/parity-comparisons` route now reads each comparison side's Playwright JSON report and normalizes spec-level probe details into title, file/line, status, expected status, project, duration, retry, tags, errors, and attachment count.
+- The Test Runs comparison side summaries now show probe counts.
+- Expanded comparison drill-ins now render normalized probe lists for each side alongside artifact links and visual evidence thumbnails.
+- Runs without a Playwright JSON report or without parsed specs render a quiet empty state instead of broken links or raw JSON.
+- The functionality progress ledger records normalized probe details as completed Workbench evidence scope.
+
+Acceptance:
+
+- Recent comparison cards continue to show matched/different state, run IDs, suite coverage, differences, report links, screenshot thumbnails, and artifact paths.
+- When a comparison-side run has Playwright JSON, the drill-in exposes human-readable probe titles, statuses, source files, durations, tags, attachment counts, and any recorded errors.
+- Missing optional Playwright probe details are hidden behind an explicit empty state rather than shown as malformed raw JSON.
+
+Current limitations:
+
+- This slice normalizes Playwright test/spec details only. It does not yet normalize target database probe payloads, persist accepted differences, calculate reliability trends, or define long-term evidence-retention policy.
 
 ### Slice 156: Patient Message Reply Readiness
 
@@ -4559,4 +4584,5 @@ As of 2026-06-20:
 - The two-hundred-fifty-third modernized vertical slice implements patient portal profile review accept readiness by adding a protected administration accept endpoint, rendering a modernized Admin `Commit to Chart` action, committing requested portal profile demographics into the chart, closing the waiting review request with OpenEMR-style `completed` / `accept` metadata, and proving the same acceptance outcome against legacy `onsite_portal_activity` with a cleanup-backed parity plan. This closes the positive staff review mutation while leaving legacy revert-edit handling, richer layout-row metadata, and insurance edit workflows for future slices.
 - The two-hundred-fifty-fourth modernized vertical slice implements patient portal profile review revert readiness by matching OpenEMR's staff-side `Revert Edits` behavior: pending edited values are replaced with chart-original values before the review is closed, the audit still uses OpenEMR-style `completed` / `accept` metadata, and chart demographics remain unchanged. This closes the legacy negative staff review path while leaving richer layout-row metadata and insurance edit workflows for future slices.
 - The two-hundred-fifty-fifth modernized vertical slice implements patient portal secure-message notification readiness by adding a generated PostgreSQL `patient_reminders` projection, merging active recent reminders into portal secure-message Inbox and All-style results as read-only `Notification` rows, excluding them from Sent and Deleted, documenting that the observed legacy v8.1.0 Secure Messaging UI does not render those reminder rows, and rendering the modernized Portal notification rows without thread, reply, read-mark, archive, or forward actions. This closes the focused legacy `getPortalPatientNotifications` projection gap while leaving outbound notification delivery, attachment handling, and richer messaging policy for future slices.
-- The two-hundred-fifty-sixth implementation slice improves Workbench comparison evidence by enriching comparison sides with screenshot/image artifact metadata, rendering compact thumbnails on Test Runs comparison cards, rendering larger visual evidence lists in drill-ins, and preserving all image access through the safe artifact endpoint. This closes the first screenshot-preview evidence gap while leaving normalized probe detail views, accepted-difference tracking, reliability trends, historical trend charts, and long-term evidence-retention policy for future Workbench slices.
+- The two-hundred-fifty-sixth implementation slice improves Workbench comparison evidence by enriching comparison sides with screenshot/image artifact metadata, rendering compact thumbnails on Test Runs comparison cards, rendering larger visual evidence lists in drill-ins, and preserving all image access through the safe artifact endpoint. This closes the first screenshot-preview evidence gap; Slice 257 adds normalized Playwright probe detail views, while accepted-difference tracking, reliability trends, historical trend charts, and long-term evidence-retention policy remain for future Workbench slices.
+- The two-hundred-fifty-seventh implementation slice improves Workbench comparison evidence by enriching comparison sides with normalized Playwright probe details from run-level JSON reports, rendering probe counts on comparison-side summaries, and showing probe titles, statuses, files, durations, tags, attachment counts, and errors in expanded drill-ins. This closes the first normalized probe detail gap while leaving database-probe payload normalization, accepted-difference tracking, reliability trends, historical trend charts, and long-term evidence-retention policy for future Workbench slices.

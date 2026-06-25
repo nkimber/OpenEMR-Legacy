@@ -995,6 +995,96 @@ p {
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
 }
 
+.comparison-probes {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  min-width: 0;
+  border: 1px solid #e4ebf1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.comparison-probes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.comparison-probes-header span {
+  color: #687789;
+  font-size: 0.74rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.comparison-probes-header strong {
+  color: #263747;
+  font-size: 0.82rem;
+}
+
+.comparison-probes ol {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.comparison-probes ol > li {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border-top: 1px solid #edf1f5;
+  padding-top: 8px;
+}
+
+.comparison-probes ol > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.comparison-probe-title,
+.comparison-probe-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.comparison-probe-title strong {
+  min-width: 0;
+  color: #263747;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.comparison-probe-meta span,
+.comparison-probes small {
+  color: #687789;
+  font-size: 0.76rem;
+}
+
+.comparison-probes code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparison-probes ul {
+  display: grid;
+  gap: 4px;
+  padding-left: 16px;
+  margin: 0;
+  color: #8a3b2f;
+  font-size: 0.76rem;
+}
+
 .comparison-differences {
   display: grid;
   gap: 6px;

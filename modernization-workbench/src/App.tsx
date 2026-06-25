@@ -2353,6 +2353,48 @@ function ComparisonArtifactDetail({ label, side }: { label: string; side: Parity
       </small>
       <ComparisonReportLinks side={side} />
       <ComparisonVisualEvidence side={side} detailed />
+      <ComparisonProbeDetails side={side} />
+    </div>
+  );
+}
+
+function ComparisonProbeDetails({ side }: { side: ParityComparisonReport["left"] }) {
+  const probeDetails = side.probeDetails ?? [];
+
+  if (!probeDetails.length) {
+    return <small>No normalized probe details recorded for this run.</small>;
+  }
+
+  return (
+    <div className="comparison-probes" aria-label={`${side.target} normalized probe details`}>
+      <div className="comparison-probes-header">
+        <span>Normalized probes</span>
+        <strong>{probeDetails.length}</strong>
+      </div>
+      <ol>
+        {probeDetails.map((probe, index) => (
+          <li key={`${side.runId}-${probe.file}-${probe.line}-${probe.title}-${index}`}>
+            <div className="comparison-probe-title">
+              <strong>{probe.title}</strong>
+              <StatusPill state={probe.status === "expected" ? "healthy" : probe.status} label={formatProbeStatus(probe.status)} />
+            </div>
+            <div className="comparison-probe-meta">
+              <span>{probe.project || "project"}</span>
+              <span>{formatDuration(probe.durationMs)}</span>
+              <span>{probe.attachmentCount} attachments</span>
+            </div>
+            <code>{probe.file}{probe.line ? `:${probe.line}` : ""}</code>
+            {probe.tags.length ? <small>{probe.tags.map((tag) => `@${tag}`).join(" ")}</small> : null}
+            {probe.errorMessages.length ? (
+              <ul>
+                {probe.errorMessages.map((message, errorIndex) => (
+                  <li key={`${side.runId}-${probe.title}-error-${errorIndex}`}>{message}</li>
+                ))}
+              </ul>
+            ) : null}
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -2448,6 +2490,7 @@ function ComparisonSideSummary({ side }: { side: ParityComparisonReport["left"] 
       </div>
       <span>{side.stats.expected} expected</span>
       <span>{side.stats.unexpected} unexpected</span>
+      <span>{side.probeDetails?.length ?? 0} probes</span>
       <span>{formatDuration(side.stats.duration)}</span>
       <code>{side.runId}</code>
     </div>
@@ -2493,6 +2536,13 @@ function formatVisualArtifactKind(kind: string) {
     return "HTML report image";
   }
   return "Image artifact";
+}
+
+function formatProbeStatus(status: string) {
+  if (status === "expected") {
+    return "passed";
+  }
+  return status || "unknown";
 }
 
 function CustomParityRunPanel({
