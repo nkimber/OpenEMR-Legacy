@@ -17287,7 +17287,7 @@ Code changes:
 
 Started: 2026-06-25T01:14:30-04:00
 Finished: 2026-06-25T01:17:49-04:00
-Commit: pending
+Commit: 06bea7be
 
 Implemented Slice 266: Slice 5 messaging probe payload attachments. The patient messages parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0004` portal-enabled anchor patient, seeded care-team and portal-message facts, and messaging UI steering precondition so Workbench comparison drill-ins can preview messaging workflow database evidence.
 
