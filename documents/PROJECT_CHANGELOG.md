@@ -21861,6 +21861,39 @@ Code changes:
 - Lines deleted: 41
 - Net lines: 136
 - Total churn: 218
+
+## 448. Slice 402 Slice 144 Procedure Lab Provider Address Book Probe Payload Attachments
+
+Started: 2026-06-25T18:05:17.9264945-04:00
+Finished: 2026-06-25T18:06:43.0765506-04:00
+Commit: pending
+
+Implemented Slice 402: Slice 144 procedure lab provider address-book probe payload attachments. The procedure lab provider address-book parity suite now writes path-backed JSON Playwright attachments for temporary order-service organizations, provider name derivation from linked address-book organizations, relinked provider state, browser/API rendering facts, and cleanup deletion so Workbench comparison drill-ins can preview linked-provider address-book evidence.
+
+Changes:
+- Added Slice 144 precondition payload attachments for temporary order-service organization inputs and manual provider fallback names.
+- Added organization-created payload attachments for the initial address-book organization used by the provider link.
+- Added linked-provider payload attachments proving the first provider name is derived from the linked organization rather than the manual fallback.
+- Added relinked-provider payload attachments proving the provider moves to the second organization, updates NPI/protocol/routing, and still derives the organization name.
+- Added rendered payload attachments for legacy Procedure Providers rendering and modernized Reports linked-organization rendering.
+- Added cleanup payload attachments proving the temporary provider and both temporary address-book organizations are deleted after assertions complete.
+- Updated the Workbench functionality progress ledger so Slice 144 procedure lab provider address-book database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 402 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-144-procedure-lab-provider-address-book-readiness` passed with run ID `2026-06-25T220547-610Z-legacy-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-144-procedure-lab-provider-address-book-readiness` passed with run ID `2026-06-25T220614-173Z-modernized-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-144-procedure-lab-provider-address-book-readiness` matched with comparison ID `2026-06-25T220631-184Z-legacy-openemr-vs-modernized-openemr-plan-slice-144-procedure-lab-provider-address-book-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-144-procedure-lab-provider-address-book-precondition`, `organization-created`, `linked`, `relinked`, `rendered`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 208
+- Lines deleted: 22
+- Net lines: 186
+- Total churn: 230
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21870,5 +21903,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slice 144.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
