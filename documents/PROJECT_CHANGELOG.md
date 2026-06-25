@@ -18921,7 +18921,7 @@ Code changes:
 
 Started: 2026-06-25T08:04:02-04:00
 Finished: 2026-06-25T08:06:54-04:00
-Commit: pending
+Commit: 4dd975b9
 
 Implemented Slice 315: Slice 54 document revision probe payload attachments. The document revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, current-version document rows, revision timestamps, version labels/status/counts, prior-version flags, revision hashes, content detail revision facts, and Documents rendering precondition so Workbench comparison drill-ins can preview read-only document-revision evidence.
 
