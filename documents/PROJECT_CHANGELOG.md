@@ -18861,7 +18861,7 @@ Code changes:
 
 Started: 2026-06-25T07:51:16-04:00
 Finished: 2026-06-25T07:55:10-04:00
-Commit: pending
+Commit: 400e7170
 
 Implemented Slice 313: Slice 52 account statement probe payload attachments. The account statement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, statement-ready recipient/address/contact facts, period/due-date/status facts, open encounter and ledger counts, current/past/balance due amounts, source balance/aging/ledger context, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only statement-readiness evidence.
 
