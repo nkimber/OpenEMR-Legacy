@@ -17283,6 +17283,35 @@ Code changes:
 - Net lines: +87
 - Total churn: 159
 
+## 308. Slice 266 Slice 5 Messaging Probe Payload Attachments
+
+Started: 2026-06-25T01:14:30-04:00
+Finished: 2026-06-25T01:17:49-04:00
+Commit: pending
+
+Implemented Slice 266: Slice 5 messaging probe payload attachments. The patient messages parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0004` portal-enabled anchor patient, seeded care-team and portal-message facts, and messaging UI steering precondition so Workbench comparison drill-ins can preview messaging workflow database evidence.
+
+Changes:
+- Added Slice 5 messaging payload attachments for the portal-enabled anchor patient and selected seeded patient-message facts.
+- Added Slice 5 UI precondition payload attachments that capture the same database patient and message lookup before steering the legacy patient-notes UI or the modernized Messages page.
+- Preserved the existing Slice 5 assertions and side-by-side behavior while making messaging evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 5 messaging database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 266 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `npm run test:modernized:plan:messages` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- `npm run test:legacy:plan:messages` in `parity-tests/` passed with 2 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 5 runs recorded file paths for both new `db-probe-slice-5-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-5-messaging-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 124
+- Lines deleted: 30
+- Net lines: +94
+- Total churn: 154
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17292,5 +17321,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 4.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 5.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
