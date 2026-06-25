@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -27,11 +28,14 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(coSignatureAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Missing seeded encounter co-signature patient ${coSignatureAnchorPatientId}`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const suffix = workflowSuffix();
     const externalId = compactWorkflowId();
     const reason = `Parity Encounter Co-Signature ${suffix}`;
@@ -41,10 +45,66 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
     let encounterId: number | null = null;
     const signatureIds: number[] = [];
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-121-encounter-cosignature-precondition",
+      description:
+        "Seeded patient and baseline workflow counts before creating a temporary encounter with two ordered signatures.",
+      expected: {
+        patientCanonicalId: coSignatureAnchorPatientId,
+        encounterDate: coSignatureEncounterDate,
+        facilityId: 10,
+        billingFacilityId: 10,
+        primarySigner: "admin",
+        coSigner: "gold-provider-02",
+        primaryLocked: false,
+        coSignerLocked: true,
+        expectedEncounterDelta: 1,
+        expectedSignatureDelta: 2
+      },
+      actual: {
+        patient: {
+          pid: patient.pid,
+          pubpid: patient.pubpid,
+          fname: patient.fname,
+          lname: patient.lname,
+          providerId: patient.providerId
+        },
+        beforeCounts,
+        proposedEncounter: {
+          dateTime: `${coSignatureEncounterDate} 11:15:00`,
+          reason,
+          externalId,
+          billingNote
+        },
+        proposedSignatures: [
+          {
+            signerUsername: "admin",
+            signedAt: `${coSignatureEncounterDate} 11:20:00`,
+            isLock: false,
+            amendment: primaryNote
+          },
+          {
+            signerUsername: "gold-provider-02",
+            signedAt: `${coSignatureEncounterDate} 11:25:00`,
+            isLock: true,
+            amendment: coSignerNote
+          }
+        ]
+      }
+    });
+
+    let createdEncounter: Awaited<ReturnType<typeof workflow.getEncounter>> = null;
+    let primarySignature: Awaited<ReturnType<typeof workflow.getEncounterSignature>> = null;
+    let coSignature: Awaited<ReturnType<typeof workflow.getEncounterSignature>> = null;
+    let signatureRows: SignatureRow[] = [];
+    let afterSignCounts: Awaited<ReturnType<typeof targetDb.getPatientWorkflowCounts>>;
+    let surfaceFacts: Record<string, unknown> = {};
+
     try {
       encounterId = await workflow.createEncounter({
-        patientId: patient!.pid,
-        providerId: patient!.providerId,
+        patientId: patient.pid,
+        providerId: patient.providerId,
         dateTime: `${coSignatureEncounterDate} 11:15:00`,
         reason,
         facilityId: 10,
@@ -71,8 +131,9 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
         amendment: coSignerNote
       }));
 
-      const primarySignature = await workflow.getEncounterSignature(signatureIds[0]);
-      const coSignature = await workflow.getEncounterSignature(signatureIds[1]);
+      createdEncounter = await workflow.getEncounter(encounterId);
+      primarySignature = await workflow.getEncounterSignature(signatureIds[0]);
+      coSignature = await workflow.getEncounterSignature(signatureIds[1]);
       expect(primarySignature).toMatchObject({
         tableName: "form_encounter",
         signerUsername: "admin",
@@ -88,7 +149,7 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
         amendment: coSignerNote
       });
 
-      const signatureRows = await querySignaturesForEncounter(target.type, targetDb as QueryableDb, encounterId);
+      signatureRows = await querySignaturesForEncounter(target.type, targetDb as QueryableDb, encounterId);
       expect(signatureRows).toHaveLength(2);
       expect(signatureRows.map((signature) => signature.signerUsername)).toEqual(["gold-provider-02", "admin"]);
       expect(signatureRows.map((signature) => signature.amendment)).toEqual([coSignerNote, primaryNote]);
@@ -96,16 +157,23 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
       expect(signatureRows.every((signature) => signature.hash.length >= 32)).toBe(true);
       expect(signatureRows.every((signature) => signature.signatureHash.length >= 32)).toBe(true);
 
-      const afterSignCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      afterSignCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterSignCounts.encounters).toBe(beforeCounts.encounters + 1);
       expect(afterSignCounts.encounterSignatures).toBe(beforeCounts.encounterSignatures + 2);
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
-        await openPatientSummaryDirect(page, target, patient!.pid);
-        await expectRenderedText(page, patient!.lname);
+        await openPatientSummaryDirect(page, target, patient.pid);
+        await expectRenderedText(page, patient.lname);
+        surfaceFacts = {
+          legacy: {
+            patientSummaryPid: patient.pid,
+            patientLastName: patient.lname,
+            renderedPatientSummary: true
+          }
+        };
       } else {
-        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, coSignatureEncounterDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient.pubpid, coSignatureEncounterDate);
 
         const encounterButton = page.getByRole("button", { name: new RegExp(escapeRegex(reason), "i") }).first();
         await expect(encounterButton).toBeVisible();
@@ -121,7 +189,52 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
         await expect(signatureCards.nth(1)).toContainText("Signed");
         await expect(signatureCards.nth(1)).toContainText("admin");
         await expect(signatureCards.nth(1)).toContainText(primaryNote);
+        surfaceFacts = {
+          modernized: {
+            searchPatientId: patient.pubpid,
+            searchDate: coSignatureEncounterDate,
+            reason,
+            signatureCountLabel: "2 signatures",
+            firstSignature: {
+              status: "Locked",
+              signerUsername: "gold-provider-02",
+              amendment: coSignerNote
+            },
+            secondSignature: {
+              status: "Signed",
+              signerUsername: "admin",
+              amendment: primaryNote
+            }
+          }
+        };
       }
+
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-121-encounter-cosignature-signed",
+        description:
+          "Temporary encounter has two signatures ordered newest first, with lock status, amendments, hashes, count deltas, and UI rendering evidence.",
+        expected: {
+          encounterCreated: true,
+          signatureCount: 2,
+          signerOrder: ["gold-provider-02", "admin"],
+          amendments: [coSignerNote, primaryNote],
+          lockStates: ["1", "0"],
+          encounterCountDelta: 1,
+          encounterSignatureDelta: 2
+        },
+        actual: {
+          encounterId,
+          signatureIds,
+          createdEncounter,
+          primarySignature,
+          coSignature,
+          signatureRows,
+          beforeCounts,
+          afterSignCounts,
+          surfaceFacts
+        }
+      });
 
       while (signatureIds.length > 0) {
         const signatureId = signatureIds.pop()!;
@@ -129,7 +242,7 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
         await expect(workflow.getEncounterSignature(signatureId)).resolves.toBeNull();
       }
 
-      const afterSignatureDeleteCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      const afterSignatureDeleteCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterSignatureDeleteCounts.encounterSignatures).toBe(beforeCounts.encounterSignatures);
     } finally {
       while (signatureIds.length > 0) {
@@ -140,13 +253,36 @@ test.describe("encounter co-signature parity @slice121 @workflow-encounter-cosig
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.encounters).toBe(beforeCounts.encounters);
     expect(afterCleanupCounts.encounterSignatures).toBe(beforeCounts.encounterSignatures);
+    const encounterAfterCleanup = encounterId !== null ? await workflow.getEncounter(encounterId) : null;
+    const signatureRowsAfterCleanup =
+      encounterId !== null ? await querySignaturesForEncounter(target.type, targetDb as QueryableDb, encounterId) : [];
     if (encounterId !== null) {
-      await expect(workflow.getEncounter(encounterId)).resolves.toBeNull();
-      await expect(querySignaturesForEncounter(target.type, targetDb as QueryableDb, encounterId)).resolves.toEqual([]);
+      expect(encounterAfterCleanup).toBeNull();
+      expect(signatureRowsAfterCleanup).toEqual([]);
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-121-encounter-cosignature-cleanup",
+      description:
+        "Temporary co-signature rows and encounter were deleted, restoring the seeded patient's encounter and signature counts.",
+      expected: {
+        encounterDeleted: true,
+        signaturesDeleted: true,
+        encounterCountRestored: true,
+        encounterSignatureCountRestored: true
+      },
+      actual: {
+        encounterId,
+        beforeCounts,
+        afterCleanupCounts,
+        encounterAfterCleanup,
+        signatureRowsAfterCleanup
+      }
+    });
   });
 });
 

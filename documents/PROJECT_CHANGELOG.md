@@ -21208,6 +21208,38 @@ Code changes:
 - Net lines: +118
 - Total churn: 202
 
+## 428. Slice 382 Slice 121 Encounter Co-Signature Probe Payload Attachments
+
+Started: 2026-06-25T15:57:12.6171287-04:00
+Finished: 2026-06-25T15:59:16.7980909-04:00
+Commit: pending
+
+Implemented Slice 382: Slice 121 encounter co-signature probe payload attachments. The encounter co-signature parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0002` seeded patient anchor, temporary encounter, ordered admin/provider signature rows, lock/hash/amendment facts, legacy patient-summary rendering facts, modernized sign-off panel rendering anchors, signature deletion, and encounter cleanup so Workbench comparison drill-ins can preview two-signer encounter lock evidence.
+
+Changes:
+- Added Slice 121 precondition payload attachments for the seeded patient, baseline encounter/signature counts, proposed temporary encounter, and two planned signatures.
+- Added Slice 121 signed-state payload attachments for the created encounter, ordered signature rows, signature hashes, count deltas, and legacy/modernized rendering anchors.
+- Added Slice 121 cleanup payload attachments for deleting both temporary signatures, deleting the temporary encounter, and restoring the seeded patient's encounter/signature counts.
+- Replaced non-null patient assumptions in the Slice 121 suite with an explicit seeded-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 121 encounter co-signature database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 382 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- Legacy Slice 121 parity run `2026-06-25T195821-896Z-legacy-openemr-plan-slice-121-encounter-cosignature-readiness` passed.
+- Modernized Slice 121 parity run `2026-06-25T195821-970Z-modernized-openemr-plan-slice-121-encounter-cosignature-readiness` passed.
+- Slice 121 side-by-side comparison `2026-06-25T195908-234Z-legacy-openemr-vs-modernized-openemr-plan-slice-121-encounter-cosignature-readiness` matched with no differences.
+- Slice 121 probe attachment report check passed for precondition, signed-state, and cleanup JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 198
+- Lines removed: 29
+- Net lines: +169
+- Total churn: 227
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21217,5 +21249,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 120.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 121.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
