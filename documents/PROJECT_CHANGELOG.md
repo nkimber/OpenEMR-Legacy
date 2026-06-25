@@ -20604,7 +20604,7 @@ Code changes:
 
 Started: 2026-06-25T13:53:36.3636634-04:00
 Finished: 2026-06-25T13:55:23.8508123-04:00
-Commit: pending
+Commit: cb51c16c
 
 Implemented Slice 363: Slice 102 appointment comments probe payload attachments. The appointment comments parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, initial and updated comments, updated title/comment facts, legacy appointment edit rendering, modernized Calendar comments control/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment comment-update evidence.
 
