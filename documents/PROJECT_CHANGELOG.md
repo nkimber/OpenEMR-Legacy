@@ -17141,7 +17141,7 @@ Code changes:
 Started: 2026-06-25T00:36:18-04:00
 Finished: 2026-06-25T00:44:39-04:00
 Duration: 8m 21s
-Commit: pending
+Commit: 85a105c3
 
 Implemented Slice 261: database probe payload attachments. The database gold-seed contract suite now writes path-backed JSON Playwright attachments for expected/actual count, temporal coverage, anchor-patient, and related-record probes so Workbench comparison drill-ins can preview durable database evidence payloads.
 
