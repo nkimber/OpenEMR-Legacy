@@ -21244,7 +21244,7 @@ Code changes:
 
 Started: 2026-06-25T16:01:17.5112265-04:00
 Finished: 2026-06-25T16:02:57.7106964-04:00
-Commit: pending
+Commit: bc533be6
 
 Implemented Slice 383: Slice 122 encounter document revision probe payload attachments. The encounter document revision parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, encounter `1000013`, two current-version encounter documents, revision timestamps, hash parity, API document projection, and modernized attached-document card rendering anchors so Workbench comparison drill-ins can preview revision-readiness evidence.
 
@@ -21266,10 +21266,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 116
+- Lines added: 122
 - Lines removed: 18
-- Net lines: +98
-- Total churn: 134
+- Net lines: +104
+- Total churn: 140
 
 ## Next Expected Entries
 
