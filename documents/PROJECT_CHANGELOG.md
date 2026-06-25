@@ -19077,7 +19077,7 @@ Code changes:
 
 Started: 2026-06-25T08:35:05-04:00
 Finished: 2026-06-25T08:38:26-04:00
-Commit: pending
+Commit: 46a83371
 
 Implemented Slice 320: Slice 59 statement generation probe payload attachments. The patient statement generation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` billing anchor, statement summary, ledger source rows, deterministic statement number, generated text, line totals, and ending balance so Workbench comparison drill-ins can preview printable statement generation evidence.
 
@@ -19098,10 +19098,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 116
+- Lines added: 126
 - Lines deleted: 16
-- Net lines: +100
-- Total churn: 132
+- Net lines: +110
+- Total churn: 142
 
 ## Next Expected Entries
 
