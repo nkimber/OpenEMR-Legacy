@@ -17655,6 +17655,39 @@ Code changes:
 - Net lines: +169
 - Total churn: 219
 
+## 320. Slice 276 Slice 15 Prescription Mutation Probe Payload Attachments
+
+Started: 2026-06-25T02:40:03-04:00
+Finished: 2026-06-25T02:41:20-04:00
+Commit: pending
+
+Implemented Slice 276: Slice 15 prescription mutation probe payload attachments. The prescription mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0008` anchor patient, proposed prescription create payload, created prescription database row with count increment, deactivated prescription database row, and hard-delete cleanup state so Workbench comparison drill-ins can preview prescription mutation database evidence.
+
+Changes:
+- Added Slice 15 prescription mutation precondition payload attachments for the anchor patient, workflow counts before mutation, and proposed prescription create payload.
+- Added Slice 15 created-prescription payload attachments that capture the temporary prescription row and prescription-count increment immediately after creation.
+- Added Slice 15 deactivated-prescription payload attachments that capture the temporary prescription row after active/end-date/note update and before cleanup.
+- Added Slice 15 cleanup payload attachments that capture restored prescription counts and deleted prescription lookup after the temporary row is removed.
+- Preserved the existing Slice 15 assertions and side-by-side behavior while making prescription mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 15 prescription mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 276 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:prescription-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T064012-969Z-modernized-openemr-plan-slice-15-prescription-mutation-readiness`.
+- `npm run test:legacy:plan:prescription-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T064031-506Z-legacy-openemr-plan-slice-15-prescription-mutation-readiness`.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 15 runs recorded file paths for all four new `db-probe-slice-15-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-15-prescription-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T064056-777Z-legacy-openemr-vs-modernized-openemr-plan-slice-15-prescription-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 180
+- Lines deleted: 31
+- Net lines: +149
+- Total churn: 211
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17664,5 +17697,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 14.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 15.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
