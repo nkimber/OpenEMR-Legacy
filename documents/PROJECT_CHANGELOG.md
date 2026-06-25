@@ -21021,7 +21021,7 @@ Code changes:
 
 Started: 2026-06-25T15:17:28.8934597-04:00
 Finished: 2026-06-25T15:19:20.3587459-04:00
-Commit: pending
+Commit: f40f70b3
 
 Implemented Slice 376: Slice 115 appointment monthly repeat-on recurrence probe payload attachments. The appointment monthly repeat-on recurrence parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, temporary second-Tuesday and last-Friday recurring root creation, repeat-on ordinal/weekday metadata, generated occurrence expansion, legacy `REPEAT_ON` rendering facts, modernized Calendar repeat-on rendering anchors, and cleanup deletion so Workbench comparison drill-ins can preview monthly repeat-on recurrence evidence.
 
