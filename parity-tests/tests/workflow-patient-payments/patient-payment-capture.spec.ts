@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 
 const patientPaymentAnchorPatientId = "MOD-PAT-0005";
@@ -10,7 +11,7 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(patientPaymentAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -20,28 +21,70 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
     expect(beforeAnchorBalance).not.toBeNull();
     const beforeLedger = await targetDb.getAccountLedgerForPatient(patient!.pid);
     const reference = `RCPT-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const paymentInput = {
+      patientId: patient!.pid,
+      encounter: patientPaymentEncounter,
+      payerId: 0,
+      payerName: "",
+      payerType: 0,
+      reference,
+      postDate: "2026-06-18",
+      paymentType: "patient_payment",
+      paymentMethod: "credit_card",
+      codeType: "CPT4",
+      code: "99214",
+      memo: "Parity patient payment",
+      payAmount: "35.00",
+      adjustmentAmount: "0.00",
+      accountCode: "",
+      reasonCode: "",
+      payerClaimNumber: ""
+    };
     let patientPaymentId: number | string | null = null;
 
     try {
-      patientPaymentId = await workflow.createPaymentPosting({
-        patientId: patient!.pid,
-        encounter: patientPaymentEncounter,
-        payerId: 0,
-        payerName: "",
-        payerType: 0,
-        reference,
-        postDate: "2026-06-18",
-        paymentType: "patient_payment",
-        paymentMethod: "credit_card",
-        codeType: "CPT4",
-        code: "99214",
-        memo: "Parity patient payment",
-        payAmount: "35.00",
-        adjustmentAmount: "0.00",
-        accountCode: "",
-        reasonCode: "",
-        payerClaimNumber: ""
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-58-patient-payment-capture-precondition",
+        description: "Captures the Slice 58 patient payment anchor, baseline payment/balance/ledger state, and proposed patient-payment posting payload.",
+        expected: {
+          patient: {
+            pubpid: patientPaymentAnchorPatientId
+          },
+          encounter: patientPaymentEncounter,
+          payment: {
+            payerType: 0,
+            paymentType: "patient_payment",
+            paymentMethod: "credit_card",
+            postDate: "2026-06-18",
+            codeType: "CPT4",
+            code: "99214",
+            payAmount: "35.00",
+            adjustmentAmount: "0.00"
+          },
+          countChange: {
+            paymentSessionsAfterCreate: beforeCounts.paymentSessions + 1,
+            paymentActivitiesAfterCreate: beforeCounts.paymentActivities + 1,
+            paymentSessionsAfterCleanup: beforeCounts.paymentSessions,
+            paymentActivitiesAfterCleanup: beforeCounts.paymentActivities
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          beforeAnchorBalance,
+          beforeLedgerCount: beforeLedger.length,
+          proposedPayment: paymentInput
+        },
+        context: {
+          canonicalId: patientPaymentAnchorPatientId,
+          encounter: patientPaymentEncounter,
+          suite: "workflow-patient-payments",
+          workflow: "patient-payment-capture"
+        }
       });
+
+      patientPaymentId = await workflow.createPaymentPosting(paymentInput);
 
       const created = await workflow.getPaymentPosting(patientPaymentId);
       expect(created).toMatchObject({
@@ -106,6 +149,52 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
           })
         ])
       );
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-58-patient-payment-capture-created",
+        description: "Captures the temporary Slice 58 patient payment after create, including payment/session/activity increments, balance movement, and ledger entry.",
+        expected: {
+          payment: {
+            patientId: patient!.pid,
+            encounter: patientPaymentEncounter,
+            payerType: 0,
+            reference,
+            paymentType: "patient_payment",
+            paymentMethod: "credit_card",
+            payAmount: "35.00",
+            adjustmentAmount: "0.00",
+            deleted: ""
+          },
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions + 1,
+            paymentActivities: beforeCounts.paymentActivities + 1,
+            ledgerEntries: beforeLedger.length + 1
+          },
+          balance: {
+            paymentAmountDelta: "35.00",
+            adjustmentAmountDelta: "0.00",
+            balanceAmountDelta: "-35.00"
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          beforeAnchorBalance,
+          afterCreateAnchorBalance,
+          beforeLedgerCount: beforeLedger.length,
+          createdLedgerEntries: afterCreateLedger.filter((entry) => entry.reference === reference),
+          postings: postings.filter((posting) => posting.reference === reference),
+          patientPaymentId,
+          created
+        },
+        context: {
+          canonicalId: patientPaymentAnchorPatientId,
+          encounter: patientPaymentEncounter,
+          suite: "workflow-patient-payments",
+          workflow: "patient-payment-created"
+        }
+      });
 
       if (target.type !== "legacy-openemr") {
         await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
@@ -133,6 +222,44 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
       expectMoney(afterVoidAnchorBalance!.paymentAmount, money(beforeAnchorBalance!.paymentAmount));
       expectMoney(afterVoidAnchorBalance!.adjustmentAmount, money(beforeAnchorBalance!.adjustmentAmount));
       expectMoney(afterVoidAnchorBalance!.balanceAmount, money(beforeAnchorBalance!.balanceAmount));
+      const afterVoidLedger = await targetDb.getAccountLedgerForPatient(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-58-patient-payment-capture-voided",
+        description: "Captures the temporary Slice 58 patient payment after voiding, including inactive payment state and rolled-back active balance/ledger projection.",
+        expected: {
+          payment: {
+            reference,
+            deleted: "not blank"
+          },
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions + 1,
+            paymentActivities: beforeCounts.paymentActivities,
+            ledgerEntries: beforeLedger.length
+          },
+          balance: {
+            paymentAmount: beforeAnchorBalance!.paymentAmount,
+            adjustmentAmount: beforeAnchorBalance!.adjustmentAmount,
+            balanceAmount: beforeAnchorBalance!.balanceAmount
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterVoidCounts,
+          beforeAnchorBalance,
+          afterVoidAnchorBalance,
+          beforeLedgerCount: beforeLedger.length,
+          afterVoidLedgerCount: afterVoidLedger.length,
+          voided
+        },
+        context: {
+          canonicalId: patientPaymentAnchorPatientId,
+          encounter: patientPaymentEncounter,
+          suite: "workflow-patient-payments",
+          workflow: "patient-payment-voided"
+        }
+      });
     } finally {
       if (patientPaymentId !== null) {
         await workflow.deletePaymentPosting(patientPaymentId);
@@ -143,7 +270,33 @@ test.describe("patient payment capture parity @slice58 @workflow-patient-payment
     expect(afterCleanupCounts.paymentSessions).toBe(beforeCounts.paymentSessions);
     expect(afterCleanupCounts.paymentActivities).toBe(beforeCounts.paymentActivities);
     if (patientPaymentId !== null) {
-      await expect(workflow.getPaymentPosting(patientPaymentId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPaymentPosting(patientPaymentId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-58-patient-payment-capture-cleanup",
+        description: "Captures the final Slice 58 hard-delete cleanup state for the temporary patient payment posting.",
+        expected: {
+          counts: {
+            paymentSessions: beforeCounts.paymentSessions,
+            paymentActivities: beforeCounts.paymentActivities
+          },
+          deletedPayment: null
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCleanupCounts,
+          patientPaymentId,
+          afterCleanup
+        },
+        context: {
+          canonicalId: patientPaymentAnchorPatientId,
+          encounter: patientPaymentEncounter,
+          suite: "workflow-patient-payments",
+          workflow: "patient-payment-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
