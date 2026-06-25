@@ -19133,6 +19133,36 @@ Code changes:
 - Net lines: +103
 - Total churn: 135
 
+## 366. Slice 322 Slice 61 Statement Batch Candidate Probe Payload Attachments
+
+Started: 2026-06-25T08:46:12-04:00
+Finished: 2026-06-25T08:55:00-04:00
+Commit: pending
+
+Implemented Slice 322: Slice 61 statement batch candidate probe payload attachments. The statement batch candidate parity suite now writes path-backed JSON Playwright attachments for ranked top-five candidates, all-candidate totals, statement identifiers, statuses, balances, aging fields, open encounter counts, ledger counts, delivery methods, and UI/API anchors so Workbench comparison drill-ins can preview statement batch readiness evidence.
+
+Changes:
+- Added Slice 61 candidate payload attachments for the full-population statement batch summary, ranked top-five candidates, all-candidate totals, required status values, and required delivery methods.
+- Added Slice 61 contract payload attachments that capture statement identifier expectations, required candidate fields, top candidate UI anchors, balance fields, aging fields, open encounter counts, and ledger counts.
+- Updated the Workbench functionality progress ledger so Slice 61 statement batch candidate database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 322 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 60 workflow payload boundary.
+- `npm run test:modernized:plan:statement-batch` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T125249-456Z-modernized-openemr-plan-slice-61-statement-batch-readiness`.
+- `npm run test:legacy:plan:statement-batch` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T125342-594Z-legacy-openemr-plan-slice-61-statement-batch-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 61 Playwright reports recorded the shared `db-probe-slice-61-statement-batch-candidates` and `db-probe-slice-61-statement-batch-contract` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-61-statement-batch-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T125449-730Z-legacy-openemr-vs-modernized-openemr-plan-slice-61-statement-batch-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 112
+- Lines deleted: 16
+- Net lines: +96
+- Total churn: 128
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19142,5 +19172,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 60.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 61.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

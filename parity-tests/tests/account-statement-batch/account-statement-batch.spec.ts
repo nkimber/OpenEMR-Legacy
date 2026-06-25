@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.js";
 import type { StatementBatchSummary } from "../../src/db/legacyMariaDbProbe.js";
 
@@ -32,7 +33,7 @@ test.describe("statement batch candidate parity @slice61 @account-statement-batc
     page,
     target,
     targetDb
-  }) => {
+  }, testInfo) => {
     const expectedBatch = await targetDb.getStatementBatchCandidates(5);
     expect(expectedBatch.asOfDate).toBe("2026-06-18");
     expect(expectedBatch.candidateCount).toBeGreaterThan(5);
@@ -47,6 +48,70 @@ test.describe("statement batch candidate parity @slice61 @account-statement-batc
     expect(["Email-ready", "Print"]).toContain(firstCandidate.deliveryMethod);
     expect(Number(firstCandidate.balanceDueAmount)).toBeGreaterThan(0);
     expect(firstCandidate.openEncounterCount).toBeGreaterThan(0);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-61-statement-batch-candidates",
+      description: "Captures the Slice 61 ranked statement batch candidates derived from the shared full-population billing ledger.",
+      expected: {
+        asOfDate: "2026-06-18",
+        minimumCandidateCount: 6,
+        selectedCandidateLimit: 5,
+        requiredStatuses: ["Past due review", "Ready for statement"],
+        requiredDeliveryMethods: ["Email-ready", "Print"],
+        totals: {
+          totalBalanceAmount: "positive",
+          totalPastDueAmount: "positive",
+          totalCurrentDueAmount: "positive"
+        }
+      },
+      actual: {
+        batch: expectedBatch,
+        firstCandidate
+      },
+      context: {
+        suite: "account-statement-batch",
+        workflow: "statement-batch-candidates"
+      }
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-61-statement-batch-contract",
+      description: "Captures the Slice 61 statement batch API/UI contract: deterministic ranking, statement identifiers, balance fields, open encounter counts, and delivery metadata.",
+      expected: {
+        statementNumberPattern: "STMT-MOD-PAT-0000-YYYYMMDD",
+        statusValues: ["Past due review", "Ready for statement"],
+        deliveryMethodValues: ["Email-ready", "Print"],
+        requiredFields: [
+          "pubpid",
+          "patientDisplayName",
+          "statementNumber",
+          "statementStatus",
+          "balanceDueAmount",
+          "pastDueAmount",
+          "currentDueAmount",
+          "openEncounterCount",
+          "ledgerEntryCount",
+          "oldestOpenAgeDays",
+          "oldestOpenDate",
+          "deliveryMethod"
+        ]
+      },
+      actual: {
+        topCandidates: expectedBatch.candidates,
+        uiAnchor: {
+          patientDisplayName: firstCandidate.patientDisplayName,
+          pubpid: firstCandidate.pubpid,
+          statementNumber: firstCandidate.statementNumber,
+          statementStatus: firstCandidate.statementStatus,
+          deliveryMethod: firstCandidate.deliveryMethod,
+          balanceDueAmount: firstCandidate.balanceDueAmount
+        }
+      },
+      context: {
+        suite: "account-statement-batch",
+        workflow: "statement-batch-contract"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       return;
