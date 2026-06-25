@@ -21341,7 +21341,7 @@ Code changes:
 
 Started: 2026-06-25T16:17:25.3009157-04:00
 Finished: 2026-06-25T16:19:49.8954343-04:00
-Commit: pending
+Commit: 5f9ce094
 
 Implemented Slice 386: Slice 127 encounter binary document content replacement probe payload attachments. The encounter binary content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` seeded patient anchor, encounter `1000013`, temporary original PDF attachment, replacement PDF bytes, preview/download metadata, revision hash movement, legacy Documents rendering facts, modernized binary replacement form/API/card/download anchors, and cleanup deletion so Workbench comparison drill-ins can preview binary replacement evidence.
 
