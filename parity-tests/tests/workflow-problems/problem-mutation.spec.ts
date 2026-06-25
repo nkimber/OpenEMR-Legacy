@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -10,23 +11,57 @@ test.describe("problem list mutation parity @slice31 @workflow-problems @mutatio
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(problemMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
     const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     const title = `Parity Problem ${workflowSuffix()}`;
     const diagnosis = "ICD10:Z00.00";
+    const proposedProblem = {
+      patientId: patient!.pid,
+      title,
+      dateTime: "2026-06-18 09:00:00",
+      diagnosis,
+      comments: "Created by the parity problem-list mutation suite."
+    };
     let problemId: number | string | null = null;
 
     try {
-      problemId = await workflow.createProblem({
-        patientId: patient!.pid,
-        title,
-        dateTime: "2026-06-18 09:00:00",
-        diagnosis,
-        comments: "Created by the parity problem-list mutation suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-31-problem-mutation-precondition",
+        description: "Captures the Slice 31 problem-list mutation anchor patient, baseline counts, and proposed temporary problem payload before create.",
+        expected: {
+          patient: {
+            pubpid: problemMutationAnchorPatientId,
+            displayName: "Patel, Priya"
+          },
+          countChange: {
+            createDelta: 1,
+            deactivateDeltaFromBaseline: 0,
+            cleanupDeltaFromBaseline: 0
+          },
+          proposedProblem: {
+            titlePrefix: "Parity Problem ",
+            type: "medical_problem",
+            diagnosis: "ICD10:Z00.00",
+            date: "2026-06-18"
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedProblem
+        },
+        context: {
+          canonicalId: problemMutationAnchorPatientId,
+          suite: "workflow-problems",
+          workflow: "patient-problem-list-mutation"
+        }
       });
+
+      problemId = await workflow.createProblem(proposedProblem);
 
       const created = await workflow.getProblem(problemId);
       expect(created).toMatchObject({
@@ -39,6 +74,35 @@ test.describe("problem list mutation parity @slice31 @workflow-problems @mutatio
       });
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-31-problem-mutation-created",
+        description: "Captures the temporary Slice 31 problem row and active problem-count increment immediately after create.",
+        expected: {
+          created: {
+            patientId: patient!.pid,
+            type: "medical_problem",
+            title,
+            activity: 1,
+            diagnosis,
+            date: "2026-06-18"
+          },
+          countChange: {
+            problems: beforeCounts.problems + 1
+          }
+        },
+        actual: {
+          problemId,
+          created,
+          beforeCounts,
+          afterCreateCounts
+        },
+        context: {
+          canonicalId: problemMutationAnchorPatientId,
+          suite: "workflow-problems",
+          workflow: "patient-problem-list-mutation"
+        }
+      });
       expect(afterCreateCounts.problems).toBe(beforeCounts.problems + 1);
 
       if (target.type === "legacy-openemr") {
@@ -62,6 +126,31 @@ test.describe("problem list mutation parity @slice31 @workflow-problems @mutatio
       });
 
       const afterDeactivateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-31-problem-mutation-deactivated",
+        description: "Captures the temporary Slice 31 problem after deactivate mutation and the return to baseline active problem count.",
+        expected: {
+          inactive: {
+            activity: 0,
+            comments: inactiveComment
+          },
+          countChange: {
+            problems: beforeCounts.problems
+          }
+        },
+        actual: {
+          problemId,
+          inactive,
+          beforeCounts,
+          afterDeactivateCounts
+        },
+        context: {
+          canonicalId: problemMutationAnchorPatientId,
+          suite: "workflow-problems",
+          workflow: "patient-problem-list-mutation"
+        }
+      });
       expect(afterDeactivateCounts.problems).toBe(beforeCounts.problems);
     } finally {
       if (problemId !== null) {
@@ -72,7 +161,30 @@ test.describe("problem list mutation parity @slice31 @workflow-problems @mutatio
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.problems).toBe(beforeCounts.problems);
     if (problemId !== null) {
-      await expect(workflow.getProblem(problemId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getProblem(problemId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-31-problem-mutation-cleanup",
+        description: "Captures the final Slice 31 hard-delete cleanup state for the temporary problem row.",
+        expected: {
+          deletedProblem: null,
+          countChange: {
+            problems: beforeCounts.problems
+          }
+        },
+        actual: {
+          problemId,
+          afterCleanup,
+          beforeCounts,
+          afterCleanupCounts
+        },
+        context: {
+          canonicalId: problemMutationAnchorPatientId,
+          suite: "workflow-problems",
+          workflow: "patient-problem-list-mutation"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
