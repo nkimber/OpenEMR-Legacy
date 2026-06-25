@@ -20428,7 +20428,7 @@ Code changes:
 
 Started: 2026-06-25T13:14:00-04:00
 Finished: 2026-06-25T13:19:04-04:00
-Commit: pending
+Commit: 892c4707
 
 Implemented Slice 358: Slice 97 appointment category probe payload attachments. The appointment category parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary Preventive Care Services appointment create payload, New Patient category update facts, legacy appointment edit rendering, modernized Calendar category selector/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment category evidence.
 
