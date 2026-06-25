@@ -18442,7 +18442,7 @@ Code changes:
 
 Started: 2026-06-25T06:21:56-04:00
 Finished: 2026-06-25T06:25:21-04:00
-Commit: pending
+Commit: 940756f9
 
 Implemented Slice 300: Slice 39 patient document external-link probe payload attachments. The document external-link parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed URL-backed document payload, created external-link row and document-count increment, archived row with active-document count semantics, and final hard-delete cleanup state so Workbench comparison drill-ins can preview URL-backed document lifecycle evidence.
 
