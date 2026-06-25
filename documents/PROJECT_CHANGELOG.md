@@ -19287,7 +19287,7 @@ Code changes:
 
 Started: 2026-06-25T09:21:53-04:00
 Finished: 2026-06-25T09:27:33-04:00
-Commit: pending
+Commit: 8367cc08
 
 Implemented Slice 326: Slice 65 patient-message assignment probe payload attachments. The message assignment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0004` anchor patient, proposed temporary pnotes-compatible message, created admin-assigned row, message-count increment, billing-reassigned row, count stability, soft-delete/archive state, and final cleanup counts so Workbench comparison drill-ins can preview message reassignment lifecycle evidence.
 
