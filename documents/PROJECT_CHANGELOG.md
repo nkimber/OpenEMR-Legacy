@@ -19137,7 +19137,7 @@ Code changes:
 
 Started: 2026-06-25T08:46:12-04:00
 Finished: 2026-06-25T08:55:00-04:00
-Commit: pending
+Commit: 87f94be6
 
 Implemented Slice 322: Slice 61 statement batch candidate probe payload attachments. The statement batch candidate parity suite now writes path-backed JSON Playwright attachments for ranked top-five candidates, all-candidate totals, statement identifiers, statuses, balances, aging fields, open encounter counts, ledger counts, delivery methods, and UI/API anchors so Workbench comparison drill-ins can preview statement batch readiness evidence.
 
