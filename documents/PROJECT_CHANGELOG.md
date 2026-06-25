@@ -21470,6 +21470,38 @@ Code changes:
 - Lines removed: 59
 - Net lines: +272
 - Total churn: 390
+## 436. Slice 390 Slice 131 Procedure Specimen Detail Probe Payload Attachments
+
+Started: 2026-06-25T16:42:50.2182633-04:00
+Finished: 2026-06-25T16:45:09.9040026-04:00
+Commit: pending
+
+Implemented Slice 390: Slice 131 procedure specimen detail probe payload attachments. The procedure specimen detail parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/specimen-detail creation, specimen identifier/accession/type/collection/location/volume/condition facts, legacy database projection facts, modernized Procedures specimen-detail UI facts, patient procedure projection, and cleanup deletion so Workbench comparison drill-ins can preview order-level specimen evidence.
+
+Changes:
+- Added Slice 131 precondition payload attachments for the seeded patient, baseline workflow counts, baseline procedure summary, proposed temporary encounter/order, and order-level specimen detail payload.
+- Added Slice 131 created-state payload attachments for the temporary encounter, pending procedure order, specimen detail row, count deltas, and patient procedure projection.
+- Added Slice 131 rendered-state payload attachments for the verified specimen projection plus legacy database-projection facts or modernized Procedures UI surface facts.
+- Added Slice 131 cleanup payload attachments for deleting the temporary procedure order cascade and temporary encounter while restoring encounter/procedure counts and removing the specimen row.
+- Replaced non-null patient assumptions in the Slice 131 suite with an explicit seeded-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 131 procedure specimen detail database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 390 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing line-ending normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-131-procedure-specimen-detail-readiness` passed with run `2026-06-25T204356-841Z-legacy-openemr-plan-slice-131-procedure-specimen-detail-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-131-procedure-specimen-detail-readiness` passed with run `2026-06-25T204429-590Z-modernized-openemr-plan-slice-131-procedure-specimen-detail-readiness`.
+- Slice 131 side-by-side comparison `2026-06-25T204457-224Z-legacy-openemr-vs-modernized-openemr-plan-slice-131-procedure-specimen-detail-readiness` matched with no differences.
+- Slice 131 probe attachment report check passed for precondition, created-state, rendered-state, and cleanup JSON payloads in both legacy and modernized reports.
+
+Code changes:
+- Files changed: 8
+- Lines added: 322
+- Lines removed: 61
+- Net lines: +261
+- Total churn: 383
 
 ## Next Expected Entries
 
@@ -21480,5 +21512,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 130.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 131.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
