@@ -18022,7 +18022,7 @@ Code changes:
 
 Started: 2026-06-25T04:21:00-04:00
 Finished: 2026-06-25T04:29:48-04:00
-Commit: pending
+Commit: 797292d5
 
 Implemented Slice 287: Slice 26 patient document mutation probe payload attachments. The patient document mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed database-backed text document, created document row and count increment, archived row, and hard-delete cleanup state so Workbench comparison drill-ins can preview document-mutation database evidence.
 
