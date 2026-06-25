@@ -17434,7 +17434,7 @@ Code changes:
 
 Started: 2026-06-25T01:39:10-04:00
 Finished: 2026-06-25T01:46:50-04:00
-Commit: pending
+Commit: db056aed
 
 Split the Workbench managed-application API into fast operational summaries and on-demand rich details so app status no longer waits for large latest-test artifacts, database profile queries, or hundreds of configured test definitions.
 
