@@ -8705,7 +8705,7 @@ Code changes:
 - Lines added: 269
 - Lines deleted: 13
 - Net lines: 256
-- Total churn: 282
+- Total churn: 290
 
 Key outcomes:
 
@@ -22384,7 +22384,7 @@ Code changes:
 - Lines added: 266
 - Lines deleted: 24
 - Net lines: 250
-- Total churn: 282
+- Total churn: 290
 
 ## 464. Slice 417 Slice 163 Admin Directory Protection Probe Payload Attachments
 
@@ -22495,7 +22495,7 @@ Code changes:
 
 Started: 2026-06-25T19:50:15.8549471-04:00
 Finished: 2026-06-25T19:51:48.9399042-04:00
-Commit: pending
+Commit: fae62c1d
 
 Implemented Slice 420: Slice 166 clinical-list protection probe payload attachments. The clinical-list protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API clinical-list blocking facts, unauthenticated modernized mutation rejection facts, authenticated legacy/API list visibility facts, and modernized Lists-page rendering facts so Workbench comparison drill-ins can preview clinical-list protection evidence without storing password, cookie, or session material.
 
@@ -22521,10 +22521,10 @@ Verification:
 - Attachment scan confirmed `db-probe-slice-166-clinical-list-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-166-clinical-list-protection-precondition`, `unauthenticated`, `unauthenticated-mutation`, `authenticated`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: 267
+- Lines added: 275
 - Lines deleted: 15
-- Net lines: 252
-- Total churn: 282
+- Net lines: 260
+- Total churn: 290
 
 ## Next Expected Entries
 
