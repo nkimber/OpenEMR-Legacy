@@ -22251,6 +22251,40 @@ Code changes:
 - Net lines: 219
 - Total churn: 265
 
+## 460. Slice 413 Slice 159 Admin Login Probe Payload Attachments
+
+Started: 2026-06-25T19:08:56.8032390-04:00
+Finished: 2026-06-25T19:12:27.7550774-04:00
+Commit: pending
+
+Implemented Slice 413: Slice 159 admin login probe payload attachments. The admin login readiness parity suite now writes path-backed JSON Playwright attachments for redacted configured-credential preconditions, legacy HTTP success and invalid-password rejection markers, modernized API success and rejection responses, and modernized Admin-page login rendering facts so Workbench comparison drill-ins can preview admin login evidence without storing password material.
+
+Changes:
+- Added Slice 159 precondition payload attachments for the target URL/API context, configured username, expected success markers, expected rejection scenario, and password-redaction proof.
+- Added legacy HTTP success payload attachments proving OpenEMR login success markers are returned for the configured admin credential.
+- Added legacy HTTP rejection payload attachments proving an invalid password returns login/error markers without the authenticated frame marker.
+- Added modernized API success payload attachments proving the seeded admin credential authenticates as `Administrator` with the administrator role.
+- Added modernized API rejection payload attachments proving an invalid password is rejected with the expected failure reason.
+- Added modernized Admin-page rendered payload attachments proving the login readiness panel renders the signed-in administrator state.
+- Updated the Workbench functionality progress ledger so Slice 159 admin login payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 413 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-admin-login/login-readiness.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-159-admin-login-readiness` passed with run ID `2026-06-25T231133-230Z-legacy-openemr-plan-slice-159-admin-login-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-159-admin-login-readiness` passed with run ID `2026-06-25T231159-410Z-modernized-openemr-plan-slice-159-admin-login-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-159-admin-login-readiness` matched with comparison ID `2026-06-25T231216-925Z-legacy-openemr-vs-modernized-openemr-plan-slice-159-admin-login-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-159-admin-login-precondition`, `success`, and `rejected` entries in both legacy and modernized Playwright JSON reports, plus `db-probe-slice-159-admin-login-rendered` in the modernized report.
+
+Code changes:
+- Lines added: 172
+- Lines deleted: 11
+- Net lines: 161
+- Total churn: 183
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22260,5 +22294,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, and 158.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, and 159.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
