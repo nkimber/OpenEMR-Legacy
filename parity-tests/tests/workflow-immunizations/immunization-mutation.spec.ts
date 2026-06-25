@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientImmunizationsDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -10,7 +11,7 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(immunizationMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -18,31 +19,68 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
     const suffix = workflowSuffix();
     const vaccine = "Influenza, seasonal, injectable";
     const lotNumber = `MUT-IMM-${suffix}`;
+    const proposedImmunization = {
+      patientId: patient!.pid,
+      providerId: patient!.providerId,
+      encounter: 0,
+      administeredAt: "2026-09-10 10:30:00",
+      immunizationId: 30,
+      cvxCode: "141",
+      vaccine,
+      manufacturer: "Sanofi Pasteur",
+      lotNumber,
+      administeredBy: "admin",
+      educationDate: "2026-09-10",
+      visDate: "2026-08-01",
+      amountAdministered: 0.5,
+      amountAdministeredUnit: "mL",
+      expirationDate: "2027-06-30",
+      route: "intramuscular",
+      administrationSite: "left deltoid",
+      completionStatus: "completed",
+      informationSource: "new_immunization_record",
+      note: "Created by the parity immunization mutation suite."
+    };
     let immunizationId: number | string | null = null;
 
     try {
-      immunizationId = await workflow.createImmunization({
-        patientId: patient!.pid,
-        providerId: patient!.providerId,
-        encounter: 0,
-        administeredAt: "2026-09-10 10:30:00",
-        immunizationId: 30,
-        cvxCode: "141",
-        vaccine,
-        manufacturer: "Sanofi Pasteur",
-        lotNumber,
-        administeredBy: "admin",
-        educationDate: "2026-09-10",
-        visDate: "2026-08-01",
-        amountAdministered: 0.5,
-        amountAdministeredUnit: "mL",
-        expirationDate: "2027-06-30",
-        route: "intramuscular",
-        administrationSite: "left deltoid",
-        completionStatus: "completed",
-        informationSource: "new_immunization_record",
-        note: "Created by the parity immunization mutation suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-30-immunization-mutation-precondition",
+        description: "Captures the Slice 30 immunization mutation anchor patient, baseline counts, and proposed temporary immunization payload before create.",
+        expected: {
+          patient: {
+            pubpid: immunizationMutationAnchorPatientId,
+            displayName: "Rivera, Mateo"
+          },
+          countChange: {
+            createDelta: 1,
+            enteredInErrorDeltaFromBaseline: 0,
+            cleanupDeltaFromBaseline: 0
+          },
+          proposedImmunization: {
+            vaccine: "Influenza, seasonal, injectable",
+            cvxCode: "141",
+            administeredDate: "2026-09-10",
+            manufacturer: "Sanofi Pasteur",
+            lotNumberPrefix: "MUT-IMM-",
+            route: "intramuscular",
+            administrationSite: "left deltoid"
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedImmunization
+        },
+        context: {
+          canonicalId: immunizationMutationAnchorPatientId,
+          suite: "workflow-immunizations",
+          workflow: "patient-immunization-mutation"
+        }
       });
+
+      immunizationId = await workflow.createImmunization(proposedImmunization);
 
       const created = await workflow.getImmunization(immunizationId);
       expect(created).toMatchObject({
@@ -61,6 +99,41 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
       });
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-30-immunization-mutation-created",
+        description: "Captures the temporary Slice 30 immunization row and immunization-count increment immediately after create.",
+        expected: {
+          created: {
+            patientId: patient!.pid,
+            immunizationId: 30,
+            cvxCode: "141",
+            vaccine,
+            administeredDate: "2026-09-10",
+            manufacturer: "Sanofi Pasteur",
+            lotNumber,
+            route: "intramuscular",
+            administrationSite: "left deltoid",
+            completionStatus: "completed",
+            informationSource: "new_immunization_record",
+            addedErroneously: 0
+          },
+          countChange: {
+            immunizations: beforeCounts.immunizations + 1
+          }
+        },
+        actual: {
+          immunizationId,
+          created,
+          beforeCounts,
+          afterCreateCounts
+        },
+        context: {
+          canonicalId: immunizationMutationAnchorPatientId,
+          suite: "workflow-immunizations",
+          workflow: "patient-immunization-mutation"
+        }
+      });
       expect(afterCreateCounts.immunizations).toBe(beforeCounts.immunizations + 1);
 
       if (target.type === "legacy-openemr") {
@@ -85,6 +158,31 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
       });
 
       const afterErrorCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-30-immunization-mutation-entered-in-error",
+        description: "Captures the temporary Slice 30 immunization after entered-in-error mutation and the return to baseline active immunization count.",
+        expected: {
+          enteredInError: {
+            addedErroneously: 1,
+            note: errorNote
+          },
+          countChange: {
+            immunizations: beforeCounts.immunizations
+          }
+        },
+        actual: {
+          immunizationId,
+          enteredInError,
+          beforeCounts,
+          afterErrorCounts
+        },
+        context: {
+          canonicalId: immunizationMutationAnchorPatientId,
+          suite: "workflow-immunizations",
+          workflow: "patient-immunization-mutation"
+        }
+      });
       expect(afterErrorCounts.immunizations).toBe(beforeCounts.immunizations);
     } finally {
       if (immunizationId !== null) {
@@ -95,7 +193,30 @@ test.describe("immunization mutation parity @slice30 @workflow-immunizations @mu
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.immunizations).toBe(beforeCounts.immunizations);
     if (immunizationId !== null) {
-      await expect(workflow.getImmunization(immunizationId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getImmunization(immunizationId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-30-immunization-mutation-cleanup",
+        description: "Captures the final Slice 30 hard-delete cleanup state for the temporary immunization row.",
+        expected: {
+          deletedImmunization: null,
+          countChange: {
+            immunizations: beforeCounts.immunizations
+          }
+        },
+        actual: {
+          immunizationId,
+          afterCleanup,
+          beforeCounts,
+          afterCleanupCounts
+        },
+        context: {
+          canonicalId: immunizationMutationAnchorPatientId,
+          suite: "workflow-immunizations",
+          workflow: "patient-immunization-mutation"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
