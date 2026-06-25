@@ -20764,7 +20764,7 @@ Code changes:
 
 Started: 2026-06-25T14:26:04.6766460-04:00
 Finished: 2026-06-25T14:27:50.4470456-04:00
-Commit: pending
+Commit: 07181336
 
 Implemented Slice 368: Slice 107 appointment occurrence-restore probe payload attachments. The appointment occurrence-restore parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, generated occurrence selected for restoration, temporary skipped occurrence state, recurrence-exdate removal, restored occurrence expansion, modernized Calendar restore-occurrence rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview generated-occurrence restore evidence.
 
