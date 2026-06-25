@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   expectRenderedText,
   loginToLegacyOpenEmr,
@@ -9,7 +10,12 @@ import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenE
 import type { NewPatientRegistration } from "../../src/workflows/legacyWorkflowActions.js";
 
 test.describe("patient registration lifecycle parity @slice37 @workflow-registration @mutation", () => {
-  test("creates, renders, and removes a temporary registered patient", async ({ page, target, workflow }) => {
+  test("creates, renders, and removes a temporary registered patient", async ({
+    page,
+    target,
+    targetDb,
+    workflow
+  }, testInfo) => {
     const suffix = `${Date.now()}`.slice(-9);
     const registration: NewPatientRegistration = {
       pubpid: `TMP-PAT-REG-${suffix}`,
@@ -32,13 +38,53 @@ test.describe("patient registration lifecycle parity @slice37 @workflow-registra
     };
 
     let createdPid: number | null = null;
+    const beforeCounts = await targetDb.getGoldCounts();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-37-patient-registration-precondition",
+      description: "Captures the Slice 37 patient registration baseline patient count and proposed temporary registration payload before create.",
+      expected: {
+        publicIdPrefix: "TMP-PAT-REG-",
+        demographics: {
+          firstName: "Taylor",
+          lastName: "Register",
+          preferredName: "Slice37",
+          sex: "Female",
+          dateOfBirth: "1991-04-15",
+          street: "37 Registration Way",
+          city: "Hartford",
+          state: "CT",
+          postalCode: "06103",
+          maritalStatus: "single",
+          occupation: "Parity Registration Analyst"
+        },
+        contact: {
+          phoneHome: "(860) 555-3710",
+          phoneCell: "(860) 555-3711",
+          hipaaAllowSms: "YES",
+          hipaaAllowEmail: "YES"
+        },
+        countChange: {
+          patientsAfterCreate: beforeCounts.patients + 1,
+          patientsAfterCleanup: beforeCounts.patients
+        }
+      },
+      actual: {
+        beforeCounts,
+        proposedRegistration: registration
+      },
+      context: {
+        suite: "workflow-registration",
+        workflow: "patient-registration-lifecycle"
+      }
+    });
 
     try {
       createdPid = await workflow.createPatient(registration);
       expect(createdPid).toBeGreaterThan(0);
 
       const demographics = await workflow.getPatientDemographics(createdPid);
-      expect(demographics).toEqual({
+      expect(demographics).toMatchObject({
         pid: createdPid,
         pubpid: registration.pubpid,
         firstName: registration.firstName,
@@ -64,6 +110,34 @@ test.describe("patient registration lifecycle parity @slice37 @workflow-registra
         hipaaAllowSms: registration.hipaaAllowSms,
         hipaaAllowEmail: registration.hipaaAllowEmail
       });
+
+      const afterCreateCounts = await targetDb.getGoldCounts();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-37-patient-registration-created",
+        description: "Captures the temporary Slice 37 registered patient demographics/contact rows and patient-count increment after create.",
+        expected: {
+          demographics,
+          contact,
+          counts: {
+            patients: beforeCounts.patients + 1
+          }
+        },
+        actual: {
+          beforeCounts,
+          afterCreateCounts,
+          createdPid,
+          registration,
+          demographics,
+          contact
+        },
+        context: {
+          publicId: registration.pubpid,
+          suite: "workflow-registration",
+          workflow: "patient-registration-lifecycle-created"
+        }
+      });
+      expect(afterCreateCounts.patients).toBe(beforeCounts.patients + 1);
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -95,6 +169,33 @@ test.describe("patient registration lifecycle parity @slice37 @workflow-registra
 
     if (createdPid !== null) {
       await expect.poll(async () => await workflow.getPatientDemographics(createdPid)).toBeNull();
+      const afterCleanup = await workflow.getPatientDemographics(createdPid);
+      const afterCleanupCounts = await targetDb.getGoldCounts();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-37-patient-registration-cleanup",
+        description: "Captures the final Slice 37 hard-delete cleanup state for the temporary registered patient.",
+        expected: {
+          counts: {
+            patients: beforeCounts.patients
+          },
+          deletedPatient: null
+        },
+        actual: {
+          beforeCounts,
+          afterCleanupCounts,
+          createdPid,
+          publicId: registration.pubpid,
+          afterCleanup
+        },
+        context: {
+          publicId: registration.pubpid,
+          suite: "workflow-registration",
+          workflow: "patient-registration-lifecycle-cleanup"
+        }
+      });
+      expect(afterCleanupCounts.patients).toBe(beforeCounts.patients);
+      expect(afterCleanup).toBeNull();
     }
   });
 });

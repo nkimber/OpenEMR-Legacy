@@ -18373,6 +18373,38 @@ Code changes:
 - Net lines: +106
 - Total churn: 140
 
+## 342. Slice 298 Slice 37 Patient Registration Probe Payload Attachments
+
+Started: 2026-06-25T06:07:00-04:00
+Finished: 2026-06-25T06:11:46-04:00
+Commit: pending
+
+Implemented Slice 298: Slice 37 patient registration lifecycle probe payload attachments. The patient registration parity suite now writes path-backed JSON Playwright attachments for the proposed temporary `TMP-PAT-REG-*` registration payload, baseline patient count, created demographics/contact rows and count increment, and final hard-delete cleanup state so Workbench comparison drill-ins can preview registration lifecycle evidence.
+
+Changes:
+- Added Slice 37 precondition payload attachments for the proposed temporary patient registration payload, expected demographics/contact fields, and baseline/create/cleanup patient-count expectations.
+- Added Slice 37 created-row payload attachments that capture the temporary patient demographics and contact rows plus the patient-count increment after create.
+- Added Slice 37 cleanup payload attachments that capture hard-delete cleanup state and restored baseline patient count.
+- Updated the registration assertion to match the registration-owned demographic fields while preserving richer later-slice demographics fields in the actual probe payload.
+- Updated the Workbench functionality progress ledger so Slice 37 patient registration lifecycle database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 298 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Initial `npm run test:modernized:plan:patient-registration` and `npm run test:legacy:plan:patient-registration` runs exposed that later social-detail fields had expanded the normalized demographics row; the suite now verifies registration-owned fields with `toMatchObject` while retaining the full actual row in probe payloads.
+- `npm run test:modernized:plan:patient-registration` in `parity-tests/` passed with 1 expected test; run `2026-06-25T101050-549Z-modernized-openemr-plan-slice-37-patient-registration-readiness`.
+- `npm run test:legacy:plan:patient-registration` in `parity-tests/` passed with 1 expected test; run `2026-06-25T101050-549Z-legacy-openemr-plan-slice-37-patient-registration-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 37 Playwright reports recorded the shared `db-probe-slice-37-patient-registration-precondition`, `db-probe-slice-37-patient-registration-created`, and `db-probe-slice-37-patient-registration-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-37-patient-registration-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T101124-091Z-legacy-openemr-vs-modernized-openemr-plan-slice-37-patient-registration-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 152
+- Lines deleted: 18
+- Net lines: +134
+- Total churn: 170
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18382,5 +18414,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 36.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 37.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
