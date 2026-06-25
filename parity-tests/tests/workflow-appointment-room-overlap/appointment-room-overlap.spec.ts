@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedCalendar } from "../../src/ui/modernizedOpenEmr.js";
 import { loginToLegacyOpenEmr, openAppointmentDirect } from "../../src/ui/legacyOpenEmr.js";
 
@@ -15,25 +16,77 @@ type QueryableDb = {
 };
 
 test.describe("appointment room overlap parity @slice119 @workflow-appointment-room-overlap @mutation", () => {
-  test("allows overlapping same-room appointments and renders modernized overlap detail", async ({ page, target, targetDb, workflow }) => {
+  test("allows overlapping same-room appointments and renders modernized overlap detail", async ({
+    page,
+    target,
+    targetDb,
+    workflow
+  }, testInfo) => {
     const primaryPatient = await targetDb.findPatientByCanonicalId(primaryPatientId);
     const secondaryPatient = await targetDb.findPatientByCanonicalId(secondaryPatientId);
     expect(primaryPatient).not.toBeNull();
     expect(secondaryPatient).not.toBeNull();
 
-    const primaryProviderId = primaryPatient!.providerId;
+    if (!primaryPatient) {
+      throw new Error(`Missing seeded primary appointment room-overlap patient ${primaryPatientId}`);
+    }
+    if (!secondaryPatient) {
+      throw new Error(`Missing seeded secondary appointment room-overlap patient ${secondaryPatientId}`);
+    }
+
+    const primaryProviderId = primaryPatient.providerId;
     const secondaryProviderId = primaryProviderId === 102 ? 101 : 102;
-    const beforePrimaryCounts = await targetDb.getPatientWorkflowCounts(primaryPatient!.pid);
-    const beforeSecondaryCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient!.pid);
+    const beforePrimaryCounts = await targetDb.getPatientWorkflowCounts(primaryPatient.pid);
+    const beforeSecondaryCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient.pid);
     const suffix = workflowSuffix();
     const primaryTitle = `Parity Room Overlap A ${suffix}`;
     const secondaryTitle = `Parity Room Overlap B ${suffix}`;
     let primaryAppointmentId: number | string | null = null;
     let secondaryAppointmentId: number | string | null = null;
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-119-appointment-room-overlap-precondition",
+      description:
+        "Seeded patient/provider/room and appointment-count precondition before creating temporary same-room overlapping appointments.",
+      expected: {
+        primaryPatientCanonicalId: primaryPatientId,
+        secondaryPatientCanonicalId: secondaryPatientId,
+        primaryProviderId,
+        secondaryProviderId,
+        overlapRoom,
+        overlapDate,
+        overlapStartTime,
+        overlapEndTime,
+        overlapDurationSeconds,
+        status: "-",
+        categoryId: 9
+      },
+      actual: {
+        primaryPatient: {
+          pid: primaryPatient.pid,
+          pubpid: primaryPatient.pubpid,
+          providerId: primaryPatient.providerId
+        },
+        secondaryPatient: {
+          pid: secondaryPatient.pid,
+          pubpid: secondaryPatient.pubpid,
+          providerId: secondaryPatient.providerId
+        },
+        beforePrimaryCounts,
+        beforeSecondaryCounts,
+        plannedTitles: [primaryTitle, secondaryTitle]
+      }
+    });
+
+    let overlapRows: Array<{ id: string; title: string }> = [];
+    let primaryAppointment: Awaited<ReturnType<typeof workflow.getAppointment>> = null;
+    let secondaryAppointment: Awaited<ReturnType<typeof workflow.getAppointment>> = null;
+    let surfaceFacts: Record<string, unknown> = {};
+
     try {
       primaryAppointmentId = await workflow.createAppointment({
-        patientId: primaryPatient!.pid,
+        patientId: primaryPatient.pid,
         providerId: primaryProviderId,
         title: primaryTitle,
         eventDate: overlapDate,
@@ -47,7 +100,7 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
         categoryId: 9
       });
       secondaryAppointmentId = await workflow.createAppointment({
-        patientId: secondaryPatient!.pid,
+        patientId: secondaryPatient.pid,
         providerId: secondaryProviderId,
         title: secondaryTitle,
         eventDate: overlapDate,
@@ -61,10 +114,10 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
         categoryId: 9
       });
 
-      const primaryAppointment = await workflow.getAppointment(primaryAppointmentId);
-      const secondaryAppointment = await workflow.getAppointment(secondaryAppointmentId);
+      primaryAppointment = await workflow.getAppointment(primaryAppointmentId);
+      secondaryAppointment = await workflow.getAppointment(secondaryAppointmentId);
       expect(primaryAppointment).toMatchObject({
-        patientId: primaryPatient!.pid,
+        patientId: primaryPatient.pid,
         providerId: primaryProviderId,
         title: primaryTitle,
         eventDate: overlapDate,
@@ -74,7 +127,7 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
         room: overlapRoom
       });
       expect(secondaryAppointment).toMatchObject({
-        patientId: secondaryPatient!.pid,
+        patientId: secondaryPatient.pid,
         providerId: secondaryProviderId,
         title: secondaryTitle,
         eventDate: overlapDate,
@@ -84,11 +137,11 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
         room: overlapRoom
       });
 
-      const overlapRows = await queryRoomOverlapRows(target.type, targetDb as QueryableDb, primaryTitle, secondaryTitle);
+      overlapRows = await queryRoomOverlapRows(target.type, targetDb as QueryableDb, primaryTitle, secondaryTitle);
       expect(overlapRows.map((row) => row.title).sort()).toEqual([primaryTitle, secondaryTitle].sort());
 
-      const afterPrimaryCreateCounts = await targetDb.getPatientWorkflowCounts(primaryPatient!.pid);
-      const afterSecondaryCreateCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient!.pid);
+      const afterPrimaryCreateCounts = await targetDb.getPatientWorkflowCounts(primaryPatient.pid);
+      const afterSecondaryCreateCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient.pid);
       expect(afterPrimaryCreateCounts.appointments).toBe(beforePrimaryCounts.appointments + 1);
       expect(afterSecondaryCreateCounts.appointments).toBe(beforeSecondaryCounts.appointments + 1);
 
@@ -97,16 +150,62 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
         await openAppointmentDirect(page, target, primaryAppointmentId);
         await expect(page.locator('input[name="form_title"]')).toHaveValue(primaryTitle);
         await expect(page.locator("#provd")).toHaveValue(String(primaryProviderId));
+        const primaryLegacyTitle = await page.locator('input[name="form_title"]').inputValue();
+        const primaryLegacyProvider = await page.locator("#provd").inputValue();
 
         await openAppointmentDirect(page, target, secondaryAppointmentId);
         await expect(page.locator('input[name="form_title"]')).toHaveValue(secondaryTitle);
         await expect(page.locator("#provd")).toHaveValue(String(secondaryProviderId));
+        const secondaryLegacyTitle = await page.locator('input[name="form_title"]').inputValue();
+        const secondaryLegacyProvider = await page.locator("#provd").inputValue();
+        surfaceFacts = {
+          legacy: {
+            primaryTitle: primaryLegacyTitle,
+            primaryProvider: primaryLegacyProvider,
+            secondaryTitle: secondaryLegacyTitle,
+            secondaryProvider: secondaryLegacyProvider
+          }
+        };
       } else {
         await openAuthenticatedModernizedCalendar(page, target);
 
-        await openModernizedAppointment(page, primaryPatient!.pubpid, primaryTitle);
-        await openModernizedAppointment(page, secondaryPatient!.pubpid, secondaryTitle);
+        const primaryModernizedFacts = await openModernizedAppointment(page, primaryPatient.pubpid, primaryTitle);
+        const secondaryModernizedFacts = await openModernizedAppointment(page, secondaryPatient.pubpid, secondaryTitle);
+        surfaceFacts = {
+          modernized: {
+            primary: primaryModernizedFacts,
+            secondary: secondaryModernizedFacts
+          }
+        };
       }
+
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-119-appointment-room-overlap-created",
+        description:
+          "Temporary same-room, same-time appointments were created for two patients and remain non-blocking room-overlap rows.",
+        expected: {
+          overlapRoom,
+          overlapDate,
+          overlapStartTime,
+          overlapEndTime,
+          titles: [primaryTitle, secondaryTitle],
+          overlapRowCount: 2,
+          primaryAppointmentCountDelta: 1,
+          secondaryAppointmentCountDelta: 1,
+          modernizedOverlapLabel: target.type === "modernized-openemr" ? "1 overlapping appointment" : undefined
+        },
+        actual: {
+          primaryAppointmentId,
+          secondaryAppointmentId,
+          primaryAppointment,
+          secondaryAppointment,
+          overlapRows,
+          afterPrimaryCreateCounts,
+          afterSecondaryCreateCounts,
+          surfaceFacts
+        }
+      });
     } finally {
       if (secondaryAppointmentId !== null) {
         await workflow.deleteAppointment(secondaryAppointmentId);
@@ -116,16 +215,41 @@ test.describe("appointment room overlap parity @slice119 @workflow-appointment-r
       }
     }
 
-    const afterPrimaryCleanupCounts = await targetDb.getPatientWorkflowCounts(primaryPatient!.pid);
-    const afterSecondaryCleanupCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient!.pid);
+    const afterPrimaryCleanupCounts = await targetDb.getPatientWorkflowCounts(primaryPatient.pid);
+    const afterSecondaryCleanupCounts = await targetDb.getPatientWorkflowCounts(secondaryPatient.pid);
     expect(afterPrimaryCleanupCounts.appointments).toBe(beforePrimaryCounts.appointments);
     expect(afterSecondaryCleanupCounts.appointments).toBe(beforeSecondaryCounts.appointments);
+    const primaryAfterCleanup = primaryAppointmentId !== null ? await workflow.getAppointment(primaryAppointmentId) : null;
+    const secondaryAfterCleanup = secondaryAppointmentId !== null ? await workflow.getAppointment(secondaryAppointmentId) : null;
     if (primaryAppointmentId !== null) {
-      await expect(workflow.getAppointment(primaryAppointmentId)).resolves.toBeNull();
+      expect(primaryAfterCleanup).toBeNull();
     }
     if (secondaryAppointmentId !== null) {
-      await expect(workflow.getAppointment(secondaryAppointmentId)).resolves.toBeNull();
+      expect(secondaryAfterCleanup).toBeNull();
     }
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-119-appointment-room-overlap-cleanup",
+      description:
+        "Temporary room-overlap appointments were deleted and both seeded patients returned to their original appointment counts.",
+      expected: {
+        primaryAppointmentDeleted: true,
+        secondaryAppointmentDeleted: true,
+        primaryAppointmentCountRestored: true,
+        secondaryAppointmentCountRestored: true
+      },
+      actual: {
+        primaryAppointmentId,
+        secondaryAppointmentId,
+        primaryAfterCleanup,
+        secondaryAfterCleanup,
+        beforePrimaryCounts,
+        beforeSecondaryCounts,
+        afterPrimaryCleanupCounts,
+        afterSecondaryCleanupCounts
+      }
+    });
   });
 });
 
@@ -144,6 +268,14 @@ async function openModernizedAppointment(
   await expect(page.locator("body")).toContainText(overlapRoom);
   await expect(page.locator("body")).toContainText("Room overlaps");
   await expect(page.locator("body")).toContainText("1 overlapping appointment");
+  return {
+    patientId,
+    title,
+    overlapRoom,
+    roomRendered: true,
+    roomOverlapLabelRendered: true,
+    roomOverlapCountText: "1 overlapping appointment"
+  };
 }
 
 async function queryRoomOverlapRows(
