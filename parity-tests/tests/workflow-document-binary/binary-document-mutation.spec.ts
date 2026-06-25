@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import {
   getModernizedAdminSessionHeaders,
   openAuthenticatedModernizedDocuments
@@ -18,7 +19,7 @@ test.describe("binary patient document mutation parity @slice33 @workflow-docume
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(binaryDocumentAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -26,21 +27,56 @@ test.describe("binary patient document mutation parity @slice33 @workflow-docume
     const suffix = workflowSuffix();
     const fileName = `Parity Binary Document ${suffix}.pdf`;
     const contentBase64 = buildPdfFixtureBase64(fileName);
+    const contentSizeBytes = Buffer.from(contentBase64, "base64").length;
+    const proposedDocument = {
+      patientId: patient!.pid,
+      categoryId: 3,
+      categoryName: "Medical Record",
+      name: fileName,
+      docDate: "2026-06-18",
+      encounter: 1000013,
+      fileName,
+      mimetype: "application/pdf",
+      contentBase64,
+      notes: "Created by the parity binary document mutation suite."
+    };
     let documentId: number | string | null = null;
 
     try {
-      documentId = await workflow.createPatientBinaryDocument({
-        patientId: patient!.pid,
-        categoryId: 3,
-        categoryName: "Medical Record",
-        name: fileName,
-        docDate: "2026-06-18",
-        encounter: 1000013,
-        fileName,
-        mimetype: "application/pdf",
-        contentBase64,
-        notes: "Created by the parity binary document mutation suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-33-binary-document-mutation-precondition",
+        description: "Captures the Slice 33 binary patient-document mutation anchor patient, baseline counts, and proposed temporary PDF document payload before create.",
+        expected: {
+          patient: {
+            pubpid: binaryDocumentAnchorPatientId,
+            displayName: "Stone, Avery"
+          },
+          create: {
+            categoryId: 3,
+            categoryName: "Medical Record",
+            docDate: "2026-06-18",
+            encounter: 1000013,
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            deleted: 0,
+            sizeBytes: contentSizeBytes
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedDocument,
+          contentSizeBytes
+        },
+        context: {
+          canonicalId: binaryDocumentAnchorPatientId,
+          suite: "workflow-document-binary",
+          workflow: "binary-patient-document-mutation"
+        }
       });
+
+      documentId = await workflow.createPatientBinaryDocument(proposedDocument);
 
       const created = await workflow.getPatientDocument(documentId);
       expect(created).toMatchObject({
@@ -55,9 +91,45 @@ test.describe("binary patient document mutation parity @slice33 @workflow-docume
         deleted: 0,
         contentBase64
       });
-      expect(created!.sizeBytes).toBe(Buffer.from(contentBase64, "base64").length);
+      expect(created!.sizeBytes).toBe(contentSizeBytes);
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-33-binary-document-mutation-created",
+        description: "Captures the temporary Slice 33 binary patient document row and document-count increment immediately after create.",
+        expected: {
+          document: {
+            patientId: patient!.pid,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: fileName,
+            docDate: "2026-06-18",
+            encounter: 1000013,
+            mimetype: "application/pdf",
+            fileName,
+            storageMethod: "database",
+            deleted: 0,
+            sizeBytes: contentSizeBytes,
+            contentBase64
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          documentId,
+          created
+        },
+        context: {
+          canonicalId: binaryDocumentAnchorPatientId,
+          suite: "workflow-document-binary",
+          workflow: "binary-patient-document-mutation-created"
+        }
+      });
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
 
       if (target.type === "legacy-openemr") {
@@ -88,6 +160,31 @@ test.describe("binary patient document mutation parity @slice33 @workflow-docume
 
       await workflow.softDeletePatientDocument(documentId);
       const archived = await workflow.getPatientDocument(documentId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-33-binary-document-mutation-archived",
+        description: "Captures the temporary Slice 33 binary patient document row after archive and before hard-delete cleanup.",
+        expected: {
+          document: {
+            name: fileName,
+            deleted: 1,
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            sizeBytes: contentSizeBytes
+          }
+        },
+        actual: {
+          patient,
+          documentId,
+          created,
+          archived
+        },
+        context: {
+          canonicalId: binaryDocumentAnchorPatientId,
+          suite: "workflow-document-binary",
+          workflow: "binary-patient-document-mutation-archived"
+        }
+      });
       expect(archived).toMatchObject({
         deleted: 1
       });
@@ -100,7 +197,31 @@ test.describe("binary patient document mutation parity @slice33 @workflow-docume
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPatientDocument(documentId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-33-binary-document-mutation-cleanup",
+        description: "Captures the final Slice 33 hard-delete cleanup state for the temporary binary patient document.",
+        expected: {
+          counts: {
+            documents: beforeCounts.documents
+          },
+          deletedDocument: null
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCleanupCounts,
+          documentId,
+          afterCleanup
+        },
+        context: {
+          canonicalId: binaryDocumentAnchorPatientId,
+          suite: "workflow-document-binary",
+          workflow: "binary-patient-document-mutation-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });

@@ -18247,6 +18247,38 @@ Code changes:
 - Net lines: +146
 - Total churn: 194
 
+## 338. Slice 294 Slice 33 Binary Document Mutation Probe Payload Attachments
+
+Started: 2026-06-25T05:31:00-04:00
+Finished: 2026-06-25T05:41:52-04:00
+Commit: pending
+
+Implemented Slice 294: Slice 33 binary patient-document mutation probe payload attachments. The binary patient-document mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed temporary PDF binary document payload, created row and document-count increment, archived row state, and final hard-delete cleanup state so Workbench comparison drill-ins can preview binary document lifecycle evidence.
+
+Changes:
+- Added Slice 33 precondition payload attachments for the anchor patient, baseline counts, expected PDF storage facts, and proposed temporary binary document create payload.
+- Added Slice 33 created-row payload attachments that capture the temporary database-backed PDF document row and document-count increment after create.
+- Added Slice 33 archived-row payload attachments that capture the soft-deleted document state before hard-delete cleanup.
+- Added Slice 33 cleanup payload attachments that capture the final hard-delete state and restored baseline document count.
+- Updated the Workbench functionality progress ledger so Slice 33 binary patient-document mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 294 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:binary-document-mutation` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T094040-882Z-modernized-openemr-plan-slice-33-binary-document-mutation-readiness`.
+- `npm run test:legacy:plan:binary-document-mutation` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T094040-982Z-legacy-openemr-plan-slice-33-binary-document-mutation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 33 Playwright reports recorded the shared `db-probe-slice-33-binary-document-mutation-precondition`, `db-probe-slice-33-binary-document-mutation-created`, `db-probe-slice-33-binary-document-mutation-archived`, and `db-probe-slice-33-binary-document-mutation-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-33-binary-document-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T094134-323Z-legacy-openemr-vs-modernized-openemr-plan-slice-33-binary-document-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 185
+- Lines deleted: 31
+- Net lines: +154
+- Total churn: 216
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18256,5 +18288,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 32.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 33.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
