@@ -2170,7 +2170,7 @@ p {
 
 .changelog-stats {
   display: grid;
-  grid-template-columns: 0.7fr 1.4fr 1.1fr;
+  grid-template-columns: 0.7fr 0.7fr 1.4fr 1.1fr;
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -2404,6 +2404,19 @@ p {
   padding: 4px 7px;
   font-size: 0.78rem;
   overflow-wrap: anywhere;
+}
+
+.changelog-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 1px solid #e2e9ee;
+  margin-top: 18px;
+  padding-top: 18px;
+  color: #687789;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
 .architecture-grid {

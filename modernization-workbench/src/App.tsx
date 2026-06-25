@@ -60,6 +60,7 @@ type BusyState = {
 } | null;
 
 const allAppsBusyId = "all-apps";
+const changelogPageSize = 100;
 
 const pageIds = ["dashboard", "applications", "timeline", "progress", "architecture", "tests", "seed-data"] as const;
 type PageId = (typeof pageIds)[number];
@@ -2006,9 +2007,18 @@ function EventsPanel({ events }: { events: LifecycleEvent[] }) {
   );
 }
 
-function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
-  const entries = changelog ? [...changelog.entries].reverse() : [];
+function ChangelogPanel({
+  changelog,
+  isLoading,
+  onLoadMore
+}: {
+  changelog: ProjectChangelog | null;
+  isLoading: boolean;
+  onLoadMore: () => void;
+}) {
+  const entries = changelog ? (changelog.order === "desc" ? changelog.entries : [...changelog.entries].reverse()) : [];
   const latestEntry = entries[0];
+  const loadedEntries = changelog?.returnedEntries ?? entries.length;
 
   return (
     <section className="panel changelog-panel">
@@ -2030,6 +2040,10 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
             <div>
               <span>Total steps</span>
               <strong>{changelog.totalEntries}</strong>
+            </div>
+            <div>
+              <span>Loaded</span>
+              <strong>{loadedEntries}</strong>
             </div>
             <div>
               <span>Latest step</span>
@@ -2181,6 +2195,17 @@ function ChangelogPanel({ changelog }: { changelog: ProjectChangelog | null }) {
               );
             })}
           </div>
+          {changelog.hasMore ? (
+            <div className="changelog-load-more">
+              <button className="text-button" type="button" onClick={onLoadMore} disabled={isLoading}>
+                <ChevronDown size={14} />
+                {isLoading ? "Loading timeline" : `Load next ${Math.min(changelog.limit, changelog.totalEntries - loadedEntries)} steps`}
+              </button>
+              <span>
+                Showing {loadedEntries} of {changelog.totalEntries}
+              </span>
+            </div>
+          ) : null}
         </>
       ) : (
         <EmptyState text="Project changelog is loading." />
@@ -3163,7 +3188,9 @@ function PageBody({
   parityManifest,
   parityComparisons,
   parityReliability,
-  onRunCustomParity
+  onRunCustomParity,
+  changelogLoading,
+  onLoadMoreChangelog
 }: {
   page: PageId;
   apps: AppSnapshot[];
@@ -3191,9 +3218,11 @@ function PageBody({
   parityComparisons: ParityComparisonReport[];
   parityReliability: ParityReliabilityReport | null;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
+  changelogLoading: boolean;
+  onLoadMoreChangelog: () => void;
 }) {
   if (page === "timeline") {
-    return <ChangelogPanel changelog={changelog} />;
+    return <ChangelogPanel changelog={changelog} isLoading={changelogLoading} onLoadMore={onLoadMoreChangelog} />;
   }
   if (page === "progress") {
     return (
@@ -3286,6 +3315,7 @@ export function App() {
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
   const [parityReliability, setParityReliability] = useState<ParityReliabilityReport | null>(null);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
+  const [changelogLoading, setChangelogLoading] = useState(false);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<BusyState>(null);
@@ -3347,10 +3377,40 @@ export function App() {
     setParityReliability(parityReliabilityData);
   }, []);
 
-  const loadChangelog = useCallback(async () => {
-    const changelogData = await api.getChangelog();
-    setChangelog(changelogData);
+  const loadChangelogPage = useCallback(async (offset: number) => {
+    setChangelogLoading(true);
+    try {
+      return await api.getChangelog({ offset, limit: changelogPageSize, order: "desc" });
+    } finally {
+      setChangelogLoading(false);
+    }
   }, []);
+
+  const loadChangelog = useCallback(async () => {
+    const changelogData = await loadChangelogPage(0);
+    setChangelog(changelogData);
+  }, [loadChangelogPage]);
+
+  const handleLoadMoreChangelog = useCallback(() => {
+    if (!changelog?.hasMore || changelogLoading) {
+      return;
+    }
+
+    void loadChangelogPage(changelog.nextOffset ?? changelog.entries.length).then((nextPage) => {
+      setChangelog((current) => {
+        if (!current) {
+          return nextPage;
+        }
+        const entries = [...current.entries, ...nextPage.entries];
+        return {
+          ...nextPage,
+          offset: 0,
+          returnedEntries: entries.length,
+          entries
+        };
+      });
+    }).catch((loadError) => setError(`Timeline: ${describeLoadError(loadError)}`));
+  }, [changelog, changelogLoading, loadChangelogPage]);
 
   const loadWithErrorBanner = useCallback(async <T,>(label: string, load: () => Promise<T>) => {
     try {
@@ -3581,6 +3641,8 @@ export function App() {
           parityComparisons={parityComparisons}
           parityReliability={parityReliability}
           onRunCustomParity={handleRunCustomParity}
+          changelogLoading={changelogLoading}
+          onLoadMoreChangelog={handleLoadMoreChangelog}
         />
       </main>
     </div>

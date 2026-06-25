@@ -92,7 +92,19 @@ export const api = {
   async getParityReliability() {
     return requestJson<ParityReliabilityReport>("/api/parity-reliability");
   },
-  async getChangelog() {
-    return requestJson<ProjectChangelog>("/api/changelog");
+  async getChangelog(options?: { offset?: number; limit?: number; order?: "asc" | "desc" }) {
+    const query = new URLSearchParams();
+    if (options?.offset !== undefined) {
+      query.set("offset", String(options.offset));
+    }
+    if (options?.limit !== undefined) {
+      query.set("limit", String(options.limit));
+    }
+    if (options?.order) {
+      query.set("order", options.order);
+    }
+    const queryString = query.toString();
+    const suffix = queryString ? `?${queryString}` : "";
+    return requestJson<ProjectChangelog>(`/api/changelog${suffix}`);
   }
 };

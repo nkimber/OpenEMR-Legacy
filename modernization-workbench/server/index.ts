@@ -258,10 +258,25 @@ type ResolvedEntryCommit = {
   source: "documented" | "git-inferred";
 };
 
+type ChangelogOrder = "asc" | "desc";
+
 type ProjectChangelog = {
   sourcePath: string;
   updatedAt: string;
   totalEntries: number;
+  offset: number;
+  limit: number;
+  returnedEntries: number;
+  hasMore: boolean;
+  nextOffset?: number;
+  order: ChangelogOrder;
+  entries: ChangelogEntry[];
+};
+
+type ChangelogCache = {
+  mtimeMs: number;
+  updatedAt: string;
+  commitScanLimit?: number;
   entries: ChangelogEntry[];
 };
 
@@ -557,6 +572,7 @@ const artifactsRoot = path.join(workbenchRoot, "artifacts");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
+let changelogCache: ChangelogCache | null = null;
 const sourceInventoryCacheMs = 10 * 1000;
 const progressHistoryCacheMs = 30 * 1000;
 let sourceInventoryCache: { expiresAt: number; inventory: SourceInventory } | null = null;
@@ -1324,20 +1340,35 @@ async function buildFunctionalityProgressForecast(summary: FunctionalityProgress
   };
 }
 
-async function readGitCommitInfo(): Promise<GitCommitInfo[]> {
+async function readGitCommitInfo(maxCount?: number): Promise<GitCommitInfo[]> {
   return await new Promise((resolve) => {
-    const git = spawn("git", ["log", "--all", "--numstat", "--format=%x1e%H%x1f%h%x1f%aI%x1f%s"], {
+    const args = [
+      "log",
+      "--all",
+      ...(maxCount ? [`--max-count=${maxCount}`] : []),
+      "--numstat",
+      "--format=%x1e%H%x1f%h%x1f%aI%x1f%s"
+    ];
+    const git = spawn("git", args, {
       cwd: repoRoot,
       shell: false,
       windowsHide: true
     });
     let stdout = "";
+    const timer = setTimeout(() => {
+      git.kill();
+      resolve([]);
+    }, 20000);
 
     git.stdout.on("data", (chunk) => {
       stdout += chunk.toString();
     });
-    git.on("error", () => resolve([]));
+    git.on("error", () => {
+      clearTimeout(timer);
+      resolve([]);
+    });
     git.on("close", (exitCode) => {
+      clearTimeout(timer);
       if (exitCode !== 0) {
         resolve([]);
         return;
@@ -1617,14 +1648,62 @@ function enrichChangelogEntries(entries: ChangelogEntry[], commits: GitCommitInf
   });
 }
 
-async function readProjectChangelog(): Promise<ProjectChangelog> {
-  const text = await fs.readFile(changelogPath, "utf8");
+async function readCachedChangelogEntries(commitScanLimit?: number) {
   const stats = await fs.stat(changelogPath);
-  const entries = enrichChangelogEntries(parseProjectChangelog(text), await readGitCommitInfo());
+  const cacheCoversRequest =
+    changelogCache?.mtimeMs === stats.mtimeMs &&
+    (changelogCache.commitScanLimit === undefined ||
+      commitScanLimit === undefined ||
+      changelogCache.commitScanLimit >= commitScanLimit);
+  if (cacheCoversRequest && changelogCache) {
+    return changelogCache;
+  }
+
+  const text = await fs.readFile(changelogPath, "utf8");
+  changelogCache = {
+    mtimeMs: stats.mtimeMs,
+    updatedAt: stats.mtime.toISOString(),
+    commitScanLimit,
+    entries: enrichChangelogEntries(parseProjectChangelog(text), await readGitCommitInfo(commitScanLimit))
+  };
+  return changelogCache;
+}
+
+function normalizeChangelogOffset(value: unknown) {
+  const parsed = typeof value === "string" ? Number.parseInt(value, 10) : Number.NaN;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function normalizeChangelogLimit(value: unknown, fallback: number) {
+  const parsed = typeof value === "string" ? Number.parseInt(value, 10) : Number.NaN;
+  const limit = Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  return Math.min(Math.max(limit, 1), 500);
+}
+
+function normalizeChangelogOrder(value: unknown): ChangelogOrder {
+  return value === "desc" ? "desc" : "asc";
+}
+
+async function readProjectChangelog({ offset = 0, limit, order = "asc" }: { offset?: number; limit?: number; order?: ChangelogOrder } = {}): Promise<ProjectChangelog> {
+  const commitScanLimit = limit === undefined ? undefined : offset + limit + 50;
+  const cached = await readCachedChangelogEntries(commitScanLimit);
+  const orderedEntries = order === "desc" ? [...cached.entries].reverse() : cached.entries;
+  const normalizedOffset = Math.min(Math.max(offset, 0), orderedEntries.length);
+  const normalizedLimit = limit === undefined ? orderedEntries.length : Math.min(Math.max(limit, 1), 500);
+  const entries = orderedEntries.slice(normalizedOffset, normalizedOffset + normalizedLimit);
+  const nextOffset = normalizedOffset + entries.length;
+  const hasMore = nextOffset < orderedEntries.length;
+
   return {
     sourcePath: path.relative(repoRoot, changelogPath).replaceAll("\\", "/"),
-    updatedAt: stats.mtime.toISOString(),
-    totalEntries: entries.length,
+    updatedAt: cached.updatedAt,
+    totalEntries: cached.entries.length,
+    offset: normalizedOffset,
+    limit: normalizedLimit,
+    returnedEntries: entries.length,
+    hasMore,
+    nextOffset: hasMore ? nextOffset : undefined,
+    order,
     entries
   };
 }
@@ -3278,9 +3357,12 @@ app.post("/api/apps/:appId/parity-runs/run", async (request, response, next) => 
   }
 });
 
-app.get("/api/changelog", async (_request, response, next) => {
+app.get("/api/changelog", async (request, response, next) => {
   try {
-    response.json(await readProjectChangelog());
+    const offset = normalizeChangelogOffset(request.query.offset);
+    const limit = normalizeChangelogLimit(request.query.limit, 100);
+    const order = normalizeChangelogOrder(request.query.order ?? "desc");
+    response.json(await readProjectChangelog({ offset, limit, order }));
   } catch (error) {
     next(error);
   }

@@ -682,6 +682,12 @@ export type ProjectChangelog = {
   sourcePath: string;
   updatedAt: string;
   totalEntries: number;
+  offset: number;
+  limit: number;
+  returnedEntries: number;
+  hasMore: boolean;
+  nextOffset?: number;
+  order: "asc" | "desc";
   entries: ChangelogEntry[];
 };
 
