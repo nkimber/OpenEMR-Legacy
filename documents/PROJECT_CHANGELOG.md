@@ -18018,6 +18018,39 @@ Code changes:
 - Net lines: +131
 - Total churn: 179
 
+## 331. Slice 287 Slice 26 Document Mutation Probe Payload Attachments
+
+Started: 2026-06-25T04:21:00-04:00
+Finished: 2026-06-25T04:29:48-04:00
+Commit: pending
+
+Implemented Slice 287: Slice 26 patient document mutation probe payload attachments. The patient document mutation parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed database-backed text document, created document row and count increment, archived row, and hard-delete cleanup state so Workbench comparison drill-ins can preview document-mutation database evidence.
+
+Changes:
+- Added Slice 26 document-mutation precondition payload attachments for the anchor patient, workflow counts, and proposed Medical Record text-document create payload.
+- Added Slice 26 created-document payload attachments that capture the temporary document row, text preview, storage mode, and document-count increment immediately after create.
+- Added Slice 26 archived and cleanup payload attachments that capture the soft-deleted row and final hard-delete cleanup state.
+- Preserved the existing Slice 26 assertions and side-by-side behavior while making patient document mutation evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 26 patient document mutation database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 287 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan found only the changelog future-work line before this entry was added; that boundary is now updated to Slice 26.
+- `npm run test:modernized:plan:document-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T082839-220Z-modernized-openemr-plan-slice-26-document-mutation-readiness`.
+- `npm run test:legacy:plan:document-mutation` in `parity-tests/` passed with 1 expected test after reset/reseed; run `2026-06-25T082839-392Z-legacy-openemr-plan-slice-26-document-mutation-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 26 runs recorded the four new `db-probe-slice-26-document-mutation-*` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-26-document-mutation-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T082911-160Z-legacy-openemr-vs-modernized-openemr-plan-slice-26-document-mutation-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 178
+- Lines deleted: 29
+- Net lines: +149
+- Total churn: 207
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18027,5 +18060,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 25.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 26.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
