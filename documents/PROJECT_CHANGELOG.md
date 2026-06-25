@@ -17000,7 +17000,7 @@ Code changes:
 Started: 2026-06-24T23:41:18-04:00
 Finished: 2026-06-24T23:53:24-04:00
 Duration: 12m 06s
-Commit: pending
+Commit: 92f712ff
 
 Implemented Slice 256: Workbench comparison screenshot thumbnail readiness. The Workbench now enriches recent side-by-side parity comparison reports with run-level visual artifact metadata and renders screenshot/image thumbnails directly on the Test Runs comparison cards and expanded drill-ins.
 
