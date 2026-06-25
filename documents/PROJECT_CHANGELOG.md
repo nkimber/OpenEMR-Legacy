@@ -21474,7 +21474,7 @@ Code changes:
 
 Started: 2026-06-25T16:42:50.2182633-04:00
 Finished: 2026-06-25T16:45:09.9040026-04:00
-Commit: pending
+Commit: 403c5acc
 
 Implemented Slice 390: Slice 131 procedure specimen detail probe payload attachments. The procedure specimen detail parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/specimen-detail creation, specimen identifier/accession/type/collection/location/volume/condition facts, legacy database projection facts, modernized Procedures specimen-detail UI facts, patient procedure projection, and cleanup deletion so Workbench comparison drill-ins can preview order-level specimen evidence.
 
