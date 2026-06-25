@@ -19962,7 +19962,7 @@ Code changes:
 
 Started: 2026-06-25T11:50:09-04:00
 Finished: 2026-06-25T11:52:05-04:00
-Commit: pending
+Commit: 98799773
 
 Implemented Slice 345: Slice 84 encounter document content replacement probe payload attachments. The encounter document content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary original text attachment, replacement text payload, original/replaced content and revision facts, legacy Documents category rendering, modernized encounter-detail API replacement rows, Encounters attached-document replacement UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document content replacement evidence.
 
