@@ -21540,7 +21540,7 @@ Code changes:
 
 Started: 2026-06-25T16:56:08.7055307-04:00
 Finished: 2026-06-25T16:59:51.4316619-04:00
-Commit: pending
+Commit: 26678fcd
 
 Implemented Slice 392: Slice 133 procedure report correction probe payload attachments. The procedure report correction parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/report/result creation, corrected collected-date/report-date/specimen/status/review/notes facts, preserved linked result projection, legacy Procedure Results rendering facts, modernized Procedures report-correction UI facts, and cleanup deletion so Workbench comparison drill-ins can preview procedure report correction evidence.
 
