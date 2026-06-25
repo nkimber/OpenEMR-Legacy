@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
@@ -15,34 +16,87 @@ test.describe("patient scanned attachment parity @slice92 @workflow-document-sca
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(scannedAttachmentAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (!patient) {
+      throw new Error(`Anchor patient ${scannedAttachmentAnchorPatientId} was not found.`);
+    }
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const suffix = workflowSuffix();
     const fileName = `Parity Scanned Attachment ${suffix}.pdf`;
     const notes = "Scan source: front-desk scanner; OCR pending; Created by the parity scanned attachment suite.";
     const contentBase64 = buildScannedPdfFixtureBase64(fileName);
+    const sizeBytes = Buffer.from(contentBase64, "base64").length;
+    const scannedDocumentInput = {
+      patientId: patient.pid,
+      categoryId: 3,
+      categoryName: "Medical Record",
+      name: fileName,
+      docDate: "2026-06-20",
+      encounter: 1000013,
+      fileName,
+      mimetype: "application/pdf",
+      contentBase64,
+      notes
+    };
     let documentId: number | string | null = null;
 
     try {
-      documentId = await workflow.createPatientBinaryDocument({
-        patientId: patient!.pid,
-        categoryId: 3,
-        categoryName: "Medical Record",
-        name: fileName,
-        docDate: "2026-06-20",
-        encounter: 1000013,
-        fileName,
-        mimetype: "application/pdf",
-        contentBase64,
-        notes
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-92-document-scanned-attachment-precondition",
+        description: "Captures the Slice 92 scanned patient attachment anchor patient, baseline document count, proposed scanned PDF payload, and expected scan-readiness metadata before create.",
+        expected: {
+          patient: {
+            pubpid: scannedAttachmentAnchorPatientId,
+            displayName: "Stone, Avery"
+          },
+          create: {
+            categoryId: 3,
+            categoryName: "Medical Record",
+            docDate: "2026-06-20",
+            encounter: 1000013,
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            isScannedAttachment: true,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending",
+            deleted: 0
+          },
+          countChange: {
+            documentsAfterCreate: beforeCounts.documents + 1,
+            documentsAfterArchive: beforeCounts.documents,
+            documentsAfterCleanup: beforeCounts.documents
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedDocument: {
+            ...scannedDocumentInput,
+            contentBase64Length: contentBase64.length,
+            sizeBytes
+          }
+        },
+        context: {
+          canonicalId: scannedAttachmentAnchorPatientId,
+          suite: "workflow-document-scanned-attachment",
+          workflow: "patient-scanned-attachment"
+        }
       });
+
+      documentId = await workflow.createPatientBinaryDocument(scannedDocumentInput);
 
       const created = await workflow.getPatientDocument(documentId);
       expect(created).toMatchObject({
-        patientId: patient!.pid,
+        patientId: patient.pid,
         categoryId: 3,
         categoryName: "Medical Record",
         name: fileName,
@@ -58,6 +112,7 @@ test.describe("patient scanned attachment parity @slice92 @workflow-document-sca
         scanPageCount: 1,
         ocrStatus: "OCR pending"
       });
+      expect(created!.sizeBytes).toBe(sizeBytes);
 
       const createdContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(createdContent).not.toBeNull();
@@ -76,17 +131,94 @@ test.describe("patient scanned attachment parity @slice92 @workflow-document-sca
         ocrStatus: "OCR pending"
       });
 
-      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-92-document-scanned-attachment-created",
+        description: "Captures the temporary Slice 92 scanned PDF document row, normalized scan-readiness content metadata, and active document-count increment immediately after create.",
+        expected: {
+          document: {
+            patientId: patient.pid,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: fileName,
+            docDate: "2026-06-20",
+            encounter: 1000013,
+            mimetype: "application/pdf",
+            fileName,
+            storageMethod: "database",
+            deleted: 0,
+            sizeBytes
+          },
+          scanReadiness: {
+            previewKind: "pdf",
+            previewStatus: "Inline PDF preview",
+            thumbnailLabel: "PDF",
+            isScannedAttachment: true,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending",
+            contentBase64
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          documentId,
+          created,
+          createdContent
+        },
+        context: {
+          canonicalId: scannedAttachmentAnchorPatientId,
+          suite: "workflow-document-scanned-attachment",
+          workflow: "patient-scanned-attachment-created"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
-        await openPatientDocumentsDirect(page, target, patient!.pid);
+        await openPatientDocumentsDirect(page, target, patient.pid);
         await expandPatientDocumentCategories(page, ["Medical Record"]);
         await expectRenderedText(page, fileName);
         await expectRenderedText(page, "Medical Record");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-92-document-scanned-attachment-surface",
+          description: "Captures the legacy Documents category rendering facts for the temporary Slice 92 scanned patient attachment.",
+          expected: {
+            category: "Medical Record",
+            documentName: fileName,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending"
+          },
+          actual: {
+            patient,
+            documentId,
+            created,
+            createdContent,
+            surface: {
+              application: "legacy-openemr",
+              page: "patient-documents",
+              category: "Medical Record",
+              renderedDocumentName: fileName
+            }
+          },
+          context: {
+            canonicalId: scannedAttachmentAnchorPatientId,
+            suite: "workflow-document-scanned-attachment",
+            workflow: "patient-scanned-attachment-legacy-surface"
+          }
+        });
       } else {
-        await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
+        await openAuthenticatedModernizedDocuments(page, target, patient.pubpid);
 
         const documentCard = page.locator(".document-card").filter({ hasText: fileName }).first();
         await expect(documentCard).toBeVisible();
@@ -104,21 +236,117 @@ test.describe("patient scanned attachment parity @slice92 @workflow-document-sca
         await expect(viewer).toContainText("front-desk scanner");
         await expect(viewer).toContainText("1");
         await expect(viewer).toContainText("OCR pending");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-92-document-scanned-attachment-surface",
+          description: "Captures the modernized Documents card/viewer scan-readiness UI anchors for the temporary Slice 92 scanned patient attachment.",
+          expected: {
+            card: {
+              scanStatus: "Scanned attachment",
+              captureSource: "front-desk scanner",
+              scanPageCountText: "1 scanned page",
+              ocrStatus: "OCR pending"
+            },
+            viewer: {
+              heading: "Document Viewer",
+              scanStatus: "Scanned attachment",
+              captureSource: "front-desk scanner",
+              ocrStatus: "OCR pending"
+            }
+          },
+          actual: {
+            patient,
+            documentId,
+            created,
+            createdContent,
+            surface: {
+              application: "modernized-openemr",
+              page: "documents",
+              viewer: "Document viewer",
+              renderedDocumentName: fileName
+            }
+          },
+          context: {
+            canonicalId: scannedAttachmentAnchorPatientId,
+            suite: "workflow-document-scanned-attachment",
+            workflow: "patient-scanned-attachment-modernized-surface"
+          }
+        });
       }
 
       await workflow.softDeletePatientDocument(documentId);
       const archived = await workflow.getPatientDocument(documentId);
       expect(archived).toMatchObject({ deleted: 1 });
+      const afterArchiveCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
+      expect(afterArchiveCounts.documents).toBe(beforeCounts.documents);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-92-document-scanned-attachment-archived",
+        description: "Captures the temporary Slice 92 scanned PDF document after archive and active document-count return to baseline.",
+        expected: {
+          document: {
+            patientId: patient.pid,
+            mimetype: "application/pdf",
+            storageMethod: "database",
+            deleted: 1,
+            isScannedAttachment: true,
+            scanStatus: "Scanned attachment",
+            captureSource: "front-desk scanner",
+            scanPageCount: 1,
+            ocrStatus: "OCR pending"
+          },
+          counts: {
+            documents: beforeCounts.documents
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterArchiveCounts,
+          documentId,
+          created,
+          archived
+        },
+        context: {
+          canonicalId: scannedAttachmentAnchorPatientId,
+          suite: "workflow-document-scanned-attachment",
+          workflow: "patient-scanned-attachment-archived"
+        }
+      });
     } finally {
       if (documentId !== null) {
         await workflow.deletePatientDocument(documentId);
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPatientDocument(documentId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-92-document-scanned-attachment-cleanup",
+        description: "Captures the final Slice 92 hard-delete cleanup state for the temporary scanned patient attachment.",
+        expected: {
+          counts: {
+            documents: beforeCounts.documents
+          },
+          deletedDocument: null
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCleanupCounts,
+          documentId,
+          afterCleanup
+        },
+        context: {
+          canonicalId: scannedAttachmentAnchorPatientId,
+          suite: "workflow-document-scanned-attachment",
+          workflow: "patient-scanned-attachment-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
