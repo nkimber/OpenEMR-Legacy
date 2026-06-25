@@ -21085,7 +21085,7 @@ Code changes:
 
 Started: 2026-06-25T15:30:18.4148223-04:00
 Finished: 2026-06-25T15:36:05.3250108-04:00
-Commit: pending
+Commit: 2544b348
 
 Implemented Slice 378: Slice 117 appointment provider overlap probe payload attachments. The appointment provider overlap parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` and `MOD-PAT-0004` seeded patient anchors, shared provider/date/time precondition, temporary same-provider overlapping appointment rows, overlap query results, legacy appointment rendering facts, modernized provider-overlap rendering anchors, count deltas, and cleanup deletion so Workbench comparison drill-ins can preview non-blocking schedule-overlap evidence.
 
