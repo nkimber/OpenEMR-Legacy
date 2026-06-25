@@ -18572,6 +18572,40 @@ Code changes:
 - Net lines: +194
 - Total churn: 252
 
+## 348. Slice 304 Slice 43 Document Content Replacement Probe Payload Attachments
+
+Started: 2026-06-25T06:47:36-04:00
+Finished: 2026-06-25T06:50:01-04:00
+Commit: pending
+
+Implemented Slice 304: Slice 43 patient document content replacement probe payload attachments. The document content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed original text document and replacement payload, created document row and original stored content, replaced row and content projection, archived row, and final hard-delete cleanup state so Workbench comparison drill-ins can preview document replacement lifecycle evidence.
+
+Changes:
+- Added Slice 43 precondition payload attachments for the anchor patient, baseline document count, original text document create payload, replacement file/body payload, and expected create/replace/archive/cleanup count semantics.
+- Added Slice 43 created-row payload attachments that capture the temporary original document row, stored text content, and active document-count increment after create.
+- Added Slice 43 replaced-row payload attachments that capture replacement preview/content assertions, the stored text projection, and stable active document count after in-place replacement.
+- Added Slice 43 archived-row payload attachments that capture soft-delete/archive state and restored active document count before hard-delete cleanup.
+- Added Slice 43 cleanup payload attachments that capture final hard-delete state and restored baseline document count.
+- Updated the Workbench functionality progress ledger so Slice 43 patient document content replacement database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 304 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 42 workflow payload boundary.
+- `npm run test:modernized:plan:document-content-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T104905-496Z-modernized-openemr-plan-slice-43-document-content-replace-readiness`.
+- `npm run test:legacy:plan:document-content-replace` in `parity-tests/` passed with 1 expected test; run `2026-06-25T104905-525Z-legacy-openemr-plan-slice-43-document-content-replace-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 43 Playwright reports recorded the shared `db-probe-slice-43-document-content-replace-precondition`, `db-probe-slice-43-document-content-replace-created`, `db-probe-slice-43-document-content-replace-replaced`, `db-probe-slice-43-document-content-replace-archived`, and `db-probe-slice-43-document-content-replace-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-43-document-content-replace-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T104944-081Z-legacy-openemr-vs-modernized-openemr-plan-slice-43-document-content-replace-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 250
+- Lines deleted: 30
+- Net lines: +220
+- Total churn: 280
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18581,5 +18615,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 42.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 43.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
