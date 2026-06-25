@@ -17081,7 +17081,7 @@ Code changes:
 Started: 2026-06-25T00:10:00-04:00
 Finished: 2026-06-25T00:22:13-04:00
 Duration: 12m 13s
-Commit: pending
+Commit: 7b37353b
 
 Implemented Slice 259: Workbench reliability trend summaries. The Workbench now derives rolling parity health from stored run and comparison artifacts so Test Runs can show pass-rate, match-rate, duration, pass/fail, and selection-level trend signals without opening raw artifact folders.
 
