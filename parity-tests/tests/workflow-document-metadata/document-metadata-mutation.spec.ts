@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedDocuments } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expandPatientDocumentCategories,
@@ -15,7 +16,7 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(documentMetadataAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -25,19 +26,68 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
     const updatedName = `Parity Refiled Directive ${suffix}`;
     const body = `Created by the parity document metadata suite for ${originalName}.`;
     const updatedNotes = "Updated by the parity document metadata suite.";
+    const documentInput = {
+      patientId: patient!.pid,
+      categoryId: 3,
+      categoryName: "Medical Record",
+      name: originalName,
+      docDate: "2026-06-18",
+      encounter: 1000013,
+      content: body,
+      notes: "Created by the parity document metadata suite."
+    };
+    const metadataUpdate = {
+      categoryId: 6,
+      categoryName: "Advance Directive",
+      name: updatedName,
+      docDate: "2026-06-19",
+      encounter: 1000014,
+      notes: updatedNotes
+    };
     let documentId: number | string | null = null;
 
     try {
-      documentId = await workflow.createPatientDocument({
-        patientId: patient!.pid,
-        categoryId: 3,
-        categoryName: "Medical Record",
-        name: originalName,
-        docDate: "2026-06-18",
-        encounter: 1000013,
-        content: body,
-        notes: "Created by the parity document metadata suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-41-document-metadata-precondition",
+        description: "Captures the Slice 41 document metadata anchor patient, baseline document count, proposed temporary document payload, and planned refile metadata update before create.",
+        expected: {
+          patient: {
+            pubpid: documentMetadataAnchorPatientId,
+            displayName: "Stone, Avery"
+          },
+          create: {
+            categoryId: 3,
+            categoryName: "Medical Record",
+            docDate: "2026-06-18",
+            encounter: 1000013,
+            mimetype: "text/plain",
+            storageMethod: "database",
+            deleted: 0,
+            reviewStatus: "pending"
+          },
+          update: metadataUpdate,
+          countChange: {
+            documentsAfterCreate: beforeCounts.documents + 1,
+            documentsAfterUpdate: beforeCounts.documents + 1,
+            documentsAfterArchive: beforeCounts.documents,
+            documentsAfterCleanup: beforeCounts.documents
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedDocument: documentInput,
+          proposedMetadataUpdate: metadataUpdate
+        },
+        context: {
+          canonicalId: documentMetadataAnchorPatientId,
+          suite: "workflow-document-metadata",
+          workflow: "patient-document-metadata"
+        }
       });
+
+      documentId = await workflow.createPatientDocument(documentInput);
 
       const created = await workflow.getPatientDocument(documentId);
       expect(created).toMatchObject({
@@ -55,16 +105,44 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-41-document-metadata-created",
+        description: "Captures the temporary Slice 41 original document row and active document-count increment immediately after create.",
+        expected: {
+          document: {
+            patientId: patient!.pid,
+            categoryId: 3,
+            categoryName: "Medical Record",
+            name: originalName,
+            docDate: "2026-06-18",
+            encounter: 1000013,
+            notes: "Created by the parity document metadata suite.",
+            mimetype: "text/plain",
+            storageMethod: "database",
+            deleted: 0,
+            reviewStatus: "pending"
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCreateCounts,
+          documentId,
+          created
+        },
+        context: {
+          canonicalId: documentMetadataAnchorPatientId,
+          suite: "workflow-document-metadata",
+          workflow: "patient-document-metadata-created"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
-        await workflow.updatePatientDocumentMetadata(documentId, {
-          categoryId: 6,
-          categoryName: "Advance Directive",
-          name: updatedName,
-          docDate: "2026-06-19",
-          encounter: 1000014,
-          notes: updatedNotes
-        });
+        await workflow.updatePatientDocumentMetadata(documentId, metadataUpdate);
       } else {
         await openAuthenticatedModernizedDocuments(page, target, patient!.pubpid);
 
@@ -98,6 +176,43 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
 
       const afterUpdateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
       expect(afterUpdateCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-41-document-metadata-updated",
+        description: "Captures the temporary Slice 41 document after category, name, date, encounter, and notes metadata are refiled.",
+        expected: {
+          document: {
+            patientId: patient!.pid,
+            categoryId: 6,
+            categoryName: "Advance Directive",
+            name: updatedName,
+            docDate: "2026-06-19",
+            encounter: 1000014,
+            notes: updatedNotes,
+            mimetype: "text/plain",
+            storageMethod: "database",
+            deleted: 0,
+            reviewStatus: "pending"
+          },
+          counts: {
+            documents: beforeCounts.documents + 1
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterUpdateCounts,
+          documentId,
+          created,
+          updated,
+          metadataUpdate
+        },
+        context: {
+          canonicalId: documentMetadataAnchorPatientId,
+          suite: "workflow-document-metadata",
+          workflow: "patient-document-metadata-updated"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -124,6 +239,38 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
       expect(archived).toMatchObject({
         deleted: 1
       });
+      const afterArchiveCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-41-document-metadata-archived",
+        description: "Captures the temporary Slice 41 refiled document after soft-delete/archive and active document-count return to baseline.",
+        expected: {
+          document: {
+            categoryId: 6,
+            categoryName: "Advance Directive",
+            name: updatedName,
+            reviewStatus: "pending",
+            deleted: 1
+          },
+          counts: {
+            documents: beforeCounts.documents
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterArchiveCounts,
+          documentId,
+          updated,
+          archived
+        },
+        context: {
+          canonicalId: documentMetadataAnchorPatientId,
+          suite: "workflow-document-metadata",
+          workflow: "patient-document-metadata-archived"
+        }
+      });
+      expect(afterArchiveCounts.documents).toBe(beforeCounts.documents);
     } finally {
       if (documentId !== null) {
         await workflow.deletePatientDocument(documentId);
@@ -133,7 +280,31 @@ test.describe("patient document metadata parity @slice41 @workflow-document-meta
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
     if (documentId !== null) {
-      await expect(workflow.getPatientDocument(documentId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getPatientDocument(documentId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-41-document-metadata-cleanup",
+        description: "Captures the final Slice 41 hard-delete cleanup state for the temporary refiled patient document.",
+        expected: {
+          counts: {
+            documents: beforeCounts.documents
+          },
+          deletedDocument: null
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          afterCleanupCounts,
+          documentId,
+          afterCleanup
+        },
+        context: {
+          canonicalId: documentMetadataAnchorPatientId,
+          suite: "workflow-document-metadata",
+          workflow: "patient-document-metadata-cleanup"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
