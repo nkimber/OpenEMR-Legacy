@@ -20733,7 +20733,7 @@ Code changes:
 
 Started: 2026-06-25T14:18:33.7729659-04:00
 Finished: 2026-06-25T14:20:40.3098888-04:00
-Commit: pending
+Commit: f5ae9f3d
 
 Implemented Slice 367: Slice 106 appointment occurrence-cancel probe payload attachments. The appointment occurrence-cancel parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, seeded recurring-series state, generated occurrence selected for cancellation, recurrence-exdate mutation, hidden cancelled occurrence expansion, modernized Calendar skip-occurrence rendering anchors, and cleanup restoration so Workbench comparison drill-ins can preview generated-occurrence cancellation evidence.
 
