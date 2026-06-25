@@ -21569,6 +21569,39 @@ Code changes:
 - Net lines: 340
 - Total churn: 474
 
+## 439. Slice 393 Slice 134 Procedure Report Sign-Off Probe Payload Attachments
+
+Started: 2026-06-25T17:04:11.6159690-04:00
+Finished: 2026-06-25T17:08:06.7180555-04:00
+Commit: pending
+
+Implemented Slice 393: Slice 134 procedure report sign-off probe payload attachments. The procedure report sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/report/result creation, pending-review report state, reviewed-by/reviewed-at sign-off facts, preserved linked result projection, legacy Procedure Results rendering facts, modernized Procedures sign-off UI facts, and cleanup deletion so Workbench comparison drill-ins can preview procedure report sign-off evidence.
+
+Changes:
+- Added Slice 134 precondition payload attachments for the seeded patient, baseline workflow counts, baseline procedure summary, proposed temporary encounter/order/report/result payloads, and sign-off payload.
+- Added created-state payload attachments for the temporary encounter, completed procedure order, pending-review report, linked result row, count deltas, and patient procedure projection.
+- Added signed-state payload attachments for the in-place reviewed status, reviewer, reviewed timestamp, preserved report metadata, preserved linked result, patient procedure projection, and UI/API surface facts.
+- Added rendered-state payload attachments that capture the final signed report/result projection after legacy Procedure Results or modernized Procedures UI rendering.
+- Added cleanup payload attachments proving the temporary order tree and encounter are deleted and patient workflow counts return to baseline.
+- Replaced non-null patient assumptions with an explicit seeded-patient guard for clearer fixture failures.
+- Updated the Workbench functionality progress ledger so Slice 134 procedure report sign-off database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 393 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-134-procedure-report-signoff-readiness` passed with run ID `2026-06-25T210601-641Z-legacy-openemr-plan-slice-134-procedure-report-signoff-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-134-procedure-report-signoff-readiness` passed with run ID `2026-06-25T210702-462Z-modernized-openemr-plan-slice-134-procedure-report-signoff-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-134-procedure-report-signoff-readiness` matched with comparison ID `2026-06-25T210759-124Z-legacy-openemr-vs-modernized-openemr-plan-slice-134-procedure-report-signoff-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-134-procedure-report-signoff-precondition`, `created`, `signed`, `rendered`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 406
+- Lines deleted: 60
+- Net lines: 346
+- Total churn: 466
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -21578,5 +21611,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 133.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 134.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
