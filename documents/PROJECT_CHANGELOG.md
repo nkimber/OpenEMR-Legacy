@@ -17398,6 +17398,38 @@ Code changes:
 - Net lines: +131
 - Total churn: 171
 
+## 312. Slice 269 Slice 8 Administration Probe Payload Attachments
+
+Started: 2026-06-25T01:33:10-04:00
+Finished: 2026-06-25T01:41:50-04:00
+Commit: pending
+
+Implemented Slice 269: Slice 8 administration probe payload attachments. The administration directory parity suite now writes path-backed JSON Playwright attachments for seeded user counts, provider/calendar counts, selected provider and billing users, seeded facilities, and administration UI steering precondition so Workbench comparison drill-ins can preview administration workflow database evidence.
+
+Changes:
+- Added Slice 8 administration payload attachments for seeded users, provider counts, calendar-enabled users, selected provider and billing user facts, and seeded facility facts.
+- Added Slice 8 UI precondition payload attachments that capture the same users/facilities directory lookup before steering the legacy administration screens or the modernized Admin page.
+- Aligned the modernized Admin UI assertion with the current `Admin ACL policy enforced` status copy while preserving the existing legacy assertions.
+- Preserved the existing Slice 8 assertions and side-by-side behavior while making administration directory evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 8 administration database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 269 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json OK')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- `npm run test:modernized:plan:admin` in `parity-tests/` passed with 3 expected tests after reset/reseed.
+- `npm run test:legacy:plan:admin` in `parity-tests/` passed with 3 expected tests after reset/reseed.
+- Playwright JSON inspection confirmed both legacy and modernized Slice 8 runs recorded file paths for both new `db-probe-slice-8-*` workflow attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-8-admin-readiness` in `parity-tests/` passed with matched status and no differences.
+
+Code changes:
+- Files changed: 8
+- Lines added: 180
+- Lines deleted: 44
+- Net lines: +136
+- Total churn: 224
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -17407,5 +17439,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 7.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 8.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
