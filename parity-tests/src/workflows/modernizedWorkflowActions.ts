@@ -870,6 +870,26 @@ WHERE pid = ${integer(login.pid)}
     return mapModernizedPortalProfileReviewAccept(await response.json());
   }
 
+  async revertPatientPortalProfileReview(requestId: string | number): Promise<PatientPortalProfileReviewAcceptResult | null> {
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/administration/portal-activity/profile-reviews/${encodeURIComponent(String(requestId))}/revert`,
+      {
+        method: "PUT",
+        headers: await this.getAdminSessionHeaders()
+      }
+    );
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Modernized portal profile review revert failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return mapModernizedPortalProfileReviewAccept(await response.json());
+  }
+
   private async updateModernizedPortalProfileDemographics(
     patientId: string,
     demographics: PatientPortalProfileDemographics

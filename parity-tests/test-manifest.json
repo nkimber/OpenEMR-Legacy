@@ -1257,6 +1257,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-254-patient-portal-profile-review-revert-readiness",
+      "name": "Slice 254 Patient Portal Profile Review Revert Readiness",
+      "description": "Patient portal and administration confidence plan that verifies staff can revert submitted profile edits, close the review, and leave chart demographics unchanged.",
+      "suites": ["workflow-patient-portal-profile-review-revert"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-254", "patients", "portal", "profile", "administration", "review-revert", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4563,6 +4572,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-profile-review-accept",
       "tags": ["slice253", "workflow", "mutation", "patients", "portal", "profile", "administration", "review-accept", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-profile-review-revert",
+      "name": "Patient Portal Profile Review Revert Readiness",
+      "description": "Verifies staff-side patient portal profile review revert closes the waiting request while chart demographics remain unchanged.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-profile-review-revert",
+      "tags": ["slice254", "workflow", "mutation", "patients", "portal", "profile", "administration", "review-revert", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

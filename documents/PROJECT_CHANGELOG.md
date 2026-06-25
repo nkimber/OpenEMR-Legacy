@@ -16923,6 +16923,41 @@ Verification:
 - Modernized parity passed: `2026-06-25T025409-352Z-modernized-openemr-plan-slice-253-patient-portal-profile-review-accept-readiness`.
 - Side-by-side comparison passed with no differences: `2026-06-25T025429-212Z-legacy-openemr-vs-modernized-openemr-plan-slice-253-patient-portal-profile-review-accept-readiness`.
 
+## 296. Slice 254 Patient Portal Profile Review Revert Readiness
+
+Started: 2026-06-24T22:58:41-04:00
+Finished: 2026-06-24T23:12:23-04:00
+Duration: 13m 42s
+Commit: pending
+
+Implemented Slice 254: patient portal profile review revert readiness. Legacy OpenEMR does not expose a separate reject outcome for this portal profile-review path; its staff modal provides `Revert Edits`, which discards the submitted edits by restoring chart-original values before closing the activity with `closed` / `completed` / `accept` metadata. The modernized administration workflow now mirrors that behavior without mutating chart demographics.
+
+Changes:
+- Added a modernized administration API revert endpoint for waiting portal profile review requests that closes the request with OpenEMR-style metadata while keeping seeded patient demographics unchanged.
+- Added a modernized Admin `Revert Edits` action for portal profile review cards and refreshed the administration directory after reversion.
+- Extended the legacy and modernized workflow adapters with profile-review revert operations that preserve chart demographics while closing cleanup-backed review rows.
+- Added the `workflow-patient-portal-profile-review-revert` suite and `slice-254-patient-portal-profile-review-revert-readiness` plan, including modernized Admin UI verification of the revert action.
+- Added Workbench-managed Slice 254 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 254 review revert contract.
+
+Verification:
+- `node` JSON validation for the parity manifest, Workbench apps config, and functionality progress ledger passed.
+- `cmd.exe /c npm --prefix parity-tests run list -- --plan slice-254-patient-portal-profile-review-revert-readiness` passed.
+- `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` passed.
+- `cmd.exe /c npm --prefix parity-tests run typecheck` passed.
+- `cmd.exe /c npm --prefix modernized-openemr/frontend run build` passed with the existing Vite chunk-size warning.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed.
+- Legacy parity passed: `2026-06-25T031115-564Z-legacy-openemr-plan-slice-254-patient-portal-profile-review-revert-readiness`.
+- Modernized parity passed: `2026-06-25T031151-530Z-modernized-openemr-plan-slice-254-patient-portal-profile-review-revert-readiness`.
+- Side-by-side comparison passed with no differences: `2026-06-25T031213-979Z-legacy-openemr-vs-modernized-openemr-plan-slice-254-patient-portal-profile-review-revert-readiness`.
+
+Code changes:
+- Files changed: 17
+- Lines added: 558
+- Lines deleted: 16
+- Net lines: +542
+- Total churn: 574
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
