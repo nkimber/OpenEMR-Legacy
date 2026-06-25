@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 
@@ -15,11 +16,34 @@ type LoginAuditRow = {
 };
 
 test.describe("admin login audit readiness parity @workflow-admin-login-audit @slice160 @admin @security @audit", () => {
-  test("records successful and failed admin login audit rows", async ({ page, target, targetDb }) => {
+  test("records successful and failed admin login audit rows", async ({ page, target, targetDb }, testInfo) => {
     const db = targetDb as QueryableDb;
     const maxId = target.type === "legacy-openemr"
       ? await getLegacyMaxLoginAuditId(db)
       : await getModernizedMaxLoginAuditId(db);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-160-admin-login-audit-precondition",
+      description:
+        "Captures the Slice 160 login-audit precondition: audit table boundary, configured username, and redacted login attempt plan.",
+      expected: {
+        username: "admin",
+        auditEvent: "login",
+        expectedNewRowsAtLeast: 2,
+        expectedSuccessAndFailure: true,
+        passwordMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        maxAuditIdBeforeLoginAttempts: maxId,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true
+      },
+      context: {
+        suite: "workflow-admin-login-audit",
+        workflow: "admin-login-audit-precondition"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       const success = await legacyLogin(target, target.credentials.password);
@@ -32,6 +56,38 @@ test.describe("admin login audit readiness parity @workflow-admin-login-audit @s
 
       const rows = await getLegacyLoginAuditRows(db, maxId);
       assertLoginAuditRows(rows);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-160-admin-login-audit-rows",
+        description:
+          "Captures legacy OpenEMR log rows created by successful and failed admin login attempts.",
+        expected: {
+          successAttemptStatusCode: 200,
+          failedAttemptStatusCode: 200,
+          rowsAtLeast: 2,
+          includesSuccessRow: true,
+          includesFailureRow: true,
+          successCommentPattern: "success:",
+          failureCommentPattern: "failure: user password incorrect"
+        },
+        actual: {
+          maxAuditIdBeforeLoginAttempts: maxId,
+          successAttempt: {
+            statusCode: success.statusCode,
+            containsPatientDataTemplate: success.body.includes("patient-data-template")
+          },
+          rejectedAttempt: {
+            statusCode: rejected.statusCode,
+            containsPatientDataTemplate: rejected.body.includes("patient-data-template")
+          },
+          rows,
+          normalizedSummary: summarizeLoginAuditRows(rows)
+        },
+        context: {
+          suite: "workflow-admin-login-audit",
+          workflow: "admin-login-audit-rows"
+        }
+      });
       return;
     }
 
@@ -44,6 +100,40 @@ test.describe("admin login audit readiness parity @workflow-admin-login-audit @s
     const rows = await getModernizedLoginAuditRows(db, maxId);
     assertLoginAuditRows(rows);
     expect(rows.every((row) => row.logSource === "modernized-openemr")).toBe(true);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-160-admin-login-audit-rows",
+      description:
+        "Captures modernized auth_audit_events rows created by successful and failed admin login attempts.",
+      expected: {
+        successAuthenticated: true,
+        failureAuthenticated: false,
+        rowsAtLeast: 2,
+        includesSuccessRow: true,
+        includesFailureRow: true,
+        logSource: "modernized-openemr",
+        passwordMaterialRedacted: true
+      },
+      actual: {
+        maxAuditIdBeforeLoginAttempts: maxId,
+        successAttempt: {
+          authenticated: success.authenticated,
+          username: success.username,
+          sessionIssued: Boolean(success.sessionId)
+        },
+        rejectedAttempt: {
+          authenticated: rejected.authenticated,
+          username: rejected.username,
+          failureReason: rejected.failureReason
+        },
+        rows,
+        normalizedSummary: summarizeLoginAuditRows(rows)
+      },
+      context: {
+        suite: "workflow-admin-login-audit",
+        workflow: "admin-login-audit-rows"
+      }
+    });
 
     await page.goto(target.publicUrl);
     await page.getByRole("button", { name: "Admin" }).click();
@@ -60,6 +150,36 @@ test.describe("admin login audit readiness parity @workflow-admin-login-audit @s
     await expect(auditPanel).toContainText("Success");
     await expect(auditPanel).toContainText("Failure");
     await expect(auditPanel).toContainText("modernized-openemr");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-160-admin-login-audit-rendered",
+      description:
+        "Captures modernized Admin-page login audit rendering facts after successful and failed attempts are recorded.",
+      expected: {
+        rendersLoginAuditHeading: "Login Audit",
+        rendersUsername: "admin",
+        rendersSuccess: "Success",
+        rendersFailure: "Failure",
+        rendersLogSource: "modernized-openemr"
+      },
+      actual: {
+        rows,
+        surfaceFacts: {
+          modernizedAdminLoginAuditPanel: {
+            renderedHeading: "Login Audit",
+            renderedUsername: "admin",
+            renderedSuccess: "Success",
+            renderedFailure: "Failure",
+            renderedLogSource: "modernized-openemr",
+            passwordRedacted: true
+          }
+        }
+      },
+      context: {
+        suite: "workflow-admin-login-audit",
+        workflow: "admin-login-audit-rendered"
+      }
+    });
   });
 });
 
@@ -132,6 +252,16 @@ function assertLoginAuditRows(rows: LoginAuditRow[]) {
 
 function isSuccess(value: string) {
   return ["1", "t", "true"].includes(value.toLowerCase());
+}
+
+function summarizeLoginAuditRows(rows: LoginAuditRow[]) {
+  return {
+    rowCount: rows.length,
+    successCount: rows.filter((row) => isSuccess(row.success)).length,
+    failureCount: rows.filter((row) => !isSuccess(row.success)).length,
+    usernames: [...new Set(rows.map((row) => row.username.toLowerCase()))],
+    logSources: [...new Set(rows.map((row) => row.logSource).filter(Boolean))]
+  };
 }
 
 type ModernizedLoginResponse = {
