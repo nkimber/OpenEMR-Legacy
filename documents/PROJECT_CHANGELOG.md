@@ -19922,6 +19922,42 @@ Code changes:
 - Net lines: +266
 - Total churn: 356
 
+## 390. Slice 344 Slice 83 Encounter Document Move Probe Payload Attachments
+
+Started: 2026-06-25T11:42:22-04:00
+Finished: 2026-06-25T11:44:53-04:00
+Commit: pending
+
+Implemented Slice 344: Slice 83 encounter document move probe payload attachments. The encounter document move parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, source encounter `1000013`, target encounter `1000011`, baseline source and target encounter document lists, temporary text attachment, source-to-target movement facts, legacy Documents category rendering, modernized source/target encounter-detail API rows, Encounters attached-document move UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document movement evidence.
+
+Changes:
+- Added Slice 83 precondition payload attachments for the anchor patient, baseline workflow counts, source and target encounter-scoped document baselines, proposed source-encounter text document payload, planned target encounter, and expected count movement.
+- Added Slice 83 created payload attachments for the temporary document row, source encounter document-list increment, unchanged target encounter document list, and document count increment.
+- Added Slice 83 moved payload attachments for the updated document encounter link, restored source encounter document list, incremented target encounter document list, and preserved document count increment.
+- Added Slice 83 application-surface payload attachments for legacy Documents category rendering plus modernized source/target encounter detail API rows and Encounters attached-document move UI anchors.
+- Added Slice 83 cleanup payload attachments for temporary moved document deletion, restored workflow counts, restored source/target encounter document lists, and final document absence.
+- Replaced non-null assertions in the Slice 83 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 83 encounter document move database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 344 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 82 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-document-move` in `parity-tests/` passed with 1 expected test; run `2026-06-25T154322-561Z-modernized-openemr-plan-slice-83-encounter-document-move-readiness`.
+- `npm run test:legacy:plan:encounter-document-move` in `parity-tests/` passed with 1 expected test; run `2026-06-25T154401-253Z-legacy-openemr-plan-slice-83-encounter-document-move-readiness`.
+- Artifact inspection confirmed the modernized Slice 83 Playwright report recorded `db-probe-slice-83-encounter-document-move-precondition`, `db-probe-slice-83-encounter-document-move-created`, `db-probe-slice-83-encounter-document-move-moved`, `db-probe-slice-83-encounter-document-move-surface`, and `db-probe-slice-83-encounter-document-move-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 83 Playwright report recorded `db-probe-slice-83-encounter-document-move-precondition`, `db-probe-slice-83-encounter-document-move-created`, `db-probe-slice-83-encounter-document-move-moved`, `db-probe-slice-83-encounter-document-move-surface`, and `db-probe-slice-83-encounter-document-move-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-83-encounter-document-move-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T154443-164Z-legacy-openemr-vs-modernized-openemr-plan-slice-83-encounter-document-move-readiness`.
+- `git diff --check` for Slice 344 files passed with only existing line-ending normalization warnings.
+
+Code changes:
+- Files changed: 8
+- Lines added: 341
+- Lines deleted: 39
+- Net lines: +302
+- Total churn: 380
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19931,5 +19967,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 82.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 83.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
