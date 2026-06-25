@@ -20533,7 +20533,7 @@ Code changes:
 
 Started: 2026-06-25T13:36:27-04:00
 Finished: 2026-06-25T13:43:06.9407161-04:00
-Commit: pending
+Commit: 5e55b600
 
 Implemented Slice 361: Slice 100 appointment facility reassignment probe payload attachments. The appointment facility reassignment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, original and reassigned service/billing facility IDs, reassigned title/facility facts, legacy appointment edit rendering, modernized Calendar facility selector/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment facility reassignment evidence. The payload work also exposed and fixed a modernized Calendar parity gap: when service and billing facilities start aligned and the user changes only the service facility, the billing facility now follows the reassigned service facility, matching the legacy workflow while preserving the separate Slice 101 billing-location edit path.
 
