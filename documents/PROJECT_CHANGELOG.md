@@ -18120,7 +18120,7 @@ Code changes:
 
 Started: 2026-06-25T04:52:00-04:00
 Finished: 2026-06-25T04:59:48-04:00
-Commit: pending
+Commit: 15a31b11
 
 Implemented Slice 290: Slice 29 patient immunization history probe payload attachments. The immunizations parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0007` pediatric anchor patient, normalized vaccine-history rows, 2026 influenza and Hep A vaccine anchors, lot/manufacturer facts, and UI-steering precondition so Workbench comparison drill-ins can preview immunization database evidence.
 
