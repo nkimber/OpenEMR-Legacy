@@ -19818,7 +19818,7 @@ Code changes:
 
 Started: 2026-06-25T11:23:42-04:00
 Finished: 2026-06-25T11:26:58-04:00
-Commit: pending
+Commit: 4b3dc8e6
 
 Implemented Slice 341: Slice 80 encounter document sign-off probe payload attachments. The encounter document sign-off parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, baseline encounter document list, temporary reviewed text attachment, created pending row, approved sign-off/review facts, legacy Documents category rendering, modernized encounter-detail API review rows, Encounters attached-document sign-off UI anchors, and final cleanup so Workbench comparison drill-ins can preview encounter document sign-off mutation evidence.
 
