@@ -21866,7 +21866,7 @@ Code changes:
 
 Started: 2026-06-25T18:05:17.9264945-04:00
 Finished: 2026-06-25T18:06:43.0765506-04:00
-Commit: pending
+Commit: af97f9e2
 
 Implemented Slice 402: Slice 144 procedure lab provider address-book probe payload attachments. The procedure lab provider address-book parity suite now writes path-backed JSON Playwright attachments for temporary order-service organizations, provider name derivation from linked address-book organizations, relinked provider state, browser/API rendering facts, and cleanup deletion so Workbench comparison drill-ins can preview linked-provider address-book evidence.
 
