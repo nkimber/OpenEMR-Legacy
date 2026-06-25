@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedEncounters } from "../../src/ui/modernizedOpenEmr.js";
 import {
   expectRenderedText,
@@ -19,53 +20,126 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterProcedureEntryAnchorPatientId);
     expect(patient).not.toBeNull();
+    if (patient === null) {
+      throw new Error(`Encounter procedure-order entry anchor patient ${encounterProcedureEntryAnchorPatientId} was not found.`);
+    }
 
-    const encounter = await targetDb.getLatestEncounterForPatient(patient!.pid);
+    const encounter = await targetDb.getLatestEncounterForPatient(patient.pid);
     expect(encounter).not.toBeNull();
-    expect(encounter!.encounter).toBe(encounterProcedureEntryEncounter);
+    if (encounter === null) {
+      throw new Error(`Encounter procedure-order entry anchor encounter for ${encounterProcedureEntryAnchorPatientId} was not found.`);
+    }
+    expect(encounter.encounter).toBe(encounterProcedureEntryEncounter);
 
-    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const beforeCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     const beforeEncounterProcedures = await targetDb.getProcedureResultsForEncounter(
-      patient!.pid,
+      patient.pid,
       encounterProcedureEntryEncounter
     );
     const suffix = workflowSuffix();
     const procedureName = `Parity Encounter Procedure Order ${suffix}`;
     const instructions = `Created by the encounter procedure order parity suite ${suffix}.`;
+    const procedureOrderInput = {
+      patientId: patient.pid,
+      providerId: patient.providerId,
+      encounterId: encounter.encounter,
+      dateOrdered: encounterProcedureEntryOrderDate,
+      priority: "routine",
+      status: "pending",
+      procedureCode: encounterProcedureEntryCode,
+      procedureName,
+      procedureType: "laboratory",
+      diagnosis: encounterProcedureEntryDiagnosis,
+      instructions
+    };
     let procedureOrderId: number | null = null;
 
-    try {
-      if (target.type === "legacy-openemr") {
-        procedureOrderId = await workflow.createProcedureOrder({
-          patientId: patient!.pid,
-          providerId: patient!.providerId,
-          encounterId: encounter!.encounter,
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-75-encounter-procedure-order-entry-precondition",
+      description: "Captures the Slice 75 encounter procedure-order entry precondition: anchor patient, encounter, baseline workflow counts, active encounter procedure projection, and proposed pending procedure order.",
+      expected: {
+        anchorCanonicalId: encounterProcedureEntryAnchorPatientId,
+        encounter: encounterProcedureEntryEncounter,
+        create: {
           dateOrdered: encounterProcedureEntryOrderDate,
           priority: "routine",
           status: "pending",
           procedureCode: encounterProcedureEntryCode,
-          procedureName,
           procedureType: "laboratory",
           diagnosis: encounterProcedureEntryDiagnosis,
-          instructions
-        });
+          reportCount: 0,
+          resultCount: 0
+        },
+        countChange: {
+          encountersAfterCreate: beforeCounts.encounters,
+          procedureOrdersAfterCreate: beforeCounts.procedureOrders + 1,
+          encounterProcedureOrdersAfterCreate: beforeEncounterProcedures.orders.length + 1,
+          procedureOrdersAfterCleanup: beforeCounts.procedureOrders
+        }
+      },
+      actual: {
+        patient,
+        encounter,
+        beforeCounts,
+        beforeEncounterProcedures,
+        proposedProcedureOrder: procedureOrderInput
+      },
+      context: {
+        canonicalId: encounterProcedureEntryAnchorPatientId,
+        suite: "workflow-encounter-procedures",
+        workflow: "encounter-procedure-order-entry-precondition"
+      }
+    });
+
+    try {
+      if (target.type === "legacy-openemr") {
+        procedureOrderId = await workflow.createProcedureOrder(procedureOrderInput);
 
         await loginToLegacyOpenEmr(page, target);
         await openProcedureOrdersAndReportsForPatient(
           page,
           target,
-          patient!.pid,
+          patient.pid,
           encounterProcedureEntryOrderDate,
           encounterProcedureEntryOrderDate
         );
         await expectRenderedText(page, "Procedure Orders and Reports");
         await expectRenderedText(page, procedureName);
         await expectRenderedText(page, encounterProcedureEntryCode);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-75-encounter-procedure-order-entry-surface",
+          description: "Captures the Slice 75 legacy application-surface evidence for the temporary pending procedure order after it renders in Procedure Orders and Reports.",
+          expected: {
+            renderedPage: "Procedure Orders and Reports",
+            renderedCode: encounterProcedureEntryCode,
+            renderedName: procedureName
+          },
+          actual: {
+            patient,
+            encounter,
+            procedureOrderId,
+            proposedProcedureOrder: procedureOrderInput,
+            legacySurface: {
+              page: "Procedure Orders and Reports",
+              fromDate: encounterProcedureEntryOrderDate,
+              toDate: encounterProcedureEntryOrderDate,
+              renderedProcedureCode: encounterProcedureEntryCode,
+              renderedProcedureName: procedureName
+            }
+          },
+          context: {
+            canonicalId: encounterProcedureEntryAnchorPatientId,
+            suite: "workflow-encounter-procedures",
+            workflow: "encounter-procedure-order-entry-surface"
+          }
+        });
       } else {
-        await openAuthenticatedModernizedEncounters(page, target, patient!.pubpid, encounterProcedureEntryAnchorFromDate);
+        await openAuthenticatedModernizedEncounters(page, target, patient.pubpid, encounterProcedureEntryAnchorFromDate);
 
         const encounterButton = page.getByRole("button", { name: /Hyperlipidemia/i }).first();
         await expect(encounterButton).toBeVisible();
@@ -94,14 +168,64 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
         await expect(linkage).toContainText(instructions);
         await expect(linkage).toContainText("0 reports / 0 results");
         await expect(linkage).toContainText("No reports recorded for this order");
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
+        expect(detailResponse.ok()).toBe(true);
+        const detailPayload = await detailResponse.json();
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-75-encounter-procedure-order-entry-surface",
+          description: "Captures the Slice 75 modernized application-surface evidence for the temporary pending procedure order through encounter detail API and Encounters workspace panels.",
+          expected: {
+            api: {
+              encounter: encounterProcedureEntryEncounter,
+              orderDate: encounterProcedureEntryOrderDate,
+              orderStatus: "pending",
+              code: encounterProcedureEntryCode,
+              name: procedureName,
+              diagnosis: encounterProcedureEntryDiagnosis,
+              reports: 0
+            },
+            ui: {
+              procedureEntryPanel: "Encounter procedure order entry",
+              procedureLinkagePanel: "Encounter procedure order linkage",
+              renderedTexts: [
+                procedureName,
+                encounterProcedureEntryCode,
+                encounterProcedureEntryDiagnosis,
+                "pending",
+                "routine",
+                "laboratory",
+                instructions,
+                "0 reports / 0 results",
+                "No reports recorded for this order"
+              ]
+            }
+          },
+          actual: {
+            patient,
+            encounter,
+            apiProcedureOrders: detailPayload.procedureOrders,
+            modernizedSurface: {
+              fromDate: encounterProcedureEntryAnchorFromDate,
+              selectedEncounterLabel: "Hyperlipidemia",
+              procedureEntryPanel: "Encounter procedure order entry",
+              procedureLinkagePanel: "Encounter procedure order linkage"
+            }
+          },
+          context: {
+            canonicalId: encounterProcedureEntryAnchorPatientId,
+            suite: "workflow-encounter-procedures",
+            workflow: "encounter-procedure-order-entry-surface"
+          }
+        });
       }
 
-      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
       expect(afterCreateCounts.encounters).toBe(beforeCounts.encounters);
       expect(afterCreateCounts.procedureOrders).toBe(beforeCounts.procedureOrders + 1);
 
       const afterCreateEncounterProcedures = await targetDb.getProcedureResultsForEncounter(
-        patient!.pid,
+        patient.pid,
         encounterProcedureEntryEncounter
       );
       expect(afterCreateEncounterProcedures.orders).toHaveLength(beforeEncounterProcedures.orders.length + 1);
@@ -115,11 +239,53 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
         procedureName,
         diagnosis: encounterProcedureEntryDiagnosis
       });
-      expect(createdOrder!.reports).toHaveLength(0);
-      procedureOrderId = createdOrder!.id;
+      if (!createdOrder) {
+        throw new Error(`Created encounter procedure order ${procedureName} was not found after create.`);
+      }
+      expect(createdOrder.reports).toHaveLength(0);
+      procedureOrderId = createdOrder.id;
+      const createdWorkflowOrder = await workflow.getProcedureOrder(procedureOrderId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-75-encounter-procedure-order-entry-created",
+        description: "Captures the temporary Slice 75 pending procedure order, encounter procedure projection, and procedure-order count increment immediately after create.",
+        expected: {
+          order: {
+            encounterId: encounterProcedureEntryEncounter,
+            dateOrdered: encounterProcedureEntryOrderDate,
+            orderStatus: "pending",
+            procedureCode: encounterProcedureEntryCode,
+            procedureName,
+            procedureType: "laboratory",
+            diagnosis: encounterProcedureEntryDiagnosis,
+            reports: 0
+          },
+          counts: {
+            encounters: beforeCounts.encounters,
+            procedureOrders: beforeCounts.procedureOrders + 1,
+            encounterProcedureOrders: beforeEncounterProcedures.orders.length + 1
+          }
+        },
+        actual: {
+          patient,
+          encounter,
+          beforeCounts,
+          afterCreateCounts,
+          beforeEncounterProcedures,
+          afterCreateEncounterProcedures,
+          procedureOrderId,
+          createdOrder,
+          createdWorkflowOrder
+        },
+        context: {
+          canonicalId: encounterProcedureEntryAnchorPatientId,
+          suite: "workflow-encounter-procedures",
+          workflow: "encounter-procedure-order-entry-created"
+        }
+      });
 
       if (target.type === "modernized-openemr") {
-        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter!.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
+        const detailResponse = await page.request.get(`${target.apiBaseUrl}/api/encounters/${encounter.encounter}`, { headers: await getModernizedAdminSessionHeaders(page, target) });
         expect(detailResponse.ok()).toBe(true);
         const detailPayload = await detailResponse.json();
         const apiOrder = detailPayload.procedureOrders.find(
@@ -141,12 +307,46 @@ test.describe("encounter procedure order entry parity @slice75 @workflow-encount
       }
     }
 
-    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+    const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient.pid);
     expect(afterCleanupCounts.encounters).toBe(beforeCounts.encounters);
     expect(afterCleanupCounts.procedureOrders).toBe(beforeCounts.procedureOrders);
+    const deletedOrder = procedureOrderId !== null ? await workflow.getProcedureOrder(procedureOrderId) : null;
     if (procedureOrderId !== null) {
-      await expect(workflow.getProcedureOrder(procedureOrderId)).resolves.toBeNull();
+      expect(deletedOrder).toBeNull();
     }
+    const afterCleanupEncounterProcedures = await targetDb.getProcedureResultsForEncounter(
+      patient.pid,
+      encounterProcedureEntryEncounter
+    );
+    expect(afterCleanupEncounterProcedures.orders).toHaveLength(beforeEncounterProcedures.orders.length);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-75-encounter-procedure-order-entry-cleanup",
+      description: "Captures the final Slice 75 hard-delete cleanup state for the temporary encounter procedure order.",
+      expected: {
+        counts: {
+          encounters: beforeCounts.encounters,
+          procedureOrders: beforeCounts.procedureOrders,
+          encounterProcedureOrders: beforeEncounterProcedures.orders.length
+        },
+        deletedProcedureOrder: procedureOrderId === null ? null : { id: procedureOrderId, row: null }
+      },
+      actual: {
+        patient,
+        encounter,
+        beforeCounts,
+        afterCleanupCounts,
+        beforeEncounterProcedures,
+        afterCleanupEncounterProcedures,
+        procedureOrderId,
+        deletedOrder
+      },
+      context: {
+        canonicalId: encounterProcedureEntryAnchorPatientId,
+        suite: "workflow-encounter-procedures",
+        workflow: "encounter-procedure-order-entry-cleanup"
+      }
+    });
   });
 });
 

@@ -19608,6 +19608,40 @@ Code changes:
 - Net lines: +268
 - Total churn: 374
 
+## 381. Slice 336 Slice 75 Encounter Procedure Order Entry Probe Payload Attachments
+
+Started: 2026-06-25T10:38:18-04:00
+Finished: 2026-06-25T10:41:48-04:00
+Commit: pending
+
+Implemented Slice 336: Slice 75 encounter procedure-order entry probe payload attachments. The encounter procedure-order entry parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, temporary `80053` pending laboratory order, baseline/create/cleanup count movement, legacy Procedure Orders and Reports rendering, modernized encounter-detail API procedure-order rows, and Encounters workspace procedure-order entry/linkage UI anchors so Workbench comparison drill-ins can preview encounter procedure-order entry mutation evidence.
+
+Changes:
+- Added Slice 75 precondition payload attachments for the anchor patient, billing encounter, baseline workflow counts, active encounter procedure projection, and proposed temporary pending procedure order.
+- Added Slice 75 created payload attachments for the created pending procedure order, encounter procedure projection, workflow order row, and procedure-order count increment.
+- Added Slice 75 application-surface payload attachments for legacy Procedure Orders and Reports rendering plus modernized encounter detail API/UI procedure-order entry and linkage anchors.
+- Added Slice 75 cleanup payload attachments for hard-delete cascade cleanup, restored workflow counts, and restored encounter procedure projection.
+- Replaced non-null assertions in the Slice 75 suite with explicit anchor-patient and billing-encounter guard errors before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 75 encounter procedure-order entry database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 336 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 74 workflow payload boundary.
+- `npm run test:modernized:plan:encounter-procedure-order-entry` in `parity-tests/` passed with 1 expected test; run `2026-06-25T143953-157Z-modernized-openemr-plan-slice-75-encounter-procedure-order-entry-readiness`.
+- `npm run test:legacy:plan:encounter-procedure-order-entry` in `parity-tests/` passed with 1 expected test; run `2026-06-25T144044-428Z-legacy-openemr-plan-slice-75-encounter-procedure-order-entry-readiness`.
+- Artifact inspection confirmed the modernized Slice 75 Playwright report recorded `db-probe-slice-75-encounter-procedure-order-entry-precondition`, `db-probe-slice-75-encounter-procedure-order-entry-created`, `db-probe-slice-75-encounter-procedure-order-entry-surface`, and `db-probe-slice-75-encounter-procedure-order-entry-cleanup` payload attachments.
+- Artifact inspection confirmed the legacy Slice 75 Playwright report recorded `db-probe-slice-75-encounter-procedure-order-entry-precondition`, `db-probe-slice-75-encounter-procedure-order-entry-created`, `db-probe-slice-75-encounter-procedure-order-entry-surface`, and `db-probe-slice-75-encounter-procedure-order-entry-cleanup` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-75-encounter-procedure-order-entry-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T144139-115Z-legacy-openemr-vs-modernized-openemr-plan-slice-75-encounter-procedure-order-entry-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 272
+- Lines deleted: 37
+- Net lines: +235
+- Total churn: 309
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19617,5 +19651,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 74.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 75.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
