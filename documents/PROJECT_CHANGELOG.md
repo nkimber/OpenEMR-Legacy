@@ -19107,7 +19107,7 @@ Code changes:
 
 Started: 2026-06-25T08:40:12-04:00
 Finished: 2026-06-25T08:43:24-04:00
-Commit: pending
+Commit: e97ba536
 
 Implemented Slice 321: Slice 60 statement PDF probe payload attachments. The patient statement PDF export parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` billing anchor, statement summary, ledger source rows, deterministic PDF filename/content type/header, text anchors, line totals, and ending balance so Workbench comparison drill-ins can preview statement PDF export evidence.
 
@@ -19128,10 +19128,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 109
+- Lines added: 119
 - Lines deleted: 16
-- Net lines: +93
-- Total churn: 125
+- Net lines: +103
+- Total churn: 135
 
 ## Next Expected Entries
 
