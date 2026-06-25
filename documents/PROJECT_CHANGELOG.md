@@ -20389,6 +20389,41 @@ Code changes:
 - Net lines: +277
 - Total churn: 349
 
+## 403. Slice 357 Slice 96 Appointment No-Show Probe Payload Attachments
+
+Started: 2026-06-25T13:09:09-04:00
+Finished: 2026-06-25T13:11:22-04:00
+Commit: pending
+
+Implemented Slice 357: Slice 96 appointment no-show probe payload attachments. The appointment no-show parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, baseline appointment counts, temporary scheduled appointment create payload, no-show `?` status/title facts, legacy appointment edit rendering, modernized Calendar no-show action/rendering anchors, and final cleanup so Workbench comparison drill-ins can preview appointment no-show evidence.
+
+Changes:
+- Added Slice 96 precondition payload attachments for the anchor patient, baseline workflow counts, proposed scheduled appointment payload, expected no-show mutation, and expected count movement.
+- Added Slice 96 created payload attachments for the temporary scheduled appointment row and appointment-count increment.
+- Added Slice 96 no-show payload attachments for the no-show title, OpenEMR `?` appointment status, room, and appointment-count preservation.
+- Added Slice 96 application-surface payload attachments for legacy appointment edit rendering plus modernized Calendar no-show action/rendering anchors.
+- Added Slice 96 cleanup payload attachments for temporary appointment deletion, restored workflow counts, and final appointment absence.
+- Replaced non-null assertions in the Slice 96 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Updated the Workbench functionality progress ledger so Slice 96 appointment no-show database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 357 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale active Slice 95/Slice 356 latest references remain in the synchronized documents and Workbench progress ledger; the remaining scan hit is historical text inside the completed Slice 356 changelog entry.
+- Passed `git diff --check -- documents modernization-workbench\config\functionality-progress.json parity-tests\tests\workflow-appointment-noshow\appointment-noshow.spec.ts` with only existing line-ending normalization warnings.
+- Passed `npm run test:modernized:plan:appointment-noshow`, producing run `2026-06-25T171039-622Z-modernized-openemr-plan-slice-96-appointment-noshow-readiness`.
+- Passed `npm run test:legacy:plan:appointment-noshow`, producing run `2026-06-25T171039-774Z-legacy-openemr-plan-slice-96-appointment-noshow-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-96-appointment-noshow-readiness`, producing matched comparison `2026-06-25T171111-551Z-legacy-openemr-vs-modernized-openemr-plan-slice-96-appointment-noshow-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 96 precondition, created, no-show, surface, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 8
+- Lines added: 274
+- Lines removed: 36
+- Net lines: +238
+- Total churn: 310
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20398,5 +20433,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 95.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 96.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
