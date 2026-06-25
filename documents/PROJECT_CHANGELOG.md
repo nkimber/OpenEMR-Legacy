@@ -21149,7 +21149,7 @@ Code changes:
 
 Started: 2026-06-25T15:43:53.9840471-04:00
 Finished: 2026-06-25T15:48:12.8207581-04:00
-Commit: pending
+Commit: d162aa2a
 
 Implemented Slice 380: Slice 119 appointment room overlap probe payload attachments. The appointment room overlap parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` and `MOD-PAT-0004` seeded patient anchors, primary and secondary provider IDs, shared room/date/time precondition, temporary same-room overlapping appointment rows, overlap query results, legacy appointment rendering facts, modernized room-overlap rendering anchors, count deltas, and cleanup deletion so Workbench comparison drill-ins can preview room/resource double-booking tolerance evidence.
 
