@@ -22289,7 +22289,7 @@ Code changes:
 
 Started: 2026-06-25T19:14:36.0361639-04:00
 Finished: 2026-06-25T19:17:11.6167308-04:00
-Commit: pending
+Commit: 8c2fc71c
 
 Implemented Slice 414: Slice 160 admin login audit probe payload attachments. The admin login audit readiness parity suite now writes path-backed JSON Playwright attachments for audit-table boundary preconditions, legacy login log rows, modernized auth audit event rows, success/failure row summaries, and modernized Admin-page login audit rendering facts so Workbench comparison drill-ins can preview admin login audit evidence without storing password material.
 
