@@ -20103,6 +20103,44 @@ Code changes:
 - Net lines: +264
 - Total churn: 336
 
+## 395. Slice 349 Slice 88 Patient Image Document Preview Probe Payload Attachments
+
+Started: 2026-06-25T12:23:48-04:00
+Finished: 2026-06-25T12:28:35-04:00
+Commit: pending
+
+Implemented Slice 349: Slice 88 patient image document preview probe payload attachments. The patient image document preview parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary `image/svg+xml` binary payload, normalized image preview metadata, legacy Documents category rendering, modernized Documents card/viewer inline image UI anchors, byte-preserving download facts, archive state, and final cleanup so Workbench comparison drill-ins can preview patient image document preview evidence.
+
+Changes:
+- Added Slice 88 precondition payload attachments for the anchor patient, baseline workflow counts, proposed SVG binary document payload, expected inline-preview metadata, expected byte count, and expected count movement.
+- Added Slice 88 created payload attachments for the temporary image document row, `image/svg+xml` MIME type, database storage, normalized image preview metadata, base64 payload, image data URI, and document count increment.
+- Added Slice 88 application-surface payload attachments for legacy Documents category rendering plus modernized Documents card/viewer inline image UI anchors and byte-preserving download facts.
+- Added Slice 88 archived payload attachments for the archived image document row, preserved binary payload facts, and active document-count return.
+- Added Slice 88 cleanup payload attachments for temporary image document deletion, restored workflow counts, and final document absence.
+- Replaced non-null assertions in the Slice 88 suite with an explicit anchor-patient guard before collecting evidence payloads.
+- Added a modernized Documents card thumbnail badge overlay so image thumbnails retain the visible `IMG` preview label while still rendering the actual thumbnail image.
+- Updated the Workbench functionality progress ledger so Slice 88 patient image document preview database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 349 evidence-payload contract.
+
+Verification:
+- Passed `npm run typecheck` in `parity-tests`.
+- Passed `npm run build` in `modernized-openemr/frontend`.
+- Rebuilt and restarted the Dockerized modernized frontend with `docker compose up -d --build frontend`.
+- Confirmed `modernization-workbench/config/functionality-progress.json` parses as JSON.
+- Confirmed no stale Slice 87/Slice 348 latest references remain in the synchronized documents and Workbench progress ledger.
+- Passed `git diff --check -- documents modernization-workbench\config\functionality-progress.json parity-tests\tests\workflow-document-image-preview\image-document-preview.spec.ts`.
+- Passed `npm run test:modernized:plan:document-image-preview`, producing run `2026-06-25T162754-927Z-modernized-openemr-plan-slice-88-document-image-preview-readiness`.
+- Passed `npm run test:legacy:plan:document-image-preview`, producing run `2026-06-25T162611-454Z-legacy-openemr-plan-slice-88-document-image-preview-readiness`.
+- Passed `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-88-document-image-preview-readiness`, producing matched comparison `2026-06-25T162819-405Z-legacy-openemr-vs-modernized-openemr-plan-slice-88-document-image-preview-readiness`.
+- Confirmed both legacy and modernized JUnit/Playwright reports include the Slice 88 precondition, created, surface, archived, and cleanup database probe attachments.
+
+Code changes:
+- Files changed: 10
+- Lines added: 328
+- Lines removed: 41
+- Net lines: +287
+- Total churn: 369
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -20112,5 +20150,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 87.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 88.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
