@@ -18831,7 +18831,7 @@ Code changes:
 
 Started: 2026-06-25T07:46:34-04:00
 Finished: 2026-06-25T07:49:23-04:00
-Commit: pending
+Commit: 493ecb4b
 
 Implemented Slice 312: Slice 51 account ledger probe payload attachments. The account ledger parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0005` anchor patient, chronological charge/payment/adjustment rows, entry-type counts, first/last ledger entries, charge/payment/adjustment totals, final running balance, reference examples, and Fees rendering precondition so Workbench comparison drill-ins can preview read-only AR ledger evidence.
 
