@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedClinicalLists } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -10,23 +11,57 @@ test.describe("medication list mutation parity @slice32 @workflow-medications @m
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(medicationMutationAnchorPatientId);
     expect(patient).not.toBeNull();
 
     const beforeCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     const title = `Parity Medication ${workflowSuffix()}`;
     const diagnosis = "ICD10:Z00.00";
+    const proposedMedication = {
+      patientId: patient!.pid,
+      title,
+      dateTime: "2026-07-15 09:00:00",
+      diagnosis,
+      comments: "Created by the parity medication-list mutation suite."
+    };
     let medicationId: number | string | null = null;
 
     try {
-      medicationId = await workflow.createMedication({
-        patientId: patient!.pid,
-        title,
-        dateTime: "2026-07-15 09:00:00",
-        diagnosis,
-        comments: "Created by the parity medication-list mutation suite."
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-32-medication-mutation-precondition",
+        description: "Captures the Slice 32 medication-list mutation anchor patient, baseline counts, and proposed temporary medication payload before create.",
+        expected: {
+          patient: {
+            pubpid: medicationMutationAnchorPatientId,
+            displayName: "Patel, Priya"
+          },
+          countChange: {
+            createDelta: 1,
+            deactivateDeltaFromBaseline: 0,
+            cleanupDeltaFromBaseline: 0
+          },
+          proposedMedication: {
+            titlePrefix: "Parity Medication ",
+            type: "medication",
+            diagnosis: "ICD10:Z00.00",
+            date: "2026-07-15"
+          }
+        },
+        actual: {
+          patient,
+          beforeCounts,
+          proposedMedication
+        },
+        context: {
+          canonicalId: medicationMutationAnchorPatientId,
+          suite: "workflow-medications",
+          workflow: "patient-medication-list-mutation"
+        }
       });
+
+      medicationId = await workflow.createMedication(proposedMedication);
 
       const created = await workflow.getMedication(medicationId);
       expect(created).toMatchObject({
@@ -39,6 +74,35 @@ test.describe("medication list mutation parity @slice32 @workflow-medications @m
       });
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-32-medication-mutation-created",
+        description: "Captures the temporary Slice 32 medication row and active medication-count increment immediately after create.",
+        expected: {
+          created: {
+            patientId: patient!.pid,
+            type: "medication",
+            title,
+            activity: 1,
+            diagnosis,
+            date: "2026-07-15"
+          },
+          countChange: {
+            medications: beforeCounts.medications + 1
+          }
+        },
+        actual: {
+          medicationId,
+          created,
+          beforeCounts,
+          afterCreateCounts
+        },
+        context: {
+          canonicalId: medicationMutationAnchorPatientId,
+          suite: "workflow-medications",
+          workflow: "patient-medication-list-mutation"
+        }
+      });
       expect(afterCreateCounts.medications).toBe(beforeCounts.medications + 1);
 
       if (target.type === "legacy-openemr") {
@@ -62,6 +126,31 @@ test.describe("medication list mutation parity @slice32 @workflow-medications @m
       });
 
       const afterDeactivateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-32-medication-mutation-deactivated",
+        description: "Captures the temporary Slice 32 medication after deactivate mutation and the return to baseline active medication count.",
+        expected: {
+          inactive: {
+            activity: 0,
+            comments: inactiveComment
+          },
+          countChange: {
+            medications: beforeCounts.medications
+          }
+        },
+        actual: {
+          medicationId,
+          inactive,
+          beforeCounts,
+          afterDeactivateCounts
+        },
+        context: {
+          canonicalId: medicationMutationAnchorPatientId,
+          suite: "workflow-medications",
+          workflow: "patient-medication-list-mutation"
+        }
+      });
       expect(afterDeactivateCounts.medications).toBe(beforeCounts.medications);
     } finally {
       if (medicationId !== null) {
@@ -72,7 +161,30 @@ test.describe("medication list mutation parity @slice32 @workflow-medications @m
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.medications).toBe(beforeCounts.medications);
     if (medicationId !== null) {
-      await expect(workflow.getMedication(medicationId)).resolves.toBeNull();
+      const afterCleanup = await workflow.getMedication(medicationId);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-32-medication-mutation-cleanup",
+        description: "Captures the final Slice 32 hard-delete cleanup state for the temporary medication row.",
+        expected: {
+          deletedMedication: null,
+          countChange: {
+            medications: beforeCounts.medications
+          }
+        },
+        actual: {
+          medicationId,
+          afterCleanup,
+          beforeCounts,
+          afterCleanupCounts
+        },
+        context: {
+          canonicalId: medicationMutationAnchorPatientId,
+          suite: "workflow-medications",
+          workflow: "patient-medication-list-mutation"
+        }
+      });
+      expect(afterCleanup).toBeNull();
     }
   });
 });
