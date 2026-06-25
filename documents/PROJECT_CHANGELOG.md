@@ -18116,6 +18116,38 @@ Code changes:
 - Net lines: +110
 - Total churn: 146
 
+## 334. Slice 290 Slice 29 Immunization Probe Payload Attachments
+
+Started: 2026-06-25T04:52:00-04:00
+Finished: 2026-06-25T04:59:48-04:00
+Commit: pending
+
+Implemented Slice 290: Slice 29 patient immunization history probe payload attachments. The immunizations parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0007` pediatric anchor patient, normalized vaccine-history rows, 2026 influenza and Hep A vaccine anchors, lot/manufacturer facts, and UI-steering precondition so Workbench comparison drill-ins can preview immunization database evidence.
+
+Changes:
+- Added Slice 29 immunization-history anchor payload attachments for the `MOD-PAT-0007` patient, minimum vaccine count, lot-number prefix, 2026 administered-date coverage, and selected influenza/Hep A vaccine facts.
+- Added Slice 29 UI-precondition payload attachments that capture the same normalized vaccine rows before steering the legacy Immunizations page or modernized clinical Lists Immunizations panel.
+- Preserved the existing Slice 29 assertions and side-by-side behavior while making immunization-history evidence durable and previewable.
+- Updated the Workbench functionality progress ledger so Slice 29 patient immunization history database payload attachments are completed evidence scope while broader workflow and mutation payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 290 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- `git diff --check` passed with only existing Windows line-ending warnings.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 28 workflow payload boundary.
+- `npm run test:modernized:plan:immunizations` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T085842-589Z-modernized-openemr-plan-slice-29-immunizations-readiness`.
+- `npm run test:legacy:plan:immunizations` in `parity-tests/` passed with 2 expected tests after reset/reseed; run `2026-06-25T085858-434Z-legacy-openemr-plan-slice-29-immunizations-readiness`.
+- Artifact inspection confirmed both legacy and modernized Slice 29 runs recorded the shared `db-probe-slice-29-immunization-history-anchor` and `db-probe-slice-29-immunization-ui-precondition` payload files.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-29-immunizations-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T085924-556Z-legacy-openemr-vs-modernized-openemr-plan-slice-29-immunizations-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 127
+- Lines deleted: 18
+- Net lines: +109
+- Total churn: 145
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -18125,5 +18157,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 28.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 29.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
