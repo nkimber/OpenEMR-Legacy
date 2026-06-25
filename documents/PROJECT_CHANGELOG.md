@@ -21673,7 +21673,7 @@ Code changes:
 
 Started: 2026-06-25T17:28:16.1734062-04:00
 Finished: 2026-06-25T17:34:11.6835046-04:00
-Commit: pending
+Commit: 580605ed
 
 Implemented Slice 396: Slice 137 procedure report review queue provider filter probe payload attachments. The procedure report review queue provider filter parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0009` seeded patient anchor, temporary encounter/order/report creation, ordering-provider filter inclusion, alternate-provider exclusion, reviewed provider-filter movement after sign-off, legacy provider-filtered queue rendering facts, modernized Reports provider filter rendering facts, and cleanup removal from provider-filtered queues so Workbench comparison drill-ins can preview provider filter evidence.
 
