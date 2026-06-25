@@ -18576,7 +18576,7 @@ Code changes:
 
 Started: 2026-06-25T06:47:36-04:00
 Finished: 2026-06-25T06:50:01-04:00
-Commit: pending
+Commit: 8c118990
 
 Implemented Slice 304: Slice 43 patient document content replacement probe payload attachments. The document content replacement parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, proposed original text document and replacement payload, created document row and original stored content, replaced row and content projection, archived row, and final hard-delete cleanup state so Workbench comparison drill-ins can preview document replacement lifecycle evidence.
 
