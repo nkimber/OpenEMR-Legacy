@@ -16539,6 +16539,56 @@ Primary files:
 - `documents/TEST_DATA_STRATEGY.md`
 - `documents/PROJECT_CHANGELOG.md`
 
+## 290. Slice 248 Patient Portal Allergy Date Columns Readiness
+
+Started: 2026-06-24T19:49:00-04:00
+Finished: 2026-06-24T20:07:14-04:00
+Commit: pending
+
+Implemented Slice 248: patient portal allergy date-column readiness. The modernized patient portal now mirrors legacy OpenEMR's `/portal/get_allergies.php` allergy table by exposing reported, start, end, and referrer facts, including cleanup-backed ended allergy rows that legacy still renders.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 272
+- Lines deleted: 24
+- Net lines: +248
+- Total churn: 296
+
+Key outcomes:
+
+- Removed the active-only filter from the modernized patient portal allergy projection so ended allergy rows match legacy portal visibility.
+- Updated modernized Portal allergy cards to render legacy-aligned `Reported Date`, `Start Date`, `End Date`, and `Referrer` labels.
+- Added the `workflow-patient-portal-allergy-date-columns` Playwright suite and `slice-248-patient-portal-allergy-date-columns-readiness` plan.
+- Added Workbench-managed Slice 248 plan actions for both legacy and modernized targets and updated the functionality progress ledger.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, test data strategy, and project changelog with the Slice 248 allergy date-column contract.
+
+Verified test runs:
+
+- JSON parse checks passed for `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm --prefix parity-tests run typecheck` passed via `cmd.exe /c`.
+- `npm --prefix modernized-openemr/frontend run build` passed via `cmd.exe /c` with the existing Vite chunk-size warning.
+- `npm --prefix parity-tests run list -- --plan slice-248-patient-portal-allergy-date-columns-readiness` passed via `cmd.exe /c` and listed the new plan plus `workflow-patient-portal-allergy-date-columns`.
+- `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend` passed and rebuilt/restarted the modernized API and frontend services.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-248-patient-portal-allergy-date-columns-readiness -Reset test` passed as run `2026-06-25T000555-330Z-legacy-openemr-plan-slice-248-patient-portal-allergy-date-columns-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-248-patient-portal-allergy-date-columns-readiness -Reset test` passed as run `2026-06-25T000629-507Z-modernized-openemr-plan-slice-248-patient-portal-allergy-date-columns-readiness`.
+- `npm --prefix parity-tests run compare -- --plan slice-248-patient-portal-allergy-date-columns-readiness` passed as comparison `2026-06-25T000658-952Z-legacy-openemr-vs-modernized-openemr-plan-slice-248-patient-portal-allergy-date-columns-readiness` with no differences.
+
+Primary files:
+
+- `modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs`
+- `modernized-openemr/frontend/src/App.tsx`
+- `parity-tests/tests/workflow-patient-portal-allergy-date-columns/patient-portal-allergy-date-columns.spec.ts`
+- `parity-tests/test-manifest.json`
+- `modernization-workbench/config/apps.json`
+- `modernization-workbench/config/functionality-progress.json`
+- `documents/INDEX.md`
+- `documents/MODERNIZATION_PLAN.md`
+- `documents/MODERNIZATION_WORKBENCH.md`
+- `documents/TEST_ARCHITECTURE.md`
+- `documents/TEST_DATA_STRATEGY.md`
+- `documents/PROJECT_CHANGELOG.md`
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
