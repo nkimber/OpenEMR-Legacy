@@ -22126,6 +22126,39 @@ Code changes:
 - Lines deleted: 40
 - Net lines: 249
 - Total churn: 329
+
+## 456. Slice 410 Slice 156 Patient Message Reply Probe Payload Attachments
+
+Started: 2026-06-25T18:49:08.5601110-04:00
+Finished: 2026-06-25T18:52:26.4622800-04:00
+Commit: pending
+
+Implemented Slice 410: Slice 156 patient-message reply probe payload attachments. The patient-message reply parity suite now writes path-backed JSON Playwright attachments for temporary pnotes-compatible message creation, reply append state, browser/API rendering facts, soft-delete state, and cleanup count restoration so Workbench comparison drill-ins can preview patient-message reply evidence.
+
+Changes:
+- Added Slice 156 precondition payload attachments for the anchor patient, baseline workflow counts, proposed temporary message, and reply payload.
+- Added created-state payload attachments proving the temporary message row and message-count increment before reply.
+- Added replied-state payload attachments proving the reply body and `admin to admin` thread marker are appended while message counts remain stable.
+- Added rendered payload attachments for legacy Patient Notes rendering and modernized Messages rendering after reply.
+- Added soft-delete payload attachments proving OpenEMR-compatible archive state before hard-delete cleanup.
+- Added cleanup payload attachments proving patient message counts are restored and the temporary message row is deleted.
+- Updated the Workbench functionality progress ledger so Slice 156 patient-message reply database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 410 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress.json ok')"` passed.
+- `git diff --check` passed with only existing CRLF normalization warnings.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-156-message-reply-readiness` passed with run ID `2026-06-25T225127-423Z-legacy-openemr-plan-slice-156-message-reply-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-156-message-reply-readiness` passed with run ID `2026-06-25T225150-594Z-modernized-openemr-plan-slice-156-message-reply-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-156-message-reply-readiness` matched with comparison ID `2026-06-25T225210-821Z-legacy-openemr-vs-modernized-openemr-plan-slice-156-message-reply-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-156-message-reply-precondition`, `created`, `replied`, `rendered`, `soft-deleted`, and `cleanup` entries in both legacy and modernized Playwright JSON reports.
+
+Code changes:
+- Lines added: 233
+- Lines deleted: 22
+- Net lines: 211
+- Total churn: 255
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22135,5 +22168,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, and 154.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, and 156.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
