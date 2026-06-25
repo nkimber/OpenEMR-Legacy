@@ -20702,7 +20702,7 @@ Code changes:
 
 Started: 2026-06-25T14:13:27.8758407-04:00
 Finished: 2026-06-25T14:16:27.1209397-04:00
-Commit: pending
+Commit: 1707a182
 
 Implemented Slice 366: Slice 105 appointment recurrence-exceptions probe payload attachments. The appointment recurrence-exceptions parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0013` anchor patient, seeded skipped occurrence date, expected generated occurrence dates and numbers after exception filtering, normalized recurrence-exdate workflow rows, modernized Calendar skipped-date rendering anchors, and legacy workflow projection facts so Workbench comparison drill-ins can preview skipped-date recurrence evidence.
 
