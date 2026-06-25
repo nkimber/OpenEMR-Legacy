@@ -20252,7 +20252,7 @@ Code changes:
 
 Started: 2026-06-25T12:47:29-04:00
 Finished: 2026-06-25T12:49:38-04:00
-Commit: pending
+Commit: 889ff66c
 
 Implemented Slice 353: Slice 92 patient scanned attachment probe payload attachments. The patient scanned attachment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, baseline document counts, temporary scanned `application/pdf` binary payload, normalized PDF preview metadata, scan-readiness facts, legacy Documents category rendering, modernized Documents card/viewer scan metadata anchors, archive state, and final cleanup so Workbench comparison drill-ins can preview patient scanned attachment evidence.
 
@@ -20278,10 +20278,10 @@ Verification:
 
 Code changes:
 - Files changed: 8
-- Lines added: 299
+- Lines added: 298
 - Lines removed: 33
-- Net lines: +266
-- Total churn: 332
+- Net lines: +265
+- Total churn: 331
 
 ## Next Expected Entries
 
