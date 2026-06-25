@@ -17026,7 +17026,7 @@ Code changes:
 Started: 2026-06-24T23:55:55-04:00
 Finished: 2026-06-24T23:59:29-04:00
 Duration: 3m 34s
-Commit: pending
+Commit: e3c3e6a0
 
 Implemented Slice 257: Workbench comparison probe detail readiness. The Workbench now enriches recent side-by-side parity comparison reports with normalized Playwright probe details and renders probe counts plus human-readable drill-in probe lists for each comparison side.
 
