@@ -19345,6 +19345,39 @@ Code changes:
 - Net lines: +158
 - Total churn: 212
 
+## 373. Slice 328 Slice 67 Encounter Document Attachment Probe Payload Attachments
+
+Started: 2026-06-25T09:37:40-04:00
+Finished: 2026-06-25T09:43:37-04:00
+Commit: pending
+
+Implemented Slice 328: Slice 67 encounter document attachment probe payload attachments. The encounter document attachment parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0001` anchor patient, encounter `1000013`, seeded encounter-attached documents, category/preview/download expectations, legacy document-category rendering, modernized encounter-detail API rows, and Encounters workspace UI anchors so Workbench comparison drill-ins can preview encounter document attachment readiness evidence.
+
+Changes:
+- Added Slice 67 source payload attachments for the anchor patient, latest encounter, two seeded active text document rows, document keys, categories, document dates, preview kind, and thumbnail labels.
+- Added Slice 67 application-surface payload attachments for legacy patient document category rendering and modernized encounter detail API/UI attached-document anchors.
+- Aligned the modernized UI assertion with the current accessible contract by checking for two `Download` buttons instead of links.
+- Updated the Workbench functionality progress ledger so Slice 67 encounter document attachment database payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 328 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests/` passed.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); console.log('functionality-progress json ok')"` passed.
+- Documentation stale-boundary scan found no active-doc matches for the previous Slice 66 workflow payload boundary.
+- An initial modernized Slice 67 run showed the existing UI now exposes `Download` as buttons rather than links; the assertion was corrected before the final successful runs.
+- `npm run test:modernized:plan:encounter-documents` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T134234-838Z-modernized-openemr-plan-slice-67-encounter-documents-readiness`.
+- `npm run test:legacy:plan:encounter-documents` in `parity-tests/` passed with 2 expected tests; run `2026-06-25T134300-234Z-legacy-openemr-plan-slice-67-encounter-documents-readiness`.
+- Artifact inspection confirmed the modernized Slice 67 Playwright report recorded `db-probe-slice-67-encounter-documents-source` and `db-probe-slice-67-encounter-documents-surface` payload attachments.
+- Artifact inspection confirmed the legacy Slice 67 Playwright report recorded `db-probe-slice-67-encounter-documents-source` and `db-probe-slice-67-encounter-documents-surface` payload attachments.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-67-encounter-documents-readiness` in `parity-tests/` passed with matched status and no differences; comparison `2026-06-25T134324-924Z-legacy-openemr-vs-modernized-openemr-plan-slice-67-encounter-documents-readiness`.
+
+Code changes:
+- Files changed: 8
+- Lines added: 156
+- Lines deleted: 25
+- Net lines: +131
+- Total churn: 181
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -19354,5 +19387,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 66.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 67.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
