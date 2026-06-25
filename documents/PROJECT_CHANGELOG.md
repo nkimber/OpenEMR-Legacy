@@ -20671,7 +20671,7 @@ Code changes:
 
 Started: 2026-06-25T14:09:07.7278411-04:00
 Finished: 2026-06-25T14:11:31.3216065-04:00
-Commit: pending
+Commit: 97a0fa99
 
 Implemented Slice 365: Slice 104 appointment recurring-series probe payload attachments. The appointment recurring-series parity suite now writes path-backed JSON Playwright attachments for the `MOD-PAT-0003` anchor patient, seeded recurrence search window, expected generated occurrence dates and numbers, normalized recurring-series workflow rows, modernized Calendar generated-occurrence rendering anchors, and legacy workflow projection facts so Workbench comparison drill-ins can preview generated-series evidence.
 
