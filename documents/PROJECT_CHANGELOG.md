@@ -25593,7 +25593,7 @@ Code changes:
 
 Started: 2026-06-26T07:20:00.0000000-04:00
 Finished: 2026-06-26T07:41:53.1021026-04:00
-Commit: Pending
+Commit: 2aad0a0e
 
 Implemented Slice 510: patient portal secure-message attachment metadata readiness. The modernized portal message API and UI now expose explicit attachment metadata for current secure-message rows, legacy and modernized workflow adapters normalize the current zero-attachment state, and a new cleanup-backed parity plan proves composed portal messages expose `attachmentCount: 0` and empty `attachments` arrays on both targets while the modernized Portal renders `Attachments 0` on the sent-message surface.
 
