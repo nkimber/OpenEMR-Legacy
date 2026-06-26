@@ -1284,6 +1284,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-512-patient-portal-message-attachment-policy-readiness",
+      "name": "Slice 512 Patient Portal Secure-Message Attachment Policy Readiness",
+      "description": "Patient portal messaging confidence plan that verifies non-empty secure-message attachment submissions are rejected without creating mailbox rows while upload controls remain inactive.",
+      "suites": ["workflow-patient-portal-message-attachment-policy"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-512", "patients", "portal", "messages", "attachments", "unsupported-policy", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4620,6 +4629,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-attachments",
       "tags": ["slice510", "workflow", "mutation", "patients", "portal", "messages", "attachments", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-attachment-policy",
+      "name": "Patient Portal Secure-Message Attachment Policy Readiness",
+      "description": "Verifies non-empty portal secure-message attachment submissions are rejected without creating mailbox rows while attachment upload controls remain inactive.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-attachment-policy",
+      "tags": ["slice512", "workflow", "mutation", "patients", "portal", "messages", "attachments", "unsupported-policy", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

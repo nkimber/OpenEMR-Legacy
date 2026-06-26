@@ -25652,6 +25652,42 @@ Code changes:
 - Net lines: +69
 - Total churn: 91
 
+## 559. Slice 512 Patient Portal Secure-Message Attachment Policy Readiness
+
+Started: 2026-06-26T08:00:55.5580638-04:00
+Finished: 2026-06-26T08:06:31.0726597-04:00
+Commit: Pending
+
+Implemented Slice 512: patient portal secure-message unsupported attachment policy readiness. The modernized patient portal compose/reply request contract now accepts attachment-submission metadata but rejects non-empty payloads before mailbox rows are created, matching the legacy OpenEMR portal where secure-message upload controls are not active. A new shared parity plan proves the rejected attachment submission leaves sent, inbox, and All-folder mailbox rows untouched on both targets and captures UI evidence that no active upload controls are exposed.
+
+Changes:
+- Added attachment-submission DTO/client/workflow metadata for patient portal secure-message compose and reply requests.
+- Added a modernized API guard that returns a legacy-compatible failure for non-empty attachment submissions before starting mailbox insert work.
+- Updated the legacy workflow adapter to report the same unsupported attachment policy instead of creating synthetic mailbox rows when an attachment payload is supplied.
+- Added the `workflow-patient-portal-message-attachment-policy` suite and `slice-512-patient-portal-message-attachment-policy-readiness` plan with precondition, rejected-submission, cleanup, and UI-policy probe payloads.
+- Added Workbench managed actions and plan cards for running the Slice 512 attachment-policy plan against both legacy and modernized targets.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 512 policy contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build` in `modernized-openemr/backend/src/OpenEmr.Modernized.Api` passed.
+- `npm run build` in `modernized-openemr/frontend` passed with the existing Vite large-chunk warning only.
+- `npm run typecheck` in `modernization-workbench` passed.
+- `docker compose up -d --build api frontend` in `modernized-openemr` rebuilt and restarted the modernized API/frontend containers.
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md documents/TEST_DATA_STRATEGY.md modernization-workbench/config/apps.json modernization-workbench/config/functionality-progress.json modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs modernized-openemr/frontend/src/api.ts parity-tests/src/workflows/legacyWorkflowActions.ts parity-tests/test-manifest.json parity-tests/tests/workflow-patient-portal-message-attachment-policy/patient-portal-message-attachment-policy.spec.ts` passed with line-ending warnings only.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-512-patient-portal-message-attachment-policy-readiness -Reset test` passed with run `2026-06-26T120459-217Z-legacy-openemr-plan-slice-512-patient-portal-message-attachment-policy-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-512-patient-portal-message-attachment-policy-readiness -Reset test` passed with run `2026-06-26T120528-515Z-modernized-openemr-plan-slice-512-patient-portal-message-attachment-policy-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-512-patient-portal-message-attachment-policy-readiness` produced matched comparison `2026-06-26T120549-218Z-legacy-openemr-vs-modernized-openemr-plan-slice-512-patient-portal-message-attachment-policy-readiness`.
+- Audited the generated Playwright JSON reports and verified both target runs include `db-probe-slice-512-patient-portal-message-attachment-policy-precondition`, `db-probe-slice-512-patient-portal-message-attachment-policy-rejected`, `db-probe-slice-512-patient-portal-message-attachment-policy-cleanup`, and `db-probe-slice-512-patient-portal-message-attachment-policy-ui`.
+
+Code changes:
+- Files changed: 15
+- Lines added: 382
+- Lines deleted: 12
+- Net lines: +370
+- Total churn: 394
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

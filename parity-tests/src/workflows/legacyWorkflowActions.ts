@@ -769,6 +769,12 @@ export type PatientPortalMessageAttachment = {
   source: string;
 };
 
+export type PatientPortalMessageAttachmentSubmission = {
+  fileName?: string | null;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+};
+
 export type PatientPortalNotificationInput = {
   dueStatus: string;
   category: string;
@@ -999,6 +1005,7 @@ export type PatientPortalInboxMessageInput = {
 
 export type PatientPortalReplyMessageInput = {
   body: string;
+  attachments?: PatientPortalMessageAttachmentSubmission[] | null;
 };
 
 export type PatientPortalForwardMessageInput = {
@@ -1047,6 +1054,7 @@ export type PatientPortalComposeMessageInput = {
   recipientId: string;
   title: string;
   body: string;
+  attachments?: PatientPortalMessageAttachmentSubmission[] | null;
 };
 
 export type PatientPortalComposeMessageResult = {
@@ -4553,6 +4561,28 @@ ORDER BY date ASC, id ASC;
     const title = input.title.trim();
     const body = input.body.trim();
     const recipientId = input.recipientId.trim() || "admin";
+    if (hasRequestedPatientPortalMessageAttachments(input.attachments)) {
+      const current = await this.getPatientPortalMessages(username, password);
+      return {
+        authenticated: true,
+        created: false,
+        username: login.username,
+        portalUsername: login.portalUsername,
+        canonicalId: login.canonicalId,
+        pid: login.pid,
+        pubpid: login.pubpid,
+        displayName: login.displayName,
+        recipientId,
+        recipientName: "",
+        sentMessage: null,
+        recipientMessage: null,
+        messageCount: current.messageCount,
+        sentMessageCount: current.sentMessageCount,
+        failureReason: "Secure message attachments are not supported by the legacy-compatible patient portal message workflow.",
+        sessionSource: "legacy-openemr-portal"
+      };
+    }
+
     if (!title || !body) {
       return buildEmptyPortalComposeMessageResult(username, recipientId, "Secure message title and body are required.");
     }
@@ -5084,6 +5114,28 @@ ORDER BY date ASC, id ASC;
     }
 
     const body = input.body.trim();
+    if (hasRequestedPatientPortalMessageAttachments(input.attachments)) {
+      const current = await this.getPatientPortalMessages(username, password);
+      return {
+        authenticated: true,
+        created: false,
+        username: login.username,
+        portalUsername: login.portalUsername,
+        canonicalId: login.canonicalId,
+        pid: login.pid,
+        pubpid: login.pubpid,
+        displayName: login.displayName,
+        originalMessageId: messageId,
+        originalMessage: null,
+        sentMessage: null,
+        recipientMessage: null,
+        messageCount: current.messageCount,
+        sentMessageCount: current.sentMessageCount,
+        failureReason: "Secure message attachments are not supported by the legacy-compatible patient portal message workflow.",
+        sessionSource: "legacy-openemr-portal"
+      };
+    }
+
     if (!body) {
       return buildEmptyPortalReplyMessageResult(username, messageId, "Secure message reply body is required.");
     }
@@ -10010,6 +10062,10 @@ function buildEmptyPortalComposeMessageResult(
     failureReason,
     sessionSource: "legacy-openemr-portal"
   };
+}
+
+function hasRequestedPatientPortalMessageAttachments(attachments?: PatientPortalMessageAttachmentSubmission[] | null): boolean {
+  return Array.isArray(attachments) && attachments.length > 0;
 }
 
 function buildEmptyPortalReplyMessageResult(

@@ -401,7 +401,7 @@ The shared encounter procedure-result entry plan runs against both targets and v
 
 The shared encounter claims plan runs read-only against both targets and verifies `MOD-PAT-0001` encounter `1000013`, claim `CLAIM-1000013-1`, payer `Acme Health`, `HCFA` target, cleared claim status facts, modernized Encounter detail API claim fields, and modernized Encounters workspace Claim Linkage cards.
 
-The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-510 patient portal secure-message attachment metadata readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-512 patient portal secure-message unsupported attachment policy readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 The Workbench also exposes a custom parity run builder on the Test Runs page for each managed application. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
@@ -415,6 +415,8 @@ This keeps the workbench honest: it reports real automation evidence instead of 
 ## Seed Data Orchestration
 
 Slice 511 extends Workbench-previewable probe payload evidence into the patient portal secure-message attachment metadata plan. The Slice 510 parity suite now attaches anchor-patient attachment preconditions, composed-message creation facts, normalized mailbox attachment projections, cleanup state, legacy sent-surface evidence, modernized sent-card rendering, and UI-test cleanup JSON artifacts so comparison drill-ins can inspect attachment metadata evidence behind portal parity. Slice 509 remains the patient portal secure-message notification probe-payload slice.
+
+Slice 512 adds managed Workbench actions for the patient portal secure-message unsupported attachment policy plan on both legacy and modernized targets. The plan proves that attempted non-empty attachment submissions are rejected without mailbox-row creation and that active secure-message upload controls remain absent, preserving the legacy-compatible behavior until a future full attachment workflow is intentionally designed.
 
 The Workbench owns seed-data visibility and orchestration.
 
