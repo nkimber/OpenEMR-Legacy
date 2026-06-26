@@ -25261,7 +25261,7 @@ Code changes:
 
 Started: 2026-06-26T05:05:00.0000000-04:00
 Finished: 2026-06-26T05:10:23.8939325-04:00
-Commit: Pending
+Commit: 272ed6a3
 
 Implemented Slice 500: Slice 246 patient portal medication date-column probe payload attachments. The medication date-column readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, temporary ended-medication lifecycle facts, active and ended medication date-column projections, cleanup state, legacy portal Start Date/Last Modified/End Date table rendering, and modernized Portal medication-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal medication parity.
 
