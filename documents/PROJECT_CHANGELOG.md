@@ -25627,7 +25627,7 @@ Code changes:
 
 Started: 2026-06-26T07:45:00.0000000-04:00
 Finished: 2026-06-26T07:52:11.2586932-04:00
-Commit: Pending
+Commit: 88e36260
 
 Implemented Slice 511: Slice 510 patient portal secure-message attachment probe payload attachments. The attachment metadata readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, cleanup-backed composed-message creation facts, normalized mailbox attachment projections, cleanup state, legacy sent-surface evidence, modernized sent-card rendering, and UI-test cleanup so Workbench comparison drill-ins can preview the secure-message attachment metadata evidence behind portal parity.
 
