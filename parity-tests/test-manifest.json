@@ -1905,6 +1905,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-545-claim-invalid-cpt-code-readiness",
+      "name": "Slice 545 Claim Invalid CPT Code Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a valid encounter diagnosis plus a malformed CPT4 service line, scrubs a temporary claim, verifies deterministic SCRUB-FAIL invalid-cpt-code metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-invalid-cpt-code"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-545", "billing", "claims", "claim-scrubbing", "cpt-code-validation", "coding-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4037,6 +4046,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-duplicate-diagnosis-code",
       "tags": ["slice544", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "duplicate-diagnosis-code", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-invalid-cpt-code",
+      "name": "Claim Invalid CPT Code",
+      "description": "Creates a valid encounter diagnosis plus a malformed CPT4 service line, scrubs a temporary local claim report, verifies deterministic invalid-cpt-code metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-invalid-cpt-code",
+      "tags": ["slice545", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "cpt-code-validation", "coding-validation", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
