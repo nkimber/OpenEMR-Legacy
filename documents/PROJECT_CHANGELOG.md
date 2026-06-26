@@ -27276,6 +27276,37 @@ Verification:
 Code Metrics:
 - 13 scoped files changed, with 288 insertions and 81 deletions, net +207 lines and 369 total churn, including the backend claim adjudication operation, React adjudication handoff, and managed server-side adjudication parity plan.
 
+## 609. Slice 562 EOB Batch Server-Side Import Readiness
+
+Started: 2026-06-26T18:56:08.7438784-04:00
+Finished: 2026-06-26T18:59:44.3446635-04:00
+Commit: `TBD`
+
+Implemented Slice 562: focused server-side EOB batch import readiness. The modernized billing `Import EOB` action no longer constructs the deterministic two-line Northstar HMO remittance batch inside the React UI; it calls the new `POST /api/billing/eob-batches/import` backend operation, which validates the patient and billing encounter, inserts both payment sessions and activities in one transaction, and returns refreshed billing detail. The shared parity plan imports the same cleanup-backed remittance batch against the seeded billing encounter, drives the modernized UI/backend import path or equivalent legacy payment-posting workflow, verifies payment, adjustment, ledger, balance, payer-claim number, reason-code, rendering, and cleanup.
+
+Changes:
+- Added the modernized backend EOB batch import operation and endpoint.
+- Changed the modernized Fees `Import EOB` button so it calls the backend billing operation instead of composing two payment postings in React.
+- Added the `slice-562-eob-batch-server-side-import-readiness` plan over the existing rich EOB batch import workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 562 server-side EOB import plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count starter EOB batch import as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 562 server-side EOB import contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 562 legacy parity plan: `2026-06-26T225812-127Z-legacy-openemr-plan-slice-562-eob-batch-server-side-import-readiness` passed 1/1 tests.
+- Ran the Slice 562 modernized parity plan: `2026-06-26T225812-078Z-modernized-openemr-plan-slice-562-eob-batch-server-side-import-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 562 runs: `2026-06-26T225921-987Z-legacy-openemr-vs-modernized-openemr-plan-slice-562-eob-batch-server-side-import-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 562 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 292 insertions and 54 deletions, net +238 lines and 346 total churn, including the backend EOB batch import operation, React import handoff, and managed server-side EOB import parity plan.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -43,7 +43,7 @@ The Progress page also includes curated Capability Rollups from `modernization-w
 
 Modern UI Claude is also registered as a managed frontend-only Docker Compose application. The Applications page shows the `modern-ui-claude` service status, checks `http://localhost:3100/`, exposes Start/Stop/Restart/Open/Logs actions, and keeps its database profile separate by pointing operators back to the modernized OpenEMR backend app for database state. Its compose stack is configured for Vite live reload by bind-mounting the app folder into the container; source edits should not require a rebuild unless dependencies or container configuration change.
 
-The Workbench also has a Demo Deployment page for publishing resettable public Azure Container Apps demos of the legacy baseline, the modernized target, or both. The page saves an ignored local Azure profile, validates local prerequisites, runs the deployment script, runs smoke checks against existing deployed apps, and displays the latest deployment evidence from ignored Workbench artifacts. The Azure demo path is intentionally disposable and keeps the database beside each app container for simple synthetic-data demonstrations only.
+The Workbench also has a Demo Deployment page for publishing resettable public Azure Container Apps demos of the legacy baseline, the modernized target, or both. The page saves an ignored local Azure profile, validates local prerequisites, runs the deployment script, runs smoke checks against existing deployed apps, clears stale evidence when a new action starts, and displays copyable deployment evidence from ignored Workbench artifacts. The Azure demo path is intentionally disposable and keeps the database beside each app container for simple synthetic-data demonstrations only.
 
 Current pages:
 
@@ -424,7 +424,7 @@ The Demo Deployment page is the Workbench surface for lightweight public Azure d
 - `POST /api/demo-deployment/actions/deploy`
 - `POST /api/demo-deployment/actions/smoke`
 
-The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, and the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`. Both are under the ignored Workbench artifacts folder.
+The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, and the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`. Both are under the ignored Workbench artifacts folder. The page clears the visible prior result when a new save, validate, deploy, or smoke action starts, then offers copy buttons for the latest JSON result, command output, and combined evidence payload.
 
 The deploy action runs `scripts/Deploy-AzureDemo.ps1`. It creates or updates the selected Azure Container Apps resources, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, and smoke-tests the resulting public URLs. The smoke action uses the same script with `-SmokeOnly` and only checks existing deployed apps.
 
@@ -759,3 +759,9 @@ The Progress page also records focused claim clearing as server-side billing bus
 The Workbench now exposes managed Slice 561 claim server-side adjudication plan actions for both the legacy and modernized targets. These actions run `slice-561-claim-server-side-adjudication-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Adjudicate` action calls the backend billing operation, posts the linked EOB payment and contractual adjustment, persists the same X12 835 process-file metadata as the legacy-equivalent workflow, refreshes the rendered claim/payment/ledger/balance state, and cleans up the temporary generated claim plus payment side by side.
 
 The Progress page also records focused claim adjudication as server-side billing business logic while keeping payer-specific ERA parsing, remittance reconciliation, statement delivery, and production AR behavior outstanding.
+
+## Slice 562 Workbench Update
+
+The Workbench now exposes managed Slice 562 EOB batch server-side import plan actions for both the legacy and modernized targets. These actions run `slice-562-eob-batch-server-side-import-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Import EOB` action calls the backend billing operation, creates the deterministic two-line Northstar HMO remittance batch, refreshes the rendered payment/ledger/balance state, and cleans up the temporary EOB payments side by side.
+
+The Progress page also records starter EOB batch import as server-side billing business logic while keeping payer-specific ERA parsing, remittance reconciliation, statement delivery, and production AR behavior outstanding.
