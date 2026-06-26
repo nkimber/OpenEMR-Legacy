@@ -26661,7 +26661,7 @@ Code changes:
 
 Started: 2026-06-26T15:08:25.7436885-04:00
 Finished: 2026-06-26T15:12:25.7517269-04:00
-Commit: pending
+Commit: 85f8d4e9
 
 Implemented Slice 542: focused claim diagnosis-pointer-count readiness. The modernized Fees claim `Scrub` action now flags CPT service lines with more than four diagnosis pointer tokens as deterministic `diagnosis-pointer-count-exceeded:<count>` issues. The shared parity suite creates a cleanup-backed temporary encounter with ICD10 lines for `K21.9`, `E11.9`, `I10`, `J45.909`, and `M54.50`, a CPT line justified by all five comma-separated pointers, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-pointer or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
