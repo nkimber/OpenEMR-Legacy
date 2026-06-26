@@ -90,8 +90,8 @@
         },
         {
           "label": "Patient contact-backed care-team readiness",
-          "detail": "The modernized patient API and Patient/Client chart now update and render patient-contact care-team members through deterministic related-contact seed rows and restore-backed parity coverage.",
-          "evidence": ["slice-201-patient-care-team-contact-readiness"]
+          "detail": "The modernized patient API and Patient/Client chart now update and render patient-contact care-team members through deterministic related-contact seed rows and restore-backed parity coverage; Slice 455 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-201-patient-care-team-contact-readiness", "slice-455-slice201-patient-care-team-contact-probe-payload-attachments"]
         },
         {
           "label": "Patient history and lifestyle readiness",
