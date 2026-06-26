@@ -23379,7 +23379,7 @@ Code changes:
 
 Started: 2026-06-25T22:50:29.0609414-04:00
 Finished: 2026-06-25T22:54:37.2282816-04:00
-Commit: Pending
+Commit: `c3d2f68a`
 
 Implemented Slice 445: Slice 191 patient duplicate detection probe payload attachments. The patient duplicate detection readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/contact precondition, temporary duplicate registration creation, database duplicate-candidate rows, legacy database-surface evidence, modernized duplicate-search and chart-detail API evidence, modernized Patient/Client duplicate panel rendering, and final temporary-patient cleanup so Workbench comparison drill-ins can preview the evidence behind demographic, phone, and email duplicate matching.
 
