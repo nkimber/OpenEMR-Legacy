@@ -27368,6 +27368,37 @@ Verification:
 
 Code Metrics:
 - 16 scoped files changed, with 217 insertions and 19 deletions, net +198 lines and 236 total churn, including the backend patient-refund operation, React refund handoff, stronger UI-backed parity coverage, and managed server-side refund parity plan.
+## 614. Slice 565 Insurance Reversal Server-Side Posting Readiness
+
+Started: 2026-06-26T19:33:00.0000000-04:00
+Finished: 2026-06-26T19:43:15.6357675-04:00
+Commit: `833b9112`
+
+Implemented Slice 565: focused insurance-reversal server-side posting readiness. The modernized Fees `Insurance reversal` mode no longer constructs the OpenEMR-shaped insurer-backed reversal posting inside the React UI; it calls the new `POST /api/billing/payments/insurance-reversals` backend operation with the patient, encounter, payer, reference, date, payment method, CPT context, memo, reversal amount, and payer claim number. The backend owns primary payer identity, `insurance_reversal` payment type, negative reversal amount, zero adjustment, blank account/reason fields, payer claim preservation, and refreshed billing detail. The shared parity plan now drives the modernized Fees form through that endpoint, verifies the same temporary insurer-backed reversal posting, rendering, account-balance and ledger movement, payer claim number, and cleanup against both targets.
+
+Changes:
+- Added the modernized backend insurance-reversal request contract, repository adapter, and billing API endpoint.
+- Changed the modernized Fees `Insurance reversal` path so React submits reversal intent to the backend instead of building the final payment posting shape itself.
+- Strengthened the insurance-reversal parity suite so the modernized target creates the reversal through the actual Fees form, waits for payment-form initialization, asserts the intended encounter before submit, captures the created payment activity ID from the database probe, and still cleans up deterministically.
+- Added the `slice-565-insurance-reversal-server-side-posting-readiness` plan over the insurance-payment reversal workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 565 insurance-reversal server-side posting plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count insurance payment reversal as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 565 server-side insurance reversal posting contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 565 legacy parity plan: `2026-06-26T233836-378Z-legacy-openemr-plan-slice-565-insurance-reversal-server-side-posting-readiness` passed 1/1 tests.
+- Ran the Slice 565 modernized parity plan: `2026-06-26T234133-457Z-modernized-openemr-plan-slice-565-insurance-reversal-server-side-posting-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 565 runs: `2026-06-26T234217-197Z-legacy-openemr-vs-modernized-openemr-plan-slice-565-insurance-reversal-server-side-posting-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 565 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 225 insertions and 17 deletions, net +208 lines and 242 total churn, including the backend insurance-reversal operation, React reversal handoff, stronger UI-backed parity coverage, and managed server-side reversal parity plan.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
