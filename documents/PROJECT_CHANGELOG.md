@@ -25161,7 +25161,7 @@ Code changes:
 
 Started: 2026-06-26T04:46:20.0000000-04:00
 Finished: 2026-06-26T04:51:18.2983881-04:00
-Commit: Pending
+Commit: 89150a10
 
 Implemented Slice 497: Slice 243 patient portal prescription modified-date probe payload attachments. The prescription modified-date readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, active-prescription modified-date projections, legacy portal Last Modified table rendering, and modernized Portal prescription-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal prescription parity.
 
