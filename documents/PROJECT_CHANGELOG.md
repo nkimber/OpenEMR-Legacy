@@ -24298,7 +24298,7 @@ Code changes:
 
 Started: 2026-06-26T01:42:34.9429250-04:00
 Finished: 2026-06-26T01:44:37.2093721-04:00
-Commit: Pending
+Commit: `e2e63745`
 
 Implemented Slice 472: Slice 218 patient portal document list/download probe payload attachments. The patient portal document readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, active portal document/category projection, selected-document ZIP package metadata, legacy portal document download rendering, and modernized Portal document download rendering so Workbench comparison drill-ins can preview the evidence behind document list/download parity.
 
