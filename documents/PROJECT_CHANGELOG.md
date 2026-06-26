@@ -25089,6 +25089,40 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-html/patient-portal-message-html.spec.ts`: 189 insertions, 4 deletions.
 
+## 542. Slice 495 Slice 241 Patient Portal Secure-Message Pagination Probe Payload Attachments
+
+Started: 2026-06-26T04:33:57.3391329-04:00
+Finished: 2026-06-26T04:38:22.2919112-04:00
+Commit: Pending
+
+Implemented Slice 495: Slice 241 patient portal secure-message pagination probe payload attachments. The pagination readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, first-page/second-page mailbox ordering, cleanup state, legacy next-page rendering, and modernized pager rendering so Workbench comparison drill-ins can preview folder-pagination evidence.
+
+Changes:
+- Added Slice 241 precondition payload attachments for the `MOD-PAT-0004` portal anchor, OpenEMR-compatible 20-message page size, temporary filler titles, and older second-page message date.
+- Added pagination-result payload attachments proving the 20 newer temporary rows occupy the first page while the older row sorts into the second page window.
+- Added cleanup payload attachments proving all temporary pagination rows are removed from Inbox and All projections.
+- Added target-specific legacy Secure Messaging next-page and modernized Portal pager rendering payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 495 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-495-slice241-patient-portal-message-pagination-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-message-pagination/patient-portal-message-pagination.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-241-patient-portal-message-pagination-readiness -Reset test` passed with run `2026-06-26T083505-013Z-legacy-openemr-plan-slice-241-patient-portal-message-pagination-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-241-patient-portal-message-pagination-readiness -Reset test` passed with run `2026-06-26T083648-060Z-modernized-openemr-plan-slice-241-patient-portal-message-pagination-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-241-patient-portal-message-pagination-readiness` produced matched comparison `2026-06-26T083803-449Z-legacy-openemr-vs-modernized-openemr-plan-slice-241-patient-portal-message-pagination-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-241-patient-portal-message-pagination-precondition`, `db-probe-slice-241-patient-portal-message-pagination-result`, `db-probe-slice-241-patient-portal-message-pagination-cleanup`, and `db-probe-slice-241-patient-portal-message-pagination-legacy-ui`; the modernized run includes `db-probe-slice-241-patient-portal-message-pagination-precondition`, `db-probe-slice-241-patient-portal-message-pagination-result`, `db-probe-slice-241-patient-portal-message-pagination-cleanup`, and `db-probe-slice-241-patient-portal-message-pagination-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 1 insertion, 1 deletion.
+- `documents/PROJECT_CONTEXT.md`: 3 insertions, 3 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-message-pagination/patient-portal-message-pagination.spec.ts`: 186 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -25098,5 +25132,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, and 240.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, and 241.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
