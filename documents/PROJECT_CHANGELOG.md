@@ -22775,6 +22775,36 @@ Code changes:
 - Net lines: 320
 - Total churn: 350
 
+## 475. Slice 428 Slice 174 Operational Reports Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T20:33:28.2252481-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 428: Slice 174 operational reports authorization-policy probe payload attachments. The reports authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy operational report rendering facts, modernized front-desk forbidden report/export facts, admin report/export allow facts, and modernized Reports-page retry rendering facts so Workbench comparison drill-ins can preview report policy evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 174 ACL precondition payload attachments for the seeded admin Patient Report write permission, missing front-office Patient Report permission, protected modernized operational report/export APIs, configured admin username, and secret-redaction proof.
+- Added legacy operational report rendered payload attachments proving Patient List, Visits From, Report - Clinical, and Problem DX markers render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk report forbidden payload attachments proving Patient Report access is required for operational report reads.
+- Added modernized front-desk export forbidden payload attachments proving Patient Report access is required for CSV export.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin report allow payload attachments proving ACL-backed admin access returns expected gold-data counts and provider activity.
+- Added modernized admin export allow payload attachments proving ACL-backed admin access returns the expected CSV rows.
+- Added modernized Reports-page rendered payload attachments proving the UI shows front-desk denial and then admin report/export success after retry.
+- Updated the Workbench functionality progress ledger so Slice 174 operational reports authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 428 evidence-payload contract.
+
+Verification:
+- Pending.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22784,5 +22814,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, and 173.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, and 174.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
