@@ -155,8 +155,8 @@
         },
         {
           "label": "Patient portal profile review accept readiness",
-          "detail": "The modernized administration API and Admin page now commit staff-accepted portal profile edits to chart demographics, close the waiting review request, and prove the same cleanup-backed acceptance outcome against legacy OpenEMR.",
-          "evidence": ["slice-253-patient-portal-profile-review-accept-readiness"]
+          "detail": "The modernized administration API and Admin page now commit staff-accepted portal profile edits to chart demographics, close the waiting review request, prove the same cleanup-backed acceptance outcome against legacy OpenEMR, and expose Slice 507 Workbench-previewable probe payloads for acceptance evidence.",
+          "evidence": ["slice-253-patient-portal-profile-review-accept-readiness", "slice-507-slice253-patient-portal-profile-review-accept-probe-payload-attachments"]
         },
         {
           "label": "Patient portal profile review revert readiness",
