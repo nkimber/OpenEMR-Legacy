@@ -23241,7 +23241,7 @@ Code changes:
 
 Started: 2026-06-25T22:16:43.0005735-04:00
 Finished: 2026-06-25T22:19:21.5691359-04:00
-Commit: Pending
+Commit: ba974897
 
 Implemented Slice 441: Slice 187 patient message mutation authorization-policy probe payload attachments. The message mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Patient Notes ACL preconditions, legacy Patient Notes rendering facts, admin and clinician login facts, clinician read and add-only create facts, clinician status/content/assignment/reply/archive/delete denial facts, admin hard-delete cleanup facts, and final message-count cleanup facts so Workbench comparison drill-ins can preview patient message mutation ACL enforcement evidence without storing password, cookie, or session material.
 
@@ -23267,10 +23267,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `admin-login`, `clinician-login`, `clinician-read`, `clinician-create`, `clinician-status-forbidden`, `clinician-content-forbidden`, `clinician-assignment-forbidden`, `clinician-reply-forbidden`, `clinician-archive-forbidden`, `clinician-delete-forbidden`, `admin-delete`, and `cleanup` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 484
+- Lines deleted: 19
+- Net lines: 465
+- Total churn: 503
 
 ## Next Expected Entries
 
