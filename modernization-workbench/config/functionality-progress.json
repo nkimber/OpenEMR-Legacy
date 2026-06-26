@@ -255,8 +255,8 @@
         },
         {
           "label": "Patient portal lab results readiness",
-          "detail": "The modernized patient portal API and Portal page now render signed-in patient lab orders, reports, and final result rows, while parity compares the same portal lab-results facts against legacy OpenEMR.",
-          "evidence": ["slice-223-patient-portal-lab-results-readiness"]
+          "detail": "The modernized patient portal API and Portal page now render signed-in patient lab orders, reports, and final result rows, while parity compares the same portal lab-results facts against legacy OpenEMR, and Slice 477 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-223-patient-portal-lab-results-readiness", "slice-477-slice223-patient-portal-lab-results-probe-payload-attachments"]
         },
         {
           "label": "Patient portal medical report readiness",
@@ -692,7 +692,7 @@
         },
         {
           "label": "Patient portal lab results readiness",
-          "detail": "Signed-in portal patients can see completed lab order, report, and result facts for their own record, with parity against legacy `portal/get_lab_results.php`.",
+          "detail": "Signed-in portal patients can see completed lab order, report, and result facts for their own record, with parity against legacy `portal/get_lab_results.php`; Slice 477 adds path-backed probe payload attachments for Workbench comparison previews.",
           "evidence": ["slice-223-patient-portal-lab-results-readiness"]
         }
       ],

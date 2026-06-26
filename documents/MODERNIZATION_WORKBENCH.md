@@ -414,7 +414,7 @@ This keeps the workbench honest: it reports real automation evidence instead of 
 
 ## Seed Data Orchestration
 
-Slice 476 extends Workbench-previewable probe payload evidence into the patient portal clinical-summary plan. The Slice 222 parity suite now attaches precondition, clinical-summary projection, legacy clinical-list page rendering, and modernized Portal clinical-summary rendering JSON artifacts so comparison drill-ins can inspect the clinical-list and active-prescription evidence behind portal clinical-summary parity.
+Slice 477 extends Workbench-previewable probe payload evidence into the patient portal lab-results plan. The Slice 223 parity suite now attaches precondition, lab order/report/result projection, legacy lab-results page rendering, and modernized Portal lab-results rendering JSON artifacts so comparison drill-ins can inspect the lab evidence behind portal lab-results parity. Slice 476 remains the patient portal clinical-summary probe-payload slice.
 
 The Workbench owns seed-data visibility and orchestration.
 
