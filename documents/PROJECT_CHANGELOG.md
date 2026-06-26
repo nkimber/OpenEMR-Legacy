@@ -25749,6 +25749,42 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 568. Slice 521 Patient Portal Secure-Message Search Pagination Readiness
+
+Commit: `pending`
+Started: `2026-06-26T10:04:19-04:00`
+Finished: `2026-06-26T10:15:56-04:00`
+
+Implemented Slice 521: patient portal secure-message search pagination readiness. The modernized Portal now resets secure-message folder pagers to the first filtered page when the search query changes, preserving the intended search-before-pagination behavior even when more than 20 rows match. The parity suite creates cleanup-backed newer nonmatching Inbox rows plus 21 matching Inbox rows for `MOD-PAT-0004`, verifies the shared search projection produces a first filtered page plus an older second-page match, records the installed legacy no-active-search-input baseline, and verifies the modernized Portal returns the Inbox pager to the first filtered page when search is applied from page 2.
+
+Key changes:
+
+- Added the `workflow-patient-portal-message-search-pagination` suite and `slice-521-patient-portal-message-search-pagination-readiness` plan.
+- Reset modernized Portal secure-message folder pagination to page 1 when normalized search text changes.
+- Added Workbench managed actions and plan cards for running the Slice 521 search pagination plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to include search pagination readiness in the patient portal secure-message scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 521 search pagination contract.
+
+Verification:
+
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully as JSON.
+- Ran `npm run typecheck` in `parity-tests`; passed.
+- Ran `npm run typecheck` in `modernization-workbench`; passed.
+- Ran `npm run build` in `modernized-openemr/frontend`; passed with the known Vite large-chunk warning.
+- Rebuilt and restarted the modernized frontend container with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-521-patient-portal-message-search-pagination-readiness -Reset test`; run `2026-06-26T140922-941Z-legacy-openemr-plan-slice-521-patient-portal-message-search-pagination-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-521-patient-portal-message-search-pagination-readiness -Reset test`; run `2026-06-26T141245-563Z-modernized-openemr-plan-slice-521-patient-portal-message-search-pagination-readiness` passed.
+- Ran parity comparison for `slice-521-patient-portal-message-search-pagination-readiness`; comparison `2026-06-26T141541-072Z-legacy-openemr-vs-modernized-openemr-plan-slice-521-patient-portal-message-search-pagination-readiness` matched.
+- Audited Playwright probe attachments for both runs: precondition, result, target UI, and cleanup payloads were present.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 423
+- Lines deleted: 8
+- Net lines: +415
+- Total churn: 431
+
 ## 567. Slice 520 Patient Portal Secure-Message Search Mark-All-Read Readiness
 
 Commit: `2bea112f`

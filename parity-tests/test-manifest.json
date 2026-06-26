@@ -1365,6 +1365,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-521-patient-portal-message-search-pagination-readiness",
+      "name": "Slice 521 Patient Portal Secure-Message Search Pagination Readiness",
+      "description": "Patient portal messaging confidence plan that verifies applying secure-message search resets the modernized Portal folder pager to the first filtered page.",
+      "suites": ["workflow-patient-portal-message-search-pagination"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-521", "patients", "portal", "messages", "search", "pagination", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4791,6 +4800,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-search-mark-all-read",
       "tags": ["slice520", "workflow", "mutation", "patients", "portal", "messages", "search", "mark-all-read", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-search-pagination",
+      "name": "Patient Portal Secure-Message Search Pagination Readiness",
+      "description": "Verifies secure-message search is applied before pagination and resets the modernized Portal folder pager to the first filtered page.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-search-pagination",
+      "tags": ["slice521", "workflow", "mutation", "patients", "portal", "messages", "search", "pagination", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
