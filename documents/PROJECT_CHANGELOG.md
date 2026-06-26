@@ -24883,6 +24883,42 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-forward/patient-portal-message-forward.spec.ts`: 187 insertions, 3 deletions.
 
+## 536. Slice 489 Slice 235 Patient Portal Secure-Message Deleted-Folder Probe Payload Attachments
+
+Started: 2026-06-26T03:49:59.3044098-04:00
+Finished: 2026-06-26T03:53:56.5058704-04:00
+Commit: Pending
+
+Implemented Slice 489: Slice 235 patient portal secure-message Deleted-folder probe payload attachments. The patient portal secure-message Deleted-folder readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, mailbox baseline/result/cleanup projections, legacy Archive-tab evidence, and modernized Deleted secure messages rendering so Workbench comparison drill-ins can preview archived-message evidence behind secure-message parity.
+
+Changes:
+- Added Slice 235 precondition payload attachments for the `MOD-PAT-0004` anchor patient, temporary inbound/sent message titles, and expected `Delete` status semantics.
+- Added mailbox baseline payload attachments after defensive cleanup and before temporary Deleted-folder rows are created.
+- Added Deleted-folder result payload attachments proving inbound and sent messages move to `Delete`, active folder counts return to baseline, and Deleted-folder count increases by two.
+- Added cleanup payload attachments proving temporary archived rows are removed from active and Deleted-folder projections.
+- Added target-specific legacy Archive-tab and modernized Deleted secure messages UI payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 489 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-489-slice235-patient-portal-deleted-messages-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-deleted-messages/patient-portal-deleted-messages.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-235-patient-portal-deleted-messages-readiness -Reset test` passed with run `2026-06-26T075130-166Z-legacy-openemr-plan-slice-235-patient-portal-deleted-messages-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-235-patient-portal-deleted-messages-readiness -Reset test` passed with run `2026-06-26T075243-103Z-modernized-openemr-plan-slice-235-patient-portal-deleted-messages-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-235-patient-portal-deleted-messages-readiness` produced matched comparison `2026-06-26T075321-542Z-legacy-openemr-vs-modernized-openemr-plan-slice-235-patient-portal-deleted-messages-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-235-patient-portal-deleted-messages-precondition`, `db-probe-slice-235-patient-portal-deleted-messages-before`, `db-probe-slice-235-patient-portal-deleted-messages-result`, `db-probe-slice-235-patient-portal-deleted-messages-cleanup`, and `db-probe-slice-235-patient-portal-deleted-messages-legacy-ui`; the modernized run includes `db-probe-slice-235-patient-portal-deleted-messages-precondition`, `db-probe-slice-235-patient-portal-deleted-messages-before`, `db-probe-slice-235-patient-portal-deleted-messages-result`, `db-probe-slice-235-patient-portal-deleted-messages-cleanup`, and `db-probe-slice-235-patient-portal-deleted-messages-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 22 insertions.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-deleted-messages/patient-portal-deleted-messages.spec.ts`: 242 insertions, 5 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
