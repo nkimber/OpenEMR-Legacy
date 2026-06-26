@@ -25430,7 +25430,7 @@ Code changes:
 
 Started: 2026-06-26T05:45:00.0000000-04:00
 Finished: 2026-06-26T05:50:04.9146992-04:00
-Commit: Pending
+Commit: 492b8dcf
 
 Implemented Slice 505: Slice 251 patient portal profile change request probe payload attachments. The profile change request readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, clean profile state, submitted waiting-review profile edit facts, refreshed pending-change projection, cleanup state, legacy Edit Pending Changes rendering, and modernized Portal pending-review rendering so Workbench comparison drill-ins can preview the patient-submitted profile edit evidence behind portal parity.
 
