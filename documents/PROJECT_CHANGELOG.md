@@ -26751,7 +26751,7 @@ Code changes:
 
 Started: 2026-06-26T15:36:11.7928154-04:00
 Finished: 2026-06-26T15:40:56.1833178-04:00
-Commit: pending
+Commit: 041e778a
 
 Implemented Slice 545: focused invalid CPT-code readiness. The modernized Fees claim `Scrub` action now flags CPT4 service lines whose code is not exactly five digits as deterministic `invalid-cpt-code:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with one ICD10 line for `K21.9`, a malformed CPT4 service line with code `99A14`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without diagnosis-pointer or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
