@@ -414,7 +414,7 @@ This keeps the workbench honest: it reports real automation evidence instead of 
 
 ## Seed Data Orchestration
 
-Slice 505 extends Workbench-previewable probe payload evidence into the patient portal profile change request plan. The Slice 251 parity suite now attaches anchor-patient preconditions, clean profile state, submitted waiting-review profile edit facts, refreshed pending-change projection, cleanup state, legacy Edit Pending Changes rendering, and modernized Portal pending-review rendering JSON artifacts so comparison drill-ins can inspect patient-submitted profile edit evidence behind portal parity. Slice 504 remains the patient portal profile probe-payload slice.
+Slice 506 extends Workbench-previewable probe payload evidence into the patient portal profile review queue plan. The Slice 252 parity suite now attaches anchor-patient preconditions, clean staff review queue state, waiting review request projections, cleanup state, legacy normalized review-queue workflow facts, and modernized Admin review-queue rendering JSON artifacts so comparison drill-ins can inspect staff review queue evidence behind portal parity. Slice 505 remains the patient portal profile change request probe-payload slice.
 
 The Workbench owns seed-data visibility and orchestration.
 

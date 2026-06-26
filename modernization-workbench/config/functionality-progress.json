@@ -150,8 +150,8 @@
         },
         {
           "label": "Patient portal profile review queue readiness",
-          "detail": "The modernized administration directory API and Admin page now surface waiting patient portal profile review requests with requested demographics, counts, patient identity, and parity coverage against legacy onsite portal activity rows.",
-          "evidence": ["slice-252-patient-portal-profile-review-queue-readiness"]
+          "detail": "The modernized administration directory API and Admin page now surface waiting patient portal profile review requests with requested demographics, counts, patient identity, parity coverage against legacy onsite portal activity rows, and Slice 506 Workbench-previewable probe payloads for queue state and review request evidence.",
+          "evidence": ["slice-252-patient-portal-profile-review-queue-readiness", "slice-506-slice252-patient-portal-profile-review-queue-probe-payload-attachments"]
         },
         {
           "label": "Patient portal profile review accept readiness",
