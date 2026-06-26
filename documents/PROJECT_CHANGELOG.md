@@ -24958,7 +24958,7 @@ Code changes:
 
 Started: 2026-06-26T04:06:00.5182964-04:00
 Finished: 2026-06-26T04:09:27.6248410-04:00
-Commit: Pending
+Commit: 14f23e3e
 
 Implemented Slice 491: Slice 237 patient portal generated medical-report procedure-order artifact probe payload attachments. The patient portal generated medical-report procedure-order artifact readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient/encounter preconditions, selected procedure-order delivery metadata, cleanup projections, legacy printable/PDF source evidence, and modernized PDF, ZIP package, manifest, summary, packaged-PDF, and Portal rendering so Workbench comparison drill-ins can preview delivery-artifact evidence behind generated-report parity.
 
