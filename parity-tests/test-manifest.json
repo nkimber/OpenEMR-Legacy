@@ -1275,6 +1275,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-510-patient-portal-message-attachments-readiness",
+      "name": "Slice 510 Patient Portal Secure-Message Attachment Readiness",
+      "description": "Patient portal messaging confidence plan that verifies composed secure messages expose explicit zero-attachment metadata and the modernized Portal renders the current attachment state.",
+      "suites": ["workflow-patient-portal-message-attachments"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-510", "patients", "portal", "messages", "attachments", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4601,6 +4610,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-notifications",
       "tags": ["slice255", "workflow", "mutation", "patients", "portal", "messages", "notifications", "patient-reminders", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-attachments",
+      "name": "Patient Portal Secure-Message Attachment Readiness",
+      "description": "Verifies portal secure-message rows expose the current legacy-compatible empty attachment collection and the modernized Portal renders the attachment count.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-attachments",
+      "tags": ["slice510", "workflow", "mutation", "patients", "portal", "messages", "attachments", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

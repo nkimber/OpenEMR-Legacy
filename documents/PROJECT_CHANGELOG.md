@@ -25589,6 +25589,40 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-notifications/patient-portal-message-notifications.spec.ts`: 252 insertions, 14 deletions.
 
+## 557. Slice 510 Patient Portal Secure-Message Attachment Metadata Readiness
+
+Started: 2026-06-26T07:20:00.0000000-04:00
+Finished: 2026-06-26T07:41:53.1021026-04:00
+Commit: Pending
+
+Implemented Slice 510: patient portal secure-message attachment metadata readiness. The modernized portal message API and UI now expose explicit attachment metadata for current secure-message rows, legacy and modernized workflow adapters normalize the current zero-attachment state, and a new cleanup-backed parity plan proves composed portal messages expose `attachmentCount: 0` and empty `attachments` arrays on both targets while the modernized Portal renders `Attachments 0` on the sent-message surface.
+
+Changes:
+- Added `attachmentCount` and `attachments` DTO/type fields for patient portal secure-message rows across the modernized backend, frontend API client, legacy workflow adapter, and modernized workflow adapter.
+- Rendered secure-message attachment counts in the modernized Portal Inbox, Sent, and thread surfaces.
+- Added the `workflow-patient-portal-message-attachments` suite and `slice-510-patient-portal-message-attachments-readiness` plan, with cleanup-backed composed-message assertions and target-specific UI evidence.
+- Added Workbench managed actions and plan cards for running the Slice 510 attachment-readiness plan against both legacy and modernized targets.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, test-data strategy, functionality progress ledger, and project changelog with the Slice 510 attachment-metadata contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `dotnet build` in `modernized-openemr/backend/src/OpenEmr.Modernized.Api` passed.
+- `npm run build` in `modernized-openemr/frontend` passed with the existing Vite large-chunk warning only.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md documents/TEST_DATA_STRATEGY.md modernization-workbench/config/apps.json modernization-workbench/config/functionality-progress.json modernized-openemr/backend/src/OpenEmr.Modernized.Api/Data/PatientPortalRepository.cs modernized-openemr/backend/src/OpenEmr.Modernized.Api/Models/PatientPortalDtos.cs modernized-openemr/frontend/src/api.ts modernized-openemr/frontend/src/App.tsx parity-tests/src/workflows/legacyWorkflowActions.ts parity-tests/src/workflows/modernizedWorkflowActions.ts parity-tests/test-manifest.json parity-tests/tests/workflow-patient-portal-message-attachments` passed with line-ending warnings only.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-510-patient-portal-message-attachments-readiness -Reset test` passed with run `2026-06-26T114007-525Z-legacy-openemr-plan-slice-510-patient-portal-message-attachments-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-510-patient-portal-message-attachments-readiness -Reset test` passed with run `2026-06-26T114047-835Z-modernized-openemr-plan-slice-510-patient-portal-message-attachments-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-510-patient-portal-message-attachments-readiness` produced matched comparison `2026-06-26T114112-071Z-legacy-openemr-vs-modernized-openemr-plan-slice-510-patient-portal-message-attachments-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-510-patient-portal-message-attachments-precondition`, `db-probe-slice-510-patient-portal-message-attachments-result`, `db-probe-slice-510-patient-portal-message-attachments-cleanup`, and `db-probe-slice-510-patient-portal-message-attachments-legacy-ui`; the modernized run includes `db-probe-slice-510-patient-portal-message-attachments-precondition`, `db-probe-slice-510-patient-portal-message-attachments-result`, `db-probe-slice-510-patient-portal-message-attachments-cleanup`, and `db-probe-slice-510-patient-portal-message-attachments-modernized-ui`.
+
+Code changes:
+- Files changed: 17
+- Lines added: 443
+- Lines deleted: 36
+- Net lines: +407
+- Total churn: 479
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

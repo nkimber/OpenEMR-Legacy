@@ -757,6 +757,16 @@ export type PatientPortalMessageItem = {
   replyMailChain: number;
   portalRelation: string | null;
   isEncrypted: boolean;
+  attachmentCount: number;
+  attachments: PatientPortalMessageAttachment[];
+};
+
+export type PatientPortalMessageAttachment = {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number | null;
+  source: string;
 };
 
 export type PatientPortalNotificationInput = {
@@ -4195,7 +4205,9 @@ ORDER BY pr.date_created DESC, pr.id DESC;
       mailChain: Number(row.mailChain || 0),
       replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: row.isEncrypted === "1"
+      isEncrypted: row.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     });
     const messages = sortPatientPortalMessages([...rows.map(mapRow), ...notificationRows.map(mapRow)]);
     const allMessages = sortPatientPortalMessages([...allRows.map(mapRow), ...notificationRows.map(mapRow)]);
@@ -4478,7 +4490,9 @@ LIMIT 1;
       mailChain: Number(row.mailChain || 0),
       replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: row.isEncrypted === "1"
+      isEncrypted: row.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     });
     const anchorMessage = mapRow(anchorRow);
     const threadId = anchorMessage.replyMailChain || anchorMessage.mailChain || Number(anchorMessage.id);
@@ -4567,7 +4581,9 @@ FROM onsite_mail;
       mailChain: sentId,
       replyMailChain: sentId,
       portalRelation: null,
-      isEncrypted: false
+      isEncrypted: false,
+      attachmentCount: 0,
+      attachments: []
     };
     const recipientMessage: PatientPortalMessageItem = {
       ...sentMessage,
@@ -4667,7 +4683,9 @@ VALUES
       mailChain: messageId,
       replyMailChain: messageId,
       portalRelation: null,
-      isEncrypted
+      isEncrypted,
+      attachmentCount: 0,
+      attachments: []
     };
   }
 
@@ -4812,7 +4830,9 @@ LIMIT 1;
       mailChain: Number(row.mailChain || 0),
       replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: row.isEncrypted === "1"
+      isEncrypted: row.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     } : null;
     const refreshed = await this.getPatientPortalMessages(username, password);
 
@@ -4916,7 +4936,9 @@ ORDER BY date ASC, id ASC;
       mailChain: Number(row.mailChain || 0),
       replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: row.isEncrypted === "1"
+      isEncrypted: row.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     });
     const deletedMessages = deletedRows.map(mapRow);
     const refreshed = await this.getPatientPortalMessages(username, password);
@@ -5025,7 +5047,9 @@ ORDER BY date ASC, id ASC;
       mailChain: Number(row.mailChain || 0),
       replyMailChain: Number(row.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: row.isEncrypted === "1"
+      isEncrypted: row.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     }));
     const refreshed = await this.getPatientPortalMessages(username, password);
 
@@ -5106,7 +5130,9 @@ LIMIT 1;
       mailChain: Number(originalRow.mailChain || 0),
       replyMailChain: Number(originalRow.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: originalRow.isEncrypted === "1"
+      isEncrypted: originalRow.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     };
     const recipientId = originalMessage.senderId || originalMessage.assignedTo || "admin";
     const recipientName = originalMessage.senderName || await this.getPortalMessageRecipientName(recipientId);
@@ -5135,7 +5161,9 @@ FROM onsite_mail;
       mailChain: sentId,
       replyMailChain,
       portalRelation: null,
-      isEncrypted: false
+      isEncrypted: false,
+      attachmentCount: 0,
+      attachments: []
     };
     const recipientMessage: PatientPortalMessageItem = {
       ...sentMessage,
@@ -5231,7 +5259,9 @@ LIMIT 1;
       mailChain: Number(originalRow.mailChain || 0),
       replyMailChain: Number(originalRow.replyMailChain || 0),
       portalRelation: null,
-      isEncrypted: originalRow.isEncrypted === "1"
+      isEncrypted: originalRow.isEncrypted === "1",
+      attachmentCount: 0,
+      attachments: []
     };
 
     await this.cleanupPatientPortalForwardedMessage(login.pid, originalMessage.title, body);

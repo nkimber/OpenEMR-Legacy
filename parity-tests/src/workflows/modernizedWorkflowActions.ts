@@ -1693,7 +1693,9 @@ VALUES (
       mailChain: messageId,
       replyMailChain: messageId,
       portalRelation: "portal:inbox-setup",
-      isEncrypted
+      isEncrypted,
+      attachmentCount: 0,
+      attachments: []
     };
   }
 
@@ -6032,7 +6034,15 @@ function mapPatientPortalMessageItem(message: any, portalUsername: string): Pati
     mailChain: Number(message.mailChain ?? 0),
     replyMailChain: Number(message.replyMailChain ?? 0),
     portalRelation: message.portalRelation ?? null,
-    isEncrypted: Boolean(message.isEncrypted)
+    isEncrypted: Boolean(message.isEncrypted),
+    attachmentCount: Number(message.attachmentCount ?? 0),
+    attachments: (message.attachments ?? []).map((attachment: any) => ({
+      id: attachment.id ?? "",
+      fileName: attachment.fileName ?? "",
+      contentType: attachment.contentType ?? "",
+      sizeBytes: attachment.sizeBytes ?? null,
+      source: attachment.source ?? ""
+    }))
   };
 }
 
