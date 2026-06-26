@@ -26477,7 +26477,7 @@ Code changes:
 
 Started: 2026-06-26T13:58:42.1114606-04:00
 Finished: 2026-06-26T14:06:11.9531903-04:00
-Commit: pending
+Commit: fd0a441e
 
 Implemented Slice 536: focused claim modifier-scrubbing readiness. The modernized Fees claim `Scrub` action now checks active CPT line modifiers against a supported modifier catalog and writes deterministic `invalid-modifier:<value>` issues into the local scrub report when unsupported modifiers are present. The shared parity suite creates a cleanup-backed unsupported-modifier CPT line plus a temporary queued Northstar HMO claim, drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
 
