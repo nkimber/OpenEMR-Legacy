@@ -1824,6 +1824,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-536-claim-modifier-scrubbing-readiness",
+      "name": "Slice 536 Claim Modifier Scrubbing Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates an unsupported-modifier CPT line, scrubs a temporary claim, verifies deterministic SCRUB-FAIL invalid-modifier report metadata, and cleans up both temporary rows.",
+      "suites": ["workflow-claim-modifier-scrubbing"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-536", "billing", "claims", "claim-scrubbing", "modifier-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3866,6 +3875,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-scrubbing",
       "tags": ["slice533", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-modifier-scrubbing",
+      "name": "Claim Modifier Scrubbing",
+      "description": "Creates an unsupported-modifier CPT line, scrubs a temporary local claim report, verifies deterministic SCRUB-FAIL invalid-modifier metadata, and cleans up both temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-modifier-scrubbing",
+      "tags": ["slice536", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-validation", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

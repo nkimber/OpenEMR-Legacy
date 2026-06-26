@@ -26473,6 +26473,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 327 insertions and 9 deletions including the new charge-template catalog parity suite.
 
+## 583. Slice 536 Claim Modifier Scrubbing Readiness
+
+Started: 2026-06-26T13:58:42.1114606-04:00
+Finished: 2026-06-26T14:06:11.9531903-04:00
+Commit: pending
+
+Implemented Slice 536: focused claim modifier-scrubbing readiness. The modernized Fees claim `Scrub` action now checks active CPT line modifiers against a supported modifier catalog and writes deterministic `invalid-modifier:<value>` issues into the local scrub report when unsupported modifiers are present. The shared parity suite creates a cleanup-backed unsupported-modifier CPT line plus a temporary queued Northstar HMO claim, drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added modifier-aware validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-modifier-scrubbing` suite and `slice-536-claim-modifier-scrubbing-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 536 claim modifier-scrubbing plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused invalid-modifier claim scrubbing as completed billing validation scope while leaving deeper diagnosis pointer validation, broader modifier compatibility rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 536 modifier-scrubbing contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 536 legacy parity plan: `2026-06-26T180425-451Z-legacy-openemr-plan-slice-536-claim-modifier-scrubbing-readiness` passed 1/1 tests.
+- Ran the Slice 536 modernized parity plan: `2026-06-26T180524-773Z-modernized-openemr-plan-slice-536-claim-modifier-scrubbing-readiness` passed 1/1 tests.
+- Compared the two Slice 536 runs: `2026-06-26T180602-798Z-legacy-openemr-vs-modernized-openemr-plan-slice-536-claim-modifier-scrubbing-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 536 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 422 insertions and 9 deletions including the new claim modifier-scrubbing parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -603,3 +603,9 @@ The Progress page also records focused claim resubmission as completed billing e
 The Workbench now exposes managed Slice 535 billing charge-template catalog plan actions for both the legacy and modernized targets. These actions run `slice-535-billing-charge-template-catalog-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the complex follow-up template creates the same modifier-bearing multi-unit CPT line, count movement, modernized form/rendering behavior, and cleanup side by side.
 
 The Progress page also records expanded charge-template catalog readiness as completed billing charge-capture scope while keeping deeper diagnosis pointer validation, modifier validation, and broader revenue-cycle exception handling outstanding.
+
+## Slice 536 Workbench Update
+
+The Workbench now exposes managed Slice 536 claim modifier-scrubbing plan actions for both the legacy and modernized targets. These actions run `slice-536-claim-modifier-scrubbing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether unsupported CPT modifiers are flagged with deterministic `SCRUB-FAIL` / `invalid-modifier` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused invalid-modifier claim scrubbing as completed billing validation scope while keeping deeper diagnosis pointer validation, broader modifier compatibility rules, and broader revenue-cycle exception handling outstanding.
