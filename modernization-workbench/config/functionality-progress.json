@@ -230,8 +230,8 @@
         },
         {
           "label": "Patient portal appointment request options readiness",
-          "detail": "The modernized patient portal API and Portal page now derive appointment request visit, provider, facility, duration, and default selections from target data instead of hard-coded form IDs, while parity compares the same option readiness against legacy OpenEMR.",
-          "evidence": ["slice-221-patient-portal-appointment-options-readiness"]
+          "detail": "The modernized patient portal API and Portal page now derive appointment request visit, provider, facility, duration, and default selections from target data instead of hard-coded form IDs, while parity compares the same option readiness against legacy OpenEMR, and Slice 475 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-221-patient-portal-appointment-options-readiness", "slice-475-slice221-patient-portal-appointment-options-probe-payload-attachments"]
         },
         {
           "label": "Patient portal clinical summary readiness",
@@ -369,7 +369,7 @@
         },
         {
           "label": "Patient portal appointment request options readiness",
-          "detail": "Signed-in portal patients now receive request-form visit categories, provider choices, facility choices, duration defaults, and patient-specific default provider/facility selections from target data.",
+          "detail": "Signed-in portal patients now receive request-form visit categories, provider choices, facility choices, duration defaults, and patient-specific default provider/facility selections from target data, with Slice 475 Workbench probe-payload preview coverage.",
           "evidence": ["slice-221-patient-portal-appointment-options-readiness"]
         }
       ],

@@ -24401,6 +24401,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 3 insertions, 3 deletions.
 - `parity-tests/tests/workflow-patient-portal-appointment-request/patient-portal-appointment-request.spec.ts`: 142 insertions, 12 deletions.
 
+## 522. Slice 475 Slice 221 Patient Portal Appointment Request-Options Probe Payload Attachments
+
+Started: 2026-06-26T01:58:00.4436133-04:00
+Finished: 2026-06-26T01:59:52.6827623-04:00
+Commit: Pending
+
+Implemented Slice 475: Slice 221 patient portal appointment request-options probe payload attachments. The patient portal appointment request-options readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, category/provider/facility/default option projection, legacy portal request-form option rendering, and modernized Portal request-form option rendering so Workbench comparison drill-ins can preview the evidence behind appointment option parity.
+
+Changes:
+- Added Slice 221 precondition payload attachments for the `MOD-PAT-0004` anchor patient used by appointment request-options checks.
+- Added option projection payload attachments proving visit categories, provider choices, facility choices, duration defaults, date defaults, and time defaults.
+- Added legacy patient portal request-form option payload attachments proving OpenEMR renders expected visit options and selected provider defaults.
+- Added modernized Portal request-form option payload attachments proving browser-visible defaults and duration updates after switching visit type.
+- Updated the Workbench functionality progress ledger so Slice 221 patient portal appointment request-options payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 475 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 475 Workbench evidence key audit passed with exactly one `slice-475-slice221-patient-portal-appointment-options-probe-payload-attachments` occurrence.
+- Legacy Slice 221 parity run passed: `2026-06-26T055852-055Z-legacy-openemr-plan-slice-221-patient-portal-appointment-options-readiness`.
+- Modernized Slice 221 parity run passed: `2026-06-26T055915-171Z-modernized-openemr-plan-slice-221-patient-portal-appointment-options-readiness`.
+- Slice 221 comparison passed with matched results and no differences: `2026-06-26T055934-479Z-legacy-openemr-vs-modernized-openemr-plan-slice-221-patient-portal-appointment-options-readiness`.
+- Attachment audit passed for three legacy patient-portal-appointment-options probe payloads and three modernized patient-portal-appointment-options probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 1 insertion, 1 deletion.
+- `documents/PROJECT_CHANGELOG.md`: 23 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 4 insertions, 4 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 3 insertions, 3 deletions.
+- `parity-tests/tests/workflow-patient-portal-appointment-options/patient-portal-appointment-options.spec.ts`: 107 insertions, 2 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -24410,5 +24445,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, and 220.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, and 221.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
