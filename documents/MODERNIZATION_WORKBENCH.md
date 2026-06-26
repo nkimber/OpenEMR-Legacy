@@ -549,3 +549,9 @@ Each workflow should link to the relevant documents, tests, logs, and known deci
 The workbench is a control surface and evidence viewer. It should not hide the underlying modernization process.
 
 Every action it performs should map to a repeatable command, script, API call, test suite, or documented workflow that can be inspected and run without the workbench.
+
+## Slice 527 Workbench Update
+
+The Workbench now exposes managed Slice 527 insurance payment reversal plan actions for both the legacy and modernized targets. These actions run `slice-527-insurance-payment-reversal-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the new insurer-backed negative payment workflow remains aligned side by side.
+
+The Progress page also records insurance payment reversal as completed focused billing scope while keeping broader revenue-cycle processing, remittance depth, clearinghouse behavior, production migration, and external integrations outstanding.

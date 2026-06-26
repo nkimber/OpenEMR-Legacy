@@ -1752,6 +1752,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-527-insurance-payment-reversal-readiness",
+      "name": "Slice 527 Insurance Payment Reversal Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that posts, renders, and removes a temporary insurer-backed negative payment reversal while verifying payer identity, balance, and ledger effects.",
+      "suites": ["workflow-insurance-payment-reversals"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-527", "billing", "payments", "reversals", "insurance-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3755,6 +3764,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-payment-refunds",
       "tags": ["slice526", "workflow", "mutation", "billing", "payments", "refunds", "reversals", "patient-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-insurance-payment-reversals",
+      "name": "Insurance Payment Reversals",
+      "description": "Posts, renders, and removes a temporary negative insurer-backed payment reversal while verifying payer identity, balance, and ledger effects on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-insurance-payment-reversals",
+      "tags": ["slice527", "workflow", "mutation", "billing", "payments", "reversals", "insurance-payments", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
