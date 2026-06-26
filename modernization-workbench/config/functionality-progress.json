@@ -145,8 +145,8 @@
         },
         {
           "label": "Patient portal profile change request readiness",
-          "detail": "The modernized patient portal profile API, PostgreSQL seed schema, Portal page, and parity harness now store patient-submitted profile edits as waiting review requests without mutating the medical-record demographics.",
-          "evidence": ["slice-251-patient-portal-profile-change-request-readiness"]
+          "detail": "The modernized patient portal profile API, PostgreSQL seed schema, Portal page, and parity harness now store patient-submitted profile edits as waiting review requests without mutating the medical-record demographics; Slice 505 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-251-patient-portal-profile-change-request-readiness", "slice-505-slice251-patient-portal-profile-change-request-probe-payload-attachments"]
         },
         {
           "label": "Patient portal profile review queue readiness",
