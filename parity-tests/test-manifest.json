@@ -1860,6 +1860,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-540-claim-missing-diagnosis-code-readiness",
+      "name": "Slice 540 Claim Missing Diagnosis Code Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT line with a diagnosis pointer but no encounter ICD10 diagnosis line, scrubs a temporary claim, verifies deterministic SCRUB-FAIL missing-diagnosis-code report metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-missing-diagnosis-code"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-540", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "diagnosis-code-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3942,6 +3951,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-modifier-count",
       "tags": ["slice539", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-count", "modifier-compatibility", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-missing-diagnosis-code",
+      "name": "Claim Missing Diagnosis Code",
+      "description": "Creates a CPT line with a diagnosis pointer but no encounter ICD10 diagnosis line, scrubs a temporary local claim report, verifies deterministic SCRUB-FAIL missing-diagnosis-code metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-missing-diagnosis-code",
+      "tags": ["slice540", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "diagnosis-code-validation", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

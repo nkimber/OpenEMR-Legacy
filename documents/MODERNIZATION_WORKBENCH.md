@@ -627,3 +627,9 @@ The Progress page also records focused duplicate-modifier claim scrubbing as com
 The Workbench now exposes managed Slice 539 claim modifier-count plan actions for both the legacy and modernized targets. These actions run `slice-539-claim-modifier-count-readiness`, write the standard latest-run artifacts, and let the comparison view show whether CPT lines with more than four modifier tokens are flagged with deterministic `SCRUB-FAIL` / `modifier-count-exceeded` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused modifier-count claim scrubbing as completed billing validation scope while keeping broader modifier compatibility policy rules, deeper diagnosis pointer policy, and broader revenue-cycle exception handling outstanding.
+
+## Slice 540 Workbench Update
+
+The Workbench now exposes managed Slice 540 claim missing-diagnosis-code plan actions for both the legacy and modernized targets. These actions run `slice-540-claim-missing-diagnosis-code-readiness`, write the standard latest-run artifacts, and let the comparison view show whether CPT diagnosis pointers on encounters with no ICD10 diagnosis row are flagged with deterministic `SCRUB-FAIL` / `missing-diagnosis-code` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused missing-diagnosis-code claim scrubbing as completed billing validation scope while keeping deeper diagnosis pointer policy, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.

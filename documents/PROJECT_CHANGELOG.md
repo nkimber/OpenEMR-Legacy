@@ -26594,6 +26594,37 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 498 insertions and 7 deletions including the new claim modifier-count parity suite.
 
+## 587. Slice 540 Claim Missing Diagnosis Code Readiness
+
+Started: 2026-06-26T14:38:40.0210676-04:00
+Finished: 2026-06-26T14:48:12.0099873-04:00
+Commit: pending
+
+Implemented Slice 540: focused claim missing-diagnosis-code readiness. The modernized Fees claim `Scrub` action now writes deterministic `missing-diagnosis-code` issues into the local scrub report when a CPT line has a diagnosis pointer but the encounter has no active ICD10 diagnosis row. The shared parity suite creates a cleanup-backed temporary billing-only encounter with a CPT line and queued Northstar HMO claim but no ICD10 line, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content without missing-pointer or invalid-pointer misclassification, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added missing-diagnosis-code validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-missing-diagnosis-code` suite and `slice-540-claim-missing-diagnosis-code-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 540 missing-diagnosis-code plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused missing-diagnosis-code claim scrubbing as completed billing validation scope while leaving deeper diagnosis pointer policy, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 540 missing-diagnosis-code contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 540 legacy parity plan: `2026-06-26T184412-195Z-legacy-openemr-plan-slice-540-claim-missing-diagnosis-code-readiness` passed 1/1 tests.
+- The first Slice 540 modernized run `2026-06-26T184447-622Z-modernized-openemr-plan-slice-540-claim-missing-diagnosis-code-readiness` failed because the modernized billing API correctly rejected billing-line creation for a non-existent encounter; the suite was corrected to create and clean up a real temporary encounter while preserving the missing-ICD10-line condition.
+- Reran the Slice 540 modernized parity plan: `2026-06-26T184725-009Z-modernized-openemr-plan-slice-540-claim-missing-diagnosis-code-readiness` passed 1/1 tests.
+- Compared the two successful Slice 540 runs: `2026-06-26T184757-972Z-legacy-openemr-vs-modernized-openemr-plan-slice-540-claim-missing-diagnosis-code-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 540 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 481 insertions and 6 deletions including the new claim missing-diagnosis-code parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
