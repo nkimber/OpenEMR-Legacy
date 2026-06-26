@@ -23064,7 +23064,7 @@ Code changes:
 
 Started: 2026-06-25T21:36:00.9960132-04:00
 Finished: 2026-06-25T21:38:02.0669230-04:00
-Commit: Pending
+Commit: ab385f5e
 
 Implemented Slice 436: Slice 182 procedure authorization-policy probe payload attachments. The procedure authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Lab Results ACL preconditions, legacy procedure-result rendering facts, modernized front-desk forbidden procedure-result, order-catalog, and procedure-order create facts, admin procedure-result allow facts, and modernized Procedures-page retry rendering facts so Workbench comparison drill-ins can preview Lab Results ACL enforcement evidence without storing password, cookie, or session material.
 
@@ -23091,10 +23091,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-results-forbidden`, `frontdesk-catalog-forbidden`, `frontdesk-create-forbidden`, `admin-login`, `admin-results`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 473
+- Lines deleted: 19
+- Net lines: 454
+- Total churn: 492
 
 ## Next Expected Entries
 
