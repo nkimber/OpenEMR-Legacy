@@ -591,3 +591,9 @@ The Progress page also records focused 837P claim generation as completed billin
 The Workbench now exposes managed Slice 533 claim scrubbing plan actions for both the legacy and modernized targets. These actions run `slice-533-claim-scrubbing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether payer presence, CPT availability, diagnosis-pointer metadata, positive fee/unit checks, process-file naming, modernized Scrub rendering, claim-count stability, and cleanup remain aligned side by side.
 
 The Progress page also records focused claim scrubbing as completed billing scope while keeping richer claim generation, richer ERA parsing, deeper remittance workflows, statement delivery, modifier validation, and broader revenue-cycle exception handling outstanding.
+
+## Slice 534 Workbench Update
+
+The Workbench now exposes managed Slice 534 claim resubmission plan actions for both the legacy and modernized targets. These actions run `slice-534-claim-resubmission-readiness`, write the standard latest-run artifacts, and let the comparison view show whether denied-claim requeue behavior, X12 target metadata, deterministic resubmission process-file naming, compact resubmission payload content, modernized Resubmit rendering, claim-count stability, and cleanup remain aligned side by side.
+
+The Progress page also records focused claim resubmission as completed billing exception scope while keeping richer claim generation, richer ERA parsing, deeper remittance workflows, statement delivery, modifier validation, and broader revenue-cycle exception handling outstanding.

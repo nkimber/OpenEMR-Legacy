@@ -26413,6 +26413,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 428 insertions and 9 deletions including the new claim scrubbing parity suite.
 
+## 581. Slice 534 Claim Resubmission Readiness
+
+Started: 2026-06-26T13:38:54.3053599-04:00
+Finished: 2026-06-26T13:46:41.7582892-04:00
+Commit: pending
+
+Implemented Slice 534: focused claim resubmission readiness. The modernized Fees claim card now includes a `Resubmit` action for denied claims that requeues the claim for billing with X12 target metadata, deterministic resubmission process-file naming, and a compact payload recording the source status and corrected/requeued reason. The shared parity suite creates a cleanup-backed denied Northstar HMO claim on both targets, drives the modernized UI Resubmit action or equivalent legacy update, verifies queued status, process-file metadata, resubmission payload content, claim-count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the `workflow-claim-resubmission` suite and `slice-534-claim-resubmission-readiness` plan.
+- Added the modernized Fees claim `Resubmit` action for denied-claim exception handling.
+- Added Workbench managed actions and plan cards for running the Slice 534 claim resubmission plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim resubmission as completed billing exception scope while leaving broader revenue-cycle exception handling outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 534 resubmission contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 534 legacy parity plan: `2026-06-26T174517-355Z-legacy-openemr-plan-slice-534-claim-resubmission-readiness` passed 1/1 tests.
+- Ran the Slice 534 modernized parity plan: `2026-06-26T174553-868Z-modernized-openemr-plan-slice-534-claim-resubmission-readiness` passed 1/1 tests.
+- Compared the two Slice 534 runs: `2026-06-26T174633-053Z-legacy-openemr-vs-modernized-openemr-plan-slice-534-claim-resubmission-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 534 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 378 insertions and 9 deletions including the new claim resubmission parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
