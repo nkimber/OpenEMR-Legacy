@@ -22778,8 +22778,8 @@ Code changes:
 ## 475. Slice 428 Slice 174 Operational Reports Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T20:33:28.2252481-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:37:07.6038927-04:00
+Commit: 79976a0f
 
 Implemented Slice 428: Slice 174 operational reports authorization-policy probe payload attachments. The reports authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy operational report rendering facts, modernized front-desk forbidden report/export facts, admin report/export allow facts, and modernized Reports-page retry rendering facts so Workbench comparison drill-ins can preview report policy evidence without storing password, cookie, or session material.
 
@@ -22797,13 +22797,20 @@ Changes:
 - Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 428 evidence-payload contract.
 
 Verification:
-- Pending.
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-reports-authorization-policy/reports-authorization-policy.spec.ts` passed with expected CRLF warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T003445-374Z-legacy-openemr-plan-slice-174-reports-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T003506-717Z-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T003526-089Z-legacy-openemr-vs-modernized-openemr-plan-slice-174-reports-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-report-forbidden`, `frontdesk-export-forbidden`, `admin-login`, `admin-report`, `admin-export`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 342
+- Lines deleted: 15
+- Net lines: 327
+- Total churn: 357
 
 ## Next Expected Entries
 
