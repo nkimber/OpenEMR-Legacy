@@ -205,8 +205,8 @@
         },
         {
           "label": "Patient portal secure-message All-folder readiness",
-          "detail": "The modernized patient portal API and Portal page now expose the legacy active All-folder mailbox view, while parity verifies temporary inbound and sent message inclusion plus archived-row exclusion for the signed-in patient.",
-          "evidence": ["slice-217-patient-portal-all-messages-readiness"]
+          "detail": "The modernized patient portal API and Portal page now expose the legacy active All-folder mailbox view, while parity verifies temporary inbound and sent message inclusion plus archived-row exclusion for the signed-in patient, and Slice 471 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-217-patient-portal-all-messages-readiness", "slice-471-slice217-patient-portal-all-messages-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message notification readiness",
