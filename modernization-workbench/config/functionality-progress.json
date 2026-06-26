@@ -120,8 +120,8 @@
         },
         {
           "label": "Patient portal authentication readiness",
-          "detail": "The shared gold dataset now includes a deterministic synthetic portal credential, the modernized patient portal API issues patient-session readiness responses, and parity verifies valid login plus invalid, disabled, and pending-reset rejection paths.",
-          "evidence": ["slice-207-patient-portal-authentication-readiness"]
+          "detail": "The shared gold dataset now includes a deterministic synthetic portal credential, the modernized patient portal API issues patient-session readiness responses, and parity verifies valid login plus invalid, disabled, and pending-reset rejection paths; Slice 461 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-207-patient-portal-authentication-readiness", "slice-461-slice207-patient-portal-authentication-probe-payload-attachments"]
         },
         {
           "label": "Patient portal session readiness",

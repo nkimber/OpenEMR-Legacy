@@ -23892,6 +23892,43 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-access/patient-portal-access.spec.ts`: 191 insertions, 3 deletions.
 
+## 508. Slice 461 Slice 207 Patient Portal Authentication Probe Payload Attachments
+
+Started: 2026-06-26T00:25:25.9564764-04:00
+Finished: 2026-06-26T00:29:39.0545720-04:00
+Commit: Pending
+
+Implemented Slice 461: Slice 207 patient portal authentication probe payload attachments. The patient portal authentication readiness parity suite now writes path-backed JSON Playwright attachments for original account/access/reset preconditions, valid credential authentication, invalid password rejection, disabled-access rejection, pending-reset rejection, target-specific portal UI readiness rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind portal authentication parity.
+
+Changes:
+- Added Slice 207 precondition payload attachments for the `MOD-PAT-0004` anchor patient, enabled portal access, managed password status, and no pending one-time reset.
+- Added valid-login payload attachments proving the seeded `PortalPass207!` credential authenticates the provisioned portal account.
+- Added target-specific legacy portal home and modernized readiness-panel payload attachments for the valid credential path.
+- Added invalid-password, disabled-access, and pending-reset payload attachments proving each rejection path returns the expected authentication result.
+- Added target-specific legacy and modernized UI rendering payload attachments for disabled-access and pending-reset rejection paths.
+- Added cleanup payload attachments proving original portal access and reset facts are restored after the run.
+- Updated the Workbench functionality progress ledger so Slice 207 patient portal authentication payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 461 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 461 Workbench evidence key audit passed with exactly one `slice-461-slice207-patient-portal-authentication-probe-payload-attachments` occurrence.
+- Legacy Slice 207 parity run passed: `2026-06-26T042820-997Z-legacy-openemr-plan-slice-207-patient-portal-authentication-readiness`.
+- Modernized Slice 207 parity run passed: `2026-06-26T042849-924Z-modernized-openemr-plan-slice-207-patient-portal-authentication-readiness`.
+- Slice 207 comparison passed with matched results and no differences: `2026-06-26T042912-102Z-legacy-openemr-vs-modernized-openemr-plan-slice-207-patient-portal-authentication-readiness`.
+- Attachment audit passed for eleven legacy patient-portal-authentication probe payloads and eleven modernized patient-portal-authentication probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 3 insertions, 3 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 25 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 1 insertion, 1 deletion.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-authentication/patient-portal-authentication.spec.ts`: 282 insertions, 11 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23901,5 +23938,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, and 206.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, and 207.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
