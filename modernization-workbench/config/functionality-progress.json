@@ -50,8 +50,8 @@
         },
         {
           "label": "Patient deceased status readiness",
-          "detail": "The modernized patient API, Patient/Client chart, PostgreSQL seed schema, and parity harness now mirror OpenEMR deceased date and reason fields with restore-backed mutation coverage.",
-          "evidence": ["slice-193-patient-deceased-status-readiness"]
+          "detail": "The modernized patient API, Patient/Client chart, PostgreSQL seed schema, and parity harness now mirror OpenEMR deceased date and reason fields with restore-backed mutation coverage; Slice 447 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-193-patient-deceased-status-readiness", "slice-447-slice193-patient-deceased-status-probe-payload-attachments"]
         },
         {
           "label": "Patient guardian contact readiness",
