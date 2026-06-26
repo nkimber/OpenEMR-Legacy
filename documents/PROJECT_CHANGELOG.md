@@ -24004,7 +24004,7 @@ Code changes:
 
 Started: 2026-06-26T00:44:28.0665704-04:00
 Finished: 2026-06-26T00:46:34.9884618-04:00
-Commit: TBD
+Commit: `824a6b45`
 
 Implemented Slice 464: Slice 210 patient portal secure-message inbox probe payload attachments. The patient portal secure-message inbox readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, authenticated mailbox identity, seeded inbox message details, legacy portal Secure Messaging rendering, and modernized Portal Secure Messages rendering so Workbench comparison drill-ins can preview the evidence behind patient portal inbox parity.
 
