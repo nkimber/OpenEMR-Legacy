@@ -1887,6 +1887,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-543-claim-duplicate-diagnosis-pointer-readiness",
+      "name": "Slice 543 Claim Duplicate Diagnosis Pointer Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a valid encounter ICD10 diagnosis line plus a CPT line with duplicate diagnosis pointers, scrubs a temporary claim, verifies deterministic SCRUB-FAIL duplicate-diagnosis-pointer metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-duplicate-diagnosis-pointer"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-543", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "duplicate-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3999,6 +4008,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-diagnosis-pointer-count",
       "tags": ["slice542", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "diagnosis-pointer-count", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-duplicate-diagnosis-pointer",
+      "name": "Claim Duplicate Diagnosis Pointer",
+      "description": "Creates a valid encounter ICD10 diagnosis line plus a CPT line with duplicate diagnosis pointers, scrubs a temporary local claim report, verifies deterministic duplicate-diagnosis-pointer metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-duplicate-diagnosis-pointer",
+      "tags": ["slice543", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "duplicate-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

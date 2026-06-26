@@ -226,6 +226,7 @@
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
+        "parityClaimDuplicateDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-543-claim-duplicate-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -2165,6 +2166,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-542-claim-diagnosis-pointer-count-readiness.json"
         },
         {
+          "id": "parity-plan-claim-duplicate-diagnosis-pointer",
+          "name": "Slice 543 claim duplicate diagnosis pointer plan",
+          "description": "Runs the shared duplicate diagnosis pointer claim scrubbing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimDuplicateDiagnosisPointerPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-543-claim-duplicate-diagnosis-pointer-readiness.json"
+        },
+        {
           "id": "parity-plan-claim-resubmission",
           "name": "Slice 534 claim resubmission plan",
           "description": "Runs the shared claim resubmission readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2879,6 +2888,7 @@
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
+        "parityClaimDuplicateDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-543-claim-duplicate-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -4742,6 +4752,14 @@
           "layer": "plan",
           "commandName": "parityClaimDiagnosisPointerCountPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-542-claim-diagnosis-pointer-count-readiness.json"
+        },
+        {
+          "id": "parity-plan-claim-duplicate-diagnosis-pointer",
+          "name": "Slice 543 claim duplicate diagnosis pointer plan",
+          "description": "Runs the shared duplicate diagnosis pointer claim scrubbing readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimDuplicateDiagnosisPointerPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-543-claim-duplicate-diagnosis-pointer-readiness.json"
         },
         {
           "id": "parity-plan-claim-resubmission",
