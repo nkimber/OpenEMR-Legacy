@@ -1197,6 +1197,8 @@ export type AppointmentRecord = {
   recurrenceDays: number[];
   recurrenceEndDate: string | null;
   recurrenceExdates: string[];
+  convertedEncounterId?: number | null;
+  convertedEncounterDate?: string | null;
 };
 
 export type AppointmentSeriesOccurrence = {
@@ -1380,6 +1382,7 @@ export type EncounterRecord = {
   sensitivity: string;
   referralSource: string;
   externalId: string;
+  sourceAppointmentId?: string | null;
   posCode: number | null;
   billingNote: string;
 };
@@ -1899,6 +1902,7 @@ export type NewEncounter = {
   sensitivity?: string | null;
   referralSource?: string | null;
   externalId?: string | null;
+  sourceAppointmentId?: string | null;
   posCode?: number | null;
   billingNote: string;
 };
@@ -5936,7 +5940,9 @@ LIMIT 1;
       categoryId: Number(row.categoryId),
       categoryName: row.categoryName || appointmentCategoryName(Number(row.categoryId)),
       homeText: row.homeText,
-      ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate)
+      ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate),
+      convertedEncounterId: null,
+      convertedEncounterDate: null
     };
   }
 
@@ -6896,7 +6902,7 @@ VALUES
   (UNHEX(REPLACE(UUID(), '-', '')), ${sqlString(input.dateTime)}, ${sqlString(input.reason)}, ${sqlString(input.facilityName)},
    ${integer(input.facilityId)}, ${integer(input.patientId)}, 0, 9, ${integer(input.providerId)},
    ${integer(input.billingFacilityId)}, 'AMB', ${nullableSqlString(input.sensitivity)}, ${sqlStringOrEmpty(input.referralSource)},
-   ${nullableSqlString(input.externalId)}, ${nullableInteger(input.posCode)}, ${sqlString(input.billingNote)});
+   ${nullableSqlString(input.sourceAppointmentId ?? input.externalId)}, ${nullableInteger(input.posCode)}, ${sqlString(input.billingNote)});
 SELECT LAST_INSERT_ID() AS id;
 `);
     const encounterId = Number(rows[0]?.id);
@@ -6913,7 +6919,7 @@ WHERE id = ${integer(encounterId)};
 SELECT id, encounter, pid AS patientId, provider_id AS providerId, DATE(date) AS date,
   reason, facility_id AS facilityId, billing_facility AS billingFacilityId,
   COALESCE(sensitivity, '') AS sensitivity, COALESCE(referral_source, '') AS referralSource,
-  COALESCE(external_id, '') AS externalId, pos_code AS posCode, COALESCE(billing_note, '') AS billingNote
+  COALESCE(external_id, '') AS externalId, COALESCE(external_id, '') AS sourceAppointmentId, pos_code AS posCode, COALESCE(billing_note, '') AS billingNote
 FROM form_encounter
 WHERE id = ${integer(id)}
 LIMIT 1;
@@ -6934,6 +6940,7 @@ LIMIT 1;
       sensitivity: row.sensitivity,
       referralSource: row.referralSource,
       externalId: row.externalId,
+      sourceAppointmentId: row.sourceAppointmentId || null,
       posCode: row.posCode ? Number(row.posCode) : null,
       billingNote: row.billingNote
     };

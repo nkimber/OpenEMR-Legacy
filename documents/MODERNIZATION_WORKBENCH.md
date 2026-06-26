@@ -519,6 +519,8 @@ Workflow progress should be tracked by modernization slice.
 
 The dedicated Progress page also tracks functionality scope by domain area through `modernization-workbench/config/functionality-progress.json`. This ledger is the project-maintained view of completed, outstanding, deferred, estimated-complete, and estimated-size/complexity-weighted functionality. It may be revised as legacy behavior discovery expands or as the modernization target narrows; the completed/outstanding lists, percent-complete estimates, weights, weighted overall estimate, historical trend, and time-remaining forecast can all move as the known scope changes. Changes to this ledger should be treated as documentation-affecting project state and reflected in the changelog when they materially change scope.
 
+Slice 522 adds managed Workbench actions for `slice-522-appointment-encounter-conversion-readiness` on both legacy and modernized targets. The Progress ledger now treats appointment-to-encounter conversion as completed scheduling scope and keeps reminder delivery, delivery audit, templates, availability/waitlist policy, and appointment-to-billing conversion visible as remaining gaps.
+
 Suggested states:
 
 - Not started.

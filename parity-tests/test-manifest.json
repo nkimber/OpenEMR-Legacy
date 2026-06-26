@@ -1374,6 +1374,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-522-appointment-encounter-conversion-readiness",
+      "name": "Slice 522 Appointment To Encounter Conversion Readiness",
+      "description": "Scheduling confidence plan that verifies an appointment can become an encounter while preserving patient, provider, facility, date/time, and source appointment linkage.",
+      "suites": ["workflow-appointment-encounter-conversion"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-522", "scheduling", "appointments", "encounters", "conversion", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4810,6 +4819,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-search-pagination",
       "tags": ["slice521", "workflow", "mutation", "patients", "portal", "messages", "search", "pagination", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-appointment-encounter-conversion",
+      "name": "Appointment To Encounter Conversion Readiness",
+      "description": "Verifies cleanup-backed appointment-to-encounter conversion preserves schedule context and source appointment linkage.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-encounter-conversion",
+      "tags": ["slice522", "workflow", "mutation", "scheduling", "appointments", "encounters", "conversion", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

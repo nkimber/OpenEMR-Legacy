@@ -380,7 +380,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, appointment-to-encounter conversion, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -426,19 +426,24 @@
           "label": "Patient portal appointment request options readiness",
           "detail": "Signed-in portal patients now receive request-form visit categories, provider choices, facility choices, duration defaults, and patient-specific default provider/facility selections from target data, with Slice 475 Workbench probe-payload preview coverage.",
           "evidence": ["slice-221-patient-portal-appointment-options-readiness"]
+        },
+        {
+          "label": "Appointment to encounter conversion readiness",
+          "detail": "Modernized Calendar appointment detail can create an encounter from a selected appointment while preserving patient, provider, facility, billing facility, date/time, comments, and source appointment linkage; Slice 522 adds cleanup-backed shared parity coverage for both targets.",
+          "evidence": ["slice-522-appointment-encounter-conversion-readiness"]
         }
       ],
       "outstanding": [
         "Stricter provider and facility availability validation, resource conflict enforcement beyond tolerance/readiness reporting, and waitlist flows.",
-        "Reminder delivery, delivery audit, templates, and appointment-to-encounter or appointment-to-billing conversion."
+        "Reminder delivery, delivery audit, templates, and appointment-to-billing conversion."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 83,
+      "completionEstimatePercent": 85,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, and delivery/audit remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, appointment-to-encounter conversion, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, appointment-to-billing conversion, and delivery/audit remain."
     },
     {
       "id": "encounters-clinical-notes",

@@ -25749,6 +25749,48 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 569. Slice 522 Appointment-To-Encounter Conversion Readiness
+
+Commit: pending
+Started: `2026-06-26T11:12:49-04:00`
+Finished: `2026-06-26T11:19:09-04:00`
+
+Implemented Slice 522: appointment-to-encounter conversion readiness. The modernized Calendar now exposes a `Create encounter` action on appointment detail rows, creates an encounter from the selected appointment, preserves patient, provider, facility, billing facility, appointment date/time, comments, and source appointment linkage, and refreshes the schedule detail with the converted encounter ID. The shared parity suite creates a cleanup-backed temporary appointment, verifies conversion output, confirms the modernized Calendar button changes to `Encounter created`, and deletes the temporary encounter before deleting the appointment.
+
+Key changes:
+
+- Added source appointment linkage to the modernized PostgreSQL encounter schema and API/read-model DTOs.
+- Added modernized encounter creation support for appointment-backed encounters, including appointment-derived provider, facility, billing location, date/time, comments, and source appointment validation.
+- Added converted encounter projection to appointment list/detail APIs and the Calendar detail surface.
+- Added the `workflow-appointment-encounter-conversion` suite and `slice-522-appointment-encounter-conversion-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 522 appointment-to-encounter conversion plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to move appointment-to-encounter conversion from outstanding scheduling scope into completed functionality.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 522 conversion contract.
+
+Verification:
+
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully as JSON.
+- Ran `dotnet build backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj` in `modernized-openemr`; passed.
+- Ran `npm run build` in `modernized-openemr/frontend`; passed with the known Vite large-chunk warning.
+- Ran `npm run typecheck` in `parity-tests`; passed.
+- Ran `npm --prefix modernization-workbench run typecheck`; passed.
+- Parsed `scripts\Run-OpenEmrParityTests.ps1` as a PowerShell scriptblock successfully.
+- Reseeded the modernized PostgreSQL gold dataset with `modernized-openemr\scripts\Seed-ModernizedGoldDataset.ps1` so the running database includes the new encounter source-appointment column.
+- Rebuilt and restarted the modernized API and frontend containers with `docker compose up -d --build api frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-522-appointment-encounter-conversion-readiness -Reset test`; run `2026-06-26T151647-849Z-legacy-openemr-plan-slice-522-appointment-encounter-conversion-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-522-appointment-encounter-conversion-readiness -Reset test`; run `2026-06-26T151718-623Z-modernized-openemr-plan-slice-522-appointment-encounter-conversion-readiness` passed.
+- Ran parity comparison for `slice-522-appointment-encounter-conversion-readiness`; comparison `2026-06-26T151842-249Z-legacy-openemr-vs-modernized-openemr-plan-slice-522-appointment-encounter-conversion-readiness` matched.
+- Audited Playwright probe attachments for both runs: precondition, result, and cleanup payloads were present.
+- Ran scoped `git diff --check`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+
+- Files changed: 21
+- Lines added: 514
+- Lines deleted: 26
+- Net lines: +488
+- Total churn: 540
+
 ## 568. Slice 521 Patient Portal Secure-Message Search Pagination Readiness
 
 Commit: `f10e2066`

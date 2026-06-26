@@ -2625,9 +2625,18 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   repeat_on_frequency AS "repeatOnFrequency",
   COALESCE(recurrence_days, '') AS "recurrenceDays",
   recurrence_end_date AS "recurrenceEndDate",
-  COALESCE(recurrence_exdates, '') AS "recurrenceExdates"
-FROM appointments
-WHERE id = ${sqlString(String(id))}
+  COALESCE(recurrence_exdates, '') AS "recurrenceExdates",
+  ce.encounter AS "convertedEncounterId",
+  ce.encounter_date AS "convertedEncounterDate"
+FROM appointments a
+LEFT JOIN LATERAL (
+  SELECT encounter, encounter_date
+  FROM encounters
+  WHERE source_appointment_id = a.id
+  ORDER BY encounter DESC
+  LIMIT 1
+) ce ON true
+WHERE a.id = ${sqlString(String(id))}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -2658,7 +2667,9 @@ LIMIT 1;
       repeatOnFrequency: nullableNumber(row.repeatOnFrequency),
       recurrenceDays: splitNumberList(row.recurrenceDays),
       recurrenceEndDate: row.recurrenceEndDate,
-      recurrenceExdates: splitDateList(row.recurrenceExdates)
+      recurrenceExdates: splitDateList(row.recurrenceExdates),
+      convertedEncounterId: nullableNumber(row.convertedEncounterId),
+      convertedEncounterDate: row.convertedEncounterDate || null
     };
   }
 
@@ -4890,7 +4901,8 @@ LIMIT 1;
         referralSource: input.referralSource ?? null,
         externalId: input.externalId ?? null,
         posCode: input.posCode ?? null,
-        billingNote: input.billingNote
+        billingNote: input.billingNote,
+        sourceAppointmentId: input.sourceAppointmentId ?? null
       })
     });
 
@@ -4907,7 +4919,7 @@ LIMIT 1;
 SELECT id, encounter, pid AS "patientId", provider_id AS "providerId", encounter_date AS date,
   reason, facility_id AS "facilityId", COALESCE(billing_facility_id, facility_id) AS "billingFacilityId",
   COALESCE(sensitivity, '') AS sensitivity, COALESCE(referral_source, '') AS "referralSource",
-  COALESCE(external_id, '') AS "externalId", pos_code AS "posCode",
+  COALESCE(external_id, '') AS "externalId", COALESCE(source_appointment_id, '') AS "sourceAppointmentId", pos_code AS "posCode",
   COALESCE(billing_note, '') AS "billingNote"
 FROM encounters
 WHERE encounter = ${integer(id)}
@@ -4930,6 +4942,7 @@ LIMIT 1;
       sensitivity: row.sensitivity,
       referralSource: row.referralSource,
       externalId: row.externalId,
+      sourceAppointmentId: row.sourceAppointmentId || null,
       posCode: row.posCode && row.posCode !== "\\N" ? Number(row.posCode) : null,
       billingNote: row.billingNote
     };
