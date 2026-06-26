@@ -23635,7 +23635,7 @@ Code changes:
 
 Started: 2026-06-25T23:39:34.2999606-04:00
 Finished: 2026-06-25T23:42:04.0553321-04:00
-Commit: Pending
+Commit: `498d2f1f`
 
 Implemented Slice 453: Slice 199 patient care-team probe payload attachments. The patient care-team readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original care-team precondition, temporary lead-member provider/facility/role update, legacy patient-summary care-team rendering, modernized patient chart API and Patient/Client Care Team rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind care-team parity.
 
