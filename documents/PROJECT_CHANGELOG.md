@@ -23762,7 +23762,7 @@ Code changes:
 
 Started: 2026-06-26T00:04:12.2451734-04:00
 Finished: 2026-06-26T00:06:17.3798441-04:00
-Commit: Pending
+Commit: `5433fad9`
 
 Implemented Slice 457: Slice 203 insurance subscriber probe payload attachments. The patient insurance subscriber readiness parity suite now writes path-backed JSON Playwright attachments for the seeded secondary subscriber precondition, legacy and modernized seeded-subscriber rendering, temporary tertiary subscriber create/update read-model facts, legacy and modernized create/update rendering, and cleanup so Workbench comparison drill-ins can preview the evidence behind subscriber-party parity.
 
