@@ -26808,6 +26808,38 @@ Verification:
 Code Metrics:
 - 11 scoped files changed, with 453 insertions and 7 deletions including the new claim invalid diagnosis-code parity suite.
 
+## 594. Slice 547 Claim Future Service Date Readiness
+
+Started: 2026-06-26T15:57:10.9785362-04:00
+Finished: 2026-06-26T16:01:43.8381586-04:00
+Duration: 4 minutes 33 seconds
+Commit: Pending
+
+Implemented Slice 547: focused future service-date readiness. The modernized Fees claim `Scrub` action now flags active CPT4 service lines whose billing date is after the claim-scrub business date as deterministic `future-service-date:<date>` issues. The shared parity suite creates a cleanup-backed temporary future-dated encounter with valid ICD10 diagnosis `K21.9`, a valid CPT4 `99214` service line on `2026-12-15`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without CPT-code, diagnosis-code, diagnosis-pointer, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added future service-date validation to the modernized Fees claim scrub report builder.
+- Added billing-date facts to the legacy and modernized database probe billing-line summaries.
+- Added the `workflow-claim-future-service-date` suite and `slice-547-claim-future-service-date-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 547 future service-date plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused future service-date claim scrubbing as completed billing validation scope while leaving broader diagnosis/code policy rules beyond duplicate, pointer-count, CPT-format, ICD10-format, and future-service-date detection, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 547 future service-date contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 547 legacy parity plan: `2026-06-26T200051-714Z-legacy-openemr-plan-slice-547-claim-future-service-date-readiness` passed 1/1 tests.
+- Ran the Slice 547 modernized parity plan: `2026-06-26T200051-873Z-modernized-openemr-plan-slice-547-claim-future-service-date-readiness` passed 1/1 tests.
+- Compared the two successful Slice 547 runs: `2026-06-26T200133-242Z-legacy-openemr-vs-modernized-openemr-plan-slice-547-claim-future-service-date-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 547 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 13 scoped files changed, with 479 insertions and 10 deletions including the new claim future service-date parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

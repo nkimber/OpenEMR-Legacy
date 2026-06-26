@@ -749,7 +749,7 @@ LIMIT 1;
 
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
-SELECT id, encounter, code_type AS "codeType", code, code_text AS "codeText",
+SELECT id, encounter, billing_date::text AS "billingDate", code_type AS "codeType", code, code_text AS "codeText",
   COALESCE(modifier, '') AS modifier, COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
@@ -758,6 +758,7 @@ ORDER BY id;
     return rows.map((row) => ({
       id: row.id,
       encounter: Number(row.encounter),
+      billingDate: row.billingDate,
       codeType: row.codeType,
       code: row.code,
       modifier: row.modifier,

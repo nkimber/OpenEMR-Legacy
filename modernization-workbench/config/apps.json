@@ -230,6 +230,7 @@
         "parityClaimDuplicateDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-544-claim-duplicate-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimInvalidCptCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-545-claim-invalid-cpt-code-readiness", "-Reset", "test"],
         "parityClaimInvalidDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-546-claim-invalid-diagnosis-code-readiness", "-Reset", "test"],
+        "parityClaimFutureServiceDatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-547-claim-future-service-date-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -2201,6 +2202,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-546-claim-invalid-diagnosis-code-readiness.json"
         },
         {
+          "id": "parity-plan-claim-future-service-date",
+          "name": "Slice 547 claim future service date plan",
+          "description": "Runs the shared future service-date claim scrubbing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimFutureServiceDatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-547-claim-future-service-date-readiness.json"
+        },
+        {
           "id": "parity-plan-claim-resubmission",
           "name": "Slice 534 claim resubmission plan",
           "description": "Runs the shared claim resubmission readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2919,6 +2928,7 @@
         "parityClaimDuplicateDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-544-claim-duplicate-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimInvalidCptCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-545-claim-invalid-cpt-code-readiness", "-Reset", "test"],
         "parityClaimInvalidDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-546-claim-invalid-diagnosis-code-readiness", "-Reset", "test"],
+        "parityClaimFutureServiceDatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-547-claim-future-service-date-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -4814,6 +4824,14 @@
           "layer": "plan",
           "commandName": "parityClaimInvalidDiagnosisCodePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-546-claim-invalid-diagnosis-code-readiness.json"
+        },
+        {
+          "id": "parity-plan-claim-future-service-date",
+          "name": "Slice 547 claim future service date plan",
+          "description": "Runs the shared future service-date claim scrubbing readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimFutureServiceDatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-547-claim-future-service-date-readiness.json"
         },
         {
           "id": "parity-plan-claim-resubmission",

@@ -1923,6 +1923,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-547-claim-future-service-date-readiness",
+      "name": "Slice 547 Claim Future Service Date Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a future-dated CPT4 service line with valid diagnosis support, scrubs a temporary claim, verifies deterministic SCRUB-FAIL future-service-date metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-future-service-date"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-547", "billing", "claims", "claim-scrubbing", "service-date-validation", "future-service-date", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4075,6 +4084,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-invalid-diagnosis-code",
       "tags": ["slice546", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "coding-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-future-service-date",
+      "name": "Claim Future Service Date",
+      "description": "Creates a future-dated CPT4 service line with valid diagnosis support, scrubs a temporary local claim report, verifies deterministic future-service-date metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-future-service-date",
+      "tags": ["slice547", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "service-date-validation", "future-service-date", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

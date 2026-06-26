@@ -550,6 +550,7 @@ export function mapPatientHistoryRow(row: Record<string, string>): PatientHistor
 export type BillingLineSummary = {
   id: string;
   encounter: number;
+  billingDate: string;
   codeType: string;
   code: string;
   modifier: string;
@@ -1757,7 +1758,7 @@ LIMIT 1;
 
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
-SELECT id, encounter, code_type AS codeType, code, code_text AS codeText,
+SELECT id, encounter, DATE_FORMAT(date, '%Y-%m-%d') AS billingDate, code_type AS codeType, code, code_text AS codeText,
   COALESCE(modifier, '') AS modifier, COALESCE(CAST(fee AS CHAR), '') AS fee, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
@@ -1766,6 +1767,7 @@ ORDER BY id;
     return rows.map((row) => ({
       id: row.id,
       encounter: Number(row.encounter),
+      billingDate: row.billingDate,
       codeType: row.codeType,
       code: row.code,
       modifier: row.modifier,
