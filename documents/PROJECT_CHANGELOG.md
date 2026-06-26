@@ -27001,7 +27001,7 @@ Code Metrics:
 Started: 2026-06-26T17:02:33.0782833-04:00
 Finished: 2026-06-26T17:07:26.4407730-04:00
 Duration: 4 minutes 53 seconds
-Commit: Pending
+Commit: `c0cc6eb8`
 
 Implemented Slice 553: focused missing-diagnosis-pointer readiness. The modernized billing line create/update API now permits blank diagnosis pointers so claim scrubbing can flag them instead of rejecting the charge before review. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, positive fee and units, but a blank CPT diagnosis pointer, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, CPT-line, fee, unit, CPT-code, diagnosis-code, invalid-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
