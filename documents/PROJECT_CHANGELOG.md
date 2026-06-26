@@ -25059,7 +25059,7 @@ Code changes:
 
 Started: 2026-06-26T04:25:42.9402327-04:00
 Finished: 2026-06-26T04:28:29.7302185-04:00
-Commit: Pending
+Commit: 5ed57a3e
 
 Implemented Slice 494: Slice 240 patient portal secure-message HTML-body probe payload attachments. The HTML-body readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, raw HTML body preservation, cleanup state, legacy sanitized detail rendering, and modernized sanitized message-card rendering so Workbench comparison drill-ins can preview body-sanitization evidence.
 
