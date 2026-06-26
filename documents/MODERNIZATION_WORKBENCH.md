@@ -615,3 +615,9 @@ The Progress page also records focused invalid-modifier claim scrubbing as compl
 The Workbench now exposes managed Slice 537 claim diagnosis-pointer scrubbing plan actions for both the legacy and modernized targets. These actions run `slice-537-claim-diagnosis-pointer-scrubbing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether CPT diagnosis pointers that are not backed by active encounter ICD10 diagnosis lines are flagged with deterministic `SCRUB-FAIL` / `invalid-diagnosis-pointer` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused invalid-diagnosis-pointer claim scrubbing as completed billing validation scope while keeping broader diagnosis pointer policy depth, broader modifier compatibility rules, and broader revenue-cycle exception handling outstanding.
+
+## Slice 538 Workbench Update
+
+The Workbench now exposes managed Slice 538 claim modifier-compatibility plan actions for both the legacy and modernized targets. These actions run `slice-538-claim-modifier-compatibility-readiness`, write the standard latest-run artifacts, and let the comparison view show whether duplicate supported CPT modifiers are flagged with deterministic `SCRUB-FAIL` / `duplicate-modifier` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused duplicate-modifier claim scrubbing as completed billing validation scope while keeping broader modifier compatibility policy rules, deeper diagnosis pointer policy, and broader revenue-cycle exception handling outstanding.
