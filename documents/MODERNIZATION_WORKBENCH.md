@@ -639,3 +639,9 @@ The Progress page also records focused missing-diagnosis-code claim scrubbing as
 The Workbench now exposes managed Slice 541 claim multi-diagnosis-pointer plan actions for both the legacy and modernized targets. These actions run `slice-541-claim-multi-diagnosis-pointer-readiness`, write the standard latest-run artifacts, and let the comparison view show whether comma-separated CPT diagnosis pointers are tokenized and validated against active encounter ICD10 diagnosis rows with deterministic `SCRUB-PASS` report metadata, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused multi-diagnosis-pointer claim scrubbing as completed billing validation scope while keeping broader diagnosis pointer policy rules, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+
+## Slice 542 Workbench Update
+
+The Workbench now exposes managed Slice 542 claim diagnosis-pointer-count plan actions for both the legacy and modernized targets. These actions run `slice-542-claim-diagnosis-pointer-count-readiness`, write the standard latest-run artifacts, and let the comparison view show whether CPT service lines with five diagnosis pointers are flagged with deterministic `SCRUB-FAIL` / `diagnosis-pointer-count-exceeded:5` report metadata without invalid-pointer or missing-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused diagnosis-pointer-count claim scrubbing as completed billing validation scope while keeping broader diagnosis pointer policy rules beyond service-line pointer count, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
