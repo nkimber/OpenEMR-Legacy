@@ -24261,7 +24261,7 @@ Code changes:
 
 Started: 2026-06-26T01:33:35.3835074-04:00
 Finished: 2026-06-26T01:37:53.5488216-04:00
-Commit: Pending
+Commit: `1c677d10`
 
 Implemented Slice 471: Slice 217 patient portal secure-message All-folder probe payload attachments. The patient portal secure-message All-folder readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, pre-All-folder mailbox state, cleanup-backed inbound/sent message creation plus archived-row exclusion, post-cleanup mailbox state, legacy portal All tab rendering, and modernized Portal All secure messages rendering so Workbench comparison drill-ins can preview the evidence behind active All-folder parity.
 
