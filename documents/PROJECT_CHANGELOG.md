@@ -22847,6 +22847,39 @@ Code changes:
 - Net lines: 371
 - Total churn: 427
 
+## 477. Slice 430 Slice 176 Appointment Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T20:49:19.7498069-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 430: Slice 176 appointment authorization-policy probe payload attachments. The appointment authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy appointment edit rendering facts, modernized front-desk login, appointment search, and appointment detail allow facts, and modernized Calendar-page rendering facts so Workbench comparison drill-ins can preview Appointment ACL allow evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 176 ACL precondition payload attachments for the seeded admin Appointment write permission, front-office Appointment write permission, front-desk Front Office membership, appointment anchor, configured admin username, and secret-redaction proof.
+- Added legacy appointment edit rendered payload attachments proving the selected appointment title, patient, and date values render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk appointment search allow payload attachments proving Appointment ACL access can retrieve the seeded appointment through the API.
+- Added modernized front-desk appointment detail allow payload attachments proving Appointment ACL access can retrieve the seeded appointment detail through the API.
+- Added modernized Calendar-page rendered payload attachments proving the UI shows front-desk sign-in and appointment detail rendering through the Appointment ACL allow path.
+- Updated the Workbench functionality progress ledger so Slice 176 appointment authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 430 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T005048-648Z-legacy-openemr-plan-slice-176-appointment-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T005109-388Z-modernized-openemr-plan-slice-176-appointment-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T005129-565Z-legacy-openemr-vs-modernized-openemr-plan-slice-176-appointment-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-search`, `frontdesk-detail`, and `rendered` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22856,5 +22889,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, and 175.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, and 176.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
