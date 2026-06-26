@@ -1797,6 +1797,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-532-claim-generation-readiness",
+      "name": "Slice 532 Claim Generation Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that creates, generates, renders, and removes a temporary 837P-style claim artifact while verifying process-file metadata, submitted-claim payload content, and cleanup.",
+      "suites": ["workflow-claim-generation"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-532", "billing", "claims", "claim-generation", "x12", "837p", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3800,6 +3809,16 @@
       "layer": "workflow",
       "path": "tests/workflow-eob-batch-import",
       "tags": ["slice531", "workflow", "mutation", "billing", "payments", "eob", "remittance", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-generation",
+      "name": "Claim Generation",
+      "description": "Creates, generates, renders, and removes a temporary 837P-style claim artifact while verifying process-file metadata, submitted-claim payload content, and cleanup on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-generation",
+      "tags": ["slice532", "workflow", "mutation", "billing", "claims", "claim-generation", "x12", "837p", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

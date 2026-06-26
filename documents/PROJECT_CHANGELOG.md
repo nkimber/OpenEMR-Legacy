@@ -26353,6 +26353,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 507 insertions and 9 deletions including the new EOB batch import parity suite.
 
+## 579. Slice 532 Claim Generation Readiness
+
+Started: 2026-06-26T13:17:01.1222184-04:00
+Finished: 2026-06-26T13:24:36.0008513-04:00
+Commit: pending
+
+Implemented Slice 532: focused claim generation readiness. The modernized Fees claim card `Generate` action now creates a deterministic claim file name and 837P-style submitted-claim payload from the claim, payer, encounter, and patient anchor. The shared parity suite creates a cleanup-backed queued Northstar HMO claim on both targets, drives the modernized UI Generate action or equivalent legacy update, verifies X12 target metadata, process-file naming, key 837P segments, claim-count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the `workflow-claim-generation` suite and `slice-532-claim-generation-readiness` plan.
+- Updated the modernized Fees claim `Generate` action to produce deterministic 837P-style submitted-claim payload content instead of placeholder text.
+- Added Workbench managed actions and plan cards for running the Slice 532 claim generation plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused 837P claim generation as completed billing scope while leaving richer claim-generation depth, richer ERA parsing, deeper remittance workflows, statement delivery, and production AR behavior outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 532 generation contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 532 legacy parity plan: `2026-06-26T172313-578Z-legacy-openemr-plan-slice-532-claim-generation-readiness` passed 1/1 tests.
+- Ran the Slice 532 modernized parity plan: `2026-06-26T172341-618Z-modernized-openemr-plan-slice-532-claim-generation-readiness` passed 1/1 tests.
+- Compared the two Slice 532 runs: `2026-06-26T172404-400Z-legacy-openemr-vs-modernized-openemr-plan-slice-532-claim-generation-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 532 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 371 insertions and 13 deletions including the new claim generation parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
