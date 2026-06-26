@@ -24848,6 +24848,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-encryption/patient-portal-message-encryption.spec.ts`: 147 insertions, 8 deletions.
 
+## 535. Slice 488 Slice 234 Patient Portal Secure-Message Forward-To-Practice Probe Payload Attachments
+
+Started: 2026-06-26T03:42:50.7702851-04:00
+Finished: 2026-06-26T03:46:29.1090507-04:00
+Commit: Pending
+
+Implemented Slice 488: Slice 234 patient portal secure-message forward-to-practice probe payload attachments. The patient portal secure-message forward-to-practice readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, cleanup-backed forward result/projection facts, legacy Secure Messaging forward source evidence, and modernized Portal forward rendering so Workbench comparison drill-ins can preview the forward-to-practice evidence behind secure-message parity.
+
+Changes:
+- Added Slice 234 precondition payload attachments for the `MOD-PAT-0004` anchor patient, temporary inbound message contract, forward body, and practice queue assignment.
+- Added forward result payload attachments proving the original portal message moves to `Sent`, the forwarded practice-side patient message is `New`, and the normalized portal relation is `portal:forwarded`.
+- Added legacy Secure Messaging evidence payload attachments for the forwarded temporary message on the portal messaging surface.
+- Added modernized Portal evidence payload attachments for the visible `Forward to practice` workflow, success message, inbound message card, and `Sent` status rendering.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 488 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-488-slice234-patient-portal-message-forward-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-message-forward/patient-portal-message-forward.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-234-patient-portal-message-forward-readiness -Reset test` passed with run `2026-06-26T074420-268Z-legacy-openemr-plan-slice-234-patient-portal-message-forward-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-234-patient-portal-message-forward-readiness -Reset test` passed with run `2026-06-26T074518-444Z-modernized-openemr-plan-slice-234-patient-portal-message-forward-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-234-patient-portal-message-forward-readiness` produced matched comparison `2026-06-26T074555-609Z-legacy-openemr-vs-modernized-openemr-plan-slice-234-patient-portal-message-forward-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-234-patient-portal-message-forward-precondition`, `db-probe-slice-234-patient-portal-message-forward-result`, and `db-probe-slice-234-patient-portal-message-forward-legacy-ui`; the modernized run includes `db-probe-slice-234-patient-portal-message-forward-precondition`, `db-probe-slice-234-patient-portal-message-forward-result`, and `db-probe-slice-234-patient-portal-message-forward-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 21 insertions.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-message-forward/patient-portal-message-forward.spec.ts`: 187 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

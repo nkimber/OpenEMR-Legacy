@@ -541,8 +541,8 @@
         },
         {
           "label": "Patient portal secure-message forward-to-practice readiness",
-          "detail": "The modernized patient portal can forward an inbound secure message into the practice-side patient-message queue, update the portal message status to Sent, and render the forward control while parity verifies cleanup-backed forwarding on both targets.",
-          "evidence": ["slice-234-patient-portal-message-forward-readiness"]
+          "detail": "The modernized patient portal can forward an inbound secure message into the practice-side patient-message queue, update the portal message status to Sent, and render the forward control while parity verifies cleanup-backed forwarding on both targets, and Slice 488 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-234-patient-portal-message-forward-readiness", "slice-488-slice234-patient-portal-message-forward-probe-payload-attachments"]
         }
       ],
       "outstanding": [
