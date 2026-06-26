@@ -24782,7 +24782,7 @@ Code changes:
 
 Started: 2026-06-26T03:25:42.7163028-04:00
 Finished: 2026-06-26T03:31:08.1471483-04:00
-Commit: Pending
+Commit: 78e9f76f
 
 Implemented Slice 486: Slice 232 patient portal secure-message lifecycle audit probe payload attachments. The patient portal secure-message lifecycle audit readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, normalized compose/reply/read/single-archive/selected-archive audit projection facts, legacy secure-message source/UI evidence, and modernized message-audit API plus Portal rendering so Workbench comparison drill-ins can preview the lifecycle audit evidence behind secure-message parity.
 
