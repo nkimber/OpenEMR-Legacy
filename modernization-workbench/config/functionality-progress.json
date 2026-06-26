@@ -135,8 +135,8 @@
         },
         {
           "label": "Patient portal home immunization readiness",
-          "detail": "The modernized patient portal home API and Portal page now render the legacy health-snapshot immunization list, including entered-in-error rows that legacy OpenEMR's portal home still displays.",
-          "evidence": ["slice-249-patient-portal-home-immunizations-readiness"]
+          "detail": "The modernized patient portal home API and Portal page now render the legacy health-snapshot immunization list, including entered-in-error rows that legacy OpenEMR's portal home still displays; Slice 503 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-249-patient-portal-home-immunizations-readiness", "slice-503-slice249-patient-portal-home-immunizations-probe-payload-attachments"]
         },
         {
           "label": "Patient portal profile readiness",
