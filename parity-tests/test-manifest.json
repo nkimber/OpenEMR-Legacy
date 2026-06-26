@@ -1968,6 +1968,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-552-claim-missing-cpt-line-readiness",
+      "name": "Slice 552 Claim Missing CPT Line Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a diagnosis-backed claim with no CPT service line, scrubs a temporary claim, verifies deterministic SCRUB-FAIL missing-cpt-line metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-missing-cpt-line"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-552", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4170,6 +4179,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-invalid-units",
       "tags": ["slice551", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "unit-validation", "invalid-units", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-missing-cpt-line",
+      "name": "Claim Missing CPT Line",
+      "description": "Creates a diagnosis-backed claim with no CPT service line, scrubs a temporary local claim report, verifies deterministic missing-cpt-line metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-missing-cpt-line",
+      "tags": ["slice552", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

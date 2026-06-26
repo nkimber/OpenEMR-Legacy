@@ -26966,6 +26966,36 @@ Verification:
 Code Metrics:
 - 13 scoped files changed, with 480 insertions and 9 deletions including the new claim invalid-units parity suite and billing-line units probe projection.
 
+## 599. Slice 552 Claim Missing CPT Line Readiness
+
+Started: 2026-06-26T16:52:55.9032522-04:00
+Finished: 2026-06-26T16:57:53.1368651-04:00
+Duration: 4 minutes 57 seconds
+Commit: Pending
+
+Implemented Slice 552: focused missing-CPT-line readiness. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, intentionally creates no CPT4 service line, and queues a Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, fee, unit, CPT-code, diagnosis-code, diagnosis-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/single-diagnosis-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the `workflow-claim-missing-cpt-line` suite and `slice-552-claim-missing-cpt-line-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 552 missing-CPT-line plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused missing-CPT-line claim scrubbing as completed billing validation scope while leaving broader charge policy, payer-specific clearinghouse edits, medical-necessity policy, and full revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 552 missing-CPT-line contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 552 legacy parity plan: `2026-06-26T205700-262Z-legacy-openemr-plan-slice-552-claim-missing-cpt-line-readiness` passed 1/1 tests.
+- Ran the Slice 552 modernized parity plan: `2026-06-26T205723-694Z-modernized-openemr-plan-slice-552-claim-missing-cpt-line-readiness` passed 1/1 tests.
+- Compared the two successful Slice 552 runs: `2026-06-26T205743-989Z-legacy-openemr-vs-modernized-openemr-plan-slice-552-claim-missing-cpt-line-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 552 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 10 scoped files changed, with 442 insertions and 5 deletions including the new claim missing-CPT-line parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
