@@ -23826,7 +23826,7 @@ Code changes:
 
 Started: 2026-06-26T00:14:11.4087973-04:00
 Finished: 2026-06-26T00:16:15.8365317-04:00
-Commit: Pending
+Commit: `670a00e0`
 
 Implemented Slice 459: Slice 205 patient portal reset probe payload attachments. The patient portal reset readiness parity suite now writes path-backed JSON Playwright attachments for the original portal reset precondition, temporary one-time reset issue state, legacy demographics edit rendering, modernized patient chart API and Portal Account rendering, cleared state, modernized cleared rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind portal reset parity.
 
