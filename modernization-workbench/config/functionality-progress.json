@@ -625,12 +625,12 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, charge-template readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
-          "detail": "Read-only fee-sheet billing plus CPT creation, diagnosis coding, correction, and modifier workflows are covered.",
-          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness"]
+          "detail": "Read-only fee-sheet billing plus CPT creation, office-visit charge-template application, diagnosis coding, correction, and modifier workflows are covered.",
+          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness"]
         },
         {
           "label": "Appointment starter charge handoff",
@@ -665,15 +665,15 @@
       ],
       "outstanding": [
         "Claim generation depth, payer adjudication, ERA/EOB import, remittance workflows, refunds/reversals beyond simple voiding, receipt printing, and statement delivery.",
-        "Audit history, charge templates, diagnosis pointer validation, modifier validation, and richer revenue-cycle exception handling."
+        "Audit history, diagnosis pointer validation, modifier validation, richer charge-template catalogs, and richer revenue-cycle exception handling."
       ],
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 55,
+      "completionEstimatePercent": 56,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, appointment starter charge handoff, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, charge-template readiness, appointment starter charge handoff, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",

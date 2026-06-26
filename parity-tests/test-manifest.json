@@ -1392,6 +1392,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-524-billing-charge-template-readiness",
+      "name": "Slice 524 Billing Charge Template Readiness",
+      "description": "Billing confidence plan that verifies the modernized Fees page can apply an office-visit charge template and save the generated CPT fee-sheet line.",
+      "suites": ["workflow-billing-charge-template"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-524", "billing", "fee-sheet", "charge-template", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3668,6 +3677,16 @@
       "layer": "workflow",
       "path": "tests/workflow-billing-modifier",
       "tags": ["slice46", "workflow", "mutation", "billing", "modifier", "fee-sheet", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-billing-charge-template",
+      "name": "Fee Sheet Charge Template Readiness",
+      "description": "Verifies cleanup-backed office-visit charge-template values produce the same CPT fee-sheet line across targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-billing-charge-template",
+      "tags": ["slice524", "workflow", "mutation", "billing", "fee-sheet", "charge-template", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

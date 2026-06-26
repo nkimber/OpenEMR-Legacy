@@ -132,6 +132,7 @@ param(
         "workflow-billing-diagnosis",
         "workflow-billing-correction",
         "workflow-billing-modifier",
+        "workflow-billing-charge-template",
         "workflow-payment-posting",
         "workflow-claims",
         "workflow-patient-payments",

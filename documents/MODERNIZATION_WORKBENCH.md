@@ -523,6 +523,8 @@ Slice 522 adds managed Workbench actions for `slice-522-appointment-encounter-co
 
 Slice 523 adds managed Workbench actions for `slice-523-appointment-billing-conversion-readiness` on both legacy and modernized targets. The Progress ledger now treats appointment-to-billing starter charge handoff as completed scheduling and billing scope, while reminder delivery, delivery audit, templates, availability/waitlist policy, and deeper revenue-cycle processing remain visible as remaining gaps.
 
+Slice 524 adds managed Workbench actions for `slice-524-billing-charge-template-readiness` on both legacy and modernized targets. The Progress ledger now treats the first fee-sheet charge-template workflow as completed billing scope, while deeper template catalogs, diagnosis pointer validation, modifier validation, audit history, and revenue-cycle exception handling remain visible as remaining gaps.
+
 Suggested states:
 
 - Not started.

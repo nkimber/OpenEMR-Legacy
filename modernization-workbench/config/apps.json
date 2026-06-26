@@ -208,6 +208,7 @@
         "parityBillingDiagnosisPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-44-billing-diagnosis-readiness", "-Reset", "test"],
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
+        "parityBillingChargeTemplatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-524-billing-charge-template-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
@@ -2002,6 +2003,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-46-billing-modifier-readiness.json"
         },
         {
+          "id": "parity-plan-billing-charge-template",
+          "name": "Slice 524 billing charge template plan",
+          "description": "Runs the shared fee-sheet charge-template readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityBillingChargeTemplatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-524-billing-charge-template-readiness.json"
+        },
+        {
           "id": "parity-plan-claims",
           "name": "Slice 47 claim status plan",
           "description": "Runs the shared read-only claim status plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2690,6 +2699,7 @@
         "parityBillingDiagnosisPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-44-billing-diagnosis-readiness", "-Reset", "test"],
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
+        "parityBillingChargeTemplatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-524-billing-charge-template-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
@@ -4408,6 +4418,14 @@
           "layer": "plan",
           "commandName": "parityBillingModifierPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-46-billing-modifier-readiness.json"
+        },
+        {
+          "id": "parity-plan-billing-charge-template",
+          "name": "Slice 524 billing charge template plan",
+          "description": "Runs the shared fee-sheet charge-template readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityBillingChargeTemplatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-524-billing-charge-template-readiness.json"
         },
         {
           "id": "parity-plan-claims",

@@ -25749,6 +25749,40 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 571. Slice 524 Fee-Sheet Charge Template Readiness
+
+Started: 2026-06-26T11:43:34.5824305-04:00
+Finished: 2026-06-26T11:46:39.5325571-04:00
+Commit: pending
+
+Implemented Slice 524: fee-sheet charge-template readiness. The modernized Fees page now exposes compact charge-template commands in the CPT line form, including an `Office visit` template that replaces ad hoc draft values with a known `CPT4 99213` office-visit payload before saving through the existing billing API. The shared parity suite uses the same billing anchor encounter on both targets, drives the modernized template UI, verifies the generated fee-sheet line, and deletes the temporary billing row after the comparison evidence is captured.
+
+Changes:
+- Added modernized Fees page charge-template commands for office visit, preventive visit, and telehealth follow-up CPT drafts.
+- Added the `workflow-billing-charge-template` suite and `slice-524-billing-charge-template-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 524 billing charge-template plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count initial fee-sheet charge-template readiness as completed billing scope while leaving deeper template catalogs and validation as outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 524 charge-template contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Parsed `scripts\Run-OpenEmrParityTests.ps1` as a PowerShell scriptblock.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized frontend container with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-524-billing-charge-template-readiness -Reset test`; run `2026-06-26T154534-503Z-legacy-openemr-plan-slice-524-billing-charge-template-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-524-billing-charge-template-readiness -Reset test`; run `2026-06-26T154600-850Z-modernized-openemr-plan-slice-524-billing-charge-template-readiness` passed.
+- Ran parity comparison for `slice-524-billing-charge-template-readiness`; comparison `2026-06-26T154622-148Z-legacy-openemr-vs-modernized-openemr-plan-slice-524-billing-charge-template-readiness` matched.
+- Audited probe attachments: both targets captured Slice 524 precondition, result, and cleanup database probes.
+
+Code changes:
+- Files changed: 13
+- Lines added: 370
+- Lines deleted: 9
+- Net lines: +361
+- Total churn: 379
+
 ## 570. Slice 523 Appointment-To-Billing Conversion Readiness
 
 Started: 2026-06-26T11:30:59.7619825-04:00
