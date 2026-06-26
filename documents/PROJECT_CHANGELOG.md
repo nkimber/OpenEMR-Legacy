@@ -22632,6 +22632,34 @@ Code changes:
 - Net lines: 244
 - Total churn: 280
 
+## 471. Slice 424 Slice 170 Message Protection Probe Payload Attachments
+
+Started: 2026-06-25T20:12:02.9822297-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 424: Slice 170 message protection probe payload attachments. The message protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API message list/create blocking facts, authenticated legacy/API message visibility facts, and modernized Messages-page rendering facts so Workbench comparison drill-ins can preview message protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 170 precondition payload attachments for the MOD-PAT-0004 patient anchor, care-team and portal message anchors, protected legacy patient-notes route, modernized message list/create APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving seeded patient-message titles are not visible before sign-in.
+- Added legacy authenticated payload attachments proving seeded patient-message titles and notes/message headings render after admin login.
+- Added modernized unauthenticated message-list payload attachments proving patient message APIs reject requests without an active session.
+- Added modernized unauthenticated create payload attachments proving message creation is rejected without an active session.
+- Added modernized authenticated message-list payload attachments proving an active admin session can read the anchored messages with session headers redacted.
+- Added modernized Messages-page rendered payload attachments proving signed-out prompts and disabled controls appear before login and message facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 170 message protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 424 evidence-payload contract.
+
+Verification:
+- Pending.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
