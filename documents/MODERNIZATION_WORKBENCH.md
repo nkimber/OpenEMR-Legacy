@@ -729,3 +729,9 @@ The Progress page also records focused inactive-diagnosis-line claim scrubbing a
 The Workbench now exposes managed Slice 556 claim server-side scrubbing plan actions for both the legacy and modernized targets. These actions run `slice-556-claim-server-side-scrubbing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Scrub` action calls the backend billing operation, persists the same deterministic `SCRUB-PASS` / `issues=none` process-file and submitted-claim metadata as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary claim side by side.
 
 The Progress page also records focused claim scrubbing as server-side billing business logic while keeping broader payer-specific clearinghouse edits, medical-necessity policy, claim generation depth, and full revenue-cycle exception handling outstanding.
+
+## Slice 557 Workbench Update
+
+The Workbench now exposes managed Slice 557 claim server-side generation plan actions for both the legacy and modernized targets. These actions run `slice-557-claim-server-side-generation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Generate` action calls the backend billing operation, persists the same deterministic 837P-style process-file and submitted-claim metadata as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary claim side by side.
+
+The Progress page also records focused 837P claim generation as server-side billing business logic while keeping payer-specific clearinghouse edits, richer claim-generation depth, ERA parsing, remittance workflows, statement delivery, and production AR behavior outstanding.

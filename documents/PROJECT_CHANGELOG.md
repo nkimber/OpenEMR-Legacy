@@ -27120,6 +27120,38 @@ Verification:
 Code Metrics:
 - 14 scoped files changed, with 916 insertions and 202 deletions, net +714 lines and 1118 total churn, including the backend claim scrub operation, React scrub handoff, and new server-side scrubbing parity suite.
 
+## 604. Slice 557 Claim Server-Side Generation Readiness
+
+Started: 2026-06-26T17:51:27-04:00
+Finished: 2026-06-26T17:55:51.0442558-04:00
+Commit: TBD
+
+Implemented Slice 557: focused server-side claim generation readiness. The modernized billing claim `Generate` action no longer builds deterministic 837P-style claim payloads in the React UI; it calls the new `POST /api/billing/claims/{claimId}/generate` backend operation, which reads the claim and patient identity, persists generated X12 metadata, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend generation path or equivalent legacy update, verifies deterministic process-file metadata, submitted-claim content, claim-card rendering, claim-count stability, and cleanup.
+
+Changes:
+- Added the modernized backend claim generation operation and endpoint.
+- Changed the modernized Fees claim card so the Generate button calls the backend billing operation instead of duplicating 837P payload construction in React.
+- Added the `workflow-claim-server-side-generation` suite and `slice-557-claim-server-side-generation-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 557 server-side generation plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused 837P claim generation as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 557 server-side generation contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 557 legacy parity plan: `2026-06-26T215356-382Z-legacy-openemr-plan-slice-557-claim-server-side-generation-readiness` passed 1/1 tests.
+- Ran the Slice 557 modernized parity plan: `2026-06-26T215418-916Z-modernized-openemr-plan-slice-557-claim-server-side-generation-readiness` passed 1/1 tests.
+- The first explicit-ID comparison attempt `2026-06-26T215515-161Z-legacy-openemr-vs-modernized-openemr-plan-slice-557-claim-server-side-generation-readiness` reported missing runs because the command passed bare run IDs instead of latest artifact paths.
+- Compared the latest successful Slice 557 runs: `2026-06-26T215522-748Z-legacy-openemr-vs-modernized-openemr-plan-slice-557-claim-server-side-generation-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 557 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 500 insertions and 34 deletions, net +466 lines and 534 total churn, including the backend claim generation operation, React generation handoff, and new server-side generation parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
