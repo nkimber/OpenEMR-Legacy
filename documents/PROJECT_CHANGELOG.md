@@ -25753,7 +25753,7 @@ Code changes:
 
 Started: 2026-06-26T11:43:34.5824305-04:00
 Finished: 2026-06-26T11:46:39.5325571-04:00
-Commit: pending
+Commit: 0b51354a
 
 Implemented Slice 524: fee-sheet charge-template readiness. The modernized Fees page now exposes compact charge-template commands in the CPT line form, including an `Office visit` template that replaces ad hoc draft values with a known `CPT4 99213` office-visit payload before saving through the existing billing API. The shared parity suite uses the same billing anchor encounter on both targets, drives the modernized template UI, verifies the generated fee-sheet line, and deletes the temporary billing row after the comparison evidence is captured.
 
