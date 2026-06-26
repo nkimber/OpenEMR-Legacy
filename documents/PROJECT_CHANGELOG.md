@@ -23096,6 +23096,41 @@ Code changes:
 - Net lines: 454
 - Total churn: 492
 
+## 484. Slice 437 Slice 183 Procedure Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T21:42:26.1517918-04:00
+Finished: 2026-06-25T21:44:35.3720066-04:00
+Commit: Pending
+
+Implemented Slice 437: Slice 183 procedure mutation authorization-policy probe payload attachments. The procedure mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Lab Results and Sign Lab Results ACL preconditions, legacy procedure-result rendering facts, clinician add-only procedure order/report creation facts, clinician Lab Results write and Sign Lab Results denial facts, admin status/sign/delete cleanup facts, and final cleanup facts so Workbench comparison drill-ins can preview procedure mutation ACL enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 183 ACL precondition payload attachments for seeded admin Lab Results write permission, admin Sign Lab Results write permission, clinician Lab Results add-only permission, missing clinician Lab Results write/Sign permissions, provider Clinicians membership, selected patient/order/report anchors, configured admin username, and secret-redaction proof.
+- Added legacy procedure-result rendered payload attachments proving the selected order and specimen number render after admin login.
+- Added modernized clinician login payload attachments with the session identifier redacted.
+- Added modernized clinician read payload attachments proving Lab Results add-only users can still view procedure results.
+- Added modernized clinician order-create and report-create payload attachments proving Lab Results add-only can create procedure order/report records.
+- Added modernized clinician status, sign-off, and delete forbidden payload attachments proving Lab Results write and Sign Lab Results write gates are enforced.
+- Added modernized admin login, status update, sign-off, and delete payload attachments proving stronger admin permissions can complete cleanup.
+- Added final cleanup payload attachments proving the temporary procedure order is absent after admin deletion.
+- Updated the Workbench functionality progress ledger so Slice 183 procedure mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 437 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T014323-848Z-legacy-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T014350-123Z-modernized-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T014412-582Z-legacy-openemr-vs-modernized-openemr-plan-slice-183-procedure-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `clinician-login`, `clinician-read`, `clinician-order-created`, `clinician-report-created`, `clinician-status-forbidden`, `clinician-sign-forbidden`, `clinician-delete-forbidden`, `admin-login`, `admin-status-updated`, `admin-signed`, `admin-deleted`, and `cleanup` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23105,5 +23140,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, and 182.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, and 183.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
