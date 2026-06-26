@@ -24887,7 +24887,7 @@ Code changes:
 
 Started: 2026-06-26T03:49:59.3044098-04:00
 Finished: 2026-06-26T03:53:56.5058704-04:00
-Commit: Pending
+Commit: dac1db54
 
 Implemented Slice 489: Slice 235 patient portal secure-message Deleted-folder probe payload attachments. The patient portal secure-message Deleted-folder readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, mailbox baseline/result/cleanup projections, legacy Archive-tab evidence, and modernized Deleted secure messages rendering so Workbench comparison drill-ins can preview archived-message evidence behind secure-message parity.
 
