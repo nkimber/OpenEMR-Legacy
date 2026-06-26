@@ -27249,7 +27249,7 @@ Code Metrics:
 
 Started: 2026-06-26T18:42:40.7343512-04:00
 Finished: 2026-06-26T18:45:15.1476421-04:00
-Commit: `pending`
+Commit: `a8adf3dc`
 
 Implemented Slice 561: focused server-side claim adjudication readiness. The modernized billing claim `Adjudicate` action no longer creates an EOB payment and then stamps claim status metadata from the React UI; it calls the new `POST /api/billing/claims/{claimId}/adjudicate` backend operation, which reads the claim, patient, and encounter context, posts the linked EOB payment and contractual adjustment, persists the X12 835 claim metadata, and returns refreshed billing detail. The shared parity plan creates a cleanup-backed generated Northstar HMO claim against the seeded billing encounter, drives the modernized UI/backend adjudication path or equivalent legacy update, verifies payment, adjustment, ledger, balance, payer-claim number, claim metadata, rendering, and cleanup.
 
