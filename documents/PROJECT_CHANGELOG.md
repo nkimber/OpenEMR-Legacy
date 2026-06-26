@@ -22919,8 +22919,8 @@ Code changes:
 ## 479. Slice 432 Slice 178 Patient Chart Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T21:00:00.0000000-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T21:09:26.4341724-04:00
+Commit: 4c64ee4e
 
 Implemented Slice 432: Slice 178 patient chart authorization-policy probe payload attachments. The patient chart authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Demographics ACL preconditions, legacy patient-summary rendering facts, modernized unauthenticated patient-search rejection facts, front-desk patient search and chart allow facts, admin chart allow facts, and modernized Patient/Client-page rendering facts so Workbench comparison drill-ins can preview Demographics ACL allow evidence without storing password, cookie, or session material.
 
@@ -22947,10 +22947,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `unauthenticated-search`, `frontdesk-login`, `frontdesk-search`, `frontdesk-chart`, `admin-login`, `admin-chart`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 380
+- Lines deleted: 19
+- Net lines: 361
+- Total churn: 399
 
 ## Next Expected Entries
 
