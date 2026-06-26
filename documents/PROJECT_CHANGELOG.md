@@ -25818,7 +25818,7 @@ Code changes:
 
 Started: 2026-06-26T12:34:12.9478717-04:00
 Finished: 2026-06-26T12:38:33.6329923-04:00
-Commit: pending
+Commit: 5fb1e41d
 
 Implemented Slice 528: adjustment reversal readiness. The modernized billing API now accepts explicit `adjustment_reversal` postings as negative insurer-backed adjustments with no payment amount, the Fees payment-posting form includes an `Adjustment reversal` source mode, and reversal rows render distinctly from positive adjustments and payment reversals. The shared parity suite posts a cleanup-backed Northstar HMO adjustment reversal on both targets, verifies payer identity, payment-session/activity increments, net adjustment reduction, balance increase, positive reversal ledger impact, modernized UI rendering, and final cleanup.
 
