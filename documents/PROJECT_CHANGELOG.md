@@ -22561,6 +22561,41 @@ Code changes:
 - Net lines: 250
 - Total churn: 280
 
+## 469. Slice 422 Slice 168 Encounter Protection Probe Payload Attachments
+
+Started: 2026-06-25T19:59:27.0865255-04:00
+Finished: 2026-06-25T20:00:29.5647547-04:00
+Commit: pending
+
+Implemented Slice 422: Slice 168 encounter protection probe payload attachments. The encounter protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API encounter blocking facts, unauthenticated modernized create rejection facts, authenticated legacy/API encounter search/detail visibility facts, and modernized Encounters-page rendering facts so Workbench comparison drill-ins can preview encounter protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 168 precondition payload attachments for the MOD-PAT-0001 patient anchor, latest encounter/clinical detail anchor, protected legacy encounter route, modernized encounter search/detail/create APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving encounter reason markers are not visible before sign-in.
+- Added legacy authenticated payload attachments proving encounter topic, SOAP, and Vitals markers render after admin login.
+- Added modernized unauthenticated search payload attachments proving encounter search rejects requests without an active session.
+- Added modernized unauthenticated create payload attachments proving encounter creation is rejected without an active session.
+- Added modernized authenticated search and detail payload attachments proving an active admin session can read the anchored encounter with session headers redacted.
+- Added modernized Encounters-page rendered payload attachments proving signed-out prompts and disabled controls appear before login and encounter facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 168 encounter protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 422 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-encounter-protection/encounter-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-168-encounter-protection-readiness` passed with run ID `2026-06-25T235955-586Z-legacy-openemr-plan-slice-168-encounter-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-168-encounter-protection-readiness` passed with run ID `2026-06-25T235955-587Z-modernized-openemr-plan-slice-168-encounter-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-168-encounter-protection-readiness` matched with comparison ID `2026-06-26T000023-476Z-legacy-openemr-vs-modernized-openemr-plan-slice-168-encounter-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-168-encounter-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-168-encounter-protection-precondition`, `unauthenticated-search`, `unauthenticated-create`, `authenticated-search`, `authenticated-detail`, and `rendered` entries in the modernized report.
+
+Code changes:
+- Lines added: 268
+- Lines deleted: 16
+- Net lines: 252
+- Total churn: 284
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22570,5 +22605,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, and 167.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, and 168.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
