@@ -27187,7 +27187,7 @@ Code Metrics:
 
 Started: 2026-06-26T18:13:35.4360367-04:00
 Finished: 2026-06-26T18:17:05.0325915-04:00
-Commit: TBD
+Commit: `6b960edc`
 
 Implemented Slice 559: focused server-side claim denial readiness. The modernized billing claim `Deny` action no longer stamps deterministic X12 denial metadata in the React UI; it calls the new `POST /api/billing/claims/{claimId}/deny` backend operation, which reads the queued claim and patient identity, persists denied X12 metadata, applies the existing submitted-claim fallback, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend denial path or equivalent legacy update, verifies deterministic process-file metadata, submitted-claim content, denied claim-card rendering, claim-count stability, and cleanup.
 
