@@ -65,8 +65,8 @@
         },
         {
           "label": "Patient social detail readiness",
-          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR race, ethnicity, interpreter, family size, monthly income, homeless, and financial-review fields with restore-backed mutation coverage.",
-          "evidence": ["slice-196-patient-social-details-readiness"]
+          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR race, ethnicity, interpreter, family size, monthly income, homeless, and financial-review fields with restore-backed mutation coverage; Slice 450 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-196-patient-social-details-readiness", "slice-450-slice196-patient-social-details-probe-payload-attachments"]
         },
         {
           "label": "Patient employer core readiness",
