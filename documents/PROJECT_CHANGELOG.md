@@ -26813,7 +26813,7 @@ Code Metrics:
 Started: 2026-06-26T15:57:10.9785362-04:00
 Finished: 2026-06-26T16:01:43.8381586-04:00
 Duration: 4 minutes 33 seconds
-Commit: Pending
+Commit: `0c14f60a`
 
 Implemented Slice 547: focused future service-date readiness. The modernized Fees claim `Scrub` action now flags active CPT4 service lines whose billing date is after the claim-scrub business date as deterministic `future-service-date:<date>` issues. The shared parity suite creates a cleanup-backed temporary future-dated encounter with valid ICD10 diagnosis `K21.9`, a valid CPT4 `99214` service line on `2026-12-15`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without CPT-code, diagnosis-code, diagnosis-pointer, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
