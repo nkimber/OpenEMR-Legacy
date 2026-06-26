@@ -1,7 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
+import type { PatientPortalClinicalSummaryResult, PatientPortalProblemItem } from "../../src/workflows/legacyWorkflowActions.js";
 import type { Page } from "@playwright/test";
 
 const portalClinicalAnchorPatientId = "MOD-PAT-0004";
@@ -20,11 +22,33 @@ test.describe("patient portal problem date-column parity @slice247 @workflow-pat
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalClinicalAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-247-patient-portal-problem-date-columns-precondition",
+      description: "Captures the Slice 247 problem date-column precondition: the signed-in portal anchor patient exists before a temporary ended problem is created.",
+      expected: {
+        canonicalId: portalClinicalAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        expectedProblemCountAfterTemporaryEndedRow: expectedProblems.length + 1,
+        inactiveEndDate
+      },
+      actual: {
+        canonicalId: portalClinicalAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-problem-date-columns",
+        workflow: "patient-portal-problem-date-columns-precondition"
+      }
+    });
 
     const endedTitle = `Portal Ended Problem ${Date.now()}-${Math.floor(Math.random() * 100000)}`;
     let problemId: number | string | null = null;
@@ -47,6 +71,23 @@ test.describe("patient portal problem date-column parity @slice247 @workflow-pat
       expect(ended).toMatchObject({
         activity: 0,
         title: endedTitle
+      });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-247-patient-portal-problem-date-columns-ended-row",
+        description: "Captures the temporary medical-problem row after deactivation: the row is inactive but remains visible in the portal problem list with an end date.",
+        expected: {
+          endedTitle,
+          activity: 0,
+          reportedDate: "2026-07-15",
+          startDate: "2026-07-15",
+          endDate: inactiveEndDate
+        },
+        actual: ended,
+        context: {
+          suite: "workflow-patient-portal-problem-date-columns",
+          workflow: "patient-portal-problem-date-columns-ended-row"
+        }
       });
 
       const summary = await workflow.getPatientPortalClinicalSummary(portalLoginUsername, portalPassword);
@@ -73,15 +114,101 @@ test.describe("patient portal problem date-column parity @slice247 @workflow-pat
           endDate: inactiveEndDate
         })
       ]));
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-247-patient-portal-problem-date-columns-result",
+        description: "Captures the Slice 247 clinical-summary projection: active problem date columns remain stable and the ended problem row remains visible with its end date.",
+        expected: {
+          activeProblems: expectedProblems,
+          endedProblem: {
+            title: endedTitle,
+            reportedDate: "2026-07-15",
+            startDate: "2026-07-15",
+            endDate: inactiveEndDate
+          }
+        },
+        actual: {
+          summary: summarizeClinicalSummary(summary),
+          problems: summary.problems.map(summarizeProblem),
+          endedProblemPresent: summary.problems.some((problem) => problem.title === endedTitle)
+        },
+        context: {
+          suite: "workflow-patient-portal-problem-date-columns",
+          workflow: "patient-portal-problem-date-columns-result"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
-        await expectLegacyProblemDateColumns(page, target, endedTitle);
+        const legacyUi = await expectLegacyProblemDateColumns(page, target, endedTitle);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-247-patient-portal-problem-date-columns-legacy-ui",
+          description: "Captures the legacy patient portal problem table rendering for Reported Date, Start Date, End Date, and the temporary ended problem row.",
+          expected: {
+            headingPattern: "Title|Problem",
+            dateColumns: ["Reported Date", "Start Date", "End Date"],
+            activeProblems: expectedProblems,
+            endedProblem: {
+              title: endedTitle,
+              endDate: inactiveEndDate
+            }
+          },
+          actual: legacyUi,
+          context: {
+            suite: "workflow-patient-portal-problem-date-columns",
+            workflow: "patient-portal-problem-date-columns-legacy-ui"
+          }
+        });
       } else {
-        await expectModernizedProblemDateColumns(page, target, endedTitle);
+        const modernizedUi = await expectModernizedProblemDateColumns(page, target, endedTitle);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-247-patient-portal-problem-date-columns-modernized-ui",
+          description: "Captures the modernized Portal problem cards rendering active and ended problem date-column labels.",
+          expected: {
+            summaryCount: "3 problems",
+            activeProblems: expectedProblems.map((problem) => ({
+              title: problem.title,
+              reportedLabel: `Reported Date ${problem.reportedDate}`,
+              startLabel: `Start Date ${problem.startDate}`,
+              endLabel: "End Date Active"
+            })),
+            endedProblem: {
+              title: endedTitle,
+              reportedLabel: "Reported Date 2026-07-15",
+              startLabel: "Start Date 2026-07-15",
+              endLabel: `End Date ${inactiveEndDate}`
+            }
+          },
+          actual: modernizedUi,
+          context: {
+            suite: "workflow-patient-portal-problem-date-columns",
+            workflow: "patient-portal-problem-date-columns-modernized-ui"
+          }
+        });
       }
     } finally {
       if (problemId !== null) {
         await workflow.deleteProblem(problemId);
+        const cleanup = await workflow.getPatientPortalClinicalSummary(portalLoginUsername, portalPassword);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-247-patient-portal-problem-date-columns-cleanup",
+          description: "Captures the Slice 247 cleanup state after deleting the temporary ended problem row.",
+          expected: {
+            temporaryProblemDeleted: endedTitle,
+            activeProblems: expectedProblems
+          },
+          actual: {
+            summary: summarizeClinicalSummary(cleanup),
+            problems: cleanup.problems.map(summarizeProblem),
+            endedProblemPresent: cleanup.problems.some((problem) => problem.title === endedTitle)
+          },
+          context: {
+            suite: "workflow-patient-portal-problem-date-columns",
+            workflow: "patient-portal-problem-date-columns-cleanup"
+          }
+        });
       }
     }
   });
@@ -113,6 +240,12 @@ async function expectLegacyProblemDateColumns(page: Page, target: RuntimeTarget,
   }
   await expect(page.locator("body")).toContainText(endedTitle);
   await expect(page.locator("body")).toContainText(inactiveEndDate);
+  return {
+    pageTitle: await page.title(),
+    urlPath: new URL(page.url()).pathname,
+    bodyText: normalizeText(await page.locator("body").innerText()),
+    visibleProblems: await captureLegacyProblemPresence(page, endedTitle)
+  };
 }
 
 async function expectModernizedProblemDateColumns(page: Page, target: RuntimeTarget, endedTitle: string) {
@@ -134,4 +267,91 @@ async function expectModernizedProblemDateColumns(page: Page, target: RuntimeTar
   await expect(endedCard).toContainText("Reported Date 2026-07-15");
   await expect(endedCard).toContainText("Start Date 2026-07-15");
   await expect(endedCard).toContainText(`End Date ${inactiveEndDate}`);
+  return {
+    pageTitle: await page.title(),
+    urlPath: new URL(page.url()).pathname,
+    clinicalSummaryText: normalizeText(await clinicalRegion.innerText()),
+    problemRegionText: normalizeText(await problemRegion.innerText()),
+    visibleProblems: await captureModernizedProblemPresence(problemRegion, endedTitle)
+  };
+}
+
+async function captureLegacyProblemPresence(page: Page, endedTitle: string) {
+  const bodyText = await page.locator("body").innerText();
+  return {
+    active: expectedProblems.map((problem) => ({
+      title: problem.title,
+      reportedDate: problem.reportedDate,
+      startDate: problem.startDate,
+      endDate: problem.endDate,
+      titleVisible: bodyText.includes(problem.title),
+      reportedDateVisible: bodyText.includes(problem.reportedDate),
+      startDateVisible: bodyText.includes(problem.startDate)
+    })),
+    endedProblem: {
+      title: endedTitle,
+      reportedDate: "2026-07-15",
+      startDate: "2026-07-15",
+      endDate: inactiveEndDate,
+      titleVisible: bodyText.includes(endedTitle),
+      endDateVisible: bodyText.includes(inactiveEndDate)
+    }
+  };
+}
+
+async function captureModernizedProblemPresence(problemRegion: ReturnType<Page["getByRole"]>, endedTitle: string) {
+  const regionText = await problemRegion.innerText();
+  return {
+    active: expectedProblems.map((problem) => ({
+      title: problem.title,
+      reportedDate: problem.reportedDate,
+      startDate: problem.startDate,
+      endDate: problem.endDate,
+      titleVisible: regionText.includes(problem.title),
+      reportedLabelVisible: regionText.includes(`Reported Date ${problem.reportedDate}`),
+      startLabelVisible: regionText.includes(`Start Date ${problem.startDate}`),
+      activeEndLabelVisible: regionText.includes("End Date Active")
+    })),
+    endedProblem: {
+      title: endedTitle,
+      reportedDate: "2026-07-15",
+      startDate: "2026-07-15",
+      endDate: inactiveEndDate,
+      titleVisible: regionText.includes(endedTitle),
+      reportedLabelVisible: regionText.includes("Reported Date 2026-07-15"),
+      startLabelVisible: regionText.includes("Start Date 2026-07-15"),
+      endLabelVisible: regionText.includes(`End Date ${inactiveEndDate}`)
+    }
+  };
+}
+
+function summarizeClinicalSummary(summary: PatientPortalClinicalSummaryResult) {
+  return {
+    authenticated: summary.authenticated,
+    username: summary.username,
+    portalUsername: summary.portalUsername,
+    canonicalId: summary.canonicalId,
+    pid: summary.pid,
+    pubpid: summary.pubpid,
+    displayName: summary.displayName,
+    datasetVersion: summary.datasetVersion,
+    asOfDate: summary.asOfDate,
+    problemCount: summary.problemCount,
+    failureReason: summary.failureReason,
+    sessionSource: summary.sessionSource
+  };
+}
+
+function summarizeProblem(problem: PatientPortalProblemItem) {
+  return {
+    id: problem.id,
+    title: problem.title,
+    reportedDate: problem.reportedDate,
+    startDate: problem.startDate,
+    endDate: problem.endDate
+  };
+}
+
+function normalizeText(value: string | null) {
+  return (value ?? "").replace(/\s+/g, " ").trim();
 }
