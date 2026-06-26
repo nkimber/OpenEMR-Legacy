@@ -26721,7 +26721,7 @@ Code changes:
 
 Started: 2026-06-26T15:26:58.7197484-04:00
 Finished: 2026-06-26T15:31:00.7908852-04:00
-Commit: pending
+Commit: 98bfaa27
 
 Implemented Slice 544: focused duplicate diagnosis-code readiness. The modernized Fees claim `Scrub` action now flags duplicate active ICD10 diagnosis rows on the same encounter as deterministic `duplicate-diagnosis-code:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with two active ICD10 `K21.9` lines, a CPT line justified by `K21.9`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-pointer, missing-code, or duplicate-pointer misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
