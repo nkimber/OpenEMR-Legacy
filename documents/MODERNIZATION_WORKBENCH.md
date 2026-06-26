@@ -561,3 +561,9 @@ The Progress page also records insurance payment reversal as completed focused b
 The Workbench now exposes managed Slice 528 adjustment reversal plan actions for both the legacy and modernized targets. These actions run `slice-528-adjustment-reversal-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the new insurer-backed negative adjustment workflow remains aligned side by side.
 
 The Progress page also records adjustment reversal as completed focused billing scope while keeping broader revenue-cycle processing, remittance depth, clearinghouse behavior, production migration, and external integrations outstanding.
+
+## Slice 529 Workbench Update
+
+The Workbench now exposes managed Slice 529 claim denial plan actions for both the legacy and modernized targets. These actions run `slice-529-claim-denial-readiness`, write the standard latest-run artifacts, and let the comparison view show whether queued claim denial status, X12 denial response metadata, submitted-claim payloads, and cleanup remain aligned side by side.
+
+The Progress page also records claim denial as completed focused billing scope while keeping deeper claim generation, payer adjudication, ERA/EOB import, remittance workflows, statement delivery, and production AR behavior outstanding.

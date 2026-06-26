@@ -25846,6 +25846,36 @@ Verification:
 Code changes:
 - 13 files changed, 401 insertions, 34 deletions.
 
+## 576. Slice 529 Claim Denial Readiness
+
+Started: 2026-06-26T12:47:39.8650985-04:00
+Finished: 2026-06-26T12:50:01.0383285-04:00
+Commit: pending
+
+Implemented Slice 529: claim denial readiness. The modernized Fees claim card now includes a `Deny` action that moves a claim to denied status with X12 denial response metadata, a denial process file, and submitted-claim payload evidence. The shared parity suite creates a cleanup-backed Northstar HMO queued claim on both targets, updates it to denied, verifies payer/status/file/payload/count facts, checks modernized Fees rendering, and hard-deletes the temporary claim so the starting claim counts are restored.
+
+Changes:
+- Added a modernized Fees claim-card `Deny` action that records denied status, X12 target metadata, process timestamp, denial file, and submitted claim payload.
+- Added the `workflow-claim-denials` suite and `slice-529-claim-denial-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 529 claim denial plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim denial as completed billing scope while leaving broader claim generation, adjudication, ERA/EOB, remittance, and production AR workflows outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 529 claim-denial contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 529 legacy parity plan: `2026-06-26T164900-229Z-legacy-openemr-plan-slice-529-claim-denial-readiness` passed 1/1 tests.
+- Ran the Slice 529 modernized parity plan: `2026-06-26T164921-383Z-modernized-openemr-plan-slice-529-claim-denial-readiness` passed 1/1 tests.
+- Compared the two Slice 529 runs: `2026-06-26T164942-307Z-legacy-openemr-vs-modernized-openemr-plan-slice-529-claim-denial-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 529 file set.
+
+Code changes:
+- 12 files changed, 339 insertions, 8 deletions.
+
 ## 572. Slice 525 Patient Payment Receipt Readiness
 
 Started: 2026-06-26T11:48:05.0000000-04:00

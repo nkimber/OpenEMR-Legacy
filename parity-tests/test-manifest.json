@@ -1770,6 +1770,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-529-claim-denial-readiness",
+      "name": "Slice 529 Claim Denial Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that creates, denies, renders, and removes a temporary claim denial while verifying payer identity, denial response metadata, and cleanup.",
+      "suites": ["workflow-claim-denials"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-529", "billing", "claims", "denials", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3743,6 +3752,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claims",
       "tags": ["slice57", "workflow", "mutation", "billing", "claims", "claim-status", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-denials",
+      "name": "Claim Denials",
+      "description": "Creates, denies, renders, and removes a temporary claim denial while verifying payer identity, denial response metadata, and cleanup on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-denials",
+      "tags": ["slice529", "workflow", "mutation", "billing", "claims", "denials", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
