@@ -26908,7 +26908,7 @@ Code Metrics:
 Started: 2026-06-26T16:28:12.2786471-04:00
 Finished: 2026-06-26T16:32:05.4628852-04:00
 Duration: 3 minutes 53 seconds
-Commit: pending
+Commit: `50edb861`
 
 Implemented Slice 550: focused invalid-fee readiness. The modernized Fees claim `Scrub` action now uses explicit numeric validation for fee and unit checks so zero or non-numeric CPT fee values fail deterministically. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, zero CPT fee, positive units, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, CPT-code, diagnosis-code, diagnosis-pointer, modifier, unit, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
