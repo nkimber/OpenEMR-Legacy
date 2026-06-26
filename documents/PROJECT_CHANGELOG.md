@@ -25560,7 +25560,7 @@ Code changes:
 
 Started: 2026-06-26T06:12:00.0000000-04:00
 Finished: 2026-06-26T06:21:03.6193105-04:00
-Commit: Pending
+Commit: b3e460e4
 
 Implemented Slice 509: Slice 255 patient portal secure-message notification probe payload attachments. The notification readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient notification preconditions, cleanup-backed notification creation, Inbox/All notification projections, cleanup state, legacy portal UI-absence evidence, modernized read-only notification-row rendering, and UI-test cleanup so Workbench comparison drill-ins can preview patient-reminder notification evidence behind portal parity.
 
