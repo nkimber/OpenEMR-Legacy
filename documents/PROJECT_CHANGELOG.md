@@ -26629,7 +26629,7 @@ Code changes:
 
 Started: 2026-06-26T14:51:52.6811875-04:00
 Finished: 2026-06-26T15:02:49.5137915-04:00
-Commit: pending
+Commit: c87fb27d
 
 Implemented Slice 541: focused claim multi-diagnosis-pointer readiness. The modernized Fees claim `Scrub` action now tokenizes comma/space-separated CPT diagnosis pointers before validating them against active ICD10 diagnosis rows on the same encounter. The shared parity suite creates a cleanup-backed temporary encounter with ICD10 lines for `K21.9` and `E11.9`, a CPT line justified by `K21.9,E11.9`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-PASS` report content, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
