@@ -27062,7 +27062,7 @@ Code Metrics:
 
 Started: 2026-06-26T17:21:47.7083182-04:00
 Finished: 2026-06-26T17:25:20.5033414-04:00
-Commit: pending
+Commit: `8c962108`
 
 Implemented Slice 555: focused inactive-diagnosis-line readiness. The shared parity suite creates a cleanup-backed temporary encounter with ICD10 diagnosis `K21.9`, marks that diagnosis row billed/inactive before claim scrubbing, creates an active valid CPT4 `99214` line with supported modifier `25`, positive fee, units, and diagnosis pointer `K21.9`, and queues a Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` / `missing-diagnosis-code` report content from the active-line projection without payer, CPT-line, fee, unit, CPT-code, diagnosis-pointer, modifier, future-date, or invalid-pointer misclassification, inactive diagnosis row status evidence, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
