@@ -1788,6 +1788,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-531-eob-batch-import-readiness",
+      "name": "Slice 531 EOB Batch Import Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that imports, renders, and removes a temporary two-line insurer EOB batch while verifying payment metadata, balance effects, ledger entries, and cleanup.",
+      "suites": ["workflow-eob-batch-import"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-531", "billing", "payments", "eob", "remittance", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3781,6 +3790,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-adjudication",
       "tags": ["slice530", "workflow", "mutation", "billing", "claims", "adjudication", "payments", "eob", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-eob-batch-import",
+      "name": "EOB Batch Import",
+      "description": "Imports, renders, and removes a temporary two-line insurer EOB batch while verifying payment metadata, balance effects, ledger entries, and cleanup on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-eob-batch-import",
+      "tags": ["slice531", "workflow", "mutation", "billing", "payments", "eob", "remittance", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

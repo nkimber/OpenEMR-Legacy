@@ -573,3 +573,9 @@ The Progress page also records claim denial as completed focused billing scope w
 The Workbench now exposes managed Slice 530 claim adjudication plan actions for both the legacy and modernized targets. These actions run `slice-530-claim-adjudication-readiness`, write the standard latest-run artifacts, and let the comparison view show whether generated claims, EOB payment/adjustment metadata, payer-claim numbers, balance effects, ledger entries, and cleanup remain aligned side by side.
 
 The Progress page also records focused claim adjudication as completed billing scope while keeping deeper claim generation, ERA/EOB import, remittance workflows, statement delivery, and production AR behavior outstanding.
+
+## Slice 531 Workbench Update
+
+The Workbench now exposes managed Slice 531 EOB batch import plan actions for both the legacy and modernized targets. These actions run `slice-531-eob-batch-import-readiness`, write the standard latest-run artifacts, and let the comparison view show whether two-line insurer remittance import, electronic payment method, payer-claim numbers, reason codes, payment/adjustment balance effects, ledger entries, and cleanup remain aligned side by side.
+
+The Progress page also records starter EOB batch import as completed billing scope while keeping deeper claim generation, richer ERA parsing, deeper remittance workflows, statement delivery, and production AR behavior outstanding.

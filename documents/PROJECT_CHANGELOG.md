@@ -26323,6 +26323,36 @@ Code changes:
 - Total churn: 1741.
 - Note: precise commit metrics should be refreshed after the pre-existing dirty Workbench edits in shared files are separated from this slice.
 
+## 578. Slice 531 EOB Batch Import Readiness
+
+Started: 2026-06-26T13:03:40.2642368-04:00
+Finished: 2026-06-26T13:12:34.6636700-04:00
+Commit: pending
+
+Implemented Slice 531: EOB batch import readiness. The modernized Fees payment panel now includes an `Import EOB` action that posts a deterministic two-line Northstar HMO electronic remittance batch through the existing payment posting path. The shared parity suite imports or creates the same temporary batch on both targets, verifies payer identity, electronic payment method, payer-claim numbers, reason codes, payment/adjustment balance movement, ledger rows, modernized UI rendering, and then removes the temporary payment rows so starting payment-session and payment-activity counts are restored.
+
+Changes:
+- Added the `workflow-eob-batch-import` suite and `slice-531-eob-batch-import-readiness` plan.
+- Added the modernized Fees `Import EOB` action for the deterministic two-line remittance batch.
+- Added Workbench managed actions and plan cards for running the Slice 531 EOB batch import plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count starter EOB batch import as completed billing scope while leaving deeper claim generation, richer ERA parsing, deeper remittance workflows, statement delivery, and production AR behavior outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 531 import contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 531 legacy parity plan: `2026-06-26T170931-871Z-legacy-openemr-plan-slice-531-eob-batch-import-readiness` passed 1/1 tests.
+- Ran the Slice 531 modernized parity plan: `2026-06-26T171152-335Z-modernized-openemr-plan-slice-531-eob-batch-import-readiness` passed 1/1 tests.
+- Compared the two Slice 531 runs: `2026-06-26T171214-830Z-legacy-openemr-vs-modernized-openemr-plan-slice-531-eob-batch-import-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 531 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 507 insertions and 9 deletions including the new EOB batch import parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
