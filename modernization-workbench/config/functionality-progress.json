@@ -130,8 +130,8 @@
         },
         {
           "label": "Patient portal home readiness",
-          "detail": "The modernized patient portal API and Portal page now open a session-protected home summary with identity, message counts, and upcoming appointments for the signed-in portal patient, with parity anchored to MOD-PAT-0004.",
-          "evidence": ["slice-209-patient-portal-home-readiness"]
+          "detail": "The modernized patient portal API and Portal page now open a session-protected home summary with identity, message counts, and upcoming appointments for the signed-in portal patient, with parity anchored to MOD-PAT-0004; Slice 463 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-209-patient-portal-home-readiness", "slice-463-slice209-patient-portal-home-probe-payload-attachments"]
         },
         {
           "label": "Patient portal home immunization readiness",

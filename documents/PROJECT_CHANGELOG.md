@@ -23965,6 +23965,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-session/patient-portal-session.spec.ts`: 164 insertions, 3 deletions.
 
+## 510. Slice 463 Slice 209 Patient Portal Home Probe Payload Attachments
+
+Started: 2026-06-26T00:36:34.6640645-04:00
+Finished: 2026-06-26T00:40:01.1167950-04:00
+Commit: Pending
+
+Implemented Slice 463: Slice 209 patient portal home probe payload attachments. The patient portal home readiness parity suite now writes path-backed JSON Playwright attachments for enabled portal-account preconditions, authenticated home-summary identity, message-count, latest-message, upcoming-appointment facts, legacy portal home rendering, and modernized Portal home rendering so Workbench comparison drill-ins can preview the evidence behind portal home parity.
+
+Changes:
+- Added Slice 209 precondition payload attachments for the `MOD-PAT-0004` anchor patient and enabled portal account.
+- Added authenticated portal home summary payload attachments proving identity, portal username, display name, message counts, latest message title, and upcoming appointment facts.
+- Added legacy patient portal home payload attachments proving OpenEMR renders the signed-in home surface.
+- Added modernized Portal home payload attachments proving the modernized Portal page renders identity, message, and appointment anchors.
+- Updated the Workbench functionality progress ledger so Slice 209 patient portal home payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 463 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 463 Workbench evidence key audit passed with exactly one `slice-463-slice209-patient-portal-home-probe-payload-attachments` occurrence.
+- Legacy Slice 209 parity run passed: `2026-06-26T043830-181Z-legacy-openemr-plan-slice-209-patient-portal-home-readiness`.
+- Modernized Slice 209 parity run passed: `2026-06-26T043914-165Z-modernized-openemr-plan-slice-209-patient-portal-home-readiness`.
+- Slice 209 comparison passed with matched results and no differences: `2026-06-26T043941-550Z-legacy-openemr-vs-modernized-openemr-plan-slice-209-patient-portal-home-readiness`.
+- Attachment audit passed for three legacy patient-portal-home probe payloads and three modernized patient-portal-home probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 3 insertions, 3 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 23 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 1 insertion, 1 deletion.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-home/patient-portal-home.spec.ts`: 104 insertions, 2 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23974,5 +24009,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, and 208.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, and 209.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
