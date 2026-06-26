@@ -27091,7 +27091,7 @@ Code Metrics:
 
 Started: 2026-06-26T17:35:46.5976572-04:00
 Finished: 2026-06-26T17:43:30.9896997-04:00
-Commit: pending
+Commit: `458b0761`
 
 Implemented Slice 556: focused server-side claim scrubbing readiness. The modernized billing claim `Scrub` action no longer computes claim-scrub business rules in the React UI; it calls the new `POST /api/billing/claims/{claimId}/scrub` backend operation, which reads the claim plus active encounter billing lines, computes the deterministic scrub report, persists process-file and submitted-claim metadata, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend scrub path or equivalent legacy update, verifies deterministic `SCRUB-PASS` / `issues=none` behavior, process-file metadata, claim-card rendering, claim-count stability, and cleanup.
 
