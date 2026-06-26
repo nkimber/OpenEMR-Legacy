@@ -1941,6 +1941,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-549-claim-missing-payer-readiness",
+      "name": "Slice 549 Claim Missing Payer Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a valid CPT/diagnosis claim without payer metadata, scrubs a temporary claim, verifies deterministic SCRUB-FAIL missing-payer metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-missing-payer"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-549", "billing", "claims", "claim-scrubbing", "payer-validation", "missing-payer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4113,6 +4122,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-incompatible-modifier-combination",
       "tags": ["slice548", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-compatibility", "incompatible-modifier-combination", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-missing-payer",
+      "name": "Claim Missing Payer",
+      "description": "Creates a valid CPT/diagnosis claim without payer metadata, scrubs a temporary local claim report, verifies deterministic missing-payer metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-missing-payer",
+      "tags": ["slice549", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "payer-validation", "missing-payer", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
