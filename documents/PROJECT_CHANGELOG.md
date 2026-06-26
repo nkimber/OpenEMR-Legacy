@@ -25786,7 +25786,7 @@ Code changes:
 
 Started: 2026-06-26T12:24:44.1496450-04:00
 Finished: 2026-06-26T12:28:13.3455382-04:00
-Commit: pending
+Commit: 7a206530
 
 Implemented Slice 527: insurance payment reversal readiness. The modernized billing API now accepts explicit `insurance_reversal` postings as negative insurer-backed payments, the Fees payment-posting form includes an `Insurance reversal` source mode, and reversal rows render distinctly from patient refunds in the payment list and ledger projection. The shared parity suite posts a cleanup-backed Northstar HMO payment reversal on both targets, verifies payer identity, payment-session/activity increments, net payment reduction, balance increase, positive reversal ledger impact, modernized UI rendering, and final cleanup.
 
