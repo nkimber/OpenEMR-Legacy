@@ -75,8 +75,8 @@
         },
         {
           "label": "Patient provider assignment readiness",
-          "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR primary provider assignment through provider-option menus, ID/name projection, and restore-backed parity coverage.",
-          "evidence": ["slice-198-patient-provider-assignment-readiness"]
+          "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR primary provider assignment through provider-option menus, ID/name projection, and restore-backed parity coverage; Slice 452 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-198-patient-provider-assignment-readiness", "slice-452-slice198-patient-provider-assignment-probe-payload-attachments"]
         },
         {
           "label": "Patient care-team membership readiness",

@@ -23599,6 +23599,38 @@ Code changes:
 - Net lines: +180
 - Total churn: 200
 
+## 499. Slice 452 Slice 198 Patient Provider Assignment Probe Payload Attachments
+
+Started: 2026-06-25T23:34:46.3131503-04:00
+Finished: 2026-06-25T23:36:59.3514068-04:00
+Commit: Pending
+
+Implemented Slice 452: Slice 198 patient provider assignment probe payload attachments. The patient provider assignment readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original primary-provider precondition, temporary provider ID/name update, legacy demographics provider rendering, modernized patient chart API and Patient/Client Primary Provider rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind provider assignment parity.
+
+Changes:
+- Added Slice 198 precondition payload attachments for the `MOD-PAT-0010` anchor patient, original primary-provider assignment, and proposed temporary provider update.
+- Added updated-state payload attachments proving the workflow read model stores the temporary provider ID and provider name.
+- Added legacy demographics edit payload attachments proving OpenEMR renders the temporary primary-provider assignment.
+- Added modernized patient chart API and Patient/Client Primary Provider payload attachments proving the modernized target renders the same temporary assignment.
+- Added cleanup payload attachments proving the original primary-provider assignment is restored after the run.
+- Updated the Workbench functionality progress ledger so Slice 198 patient provider assignment payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 452 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Parsed `modernization-workbench/config/functionality-progress.json`; confirmed exactly one Slice 452 evidence-key occurrence.
+- Legacy parity run passed for `slice-198-patient-provider-assignment-readiness`: `2026-06-26T033556-189Z-legacy-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- Modernized parity run passed for `slice-198-patient-provider-assignment-readiness`: `2026-06-26T033619-591Z-modernized-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T033639-340Z-legacy-openemr-vs-modernized-openemr-plan-slice-198-patient-provider-assignment-readiness`.
+- Attachment audit confirmed legacy precondition, updated, legacy-surface, and cleanup payloads plus modernized precondition, updated, API, surface, and cleanup payloads.
+
+Code changes:
+- Lines added: 166
+- Lines deleted: 10
+- Net lines: +156
+- Total churn: 176
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23608,5 +23640,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, and 197.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, and 198.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
