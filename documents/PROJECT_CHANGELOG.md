@@ -25026,7 +25026,7 @@ Code changes:
 
 Started: 2026-06-26T04:20:04.7463382-04:00
 Finished: 2026-06-26T04:22:04.8934747-04:00
-Commit: Pending
+Commit: a5ef1bba
 
 Implemented Slice 493: Slice 239 patient portal secure-message subject-preset probe payload attachments. The subject-preset readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, normalized compose-options subject/recipient evidence, legacy subject input and datalist rendering, and modernized Portal subject preset rendering so Workbench comparison drill-ins can preview compose-subject evidence.
 
