@@ -663,3 +663,9 @@ The Progress page also records focused duplicate diagnosis-code claim scrubbing 
 The Workbench now exposes managed Slice 545 claim invalid CPT-code plan actions for both the legacy and modernized targets. These actions run `slice-545-claim-invalid-cpt-code-readiness`, write the standard latest-run artifacts, and let the comparison view show whether malformed CPT4 service codes are flagged with deterministic `SCRUB-FAIL` / `invalid-cpt-code:99A14` report metadata without diagnosis-pointer or missing-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused invalid CPT-code claim scrubbing as completed billing coding-validation scope while keeping broader diagnosis/code policy rules beyond duplicate, pointer-count, and CPT-format detection, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+
+## Slice 546 Workbench Update
+
+The Workbench now exposes managed Slice 546 claim invalid diagnosis-code plan actions for both the legacy and modernized targets. These actions run `slice-546-claim-invalid-diagnosis-code-readiness`, write the standard latest-run artifacts, and let the comparison view show whether malformed ICD10 diagnosis codes are flagged with deterministic `SCRUB-FAIL` / `invalid-diagnosis-code:BADCODE` report metadata without diagnosis-pointer, missing-code, or CPT-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused invalid ICD10 diagnosis-code claim scrubbing as completed billing coding-validation scope while keeping broader diagnosis/code policy rules beyond duplicate, pointer-count, CPT-format, and ICD10-format detection, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.

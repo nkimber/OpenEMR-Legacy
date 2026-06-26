@@ -26777,6 +26777,37 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 445 insertions and 7 deletions including the new claim invalid CPT-code parity suite.
 
+## 593. Slice 546 Claim Invalid Diagnosis Code Readiness
+
+Started: 2026-06-26T15:47:19.0663467-04:00
+Finished: 2026-06-26T15:50:32.4641781-04:00
+Duration: 3 minutes 13 seconds
+Commit: Pending
+
+Implemented Slice 546: focused invalid ICD10 diagnosis-code readiness. The modernized Fees claim `Scrub` action now flags ICD10 diagnosis rows whose code does not match the supported ICD10 format as deterministic `invalid-diagnosis-code:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with malformed ICD10 diagnosis code `BADCODE`, a valid CPT4 `99214` service line justified by that diagnosis, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without diagnosis-pointer, missing-code, or CPT-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added invalid ICD10 diagnosis-code validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-invalid-diagnosis-code` suite and `slice-546-claim-invalid-diagnosis-code-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 546 invalid diagnosis-code plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused invalid ICD10 diagnosis-code claim scrubbing as completed billing coding-validation scope while leaving broader diagnosis/code policy rules beyond duplicate, pointer-count, CPT-format, and ICD10-format detection, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 546 invalid diagnosis-code contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 546 legacy parity plan: `2026-06-26T194942-950Z-legacy-openemr-plan-slice-546-claim-invalid-diagnosis-code-readiness` passed 1/1 tests.
+- Ran the Slice 546 modernized parity plan: `2026-06-26T194942-946Z-modernized-openemr-plan-slice-546-claim-invalid-diagnosis-code-readiness` passed 1/1 tests.
+- Compared the two successful Slice 546 runs: `2026-06-26T195021-460Z-legacy-openemr-vs-modernized-openemr-plan-slice-546-claim-invalid-diagnosis-code-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 546 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 11 scoped files changed, with 453 insertions and 7 deletions including the new claim invalid diagnosis-code parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
