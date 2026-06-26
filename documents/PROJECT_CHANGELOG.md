@@ -27218,7 +27218,7 @@ Code Metrics:
 
 Started: 2026-06-26T18:25:42.1338350-04:00
 Finished: 2026-06-26T18:30:49.6982290-04:00
-Commit: `pending`
+Commit: `99651788`
 
 Implemented Slice 560: focused server-side claim clearing readiness. The modernized billing claim `Clear` action no longer stamps HCFA cleared-status metadata in the React UI; it calls the new `POST /api/billing/claims/{claimId}/clear` backend operation, which reads the claim and patient identity, persists the cleared state, clears process-file/X12 partner metadata, applies the submitted-claim fallback, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO denied claim against the seeded billing encounter, drives the modernized UI/backend clearing path or equivalent legacy update, verifies HCFA target metadata, blank process-file state, submitted-claim content, cleared claim-card rendering, claim-count stability, and cleanup.
 
