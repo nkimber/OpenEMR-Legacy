@@ -80,8 +80,8 @@
         },
         {
           "label": "Patient care-team membership readiness",
-          "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR care-team lead-member assignment through care-team tables, provider/facility projection, and restore-backed parity coverage.",
-          "evidence": ["slice-199-patient-care-team-readiness"]
+          "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR care-team lead-member assignment through care-team tables, provider/facility projection, and restore-backed parity coverage; Slice 453 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-199-patient-care-team-readiness", "slice-453-slice199-patient-care-team-probe-payload-attachments"]
         },
         {
           "label": "Patient multi-member care-team readiness",
