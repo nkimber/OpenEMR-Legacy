@@ -26327,7 +26327,7 @@ Code changes:
 
 Started: 2026-06-26T13:03:40.2642368-04:00
 Finished: 2026-06-26T13:12:34.6636700-04:00
-Commit: pending
+Commit: 1063a94d
 
 Implemented Slice 531: EOB batch import readiness. The modernized Fees payment panel now includes an `Import EOB` action that posts a deterministic two-line Northstar HMO electronic remittance batch through the existing payment posting path. The shared parity suite imports or creates the same temporary batch on both targets, verifies payer identity, electronic payment method, payer-claim numbers, reason codes, payment/adjustment balance movement, ledger rows, modernized UI rendering, and then removes the temporary payment rows so starting payment-session and payment-activity counts are restored.
 
