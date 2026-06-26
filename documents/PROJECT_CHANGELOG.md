@@ -26447,7 +26447,7 @@ Code changes:
 
 Started: 2026-06-26T13:48:49.4676187-04:00
 Finished: 2026-06-26T13:56:51.0435802-04:00
-Commit: pending
+Commit: d44d4533
 
 Implemented Slice 535: expanded billing charge-template catalog readiness. The modernized Fees CPT form now includes a `Complex follow-up` template that fills CPT `99214`, modifier `25`, two units, fee `210.00`, the complex follow-up description, and diagnosis pointer `K21.9`. The shared parity suite applies that template in the modernized UI or creates the equivalent legacy billing line, verifies the modifier-bearing multi-unit fee-sheet row, billing-line count movement, modernized rendering, and hard-delete cleanup.
 
