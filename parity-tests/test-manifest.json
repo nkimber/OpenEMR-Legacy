@@ -1833,6 +1833,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-537-claim-diagnosis-pointer-scrubbing-readiness",
+      "name": "Slice 537 Claim Diagnosis Pointer Scrubbing Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a diagnosis line plus a CPT line with an unsupported diagnosis pointer, scrubs a temporary claim, verifies deterministic SCRUB-FAIL invalid-diagnosis-pointer report metadata, and cleans up all temporary rows.",
+      "suites": ["workflow-claim-diagnosis-pointer-scrubbing"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-537", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3885,6 +3894,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-modifier-scrubbing",
       "tags": ["slice536", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-diagnosis-pointer-scrubbing",
+      "name": "Claim Diagnosis Pointer Scrubbing",
+      "description": "Creates a valid ICD10 diagnosis line plus a CPT line with an unsupported diagnosis pointer, scrubs a temporary local claim report, verifies deterministic SCRUB-FAIL invalid-diagnosis-pointer metadata, and cleans up all temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-diagnosis-pointer-scrubbing",
+      "tags": ["slice537", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

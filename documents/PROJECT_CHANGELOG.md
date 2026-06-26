@@ -26503,6 +26503,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 422 insertions and 9 deletions including the new claim modifier-scrubbing parity suite.
 
+## 584. Slice 537 Claim Diagnosis Pointer Scrubbing Readiness
+
+Started: 2026-06-26T14:09:14.7826749-04:00
+Finished: 2026-06-26T14:16:11.7476994-04:00
+Commit: pending
+
+Implemented Slice 537: focused claim diagnosis-pointer scrubbing readiness. The modernized Fees claim `Scrub` action now compares active CPT diagnosis pointers with active ICD10 diagnosis lines on the same encounter and writes deterministic `invalid-diagnosis-pointer:<value>` issues into the local scrub report when unsupported pointers are present. The shared parity suite creates a cleanup-backed ICD10 diagnosis line, a CPT line with unsupported pointer `Q99.99`, and a temporary queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added diagnosis-pointer-aware validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-diagnosis-pointer-scrubbing` suite and `slice-537-claim-diagnosis-pointer-scrubbing-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 537 claim diagnosis-pointer scrubbing plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused invalid-diagnosis-pointer claim scrubbing as completed billing validation scope while leaving broader diagnosis pointer policy depth, broader modifier compatibility rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 537 diagnosis-pointer scrubbing contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 537 legacy parity plan: `2026-06-26T181428-353Z-legacy-openemr-plan-slice-537-claim-diagnosis-pointer-scrubbing-readiness` passed 1/1 tests.
+- Ran the Slice 537 modernized parity plan: `2026-06-26T181517-774Z-modernized-openemr-plan-slice-537-claim-diagnosis-pointer-scrubbing-readiness` passed 1/1 tests.
+- Compared the two Slice 537 runs: `2026-06-26T181559-080Z-legacy-openemr-vs-modernized-openemr-plan-slice-537-claim-diagnosis-pointer-scrubbing-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 537 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 474 insertions and 6 deletions including the new claim diagnosis-pointer scrubbing parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
