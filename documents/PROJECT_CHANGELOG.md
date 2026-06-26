@@ -26383,6 +26383,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 371 insertions and 13 deletions including the new claim generation parity suite.
 
+## 580. Slice 533 Claim Scrubbing Readiness
+
+Started: 2026-06-26T13:29:17.5766055-04:00
+Finished: 2026-06-26T13:36:31.9849962-04:00
+Commit: pending
+
+Implemented Slice 533: focused claim scrubbing readiness. The modernized Fees claim card now includes a `Scrub` action that evaluates claim payer metadata and encounter fee-sheet CPT lines for diagnosis pointers, positive fees, and positive units, then writes a deterministic local scrub report and process-file name back to the claim. The shared parity suite creates a cleanup-backed queued Northstar HMO claim on both targets, drives the modernized UI Scrub action or equivalent legacy update, verifies PASS/no-issue scrub content, process-file metadata, claim-count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the `workflow-claim-scrubbing` suite and `slice-533-claim-scrubbing-readiness` plan.
+- Added the modernized Fees claim `Scrub` action with deterministic local payer/CPT/diagnosis-pointer/fee/unit validation report output.
+- Added Workbench managed actions and plan cards for running the Slice 533 claim scrubbing plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim scrubbing as completed billing scope while leaving deeper diagnosis pointer validation, modifier validation, richer charge-template catalogs, and richer revenue-cycle exception handling outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 533 scrubbing contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 533 legacy parity plan: `2026-06-26T173512-083Z-legacy-openemr-plan-slice-533-claim-scrubbing-readiness` passed 1/1 tests.
+- Ran the Slice 533 modernized parity plan: `2026-06-26T173541-776Z-modernized-openemr-plan-slice-533-claim-scrubbing-readiness` passed 1/1 tests.
+- Compared the two Slice 533 runs: `2026-06-26T173619-121Z-legacy-openemr-vs-modernized-openemr-plan-slice-533-claim-scrubbing-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 533 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 428 insertions and 9 deletions including the new claim scrubbing parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

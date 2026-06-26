@@ -1806,6 +1806,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-533-claim-scrubbing-readiness",
+      "name": "Slice 533 Claim Scrubbing Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that creates, scrubs, renders, and removes a temporary local claim scrub report while verifying payer, CPT, diagnosis-pointer, fee, unit, process-file, and cleanup behavior.",
+      "suites": ["workflow-claim-scrubbing"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-533", "billing", "claims", "claim-scrubbing", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3819,6 +3828,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-generation",
       "tags": ["slice532", "workflow", "mutation", "billing", "claims", "claim-generation", "x12", "837p", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-scrubbing",
+      "name": "Claim Scrubbing",
+      "description": "Creates, scrubs, renders, and removes a temporary local claim scrub report while verifying payer, CPT, diagnosis-pointer, fee, unit, process-file, and cleanup behavior on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-scrubbing",
+      "tags": ["slice533", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
