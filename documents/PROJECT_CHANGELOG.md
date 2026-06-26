@@ -27156,7 +27156,7 @@ Code Metrics:
 
 Started: 2026-06-26T18:02:38.1504886-04:00
 Finished: 2026-06-26T18:06:07.6437512-04:00
-Commit: TBD
+Commit: `5bdab279`
 
 Implemented Slice 558: focused server-side claim resubmission readiness. The modernized billing claim `Resubmit` action no longer builds deterministic X12 resubmission payloads in the React UI; it calls the new `POST /api/billing/claims/{claimId}/resubmit` backend operation, which reads the denied claim and patient identity, persists queued X12 resubmission metadata, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO denied claim against the seeded billing encounter, drives the modernized UI/backend resubmission path or equivalent legacy update, verifies deterministic process-file metadata, submitted-claim content, queued claim-card rendering, claim-count stability, and cleanup.
 
