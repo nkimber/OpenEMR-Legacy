@@ -23507,7 +23507,7 @@ Code changes:
 
 Started: 2026-06-25T23:15:15.8943957-04:00
 Finished: 2026-06-25T23:17:57.2445423-04:00
-Commit: Pending
+Commit: `0e948940`
 
 Implemented Slice 449: Slice 195 patient guardian demographic/address probe payload attachments. The patient guardian demographic/address readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original guardian detail precondition, temporary sex/address/country/work-phone update, legacy demographics edit rendering, modernized patient chart API and Patient/Client Guardian Contact panel rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind guardian demographic and address parity.
 
