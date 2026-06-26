@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "modern-ui-claude",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "modern-ui-claude",
+      "port": 3100,
+      "autoPort": true
+    }
+  ]
+}
