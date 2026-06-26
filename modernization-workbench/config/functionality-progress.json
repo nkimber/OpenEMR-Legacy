@@ -215,8 +215,8 @@
         },
         {
           "label": "Patient portal document list/download readiness",
-          "detail": "The modernized patient portal API and Portal page now list active patient-owned documents by legacy category and build a selected-document ZIP download, while parity compares the same list and download package behavior against legacy OpenEMR.",
-          "evidence": ["slice-218-patient-portal-documents-readiness"]
+          "detail": "The modernized patient portal API and Portal page now list active patient-owned documents by legacy category and build a selected-document ZIP download, while parity compares the same list and download package behavior against legacy OpenEMR, and Slice 472 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-218-patient-portal-documents-readiness", "slice-472-slice218-patient-portal-documents-probe-payload-attachments"]
         },
         {
           "label": "Patient portal appointment list readiness",
@@ -638,7 +638,7 @@
         },
         {
           "label": "Patient portal document list/download readiness",
-          "detail": "The authenticated patient portal can render active patient-owned document categories and create a selected-document ZIP package with OpenEMR-compatible ownership, deleted-row, and non-downloadable external-link filtering.",
+          "detail": "The authenticated patient portal can render active patient-owned document categories and create a selected-document ZIP package with OpenEMR-compatible ownership, deleted-row, non-downloadable external-link filtering, and Slice 472 Workbench probe-payload preview coverage.",
           "evidence": ["slice-218-patient-portal-documents-readiness"]
         }
       ],

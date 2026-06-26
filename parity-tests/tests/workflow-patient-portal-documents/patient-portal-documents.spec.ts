@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -17,11 +18,29 @@ test.describe("patient portal document list and download parity @slice218 @workf
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(180_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalDocumentAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-218-patient-portal-documents-precondition",
+      description: "Captures the Slice 218 portal document precondition: the signed-in anchor patient exists for document list and selected-package download checks.",
+      expected: {
+        anchorCanonicalId: portalDocumentAnchorPatientId,
+        loginUsername: portalLoginUsername,
+        pubpid: portalDocumentAnchorPatientId
+      },
+      actual: {
+        patient
+      },
+      context: {
+        canonicalId: portalDocumentAnchorPatientId,
+        suite: "workflow-patient-portal-documents",
+        workflow: "patient-portal-documents-precondition"
+      }
+    });
 
     const portalDocuments = await workflow.getPatientPortalDocuments(portalLoginUsername, portalPassword);
     expect(portalDocuments).toMatchObject({
@@ -37,11 +56,32 @@ test.describe("patient portal document list and download parity @slice218 @workf
     expect(portalDocuments.documents.map((document) => document.name).sort()).toEqual(expectedDocumentNames);
     expect(portalDocuments.categories.map((category) => category.displayPath).sort()).toEqual(["Advance Directive", "CCDA"]);
     expect(portalDocuments.documents.every((document) => document.canDownload)).toBe(true);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-218-patient-portal-documents-list",
+      description: "Captures the Slice 218 portal document list projection, including legacy category paths, active document names, and download eligibility.",
+      expected: {
+        documentNames: expectedDocumentNames,
+        categories: ["Advance Directive", "CCDA"],
+        documentCount: 2,
+        allDocumentsDownloadable: true
+      },
+      actual: {
+        patient,
+        portalDocuments
+      },
+      context: {
+        canonicalId: portalDocumentAnchorPatientId,
+        suite: "workflow-patient-portal-documents",
+        workflow: "patient-portal-documents-list"
+      }
+    });
 
+    const requestedDocumentIds = portalDocuments.documents.map((document) => document.id);
     const downloadResult = await workflow.downloadPatientPortalDocuments(
       portalLoginUsername,
       portalPassword,
-      portalDocuments.documents.map((document) => document.id)
+      requestedDocumentIds
     );
     expect(downloadResult).toMatchObject({
       authenticated: true,
@@ -52,6 +92,29 @@ test.describe("patient portal document list and download parity @slice218 @workf
     });
     expect(downloadResult.contentType).toContain("application/zip");
     expect(downloadResult.contentLength).toBeGreaterThan(0);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-218-patient-portal-documents-download",
+      description: "Captures the Slice 218 selected-document package result, including requested document IDs, ZIP filename, content type, and byte length.",
+      expected: {
+        requestedDocumentIds,
+        downloadable: true,
+        fileName: "patient_documents.zip",
+        documentCount: 2,
+        contentTypeIncludes: "application/zip",
+        contentLengthGreaterThan: 0
+      },
+      actual: {
+        portalDocuments,
+        requestedDocumentIds,
+        downloadResult
+      },
+      context: {
+        canonicalId: portalDocumentAnchorPatientId,
+        suite: "workflow-patient-portal-documents",
+        workflow: "patient-portal-documents-download"
+      }
+    });
 
     if (target.type === "modernized-openemr") {
       expect(downloadResult.contentLength).toBeGreaterThan(300);
@@ -61,11 +124,34 @@ test.describe("patient portal document list and download parity @slice218 @workf
   test("renders portal documents and downloads the selected document zip from the portal surface", async ({
     page,
     target
-  }) => {
+  }, testInfo) => {
     test.setTimeout(180_000);
 
     if (target.type === "legacy-openemr") {
       await expectLegacyPatientPortalDocuments(page, target);
+      const legacyDocumentsSurface = await page.locator("body").innerText();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-218-patient-portal-documents-legacy-surface",
+        description: "Captures the Slice 218 legacy patient portal document download surface with both expected active documents and the download action.",
+        expected: {
+          visibleFields: [
+            "Select Documents to Download",
+            ...expectedDocumentNames,
+            "Download Selected Documents"
+          ]
+        },
+        actual: {
+          url: page.url(),
+          expectedDocumentNames,
+          legacyDocumentsSurface
+        },
+        context: {
+          canonicalId: portalDocumentAnchorPatientId,
+          suite: "workflow-patient-portal-documents",
+          workflow: "patient-portal-documents-legacy-surface"
+        }
+      });
       return;
     }
 
@@ -81,6 +167,31 @@ test.describe("patient portal document list and download parity @slice218 @workf
     await documentsRegion.getByRole("button", { name: "Download selected documents" }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe("patient_documents.zip");
+    const modernizedDocumentsSurface = await documentsRegion.innerText();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-218-patient-portal-documents-modernized-surface",
+      description: "Captures the Slice 218 modernized Portal documents rendering and selected-document ZIP download filename.",
+      expected: {
+        visibleFields: [
+          "Patient portal documents",
+          ...expectedDocumentNames,
+          "Download selected documents"
+        ],
+        suggestedFilename: "patient_documents.zip"
+      },
+      actual: {
+        url: page.url(),
+        expectedDocumentNames,
+        suggestedFilename: download.suggestedFilename(),
+        modernizedDocumentsSurface
+      },
+      context: {
+        canonicalId: portalDocumentAnchorPatientId,
+        suite: "workflow-patient-portal-documents",
+        workflow: "patient-portal-documents-modernized-surface"
+      }
+    });
   });
 });
 
