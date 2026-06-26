@@ -26598,7 +26598,7 @@ Code changes:
 
 Started: 2026-06-26T14:38:40.0210676-04:00
 Finished: 2026-06-26T14:48:12.0099873-04:00
-Commit: pending
+Commit: 073b29f1
 
 Implemented Slice 540: focused claim missing-diagnosis-code readiness. The modernized Fees claim `Scrub` action now writes deterministic `missing-diagnosis-code` issues into the local scrub report when a CPT line has a diagnosis pointer but the encounter has no active ICD10 diagnosis row. The shared parity suite creates a cleanup-backed temporary billing-only encounter with a CPT line and queued Northstar HMO claim but no ICD10 line, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content without missing-pointer or invalid-pointer misclassification, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
 
