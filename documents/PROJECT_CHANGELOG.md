@@ -24678,7 +24678,7 @@ Code changes:
 
 Started: 2026-06-26T03:05:07.2336515-04:00
 Finished: 2026-06-26T03:08:01.1928063-04:00
-Commit: Pending
+Commit: `735889e8`
 
 Implemented Slice 483: Slice 229 patient portal generated medical-report printable-template probe payload attachments. The patient portal generated medical-report printable-template readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, printable template metadata projection facts, legacy printable generated-report rendering, and modernized Portal template rendering so Workbench comparison drill-ins can preview the report header evidence behind generated-report parity.
 
