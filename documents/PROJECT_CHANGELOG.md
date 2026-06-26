@@ -23206,7 +23206,7 @@ Code changes:
 
 Started: 2026-06-25T22:06:33.9829802-04:00
 Finished: 2026-06-25T22:09:51.6046786-04:00
-Commit: Pending
+Commit: c3f9d31d
 
 Implemented Slice 440: Slice 186 document mutation authorization-policy probe payload attachments. The document mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Documents/Documents Delete ACL preconditions, legacy Documents rendering facts, admin and clinician login facts, clinician read and add-only create facts, clinician metadata/content/sign/archive/delete denial facts, admin hard-delete cleanup facts, and final document-count cleanup facts so Workbench comparison drill-ins can preview document mutation ACL enforcement evidence without storing password, cookie, session material, or full document bodies.
 
@@ -23232,7 +23232,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `admin-login`, `clinician-login`, `clinician-read`, `clinician-create`, `clinician-metadata-forbidden`, `clinician-content-forbidden`, `clinician-sign-forbidden`, `clinician-archive-forbidden`, `clinician-delete-forbidden`, `admin-delete`, and `cleanup` payloads.
 
 Code changes:
-- Pending.
+- Lines added: 487
+- Lines deleted: 20
+- Net lines: 467
+- Total churn: 507
 
 ## Next Expected Entries
 
