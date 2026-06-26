@@ -24369,7 +24369,7 @@ Code changes:
 
 Started: 2026-06-26T01:52:39.2278830-04:00
 Finished: 2026-06-26T01:54:52.9014397-04:00
-Commit: Pending
+Commit: `4f13237d`
 
 Implemented Slice 474: Slice 220 patient portal appointment request probe payload attachments. The patient portal appointment-request readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, cleanup-backed pending appointment/provider reminder creation, cleanup state, legacy portal requested-appointment rendering, and modernized Portal requested-appointment rendering so Workbench comparison drill-ins can preview the evidence behind appointment-request parity.
 
