@@ -60,8 +60,8 @@
         },
         {
           "label": "Patient guardian demographic/address readiness",
-          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR guardian sex, address, country, and work-phone fields with restore-backed mutation coverage.",
-          "evidence": ["slice-195-patient-guardian-details-readiness"]
+          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR guardian sex, address, country, and work-phone fields with restore-backed mutation coverage; Slice 449 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-195-patient-guardian-details-readiness", "slice-449-slice195-patient-guardian-details-probe-payload-attachments"]
         },
         {
           "label": "Patient social detail readiness",
