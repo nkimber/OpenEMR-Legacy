@@ -26876,7 +26876,7 @@ Code Metrics:
 Started: 2026-06-26T16:18:22.2688330-04:00
 Finished: 2026-06-26T16:22:06.6522843-04:00
 Duration: 3 minutes 44 seconds
-Commit: pending
+Commit: `2af6058c`
 
 Implemented Slice 549: focused missing-payer readiness. The modernized billing claim API now allows `payerId` `0` to represent a queued claim with no payer selected, matching the legacy baseline state used by the parity harness, and the modernized Fees claim `Scrub` action treats zero/blank payer metadata as deterministic `missing-payer` issues. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, positive fee and units, and a queued claim without payer metadata, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without CPT-code, diagnosis-code, diagnosis-pointer, modifier, fee, unit, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
@@ -26902,6 +26902,37 @@ Verification:
 
 Code Metrics:
 - 12 scoped files changed, with 468 insertions and 7 deletions including the new claim missing-payer parity suite.
+
+## 597. Slice 550 Claim Invalid Fee Readiness
+
+Started: 2026-06-26T16:28:12.2786471-04:00
+Finished: 2026-06-26T16:32:05.4628852-04:00
+Duration: 3 minutes 53 seconds
+Commit: pending
+
+Implemented Slice 550: focused invalid-fee readiness. The modernized Fees claim `Scrub` action now uses explicit numeric validation for fee and unit checks so zero or non-numeric CPT fee values fail deterministically. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, zero CPT fee, positive units, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, CPT-code, diagnosis-code, diagnosis-pointer, modifier, unit, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Hardened the modernized claim scrub fee/unit checks with explicit finite-number validation.
+- Added the `workflow-claim-invalid-fee` suite and `slice-550-claim-invalid-fee-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 550 invalid-fee plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused invalid-fee claim scrubbing as completed billing validation scope while leaving broader charge policy, payer-specific fee schedules, clearinghouse edits, and full revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 550 invalid-fee contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 550 legacy parity plan: `2026-06-26T203106-520Z-legacy-openemr-plan-slice-550-claim-invalid-fee-readiness` passed 1/1 tests.
+- Ran the Slice 550 modernized parity plan: `2026-06-26T203106-935Z-modernized-openemr-plan-slice-550-claim-invalid-fee-readiness` passed 1/1 tests.
+- Compared the two successful Slice 550 runs: `2026-06-26T203153-626Z-legacy-openemr-vs-modernized-openemr-plan-slice-550-claim-invalid-fee-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 550 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 11 scoped files changed, with 479 insertions and 8 deletions including the new claim invalid-fee parity suite.
 
 ## Next Expected Entries
 

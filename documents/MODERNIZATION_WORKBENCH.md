@@ -687,3 +687,9 @@ The Progress page also records focused incompatible modifier-combination claim s
 The Workbench now exposes managed Slice 549 claim missing-payer plan actions for both the legacy and modernized targets. These actions run `slice-549-claim-missing-payer-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a queued claim with no selected payer is flagged with deterministic `SCRUB-FAIL` / `missing-payer` report metadata while valid CPT4, ICD10 diagnosis, modifier, fee, unit, and same-day service-date facts avoid unrelated misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused missing-payer claim scrubbing as completed billing validation scope while keeping broader payer eligibility, coordination-of-benefits, clearinghouse edits, and full revenue-cycle exception handling outstanding.
+
+## Slice 550 Workbench Update
+
+The Workbench now exposes managed Slice 550 claim invalid-fee plan actions for both the legacy and modernized targets. These actions run `slice-550-claim-invalid-fee-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a queued claim with valid payer, diagnosis, CPT, modifier, units, and service date but a zero CPT fee is flagged with deterministic `SCRUB-FAIL` / `invalid-fee` report metadata without unrelated payer, code, diagnosis-pointer, modifier, unit, future-date, or missing-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused invalid-fee claim scrubbing as completed billing validation scope while keeping broader charge policy, payer-specific fee schedules, clearinghouse edits, and full revenue-cycle exception handling outstanding.

@@ -1950,6 +1950,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-550-claim-invalid-fee-readiness",
+      "name": "Slice 550 Claim Invalid Fee Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT/diagnosis claim with a zero CPT fee, scrubs a temporary claim, verifies deterministic SCRUB-FAIL invalid-fee metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-invalid-fee"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-550", "billing", "claims", "claim-scrubbing", "fee-validation", "invalid-fee", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4132,6 +4141,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-missing-payer",
       "tags": ["slice549", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "payer-validation", "missing-payer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-invalid-fee",
+      "name": "Claim Invalid Fee",
+      "description": "Creates a CPT/diagnosis claim with a zero CPT fee, scrubs a temporary local claim report, verifies deterministic invalid-fee metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-invalid-fee",
+      "tags": ["slice550", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "fee-validation", "invalid-fee", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
