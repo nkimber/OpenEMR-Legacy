@@ -210,8 +210,8 @@
         },
         {
           "label": "Patient portal secure-message notification readiness",
-          "detail": "The modernized patient portal API and Portal page now project active patient reminders as legacy-style read-only Notification rows in Inbox and All while excluding them from Sent and Deleted.",
-          "evidence": ["slice-255-patient-portal-message-notifications-readiness"]
+          "detail": "The modernized patient portal API and Portal page now project active patient reminders as legacy-style read-only Notification rows in Inbox and All while excluding them from Sent and Deleted, and Slice 509 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-255-patient-portal-message-notifications-readiness", "slice-509-slice255-patient-portal-message-notifications-probe-payload-attachments"]
         },
         {
           "label": "Patient portal document list/download readiness",

@@ -25556,6 +25556,39 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-profile-review-revert/patient-portal-profile-review-revert.spec.ts`: 242 insertions, 2 deletions.
 
+## 556. Slice 509 Slice 255 Patient Portal Secure-Message Notification Probe Payload Attachments
+
+Started: 2026-06-26T06:12:00.0000000-04:00
+Finished: 2026-06-26T06:21:03.6193105-04:00
+Commit: Pending
+
+Implemented Slice 509: Slice 255 patient portal secure-message notification probe payload attachments. The notification readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient notification preconditions, cleanup-backed notification creation, Inbox/All notification projections, cleanup state, legacy portal UI-absence evidence, modernized read-only notification-row rendering, and UI-test cleanup so Workbench comparison drill-ins can preview patient-reminder notification evidence behind portal parity.
+
+Changes:
+- Added Slice 255 precondition, cleaned-baseline, created-notification, projection, and cleanup payload attachments for the `MOD-PAT-0004` portal anchor.
+- Added target-specific UI payloads documenting the accepted legacy Secure Messaging UI absence and the modernized Portal read-only notification row without thread, archive, or reply controls.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 509 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-509-slice255-patient-portal-message-notifications-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-message-notifications/patient-portal-message-notifications.spec.ts` passed with line-ending warnings only.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-255-patient-portal-message-notifications-readiness -Reset test` passed with run `2026-06-26T101914-011Z-legacy-openemr-plan-slice-255-patient-portal-message-notifications-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-255-patient-portal-message-notifications-readiness -Reset test` passed with run `2026-06-26T102013-650Z-modernized-openemr-plan-slice-255-patient-portal-message-notifications-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-255-patient-portal-message-notifications-readiness` produced matched comparison `2026-06-26T102040-911Z-legacy-openemr-vs-modernized-openemr-plan-slice-255-patient-portal-message-notifications-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-255-patient-portal-message-notifications-precondition`, `db-probe-slice-255-patient-portal-message-notifications-before`, `db-probe-slice-255-patient-portal-message-notifications-created`, `db-probe-slice-255-patient-portal-message-notifications-projection`, `db-probe-slice-255-patient-portal-message-notifications-cleanup`, `db-probe-slice-255-patient-portal-message-notifications-legacy-ui-absence`, and `db-probe-slice-255-patient-portal-message-notifications-ui-cleanup`; the modernized run includes `db-probe-slice-255-patient-portal-message-notifications-precondition`, `db-probe-slice-255-patient-portal-message-notifications-before`, `db-probe-slice-255-patient-portal-message-notifications-created`, `db-probe-slice-255-patient-portal-message-notifications-projection`, `db-probe-slice-255-patient-portal-message-notifications-cleanup`, `db-probe-slice-255-patient-portal-message-notifications-modernized-ui`, and `db-probe-slice-255-patient-portal-message-notifications-ui-cleanup`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 1 insertion, 1 deletion.
+- `documents/PROJECT_CHANGELOG.md`: 34 insertions, 1 deletion.
+- `documents/PROJECT_CONTEXT.md`: 4 insertions, 4 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-message-notifications/patient-portal-message-notifications.spec.ts`: 252 insertions, 14 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -25565,5 +25598,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, and 254.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, and 255.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
