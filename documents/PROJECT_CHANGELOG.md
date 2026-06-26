@@ -24743,6 +24743,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-report-package/patient-portal-report-package.spec.ts`: 116 insertions, 4 deletions.
 
+## 532. Slice 485 Slice 231 Patient Portal Generated Medical-Report Lifecycle Audit Probe Payload Attachments
+
+Started: 2026-06-26T03:19:23.6205050-04:00
+Finished: 2026-06-26T03:22:56.8458963-04:00
+Commit: Pending
+
+Implemented Slice 485: Slice 231 patient portal generated medical-report lifecycle audit probe payload attachments. The patient portal generated medical-report lifecycle audit readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, generated-report audit projection facts, legacy printable/PDF source lifecycle evidence, and modernized audit API plus Portal rendering so Workbench comparison drill-ins can preview the lifecycle audit evidence behind generated-report parity.
+
+Changes:
+- Added Slice 231 precondition payload attachments for the `MOD-PAT-0004` anchor patient and expected generated-report audit event contract.
+- Added generated-report lifecycle audit projection payload attachments proving generated-report event shape, selected section IDs, empty issue/form selections, selected procedure-order coverage, and event summary facts.
+- Added legacy generated-report lifecycle reference payload attachments for normalized generated-report audit events plus printable HTML and PDF source artifact metadata.
+- Added modernized lifecycle audit payload attachments for generated-report, PDF-download, and package-download API audit events plus Portal Report Audit rendering.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 485 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-485-slice231-patient-portal-generated-medical-report-audit-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-report-audit/patient-portal-report-audit.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-231-patient-portal-generated-medical-report-audit-readiness -Reset test` passed with run `2026-06-26T072135-103Z-legacy-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-231-patient-portal-generated-medical-report-audit-readiness -Reset test` passed with run `2026-06-26T072207-605Z-modernized-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-231-patient-portal-generated-medical-report-audit-readiness` produced matched comparison `2026-06-26T072233-770Z-legacy-openemr-vs-modernized-openemr-plan-slice-231-patient-portal-generated-medical-report-audit-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-231-patient-portal-report-audit-precondition`, `db-probe-slice-231-patient-portal-report-audit-result`, and `db-probe-slice-231-patient-portal-report-audit-legacy-ui`; the modernized run includes `db-probe-slice-231-patient-portal-report-audit-precondition`, `db-probe-slice-231-patient-portal-report-audit-result`, and `db-probe-slice-231-patient-portal-report-audit-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 3 insertions, 3 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 22 insertions, 1 deletion.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-report-audit/patient-portal-report-audit.spec.ts`: 136 insertions, 4 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -24752,5 +24787,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, and 230.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, and 231.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

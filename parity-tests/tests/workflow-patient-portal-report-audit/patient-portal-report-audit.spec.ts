@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -11,12 +12,34 @@ const portalPassword = "PortalPass207!";
 test.describe("patient portal generated report lifecycle audit parity @slice231 @workflow-patient-portal-report-audit @patients @portal @reports", () => {
   test("normalizes generated medical report audit events", async ({
     targetDb,
+    target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-231-patient-portal-report-audit-precondition",
+      description: "Captures the Slice 231 generated medical-report lifecycle audit precondition: the anchor patient exists before generating report audit events.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        expectedAuditEvents: ["generated_report"]
+      },
+      actual: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-report-audit",
+        workflow: "patient-portal-generated-medical-report-audit-precondition"
+      }
+    });
 
     const generated = await workflow.generatePatientPortalMedicalReport(portalLoginUsername, portalPassword, {
       sectionIds: ["demographics", "billing"]
@@ -48,13 +71,45 @@ test.describe("patient portal generated report lifecycle audit parity @slice231 
     expect(generatedEvent!.eventAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
     expect(generatedEvent!.includedProcedureOrderIds).toHaveLength(1);
     expect(generatedEvent!.summary).toContain("Customized Medical History Report");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-231-patient-portal-report-audit-result",
+      description: "Captures the Slice 231 generated medical-report lifecycle audit projection after generating a demographics and billing report.",
+      expected: {
+        displayName: "Kim, Nora",
+        auditEventTypes: ["generated_report"],
+        generatedEvent: {
+          eventLabel: "Generated report",
+          reportTitle: "Customized Medical History Report",
+          includedSectionIds: ["demographics", "billing"],
+          includedIssueIds: [],
+          includedEncounterFormIds: [],
+          includedProcedureOrderCount: 1
+        }
+      },
+      actual: {
+        authenticated: generated.authenticated,
+        username: generated.username,
+        portalUsername: generated.portalUsername,
+        pid: generated.pid,
+        pubpid: generated.pubpid,
+        displayName: generated.displayName,
+        title: generated.title,
+        auditEventCount: generated.auditEventCount,
+        auditEvents: generated.auditEvents
+      },
+      context: {
+        suite: "workflow-patient-portal-report-audit",
+        workflow: "patient-portal-generated-medical-report-audit-result"
+      }
+    });
   });
 
   test("captures generated report artifact lifecycle events", async ({
     page,
     target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     if (target.type === "legacy-openemr") {
@@ -62,11 +117,49 @@ test.describe("patient portal generated report lifecycle audit parity @slice231 
         sectionIds: ["demographics", "billing"]
       });
       expect(generated.auditEvents.map((event) => event.eventType)).toContain("generated_report");
-      await expectLegacyGeneratedMedicalReportLifecycleSources(page, target);
+      const legacyLifecycle = await expectLegacyGeneratedMedicalReportLifecycleSources(page, target);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-231-patient-portal-report-audit-legacy-ui",
+        description: "Captures the legacy generated medical-report lifecycle source artifacts used as the audit reference: generated-report event plus printable/PDF source artifact metadata.",
+        expected: {
+          auditEventTypes: ["generated_report"],
+          printablePage: "portal/report/portal_custom_report.php?printable=1",
+          pdfPage: "portal/report/portal_custom_report.php",
+          visibleFacts: ["Modernization Family Medicine", "PATIENT:Kim, Nora"],
+          pdfHeader: "%PDF"
+        },
+        actual: {
+          auditEventTypes: generated.auditEvents.map((event) => event.eventType),
+          auditEventCount: generated.auditEventCount,
+          auditEvents: generated.auditEvents,
+          sourceArtifacts: legacyLifecycle
+        },
+        context: {
+          suite: "workflow-patient-portal-report-audit",
+          workflow: "patient-portal-generated-medical-report-audit-legacy-ui"
+        }
+      });
       return;
     }
 
-    await expectModernizedGeneratedMedicalReportLifecycleAudit(page, target);
+    const modernizedLifecycle = await expectModernizedGeneratedMedicalReportLifecycleAudit(page, target);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-231-patient-portal-report-audit-modernized-ui",
+      description: "Captures the modernized generated medical-report lifecycle audit API and Portal surface, including generated, PDF downloaded, and package downloaded audit events.",
+      expected: {
+        auditEndpoint: "/api/patient-portal/medical-report/audit",
+        auditEventTypes: ["generated_report", "pdf_downloaded", "package_downloaded"],
+        artifactContentTypes: ["application/pdf", "application/zip"],
+        visibleFacts: ["Report Audit", "Audit Events", "Generated report", "PDF downloaded", "Package downloaded"]
+      },
+      actual: modernizedLifecycle,
+      context: {
+        suite: "workflow-patient-portal-report-audit",
+        workflow: "patient-portal-generated-medical-report-audit-modernized-ui"
+      }
+    });
   });
 });
 
@@ -112,6 +205,25 @@ async function expectLegacyGeneratedMedicalReportLifecycleSources(page: Page, ta
   });
   expect(pdfResponse.ok()).toBeTruthy();
   expect(pdfResponse.headers()["content-type"]).toContain("application/pdf");
+
+  const pdf = await pdfResponse.body();
+  expect(pdf.byteLength).toBeGreaterThan(1000);
+  expect(pdf.toString("latin1").startsWith("%PDF")).toBeTruthy();
+
+  return {
+    printableUrl: `${target.publicUrl}/portal/report/portal_custom_report.php?${printableParams.toString()}`,
+    pdfUrl: `${target.publicUrl}/portal/report/portal_custom_report.php`,
+    procedureOrderId,
+    printableResponseLength: printableHtml.length,
+    pdfContentType: pdfResponse.headers()["content-type"],
+    pdfByteLength: pdf.byteLength,
+    pdfHeader: pdf.toString("latin1", 0, 4),
+    containsFacts: {
+      printableFacility: printableHtml.includes("Modernization Family Medicine"),
+      printablePatientHeader: printableHtml.includes("PATIENT:Kim, Nora"),
+      pdfHeader: pdf.toString("latin1").startsWith("%PDF")
+    }
+  };
 }
 
 async function expectModernizedGeneratedMedicalReportLifecycleAudit(page: Page, target: RuntimeTarget) {
@@ -158,6 +270,7 @@ async function expectModernizedGeneratedMedicalReportLifecycleAudit(page: Page, 
   const auditResponse = await page.request.get(`${target.apiBaseUrl}/api/patient-portal/medical-report/audit`, {
     headers
   });
+  const auditEndpoint = `${target.apiBaseUrl}/api/patient-portal/medical-report/audit`;
   expect(auditResponse.ok()).toBeTruthy();
   const audit = await auditResponse.json() as {
     authenticated: boolean;
@@ -204,4 +317,23 @@ async function expectModernizedGeneratedMedicalReportLifecycleAudit(page: Page, 
   await expect(generatedReportRegion).toContainText("Generated report");
   await expect(generatedReportRegion).toContainText("PDF downloaded");
   await expect(generatedReportRegion).toContainText("Package downloaded");
+  const regionText = await generatedReportRegion.innerText();
+
+  return {
+    generatedAuditEventTypes: generated.auditEvents.map((event) => event.eventType),
+    pdfContentType: pdfResponse.headers()["content-type"],
+    packageContentType: packageResponse.headers()["content-type"],
+    auditEndpoint,
+    auditEventCount: audit.auditEventCount,
+    auditEvents: audit.auditEvents,
+    portalUrl: page.url(),
+    regionText,
+    containsFacts: {
+      reportAudit: regionText.includes("Report Audit"),
+      auditEvents: regionText.includes("Audit Events"),
+      generatedReport: regionText.includes("Generated report"),
+      pdfDownloaded: regionText.includes("PDF downloaded"),
+      packageDownloaded: regionText.includes("Package downloaded")
+    }
+  };
 }

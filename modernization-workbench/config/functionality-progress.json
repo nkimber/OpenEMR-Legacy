@@ -305,8 +305,8 @@
         },
         {
           "label": "Patient portal generated medical report lifecycle audit readiness",
-          "detail": "The modernized patient portal API now records generated-report, PDF-download, and package-download audit events, exposes a session-protected audit history endpoint, renders the report audit timeline in the Portal page, and parity compares normalized lifecycle evidence against the legacy generated-report source actions.",
-          "evidence": ["slice-231-patient-portal-generated-medical-report-audit-readiness"]
+          "detail": "The modernized patient portal API now records generated-report, PDF-download, and package-download audit events, exposes a session-protected audit history endpoint, renders the report audit timeline in the Portal page, parity compares normalized lifecycle evidence against the legacy generated-report source actions, and Slice 485 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-231-patient-portal-generated-medical-report-audit-readiness", "slice-485-slice231-patient-portal-generated-medical-report-audit-probe-payload-attachments"]
         }
       ],
       "outstanding": [
