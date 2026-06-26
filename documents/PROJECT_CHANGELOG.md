@@ -26717,6 +26717,36 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 542 insertions and 7 deletions including the new claim duplicate diagnosis-pointer parity suite.
 
+## 591. Slice 544 Claim Duplicate Diagnosis Code Readiness
+
+Started: 2026-06-26T15:26:58.7197484-04:00
+Finished: 2026-06-26T15:31:00.7908852-04:00
+Commit: pending
+
+Implemented Slice 544: focused duplicate diagnosis-code readiness. The modernized Fees claim `Scrub` action now flags duplicate active ICD10 diagnosis rows on the same encounter as deterministic `duplicate-diagnosis-code:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with two active ICD10 `K21.9` lines, a CPT line justified by `K21.9`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-pointer, missing-code, or duplicate-pointer misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added duplicate diagnosis-code validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-duplicate-diagnosis-code` suite and `slice-544-claim-duplicate-diagnosis-code-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 544 duplicate diagnosis-code plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused duplicate diagnosis-code claim scrubbing as completed billing validation scope while leaving broader diagnosis/code policy rules beyond duplicate and pointer-count detection, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 544 duplicate diagnosis-code contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 544 legacy parity plan: `2026-06-26T192951-345Z-legacy-openemr-plan-slice-544-claim-duplicate-diagnosis-code-readiness` passed 1/1 tests.
+- Ran the Slice 544 modernized parity plan: `2026-06-26T193021-579Z-modernized-openemr-plan-slice-544-claim-duplicate-diagnosis-code-readiness` passed 1/1 tests.
+- Compared the two successful Slice 544 runs: `2026-06-26T193049-048Z-legacy-openemr-vs-modernized-openemr-plan-slice-544-claim-duplicate-diagnosis-code-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 544 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 498 insertions and 12 deletions including the new claim duplicate diagnosis-code parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

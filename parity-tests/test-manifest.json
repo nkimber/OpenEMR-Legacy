@@ -1896,6 +1896,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-544-claim-duplicate-diagnosis-code-readiness",
+      "name": "Slice 544 Claim Duplicate Diagnosis Code Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates duplicate encounter ICD10 diagnosis lines plus a CPT line with a valid pointer, scrubs a temporary claim, verifies deterministic SCRUB-FAIL duplicate-diagnosis-code metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-duplicate-diagnosis-code"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-544", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "duplicate-diagnosis-code", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4018,6 +4027,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-duplicate-diagnosis-pointer",
       "tags": ["slice543", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "duplicate-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-duplicate-diagnosis-code",
+      "name": "Claim Duplicate Diagnosis Code",
+      "description": "Creates duplicate encounter ICD10 diagnosis lines plus a CPT line with a valid pointer, scrubs a temporary local claim report, verifies deterministic duplicate-diagnosis-code metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-duplicate-diagnosis-code",
+      "tags": ["slice544", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "duplicate-diagnosis-code", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
