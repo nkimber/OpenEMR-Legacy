@@ -23859,7 +23859,7 @@ Code changes:
 
 Started: 2026-06-26T00:19:47.9736682-04:00
 Finished: 2026-06-26T00:22:41.4839113-04:00
-Commit: Pending
+Commit: `f4a67263`
 
 Implemented Slice 460: Slice 206 patient portal access probe payload attachments. The patient portal access readiness parity suite now writes path-backed JSON Playwright attachments for the original portal access precondition, temporary access revoke/grant states, legacy demographics edit rendering, modernized patient chart API and Portal Account rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind portal access parity.
 
