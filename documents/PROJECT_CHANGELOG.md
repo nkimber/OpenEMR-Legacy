@@ -23539,7 +23539,7 @@ Code changes:
 
 Started: 2026-06-25T23:22:01.9660928-04:00
 Finished: 2026-06-25T23:25:13.2885215-04:00
-Commit: Pending
+Commit: `83dca83c`
 
 Implemented Slice 450: Slice 196 patient social-detail probe payload attachments. The patient social-detail readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original demographics precondition, temporary race/ethnicity/interpreter/family-size/income/homeless/review-date update, legacy demographics edit rendering, modernized patient chart API and Patient/Client demographics rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind social-detail parity.
 
