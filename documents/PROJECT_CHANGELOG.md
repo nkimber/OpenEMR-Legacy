@@ -22742,8 +22742,8 @@ Code changes:
 ## 474. Slice 427 Slice 173 Administration Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T20:28:07.1840907-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:30:40.0058077-04:00
+Commit: be0f46f7
 
 Implemented Slice 427: Slice 173 administration authorization-policy probe payload attachments. The administration authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy ACL matrix rendering facts, modernized front-desk forbidden directory/mutation facts, admin directory allow facts, and modernized Admin-page retry rendering facts so Workbench comparison drill-ins can preview administration policy evidence without storing password, cookie, or session material.
 
@@ -22760,13 +22760,20 @@ Changes:
 - Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 427 evidence-payload contract.
 
 Verification:
-- Pending.
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-admin-authorization-policy/authorization-policy.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-173-admin-authorization-policy-readiness` passed with run ID `2026-06-26T002926-612Z-legacy-openemr-plan-slice-173-admin-authorization-policy-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-173-admin-authorization-policy-readiness` passed with run ID `2026-06-26T002947-086Z-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-173-admin-authorization-policy-readiness` matched with comparison ID `2026-06-26T003005-567Z-legacy-openemr-vs-modernized-openemr-plan-slice-173-admin-authorization-policy-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-173-admin-authorization-policy-precondition` and `legacy-rendered` entries in the legacy Playwright JSON report, plus `db-probe-slice-173-admin-authorization-policy-precondition`, `frontdesk-login`, `frontdesk-directory-forbidden`, `frontdesk-mutation-forbidden`, `admin-login`, `admin-directory`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 335
+- Lines deleted: 15
+- Net lines: 320
+- Total churn: 350
 
 ## Next Expected Entries
 
