@@ -25194,7 +25194,7 @@ Code changes:
 
 Started: 2026-06-26T04:52:05.0000000-04:00
 Finished: 2026-06-26T04:56:31.2738515-04:00
-Commit: Pending
+Commit: 3dd87af7
 
 Implemented Slice 498: Slice 244 patient portal prescription start-date probe payload attachments. The prescription start-date readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, active-prescription date-added/start-date projections, legacy portal Start Date table rendering, and modernized Portal prescription-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal prescription parity.
 
