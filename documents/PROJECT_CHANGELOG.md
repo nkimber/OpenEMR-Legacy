@@ -23731,7 +23731,7 @@ Code changes:
 
 Started: 2026-06-25T23:58:22.8192654-04:00
 Finished: 2026-06-26T00:00:37.0841867-04:00
-Commit: Pending
+Commit: `32b39ae0`
 
 Implemented Slice 456: Slice 202 patient history and lifestyle probe payload attachments. The patient history readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/history/lifestyle precondition, legacy History and Lifestyle rendering, modernized patient chart API projection, and modernized Patient/Client History and Lifestyle rendering so Workbench comparison drill-ins can preview the evidence behind read-only history parity.
 
