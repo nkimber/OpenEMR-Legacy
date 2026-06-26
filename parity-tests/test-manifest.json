@@ -1338,6 +1338,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-518-patient-portal-message-search-normalization-readiness",
+      "name": "Slice 518 Patient Portal Secure-Message Search Normalization Readiness",
+      "description": "Patient portal messaging confidence plan that verifies padded mixed-case secure-message search text is normalized for matching and checks the modernized Portal live result-count status.",
+      "suites": ["workflow-patient-portal-message-search-normalization"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-518", "patients", "portal", "messages", "search", "normalization", "accessibility", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4734,6 +4743,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-search-clear",
       "tags": ["slice517", "workflow", "mutation", "patients", "portal", "messages", "search", "clear", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-search-normalization",
+      "name": "Patient Portal Secure-Message Search Normalization Readiness",
+      "description": "Verifies cleanup-backed secure-message rows match padded mixed-case search text and the modernized Portal exposes the result-count summary as a live status.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-search-normalization",
+      "tags": ["slice518", "workflow", "mutation", "patients", "portal", "messages", "search", "normalization", "accessibility", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -168,6 +168,7 @@
         "parityPatientPortalMessageEmptySearchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-515-patient-portal-message-empty-search-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSearchCountsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-516-patient-portal-message-search-counts-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSearchClearPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-517-patient-portal-message-search-clear-readiness", "-Reset", "test"],
+        "parityPatientPortalMessageSearchNormalizationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-518-patient-portal-message-search-normalization-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -1652,6 +1653,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-517-patient-portal-message-search-clear-readiness.json"
         },
         {
+          "id": "parity-plan-patient-portal-message-search-normalization",
+          "name": "Slice 518 patient portal message search normalization plan",
+          "description": "Runs the shared patient portal secure-message search-normalization readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalMessageSearchNormalizationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-518-patient-portal-message-search-normalization-readiness.json"
+        },
+        {
           "id": "parity-plan-document-authorization-policy",
           "name": "Slice 179 patient document authorization policy plan",
           "description": "Runs the shared patient document authorization-policy readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2596,6 +2605,7 @@
         "parityPatientPortalMessageEmptySearchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-515-patient-portal-message-empty-search-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSearchCountsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-516-patient-portal-message-search-counts-readiness", "-Reset", "test"],
         "parityPatientPortalMessageSearchClearPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-517-patient-portal-message-search-clear-readiness", "-Reset", "test"],
+        "parityPatientPortalMessageSearchNormalizationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-518-patient-portal-message-search-normalization-readiness", "-Reset", "test"],
         "parityDocumentAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-179-document-authorization-policy-readiness", "-Reset", "run"],
         "parityDocumentMutationAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-186-document-mutation-authorization-policy-readiness", "-Reset", "run"],
         "parityMessageAuthorizationPolicyPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-180-message-authorization-policy-readiness", "-Reset", "run"],
@@ -4004,6 +4014,14 @@
           "layer": "plan",
           "commandName": "parityPatientPortalMessageSearchClearPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-517-patient-portal-message-search-clear-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-message-search-normalization",
+          "name": "Slice 518 patient portal message search normalization plan",
+          "description": "Runs the shared patient portal secure-message search-normalization readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalMessageSearchNormalizationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-518-patient-portal-message-search-normalization-readiness.json"
         },
         {
           "id": "parity-plan-document-authorization-policy",

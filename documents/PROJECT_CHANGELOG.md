@@ -25749,6 +25749,42 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 565. Slice 518 Patient Portal Secure-Message Search Normalization Readiness
+
+Commit: `pending`
+Started: `2026-06-26T09:23:44-04:00`
+Finished: `2026-06-26T09:29:34-04:00`
+
+Implemented Slice 518: patient portal secure-message search-normalization readiness. The modernized Portal now exposes the secure-message search-count summary as a polite live status so result changes are announced to assistive technology, while preserving the existing visible summary. The parity suite creates cleanup-backed matching and decoy Inbox rows for `MOD-PAT-0004`, verifies padded mixed-case search text is trimmed and matched case-insensitively, records the installed legacy no-active-search-input/live-summary baseline, and verifies the modernized Portal live result-count status.
+
+Key changes:
+
+- Added the `workflow-patient-portal-message-search-normalization` suite and `slice-518-patient-portal-message-search-normalization-readiness` plan.
+- Added live-status semantics to the modernized Portal secure-message search-count summary.
+- Added Workbench managed actions and plan cards for running the Slice 518 search-normalization plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to include search-normalization readiness in the patient portal secure-message scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 518 search-normalization contract.
+
+Verification:
+
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully as JSON.
+- Ran `npm run typecheck` in `parity-tests`; passed.
+- Ran `npm run typecheck` in `modernization-workbench`; passed.
+- Ran `npm run build` in `modernized-openemr/frontend`; passed with the known Vite large-chunk warning.
+- Rebuilt and restarted the modernized frontend container with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-518-patient-portal-message-search-normalization-readiness -Reset test`; run `2026-06-26T132818-079Z-legacy-openemr-plan-slice-518-patient-portal-message-search-normalization-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-518-patient-portal-message-search-normalization-readiness -Reset test`; run `2026-06-26T132852-873Z-modernized-openemr-plan-slice-518-patient-portal-message-search-normalization-readiness` passed.
+- Ran parity comparison for `slice-518-patient-portal-message-search-normalization-readiness`; comparison `2026-06-26T132915-746Z-legacy-openemr-vs-modernized-openemr-plan-slice-518-patient-portal-message-search-normalization-readiness` matched.
+- Audited Playwright probe attachments for both runs: precondition, result, target UI, and cleanup payloads were present.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 377
+- Lines deleted: 9
+- Net lines: +368
+- Total churn: 386
+
 ## 564. Slice 517 Patient Portal Secure-Message Clear Search Readiness
 
 Commit: `442de199`
