@@ -24405,7 +24405,7 @@ Code changes:
 
 Started: 2026-06-26T01:58:00.4436133-04:00
 Finished: 2026-06-26T01:59:52.6827623-04:00
-Commit: Pending
+Commit: `50adc894`
 
 Implemented Slice 475: Slice 221 patient portal appointment request-options probe payload attachments. The patient portal appointment request-options readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, category/provider/facility/default option projection, legacy portal request-form option rendering, and modernized Portal request-form option rendering so Workbench comparison drill-ins can preview the evidence behind appointment option parity.
 
