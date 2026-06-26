@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -13,9 +14,10 @@ const procedureOrderDiagnosis = "ICD10:E11.9";
 
 test.describe("patient portal generated report procedure-order selection parity @slice236 @workflow-patient-portal-report-procedures @patients @portal @reports", () => {
   test("generates explicitly selected procedure-order content in the customized medical history report", async ({
+    target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(180_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
@@ -26,6 +28,29 @@ test.describe("patient portal generated report procedure-order selection parity 
 
     const procedureName = `Slice 236 selected procedure order ${workflowSuffix()}`;
     let procedureOrderId: number | null = null;
+    let cleanupAttached = false;
+
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-236-patient-portal-report-procedures-precondition",
+      description: "Captures the Slice 236 generated medical-report procedure-order selection precondition: the signed-in anchor patient and latest encounter exist before a temporary procedure order is created.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        procedureOrderDate,
+        procedureOrderCode,
+        procedureOrderDiagnosis,
+        selectedSections: ["demographics", "billing"]
+      },
+      actual: {
+        patient: summarizePatient(patient),
+        encounter: summarizeEncounter(encounter)
+      },
+      context: {
+        suite: "workflow-patient-portal-report-procedures",
+        workflow: "patient-portal-report-procedures-precondition"
+      }
+    });
 
     try {
       procedureOrderId = await workflow.createProcedureOrder({
@@ -97,9 +122,72 @@ test.describe("patient portal generated report procedure-order selection parity 
       expect(generated.summaryLines.join("\n")).toContain(
         `Procedure Order: ${procedureName} ordered ${procedureOrderDate} with 0 result rows.`
       );
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-236-patient-portal-report-procedures-result",
+        description: "Captures the Slice 236 selected procedure-order generated-report projection after creating a temporary order and selecting it in the customized medical-history report.",
+        expected: {
+          authenticated: true,
+          includedSectionIds: ["demographics", "billing"],
+          includedProcedureOrderIds: [String(procedureOrderId)],
+          includedIssueIds: [],
+          includedEncounterFormIds: [],
+          reportSectionTitles: ["Patient Data", "Billing Information", "Procedure Order"],
+          summaryLine: `Procedure Order: ${procedureName} ordered ${procedureOrderDate} with 0 result rows.`
+        },
+        actual: {
+          createdOrder: createdOrder ? summarizeProcedureOrder(createdOrder) : null,
+          reportBuilder: summarizeReportBuilder(reportBuilder, String(procedureOrderId)),
+          generated: summarizeGeneratedReport(generated)
+        },
+        context: {
+          suite: "workflow-patient-portal-report-procedures",
+          workflow: "patient-portal-report-procedures-result"
+        }
+      });
+      await workflow.deleteProcedureOrderCascade(procedureOrderId);
+      const cleanupBuilder = await workflow.getPatientPortalMedicalReport(portalLoginUsername, portalPassword);
+      expect(cleanupBuilder.procedureOrders.some((order) => order.id === String(procedureOrderId))).toBe(false);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-236-patient-portal-report-procedures-cleanup",
+        description: "Captures the Slice 236 cleanup state after deleting the temporary procedure order tree.",
+        expected: {
+          procedureOrderIdAbsent: String(procedureOrderId)
+        },
+        actual: {
+          deletedProcedureOrderId: procedureOrderId,
+          cleanupBuilder: summarizeReportBuilder(cleanupBuilder, String(procedureOrderId))
+        },
+        context: {
+          suite: "workflow-patient-portal-report-procedures",
+          workflow: "patient-portal-report-procedures-cleanup"
+        }
+      });
+      procedureOrderId = null;
+      cleanupAttached = true;
     } finally {
       if (procedureOrderId !== null) {
         await workflow.deleteProcedureOrderCascade(procedureOrderId);
+        if (!cleanupAttached) {
+          const cleanupBuilder = await workflow.getPatientPortalMedicalReport(portalLoginUsername, portalPassword);
+          await attachDatabaseProbeEvidence(testInfo, {
+            target: target.id,
+            probe: "slice-236-patient-portal-report-procedures-cleanup",
+            description: "Captures the Slice 236 best-effort cleanup state after deleting the temporary procedure order tree.",
+            expected: {
+              procedureOrderIdAbsent: String(procedureOrderId)
+            },
+            actual: {
+              deletedProcedureOrderId: procedureOrderId,
+              cleanupBuilder: summarizeReportBuilder(cleanupBuilder, String(procedureOrderId))
+            },
+            context: {
+              suite: "workflow-patient-portal-report-procedures",
+              workflow: "patient-portal-report-procedures-cleanup"
+            }
+          });
+        }
       }
     }
   });
@@ -109,7 +197,7 @@ test.describe("patient portal generated report procedure-order selection parity 
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(180_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
@@ -137,11 +225,65 @@ test.describe("patient portal generated report procedure-order selection parity 
       });
 
       if (target.type === "legacy-openemr") {
-        await expectLegacySelectedProcedureOrderReport(page, target, procedureOrderId);
+        const legacyUi = await expectLegacySelectedProcedureOrderReport(page, target, procedureOrderId);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-236-patient-portal-report-procedures-legacy-ui",
+          description: "Captures the legacy portal report-builder and custom-report source evidence for a selected temporary procedure order.",
+          expected: {
+            visibleFacts: ["Patient Report", "Procedure Order"],
+            procedureOrderId: String(procedureOrderId),
+            selectedSections: ["demographics", "billing"]
+          },
+          actual: {
+            patient: summarizePatient(patient),
+            encounter: summarizeEncounter(encounter),
+            procedureOrder: {
+              id: procedureOrderId,
+              procedureName,
+              procedureCode: procedureOrderCode,
+              procedureOrderDate,
+              diagnosis: procedureOrderDiagnosis
+            },
+            legacyUi
+          },
+          context: {
+            suite: "workflow-patient-portal-report-procedures",
+            workflow: "patient-portal-report-procedures-legacy-ui"
+          }
+        });
         return;
       }
 
-      await expectModernizedSelectedProcedureOrderReport(page, target, procedureName);
+      const modernizedUi = await expectModernizedSelectedProcedureOrderReport(page, target, procedureName);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-236-patient-portal-report-procedures-modernized-ui",
+        description: "Captures the modernized Portal procedure-order selection and generated-report rendering for a selected temporary order.",
+        expected: {
+          visibleFacts: ["Patient portal medical report procedures", "Patient portal generated medical report", "Procedure Order", procedureName],
+          procedureOrderCode,
+          procedureOrderDiagnosis,
+          procedureOrderDate,
+          summaryProcedureOrderCount: "1 procedure orders"
+        },
+        actual: {
+          patient: summarizePatient(patient),
+          encounter: summarizeEncounter(encounter),
+          procedureOrder: {
+            id: procedureOrderId,
+            procedureName,
+            procedureCode: procedureOrderCode,
+            procedureOrderDate,
+            diagnosis: procedureOrderDiagnosis
+          },
+          modernizedUi
+        },
+        context: {
+          suite: "workflow-patient-portal-report-procedures",
+          workflow: "patient-portal-report-procedures-modernized-ui"
+        }
+      });
     } finally {
       if (procedureOrderId !== null) {
         await workflow.deleteProcedureOrderCascade(procedureOrderId);
@@ -183,6 +325,16 @@ async function expectLegacySelectedProcedureOrderReport(
   const reportHtml = await reportResponse.text();
   expect(reportHtml).toContain("Procedure Order");
   expect(reportHtml).toContain(`procedures%5B%5D=${procedureOrderId}`);
+  return {
+    portalUrl: page.url(),
+    procedureOrderInputCount: await page.locator(`input[name='procedures[]'][value='${procedureOrderId}']`).count(),
+    reportContentLength: reportHtml.length,
+    containsFacts: {
+      patientReport: true,
+      procedureOrder: reportHtml.includes("Procedure Order"),
+      selectedProcedureParam: reportHtml.includes(`procedures%5B%5D=${procedureOrderId}`)
+    }
+  };
 }
 
 async function expectModernizedSelectedProcedureOrderReport(
@@ -216,8 +368,99 @@ async function expectModernizedSelectedProcedureOrderReport(
   await expect(generatedReportRegion).toContainText("Reports: 0");
   await expect(generatedReportRegion).toContainText("1 procedure orders");
   await expect(generatedReportRegion).toContainText(`Procedure Order: ${procedureName} ordered ${procedureOrderDate} with 0 result rows.`);
+  const procedureText = await procedureRegion.innerText();
+  const generatedText = await generatedReportRegion.innerText();
+  return {
+    portalUrl: page.url(),
+    procedureTextLength: procedureText.length,
+    generatedTextLength: generatedText.length,
+    containsFacts: {
+      procedureRegion: procedureText.includes("Patient portal medical report procedures"),
+      selectedProcedureName: procedureText.includes(procedureName),
+      generatedReport: generatedText.includes("Procedure Order"),
+      generatedProcedureName: generatedText.includes(`Order: ${procedureName}`),
+      code: generatedText.includes(`Code: ${procedureOrderCode}`),
+      diagnosis: generatedText.includes(`Diagnosis: ${procedureOrderDiagnosis}`),
+      status: generatedText.includes("Status: pending"),
+      reportCount: generatedText.includes("Reports: 0"),
+      summaryCount: generatedText.includes("1 procedure orders")
+    }
+  };
 }
 
 function workflowSuffix() {
   return `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+}
+
+function summarizePatient(patient: any) {
+  return {
+    pid: patient?.pid,
+    pubpid: patient?.pubpid,
+    providerId: patient?.providerId,
+    displayName: "Kim, Nora",
+    portalUsername: portalLoginUsername
+  };
+}
+
+function summarizeEncounter(encounter: any) {
+  return {
+    encounter: encounter?.encounter,
+    pid: encounter?.pid,
+    date: encounter?.date,
+    reason: encounter?.reason
+  };
+}
+
+function summarizeProcedureOrder(order: any) {
+  return {
+    id: order.id,
+    procedureName: order.procedureName,
+    procedureCode: order.procedureCode,
+    diagnosis: order.diagnosis,
+    orderDate: order.orderDate,
+    orderStatus: order.orderStatus,
+    reportCount: order.reportCount
+  };
+}
+
+function summarizeReportBuilder(reportBuilder: any, selectedProcedureOrderId: string) {
+  const procedureOrders = Array.isArray(reportBuilder.procedureOrders) ? reportBuilder.procedureOrders : [];
+  return {
+    authenticated: reportBuilder.authenticated,
+    username: reportBuilder.username,
+    portalUsername: reportBuilder.portalUsername,
+    pid: reportBuilder.pid,
+    pubpid: reportBuilder.pubpid,
+    displayName: reportBuilder.displayName,
+    failureReason: reportBuilder.failureReason,
+    procedureOrderCount: procedureOrders.length,
+    selectedOrder: procedureOrders.find((order: any) => order.id === selectedProcedureOrderId)
+      ? summarizeProcedureOrder(procedureOrders.find((order: any) => order.id === selectedProcedureOrderId))
+      : null,
+    selectedOrderPresent: procedureOrders.some((order: any) => order.id === selectedProcedureOrderId)
+  };
+}
+
+function summarizeGeneratedReport(generated: any) {
+  return {
+    authenticated: generated.authenticated,
+    username: generated.username,
+    portalUsername: generated.portalUsername,
+    pid: generated.pid,
+    pubpid: generated.pubpid,
+    displayName: generated.displayName,
+    title: generated.title,
+    includedSectionIds: generated.includedSectionIds,
+    includedProcedureOrderIds: generated.includedProcedureOrderIds,
+    includedIssueIds: generated.includedIssueIds,
+    includedEncounterFormIds: generated.includedEncounterFormIds,
+    printableVersionAvailable: generated.printableVersionAvailable,
+    pdfDownloadAvailable: generated.pdfDownloadAvailable,
+    reportSectionCount: generated.reportSectionCount,
+    sectionTitles: Array.isArray(generated.reportSections)
+      ? generated.reportSections.map((section: any) => section.title)
+      : [],
+    summaryLines: generated.summaryLines,
+    failureReason: generated.failureReason
+  };
 }

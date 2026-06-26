@@ -285,8 +285,8 @@
         },
         {
           "label": "Patient portal generated medical report procedure-order selection readiness",
-          "detail": "The modernized patient portal generated-report panel now surfaces selected procedure-order count evidence while parity creates a cleanup-backed temporary order and compares explicit procedure-order inclusion against legacy OpenEMR.",
-          "evidence": ["slice-236-patient-portal-generated-medical-report-procedure-selection-readiness"]
+          "detail": "The modernized patient portal generated-report panel now surfaces selected procedure-order count evidence while parity creates a cleanup-backed temporary order and compares explicit procedure-order inclusion against legacy OpenEMR, and Slice 490 adds path-backed procedure-order selection probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-236-patient-portal-generated-medical-report-procedure-selection-readiness", "slice-490-slice236-patient-portal-generated-medical-report-procedure-selection-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report procedure-order artifact readiness",

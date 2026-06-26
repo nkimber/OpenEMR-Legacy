@@ -24919,6 +24919,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-deleted-messages/patient-portal-deleted-messages.spec.ts`: 242 insertions, 5 deletions.
 
+## 537. Slice 490 Slice 236 Patient Portal Generated Medical-Report Procedure-Order Selection Probe Payload Attachments
+
+Started: 2026-06-26T03:59:27.3682210-04:00
+Finished: 2026-06-26T04:02:31.5050755-04:00
+Commit: Pending
+
+Implemented Slice 490: Slice 236 patient portal generated medical-report procedure-order selection probe payload attachments. The patient portal generated medical-report procedure-order selection readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient/encounter preconditions, temporary procedure-order report-builder/result/cleanup projections, legacy custom-report source evidence, and modernized selected procedure-order generated-report rendering so Workbench comparison drill-ins can preview procedure-order selection evidence behind generated-report parity.
+
+Changes:
+- Added Slice 236 precondition payload attachments for the `MOD-PAT-0004` anchor patient, latest encounter, selected report sections, and expected temporary procedure-order facts.
+- Added report-builder/result payload attachments proving the temporary procedure order appears in the report-builder projection and is included in the customized medical-history report.
+- Added cleanup payload attachments proving the temporary procedure order is deleted from the portal report-builder projection after the test.
+- Added target-specific legacy custom-report source and modernized generated-report rendering payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 490 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-490-slice236-patient-portal-generated-medical-report-procedure-selection-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-report-procedures/patient-portal-report-procedures.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness -Reset test` passed with run `2026-06-26T080052-280Z-legacy-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness -Reset test` passed with run `2026-06-26T080135-686Z-modernized-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-236-patient-portal-generated-medical-report-procedure-selection-readiness` produced matched comparison `2026-06-26T080204-676Z-legacy-openemr-vs-modernized-openemr-plan-slice-236-patient-portal-generated-medical-report-procedure-selection-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-236-patient-portal-report-procedures-precondition`, `db-probe-slice-236-patient-portal-report-procedures-result`, `db-probe-slice-236-patient-portal-report-procedures-cleanup`, and `db-probe-slice-236-patient-portal-report-procedures-legacy-ui`; the modernized run includes `db-probe-slice-236-patient-portal-report-procedures-precondition`, `db-probe-slice-236-patient-portal-report-procedures-result`, `db-probe-slice-236-patient-portal-report-procedures-cleanup`, and `db-probe-slice-236-patient-portal-report-procedures-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 21 insertions.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-report-procedures/patient-portal-report-procedures.spec.ts`: 247 insertions, 4 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
