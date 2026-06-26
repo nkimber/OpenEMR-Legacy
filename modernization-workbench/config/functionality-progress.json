@@ -225,8 +225,8 @@
         },
         {
           "label": "Patient portal appointment request readiness",
-          "detail": "The modernized patient portal API and Portal page now let a signed-in patient request a pending appointment and create the matching provider reminder note, while parity compares the same portal scheduling request behavior against legacy OpenEMR.",
-          "evidence": ["slice-220-patient-portal-appointment-request-readiness"]
+          "detail": "The modernized patient portal API and Portal page now let a signed-in patient request a pending appointment and create the matching provider reminder note, while parity compares the same portal scheduling request behavior against legacy OpenEMR, and Slice 474 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-220-patient-portal-appointment-request-readiness", "slice-474-slice220-patient-portal-appointment-request-probe-payload-attachments"]
         },
         {
           "label": "Patient portal appointment request options readiness",
@@ -364,7 +364,7 @@
         },
         {
           "label": "Patient portal appointment request readiness",
-          "detail": "Signed-in portal patients can request a pending appointment and generate the same provider-facing reminder note that legacy OpenEMR records for portal scheduling requests.",
+          "detail": "Signed-in portal patients can request a pending appointment and generate the same provider-facing reminder note that legacy OpenEMR records for portal scheduling requests, with Slice 474 Workbench probe-payload preview coverage.",
           "evidence": ["slice-220-patient-portal-appointment-request-readiness"]
         },
         {
