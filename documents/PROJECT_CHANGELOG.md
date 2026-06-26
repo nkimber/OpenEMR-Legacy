@@ -23443,7 +23443,7 @@ Code changes:
 
 Started: 2026-06-25T23:03:54.4740001-04:00
 Finished: 2026-06-25T23:06:15.5673947-04:00
-Commit: Pending
+Commit: `5fd148f0`
 
 Implemented Slice 447: Slice 193 patient deceased-status probe payload attachments. The patient deceased-status readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original deceased-status precondition, temporary deceased date and reason update, legacy demographics edit rendering, modernized patient chart API and Patient/Client deceased-status panel rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind deceased-status parity.
 
