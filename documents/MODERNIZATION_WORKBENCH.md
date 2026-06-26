@@ -597,3 +597,9 @@ The Progress page also records focused claim scrubbing as completed billing scop
 The Workbench now exposes managed Slice 534 claim resubmission plan actions for both the legacy and modernized targets. These actions run `slice-534-claim-resubmission-readiness`, write the standard latest-run artifacts, and let the comparison view show whether denied-claim requeue behavior, X12 target metadata, deterministic resubmission process-file naming, compact resubmission payload content, modernized Resubmit rendering, claim-count stability, and cleanup remain aligned side by side.
 
 The Progress page also records focused claim resubmission as completed billing exception scope while keeping richer claim generation, richer ERA parsing, deeper remittance workflows, statement delivery, modifier validation, and broader revenue-cycle exception handling outstanding.
+
+## Slice 535 Workbench Update
+
+The Workbench now exposes managed Slice 535 billing charge-template catalog plan actions for both the legacy and modernized targets. These actions run `slice-535-billing-charge-template-catalog-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the complex follow-up template creates the same modifier-bearing multi-unit CPT line, count movement, modernized form/rendering behavior, and cleanup side by side.
+
+The Progress page also records expanded charge-template catalog readiness as completed billing charge-capture scope while keeping deeper diagnosis pointer validation, modifier validation, and broader revenue-cycle exception handling outstanding.

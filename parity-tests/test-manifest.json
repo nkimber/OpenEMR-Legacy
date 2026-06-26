@@ -1401,6 +1401,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-535-billing-charge-template-catalog-readiness",
+      "name": "Slice 535 Billing Charge Template Catalog Readiness",
+      "description": "Billing confidence plan that verifies the modernized Fees page can apply a complex follow-up charge template and save the generated modifier-bearing multi-unit CPT fee-sheet line.",
+      "suites": ["workflow-billing-charge-template-catalog"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-535", "billing", "fee-sheet", "charge-template", "charge-template-catalog", "modifier", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-525-patient-payment-receipt-readiness",
       "name": "Slice 525 Patient Payment Receipt Readiness",
       "description": "Billing confidence plan that verifies a posted patient payment can generate a deterministic receipt PDF from the modernized Fees workflow.",
@@ -3777,6 +3786,16 @@
       "layer": "workflow",
       "path": "tests/workflow-billing-charge-template",
       "tags": ["slice524", "workflow", "mutation", "billing", "fee-sheet", "charge-template", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-billing-charge-template-catalog",
+      "name": "Fee Sheet Charge Template Catalog Readiness",
+      "description": "Verifies cleanup-backed complex follow-up charge-template values produce the same modifier-bearing multi-unit CPT fee-sheet line across targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-billing-charge-template-catalog",
+      "tags": ["slice535", "workflow", "mutation", "billing", "fee-sheet", "charge-template", "charge-template-catalog", "modifier", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

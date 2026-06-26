@@ -209,6 +209,7 @@
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
         "parityBillingChargeTemplatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-524-billing-charge-template-readiness", "-Reset", "test"],
+        "parityBillingChargeTemplateCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-535-billing-charge-template-catalog-readiness", "-Reset", "test"],
         "parityPatientPaymentReceiptPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-525-patient-payment-receipt-readiness", "-Reset", "test"],
         "parityPatientPaymentRefundPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-526-patient-payment-refund-readiness", "-Reset", "test"],
         "parityInsurancePaymentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-527-insurance-payment-reversal-readiness", "-Reset", "test"],
@@ -2021,6 +2022,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-524-billing-charge-template-readiness.json"
         },
         {
+          "id": "parity-plan-billing-charge-template-catalog",
+          "name": "Slice 535 billing charge template catalog plan",
+          "description": "Runs the shared fee-sheet charge-template catalog readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityBillingChargeTemplateCatalogPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-535-billing-charge-template-catalog-readiness.json"
+        },
+        {
           "id": "parity-plan-patient-payment-receipt",
           "name": "Slice 525 patient payment receipt plan",
           "description": "Runs the shared patient-payment receipt export readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2790,6 +2799,7 @@
         "parityBillingCorrectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-45-billing-correction-readiness", "-Reset", "test"],
         "parityBillingModifierPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-46-billing-modifier-readiness", "-Reset", "test"],
         "parityBillingChargeTemplatePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-524-billing-charge-template-readiness", "-Reset", "test"],
+        "parityBillingChargeTemplateCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-535-billing-charge-template-catalog-readiness", "-Reset", "test"],
         "parityPatientPaymentReceiptPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-525-patient-payment-receipt-readiness", "-Reset", "test"],
         "parityPatientPaymentRefundPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-526-patient-payment-refund-readiness", "-Reset", "test"],
         "parityInsurancePaymentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-527-insurance-payment-reversal-readiness", "-Reset", "test"],
@@ -4526,6 +4536,14 @@
           "layer": "plan",
           "commandName": "parityBillingChargeTemplatePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-524-billing-charge-template-readiness.json"
+        },
+        {
+          "id": "parity-plan-billing-charge-template-catalog",
+          "name": "Slice 535 billing charge template catalog plan",
+          "description": "Runs the shared fee-sheet charge-template catalog readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityBillingChargeTemplateCatalogPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-535-billing-charge-template-catalog-readiness.json"
         },
         {
           "id": "parity-plan-patient-payment-receipt",

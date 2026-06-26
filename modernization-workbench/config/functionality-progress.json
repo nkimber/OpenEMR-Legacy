@@ -625,12 +625,12 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, charge-template readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, focused claim scrubbing, focused claim resubmission, focused 837P claim generation, claim denial, focused claim adjudication, starter EOB batch import, payment-posting, patient-payment, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, expanded charge-template catalog readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, focused claim scrubbing, focused claim resubmission, focused 837P claim generation, claim denial, focused claim adjudication, starter EOB batch import, payment-posting, patient-payment, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
-          "detail": "Read-only fee-sheet billing plus CPT creation, office-visit charge-template application, diagnosis coding, correction, and modifier workflows are covered.",
-          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness"]
+          "detail": "Read-only fee-sheet billing plus CPT creation, office-visit and complex follow-up charge-template application, diagnosis coding, correction, and modifier workflows are covered.",
+          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness", "slice-535-billing-charge-template-catalog-readiness"]
         },
         {
           "label": "Appointment starter charge handoff",
@@ -665,15 +665,15 @@
       ],
       "outstanding": [
         "Richer claim generation depth, richer ERA parsing, deeper remittance workflows, and statement delivery.",
-        "Audit history, deeper diagnosis pointer validation, modifier validation, richer charge-template catalogs, and broader revenue-cycle exception handling."
+        "Audit history, deeper diagnosis pointer validation, modifier validation, and broader revenue-cycle exception handling."
       ],
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 66,
+      "completionEstimatePercent": 67,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, charge-template readiness, appointment starter charge handoff, claims status, focused claim scrubbing, focused claim resubmission, focused 837P claim generation, claim denial, focused claim adjudication, starter EOB batch import, payments, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, expanded charge-template catalog readiness, appointment starter charge handoff, claims status, focused claim scrubbing, focused claim resubmission, focused 837P claim generation, claim denial, focused claim adjudication, starter EOB batch import, payments, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",

@@ -26443,6 +26443,36 @@ Verification:
 Code changes:
 - 12 scoped files changed, with 378 insertions and 9 deletions including the new claim resubmission parity suite.
 
+## 582. Slice 535 Billing Charge Template Catalog Readiness
+
+Started: 2026-06-26T13:48:49.4676187-04:00
+Finished: 2026-06-26T13:56:51.0435802-04:00
+Commit: pending
+
+Implemented Slice 535: expanded billing charge-template catalog readiness. The modernized Fees CPT form now includes a `Complex follow-up` template that fills CPT `99214`, modifier `25`, two units, fee `210.00`, the complex follow-up description, and diagnosis pointer `K21.9`. The shared parity suite applies that template in the modernized UI or creates the equivalent legacy billing line, verifies the modifier-bearing multi-unit fee-sheet row, billing-line count movement, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the modernized Fees `Complex follow-up` charge template.
+- Added the `workflow-billing-charge-template-catalog` suite and `slice-535-billing-charge-template-catalog-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 535 charge-template catalog plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count expanded charge-template catalog readiness as completed billing charge-capture scope while leaving deeper diagnosis pointer validation, modifier validation, and broader revenue-cycle exception handling outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 535 catalog contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 535 legacy parity plan: `2026-06-26T175506-826Z-legacy-openemr-plan-slice-535-billing-charge-template-catalog-readiness` passed 1/1 tests.
+- Ran the Slice 535 modernized parity plan: `2026-06-26T175552-678Z-modernized-openemr-plan-slice-535-billing-charge-template-catalog-readiness` passed 1/1 tests.
+- Compared the two Slice 535 runs: `2026-06-26T175641-971Z-legacy-openemr-vs-modernized-openemr-plan-slice-535-billing-charge-template-catalog-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 535 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 327 insertions and 9 deletions including the new charge-template catalog parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
