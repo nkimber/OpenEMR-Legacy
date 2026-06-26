@@ -25692,7 +25692,7 @@ Code changes:
 
 Started: 2026-06-26T08:10:00.0000000-04:00
 Finished: 2026-06-26T08:31:27.1420467-04:00
-Commit: Pending
+Commit: b33259ab
 
 Implemented Slice 513: patient portal secure-message search readiness. The modernized Portal now exposes a secure-message search field that filters Inbox, Sent, All, and Deleted folders with a case-insensitive substring model before pagination, resets folder pages when the query changes, and preserves the existing 20-message page contract. A new shared parity plan creates cleanup-backed matching and decoy inbox rows for `MOD-PAT-0004`, verifies the normalized search result, records the installed legacy portal template's inactive/no-input rendered search baseline, verifies the modernized visible search field, and removes the temporary mailbox rows afterward.
 
