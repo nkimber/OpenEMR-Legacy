@@ -25329,7 +25329,7 @@ Code changes:
 
 Started: 2026-06-26T05:20:00.0000000-04:00
 Finished: 2026-06-26T05:27:09.3378321-04:00
-Commit: Pending
+Commit: e60ebec7
 
 Implemented Slice 502: Slice 248 patient portal allergy date-column probe payload attachments. The allergy date-column readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, temporary ended-allergy lifecycle facts, active and ended allergy date/referrer/reaction/severity projections, cleanup state, legacy portal Reported Date/Start Date/End Date/Referrer table rendering, and modernized Portal allergy-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal allergy parity.
 
