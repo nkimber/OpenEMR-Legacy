@@ -160,8 +160,8 @@
         },
         {
           "label": "Patient portal profile review revert readiness",
-          "detail": "The modernized administration API and Admin page now support legacy-style Revert Edits handling that closes a waiting profile review while leaving chart demographics unchanged.",
-          "evidence": ["slice-254-patient-portal-profile-review-revert-readiness"]
+          "detail": "The modernized administration API and Admin page now support legacy-style Revert Edits handling that closes a waiting profile review while leaving chart demographics unchanged and exposes Slice 508 Workbench-previewable probe payloads for rejection evidence.",
+          "evidence": ["slice-254-patient-portal-profile-review-revert-readiness", "slice-508-slice254-patient-portal-profile-review-revert-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message readiness",
