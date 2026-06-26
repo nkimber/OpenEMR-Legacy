@@ -26971,7 +26971,7 @@ Code Metrics:
 Started: 2026-06-26T16:52:55.9032522-04:00
 Finished: 2026-06-26T16:57:53.1368651-04:00
 Duration: 4 minutes 57 seconds
-Commit: Pending
+Commit: `27584fb3`
 
 Implemented Slice 552: focused missing-CPT-line readiness. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, intentionally creates no CPT4 service line, and queues a Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, fee, unit, CPT-code, diagnosis-code, diagnosis-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/single-diagnosis-line count stability, modernized rendering, and hard-delete cleanup.
 
