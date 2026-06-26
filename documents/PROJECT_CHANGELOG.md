@@ -27183,6 +27183,37 @@ Verification:
 Code Metrics:
 - 14 scoped files changed, with 480 insertions and 36 deletions, net +444 lines and 516 total churn, including the backend claim resubmission operation, React resubmission handoff, and new server-side resubmission parity suite.
 
+## 606. Slice 559 Claim Server-Side Denial Readiness
+
+Started: 2026-06-26T18:13:35.4360367-04:00
+Finished: 2026-06-26T18:17:05.0325915-04:00
+Commit: TBD
+
+Implemented Slice 559: focused server-side claim denial readiness. The modernized billing claim `Deny` action no longer stamps deterministic X12 denial metadata in the React UI; it calls the new `POST /api/billing/claims/{claimId}/deny` backend operation, which reads the queued claim and patient identity, persists denied X12 metadata, applies the existing submitted-claim fallback, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend denial path or equivalent legacy update, verifies deterministic process-file metadata, submitted-claim content, denied claim-card rendering, claim-count stability, and cleanup.
+
+Changes:
+- Added the modernized backend claim denial operation and endpoint.
+- Changed the modernized Fees claim card so the Deny button calls the backend billing operation instead of duplicating denial metadata construction in React.
+- Added the `workflow-claim-server-side-denial` suite and `slice-559-claim-server-side-denial-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 559 server-side denial plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim denial as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 559 server-side denial contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 559 legacy parity plan: `2026-06-26T221555-707Z-legacy-openemr-plan-slice-559-claim-server-side-denial-readiness` passed 1/1 tests.
+- Ran the Slice 559 modernized parity plan: `2026-06-26T221619-554Z-modernized-openemr-plan-slice-559-claim-server-side-denial-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 559 runs: `2026-06-26T221643-964Z-legacy-openemr-vs-modernized-openemr-plan-slice-559-claim-server-side-denial-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 559 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 449 insertions and 19 deletions, net +430 lines and 468 total churn, including the backend claim denial operation, React denial handoff, and new server-side denial parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

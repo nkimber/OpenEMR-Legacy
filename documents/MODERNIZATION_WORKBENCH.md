@@ -741,3 +741,9 @@ The Progress page also records focused 837P claim generation as server-side bill
 The Workbench now exposes managed Slice 558 claim server-side resubmission plan actions for both the legacy and modernized targets. These actions run `slice-558-claim-server-side-resubmission-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Resubmit` action calls the backend billing operation, persists the same deterministic X12 resubmission process-file and submitted-claim metadata as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary denied claim side by side.
 
 The Progress page also records focused claim resubmission as server-side billing business logic while keeping payer-specific clearinghouse edits, richer rejection workflows, ERA parsing, remittance workflows, statement delivery, and production AR behavior outstanding.
+
+## Slice 559 Workbench Update
+
+The Workbench now exposes managed Slice 559 claim server-side denial plan actions for both the legacy and modernized targets. These actions run `slice-559-claim-server-side-denial-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Deny` action calls the backend billing operation, persists the same deterministic X12 denial process-file and submitted-claim metadata as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary queued claim side by side.
+
+The Progress page also records focused claim denial as server-side billing business logic while keeping payer-specific clearinghouse edits, richer rejection workflows, ERA parsing, remittance workflows, statement delivery, and production AR behavior outstanding.
