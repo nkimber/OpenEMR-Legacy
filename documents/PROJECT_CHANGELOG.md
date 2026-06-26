@@ -23969,7 +23969,7 @@ Code changes:
 
 Started: 2026-06-26T00:36:34.6640645-04:00
 Finished: 2026-06-26T00:40:01.1167950-04:00
-Commit: Pending
+Commit: `891a54aa`
 
 Implemented Slice 463: Slice 209 patient portal home probe payload attachments. The patient portal home readiness parity suite now writes path-backed JSON Playwright attachments for enabled portal-account preconditions, authenticated home-summary identity, message-count, latest-message, upcoming-appointment facts, legacy portal home rendering, and modernized Portal home rendering so Workbench comparison drill-ins can preview the evidence behind portal home parity.
 
