@@ -414,7 +414,7 @@ This keeps the workbench honest: it reports real automation evidence instead of 
 
 ## Seed Data Orchestration
 
-Slice 492 extends Workbench-previewable probe payload evidence into the patient portal secure-message recipient-directory plan. The Slice 238 parity suite now attaches anchor-patient preconditions, normalized recipient-directory routing evidence, legacy compose selector evidence, and modernized recipient selector rendering JSON artifacts so comparison drill-ins can inspect routing evidence behind secure-message parity. Slice 491 remains the patient portal generated medical-report procedure-order artifact probe-payload slice.
+Slice 493 extends Workbench-previewable probe payload evidence into the patient portal secure-message subject-preset plan. The Slice 239 parity suite now attaches anchor-patient preconditions, normalized compose-options subject/recipient evidence, legacy subject datalist rendering, and modernized subject preset rendering JSON artifacts so comparison drill-ins can inspect compose-subject evidence behind secure-message parity. Slice 492 remains the patient portal secure-message recipient-directory probe-payload slice.
 
 The Workbench owns seed-data visibility and orchestration.
 
