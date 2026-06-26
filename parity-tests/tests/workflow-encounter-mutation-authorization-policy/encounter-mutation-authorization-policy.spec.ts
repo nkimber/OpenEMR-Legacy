@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openEncounterDirect } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -43,11 +44,25 @@ type EncounterDetailResponse = {
   billingNote?: string | null;
 };
 
+type AccessControlSnapshot = {
+  groupPermissions: Array<{
+    groupValue: string;
+    sectionValue: string;
+    permissionValue: string;
+    returnValue: string;
+  }>;
+  userMemberships: Array<{
+    userValue: string;
+    groupValue: string;
+    groupName: string;
+  }>;
+};
+
 const encounterMutationAuthorizationPatientId = "MOD-PAT-0001";
 const encounterMutationAuthorizationFromDate = "2026-01-01";
 
 test.describe("encounter mutation authorization policy parity @workflow-encounter-mutation-authorization-policy @slice185 @encounters @security", () => {
-  test("enforces Authorize Any Encounter write access for core encounter mutations", async ({ page, target, targetDb }) => {
+  test("enforces Authorize Any Encounter write access for core encounter mutations", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(encounterMutationAuthorizationPatientId);
     expect(patient).not.toBeNull();
 
@@ -83,6 +98,43 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         })
       ])
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-185-encounter-mutation-authorization-policy-precondition",
+      description:
+        "Captures the Slice 185 encounter mutation authorization-policy precondition without storing password, cookie, or session material.",
+      expected: {
+        canonicalPatientId: encounterMutationAuthorizationPatientId,
+        clinicianTemporaryViewGrantRequired: true,
+        clinicianCannotMutateWithViewOnlyGrant: true,
+        adminAuthorizeAnyEncounterWrite: true,
+        clinicianAuthorizePatientEncounterWriteOnly: true,
+        modernizedEncounterCreatePath: "/api/encounters",
+        modernizedEncounterUpdatePath: "/api/encounters/{encounterId}",
+        modernizedEncounterSignPath: "/api/encounters/{encounterId}/sign",
+        modernizedEncounterDeletePath: "/api/encounters/{encounterId}",
+        secretMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        publicUrl: target.publicUrl,
+        apiBaseUrl: target.apiBaseUrl,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true,
+        patient: summarizePatient(patient!),
+        encounter: summarizeEncounterDetail({
+          encounter: encounter!.encounter,
+          patientId: patient!.pubpid,
+          legacyPid: patient!.pid,
+          reason: clinical!.reason
+        }),
+        accessControl: summarizeAccessControl(accessControl)
+      },
+      context: {
+        suite: "workflow-encounter-mutation-authorization-policy",
+        workflow: "encounter-mutation-authorization-policy-precondition"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -91,6 +143,35 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
       await expectRenderedText(page, "SOAP");
       await expectRenderedText(page, "Vitals");
       await expectRenderedText(page, /Assessment:/i);
+      const encounterText = await page.locator("body").textContent();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-legacy-rendered",
+        description:
+          "Captures legacy OpenEMR encounter rendering markers after admin login, with credentials redacted.",
+        expected: {
+          canonicalPatientId: patient!.pubpid,
+          encounterId: encounter!.encounter,
+          containsEncounterTopic: encounterTopic(clinical!.reason),
+          containsSoap: "SOAP",
+          containsVitals: "Vitals",
+          containsAssessment: "Assessment:",
+          passwordMaterialRedacted: true
+        },
+        actual: {
+          encounterPage: summarizeRenderedText(encounterText, [
+            encounterTopic(clinical!.reason),
+            "SOAP",
+            "Vitals",
+            "Assessment:"
+          ]),
+          passwordRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-legacy-rendered"
+        }
+      });
       return;
     }
 
@@ -106,6 +187,23 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
 
     const adminLogin = await modernizedLogin(target, target.credentials.username, target.credentials.password);
     const adminHeaders = { "X-OpenEMR-Session": adminLogin.sessionId! };
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-185-encounter-mutation-authorization-policy-admin-login",
+      description:
+        "Captures modernized admin session setup for temporary ACL grant management with the session identifier redacted.",
+      expected: {
+        authenticated: true,
+        username: target.credentials.username,
+        role: "admin",
+        sessionIdentifierRedacted: true
+      },
+      actual: summarizeLogin(adminLogin),
+      context: {
+        suite: "workflow-encounter-mutation-authorization-policy",
+        workflow: "encounter-mutation-authorization-policy-admin-login"
+      }
+    });
     const clinicianViewGrant = {
       groupValue: "clin",
       sectionValue: "encounters",
@@ -140,6 +238,26 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
           })
         ])
       );
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-view-grant",
+        description:
+          "Captures the temporary Clinicians Authorize Any Encounter view-only grant used to prove read-only access without write authority.",
+        expected: {
+          grantApplied: clinicianViewGrant,
+          clinicianHasAuthorizeAnyEncounterView: true,
+          clinicianDoesNotHaveAuthorizeAnyEncounterWrite: true,
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          accessControl: summarizeAccessControl(afterGrant),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-view-grant"
+        }
+      });
 
       const clinicianLogin = await modernizedLogin(target, "gold-provider-01", "pass");
       expect(clinicianLogin).toMatchObject({
@@ -148,6 +266,24 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         displayName: "Alex Walker",
         role: "provider",
         staffId: 101
+      });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-login",
+        description:
+          "Captures modernized clinician session setup for encounter mutation policy checks with the session identifier redacted.",
+        expected: {
+          authenticated: true,
+          username: "gold-provider-01",
+          role: "provider",
+          staffId: 101,
+          sessionIdentifierRedacted: true
+        },
+        actual: summarizeLogin(clinicianLogin),
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-login"
+        }
       });
       const clinicianHeaders = { "X-OpenEMR-Session": clinicianLogin.sessionId! };
 
@@ -180,6 +316,33 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         legacyPid: patient!.pid,
         reason: clinical!.reason
       });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-read",
+        description:
+          "Captures modernized clinician view-only encounter search/detail access before mutation denials.",
+        expected: {
+          searchStatusCode: 200,
+          detailStatusCode: 200,
+          encounterId: encounter!.encounter,
+          patientId: patient!.pubpid,
+          requiredSection: "encounters",
+          requiredPermission: "auth_a",
+          requiredReturnValue: "view",
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          searchStatusCode: clinicianSearch.statusCode,
+          detailStatusCode: clinicianDetail.statusCode,
+          search: summarizeEncounterSearch(search),
+          detail: summarizeEncounterDetail(detail),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-read"
+        }
+      });
 
       const clinicianCreate = await postJson<ModernizedAuthorizationFailure>(
         target,
@@ -197,6 +360,21 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         403
       );
       expectAuthorizationFailure(clinicianCreate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-create-forbidden",
+        description:
+          "Captures modernized clinician encounter-create denial facts with session material redacted.",
+        expected: authorizationDenialExpectation(patient!.pubpid, "create"),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianCreate),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-create-forbidden"
+        }
+      });
 
       const clinicianUpdate = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -213,6 +391,21 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         403
       );
       expectAuthorizationFailure(clinicianUpdate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-update-forbidden",
+        description:
+          "Captures modernized clinician encounter-update denial facts with session material redacted.",
+        expected: authorizationDenialExpectation(patient!.pubpid, "update", encounter!.encounter),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianUpdate),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-update-forbidden"
+        }
+      });
 
       const clinicianSign = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -227,6 +420,21 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         403
       );
       expectAuthorizationFailure(clinicianSign);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-sign-forbidden",
+        description:
+          "Captures modernized clinician encounter-sign denial facts with session material redacted.",
+        expected: authorizationDenialExpectation(patient!.pubpid, "sign", encounter!.encounter),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianSign),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-sign-forbidden"
+        }
+      });
 
       const clinicianDelete = await deleteJson<ModernizedAuthorizationFailure>(
         target,
@@ -235,6 +443,21 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         403
       );
       expectAuthorizationFailure(clinicianDelete);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-clinician-delete-forbidden",
+        description:
+          "Captures modernized clinician encounter-delete denial facts with session material redacted.",
+        expected: authorizationDenialExpectation(patient!.pubpid, "delete", encounter!.encounter),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianDelete),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-clinician-delete-forbidden"
+        }
+      });
 
       const adminDetail = await requestText(
         `${target.apiBaseUrl}/api/encounters/${encodeURIComponent(String(encounter!.encounter))}`,
@@ -243,6 +466,30 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
       expect(adminDetail.statusCode).toBe(200);
       const adminDetailBody = JSON.parse(adminDetail.body) as EncounterDetailResponse;
       expect(adminDetailBody.reason).toBe(clinical!.reason);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-185-encounter-mutation-authorization-policy-admin-detail",
+        description:
+          "Captures modernized admin encounter-detail access after clinician mutation denials with session material redacted.",
+        expected: {
+          statusCode: 200,
+          encounterId: encounter!.encounter,
+          patientId: patient!.pubpid,
+          requiredSection: "encounters",
+          requiredPermission: "auth_a",
+          requiredReturnValue: "write",
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          statusCode: adminDetail.statusCode,
+          detail: summarizeEncounterDetail(adminDetailBody),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-encounter-mutation-authorization-policy",
+          workflow: "encounter-mutation-authorization-policy-admin-detail"
+        }
+      });
     } finally {
       if (grantActive) {
         await requestText(
@@ -265,6 +512,26 @@ test.describe("encounter mutation authorization policy parity @workflow-encounte
         })
       ])
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-185-encounter-mutation-authorization-policy-cleanup",
+      description:
+        "Captures final cleanup proving the temporary Clinicians Authorize Any Encounter grant was removed.",
+      expected: {
+        temporaryGrantRemoved: true,
+        groupValue: "clin",
+        sectionValue: "encounters",
+        permissionValue: "auth_a",
+        secretMaterialRedacted: true
+      },
+      actual: {
+        accessControl: summarizeAccessControl(afterCleanup)
+      },
+      context: {
+        suite: "workflow-encounter-mutation-authorization-policy",
+        workflow: "encounter-mutation-authorization-policy-cleanup"
+      }
+    });
   });
 });
 
@@ -353,6 +620,134 @@ function expectAuthorizationFailure(response: ModernizedAuthorizationFailure) {
     sessionSource: "modernized-openemr"
   });
   expect(response.failureReason).toMatch(/not authorized/i);
+}
+
+function authorizationDenialExpectation(patientId: string, operation: string, encounterId?: number) {
+  return {
+    statusCode: 403,
+    operation,
+    patientId,
+    encounterId: encounterId ?? null,
+    requiredSection: "encounters",
+    requiredPermission: "auth_a",
+    requiredReturnValue: "write",
+    sessionIdentifierRedacted: true
+  };
+}
+
+function summarizePatient(patient: {
+  pubpid: string;
+  pid: number;
+  lname: string;
+  fname: string;
+  providerId?: number | null;
+}) {
+  return {
+    canonicalId: patient.pubpid,
+    legacyPid: patient.pid,
+    displayName: `${patient.lname}, ${patient.fname}`,
+    providerId: patient.providerId ?? null
+  };
+}
+
+function summarizeEncounterSearch(search: EncounterSearchResponse) {
+  return {
+    totalMatches: search.totalMatches,
+    encounters: search.encounters.slice(0, 5).map((encounter) => ({
+      encounter: encounter.encounter,
+      patientId: encounter.patientId,
+      legacyPid: encounter.legacyPid,
+      reason: encounter.reason ?? null
+    }))
+  };
+}
+
+function summarizeEncounterDetail(detail: EncounterDetailResponse) {
+  return {
+    encounter: detail.encounter,
+    patientId: detail.patientId,
+    legacyPid: detail.legacyPid,
+    reason: detail.reason ?? null,
+    billingNotePresent: Boolean(detail.billingNote)
+  };
+}
+
+function summarizeAccessControl(accessControl: AccessControlSnapshot) {
+  return {
+    groupPermissionCount: accessControl.groupPermissions.length,
+    userMembershipCount: accessControl.userMemberships.length,
+    adminAuthorizeAnyEncounterWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "admin" &&
+        permission.sectionValue === "encounters" &&
+        permission.permissionValue === "auth_a" &&
+        permission.returnValue === "write"
+    ),
+    clinicianAuthorizeAnyEncounterView: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "encounters" &&
+        permission.permissionValue === "auth_a" &&
+        permission.returnValue === "view"
+    ),
+    clinicianAuthorizeAnyEncounterWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "encounters" &&
+        permission.permissionValue === "auth_a" &&
+        permission.returnValue === "write"
+    ),
+    clinicianPatientEncounterWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "encounters" &&
+        permission.permissionValue === "auth" &&
+        permission.returnValue === "write"
+    ),
+    clinicianMembership: accessControl.userMemberships.some(
+      (membership) =>
+        membership.userValue === "gold-provider-01" &&
+        membership.groupValue === "clin" &&
+        membership.groupName === "Clinicians"
+    )
+  };
+}
+
+function summarizeLogin(login: ModernizedLoginResponse) {
+  return {
+    authenticated: login.authenticated,
+    username: login.username,
+    displayName: login.displayName,
+    role: login.role,
+    staffId: login.staffId ?? null,
+    hasSessionId: Boolean(login.sessionId),
+    sessionIdRedacted: true
+  };
+}
+
+function summarizeAuthorizationFailure(failure: ModernizedAuthorizationFailure) {
+  return {
+    authenticated: failure.authenticated,
+    authorized: failure.authorized,
+    username: failure.username,
+    role: failure.role,
+    requiredSection: failure.requiredSection,
+    requiredPermission: failure.requiredPermission,
+    requiredReturnValue: failure.requiredReturnValue,
+    failureReason: failure.failureReason,
+    sessionSource: failure.sessionSource,
+    hasSessionId: Boolean(failure.sessionId),
+    sessionIdRedacted: true
+  };
+}
+
+function summarizeRenderedText(text: string | null, markers: string[]) {
+  const body = text ?? "";
+  return {
+    bodyLength: body.length,
+    bodyPreview: body.slice(0, 240),
+    markers: Object.fromEntries(markers.map((marker) => [marker, body.includes(marker)]))
+  };
 }
 
 function encounterTopic(reason: string) {
