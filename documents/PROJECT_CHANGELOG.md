@@ -23131,6 +23131,38 @@ Code changes:
 - Net lines: 562
 - Total churn: 600
 
+## 485. Slice 438 Slice 184 Patient Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T21:50:53.4891950-04:00
+Finished: 2026-06-25T21:55:46.8523752-04:00
+Commit: Pending
+
+Implemented Slice 438: Slice 184 patient mutation authorization-policy probe payload attachments. The patient mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Demographics ACL preconditions, legacy Demographics edit rendering facts, clinician add-only patient registration facts, clinician Demographics/contact/delete denial facts, admin delete cleanup facts, and final cleanup facts so Workbench comparison drill-ins can preview patient mutation ACL enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 184 ACL precondition payload attachments for seeded admin/front-desk Demographics write access, clinician Demographics add-only access, missing clinician Demographics write access, provider Clinicians membership, selected patient anchors, configured admin username, and secret-redaction proof.
+- Added legacy Demographics edit rendered payload attachments proving the selected patient identifiers render after admin login.
+- Added modernized clinician login payload attachments with the session identifier redacted.
+- Added modernized clinician read payload attachments proving Demographics add-only users can still search and read patient charts.
+- Added modernized clinician create payload attachments proving Demographics add-only can register a temporary patient.
+- Added modernized clinician Demographics, contact, and delete forbidden payload attachments proving write-level Demographics gates are enforced for existing-chart updates and deletion.
+- Added modernized admin delete payload attachments proving stronger admin Demographics write permission can complete cleanup.
+- Added final cleanup payload attachments proving the temporary patient is absent after admin deletion.
+- Updated the Workbench functionality progress ledger so Slice 184 patient mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 438 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T015426-756Z-legacy-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T015453-583Z-modernized-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T015511-619Z-legacy-openemr-vs-modernized-openemr-plan-slice-184-patient-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `clinician-login`, `clinician-read`, `clinician-create`, `clinician-demographics-forbidden`, `clinician-contact-forbidden`, `clinician-delete-forbidden`, `admin-delete`, and `cleanup` payloads.
+
+Code changes:
+- Pending.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23140,5 +23172,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, and 183.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, and 184.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
