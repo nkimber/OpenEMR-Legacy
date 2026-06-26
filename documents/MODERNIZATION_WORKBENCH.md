@@ -555,3 +555,9 @@ Every action it performs should map to a repeatable command, script, API call, t
 The Workbench now exposes managed Slice 527 insurance payment reversal plan actions for both the legacy and modernized targets. These actions run `slice-527-insurance-payment-reversal-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the new insurer-backed negative payment workflow remains aligned side by side.
 
 The Progress page also records insurance payment reversal as completed focused billing scope while keeping broader revenue-cycle processing, remittance depth, clearinghouse behavior, production migration, and external integrations outstanding.
+
+## Slice 528 Workbench Update
+
+The Workbench now exposes managed Slice 528 adjustment reversal plan actions for both the legacy and modernized targets. These actions run `slice-528-adjustment-reversal-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the new insurer-backed negative adjustment workflow remains aligned side by side.
+
+The Progress page also records adjustment reversal as completed focused billing scope while keeping broader revenue-cycle processing, remittance depth, clearinghouse behavior, production migration, and external integrations outstanding.

@@ -212,6 +212,7 @@
         "parityPatientPaymentReceiptPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-525-patient-payment-receipt-readiness", "-Reset", "test"],
         "parityPatientPaymentRefundPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-526-patient-payment-refund-readiness", "-Reset", "test"],
         "parityInsurancePaymentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-527-insurance-payment-reversal-readiness", "-Reset", "test"],
+        "parityAdjustmentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-528-adjustment-reversal-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
@@ -2038,6 +2039,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-527-insurance-payment-reversal-readiness.json"
         },
         {
+          "id": "parity-plan-adjustment-reversal",
+          "name": "Slice 528 adjustment reversal plan",
+          "description": "Runs the shared insurer-backed adjustment reversal readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdjustmentReversalPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-528-adjustment-reversal-readiness.json"
+        },
+        {
           "id": "parity-plan-claims",
           "name": "Slice 47 claim status plan",
           "description": "Runs the shared read-only claim status plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2730,6 +2739,7 @@
         "parityPatientPaymentReceiptPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-525-patient-payment-receipt-readiness", "-Reset", "test"],
         "parityPatientPaymentRefundPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-526-patient-payment-refund-readiness", "-Reset", "test"],
         "parityInsurancePaymentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-527-insurance-payment-reversal-readiness", "-Reset", "test"],
+        "parityAdjustmentReversalPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-528-adjustment-reversal-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
         "parityAccountBalancePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-49-account-balance-readiness", "-Reset", "run"],
@@ -4480,6 +4490,14 @@
           "layer": "plan",
           "commandName": "parityInsurancePaymentReversalPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-527-insurance-payment-reversal-readiness.json"
+        },
+        {
+          "id": "parity-plan-adjustment-reversal",
+          "name": "Slice 528 adjustment reversal plan",
+          "description": "Runs the shared insurer-backed adjustment reversal readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAdjustmentReversalPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-528-adjustment-reversal-readiness.json"
         },
         {
           "id": "parity-plan-claims",

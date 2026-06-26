@@ -25814,6 +25814,38 @@ Verification:
 Code changes:
 - 13 files changed, 412 insertions, 31 deletions.
 
+## 575. Slice 528 Adjustment Reversal Readiness
+
+Started: 2026-06-26T12:34:12.9478717-04:00
+Finished: 2026-06-26T12:38:33.6329923-04:00
+Commit: pending
+
+Implemented Slice 528: adjustment reversal readiness. The modernized billing API now accepts explicit `adjustment_reversal` postings as negative insurer-backed adjustments with no payment amount, the Fees payment-posting form includes an `Adjustment reversal` source mode, and reversal rows render distinctly from positive adjustments and payment reversals. The shared parity suite posts a cleanup-backed Northstar HMO adjustment reversal on both targets, verifies payer identity, payment-session/activity increments, net adjustment reduction, balance increase, positive reversal ledger impact, modernized UI rendering, and final cleanup.
+
+Changes:
+- Added controlled `adjustment_reversal` validation to the modernized billing payment-posting API.
+- Added adjustment-reversal-aware ledger and statement projection while preserving net adjustment and balance calculations.
+- Added the modernized Fees `Adjustment reversal` posting mode and explicit reversed-adjustment labels for payment rows.
+- Added the `workflow-adjustment-reversals` suite and `slice-528-adjustment-reversal-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 528 reversal plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused adjustment reversal as completed billing scope while leaving broader revenue-cycle processing outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 528 reversal contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 528 legacy parity plan: `2026-06-26T163734-053Z-legacy-openemr-plan-slice-528-adjustment-reversal-readiness` passed 1/1 tests.
+- Ran the Slice 528 modernized parity plan: `2026-06-26T163759-259Z-modernized-openemr-plan-slice-528-adjustment-reversal-readiness` passed 1/1 tests.
+- Compared the two Slice 528 runs: `2026-06-26T163828-112Z-legacy-openemr-vs-modernized-openemr-plan-slice-528-adjustment-reversal-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 528 file set.
+
+Code changes:
+- 13 files changed, 401 insertions, 34 deletions.
+
 ## 572. Slice 525 Patient Payment Receipt Readiness
 
 Started: 2026-06-26T11:48:05.0000000-04:00

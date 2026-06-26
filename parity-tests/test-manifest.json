@@ -1761,6 +1761,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-528-adjustment-reversal-readiness",
+      "name": "Slice 528 Adjustment Reversal Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that posts, renders, and removes a temporary insurer-backed negative adjustment reversal while verifying payer identity, balance, and ledger effects.",
+      "suites": ["workflow-adjustment-reversals"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-528", "billing", "payments", "adjustments", "reversals", "insurance-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3774,6 +3783,16 @@
       "layer": "workflow",
       "path": "tests/workflow-insurance-payment-reversals",
       "tags": ["slice527", "workflow", "mutation", "billing", "payments", "reversals", "insurance-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-adjustment-reversals",
+      "name": "Adjustment Reversals",
+      "description": "Posts, renders, and removes a temporary negative insurer-backed adjustment reversal while verifying payer identity, balance, and ledger effects on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-adjustment-reversals",
+      "tags": ["slice528", "workflow", "mutation", "billing", "payments", "adjustments", "reversals", "insurance-payments", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
