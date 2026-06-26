@@ -24923,7 +24923,7 @@ Code changes:
 
 Started: 2026-06-26T03:59:27.3682210-04:00
 Finished: 2026-06-26T04:02:31.5050755-04:00
-Commit: Pending
+Commit: c65bfafe
 
 Implemented Slice 490: Slice 236 patient portal generated medical-report procedure-order selection probe payload attachments. The patient portal generated medical-report procedure-order selection readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient/encounter preconditions, temporary procedure-order report-builder/result/cleanup projections, legacy custom-report source evidence, and modernized selected procedure-order generated-report rendering so Workbench comparison drill-ins can preview procedure-order selection evidence behind generated-report parity.
 
