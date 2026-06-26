@@ -25751,7 +25751,7 @@ Code changes:
 
 ## 567. Slice 520 Patient Portal Secure-Message Search Mark-All-Read Readiness
 
-Commit: `pending`
+Commit: `2bea112f`
 Started: `2026-06-26T09:49:29-04:00`
 Finished: `2026-06-26T09:57:33-04:00`
 
