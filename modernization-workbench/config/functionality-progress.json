@@ -70,8 +70,8 @@
         },
         {
           "label": "Patient employer core readiness",
-          "detail": "The modernized patient API, Patient/Client chart, PostgreSQL employer table, shared gold dataset, and parity harness now mirror OpenEMR employer identity and address fields with restore-backed mutation coverage.",
-          "evidence": ["slice-197-patient-employer-core-readiness"]
+          "detail": "The modernized patient API, Patient/Client chart, PostgreSQL employer table, shared gold dataset, and parity harness now mirror OpenEMR employer identity and address fields with restore-backed mutation coverage; Slice 451 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-197-patient-employer-core-readiness", "slice-451-slice197-patient-employer-core-probe-payload-attachments"]
         },
         {
           "label": "Patient provider assignment readiness",
