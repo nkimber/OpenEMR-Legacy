@@ -23603,7 +23603,7 @@ Code changes:
 
 Started: 2026-06-25T23:34:46.3131503-04:00
 Finished: 2026-06-25T23:36:59.3514068-04:00
-Commit: Pending
+Commit: `69af259e`
 
 Implemented Slice 452: Slice 198 patient provider assignment probe payload attachments. The patient provider assignment readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original primary-provider precondition, temporary provider ID/name update, legacy demographics provider rendering, modernized patient chart API and Patient/Client Primary Provider rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind provider assignment parity.
 
