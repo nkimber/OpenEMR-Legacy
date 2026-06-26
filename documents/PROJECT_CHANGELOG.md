@@ -22916,6 +22916,42 @@ Code changes:
 - Net lines: 401
 - Total churn: 435
 
+## 479. Slice 432 Slice 178 Patient Chart Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T21:00:00.0000000-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 432: Slice 178 patient chart authorization-policy probe payload attachments. The patient chart authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Demographics ACL preconditions, legacy patient-summary rendering facts, modernized unauthenticated patient-search rejection facts, front-desk patient search and chart allow facts, admin chart allow facts, and modernized Patient/Client-page rendering facts so Workbench comparison drill-ins can preview Demographics ACL allow evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 178 ACL precondition payload attachments for seeded admin Demographics write permission, front-office Demographics write permission, front-desk Front Office membership, selected patient anchor, configured admin username, and secret-redaction proof.
+- Added legacy patient-summary rendered payload attachments proving the selected patient first name, last name, and legacy PID render after admin login.
+- Added modernized unauthenticated patient-search rejection payload attachments proving the patient search API rejects missing sessions before ACL policy evaluation.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk patient search allow payload attachments proving Front Office Demographics ACL access can retrieve the seeded patient.
+- Added modernized front-desk patient chart allow payload attachments proving Front Office Demographics ACL access can retrieve the seeded chart.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin patient chart allow payload attachments proving administrator Demographics ACL access can retrieve the seeded chart.
+- Added modernized Patient/Client-page rendered payload attachments proving the UI shows front-desk sign-in and patient chart rendering through the Demographics ACL allow path.
+- Updated the Workbench functionality progress ledger so Slice 178 patient chart authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 432 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T010716-256Z-legacy-openemr-plan-slice-178-patient-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T010736-586Z-modernized-openemr-plan-slice-178-patient-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T010758-402Z-legacy-openemr-vs-modernized-openemr-plan-slice-178-patient-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `unauthenticated-search`, `frontdesk-login`, `frontdesk-search`, `frontdesk-chart`, `admin-login`, `admin-chart`, and `rendered` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22925,5 +22961,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, and 177.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, and 178.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
