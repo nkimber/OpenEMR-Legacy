@@ -22850,8 +22850,8 @@ Code changes:
 ## 477. Slice 430 Slice 176 Appointment Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T20:49:19.7498069-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:52:31.9278181-04:00
+Commit: 89b20582
 
 Implemented Slice 430: Slice 176 appointment authorization-policy probe payload attachments. The appointment authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy appointment edit rendering facts, modernized front-desk login, appointment search, and appointment detail allow facts, and modernized Calendar-page rendering facts so Workbench comparison drill-ins can preview Appointment ACL allow evidence without storing password, cookie, or session material.
 
@@ -22875,10 +22875,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-search`, `frontdesk-detail`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 279
+- Lines deleted: 19
+- Net lines: 260
+- Total churn: 298
 
 ## Next Expected Entries
 
