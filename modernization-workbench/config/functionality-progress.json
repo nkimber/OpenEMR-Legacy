@@ -531,8 +531,8 @@
         },
         {
           "label": "Patient portal secure-message lifecycle audit readiness",
-          "detail": "The modernized patient portal now records compose, reply, read-status, single-message archive, and selected-message archive audit events, exposes a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal Secure Messages panel, and parity compares normalized legacy source-action evidence with stored modernized audit history.",
-          "evidence": ["slice-232-patient-portal-message-audit-readiness"]
+          "detail": "The modernized patient portal now records compose, reply, read-status, single-message archive, and selected-message archive audit events, exposes a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal Secure Messages panel, parity compares normalized legacy source-action evidence with stored modernized audit history, and Slice 486 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-232-patient-portal-message-audit-readiness", "slice-486-slice232-patient-portal-message-audit-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message encrypted-body readiness",

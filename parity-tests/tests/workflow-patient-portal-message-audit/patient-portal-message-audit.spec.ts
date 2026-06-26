@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -26,11 +27,39 @@ type NormalizedMessageAuditEvent = {
 };
 
 test.describe("patient portal secure-message audit parity @slice232 @workflow-patient-portal-message-audit @patients @portal", () => {
-  test("normalizes secure-message lifecycle audit events", async ({ targetDb, workflow }) => {
+  test("normalizes secure-message lifecycle audit events", async ({ targetDb, target, workflow }, testInfo) => {
     test.setTimeout(240_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMessageAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-232-patient-portal-message-audit-precondition",
+      description: "Captures the Slice 232 secure-message lifecycle audit precondition: the signed-in anchor patient exists before temporary audit messages are created.",
+      expected: {
+        canonicalId: portalMessageAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        auditTitles,
+        expectedAuditEventTypes: [
+          "message_composed",
+          "message_replied",
+          "message_read",
+          "message_archived",
+          "messages_archived"
+        ]
+      },
+      actual: {
+        canonicalId: portalMessageAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-message-audit",
+        workflow: "patient-portal-secure-message-audit-precondition"
+      }
+    });
 
     await cleanupAuditMessages(workflow);
 
@@ -70,12 +99,38 @@ test.describe("patient portal secure-message audit parity @slice232 @workflow-pa
         archivedMessageCount: 2
       });
       expect(auditEvents[4].summary).toContain("Archived 2 selected secure-message mailbox rows");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-232-patient-portal-message-audit-result",
+        description: "Captures the Slice 232 normalized secure-message lifecycle audit projection after compose, reply, read, single-archive, and selected-archive actions.",
+        expected: {
+          auditEventTypes: [
+            "message_composed",
+            "message_replied",
+            "message_read",
+            "message_archived",
+            "messages_archived"
+          ],
+          composedRelatedMessageCount: 2,
+          replyRelatedMessageCount: 3,
+          batchArchivedMessageCount: 2,
+          messageTitles: auditTitles
+        },
+        actual: {
+          auditEvents,
+          lifecycle: summarizeAuditLifecycle(lifecycle)
+        },
+        context: {
+          suite: "workflow-patient-portal-message-audit",
+          workflow: "patient-portal-secure-message-audit-result"
+        }
+      });
     } finally {
       await cleanupAuditMessages(workflow);
     }
   });
 
-  test("captures secure-message audit through API and portal UI", async ({ page, target, workflow }) => {
+  test("captures secure-message audit through API and portal UI", async ({ page, target, workflow }, testInfo) => {
     test.setTimeout(240_000);
 
     await cleanupAuditMessages(workflow);
@@ -86,8 +141,33 @@ test.describe("patient portal secure-message audit parity @slice232 @workflow-pa
       if (target.type === "legacy-openemr") {
         const auditEvents = buildNormalizedMessageAuditEvents(lifecycle);
         expect(auditEvents.map((event) => event.eventType)).toContain("message_composed");
-        await openLegacyPatientPortalMessages(page, target);
+        const legacyUi = await openLegacyPatientPortalMessages(page, target);
         await expectRenderedText(page, /Secure Messaging/i);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-232-patient-portal-message-audit-legacy-ui",
+          description: "Captures the legacy secure-message lifecycle source evidence: normalized audit events produced by workflow actions plus the legacy Secure Messaging portal surface.",
+          expected: {
+            auditEventTypes: [
+              "message_composed",
+              "message_replied",
+              "message_read",
+              "message_archived",
+              "messages_archived"
+            ],
+            visibleFacts: ["Secure Messaging"],
+            messageTitles: auditTitles
+          },
+          actual: {
+            auditEvents,
+            lifecycle: summarizeAuditLifecycle(lifecycle),
+            legacyUi
+          },
+          context: {
+            suite: "workflow-patient-portal-message-audit",
+            workflow: "patient-portal-secure-message-audit-legacy-ui"
+          }
+        });
         return;
       }
 
@@ -131,6 +211,52 @@ test.describe("patient portal secure-message audit parity @slice232 @workflow-pa
       await expect(auditPanel).toContainText("Message marked read");
       await expect(auditPanel).toContainText("Message archived");
       await expect(auditPanel).toContainText("Messages archived");
+      const auditPanelText = await auditPanel.innerText();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-232-patient-portal-message-audit-modernized-ui",
+        description: "Captures the modernized secure-message lifecycle audit API and Portal surface for compose, reply, read, single-archive, and selected-archive events.",
+        expected: {
+          auditEndpoint: "/api/patient-portal/messages/audit",
+          auditEventTypes: [
+            "message_composed",
+            "message_replied",
+            "message_read",
+            "message_archived",
+            "messages_archived"
+          ],
+          eventSource: "modernized-openemr-portal",
+          visibleFacts: [
+            "Message Audit",
+            "Audit Events",
+            "Message composed",
+            "Message replied",
+            "Message marked read",
+            "Message archived",
+            "Messages archived"
+          ]
+        },
+        actual: {
+          auditEndpoint: `${target.apiBaseUrl}/api/patient-portal/messages/audit`,
+          auditEventCount: audit.auditEventCount,
+          relevantEvents,
+          auditPanelText,
+          portalUrl: page.url(),
+          containsFacts: {
+            messageAudit: auditPanelText.includes("Message Audit"),
+            auditEvents: auditPanelText.includes("Audit Events"),
+            messageComposed: auditPanelText.includes("Message composed"),
+            messageReplied: auditPanelText.includes("Message replied"),
+            messageMarkedRead: auditPanelText.includes("Message marked read"),
+            messageArchived: auditPanelText.includes("Message archived"),
+            messagesArchived: auditPanelText.includes("Messages archived")
+          }
+        },
+        context: {
+          suite: "workflow-patient-portal-message-audit",
+          workflow: "patient-portal-secure-message-audit-modernized-ui"
+        }
+      });
     } finally {
       await cleanupAuditMessages(workflow);
     }
@@ -240,6 +366,36 @@ function buildNormalizedMessageAuditEvents(lifecycle: any): NormalizedMessageAud
   ];
 }
 
+function summarizeAuditLifecycle(lifecycle: any) {
+  return {
+    composed: {
+      created: lifecycle.composed.created,
+      sentMessage: lifecycle.composed.sentMessage,
+      recipientMessage: lifecycle.composed.recipientMessage
+    },
+    reply: {
+      created: lifecycle.reply.created,
+      originalMessage: lifecycle.reply.originalMessage,
+      sentMessage: lifecycle.reply.sentMessage,
+      recipientMessage: lifecycle.reply.recipientMessage
+    },
+    read: {
+      markedRead: lifecycle.read.markedRead,
+      message: lifecycle.read.message
+    },
+    deleted: {
+      deleted: lifecycle.deleted.deleted,
+      deletedMessage: lifecycle.deleted.deletedMessage,
+      deletedMessageCount: lifecycle.deleted.deletedMessageCount
+    },
+    archived: {
+      archived: lifecycle.archived.archived,
+      archivedMessageCount: lifecycle.archived.archivedMessageCount,
+      archivedMessages: lifecycle.archived.archivedMessages
+    }
+  };
+}
+
 async function getModernizedPortalMessageAudit(page: Page, target: RuntimeTarget) {
   const loginResponse = await page.request.post(`${target.apiBaseUrl}/api/patient-portal/login`, {
     data: {
@@ -299,4 +455,12 @@ async function openLegacyPatientPortalMessages(page: Page, target: RuntimeTarget
   await page.getByRole("button", { name: "Log In" }).click();
   await expect.poll(() => page.url()).toContain("/portal/home.php");
   await page.goto(`${target.publicUrl}/portal/messaging/messages.php`);
+  const bodyText = await page.locator("body").innerText();
+  return {
+    portalUrl: page.url(),
+    bodyTextLength: bodyText.length,
+    containsFacts: {
+      secureMessaging: /Secure Messaging/i.test(bodyText)
+    }
+  };
 }
