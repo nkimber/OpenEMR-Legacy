@@ -22703,6 +22703,35 @@ Code changes:
 - Net lines: 268
 - Total churn: 304
 
+## 473. Slice 426 Slice 172 Procedure Protection Probe Payload Attachments
+
+Started: 2026-06-25T20:22:23.4694156-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 426: Slice 172 procedure protection probe payload attachments. The procedure protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API procedure result/catalog/create blocking facts, authenticated legacy/API procedure result visibility facts, and modernized Procedures-page rendering facts so Workbench comparison drill-ins can preview procedure protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 172 precondition payload attachments for the MOD-PAT-0009 patient anchor, complete-blood-count order anchor, procedure report anchor, Hemoglobin result anchor, protected legacy procedure-results route, modernized procedure results/catalog/create APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving procedure result heading and anchor procedure name are not visible before sign-in.
+- Added legacy authenticated payload attachments proving procedure result heading, anchor procedure name, Hemoglobin result, and final/reviewed status markers render after admin login.
+- Added modernized unauthenticated procedure-results payload attachments proving patient procedure APIs reject requests without an active session.
+- Added modernized unauthenticated order-catalog payload attachments proving catalog APIs reject requests without an active session.
+- Added modernized unauthenticated create payload attachments proving procedure order creation is rejected without an active session.
+- Added modernized authenticated procedure-results payload attachments proving an active admin session can read the anchored procedure order/result with session headers redacted.
+- Added modernized Procedures-page rendered payload attachments proving signed-out prompts and disabled controls appear before login and procedure facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 172 procedure protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 426 evidence-payload contract.
+
+Verification:
+- Pending.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22712,5 +22741,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, and 171.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, and 172.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
