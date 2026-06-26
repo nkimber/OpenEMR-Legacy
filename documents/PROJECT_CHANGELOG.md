@@ -27311,7 +27311,7 @@ Code Metrics:
 
 Started: 2026-06-26T19:05:40.0157150-04:00
 Finished: 2026-06-26T19:10:58.0132085-04:00
-Commit: `TBD`
+Commit: `4a099a98`
 
 Implemented Slice 563: focused server-side charge-template catalog readiness. The modernized Fees `Office visit`, `Preventive visit`, `Telehealth follow-up`, and `Complex follow-up` template buttons no longer read CPT, modifier, fee, units, and justification payloads from a React-owned catalog; they call the new `GET /api/billing/charge-templates/{templateId}` backend operation, which returns the deterministic template payload before the existing Save CPT workflow persists the generated fee-sheet row. The shared parity plan applies and saves Office visit and Complex follow-up templates against the seeded billing encounter, verifies payloads, rendering, count movement, and cleanup on both targets.
 
