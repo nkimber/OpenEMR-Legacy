@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 import type { Page } from "@playwright/test";
@@ -19,12 +20,34 @@ const expectedTemplateMetadata = {
 test.describe("patient portal generated report template metadata parity @slice229 @workflow-patient-portal-report-template @patients @portal @reports", () => {
   test("normalizes printable generated report template metadata", async ({
     targetDb,
+    target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-229-patient-portal-report-template-precondition",
+      description: "Captures the Slice 229 generated medical-report printable-template precondition: the signed-in anchor patient exists before generating printable template metadata.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        templateFields: Object.keys(expectedTemplateMetadata)
+      },
+      actual: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-report-template",
+        workflow: "patient-portal-generated-medical-report-template-precondition"
+      }
+    });
 
     const generated = await workflow.generatePatientPortalMedicalReport(portalLoginUsername, portalPassword, {
       sectionIds: ["demographics", "billing"]
@@ -44,20 +67,86 @@ test.describe("patient portal generated report template metadata parity @slice22
     });
     expect(generated.templateMetadata).toMatchObject(expectedTemplateMetadata);
     expect(generated.templateMetadata.generatedOnLabel).toMatch(/^Generated on: \d{2}\/\d{2}\/\d{4}$/);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-229-patient-portal-report-template-result",
+      description: "Captures the Slice 229 generated medical-report printable-template projection, including facility block, patient header, generated-on label, and signature-line readiness.",
+      expected: {
+        displayName: "Kim, Nora",
+        templateMetadata: expectedTemplateMetadata,
+        generatedOnLabelPattern: "^Generated on: \\d{2}/\\d{2}/\\d{4}$"
+      },
+      actual: {
+        authenticated: generated.authenticated,
+        username: generated.username,
+        portalUsername: generated.portalUsername,
+        pid: generated.pid,
+        pubpid: generated.pubpid,
+        displayName: generated.displayName,
+        title: generated.title,
+        printableVersionAvailable: generated.printableVersionAvailable,
+        pdfDownloadAvailable: generated.pdfDownloadAvailable,
+        templateMetadata: generated.templateMetadata
+      },
+      context: {
+        suite: "workflow-patient-portal-report-template",
+        workflow: "patient-portal-generated-medical-report-template-result"
+      }
+    });
   });
 
   test("renders printable generated report header metadata on the portal surface", async ({
     page,
     target
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     if (target.type === "legacy-openemr") {
-      await expectLegacyPrintableGeneratedReportHeader(page, target);
+      const legacySurface = await expectLegacyPrintableGeneratedReportHeader(page, target);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-229-patient-portal-report-template-legacy-ui",
+        description: "Captures the legacy OpenEMR printable generated-report header surface for facility, patient, generated-on, and signature-line metadata.",
+        expected: {
+          page: "portal/report/portal_custom_report.php?printable=1",
+          templateMetadata: expectedTemplateMetadata,
+          visibleFacts: [
+            expectedTemplateMetadata.facilityName,
+            expectedTemplateMetadata.patientHeaderLine,
+            "Generated on",
+            "Signature"
+          ]
+        },
+        actual: legacySurface,
+        context: {
+          suite: "workflow-patient-portal-report-template",
+          workflow: "patient-portal-generated-medical-report-template-legacy-ui"
+        }
+      });
       return;
     }
 
-    await expectModernizedGeneratedReportHeader(page, target);
+    const modernizedSurface = await expectModernizedGeneratedReportHeader(page, target);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-229-patient-portal-report-template-modernized-ui",
+      description: "Captures the modernized Portal generated-report template metadata surface for facility, patient, generated-on, and signature-line readiness.",
+      expected: {
+        heading: "Patient portal generated medical report",
+        templateMetadata: expectedTemplateMetadata,
+        visibleFacts: [
+          expectedTemplateMetadata.facilityName,
+          expectedTemplateMetadata.patientHeaderLine,
+          "Generated on:",
+          "Signature Line available"
+        ]
+      },
+      actual: modernizedSurface,
+      context: {
+        suite: "workflow-patient-portal-report-template",
+        workflow: "patient-portal-generated-medical-report-template-modernized-ui"
+      }
+    });
   });
 });
 
@@ -90,6 +179,18 @@ async function expectLegacyPrintableGeneratedReportHeader(page: Page, target: Ru
   await expect(body).toContainText(expectedTemplateMetadata.patientHeaderLine);
   await expect(body).toContainText("Generated on");
   await expect(body).toContainText("Signature");
+
+  return {
+    url: page.url(),
+    templateMetadata: expectedTemplateMetadata,
+    responseTextLength: (await body.innerText()).length,
+    containsFacts: {
+      facilityName: await body.getByText(expectedTemplateMetadata.facilityName).count(),
+      patientHeaderLine: await body.getByText(expectedTemplateMetadata.patientHeaderLine).count(),
+      generatedOn: await body.getByText("Generated on").count(),
+      signature: await body.getByText("Signature").count()
+    }
+  };
 }
 
 async function expectModernizedGeneratedReportHeader(page: Page, target: RuntimeTarget) {
@@ -103,4 +204,10 @@ async function expectModernizedGeneratedReportHeader(page: Page, target: Runtime
   await expect(generatedReportRegion).toContainText(expectedTemplateMetadata.patientHeaderLine);
   await expect(generatedReportRegion).toContainText("Generated on:");
   await expect(generatedReportRegion).toContainText("Signature Line available");
+
+  return {
+    url: page.url(),
+    templateMetadata: expectedTemplateMetadata,
+    regionText: await generatedReportRegion.innerText()
+  };
 }

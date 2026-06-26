@@ -295,8 +295,8 @@
         },
         {
           "label": "Patient portal generated medical report printable template readiness",
-          "detail": "The modernized patient portal API, Portal page, and PDF payload now expose printable generated-report facility, patient header, generated-on, and signature-line metadata while parity compares the same legacy printable report header behavior.",
-          "evidence": ["slice-229-patient-portal-generated-medical-report-template-readiness"]
+          "detail": "The modernized patient portal API, Portal page, and PDF payload now expose printable generated-report facility, patient header, generated-on, and signature-line metadata while parity compares the same legacy printable report header behavior, and Slice 483 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-229-patient-portal-generated-medical-report-template-readiness", "slice-483-slice229-patient-portal-generated-medical-report-template-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report package readiness",
