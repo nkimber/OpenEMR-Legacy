@@ -26387,7 +26387,7 @@ Code changes:
 
 Started: 2026-06-26T13:29:17.5766055-04:00
 Finished: 2026-06-26T13:36:31.9849962-04:00
-Commit: pending
+Commit: e1483a03
 
 Implemented Slice 533: focused claim scrubbing readiness. The modernized Fees claim card now includes a `Scrub` action that evaluates claim payer metadata and encounter fee-sheet CPT lines for diagnosis pointers, positive fees, and positive units, then writes a deterministic local scrub report and process-file name back to the claim. The shared parity suite creates a cleanup-backed queued Northstar HMO claim on both targets, drives the modernized UI Scrub action or equivalent legacy update, verifies PASS/no-issue scrub content, process-file metadata, claim-count stability, modernized rendering, and hard-delete cleanup.
 
