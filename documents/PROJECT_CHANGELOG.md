@@ -25123,6 +25123,40 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-pagination/patient-portal-message-pagination.spec.ts`: 186 insertions, 3 deletions.
 
+## 543. Slice 496 Slice 242 Patient Portal Secure-Message Mark-All-Read Probe Payload Attachments
+
+Started: 2026-06-26T04:39:10.0000000-04:00
+Finished: 2026-06-26T04:45:46.5077617-04:00
+Commit: Pending
+
+Implemented Slice 496: Slice 242 patient portal secure-message mark-all-read probe payload attachments. The mark-all-read readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, browser-only visible status transitions, persisted unread mailbox state after refresh, cleanup state, legacy toolbar rendering, and modernized Portal rendering so Workbench comparison drill-ins can preview the toolbar status-transition evidence.
+
+Changes:
+- Added Slice 242 precondition payload attachments for the `MOD-PAT-0004` portal anchor, temporary unread secure-message titles, and the browser-only mark-all-read contract.
+- Added persisted-result payload attachments proving both temporary messages remain `New` after the toolbar action and refresh.
+- Added cleanup payload attachments proving temporary mark-all-read rows are removed from Inbox and All projections.
+- Added target-specific legacy Secure Messaging toolbar and modernized Portal inbox rendering payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 496 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-496-slice242-patient-portal-message-mark-all-read-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-message-mark-all-read/patient-portal-message-mark-all-read.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-242-patient-portal-message-mark-all-read-readiness -Reset test` passed with run `2026-06-26T084406-637Z-legacy-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-242-patient-portal-message-mark-all-read-readiness -Reset test` passed with run `2026-06-26T084448-862Z-modernized-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-242-patient-portal-message-mark-all-read-readiness` produced matched comparison `2026-06-26T084516-995Z-legacy-openemr-vs-modernized-openemr-plan-slice-242-patient-portal-message-mark-all-read-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-242-patient-portal-message-mark-all-read-precondition`, `db-probe-slice-242-patient-portal-message-mark-all-read-result`, `db-probe-slice-242-patient-portal-message-mark-all-read-cleanup`, and `db-probe-slice-242-patient-portal-message-mark-all-read-legacy-ui`; the modernized run includes `db-probe-slice-242-patient-portal-message-mark-all-read-precondition`, `db-probe-slice-242-patient-portal-message-mark-all-read-result`, `db-probe-slice-242-patient-portal-message-mark-all-read-cleanup`, and `db-probe-slice-242-patient-portal-message-mark-all-read-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CONTEXT.md`: 4 insertions, 4 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-message-mark-all-read/patient-portal-message-mark-all-read.spec.ts`: 210 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
