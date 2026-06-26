@@ -23375,6 +23375,39 @@ Code changes:
 - Net lines: +331
 - Total churn: 429
 
+## 492. Slice 445 Slice 191 Patient Duplicate Detection Probe Payload Attachments
+
+Started: 2026-06-25T22:50:29.0609414-04:00
+Finished: 2026-06-25T22:54:37.2282816-04:00
+Commit: Pending
+
+Implemented Slice 445: Slice 191 patient duplicate detection probe payload attachments. The patient duplicate detection readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/contact precondition, temporary duplicate registration creation, database duplicate-candidate rows, legacy database-surface evidence, modernized duplicate-search and chart-detail API evidence, modernized Patient/Client duplicate panel rendering, and final temporary-patient cleanup so Workbench comparison drill-ins can preview the evidence behind demographic, phone, and email duplicate matching.
+
+Changes:
+- Added Slice 191 precondition payload attachments for the `MOD-PAT-0010` anchor patient, anchor contact values, proposed temporary registration, and expected match-score/reason contract.
+- Added temporary duplicate-registration creation payload attachments before duplicate-candidate checks.
+- Added database duplicate-candidate payload attachments proving legacy and modernized stores find the anchor by first name, last name, date of birth, phone, and email.
+- Added legacy database-surface payload attachments preserving the legacy parity source for duplicate detection.
+- Added modernized duplicate-search API, chart-detail API, and Patient/Client duplicate panel payload attachments.
+- Added final cleanup payload attachments proving the temporary registration is removed after the run.
+- Updated the Workbench functionality progress ledger so Slice 191 patient duplicate detection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 445 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json`; confirmed the Slice 445 evidence key is present only in the patient duplicate detection row and Workbench evidence rollup.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed for `slice-191-patient-duplicate-detection-readiness`: `2026-06-26T025337-112Z-legacy-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- Modernized parity run passed for `slice-191-patient-duplicate-detection-readiness`: `2026-06-26T025355-892Z-modernized-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T025417-686Z-legacy-openemr-vs-modernized-openemr-plan-slice-191-patient-duplicate-detection-readiness`.
+- Attachment audit confirmed shared Slice 191 precondition, created-registration, database-candidates, and cleanup payloads on both targets, plus legacy-surface evidence for legacy and modernized API/surface evidence for the modernized target.
+
+Code changes:
+- Lines added: 341
+- Lines deleted: 85
+- Net lines: +256
+- Total churn: 426
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23384,5 +23417,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, and 190.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, and 191.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
