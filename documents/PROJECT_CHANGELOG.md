@@ -22815,8 +22815,8 @@ Code changes:
 ## 476. Slice 429 Slice 175 Clinical-List Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T20:40:02.3725027-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:46:39.5238916-04:00
+Commit: c1d77350
 
 Implemented Slice 429: Slice 175 clinical-list authorization-policy probe payload attachments. The clinical-list authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy patient-summary clinical-list rendering facts, modernized front-desk forbidden clinical-list retrieval and allergy mutation facts, admin clinical-list allow facts, and modernized Lists-page retry rendering facts so Workbench comparison drill-ins can preview Medical/History policy evidence without storing password, cookie, or session material.
 
@@ -22842,10 +22842,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-lists-forbidden`, `frontdesk-mutation-forbidden`, `admin-login`, `admin-lists`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 399
+- Lines deleted: 28
+- Net lines: 371
+- Total churn: 427
 
 ## Next Expected Entries
 
