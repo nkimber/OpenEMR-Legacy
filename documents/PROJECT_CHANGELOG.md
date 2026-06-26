@@ -22600,7 +22600,7 @@ Code changes:
 
 Started: 2026-06-25T20:03:47.1708186-04:00
 Finished: 2026-06-25T20:05:09.0271434-04:00
-Commit: pending
+Commit: 221b02b3
 
 Implemented Slice 423: Slice 169 document protection probe payload attachments. The document protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API document list/content/create blocking facts, authenticated legacy/API document visibility facts, and modernized Documents-page rendering facts so Workbench comparison drill-ins can preview document protection evidence without storing password, cookie, or session material.
 
@@ -22627,10 +22627,10 @@ Verification:
 - Attachment scan confirmed `db-probe-slice-169-document-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-169-document-protection-precondition`, `unauthenticated-search`, `unauthenticated-content`, `unauthenticated-create`, `authenticated-search`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: 254
+- Lines added: 262
 - Lines deleted: 18
-- Net lines: 236
-- Total churn: 272
+- Net lines: 244
+- Total churn: 280
 
 ## Next Expected Entries
 
