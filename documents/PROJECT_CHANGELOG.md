@@ -26845,7 +26845,7 @@ Code Metrics:
 Started: 2026-06-26T16:07:21.6622845-04:00
 Finished: 2026-06-26T16:11:18.3142208-04:00
 Duration: 3 minutes 56 seconds
-Commit: Pending
+Commit: `bb58c2c3`
 
 Implemented Slice 548: focused incompatible modifier-combination readiness. The modernized Fees claim `Scrub` action now flags active CPT4 service lines that combine individually supported but incompatible modifiers `25` and `59` as deterministic `incompatible-modifier-combination:25+59` issues. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, a valid CPT4 `99214` service line carrying modifier text `25,59`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-modifier, duplicate-modifier, modifier-count, CPT-code, diagnosis-pointer, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
