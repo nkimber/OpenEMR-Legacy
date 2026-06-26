@@ -26417,7 +26417,7 @@ Code changes:
 
 Started: 2026-06-26T13:38:54.3053599-04:00
 Finished: 2026-06-26T13:46:41.7582892-04:00
-Commit: pending
+Commit: 7102be80
 
 Implemented Slice 534: focused claim resubmission readiness. The modernized Fees claim card now includes a `Resubmit` action for denied claims that requeues the claim for billing with X12 target metadata, deterministic resubmission process-file naming, and a compact payload recording the source status and corrected/requeued reason. The shared parity suite creates a cleanup-backed denied Northstar HMO claim on both targets, drives the modernized UI Resubmit action or equivalent legacy update, verifies queued status, process-file metadata, resubmission payload content, claim-count stability, modernized rendering, and hard-delete cleanup.
 
