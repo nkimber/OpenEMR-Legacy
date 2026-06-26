@@ -27087,6 +27087,39 @@ Verification:
 Code Metrics:
 - 10 scoped files changed, with 478 insertions and 5 deletions including the new claim inactive-diagnosis-line parity suite.
 
+## 603. Slice 556 Claim Server-Side Scrubbing Readiness
+
+Started: 2026-06-26T17:35:46.5976572-04:00
+Finished: 2026-06-26T17:43:30.9896997-04:00
+Commit: pending
+
+Implemented Slice 556: focused server-side claim scrubbing readiness. The modernized billing claim `Scrub` action no longer computes claim-scrub business rules in the React UI; it calls the new `POST /api/billing/claims/{claimId}/scrub` backend operation, which reads the claim plus active encounter billing lines, computes the deterministic scrub report, persists process-file and submitted-claim metadata, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend scrub path or equivalent legacy update, verifies deterministic `SCRUB-PASS` / `issues=none` behavior, process-file metadata, claim-card rendering, claim-count stability, and cleanup.
+
+Changes:
+- Added the modernized backend claim scrub operation and endpoint.
+- Changed the modernized Fees claim card so the Scrub button calls the backend billing operation instead of duplicating scrub business rules in React.
+- Added the `workflow-claim-server-side-scrubbing` suite and `slice-556-claim-server-side-scrubbing-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 556 server-side scrubbing plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim scrubbing as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 556 server-side scrubbing contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the first Slice 556 modernized plan attempt: `2026-06-26T213837-910Z-modernized-openemr-plan-slice-556-claim-server-side-scrubbing-readiness` failed because the backend claim lookup joined the wrong patient table name (`patient_data` instead of `patients`).
+- Ran the second Slice 556 modernized plan attempt: `2026-06-26T214036-243Z-modernized-openemr-plan-slice-556-claim-server-side-scrubbing-readiness` failed because the first suite shape relied on a seeded encounter with no active ICD10 billing diagnosis line, so the new server-side diagnosis-code rule correctly returned `missing-diagnosis-code`.
+- Reran the Slice 556 modernized parity plan after the schema fix and diagnosis-backed temporary encounter adjustment: `2026-06-26T214214-903Z-modernized-openemr-plan-slice-556-claim-server-side-scrubbing-readiness` passed 1/1 tests.
+- Reran the Slice 556 legacy parity plan after the suite adjustment: `2026-06-26T214246-334Z-legacy-openemr-plan-slice-556-claim-server-side-scrubbing-readiness` passed 1/1 tests.
+- Compared the two successful Slice 556 runs: `2026-06-26T214318-469Z-legacy-openemr-vs-modernized-openemr-plan-slice-556-claim-server-side-scrubbing-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 556 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 916 insertions and 202 deletions, net +714 lines and 1118 total churn, including the backend claim scrub operation, React scrub handoff, and new server-side scrubbing parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
