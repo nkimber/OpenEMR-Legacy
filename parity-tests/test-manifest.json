@@ -1932,6 +1932,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-548-claim-incompatible-modifier-combination-readiness",
+      "name": "Slice 548 Claim Incompatible Modifier Combination Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT4 service line with individually valid but incompatible modifiers, scrubs a temporary claim, verifies deterministic SCRUB-FAIL incompatible-modifier-combination metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-incompatible-modifier-combination"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-548", "billing", "claims", "claim-scrubbing", "modifier-compatibility", "incompatible-modifier-combination", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4094,6 +4103,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-future-service-date",
       "tags": ["slice547", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "service-date-validation", "future-service-date", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-incompatible-modifier-combination",
+      "name": "Claim Incompatible Modifier Combination",
+      "description": "Creates a CPT4 service line with individually valid but incompatible modifiers, scrubs a temporary local claim report, verifies deterministic incompatible-modifier-combination metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-incompatible-modifier-combination",
+      "tags": ["slice548", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-compatibility", "incompatible-modifier-combination", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

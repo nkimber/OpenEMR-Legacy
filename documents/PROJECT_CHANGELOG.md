@@ -26840,6 +26840,37 @@ Verification:
 Code Metrics:
 - 13 scoped files changed, with 479 insertions and 10 deletions including the new claim future service-date parity suite.
 
+## 595. Slice 548 Claim Incompatible Modifier Combination Readiness
+
+Started: 2026-06-26T16:07:21.6622845-04:00
+Finished: 2026-06-26T16:11:18.3142208-04:00
+Duration: 3 minutes 56 seconds
+Commit: Pending
+
+Implemented Slice 548: focused incompatible modifier-combination readiness. The modernized Fees claim `Scrub` action now flags active CPT4 service lines that combine individually supported but incompatible modifiers `25` and `59` as deterministic `incompatible-modifier-combination:25+59` issues. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, a valid CPT4 `99214` service line carrying modifier text `25,59`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-modifier, duplicate-modifier, modifier-count, CPT-code, diagnosis-pointer, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added incompatible modifier-combination validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-incompatible-modifier-combination` suite and `slice-548-claim-incompatible-modifier-combination-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 548 incompatible modifier-combination plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused incompatible modifier-combination claim scrubbing as completed billing validation scope while leaving broader modifier compatibility policy rules beyond duplicate/count and focused `25+59` incompatibility, broader diagnosis/code policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 548 incompatible modifier-combination contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 548 legacy parity plan: `2026-06-26T201016-708Z-legacy-openemr-plan-slice-548-claim-incompatible-modifier-combination-readiness` passed 1/1 tests.
+- Ran the Slice 548 modernized parity plan: `2026-06-26T201016-715Z-modernized-openemr-plan-slice-548-claim-incompatible-modifier-combination-readiness` passed 1/1 tests.
+- Compared the two successful Slice 548 runs: `2026-06-26T201107-878Z-legacy-openemr-vs-modernized-openemr-plan-slice-548-claim-incompatible-modifier-combination-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 548 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 11 scoped files changed, with 475 insertions and 8 deletions including the new claim incompatible modifier-combination parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
