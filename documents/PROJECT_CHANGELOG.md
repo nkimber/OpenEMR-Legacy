@@ -25528,7 +25528,7 @@ Code changes:
 
 Started: 2026-06-26T06:05:00.0000000-04:00
 Finished: 2026-06-26T06:11:24.1945022-04:00
-Commit: Pending
+Commit: d9271fe0
 
 Implemented Slice 508: Slice 254 patient portal profile review revert probe payload attachments. The profile review revert readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, original chart demographics, queued review request state, legacy staff revert action facts, modernized Admin Revert Edits rendering, post-revert queue state, unchanged chart demographics, and restoration cleanup so Workbench comparison drill-ins can preview staff rejection evidence behind portal parity.
 
