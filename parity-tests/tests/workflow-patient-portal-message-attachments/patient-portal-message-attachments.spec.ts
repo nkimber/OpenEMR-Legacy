@@ -65,6 +65,29 @@ test.describe("patient portal secure-message attachment readiness parity @slice5
         attachmentCount: 0,
         attachments: []
       });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-510-patient-portal-message-attachments-created",
+        description: "Captures the Slice 510 composed-message creation result before reloading the mailbox: both the sender and recipient copies carry explicit empty attachment metadata.",
+        expected: {
+          created: true,
+          sentMessage: {
+            title: attachmentReadinessTitle,
+            attachmentCount: 0,
+            attachments: []
+          },
+          recipientMessage: {
+            title: attachmentReadinessTitle,
+            attachmentCount: 0,
+            attachments: []
+          }
+        },
+        actual: summarizeComposeAttachmentResult(result.sentMessage, result.recipientMessage),
+        context: {
+          suite: "workflow-patient-portal-message-attachments",
+          workflow: "patient-portal-message-attachments-created"
+        }
+      });
 
       const after = await workflow.getPatientPortalMessages(portalLoginUsername, portalPassword);
       const sentMessage = after.sentMessages.find((message) => message.title === attachmentReadinessTitle);
@@ -174,6 +197,20 @@ test.describe("patient portal secure-message attachment readiness parity @slice5
       }
     } finally {
       await workflow.cleanupPatientPortalComposedMessage(portalLoginUsername, attachmentReadinessTitle);
+      const cleanup = await workflow.getPatientPortalMessages(portalLoginUsername, portalPassword);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-510-patient-portal-message-attachments-ui-cleanup",
+        description: "Captures the Slice 510 UI-test cleanup state after removing the temporary portal secure-message rows created for sent-surface rendering checks.",
+        expected: {
+          titleAbsentFromSent: true
+        },
+        actual: summarizeMailboxForTitle(cleanup, attachmentReadinessTitle),
+        context: {
+          suite: "workflow-patient-portal-message-attachments",
+          workflow: "patient-portal-message-attachments-ui-cleanup"
+        }
+      });
     }
   });
 });
