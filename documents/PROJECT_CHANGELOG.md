@@ -25397,7 +25397,7 @@ Code changes:
 
 Started: 2026-06-26T05:37:00.0000000-04:00
 Finished: 2026-06-26T05:44:00.8527912-04:00
-Commit: Pending
+Commit: 29d15482
 
 Implemented Slice 504: Slice 250 patient portal profile probe payload attachments. The portal profile readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, authenticated medical-record demographics, primary and secondary insurance projections, legacy Profile From Medical Records rendering, and modernized Portal profile-region rendering so Workbench comparison drill-ins can preview the profile evidence behind portal parity.
 
