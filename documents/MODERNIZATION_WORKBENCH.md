@@ -783,3 +783,9 @@ The Progress page also records patient refund posting as server-side billing bus
 The Workbench now exposes managed Slice 565 insurance-reversal server-side posting plan actions for both the legacy and modernized targets. These actions run `slice-565-insurance-reversal-server-side-posting-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Insurance reversal` mode calls the backend billing operation, creates the OpenEMR-shaped negative insurer-backed reversal posting, refreshes the rendered reversal/payment/ledger/balance state, preserves the payer claim number, and cleans up the temporary reversal side by side.
 
 The Progress page also records insurance payment reversal as server-side billing business logic while keeping adjustment reversal, richer AR exception handling, statement delivery, payer-specific ERA workflows, and production remittance behavior outstanding.
+
+## Slice 566 Workbench Update
+
+The Workbench now exposes managed Slice 566 adjustment-reversal server-side posting plan actions for both the legacy and modernized targets. These actions run `slice-566-adjustment-reversal-server-side-posting-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Adjustment reversal` mode calls the backend billing operation, creates the OpenEMR-shaped negative insurer-backed adjustment posting, refreshes the rendered reversal/payment/ledger/balance state, preserves the payer claim number, and cleans up the temporary reversal side by side.
+
+The Progress page also records adjustment reversal as server-side billing business logic while keeping richer AR exception handling, statement delivery, payer-specific ERA workflows, and production remittance behavior outstanding.

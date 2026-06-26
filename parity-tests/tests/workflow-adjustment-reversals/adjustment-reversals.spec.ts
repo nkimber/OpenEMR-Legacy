@@ -5,7 +5,7 @@ import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.
 const adjustmentReversalAnchorPatientId = "MOD-PAT-0005";
 const adjustmentReversalAnchorEncounter = 1000052;
 
-test.describe("adjustment reversal parity @slice528 @workflow-adjustment-reversals @mutation @billing", () => {
+test.describe("adjustment reversal parity @slice528 @slice566 @workflow-adjustment-reversals @mutation @billing", () => {
   test("posts, renders, and removes an adjustment reversal", async ({
     page,
     target,
@@ -85,8 +85,34 @@ test.describe("adjustment reversal parity @slice528 @workflow-adjustment-reversa
         }
       });
 
-      reversalPaymentId = await workflow.createPaymentPosting(reversalInput);
-      const created = await workflow.getPaymentPosting(reversalPaymentId);
+      if (target.type === "legacy-openemr") {
+        reversalPaymentId = await workflow.createPaymentPosting(reversalInput);
+      } else {
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
+        await expect(page.locator("body")).toContainText("Payment Posting");
+        await expect(page.getByLabel("New payment encounter")).not.toHaveValue("");
+        await page.getByLabel("New payment source").selectOption("adjustmentReversal");
+        await page.getByLabel("New payment post date").fill(reversalInput.postDate);
+        await page.getByLabel("New payment payer ID").fill(String(reversalInput.payerId));
+        await page.getByLabel("New payment payer name").fill(reversalInput.payerName);
+        await page.getByLabel("New payment reference").fill(reference);
+        await page.getByLabel("New payment method").selectOption(reversalInput.paymentMethod);
+        await page.getByLabel("New payment adjustment amount").fill("12.00");
+        await page.getByLabel("New payment CPT code").fill(reversalInput.code);
+        await page.getByLabel("New payment payer claim number").fill(payerClaimNumber);
+        await page.getByLabel("New payment memo").fill(reversalInput.memo);
+        await page.getByLabel("New payment encounter").fill(String(adjustmentReversalAnchorEncounter));
+        await expect(page.getByLabel("New payment encounter")).toHaveValue(String(adjustmentReversalAnchorEncounter));
+        await page.getByRole("button", { name: "Post Payment" }).click();
+        await expect(page.locator("body")).toContainText("Adjustment reversal saved");
+        await expect(page.locator("body")).toContainText(reference);
+
+        const createdPostings = await targetDb.getPaymentPostingsForPatient(patient!.pid);
+        reversalPaymentId = createdPostings.find((posting) => posting.reference === reference)?.activityId ?? null;
+        expect(reversalPaymentId).not.toBeNull();
+      }
+
+      const created = await workflow.getPaymentPosting(reversalPaymentId!);
       expect(created).toMatchObject({
         patientId: patient!.pid,
         encounter: adjustmentReversalAnchorEncounter,
