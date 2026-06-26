@@ -24187,7 +24187,7 @@ Code changes:
 
 Started: 2026-06-26T01:20:44.2024430-04:00
 Finished: 2026-06-26T01:23:53.9064398-04:00
-Commit: Pending
+Commit: `bdbc8df5`
 
 Implemented Slice 469: Slice 215 patient portal secure-message read-status probe payload attachments. The patient portal secure-message read-status readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, pre-read mailbox/home-summary state, cleanup-backed inbound message creation/read result, post-cleanup mailbox state, legacy portal click-driven read rendering, and modernized Portal Mark read rendering so Workbench comparison drill-ins can preview the evidence behind patient portal read-status parity.
 
