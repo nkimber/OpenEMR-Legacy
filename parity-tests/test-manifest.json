@@ -1356,6 +1356,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-520-patient-portal-message-search-mark-all-read-readiness",
+      "name": "Slice 520 Patient Portal Secure-Message Search Mark-All-Read Readiness",
+      "description": "Patient portal messaging confidence plan that verifies Mark all as read only affects currently filtered secure-message rows in the modernized Portal.",
+      "suites": ["workflow-patient-portal-message-search-mark-all-read"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-520", "patients", "portal", "messages", "search", "mark-all-read", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4772,6 +4781,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-search-selection",
       "tags": ["slice519", "workflow", "mutation", "patients", "portal", "messages", "search", "selection", "batch-archive", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-search-mark-all-read",
+      "name": "Patient Portal Secure-Message Search Mark-All-Read Readiness",
+      "description": "Verifies Mark all as read is scoped to filtered secure-message rows and hidden unread rows remain New when search is cleared.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-search-mark-all-read",
+      "tags": ["slice520", "workflow", "mutation", "patients", "portal", "messages", "search", "mark-all-read", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

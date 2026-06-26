@@ -404,7 +404,7 @@ The shared encounter procedure-result entry plan runs against both targets and v
 
 The shared encounter claims plan runs read-only against both targets and verifies `MOD-PAT-0001` encounter `1000013`, claim `CLAIM-1000013-1`, payer `Acme Health`, `HCFA` target, cleared claim status facts, modernized Encounter detail API claim fields, and modernized Encounters workspace Claim Linkage cards.
 
-The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-519 patient portal secure-message search-selection readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-520 patient portal secure-message search mark-all-read readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 The Workbench also exposes a custom parity run builder on the Test Runs page for each managed application. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
@@ -450,6 +450,8 @@ Slice 517 adds managed Workbench actions for the patient portal secure-message c
 Slice 518 adds managed Workbench actions for the patient portal secure-message search-normalization plan on both legacy and modernized targets. The plan creates cleanup-backed matching and decoy Inbox rows for `MOD-PAT-0004`, verifies padded mixed-case search text is trimmed and matched case-insensitively, documents the installed legacy no-active-search-summary baseline, and verifies the modernized Portal exposes the search-count summary as a live status.
 
 Slice 519 adds managed Workbench actions for the patient portal secure-message search-selection plan on both legacy and modernized targets. The plan creates cleanup-backed matching and selected-then-hidden Inbox rows for `MOD-PAT-0004`, verifies search hides the selected row from the shared projection, documents the installed legacy no-active-search-filter baseline, and verifies the modernized Portal clears the hidden selection and disables Archive selected.
+
+Slice 520 adds managed Workbench actions for the patient portal secure-message search mark-all-read plan on both legacy and modernized targets. The plan creates cleanup-backed matching and hidden unread Inbox rows for `MOD-PAT-0004`, verifies search hides the second unread row from the shared projection, documents the installed legacy no-active-search-filter baseline, and verifies the modernized Portal marks only the filtered row read while the hidden row remains New after clearing search.
 
 The Workbench owns seed-data visibility and orchestration.
 
