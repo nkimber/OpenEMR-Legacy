@@ -25753,7 +25753,7 @@ Code changes:
 
 Started: 2026-06-26T09:03:05.1390499-04:00
 Finished: 2026-06-26T09:07:09.9833013-04:00
-Commit: Pending
+Commit: 1797a0fe
 
 Implemented Slice 516: patient portal secure-message search-count readiness. The modernized Portal now renders a visible search-count summary that reports filtered and total counts for Inbox, Sent, All, and Deleted secure-message folders. The parity suite creates cleanup-backed Inbox, Sent, and archived Deleted rows for `MOD-PAT-0004`, verifies the shared per-folder count projections for matching queries, records the installed legacy no-active-search-input/count-summary baseline, and verifies the modernized Portal count summary.
 
