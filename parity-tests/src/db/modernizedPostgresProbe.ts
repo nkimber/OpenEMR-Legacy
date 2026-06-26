@@ -832,6 +832,7 @@ ORDER BY version;
   async getPaymentPostingsForPatient(pid: number): Promise<PaymentPostingSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT pa.pid AS "patientId", pa.encounter, pa.sequence_no AS "sequenceNo",
+  pa.id AS "activityId",
   COALESCE(pa.code_type, '') AS "codeType", COALESCE(pa.code, '') AS code,
   COALESCE(pa.modifier, '') AS modifier, pa.payer_type AS "payerType", pa.session_id AS "sessionId",
   COALESCE(ps.payer_name, '') AS "payerName", COALESCE(ps.reference, '') AS reference,
@@ -850,6 +851,7 @@ WHERE pa.pid = ${pid} AND pa.deleted IS NULL
 ORDER BY pa.encounter, pa.sequence_no;
 `);
     return rows.map((row) => ({
+      activityId: row.activityId,
       patientId: Number(row.patientId),
       encounter: Number(row.encounter),
       sequenceNo: Number(row.sequenceNo),

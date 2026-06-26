@@ -426,7 +426,7 @@ The Demo Deployment page is the Workbench surface for lightweight public Azure d
 
 The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, and the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`. Both are under the ignored Workbench artifacts folder. The page clears the visible prior result when a new save, validate, deploy, or smoke action starts, then offers copy buttons for the latest JSON result, command output, and combined evidence payload.
 
-The deploy action runs `scripts/Deploy-AzureDemo.ps1`. It creates or updates the selected Azure Container Apps resources, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, and smoke-tests the resulting public URLs. The smoke action uses the same script with `-SmokeOnly` and only checks existing deployed apps.
+The deploy action runs `scripts/Deploy-AzureDemo.ps1`. It registers the required Azure resource providers when needed, waits for Azure to report registration completion, creates or updates the selected Azure Container Apps resources, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, and smoke-tests the resulting public URLs. The smoke action uses the same script with `-SmokeOnly` and only checks existing deployed apps.
 
 Detailed operating notes live in `AZURE_DEMO_DEPLOYMENT.md`.
 
@@ -771,3 +771,9 @@ The Progress page also records starter EOB batch import as server-side billing b
 The Workbench now exposes managed Slice 563 charge-template server-side catalog plan actions for both the legacy and modernized targets. These actions run `slice-563-charge-template-server-side-catalog-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Office visit` and `Complex follow-up` template buttons call the backend billing catalog, populate the expected CPT/modifier/fee/units/justification fields, save the generated fee-sheet rows, and clean up the temporary billing lines side by side.
 
 The Progress page also records the focused charge-template catalog as server-side billing business logic while keeping payer-specific fee schedules, richer coding search, clearinghouse edits, and production revenue-cycle behavior outstanding.
+
+## Slice 564 Workbench Update
+
+The Workbench now exposes managed Slice 564 patient-refund server-side posting plan actions for both the legacy and modernized targets. These actions run `slice-564-patient-refund-server-side-posting-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Patient refund` mode calls the backend billing operation, creates the OpenEMR-shaped negative patient-refund posting, refreshes the rendered refund/payment/ledger/balance state, and cleans up the temporary refund side by side.
+
+The Progress page also records patient refund posting as server-side billing business logic while keeping insurance reversal, adjustment reversal, richer AR exception handling, statement delivery, and production remittance behavior outstanding.

@@ -82,8 +82,28 @@ test.describe("patient payment refund parity @slice526 @workflow-patient-payment
         }
       });
 
-      refundPaymentId = await workflow.createPaymentPosting(refundInput);
-      const created = await workflow.getPaymentPosting(refundPaymentId);
+      if (target.type === "legacy-openemr") {
+        refundPaymentId = await workflow.createPaymentPosting(refundInput);
+      } else {
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
+        await page.getByLabel("New payment encounter").fill(String(refundAnchorEncounter));
+        await page.getByLabel("New payment source").selectOption("refund");
+        await page.getByLabel("New payment post date").fill(refundInput.postDate);
+        await page.getByLabel("New payment reference").fill(reference);
+        await page.getByLabel("New payment method").selectOption(refundInput.paymentMethod);
+        await page.getByLabel("New payment amount").fill("18.00");
+        await page.getByLabel("New payment CPT code").fill(refundInput.code);
+        await page.getByLabel("New payment memo").fill(refundInput.memo);
+        await page.getByRole("button", { name: "Post Payment" }).click();
+        await expect(page.locator("body")).toContainText("Patient refund saved");
+        await expect(page.locator("body")).toContainText(reference);
+
+        const createdPostings = await targetDb.getPaymentPostingsForPatient(patient!.pid);
+        refundPaymentId = createdPostings.find((posting) => posting.reference === reference)?.activityId ?? null;
+        expect(refundPaymentId).not.toBeNull();
+      }
+
+      const created = await workflow.getPaymentPosting(refundPaymentId!);
       expect(created).toMatchObject({
         patientId: patient!.pid,
         encounter: refundAnchorEncounter,

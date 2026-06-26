@@ -578,6 +578,7 @@ export type ClaimStatusSummary = {
 };
 
 export type PaymentPostingSummary = {
+  activityId: string;
   patientId: number;
   encounter: number;
   sequenceNo: number;
@@ -1844,6 +1845,7 @@ ORDER BY c.version;
   async getPaymentPostingsForPatient(pid: number): Promise<PaymentPostingSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT aa.pid AS patientId, aa.encounter, aa.sequence_no AS sequenceNo,
+  CAST(aa.session_id AS CHAR) AS activityId,
   COALESCE(aa.code_type, '') AS codeType, COALESCE(aa.code, '') AS code,
   COALESCE(aa.modifier, '') AS modifier, aa.payer_type AS payerType, aa.session_id AS sessionId,
   COALESCE(ic.name, '') AS payerName, COALESCE(s.reference, '') AS reference,
@@ -1863,6 +1865,7 @@ WHERE aa.pid = ${pid} AND aa.deleted IS NULL
 ORDER BY aa.encounter, aa.sequence_no;
 `);
     return rows.map((row) => ({
+      activityId: row.activityId,
       patientId: Number(row.patientId),
       encounter: Number(row.encounter),
       sequenceNo: Number(row.sequenceNo),
