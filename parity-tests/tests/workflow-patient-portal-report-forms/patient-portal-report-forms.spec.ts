@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -22,12 +23,34 @@ type SelectedEncounterForm = {
 test.describe("patient portal generated report encounter form selection parity @slice228 @workflow-patient-portal-report-forms @patients @portal @reports", () => {
   test("generates selected encounter form content in the customized medical history report", async ({
     targetDb,
+    target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-228-patient-portal-generated-report-form-selection-precondition",
+      description: "Captures the Slice 228 portal generated-report encounter-form selection precondition: the signed-in anchor patient exists before resolving selectable encounter form rows.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        preferredFormDisplays: ["Vitals", "SOAP"]
+      },
+      actual: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-report-forms",
+        workflow: "patient-portal-generated-medical-report-form-selection-precondition"
+      }
+    });
 
     const reportBuilder = await workflow.getPatientPortalMedicalReport(portalLoginUsername, portalPassword);
     expect(reportBuilder.authenticated).toBeTruthy();
@@ -72,13 +95,56 @@ test.describe("patient portal generated report encounter form selection parity @
       expect(generatedText).toContain(`form ${selectedForm.form.id}; directory ${selectedForm.form.formDirectory}`);
     }
     expect(generated.summaryLines.join("\n")).toContain("Encounter Forms: 2 selected for this customized report.");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-228-patient-portal-generated-report-form-selection-result",
+      description: "Captures the Slice 228 generated medical-report encounter-form selection projection, including selected encounter form IDs and resulting Encounter Forms section content.",
+      expected: {
+        displayName: "Kim, Nora",
+        selectedFormCount: 2,
+        selectedFormDisplays: selectedForms.map((item) => item.form.display),
+        reportSectionTitles: [
+          "Patient Data",
+          "Billing Information",
+          "Encounter Forms"
+        ],
+        summaryLine: "Encounter Forms: 2 selected for this customized report."
+      },
+      actual: {
+        authenticated: generated.authenticated,
+        username: generated.username,
+        portalUsername: generated.portalUsername,
+        pid: generated.pid,
+        pubpid: generated.pubpid,
+        displayName: generated.displayName,
+        title: generated.title,
+        includedSectionIds: generated.includedSectionIds,
+        includedEncounterFormIds: generated.includedEncounterFormIds,
+        includedProcedureOrderIds: generated.includedProcedureOrderIds,
+        includedIssueIds: generated.includedIssueIds,
+        selectedForms: selectedForms.map((item) => ({
+          encounter: item.encounter.encounter,
+          formId: item.form.id,
+          display: item.form.display,
+          formDirectory: item.form.formDirectory,
+          selectionId: item.selectionId
+        })),
+        reportSectionCount: generated.reportSectionCount,
+        reportSections: generated.reportSections,
+        summaryLines: generated.summaryLines
+      },
+      context: {
+        suite: "workflow-patient-portal-report-forms",
+        workflow: "patient-portal-generated-medical-report-form-selection-result"
+      }
+    });
   });
 
   test("renders selected encounter form content on the portal generated report surface", async ({
     page,
     target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const reportBuilder = await workflow.getPatientPortalMedicalReport(portalLoginUsername, portalPassword);
@@ -86,11 +152,48 @@ test.describe("patient portal generated report encounter form selection parity @
     const selectedForms = selectEncounterForms(reportBuilder);
 
     if (target.type === "legacy-openemr") {
-      await expectLegacySelectedEncounterFormReport(page, target, selectedForms);
+      const legacySurface = await expectLegacySelectedEncounterFormReport(page, target, selectedForms);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-228-patient-portal-generated-report-form-selection-legacy-ui",
+        description: "Captures the legacy OpenEMR selected encounter-form generated-report surface after POSTing formdir_formid checkbox selections.",
+        expected: {
+          page: "portal/report/portal_custom_report.php",
+          selectedFormDisplays: selectedForms.map((item) => item.form.display),
+          visibleFacts: [
+            "Encounter Forms",
+            ...selectedForms.map((item) => item.form.display)
+          ]
+        },
+        actual: legacySurface,
+        context: {
+          suite: "workflow-patient-portal-report-forms",
+          workflow: "patient-portal-generated-medical-report-form-selection-legacy-ui"
+        }
+      });
       return;
     }
 
-    await expectModernizedSelectedEncounterFormReport(page, target, selectedForms);
+    const modernizedSurface = await expectModernizedSelectedEncounterFormReport(page, target, selectedForms);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-228-patient-portal-generated-report-form-selection-modernized-ui",
+      description: "Captures the modernized Portal selected encounter-form generated-report surface after checking encounter form selections and regenerating the report.",
+      expected: {
+        heading: "Patient portal generated medical report",
+        selectedFormDisplays: selectedForms.map((item) => item.form.display),
+        visibleFacts: [
+          "Encounter Forms",
+          ...selectedForms.map((item) => `${item.form.display}: Encounter ${item.encounter.encounter}`),
+          "Encounter Forms: 2 selected for this customized report."
+        ]
+      },
+      actual: modernizedSurface,
+      context: {
+        suite: "workflow-patient-portal-report-forms",
+        workflow: "patient-portal-generated-medical-report-form-selection-modernized-ui"
+      }
+    });
   });
 });
 
@@ -154,6 +257,21 @@ async function expectLegacySelectedEncounterFormReport(
   for (const selectedForm of selectedForms) {
     expect(reportHtml).toContain(selectedForm.form.display);
   }
+
+  return {
+    url: `${target.publicUrl}/portal/report/portal_custom_report.php`,
+    selectedForms: selectedForms.map((item) => ({
+      encounter: item.encounter.encounter,
+      formId: item.form.id,
+      display: item.form.display,
+      formDirectory: item.form.formDirectory,
+      selectionId: item.selectionId
+    })),
+    responseLength: reportHtml.length,
+    containsFacts: Object.fromEntries(
+      selectedForms.map((item) => [item.form.display, reportHtml.includes(item.form.display)])
+    )
+  };
 }
 
 async function expectModernizedSelectedEncounterFormReport(
@@ -179,4 +297,16 @@ async function expectModernizedSelectedEncounterFormReport(
     await expect(generatedReportRegion).toContainText(`form ${selectedForm.form.id}; directory ${selectedForm.form.formDirectory}`);
   }
   await expect(generatedReportRegion).toContainText("Encounter Forms: 2 selected for this customized report.");
+
+  return {
+    url: page.url(),
+    selectedForms: selectedForms.map((item) => ({
+      encounter: item.encounter.encounter,
+      formId: item.form.id,
+      display: item.form.display,
+      formDirectory: item.form.formDirectory,
+      selectionId: item.selectionId
+    })),
+    regionText: await generatedReportRegion.innerText()
+  };
 }
