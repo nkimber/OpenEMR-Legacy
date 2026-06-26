@@ -536,8 +536,8 @@
         },
         {
           "label": "Patient portal secure-message encrypted-body readiness",
-          "detail": "The modernized patient portal now protects encrypted secure-message bodies at the API boundary, renders a fixed protected-body placeholder in the Portal Secure Messages panel, and parity verifies the behavior with cleanup-backed encrypted mailbox rows on both targets.",
-          "evidence": ["slice-233-patient-portal-message-encryption-readiness"]
+          "detail": "The modernized patient portal now protects encrypted secure-message bodies at the API boundary, renders a fixed protected-body placeholder in the Portal Secure Messages panel, parity verifies the behavior with cleanup-backed encrypted mailbox rows on both targets, and Slice 487 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-233-patient-portal-message-encryption-readiness", "slice-487-slice233-patient-portal-message-encryption-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message forward-to-practice readiness",
