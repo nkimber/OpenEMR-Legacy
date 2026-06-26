@@ -235,6 +235,7 @@
         "parityClaimServerSideGenerationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-557-claim-server-side-generation-readiness", "-Reset", "test"],
         "parityClaimServerSideResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-558-claim-server-side-resubmission-readiness", "-Reset", "test"],
         "parityClaimServerSideDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-559-claim-server-side-denial-readiness", "-Reset", "test"],
+        "parityClaimServerSideClearingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-560-claim-server-side-clearing-readiness", "-Reset", "test"],
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
@@ -2254,6 +2255,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-559-claim-server-side-denial-readiness.json"
         },
         {
+          "id": "parity-plan-claim-server-side-clearing",
+          "name": "Slice 560 claim server-side clearing plan",
+          "description": "Runs the shared server-side claim clearing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimServerSideClearingPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-560-claim-server-side-clearing-readiness.json"
+        },
+        {
           "id": "parity-plan-claim-missing-diagnosis-code",
           "name": "Slice 540 claim missing diagnosis code plan",
           "description": "Runs the shared missing-diagnosis-code claim scrubbing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -3041,6 +3050,7 @@
         "parityClaimServerSideGenerationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-557-claim-server-side-generation-readiness", "-Reset", "test"],
         "parityClaimServerSideResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-558-claim-server-side-resubmission-readiness", "-Reset", "test"],
         "parityClaimServerSideDenialPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-559-claim-server-side-denial-readiness", "-Reset", "test"],
+        "parityClaimServerSideClearingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-560-claim-server-side-clearing-readiness", "-Reset", "test"],
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
@@ -4984,6 +4994,14 @@
           "layer": "plan",
           "commandName": "parityClaimServerSideDenialPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-559-claim-server-side-denial-readiness.json"
+        },
+        {
+          "id": "parity-plan-claim-server-side-clearing",
+          "name": "Slice 560 claim server-side clearing plan",
+          "description": "Runs the shared server-side claim clearing readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimServerSideClearingPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-560-claim-server-side-clearing-readiness.json"
         },
         {
           "id": "parity-plan-claim-missing-diagnosis-code",

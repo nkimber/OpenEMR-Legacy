@@ -747,3 +747,9 @@ The Progress page also records focused claim resubmission as server-side billing
 The Workbench now exposes managed Slice 559 claim server-side denial plan actions for both the legacy and modernized targets. These actions run `slice-559-claim-server-side-denial-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Deny` action calls the backend billing operation, persists the same deterministic X12 denial process-file and submitted-claim metadata as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary queued claim side by side.
 
 The Progress page also records focused claim denial as server-side billing business logic while keeping payer-specific clearinghouse edits, richer rejection workflows, ERA parsing, remittance workflows, statement delivery, and production AR behavior outstanding.
+
+## Slice 560 Workbench Update
+
+The Workbench now exposes managed Slice 560 claim server-side clearing plan actions for both the legacy and modernized targets. These actions run `slice-560-claim-server-side-clearing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Clear` action calls the backend billing operation, persists the same HCFA cleared-status metadata and submitted-claim fallback as the legacy-equivalent update, refreshes the rendered claim card, and cleans up the temporary denied claim side by side.
+
+The Progress page also records focused claim clearing as server-side billing business logic while keeping payer-specific clearinghouse edits, richer ERA/remittance workflows, statement delivery, and production AR behavior outstanding.

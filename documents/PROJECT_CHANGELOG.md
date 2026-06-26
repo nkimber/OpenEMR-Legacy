@@ -27214,6 +27214,37 @@ Verification:
 Code Metrics:
 - 14 scoped files changed, with 449 insertions and 19 deletions, net +430 lines and 468 total churn, including the backend claim denial operation, React denial handoff, and new server-side denial parity suite.
 
+## 607. Slice 560 Claim Server-Side Clearing Readiness
+
+Started: 2026-06-26T18:25:42.1338350-04:00
+Finished: 2026-06-26T18:30:49.6982290-04:00
+Commit: `pending`
+
+Implemented Slice 560: focused server-side claim clearing readiness. The modernized billing claim `Clear` action no longer stamps HCFA cleared-status metadata in the React UI; it calls the new `POST /api/billing/claims/{claimId}/clear` backend operation, which reads the claim and patient identity, persists the cleared state, clears process-file/X12 partner metadata, applies the submitted-claim fallback, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO denied claim against the seeded billing encounter, drives the modernized UI/backend clearing path or equivalent legacy update, verifies HCFA target metadata, blank process-file state, submitted-claim content, cleared claim-card rendering, claim-count stability, and cleanup.
+
+Changes:
+- Added the modernized backend claim clearing operation and endpoint.
+- Changed the modernized Fees claim card so the Clear button calls the backend billing operation instead of duplicating clearing metadata construction in React.
+- Added the `workflow-claim-server-side-clearing` suite and `slice-560-claim-server-side-clearing-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 560 server-side clearing plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim clearing as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 560 server-side clearing contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 560 legacy parity plan: `2026-06-26T223011-032Z-legacy-openemr-plan-slice-560-claim-server-side-clearing-readiness` passed 1/1 tests.
+- Ran the Slice 560 modernized parity plan: `2026-06-26T223011-081Z-modernized-openemr-plan-slice-560-claim-server-side-clearing-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 560 runs: `2026-06-26T223033-478Z-legacy-openemr-vs-modernized-openemr-plan-slice-560-claim-server-side-clearing-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 560 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 435 insertions and 14 deletions, net +421 lines and 449 total churn, including the backend claim clearing operation, React clearing handoff, and new server-side clearing parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
