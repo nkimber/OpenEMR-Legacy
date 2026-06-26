@@ -23342,6 +23342,39 @@ Code changes:
 - Net lines: +438
 - Total churn: 476
 
+## 491. Slice 444 Slice 190 Encounter Amendment History Probe Payload Attachments
+
+Started: 2026-06-25T22:40:45.8729492-04:00
+Finished: 2026-06-25T22:45:21.8258293-04:00
+Commit: Pending
+
+Implemented Slice 444: Slice 190 encounter amendment history probe payload attachments. The encounter amendment history readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient and baseline counts, temporary encounter creation, stored signature rows, normalized nonblank amendment-history rows, legacy patient-summary surface evidence, modernized API/UI amendment-history rendering, signature deletion, and final encounter/signature cleanup so Workbench comparison drill-ins can preview the evidence behind signature-derived amendment history.
+
+Changes:
+- Added Slice 190 precondition payload attachments for the `MOD-PAT-0002` anchor patient, baseline workflow counts, proposed temporary encounter payload, and the three signature inputs including the blank note that should be filtered from amendment history.
+- Added temporary encounter-created payload attachments before signature insertion.
+- Added signed-state payload attachments proving three signature rows are stored while only the two nonblank amendment notes appear in newest-first amendment history.
+- Added legacy surface payload attachments proving the temporary encounter remains reachable from the patient summary while legacy e-sign rows carry the parity history.
+- Added modernized API/UI payload attachments proving the Encounter amendment history region renders two cards and excludes the blank-note timestamp.
+- Added signature-deleted and final cleanup payload attachments proving temporary signature rows and the temporary encounter are removed and baseline counts are restored.
+- Updated the Workbench functionality progress ledger so Slice 190 encounter amendment history payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 444 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json`; confirmed the Slice 444 evidence key is present only in the encounter amendment history row and Workbench evidence rollup.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed for `slice-190-encounter-amendment-history-readiness`: `2026-06-26T024354-728Z-legacy-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- Modernized parity run passed for `slice-190-encounter-amendment-history-readiness`: `2026-06-26T024435-143Z-modernized-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T024502-993Z-legacy-openemr-vs-modernized-openemr-plan-slice-190-encounter-amendment-history-readiness`.
+- Attachment audit confirmed shared Slice 190 precondition, encounter-created, signed, signatures-deleted, and cleanup payloads on both targets, plus legacy-surface evidence for legacy and modernized-surface evidence for the modernized target.
+
+Code changes:
+- Lines added: 380
+- Lines deleted: 49
+- Net lines: +331
+- Total churn: 429
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23351,5 +23384,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, and 189.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, and 190.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
