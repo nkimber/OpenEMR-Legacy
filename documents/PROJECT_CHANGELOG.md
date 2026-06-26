@@ -25753,7 +25753,7 @@ Code changes:
 
 Started: 2026-06-26T11:48:05.0000000-04:00
 Finished: 2026-06-26T12:02:42.7853312-04:00
-Commit: pending
+Commit: f10b83bc
 
 Implemented Slice 525: patient payment receipt readiness. The modernized billing API now generates a deterministic PDF receipt for an active payment posting, and the modernized Fees page exposes a `Receipt` action on payment rows. The shared parity suite creates a cleanup-backed temporary patient payment on both targets, derives the expected receipt number from patient/date/sequence, inspects the modernized PDF response and visible Fees action, and then voids and deletes the temporary payment.
 
