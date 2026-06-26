@@ -26507,7 +26507,7 @@ Code changes:
 
 Started: 2026-06-26T14:09:14.7826749-04:00
 Finished: 2026-06-26T14:16:11.7476994-04:00
-Commit: pending
+Commit: f92f78eb
 
 Implemented Slice 537: focused claim diagnosis-pointer scrubbing readiness. The modernized Fees claim `Scrub` action now compares active CPT diagnosis pointers with active ICD10 diagnosis lines on the same encounter and writes deterministic `invalid-diagnosis-pointer:<value>` issues into the local scrub report when unsupported pointers are present. The shared parity suite creates a cleanup-backed ICD10 diagnosis line, a CPT line with unsupported pointer `Q99.99`, and a temporary queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
 
