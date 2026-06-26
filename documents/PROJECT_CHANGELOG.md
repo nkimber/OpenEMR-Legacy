@@ -25363,7 +25363,7 @@ Code changes:
 
 Started: 2026-06-26T05:28:00.0000000-04:00
 Finished: 2026-06-26T05:36:00.1953653-04:00
-Commit: Pending
+Commit: 81f1f203
 
 Implemented Slice 503: Slice 249 patient portal home immunization probe payload attachments. The portal home immunization readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, temporary entered-in-error immunization lifecycle facts, authenticated portal home health-snapshot projections, cleanup state, legacy Health Snapshot rendering, and modernized Portal immunization-region rendering so Workbench comparison drill-ins can preview the immunization evidence behind portal home parity.
 
