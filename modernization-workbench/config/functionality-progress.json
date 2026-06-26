@@ -115,8 +115,8 @@
         },
         {
           "label": "Patient portal access readiness",
-          "detail": "The modernized patient API and Patient/Client Portal Account panel now revoke and grant portal access while preserving provisioned account facts, and parity mutates/restores legacy `patient_data.allow_patient_portal`.",
-          "evidence": ["slice-206-patient-portal-access-readiness"]
+          "detail": "The modernized patient API and Patient/Client Portal Account panel now revoke and grant portal access while preserving provisioned account facts, and parity mutates/restores legacy `patient_data.allow_patient_portal`; Slice 460 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-206-patient-portal-access-readiness", "slice-460-slice206-patient-portal-access-probe-payload-attachments"]
         },
         {
           "label": "Patient portal authentication readiness",
