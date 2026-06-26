@@ -25157,6 +25157,39 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-message-mark-all-read/patient-portal-message-mark-all-read.spec.ts`: 210 insertions, 3 deletions.
 
+## 544. Slice 497 Slice 243 Patient Portal Prescription Modified-Date Probe Payload Attachments
+
+Started: 2026-06-26T04:46:20.0000000-04:00
+Finished: 2026-06-26T04:51:18.2983881-04:00
+Commit: Pending
+
+Implemented Slice 497: Slice 243 patient portal prescription modified-date probe payload attachments. The prescription modified-date readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, active-prescription modified-date projections, legacy portal Last Modified table rendering, and modernized Portal prescription-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal prescription parity.
+
+Changes:
+- Added Slice 243 precondition payload attachments for the `MOD-PAT-0004` portal anchor and expected active-prescription count.
+- Added modified-date result payload attachments proving active Omeprazole, Sumatriptan, and Sertraline prescriptions expose the expected OpenEMR-compatible modified dates.
+- Added target-specific legacy portal prescription table and modernized Portal prescription-card rendering payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 497 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-497-slice243-patient-portal-prescription-modified-date-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-prescription-modified-date/patient-portal-prescription-modified-date.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-243-patient-portal-prescription-modified-date-readiness -Reset test` passed with run `2026-06-26T085024-820Z-legacy-openemr-plan-slice-243-patient-portal-prescription-modified-date-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-243-patient-portal-prescription-modified-date-readiness -Reset test` passed with run `2026-06-26T085045-088Z-modernized-openemr-plan-slice-243-patient-portal-prescription-modified-date-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-243-patient-portal-prescription-modified-date-readiness` produced matched comparison `2026-06-26T085100-748Z-legacy-openemr-vs-modernized-openemr-plan-slice-243-patient-portal-prescription-modified-date-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-243-patient-portal-prescription-modified-date-precondition`, `db-probe-slice-243-patient-portal-prescription-modified-date-result`, and `db-probe-slice-243-patient-portal-prescription-modified-date-legacy-ui`; the modernized run includes `db-probe-slice-243-patient-portal-prescription-modified-date-precondition`, `db-probe-slice-243-patient-portal-prescription-modified-date-result`, and `db-probe-slice-243-patient-portal-prescription-modified-date-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CONTEXT.md`: 4 insertions, 4 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 1 insertion, 1 deletion.
+- `parity-tests/tests/workflow-patient-portal-prescription-modified-date/patient-portal-prescription-modified-date.spec.ts`: 142 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
