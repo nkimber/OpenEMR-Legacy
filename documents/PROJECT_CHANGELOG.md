@@ -23311,7 +23311,7 @@ Code changes:
 
 Started: 2026-06-25T22:32:47.1980602-04:00
 Finished: 2026-06-25T22:36:41.3431799-04:00
-Commit: Pending
+Commit: `a2398003`
 
 Implemented Slice 443: Slice 189 appointment mutation authorization-policy probe payload attachments. The appointment mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Appointment ACL preconditions, legacy appointment edit rendering facts, admin login facts, temporary clinician Appointment view-downgrade facts, clinician login and read facts, clinician create, update, status, recurrence-restore, occurrence-reschedule, and delete denial facts, write-grant restoration facts, and final appointment-count cleanup facts so Workbench comparison drill-ins can preview Appointment view-versus-write enforcement evidence without storing password, cookie, or session material.
 
