@@ -260,8 +260,8 @@
         },
         {
           "label": "Patient portal medical report readiness",
-          "detail": "The modernized patient portal API and Portal page now render customized medical-history report sections, issue choices, encounter/form choices, procedure-order choices, and preview facts while parity compares the same report-builder readiness against legacy OpenEMR.",
-          "evidence": ["slice-224-patient-portal-medical-report-readiness"]
+          "detail": "The modernized patient portal API and Portal page now render customized medical-history report sections, issue choices, encounter/form choices, procedure-order choices, and preview facts while parity compares the same report-builder readiness against legacy OpenEMR, and Slice 478 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-224-patient-portal-medical-report-readiness", "slice-478-slice224-patient-portal-medical-report-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report readiness",

@@ -24504,6 +24504,40 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 3 insertions, 3 deletions.
 - `parity-tests/tests/workflow-patient-portal-lab-results/patient-portal-lab-results.spec.ts`: 97 insertions, 3 deletions.
 
+## 525. Slice 478 Slice 224 Patient Portal Medical-Report Probe Payload Attachments
+
+Started: 2026-06-26T02:20:51.4840327-04:00
+Finished: 2026-06-26T02:24:28.9562813-04:00
+Commit: Pending
+
+Implemented Slice 478: Slice 224 patient portal medical-report probe payload attachments. The patient portal medical-report readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, report-builder section/issue/encounter/procedure-order projection facts, legacy portal report-builder page rendering, and modernized Portal medical-report rendering so Workbench comparison drill-ins can preview the evidence behind portal medical-report parity.
+
+Changes:
+- Added Slice 224 precondition payload attachments for the `MOD-PAT-0004` anchor patient used by portal medical-report checks.
+- Added report-builder projection payload attachments proving section, issue, encounter, procedure-order, and preview facts.
+- Added legacy portal surface payload attachments for the `portal_patient_report.php` report-builder page.
+- Added modernized Portal surface payload attachments for the rendered medical-report region.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 478 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 478 Workbench evidence key audit passed with exactly one `slice-478-slice224-patient-portal-medical-report-probe-payload-attachments` occurrence.
+- Legacy Slice 224 parity run passed: `2026-06-26T062253-481Z-legacy-openemr-plan-slice-224-patient-portal-medical-report-readiness`.
+- Modernized Slice 224 parity run passed: `2026-06-26T062332-010Z-modernized-openemr-plan-slice-224-patient-portal-medical-report-readiness`.
+- Slice 224 comparison passed with matched results and no differences: `2026-06-26T062408-814Z-legacy-openemr-vs-modernized-openemr-plan-slice-224-patient-portal-medical-report-readiness`.
+- Attachment audit passed for three legacy patient-portal-medical-report probe payloads and three modernized patient-portal-medical-report probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 1 insertion, 1 deletion.
+- `documents/PROJECT_CHANGELOG.md`: 34 insertions.
+- `documents/PROJECT_CONTEXT.md`: 1 insertion, 1 deletion.
+- `documents/TEST_ARCHITECTURE.md`: 3 insertions, 3 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-medical-report/patient-portal-medical-report.spec.ts`: 122 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
