@@ -24817,7 +24817,7 @@ Code changes:
 
 Started: 2026-06-26T03:35:53.4248679-04:00
 Finished: 2026-06-26T03:39:06.8506950-04:00
-Commit: Pending
+Commit: 39187678
 
 Implemented Slice 487: Slice 233 patient portal secure-message encrypted-body probe payload attachments. The patient portal secure-message encrypted-body readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, protected encrypted-message projection facts, legacy encrypted-message portal evidence, and modernized protected-placeholder Portal rendering so Workbench comparison drill-ins can preview the encrypted-body non-disclosure evidence behind secure-message parity.
 
