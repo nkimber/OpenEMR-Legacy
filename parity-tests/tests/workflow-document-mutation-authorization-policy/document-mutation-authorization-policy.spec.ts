@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import {
   expandPatientDocumentCategories,
@@ -60,11 +61,25 @@ type DocumentContentResponse = {
   contentPreview?: string | null;
 };
 
+type AccessControlSnapshot = {
+  groupPermissions: Array<{
+    groupValue: string;
+    sectionValue: string;
+    permissionValue: string;
+    returnValue: string;
+  }>;
+  userMemberships: Array<{
+    userValue: string;
+    groupValue: string;
+    groupName: string;
+  }>;
+};
+
 const documentMutationAuthorizationPatientId = "MOD-PAT-0001";
 const documentMutationAuthorizationAnchorName = "Primary care intake packet";
 
 test.describe("patient document mutation authorization policy parity @workflow-document-mutation-authorization-policy @slice186 @documents @security", () => {
-  test("separates Documents add-only filing from write and delete authority", async ({ page, target, targetDb }) => {
+  test("separates Documents add-only filing from write and delete authority", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(documentMutationAuthorizationPatientId);
     expect(patient).not.toBeNull();
 
@@ -111,6 +126,43 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         })
       ])
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-186-document-mutation-authorization-policy-precondition",
+      description:
+        "Captures the Slice 186 document mutation authorization-policy precondition without storing password, cookie, or session material.",
+      expected: {
+        canonicalPatientId: documentMutationAuthorizationPatientId,
+        anchorDocumentName: documentMutationAuthorizationAnchorName,
+        clinicianDocumentsAddOnly: true,
+        clinicianDocumentsWriteDenied: true,
+        clinicianDocumentsDeleteDenied: true,
+        adminDocumentsWrite: true,
+        adminDocumentsDeleteWrite: true,
+        modernizedDocumentCreatePath: "/api/documents",
+        modernizedDocumentMetadataPath: "/api/documents/{documentId}/metadata",
+        modernizedDocumentContentPath: "/api/documents/{documentId}/content",
+        modernizedDocumentSignPath: "/api/documents/{documentId}/sign",
+        modernizedDocumentArchivePath: "/api/documents/{documentId}/soft-delete",
+        modernizedDocumentDeletePath: "/api/documents/{documentId}",
+        secretMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        publicUrl: target.publicUrl,
+        apiBaseUrl: target.apiBaseUrl,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true,
+        patient: summarizePatient(patient!),
+        anchorDocument: summarizeDocument(intakePacket!),
+        beforeCounts,
+        accessControl: summarizeAccessControl(accessControl)
+      },
+      context: {
+        suite: "workflow-document-mutation-authorization-policy",
+        workflow: "document-mutation-authorization-policy-precondition"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -118,6 +170,27 @@ test.describe("patient document mutation authorization policy parity @workflow-d
       await expandPatientDocumentCategories(page, ["Medical Record"]);
       await expectRenderedText(page, documentMutationAuthorizationAnchorName);
       await expectRenderedText(page, "Medical Record");
+      const documentsText = await page.locator("body").textContent();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-legacy-rendered",
+        description:
+          "Captures legacy OpenEMR patient Documents rendering markers after admin login, with credentials redacted.",
+        expected: {
+          canonicalPatientId: patient!.pubpid,
+          containsDocumentName: documentMutationAuthorizationAnchorName,
+          containsCategoryName: "Medical Record",
+          passwordMaterialRedacted: true
+        },
+        actual: {
+          documentsPage: summarizeRenderedText(documentsText, [documentMutationAuthorizationAnchorName, "Medical Record"]),
+          passwordRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-legacy-rendered"
+        }
+      });
       return;
     }
 
@@ -133,6 +206,23 @@ test.describe("patient document mutation authorization policy parity @workflow-d
 
     const adminLogin = await modernizedLogin(target, target.credentials.username, target.credentials.password);
     const adminHeaders = { "X-OpenEMR-Session": adminLogin.sessionId! };
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-186-document-mutation-authorization-policy-admin-login",
+      description:
+        "Captures modernized admin session setup for document mutation cleanup with the session identifier redacted.",
+      expected: {
+        authenticated: true,
+        username: target.credentials.username,
+        role: "admin",
+        sessionIdentifierRedacted: true
+      },
+      actual: summarizeLogin(adminLogin),
+      context: {
+        suite: "workflow-document-mutation-authorization-policy",
+        workflow: "document-mutation-authorization-policy-admin-login"
+      }
+    });
 
     const clinicianLogin = await modernizedLogin(target, "gold-provider-01", "pass");
     expect(clinicianLogin).toMatchObject({
@@ -141,6 +231,24 @@ test.describe("patient document mutation authorization policy parity @workflow-d
       displayName: "Alex Walker",
       role: "provider",
       staffId: 101
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-186-document-mutation-authorization-policy-clinician-login",
+      description:
+        "Captures modernized clinician session setup for document mutation policy checks with the session identifier redacted.",
+      expected: {
+        authenticated: true,
+        username: "gold-provider-01",
+        role: "provider",
+        staffId: 101,
+        sessionIdentifierRedacted: true
+      },
+      actual: summarizeLogin(clinicianLogin),
+      context: {
+        suite: "workflow-document-mutation-authorization-policy",
+        workflow: "document-mutation-authorization-policy-clinician-login"
+      }
     });
     const clinicianHeaders = { "X-OpenEMR-Session": clinicianLogin.sessionId! };
 
@@ -169,6 +277,33 @@ test.describe("patient document mutation authorization policy parity @workflow-d
     expect(clinicianContentBody.content ?? clinicianContentBody.contentPreview ?? "").toContain(
       "Gold synthetic document DOC-MOD-PAT-0001-1"
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-186-document-mutation-authorization-policy-clinician-read",
+      description:
+        "Captures modernized clinician document list/content read visibility before add-only create and write denials.",
+      expected: {
+        listStatusCode: 200,
+        contentStatusCode: 200,
+        anchorDocumentName: documentMutationAuthorizationAnchorName,
+        categoryName: "Medical Record",
+        requiredSection: "patients",
+        requiredPermission: "docs",
+        requiredReturnValue: "view",
+        sessionIdentifierRedacted: true
+      },
+      actual: {
+        listStatusCode: clinicianList.statusCode,
+        contentStatusCode: clinicianContent.statusCode,
+        list: summarizeDocumentList(clinicianListBody),
+        content: summarizeDocumentContent(clinicianContentBody),
+        sessionHeaderRedacted: true
+      },
+      context: {
+        suite: "workflow-document-mutation-authorization-policy",
+        workflow: "document-mutation-authorization-policy-clinician-read"
+      }
+    });
 
     const temporaryDocumentName = `Slice 186 Add-Only Document ${Date.now()}`;
     let createdDocumentId: number | null = null;
@@ -203,6 +338,32 @@ test.describe("patient document mutation authorization policy parity @workflow-d
 
       const afterCreateCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
       expect(afterCreateCounts.documents).toBe(beforeCounts.documents + 1);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-create",
+        description:
+          "Captures modernized clinician Documents add-only filing facts with session material redacted.",
+        expected: {
+          statusCode: 201,
+          temporaryDocumentName,
+          beforeDocumentCount: beforeCounts.documents,
+          afterDocumentCount: beforeCounts.documents + 1,
+          requiredSection: "patients",
+          requiredPermission: "docs",
+          requiredReturnValue: "addonly",
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          createdDocumentId,
+          createdDocument: createdDocument ? summarizeDocument(createdDocument) : null,
+          afterCreateCounts,
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-create"
+        }
+      });
 
       const clinicianAfterCreate = await requestText(
         `${target.apiBaseUrl}/api/documents/${encodeURIComponent(patient!.pubpid)}`,
@@ -234,6 +395,21 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         403
       );
       expectAuthorizationFailure(clinicianMetadataUpdate, "docs", "write");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-metadata-forbidden",
+        description:
+          "Captures modernized clinician document metadata-update denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("metadata", "docs", "write", createdDocumentId),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianMetadataUpdate),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-metadata-forbidden"
+        }
+      });
 
       const clinicianContentReplace = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -246,6 +422,21 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         403
       );
       expectAuthorizationFailure(clinicianContentReplace, "docs", "write");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-content-forbidden",
+        description:
+          "Captures modernized clinician document content-replacement denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("content-replace", "docs", "write", createdDocumentId),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianContentReplace),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-content-forbidden"
+        }
+      });
 
       const clinicianSign = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -258,6 +449,21 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         403
       );
       expectAuthorizationFailure(clinicianSign, "docs", "write");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-sign-forbidden",
+        description:
+          "Captures modernized clinician document review/sign denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("sign", "docs", "write", createdDocumentId),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianSign),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-sign-forbidden"
+        }
+      });
 
       const clinicianArchive = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -267,6 +473,21 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         403
       );
       expectAuthorizationFailure(clinicianArchive, "docs", "write");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-archive-forbidden",
+        description:
+          "Captures modernized clinician document archive denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("archive", "docs", "write", createdDocumentId),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianArchive),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-archive-forbidden"
+        }
+      });
 
       const clinicianDelete = await deleteJson<ModernizedAuthorizationFailure>(
         target,
@@ -275,17 +496,74 @@ test.describe("patient document mutation authorization policy parity @workflow-d
         403
       );
       expectAuthorizationFailure(clinicianDelete, "docs_rm", "write");
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-186-document-mutation-authorization-policy-clinician-delete-forbidden",
+        description:
+          "Captures modernized clinician document hard-delete denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("delete", "docs_rm", "write", createdDocumentId),
+        actual: {
+          denial: summarizeAuthorizationFailure(clinicianDelete),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-document-mutation-authorization-policy",
+          workflow: "document-mutation-authorization-policy-clinician-delete-forbidden"
+        }
+      });
     } finally {
       if (createdDocumentId !== null) {
-        await requestText(`${target.apiBaseUrl}/api/documents/${encodeURIComponent(String(createdDocumentId))}`, {
+        const adminDelete = await requestText(`${target.apiBaseUrl}/api/documents/${encodeURIComponent(String(createdDocumentId))}`, {
           method: "DELETE",
           headers: adminHeaders
+        });
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-186-document-mutation-authorization-policy-admin-delete",
+          description:
+            "Captures modernized admin Documents Delete cleanup authority for the temporary clinician-created document.",
+          expected: {
+            statusCode: 204,
+            deletedDocumentId: createdDocumentId,
+            requiredSection: "patients",
+            requiredPermission: "docs_rm",
+            requiredReturnValue: "write",
+            sessionIdentifierRedacted: true
+          },
+          actual: {
+            statusCode: adminDelete.statusCode,
+            deletedDocumentId: createdDocumentId,
+            sessionHeaderRedacted: true
+          },
+          context: {
+            suite: "workflow-document-mutation-authorization-policy",
+            workflow: "document-mutation-authorization-policy-admin-delete"
+          }
         });
       }
     }
 
     const afterCleanupCounts = await targetDb.getPatientWorkflowCounts(patient!.pid);
     expect(afterCleanupCounts.documents).toBe(beforeCounts.documents);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-186-document-mutation-authorization-policy-cleanup",
+      description:
+        "Captures final cleanup proving temporary document count returned to the Slice 186 baseline.",
+      expected: {
+        beforeDocumentCount: beforeCounts.documents,
+        afterDocumentCount: beforeCounts.documents,
+        secretMaterialRedacted: true
+      },
+      actual: {
+        beforeCounts,
+        afterCleanupCounts
+      },
+      context: {
+        suite: "workflow-document-mutation-authorization-policy",
+        workflow: "document-mutation-authorization-policy-cleanup"
+      }
+    });
   });
 });
 
@@ -386,4 +664,160 @@ function expectAuthorizationFailure(
     sessionSource: "modernized-openemr"
   });
   expect(response.failureReason).toMatch(/not authorized/i);
+}
+
+function authorizationDenialExpectation(
+  operation: string,
+  requiredPermission: string,
+  requiredReturnValue: string,
+  documentId: number | null
+) {
+  return {
+    statusCode: 403,
+    operation,
+    documentId,
+    requiredSection: "patients",
+    requiredPermission,
+    requiredReturnValue,
+    sessionIdentifierRedacted: true
+  };
+}
+
+function summarizePatient(patient: {
+  pubpid: string;
+  pid: number;
+  lname: string;
+  fname: string;
+  providerId?: number | null;
+}) {
+  return {
+    canonicalId: patient.pubpid,
+    legacyPid: patient.pid,
+    displayName: `${patient.lname}, ${patient.fname}`,
+    providerId: patient.providerId ?? null
+  };
+}
+
+function summarizeDocument(document: {
+  id: number;
+  patientId?: string | null;
+  legacyPid?: number | null;
+  name: string;
+  categoryName: string;
+  contentPreview?: string | null;
+}) {
+  return {
+    id: document.id,
+    patientId: document.patientId ?? null,
+    legacyPid: document.legacyPid ?? null,
+    name: document.name,
+    categoryName: document.categoryName,
+    contentPreview: document.contentPreview ? document.contentPreview.slice(0, 160) : null
+  };
+}
+
+function summarizeDocumentList(list: DocumentListResponse) {
+  return {
+    patientId: list.patientId,
+    legacyPid: list.legacyPid,
+    documentCount: list.documents.length,
+    sampleDocuments: list.documents.slice(0, 5).map(summarizeDocument),
+    includesAnchorDocument: list.documents.some((document) => document.name === documentMutationAuthorizationAnchorName)
+  };
+}
+
+function summarizeDocumentContent(content: DocumentContentResponse) {
+  const body = content.content ?? content.contentPreview ?? "";
+  return {
+    id: content.id,
+    name: content.name,
+    categoryName: content.categoryName,
+    bodyLength: body.length,
+    bodyPreview: body.slice(0, 160),
+    includesSyntheticAnchor: body.includes("Gold synthetic document DOC-MOD-PAT-0001-1")
+  };
+}
+
+function summarizeAccessControl(accessControl: AccessControlSnapshot) {
+  return {
+    groupPermissionCount: accessControl.groupPermissions.length,
+    userMembershipCount: accessControl.userMemberships.length,
+    adminDocumentsWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "admin" &&
+        permission.sectionValue === "patients" &&
+        permission.permissionValue === "docs" &&
+        permission.returnValue === "write"
+    ),
+    adminDocumentsDeleteWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "admin" &&
+        permission.sectionValue === "patients" &&
+        permission.permissionValue === "docs_rm" &&
+        permission.returnValue === "write"
+    ),
+    clinicianDocumentsAddOnly: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "patients" &&
+        permission.permissionValue === "docs" &&
+        permission.returnValue === "addonly"
+    ),
+    clinicianDocumentsWrite: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "patients" &&
+        permission.permissionValue === "docs" &&
+        permission.returnValue === "write"
+    ),
+    clinicianDocumentsDelete: accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === "clin" &&
+        permission.sectionValue === "patients" &&
+        permission.permissionValue === "docs_rm"
+    ),
+    clinicianMembership: accessControl.userMemberships.some(
+      (membership) =>
+        membership.userValue === "gold-provider-01" &&
+        membership.groupValue === "clin" &&
+        membership.groupName === "Clinicians"
+    )
+  };
+}
+
+function summarizeLogin(login: ModernizedLoginResponse) {
+  return {
+    authenticated: login.authenticated,
+    username: login.username,
+    displayName: login.displayName,
+    role: login.role,
+    staffId: login.staffId ?? null,
+    hasSessionId: Boolean(login.sessionId),
+    sessionIdRedacted: true
+  };
+}
+
+function summarizeAuthorizationFailure(failure: ModernizedAuthorizationFailure) {
+  return {
+    authenticated: failure.authenticated,
+    authorized: failure.authorized,
+    username: failure.username,
+    role: failure.role,
+    requiredSection: failure.requiredSection,
+    requiredPermission: failure.requiredPermission,
+    requiredReturnValue: failure.requiredReturnValue,
+    failureReason: failure.failureReason,
+    sessionSource: failure.sessionSource,
+    hasSessionId: Boolean(failure.sessionId),
+    sessionIdRedacted: true
+  };
+}
+
+function summarizeRenderedText(text: string | null, markers: string[]) {
+  const body = text ?? "";
+  return {
+    bodyLength: body.length,
+    bodyPreview: body.slice(0, 240),
+    markers: Object.fromEntries(markers.map((marker) => [marker, body.includes(marker)]))
+  };
 }

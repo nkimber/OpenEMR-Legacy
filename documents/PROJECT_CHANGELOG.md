@@ -23202,6 +23202,38 @@ Code changes:
 - Net lines: 429
 - Total churn: 467
 
+## 487. Slice 440 Slice 186 Document Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T22:06:33.9829802-04:00
+Finished: 2026-06-25T22:09:51.6046786-04:00
+Commit: Pending
+
+Implemented Slice 440: Slice 186 document mutation authorization-policy probe payload attachments. The document mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Documents/Documents Delete ACL preconditions, legacy Documents rendering facts, admin and clinician login facts, clinician read and add-only create facts, clinician metadata/content/sign/archive/delete denial facts, admin hard-delete cleanup facts, and final document-count cleanup facts so Workbench comparison drill-ins can preview document mutation ACL enforcement evidence without storing password, cookie, session material, or full document bodies.
+
+Changes:
+- Added Slice 186 ACL precondition payload attachments for seeded admin Documents write and Documents Delete write access, clinician Documents add-only access, missing clinician Documents write/delete access, selected patient/document anchors, baseline document counts, configured admin username, and secret-redaction proof.
+- Added legacy Documents rendered payload attachments proving the selected document and Medical Record category render after admin login.
+- Added modernized admin and clinician login payload attachments with session identifiers redacted.
+- Added modernized clinician document list/content read payload attachments with full document bodies summarized into short previews.
+- Added modernized clinician add-only document filing payload attachments proving the temporary document count increments.
+- Added modernized clinician metadata, content, sign/review, archive, and hard-delete forbidden payload attachments proving Documents write and Documents Delete gates are enforced.
+- Added modernized admin hard-delete payload attachments proving stronger admin Documents Delete permission can complete cleanup.
+- Added final cleanup payload attachments proving the patient document count returns to the Slice 186 baseline.
+- Updated the Workbench functionality progress ledger so Slice 186 document mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 440 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T020846-160Z-legacy-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T020910-512Z-modernized-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T020936-485Z-legacy-openemr-vs-modernized-openemr-plan-slice-186-document-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `admin-login`, `clinician-login`, `clinician-read`, `clinician-create`, `clinician-metadata-forbidden`, `clinician-content-forbidden`, `clinician-sign-forbidden`, `clinician-archive-forbidden`, `clinician-delete-forbidden`, `admin-delete`, and `cleanup` payloads.
+
+Code changes:
+- Pending.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23211,5 +23243,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, and 185.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, and 186.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
