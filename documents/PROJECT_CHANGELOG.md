@@ -25753,7 +25753,7 @@ Code changes:
 
 Started: 2026-06-26T12:03:00.0000000-04:00
 Finished: 2026-06-26T12:17:32.7575193-04:00
-Commit: pending
+Commit: 22189d7b
 
 Implemented Slice 526: patient payment refund readiness. The modernized billing API now accepts explicit `patient_refund` postings as negative patient payments, the Fees payment-posting form includes a `Patient refund` source mode, and refund rows render as refunds in the payment list and statement line surface. The shared parity suite posts a cleanup-backed refund reversal on both targets, verifies payment-session/activity increments, net payment reduction, balance increase, positive refund ledger impact, modernized UI rendering, and final cleanup.
 
