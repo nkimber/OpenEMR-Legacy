@@ -22955,8 +22955,8 @@ Code changes:
 ## 480. Slice 433 Slice 179 Patient Document Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T21:10:00.0000000-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T21:16:11.6766481-04:00
+Commit: 698266da
 
 Implemented Slice 433: Slice 179 patient document authorization-policy probe payload attachments. The patient document authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Documents ACL preconditions, legacy document-list rendering facts, modernized front-desk forbidden document list, content, and create facts, admin document list and content allow facts, and modernized Documents-page retry rendering facts so Workbench comparison drill-ins can preview Documents ACL enforcement evidence without storing password, cookie, or session material.
 
@@ -22984,10 +22984,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-list-forbidden`, `frontdesk-content-forbidden`, `frontdesk-create-forbidden`, `admin-login`, `admin-list`, `admin-content`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 432
+- Lines deleted: 19
+- Net lines: 413
+- Total churn: 451
 
 ## Next Expected Entries
 
