@@ -27280,7 +27280,7 @@ Code Metrics:
 
 Started: 2026-06-26T18:56:08.7438784-04:00
 Finished: 2026-06-26T18:59:44.3446635-04:00
-Commit: `TBD`
+Commit: `40e853d4`
 
 Implemented Slice 562: focused server-side EOB batch import readiness. The modernized billing `Import EOB` action no longer constructs the deterministic two-line Northstar HMO remittance batch inside the React UI; it calls the new `POST /api/billing/eob-batches/import` backend operation, which validates the patient and billing encounter, inserts both payment sessions and activities in one transaction, and returns refreshed billing detail. The shared parity plan imports the same cleanup-backed remittance batch against the seeded billing encounter, drives the modernized UI/backend import path or equivalent legacy payment-posting workflow, verifies payment, adjustment, ledger, balance, payer-claim number, reason-code, rendering, and cleanup.
 
@@ -27305,7 +27305,7 @@ Verification:
 - Ran `git diff --check` on the Slice 562 file set; only existing LF-to-CRLF working-copy warnings were reported.
 
 Code Metrics:
-- 14 scoped files changed, with 292 insertions and 54 deletions, net +238 lines and 346 total churn, including the backend EOB batch import operation, React import handoff, and managed server-side EOB import parity plan.
+- 14 scoped files changed, with 301 insertions and 54 deletions, net +247 lines and 355 total churn, including the backend EOB batch import operation, React import handoff, and managed server-side EOB import parity plan.
 
 ## Next Expected Entries
 
