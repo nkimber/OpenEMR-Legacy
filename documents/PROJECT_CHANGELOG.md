@@ -24954,6 +24954,41 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-report-procedures/patient-portal-report-procedures.spec.ts`: 247 insertions, 4 deletions.
 
+## 538. Slice 491 Slice 237 Patient Portal Generated Medical-Report Procedure-Order Artifact Probe Payload Attachments
+
+Started: 2026-06-26T04:06:00.5182964-04:00
+Finished: 2026-06-26T04:09:27.6248410-04:00
+Commit: Pending
+
+Implemented Slice 491: Slice 237 patient portal generated medical-report procedure-order artifact probe payload attachments. The patient portal generated medical-report procedure-order artifact readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient/encounter preconditions, selected procedure-order delivery metadata, cleanup projections, legacy printable/PDF source evidence, and modernized PDF, ZIP package, manifest, summary, packaged-PDF, and Portal rendering so Workbench comparison drill-ins can preview delivery-artifact evidence behind generated-report parity.
+
+Changes:
+- Added Slice 237 precondition payload attachments for the `MOD-PAT-0004` anchor patient, latest encounter, selected report sections, temporary procedure-order facts, and expected ZIP entry contract.
+- Added generated-report delivery metadata payload attachments proving selected procedure-order inclusion, PDF/package availability, ZIP package metadata, and summary line content.
+- Added cleanup payload attachments proving the temporary procedure order is removed from the portal report-builder projection.
+- Added target-specific legacy printable/PDF source artifact and modernized PDF/ZIP/package Portal evidence payload attachments.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 491 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` in `parity-tests` passed after fixing a helper typo found by the first typecheck pass.
+- `npm run typecheck` in `modernization-workbench` passed.
+- Parsed `modernization-workbench/config/functionality-progress.json` and verified exactly one `slice-491-slice237-patient-portal-generated-medical-report-procedure-artifacts-probe-payload-attachments` evidence marker.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-patient-portal-report-procedure-artifacts/patient-portal-report-procedure-artifacts.spec.ts` passed.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness -Reset test` passed with run `2026-06-26T080753-707Z-legacy-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness -Reset test` passed with run `2026-06-26T080832-574Z-modernized-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness` produced matched comparison `2026-06-26T080902-279Z-legacy-openemr-vs-modernized-openemr-plan-slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-237-patient-portal-report-procedure-artifacts-precondition`, `db-probe-slice-237-patient-portal-report-procedure-artifacts-result`, `db-probe-slice-237-patient-portal-report-procedure-artifacts-cleanup`, and `db-probe-slice-237-patient-portal-report-procedure-artifacts-legacy-ui`; the modernized run includes `db-probe-slice-237-patient-portal-report-procedure-artifacts-precondition`, `db-probe-slice-237-patient-portal-report-procedure-artifacts-result`, `db-probe-slice-237-patient-portal-report-procedure-artifacts-cleanup`, and `db-probe-slice-237-patient-portal-report-procedure-artifacts-modernized-ui`.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 21 insertions.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 1 insertion, 1 deletion.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-report-procedure-artifacts/patient-portal-report-procedure-artifacts.spec.ts`: 262 insertions, 4 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

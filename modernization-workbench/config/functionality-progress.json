@@ -290,8 +290,8 @@
         },
         {
           "label": "Patient portal generated medical report procedure-order artifact readiness",
-          "detail": "Selected procedure orders now carry into generated medical-report PDF and ZIP package artifacts while parity compares legacy source printable/PDF artifacts with modernized PDF, manifest, summary, and package PDF contents.",
-          "evidence": ["slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness"]
+          "detail": "Selected procedure orders now carry into generated medical-report PDF and ZIP package artifacts while parity compares legacy source printable/PDF artifacts with modernized PDF, manifest, summary, and package PDF contents, and Slice 491 adds path-backed procedure-order artifact probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "slice-491-slice237-patient-portal-generated-medical-report-procedure-artifacts-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report printable template readiness",
