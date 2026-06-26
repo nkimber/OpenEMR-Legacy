@@ -180,8 +180,8 @@
         },
         {
           "label": "Patient portal secure-message thread view readiness",
-          "detail": "The modernized patient portal API and Portal page now load patient-visible secure-message conversation threads around seeded inbox messages, while parity compares chronological thread rows against legacy onsite_mail after a cleanup-backed reply.",
-          "evidence": ["slice-213-patient-portal-thread-readiness"]
+          "detail": "The modernized patient portal API and Portal page now load patient-visible secure-message conversation threads around seeded inbox messages, while parity compares chronological thread rows against legacy onsite_mail after a cleanup-backed reply, and Slice 467 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-213-patient-portal-thread-readiness", "slice-467-slice213-patient-portal-thread-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message archive readiness",

@@ -24109,6 +24109,43 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 6 insertions, 6 deletions.
 - `parity-tests/tests/workflow-patient-portal-reply/patient-portal-reply.spec.ts`: 183 insertions, 3 deletions.
 
+## 514. Slice 467 Slice 213 Patient Portal Secure-Message Thread Probe Payload Attachments
+
+Started: 2026-06-26T01:00:28.4623536-04:00
+Finished: 2026-06-26T01:08:49.8430502-04:00
+Commit: Pending
+
+Implemented Slice 467: Slice 213 patient portal secure-message thread probe payload attachments. The patient portal secure-message thread view readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, seeded original-message/thread anchor state, cleanup-backed reply/thread result, post-cleanup thread state, legacy portal thread-adjacent mailbox rendering, and modernized Portal thread rendering so Workbench comparison drill-ins can preview the evidence behind patient portal thread parity.
+
+Changes:
+- Added Slice 213 precondition payload attachments for the `MOD-PAT-0004` anchor patient used by cleanup-backed portal thread checks.
+- Added pre-thread mailbox payload attachments for the seeded `Portal message` anchor and defensive cleanup baseline.
+- Added thread-result payload attachments proving authenticated patient identity, anchor message linkage, reply chain id, chronological message count, and expected thread body order.
+- Added post-cleanup thread payload attachments proving temporary reply rows are removed after the parity check.
+- Added legacy patient portal thread-adjacent mailbox payload attachments proving OpenEMR renders the seeded message across Secure Messaging/Sent surfaces.
+- Added modernized Portal thread payload attachments proving browser-visible thread expansion renders the chain id, message count, care-team message, patient reply, and temporary reply body.
+- Updated the Workbench functionality progress ledger so Slice 213 patient portal secure-message thread payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 467 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 467 Workbench evidence key audit passed with exactly one `slice-467-slice213-patient-portal-thread-probe-payload-attachments` occurrence.
+- Legacy Slice 213 parity run passed: `2026-06-26T050746-377Z-legacy-openemr-plan-slice-213-patient-portal-thread-readiness`.
+- Modernized Slice 213 parity run passed: `2026-06-26T050746-327Z-modernized-openemr-plan-slice-213-patient-portal-thread-readiness`.
+- Slice 213 comparison passed with matched results and no differences: `2026-06-26T050834-334Z-legacy-openemr-vs-modernized-openemr-plan-slice-213-patient-portal-thread-readiness`.
+- Attachment audit passed for five legacy patient-portal-thread probe payloads and five modernized patient-portal-thread probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 25 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 3 insertions, 3 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-thread/patient-portal-thread.spec.ts`: 175 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -24118,5 +24155,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, and 212.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, and 213.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
