@@ -25749,6 +25749,42 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 564. Slice 517 Patient Portal Secure-Message Clear Search Readiness
+
+Commit: `pending`
+Started: `2026-06-26T09:13:26-04:00`
+Finished: `2026-06-26T09:17:56-04:00`
+
+Implemented Slice 517: patient portal secure-message clear-search readiness. The modernized Portal now exposes a Clear search action beside the secure-message search summary. The action is disabled until a query is active, clears the search text, resets folder paging, and restores the Inbox rows. The parity suite creates cleanup-backed Inbox rows for `MOD-PAT-0004`, verifies the shared search projection narrows to the matching row and returns to both rows after clearing, records the installed legacy no-active-clear-search-control baseline, and verifies the modernized Portal clear-search behavior.
+
+Key changes:
+
+- Added the `workflow-patient-portal-message-search-clear` suite and `slice-517-patient-portal-message-search-clear-readiness` plan.
+- Added the modernized Portal Clear search action for secure-message search.
+- Added Workbench managed actions and plan cards for running the Slice 517 clear-search plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to include clear-search readiness in the patient portal secure-message scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 517 clear-search contract.
+
+Verification:
+
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully as JSON.
+- Ran `npm run typecheck` in `parity-tests`; passed.
+- Ran `npm run typecheck` in `modernization-workbench`; passed.
+- Ran `npm run build` in `modernized-openemr/frontend`; passed with the known Vite large-chunk warning.
+- Rebuilt and restarted the modernized frontend container with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-517-patient-portal-message-search-clear-readiness -Reset test`; run `2026-06-26T131656-568Z-legacy-openemr-plan-slice-517-patient-portal-message-search-clear-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-517-patient-portal-message-search-clear-readiness -Reset test`; run `2026-06-26T131719-932Z-modernized-openemr-plan-slice-517-patient-portal-message-search-clear-readiness` passed.
+- Ran parity comparison for `slice-517-patient-portal-message-search-clear-readiness`; comparison `2026-06-26T131739-279Z-legacy-openemr-vs-modernized-openemr-plan-slice-517-patient-portal-message-search-clear-readiness` matched.
+- Audited Playwright probe attachments for both runs: precondition, result, target UI, and cleanup payloads were present.
+
+Code changes:
+
+- Files changed: 12
+- Lines added: 401
+- Lines deleted: 7
+- Net lines: +394
+- Total churn: 408
+
 ## 563. Slice 516 Patient Portal Secure-Message Search Counts Readiness
 
 Started: 2026-06-26T09:03:05.1390499-04:00
