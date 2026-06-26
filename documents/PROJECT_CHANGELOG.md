@@ -25688,6 +25688,40 @@ Code changes:
 - Net lines: +370
 - Total churn: 394
 
+## 560. Slice 513 Patient Portal Secure-Message Search Readiness
+
+Started: 2026-06-26T08:10:00.0000000-04:00
+Finished: 2026-06-26T08:31:27.1420467-04:00
+Commit: Pending
+
+Implemented Slice 513: patient portal secure-message search readiness. The modernized Portal now exposes a secure-message search field that filters Inbox, Sent, All, and Deleted folders with a case-insensitive substring model before pagination, resets folder pages when the query changes, and preserves the existing 20-message page contract. A new shared parity plan creates cleanup-backed matching and decoy inbox rows for `MOD-PAT-0004`, verifies the normalized search result, records the installed legacy portal template's inactive/no-input rendered search baseline, verifies the modernized visible search field, and removes the temporary mailbox rows afterward.
+
+Changes:
+- Added client-side secure-message filtering in the modernized Portal across Inbox, Sent, All, and Deleted folders.
+- Added a compact Search field to the secure-message action bar and scoped folder pagination counts to the filtered result set.
+- Added the `workflow-patient-portal-message-search` suite and `slice-513-patient-portal-message-search-readiness` plan with precondition, result, target UI, and cleanup probe payloads.
+- Added Workbench managed actions and plan cards for running the Slice 513 search-readiness plan against both legacy and modernized targets.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 513 search contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- `npm run typecheck` in `parity-tests` passed.
+- `npm run build` in `modernized-openemr/frontend` passed with the existing Vite large-chunk warning only.
+- `npm run typecheck` in `modernization-workbench` passed.
+- `cmd /c docker compose up -d --build frontend` in `modernized-openemr` rebuilt and restarted the modernized frontend containers, with Compose also refreshing the dependent API container.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-513-patient-portal-message-search-readiness -Reset test` passed with run `2026-06-26T122712-318Z-legacy-openemr-plan-slice-513-patient-portal-message-search-readiness`.
+- `powershell -ExecutionPolicy Bypass -File scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-513-patient-portal-message-search-readiness -Reset test` passed with run `2026-06-26T122741-479Z-modernized-openemr-plan-slice-513-patient-portal-message-search-readiness`.
+- `npm --prefix parity-tests run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-513-patient-portal-message-search-readiness` produced matched comparison `2026-06-26T122803-349Z-legacy-openemr-vs-modernized-openemr-plan-slice-513-patient-portal-message-search-readiness`.
+- Audited the generated Playwright JSON reports and verified the legacy run includes `db-probe-slice-513-patient-portal-message-search-precondition`, `db-probe-slice-513-patient-portal-message-search-result`, `db-probe-slice-513-patient-portal-message-search-legacy-ui`, and `db-probe-slice-513-patient-portal-message-search-cleanup`; the modernized run includes `db-probe-slice-513-patient-portal-message-search-precondition`, `db-probe-slice-513-patient-portal-message-search-result`, `db-probe-slice-513-patient-portal-message-search-modernized-ui`, and `db-probe-slice-513-patient-portal-message-search-cleanup`.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md documents/TEST_DATA_STRATEGY.md documents/PROJECT_CHANGELOG.md modernization-workbench/config/apps.json modernization-workbench/config/functionality-progress.json modernized-openemr/frontend/src/App.css modernized-openemr/frontend/src/App.tsx parity-tests/test-manifest.json parity-tests/tests/workflow-patient-portal-message-search/patient-portal-message-search.spec.ts` passed with line-ending warnings only.
+
+Code changes:
+- Files changed: 13
+- Lines added: 537
+- Lines deleted: 39
+- Net lines: +498
+- Total churn: 576
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
