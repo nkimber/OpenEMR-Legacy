@@ -23272,6 +23272,41 @@ Code changes:
 - Net lines: 465
 - Total churn: 503
 
+## 489. Slice 442 Slice 188 Billing Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T22:25:26.2454803-04:00
+Finished: 2026-06-25T22:28:27.6562902-04:00
+Commit: Pending
+
+Implemented Slice 442: Slice 188 billing mutation authorization-policy probe payload attachments. The billing mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Billing ACL preconditions, legacy Fee Sheet rendering facts, admin login facts, temporary clinician Billing view-grant facts, clinician login and read facts, clinician billing-line, collections follow-up, claim, and payment denial facts, grant cleanup facts, and final revenue-cycle count cleanup facts so Workbench comparison drill-ins can preview Billing view-versus-write enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 188 ACL precondition payload attachments for seeded admin and Back Office Billing write access, absent Clinicians Billing grants before the run, selected patient/encounter/billing anchors, baseline workflow counts, configured admin username, and secret-redaction proof.
+- Added legacy Fee Sheet rendered payload attachments proving the selected encounter fee-sheet heading and office-visit billing line render after admin login.
+- Added modernized admin login payload attachments with the session identifier redacted.
+- Added modernized temporary Clinicians Billing view-grant payload attachments proving the grant exists only at view level.
+- Added modernized clinician login and read payload attachments proving Billing view users can read fee-sheet, statement batch, and collections work queue data.
+- Added modernized clinician billing-line create/update/status/delete, collections follow-up, claim create/update/delete, and payment create/void/delete forbidden payload attachments proving Billing write gates are enforced.
+- Added modernized admin grant-delete payload attachments proving the temporary Clinicians Billing view grant is removed after the run.
+- Added final cleanup payload attachments proving revenue-cycle counts return to the Slice 188 baseline.
+- Updated the Workbench functionality progress ledger so Slice 188 billing mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 442 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node, with exactly three Slice 442 evidence-key occurrences.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T022715-500Z-legacy-openemr-plan-slice-188-billing-mutation-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T022742-286Z-modernized-openemr-plan-slice-188-billing-mutation-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T022808-876Z-legacy-openemr-vs-modernized-openemr-plan-slice-188-billing-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `admin-login`, `view-grant`, `clinician-login`, `clinician-read`, `clinician-line-create-forbidden`, `clinician-line-update-forbidden`, `clinician-line-status-forbidden`, `clinician-line-delete-forbidden`, `clinician-follow-up-forbidden`, `clinician-claim-create-forbidden`, `clinician-claim-update-forbidden`, `clinician-claim-delete-forbidden`, `clinician-payment-create`, `clinician-payment-void-forbidden`, `clinician-payment-delete`, `grant-delete`, and `cleanup` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23281,5 +23316,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, and 186.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, and 188.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

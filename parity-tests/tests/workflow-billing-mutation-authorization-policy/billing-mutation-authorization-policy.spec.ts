@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
 import {
   expectRenderedText,
@@ -71,11 +72,49 @@ type CollectionsWorkQueueResponse = {
   }>;
 };
 
+type AccessControlSnapshot = {
+  groupPermissions: Array<{
+    groupValue: string;
+    sectionValue: string;
+    permissionValue: string;
+    returnValue: string;
+  }>;
+  userMemberships: Array<{
+    userValue: string;
+    groupValue: string;
+    groupName: string;
+  }>;
+};
+
+type PatientSummaryInput = {
+  pid: number;
+  pubpid: string;
+  fname: string;
+  lname: string;
+  dob?: string | null;
+  providerId?: number | null;
+};
+
+type EncounterSummaryInput = {
+  encounter: number;
+  date?: string | null;
+  reason?: string | null;
+};
+
+type BillingLineSummaryInput = {
+  id?: string | number | null;
+  code: string;
+  codeText?: string | null;
+  fee?: string | number | null;
+  modifier?: string | null;
+  justify?: string | null;
+};
+
 const billingMutationAuthorizationPatientId = "MOD-PAT-0005";
 const billingMutationAuthorizationDate = "2026-06-18";
 
 test.describe("billing mutation authorization policy parity @workflow-billing-mutation-authorization-policy @slice188 @billing @security", () => {
-  test("separates Billing view access from write-level revenue-cycle mutations", async ({ page, target, targetDb }) => {
+  test("separates Billing view access from write-level revenue-cycle mutations", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(billingMutationAuthorizationPatientId);
     expect(patient).not.toBeNull();
 
@@ -119,6 +158,45 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         })
       ])
     );
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-188-billing-mutation-authorization-policy-precondition",
+      description:
+        "Captures the Slice 188 billing mutation authorization-policy precondition without storing password, cookie, or session material.",
+      expected: {
+        canonicalPatientId: billingMutationAuthorizationPatientId,
+        billingMutationAuthorizationDate,
+        adminBillingWrite: true,
+        backOfficeBillingWrite: true,
+        clinicianBillingGrantAbsentBeforeTest: true,
+        modernizedBillingSummaryPath: "/api/billing/{patientId}",
+        modernizedStatementBatchPath: "/api/billing/statements/batch",
+        modernizedCollectionsQueuePath: "/api/billing/collections/work-queue",
+        modernizedBillingLinePath: "/api/billing/lines",
+        modernizedClaimPath: "/api/billing/claims",
+        modernizedPaymentPath: "/api/billing/payments",
+        modernizedCollectionsFollowUpPath: "/api/billing/collections/follow-ups",
+        secretMaterialRedacted: true
+      },
+      actual: {
+        targetType: target.type,
+        publicUrl: target.publicUrl,
+        apiBaseUrl: target.apiBaseUrl,
+        configuredUsername: target.credentials.username,
+        passwordRedacted: true,
+        patient: summarizePatient(patient!),
+        encounter: summarizeEncounter(encounter!),
+        officeVisit: summarizeBillingLine(officeVisit!),
+        claimCount: claims.length,
+        paymentPostingCount: paymentPostings.length,
+        beforeCounts,
+        accessControl: summarizeAccessControl(accessControl)
+      },
+      context: {
+        suite: "workflow-billing-mutation-authorization-policy",
+        workflow: "billing-mutation-authorization-policy-precondition"
+      }
+    });
 
     if (target.type === "legacy-openemr") {
       await loginToLegacyOpenEmr(page, target);
@@ -127,6 +205,33 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
       await expectRenderedText(page, "Selected Fee Sheet Codes and Charges");
       await expectRenderedText(page, officeVisit!.code);
       await expectRenderedText(page, officeVisit!.codeText);
+      const feeSheetText = await page.locator("body").textContent();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-legacy-rendered",
+        description:
+          "Captures legacy OpenEMR Fee Sheet rendering markers after admin login, with credentials redacted.",
+        expected: {
+          canonicalPatientId: patient!.pubpid,
+          encounter: encounter!.encounter,
+          containsFeeSheetHeading: "Selected Fee Sheet Codes and Charges",
+          containsOfficeVisitCode: officeVisit!.code,
+          containsOfficeVisitText: officeVisit!.codeText,
+          passwordMaterialRedacted: true
+        },
+        actual: {
+          feeSheetPage: summarizeRenderedText(feeSheetText, [
+            "Selected Fee Sheet Codes and Charges",
+            officeVisit!.code,
+            officeVisit!.codeText
+          ]),
+          passwordRedacted: true
+        },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-legacy-rendered"
+        }
+      });
       return;
     }
 
@@ -142,6 +247,23 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
 
     const adminLogin = await modernizedLogin(target, target.credentials.username, target.credentials.password);
     const adminHeaders = { "X-OpenEMR-Session": adminLogin.sessionId! };
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-188-billing-mutation-authorization-policy-admin-login",
+      description:
+        "Captures modernized admin session setup for temporary Billing view-grant management with the session identifier redacted.",
+      expected: {
+        authenticated: true,
+        username: target.credentials.username,
+        role: "admin",
+        sessionIdentifierRedacted: true
+      },
+      actual: summarizeLogin(adminLogin),
+      context: {
+        suite: "workflow-billing-mutation-authorization-policy",
+        workflow: "billing-mutation-authorization-policy-admin-login"
+      }
+    });
     const clinicianBillingViewGrant = {
       groupValue: "clin",
       sectionValue: "acct",
@@ -174,6 +296,27 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
           })
         ])
       );
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-view-grant",
+        description:
+          "Captures the temporary Clinicians Billing view grant and proves Billing write remains absent.",
+        expected: {
+          clinicianBillingView: true,
+          clinicianBillingWrite: false,
+          grantWillBeRemoved: true,
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          accessControl: summarizeAccessControl(afterGrant),
+          grantedPermission: clinicianBillingViewGrant,
+          adminSessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-view-grant"
+        }
+      });
 
       const clinicianLogin = await modernizedLogin(target, "gold-provider-01", "pass");
       expect(clinicianLogin).toMatchObject({
@@ -182,6 +325,24 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         displayName: "Alex Walker",
         role: "provider",
         staffId: 101
+      });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-login",
+        description:
+          "Captures modernized clinician session setup for Billing view/read and write-denial checks with the session identifier redacted.",
+        expected: {
+          authenticated: true,
+          username: "gold-provider-01",
+          role: "provider",
+          staffId: 101,
+          sessionIdentifierRedacted: true
+        },
+        actual: summarizeLogin(clinicianLogin),
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-login"
+        }
       });
       const clinicianHeaders = { "X-OpenEMR-Session": clinicianLogin.sessionId! };
 
@@ -215,6 +376,36 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
       expect(clinicianQueue.statusCode).toBe(200);
       const queue = JSON.parse(clinicianQueue.body) as CollectionsWorkQueueResponse;
       expect(queue.items.length).toBeGreaterThan(0);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-read",
+        description:
+          "Captures modernized clinician Billing view access across fee-sheet, statement batch, and collections queue reads.",
+        expected: {
+          billingStatusCode: 200,
+          statementBatchStatusCode: 200,
+          collectionsQueueStatusCode: 200,
+          requiredSection: "acct",
+          requiredPermission: "bill",
+          requiredReturnValue: "view",
+          sessionIdentifierRedacted: true
+        },
+        actual: {
+          billingStatusCode: clinicianBilling.statusCode,
+          statementBatchStatusCode: clinicianBatch.statusCode,
+          collectionsQueueStatusCode: clinicianQueue.statusCode,
+          billing: summarizeBillingSummary(billing, encounter!.encounter),
+          selectedLine: summarizeBillingLine(apiLine),
+          selectedClaim: summarizeClaim(apiClaim),
+          selectedPayment: summarizePayment(apiPayment),
+          collectionsQueue: summarizeCollectionsQueue(queue),
+          sessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-read"
+        }
+      });
 
       const lineCreate = await postJson<ModernizedAuthorizationFailure>(
         target,
@@ -236,6 +427,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(lineCreate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-line-create-forbidden",
+        description:
+          "Captures modernized clinician billing-line create denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("line-create", null),
+        actual: { denial: summarizeAuthorizationFailure(lineCreate), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-line-create-forbidden"
+        }
+      });
 
       const lineUpdate = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -251,6 +454,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(lineUpdate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-line-update-forbidden",
+        description:
+          "Captures modernized clinician billing-line update denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("line-update", apiLine.id),
+        actual: { denial: summarizeAuthorizationFailure(lineUpdate), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-line-update-forbidden"
+        }
+      });
 
       const lineStatus = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -263,6 +478,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(lineStatus);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-line-status-forbidden",
+        description:
+          "Captures modernized clinician billing-line status denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("line-status", apiLine.id),
+        actual: { denial: summarizeAuthorizationFailure(lineStatus), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-line-status-forbidden"
+        }
+      });
 
       const lineDelete = await deleteJson<ModernizedAuthorizationFailure>(
         target,
@@ -271,6 +498,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(lineDelete);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-line-delete-forbidden",
+        description:
+          "Captures modernized clinician billing-line delete denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("line-delete", apiLine.id),
+        actual: { denial: summarizeAuthorizationFailure(lineDelete), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-line-delete-forbidden"
+        }
+      });
 
       const followUp = await postJson<ModernizedAuthorizationFailure>(
         target,
@@ -285,6 +524,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(followUp);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-follow-up-forbidden",
+        description:
+          "Captures modernized clinician collections follow-up denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("collections-follow-up", queue.items[0].pubpid),
+        actual: { denial: summarizeAuthorizationFailure(followUp), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-follow-up-forbidden"
+        }
+      });
 
       const claimCreate = await postJson<ModernizedAuthorizationFailure>(
         target,
@@ -308,6 +559,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(claimCreate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-claim-create-forbidden",
+        description:
+          "Captures modernized clinician claim create denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("claim-create", null),
+        actual: { denial: summarizeAuthorizationFailure(claimCreate), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-claim-create-forbidden"
+        }
+      });
 
       const claimUpdate = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -325,6 +588,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(claimUpdate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-claim-update-forbidden",
+        description:
+          "Captures modernized clinician claim status/update denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("claim-update", apiClaim.id),
+        actual: { denial: summarizeAuthorizationFailure(claimUpdate), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-claim-update-forbidden"
+        }
+      });
 
       const claimDelete = await deleteJson<ModernizedAuthorizationFailure>(
         target,
@@ -333,6 +608,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(claimDelete);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-claim-delete-forbidden",
+        description:
+          "Captures modernized clinician claim delete denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("claim-delete", apiClaim.id),
+        actual: { denial: summarizeAuthorizationFailure(claimDelete), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-claim-delete-forbidden"
+        }
+      });
 
       const paymentCreate = await postJson<ModernizedAuthorizationFailure>(
         target,
@@ -363,6 +650,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(paymentCreate);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-payment-create-forbidden",
+        description:
+          "Captures modernized clinician payment create denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("payment-create", null),
+        actual: { denial: summarizeAuthorizationFailure(paymentCreate), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-payment-create-forbidden"
+        }
+      });
 
       const paymentVoid = await putJson<ModernizedAuthorizationFailure>(
         target,
@@ -372,6 +671,18 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(paymentVoid);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-payment-void-forbidden",
+        description:
+          "Captures modernized clinician payment void denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("payment-void", apiPayment.activityId),
+        actual: { denial: summarizeAuthorizationFailure(paymentVoid), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-payment-void-forbidden"
+        }
+      });
 
       const paymentDelete = await deleteJson<ModernizedAuthorizationFailure>(
         target,
@@ -380,11 +691,46 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         403
       );
       expectBillingWriteAuthorizationFailure(paymentDelete);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-188-billing-mutation-authorization-policy-clinician-payment-delete-forbidden",
+        description:
+          "Captures modernized clinician payment delete denial facts with session material redacted.",
+        expected: authorizationDenialExpectation("payment-delete", apiPayment.activityId),
+        actual: { denial: summarizeAuthorizationFailure(paymentDelete), sessionHeaderRedacted: true },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-mutation-authorization-policy-clinician-payment-delete-forbidden"
+        }
+      });
     } finally {
       if (grantActive) {
-        await requestText(`${target.apiBaseUrl}/api/administration/access-control/group-permissions/clin/acct/bill`, {
+        const grantDelete = await requestText(`${target.apiBaseUrl}/api/administration/access-control/group-permissions/clin/acct/bill`, {
           method: "DELETE",
           headers: adminHeaders
+        });
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-188-billing-mutation-authorization-policy-grant-delete",
+          description:
+            "Captures modernized admin removal of the temporary Clinicians Billing view grant with session material redacted.",
+          expected: {
+            statusCode: 204,
+            clinicianBillingGrantRemoved: true,
+            requiredSection: "acct",
+            requiredPermission: "bill",
+            requiredReturnValue: "write",
+            sessionIdentifierRedacted: true
+          },
+          actual: {
+            statusCode: grantDelete.statusCode,
+            deletedPermission: clinicianBillingViewGrant,
+            sessionHeaderRedacted: true
+          },
+          context: {
+            suite: "workflow-billing-mutation-authorization-policy",
+            workflow: "billing-mutation-authorization-policy-grant-delete"
+          }
         });
       }
     }
@@ -406,6 +752,30 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
     expect(afterCounts.paymentSessions).toBe(beforeCounts.paymentSessions);
     expect(afterCounts.paymentActivities).toBe(beforeCounts.paymentActivities);
     expect(afterCounts.messages).toBe(beforeCounts.messages);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-188-billing-mutation-authorization-policy-cleanup",
+      description:
+        "Captures final cleanup proving the temporary Billing view grant is absent and revenue-cycle counts returned to the Slice 188 baseline.",
+      expected: {
+        clinicianBillingGrantAbsent: true,
+        billingLineItems: beforeCounts.billingLineItems,
+        claims: beforeCounts.claims,
+        paymentSessions: beforeCounts.paymentSessions,
+        paymentActivities: beforeCounts.paymentActivities,
+        messages: beforeCounts.messages,
+        secretMaterialRedacted: true
+      },
+      actual: {
+        accessControl: summarizeAccessControl(afterCleanup),
+        beforeCounts,
+        afterCounts
+      },
+      context: {
+        suite: "workflow-billing-mutation-authorization-policy",
+        workflow: "billing-mutation-authorization-policy-cleanup"
+      }
+    });
   });
 });
 
@@ -494,4 +864,162 @@ function expectBillingWriteAuthorizationFailure(response: ModernizedAuthorizatio
     sessionSource: "modernized-openemr"
   });
   expect(response.failureReason).toMatch(/not authorized/i);
+}
+
+function authorizationDenialExpectation(operation: string, resourceId: string | number | null) {
+  return {
+    statusCode: 403,
+    operation,
+    resourceId,
+    requiredSection: "acct",
+    requiredPermission: "bill",
+    requiredReturnValue: "write",
+    sessionIdentifierRedacted: true
+  };
+}
+
+function summarizePatient(patient: PatientSummaryInput) {
+  return {
+    pid: patient.pid,
+    pubpid: patient.pubpid,
+    firstName: patient.fname,
+    lastName: patient.lname,
+    dateOfBirth: patient.dob ?? null,
+    providerId: patient.providerId ?? null
+  };
+}
+
+function summarizeEncounter(encounter: EncounterSummaryInput) {
+  return {
+    encounter: encounter.encounter,
+    date: encounter.date ?? null,
+    reason: encounter.reason ?? null
+  };
+}
+
+function summarizeBillingLine(line: BillingLineSummaryInput) {
+  return {
+    id: line.id ?? null,
+    code: line.code,
+    codeText: line.codeText ?? null,
+    fee: line.fee ?? null,
+    modifier: line.modifier ?? null,
+    justify: line.justify ?? null
+  };
+}
+
+function summarizeAccessControl(accessControl: AccessControlSnapshot) {
+  const hasPermission = (groupValue: string, returnValue?: string) =>
+    accessControl.groupPermissions.some(
+      (permission) =>
+        permission.groupValue === groupValue &&
+        permission.sectionValue === "acct" &&
+        permission.permissionValue === "bill" &&
+        (returnValue === undefined || permission.returnValue === returnValue)
+    );
+
+  return {
+    adminBillingWrite: hasPermission("admin", "write"),
+    backOfficeBillingWrite: hasPermission("back", "write"),
+    clinicianBillingAny: hasPermission("clin"),
+    clinicianBillingView: hasPermission("clin", "view"),
+    clinicianBillingWrite: hasPermission("clin", "write"),
+    clinicianMembership: accessControl.userMemberships.some(
+      (membership) =>
+        membership.userValue === "gold-provider-01" &&
+        membership.groupValue === "clin" &&
+        membership.groupName === "Clinicians"
+    )
+  };
+}
+
+function summarizeLogin(login: ModernizedLoginResponse) {
+  return {
+    authenticated: login.authenticated,
+    username: login.username,
+    displayName: login.displayName,
+    role: login.role,
+    staffId: login.staffId ?? null,
+    sessionIdentifierPresent: Boolean(login.sessionId),
+    sessionIdentifierRedacted: true
+  };
+}
+
+function summarizeBillingSummary(summary: PatientBillingResponse, encounter: number) {
+  const selectedEncounter = summary.encounters.find((item) => item.encounter === encounter) ?? null;
+  return {
+    patientId: summary.patientId,
+    legacyPid: summary.legacyPid,
+    patientDisplayName: summary.patientDisplayName,
+    encounterCount: summary.encounters.length,
+    selectedEncounter: selectedEncounter
+      ? {
+          encounter: selectedEncounter.encounter,
+          lineCount: selectedEncounter.lines.length,
+          claimCount: selectedEncounter.claims.length,
+          paymentCount: selectedEncounter.payments.length,
+          sampleLines: selectedEncounter.lines.slice(0, 5).map(summarizeBillingLine),
+          sampleClaims: selectedEncounter.claims.slice(0, 3).map(summarizeClaim),
+          samplePayments: selectedEncounter.payments.slice(0, 3).map(summarizePayment)
+        }
+      : null
+  };
+}
+
+function summarizeClaim(claim: PatientBillingResponse["encounters"][number]["claims"][number]) {
+  return {
+    id: claim.id,
+    encounter: claim.encounter,
+    payerId: claim.payerId,
+    payerName: claim.payerName ?? null,
+    status: claim.status,
+    statusLabel: claim.statusLabel
+  };
+}
+
+function summarizePayment(payment: PatientBillingResponse["encounters"][number]["payments"][number]) {
+  return {
+    activityId: payment.activityId,
+    encounter: payment.encounter,
+    payerName: payment.payerName ?? null,
+    reference: payment.reference ?? null,
+    code: payment.code ?? null,
+    payAmount: payment.payAmount,
+    adjustmentAmount: payment.adjustmentAmount
+  };
+}
+
+function summarizeCollectionsQueue(queue: CollectionsWorkQueueResponse) {
+  return {
+    itemCount: queue.items.length,
+    sampleItems: queue.items.slice(0, 5).map((item) => ({
+      pubpid: item.pubpid,
+      recommendedAction: item.recommendedAction
+    }))
+  };
+}
+
+function summarizeAuthorizationFailure(response: ModernizedAuthorizationFailure) {
+  return {
+    authenticated: response.authenticated,
+    authorized: response.authorized,
+    username: response.username,
+    role: response.role,
+    requiredSection: response.requiredSection,
+    requiredPermission: response.requiredPermission,
+    requiredReturnValue: response.requiredReturnValue,
+    failureReason: response.failureReason ?? null,
+    sessionSource: response.sessionSource,
+    sessionIdentifierPresent: Boolean(response.sessionId),
+    sessionIdentifierRedacted: true
+  };
+}
+
+function summarizeRenderedText(text: string | null, markers: string[]) {
+  const normalized = (text ?? "").replace(/\s+/g, " ").trim();
+  return {
+    textLength: normalized.length,
+    preview: normalized.slice(0, 240),
+    containsMarkers: Object.fromEntries(markers.map((marker) => [marker, normalized.includes(marker)]))
+  };
 }
