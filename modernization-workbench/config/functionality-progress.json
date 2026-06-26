@@ -190,8 +190,8 @@
         },
         {
           "label": "Patient portal secure-message read-status readiness",
-          "detail": "The modernized patient portal API and Portal page now mark patient-visible secure messages read while preserving inbox visibility, and parity verifies legacy New-to-Read behavior with cleanup-backed temporary inbound messages.",
-          "evidence": ["slice-215-patient-portal-read-readiness"]
+          "detail": "The modernized patient portal API and Portal page now mark patient-visible secure messages read while preserving inbox visibility, and parity verifies legacy New-to-Read behavior with cleanup-backed temporary inbound messages, and Slice 469 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-215-patient-portal-read-readiness", "slice-469-slice215-patient-portal-read-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message mark-all-read readiness",
