@@ -55,8 +55,8 @@
         },
         {
           "label": "Patient guardian contact readiness",
-          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR mother and guardian contact fields with restore-backed mutation coverage.",
-          "evidence": ["slice-194-patient-guardian-contact-readiness"]
+          "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR mother and guardian contact fields with restore-backed mutation coverage; Slice 448 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-194-patient-guardian-contact-readiness", "slice-448-slice194-patient-guardian-contact-probe-payload-attachments"]
         },
         {
           "label": "Patient guardian demographic/address readiness",
