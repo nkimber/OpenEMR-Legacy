@@ -25726,7 +25726,7 @@ Code changes:
 
 Started: 2026-06-26T08:37:24.2062959-04:00
 Finished: 2026-06-26T08:43:12.1525988-04:00
-Commit: Pending
+Commit: 43ba28f4
 
 Implemented Slice 514: patient portal secure-message Sent, All, and Deleted folder search readiness. The parity suite now creates cleanup-backed sent and archived secure-message rows for `MOD-PAT-0004`, verifies Sent/All and Deleted folder search projections, records the installed legacy portal's no-active-search-input Sent/Archive rendered baseline, and verifies the modernized Portal search field filters Sent, All, and Deleted folder regions.
 
