@@ -25751,7 +25751,7 @@ Code changes:
 
 ## 564. Slice 517 Patient Portal Secure-Message Clear Search Readiness
 
-Commit: `pending`
+Commit: `442de199`
 Started: `2026-06-26T09:13:26-04:00`
 Finished: `2026-06-26T09:17:56-04:00`
 
