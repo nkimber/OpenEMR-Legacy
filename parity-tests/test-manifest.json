@@ -1986,6 +1986,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-554-claim-inactive-cpt-line-readiness",
+      "name": "Slice 554 Claim Inactive CPT Line Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT/diagnosis claim, marks the CPT line inactive before scrubbing, verifies deterministic SCRUB-FAIL missing-cpt-line metadata from active-line projection, and cleans up temporary rows.",
+      "suites": ["workflow-claim-inactive-cpt-line"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-554", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "inactive-cpt-line", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4208,6 +4217,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-missing-diagnosis-pointer",
       "tags": ["slice553", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "missing-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-inactive-cpt-line",
+      "name": "Claim Inactive CPT Line",
+      "description": "Creates a CPT/diagnosis claim, marks the CPT line inactive before scrubbing, verifies deterministic missing-cpt-line metadata from active-line projection, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-inactive-cpt-line",
+      "tags": ["slice554", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "inactive-cpt-line", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
