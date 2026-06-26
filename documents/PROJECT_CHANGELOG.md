@@ -26691,7 +26691,7 @@ Code changes:
 
 Started: 2026-06-26T15:18:25.3877711-04:00
 Finished: 2026-06-26T15:22:11.1554605-04:00
-Commit: pending
+Commit: d590d899
 
 Implemented Slice 543: focused duplicate diagnosis-pointer readiness. The modernized Fees claim `Scrub` action now flags repeated CPT diagnosis pointer tokens on the same service line as deterministic `duplicate-diagnosis-pointer:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with one ICD10 line for `K21.9`, a CPT line justified by `K21.9,K21.9`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without invalid-pointer, missing-code, or pointer-count misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
