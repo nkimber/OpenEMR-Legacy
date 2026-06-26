@@ -275,8 +275,8 @@
         },
         {
           "label": "Patient portal generated medical report issue selection readiness",
-          "detail": "The modernized patient portal API and Portal page now include selected issue rows in generated customized medical-history reports while parity compares legacy issue-checkbox POST behavior and modernized issue ID and checkbox behavior.",
-          "evidence": ["slice-227-patient-portal-generated-medical-report-issue-selection-readiness"]
+          "detail": "The modernized patient portal API and Portal page now include selected issue rows in generated customized medical-history reports while parity compares legacy issue-checkbox POST behavior and modernized issue ID and checkbox behavior, and Slice 481 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-227-patient-portal-generated-medical-report-issue-selection-readiness", "slice-481-slice227-patient-portal-generated-medical-report-issue-selection-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report encounter-form selection readiness",

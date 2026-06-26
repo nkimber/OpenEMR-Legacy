@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -16,12 +17,34 @@ const selectedIssueRequests = [
 test.describe("patient portal generated report issue selection parity @slice227 @workflow-patient-portal-report-issues @patients @portal @reports", () => {
   test("generates selected issue content in the customized medical history report", async ({
     targetDb,
+    target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-227-patient-portal-generated-medical-report-issue-selection-precondition",
+      description: "Captures the Slice 227 portal generated-report issue-selection precondition: the signed-in anchor patient exists before resolving selectable issue rows.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        selectedIssueRequests
+      },
+      actual: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-report-issues",
+        workflow: "patient-portal-generated-medical-report-issue-selection-precondition"
+      }
+    });
 
     const reportBuilder = await workflow.getPatientPortalMedicalReport(portalLoginUsername, portalPassword);
     expect(reportBuilder.authenticated).toBeTruthy();
@@ -70,20 +93,105 @@ test.describe("patient portal generated report issue selection parity @slice227 
     expect(generatedText).toContain("Allergy: Latex");
     expect(generatedText).toContain("Medication: Omeprazole 20 mg");
     expect(generated.summaryLines.join("\n")).toContain("Issues: 3 selected for this customized report.");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-227-patient-portal-generated-medical-report-issue-selection-result",
+      description: "Captures the Slice 227 generated medical-report issue-selection projection, including selected issue IDs/titles and resulting Issues section content.",
+      expected: {
+        displayName: "Kim, Nora",
+        selectedIssueTitles: selectedIssueRequests.map((issue) => issue.title),
+        reportSectionTitles: [
+          "Patient Data",
+          "Billing Information",
+          "Issues",
+          "Procedure Order"
+        ],
+        summaryLine: "Issues: 3 selected for this customized report."
+      },
+      actual: {
+        authenticated: generated.authenticated,
+        username: generated.username,
+        portalUsername: generated.portalUsername,
+        pid: generated.pid,
+        pubpid: generated.pubpid,
+        displayName: generated.displayName,
+        title: generated.title,
+        includedSectionIds: generated.includedSectionIds,
+        includedIssueIds: generated.includedIssueIds,
+        includedProcedureOrderIds: generated.includedProcedureOrderIds,
+        selectedIssues: selectedIssues.map((issue) => ({
+          id: issue.id,
+          type: issue.type,
+          title: issue.title
+        })),
+        procedureOrder: {
+          id: firstProcedureOrder.id,
+          procedureCode: firstProcedureOrder.procedureCode,
+          procedureName: firstProcedureOrder.procedureName
+        },
+        reportSectionCount: generated.reportSectionCount,
+        reportSections: generated.reportSections,
+        summaryLines: generated.summaryLines
+      },
+      context: {
+        suite: "workflow-patient-portal-report-issues",
+        workflow: "patient-portal-generated-medical-report-issue-selection-result"
+      }
+    });
   });
 
   test("renders selected issue content on the portal generated report surface", async ({
     page,
     target
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     if (target.type === "legacy-openemr") {
-      await expectLegacySelectedIssueReport(page, target);
+      const legacySurface = await expectLegacySelectedIssueReport(page, target);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-227-patient-portal-generated-medical-report-issue-selection-legacy-ui",
+        description: "Captures the legacy OpenEMR selected-issue generated-report surface after POSTing issue checkbox selections.",
+        expected: {
+          page: "portal/report/portal_custom_report.php",
+          visibleFacts: [
+            "Issues",
+            "Low back pain, unspecified",
+            "Latex",
+            "Omeprazole 20 mg"
+          ]
+        },
+        actual: legacySurface,
+        context: {
+          suite: "workflow-patient-portal-report-issues",
+          workflow: "patient-portal-generated-medical-report-issue-selection-legacy-ui"
+        }
+      });
       return;
     }
 
-    await expectModernizedSelectedIssueReport(page, target);
+    const modernizedSurface = await expectModernizedSelectedIssueReport(page, target);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-227-patient-portal-generated-medical-report-issue-selection-modernized-ui",
+      description: "Captures the modernized Portal selected-issue generated-report surface after checking issue selections and regenerating the report.",
+      expected: {
+        heading: "Patient portal generated medical report",
+        selectedIssueTitles: selectedIssueRequests.map((issue) => issue.title),
+        visibleFacts: [
+          "Issues",
+          "Medical Problem: Low back pain, unspecified",
+          "Allergy: Latex",
+          "Medication: Omeprazole 20 mg",
+          "Issues: 3 selected for this customized report."
+        ]
+      },
+      actual: modernizedSurface,
+      context: {
+        suite: "workflow-patient-portal-report-issues",
+        workflow: "patient-portal-generated-medical-report-issue-selection-modernized-ui"
+      }
+    });
   });
 });
 
@@ -134,6 +242,19 @@ async function expectLegacySelectedIssueReport(page: Page, target: RuntimeTarget
   expect(reportHtml).toContain("Low back pain, unspecified");
   expect(reportHtml).toContain("Latex");
   expect(reportHtml).toContain("Omeprazole 20 mg");
+
+  return {
+    url: `${target.publicUrl}/portal/report/portal_custom_report.php`,
+    procedureOrderId,
+    issueControls,
+    responseLength: reportHtml.length,
+    containsFacts: {
+      issuesHeading: reportHtml.includes("Issues"),
+      medicalProblem: reportHtml.includes("Low back pain, unspecified"),
+      allergy: reportHtml.includes("Latex"),
+      medication: reportHtml.includes("Omeprazole 20 mg")
+    }
+  };
 }
 
 async function expectModernizedSelectedIssueReport(page: Page, target: RuntimeTarget) {
@@ -150,4 +271,10 @@ async function expectModernizedSelectedIssueReport(page: Page, target: RuntimeTa
   await expect(generatedReportRegion).toContainText("Allergy: Latex");
   await expect(generatedReportRegion).toContainText("Medication: Omeprazole 20 mg");
   await expect(generatedReportRegion).toContainText("Issues: 3 selected for this customized report.");
+
+  return {
+    url: page.url(),
+    selectedIssueTitles: selectedIssueRequests.map((issue) => issue.title),
+    regionText: await generatedReportRegion.innerText()
+  };
 }
