@@ -26563,6 +26563,37 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 493 insertions and 11 deletions including the new claim modifier-compatibility parity suite.
 
+## 586. Slice 539 Claim Modifier Count Readiness
+
+Started: 2026-06-26T14:27:18.7399273-04:00
+Finished: 2026-06-26T14:36:21.9828060-04:00
+Commit: pending
+
+Implemented Slice 539: focused claim modifier-count readiness. The modernized Fees claim `Scrub` action now writes deterministic `modifier-count-exceeded:<count>` issues into the local scrub report when a CPT line has more than four modifier tokens, including compact two-character modifier sequences. The shared parity suite creates a cleanup-backed ICD10 diagnosis line, a CPT line with five supported modifiers encoded as `2559767795`, and a temporary queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content without invalid- or duplicate-modifier misclassification, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added modifier-count validation to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-modifier-count` suite and `slice-539-claim-modifier-count-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 539 claim modifier-count plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused modifier-count claim scrubbing as completed billing validation scope while leaving broader modifier compatibility policy rules, deeper diagnosis pointer policy depth, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 539 modifier-count contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`, then rebuilt the frontend after adapting the modifier encoding.
+- The first Slice 539 legacy run `2026-06-26T183244-705Z-legacy-openemr-plan-slice-539-claim-modifier-count-readiness` failed because legacy OpenEMR rejected comma-separated modifier text that exceeded the `billing.modifier` column length; the slice was corrected to use compact modifier encoding `2559767795`.
+- Reran the Slice 539 legacy parity plan: `2026-06-26T183439-558Z-legacy-openemr-plan-slice-539-claim-modifier-count-readiness` passed 1/1 tests.
+- Ran the Slice 539 modernized parity plan: `2026-06-26T183526-929Z-modernized-openemr-plan-slice-539-claim-modifier-count-readiness` passed 1/1 tests.
+- Compared the two Slice 539 runs: `2026-06-26T183605-003Z-legacy-openemr-vs-modernized-openemr-plan-slice-539-claim-modifier-count-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 539 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 498 insertions and 7 deletions including the new claim modifier-count parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

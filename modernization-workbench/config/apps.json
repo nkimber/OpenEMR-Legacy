@@ -222,6 +222,7 @@
         "parityClaimModifierScrubbingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-536-claim-modifier-scrubbing-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerScrubbingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-537-claim-diagnosis-pointer-scrubbing-readiness", "-Reset", "test"],
         "parityClaimModifierCompatibilityPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-538-claim-modifier-compatibility-readiness", "-Reset", "test"],
+        "parityClaimModifierCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-539-claim-modifier-count-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -2129,6 +2130,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-538-claim-modifier-compatibility-readiness.json"
         },
         {
+          "id": "parity-plan-claim-modifier-count",
+          "name": "Slice 539 claim modifier count plan",
+          "description": "Runs the shared modifier-count claim scrubbing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimModifierCountPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-539-claim-modifier-count-readiness.json"
+        },
+        {
           "id": "parity-plan-claim-resubmission",
           "name": "Slice 534 claim resubmission plan",
           "description": "Runs the shared claim resubmission readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -2839,6 +2848,7 @@
         "parityClaimModifierScrubbingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-536-claim-modifier-scrubbing-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerScrubbingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-537-claim-diagnosis-pointer-scrubbing-readiness", "-Reset", "test"],
         "parityClaimModifierCompatibilityPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-538-claim-modifier-compatibility-readiness", "-Reset", "test"],
+        "parityClaimModifierCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-539-claim-modifier-count-readiness", "-Reset", "test"],
         "parityClaimResubmissionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-534-claim-resubmission-readiness", "-Reset", "test"],
         "parityClaimsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-47-claim-status-readiness", "-Reset", "run"],
         "parityPaymentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-48-payment-posting-readiness", "-Reset", "run"],
@@ -4670,6 +4680,14 @@
           "layer": "plan",
           "commandName": "parityClaimModifierCompatibilityPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-538-claim-modifier-compatibility-readiness.json"
+        },
+        {
+          "id": "parity-plan-claim-modifier-count",
+          "name": "Slice 539 claim modifier count plan",
+          "description": "Runs the shared modifier-count claim scrubbing readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityClaimModifierCountPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-539-claim-modifier-count-readiness.json"
         },
         {
           "id": "parity-plan-claim-resubmission",

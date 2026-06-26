@@ -1851,6 +1851,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-539-claim-modifier-count-readiness",
+      "name": "Slice 539 Claim Modifier Count Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT line with five supported modifiers, scrubs a temporary claim, verifies deterministic SCRUB-FAIL modifier-count-exceeded report metadata, and cleans up all temporary rows.",
+      "suites": ["workflow-claim-modifier-count"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-539", "billing", "claims", "claim-scrubbing", "modifier-count", "modifier-compatibility", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3923,6 +3932,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-modifier-compatibility",
       "tags": ["slice538", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-compatibility", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-modifier-count",
+      "name": "Claim Modifier Count",
+      "description": "Creates a valid ICD10 diagnosis line plus a CPT line with five supported modifiers, scrubs a temporary local claim report, verifies deterministic SCRUB-FAIL modifier-count-exceeded metadata, and cleans up all temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-modifier-count",
+      "tags": ["slice539", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "modifier-count", "modifier-compatibility", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
