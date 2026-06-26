@@ -24712,7 +24712,7 @@ Code changes:
 
 Started: 2026-06-26T03:10:34.4319847-04:00
 Finished: 2026-06-26T03:14:26.5973244-04:00
-Commit: Pending
+Commit: 0b3e9c4f
 
 Implemented Slice 484: Slice 230 patient portal generated medical-report package probe payload attachments. The patient portal generated medical-report package readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, deterministic package metadata projection facts, legacy printable/PDF source artifact rendering, and modernized package API plus Portal rendering so Workbench comparison drill-ins can preview the package-delivery evidence behind generated-report parity.
 
