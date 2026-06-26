@@ -22883,8 +22883,8 @@ Code changes:
 ## 478. Slice 431 Slice 177 Encounter Authorization-Policy Probe Payload Attachments
 
 Started: 2026-06-25T20:54:58.0540219-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:59:32.6652546-04:00
+Commit: 820380d0
 
 Implemented Slice 431: Slice 177 encounter authorization-policy probe payload attachments. The encounter authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy encounter rendering facts, modernized front-desk forbidden encounter search and mutation facts, admin encounter search and detail allow facts, and modernized Encounters-page retry rendering facts so Workbench comparison drill-ins can preview Authorize Any Encounter policy evidence without storing password, cookie, or session material.
 
@@ -22911,10 +22911,10 @@ Verification:
 - Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-search-forbidden`, `frontdesk-mutation-forbidden`, `admin-login`, `admin-search`, `admin-detail`, and `rendered` payloads.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 418
+- Lines deleted: 17
+- Net lines: 401
+- Total churn: 435
 
 ## Next Expected Entries
 
