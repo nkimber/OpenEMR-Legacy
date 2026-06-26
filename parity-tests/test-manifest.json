@@ -1302,6 +1302,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-514-patient-portal-message-folder-search-readiness",
+      "name": "Slice 514 Patient Portal Secure-Message Folder Search Readiness",
+      "description": "Patient portal messaging confidence plan that verifies cleanup-backed Sent, All, and Deleted folder search projections and checks the modernized Portal search field across those folders.",
+      "suites": ["workflow-patient-portal-message-folder-search"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-514", "patients", "portal", "messages", "search", "sent", "all-folder", "deleted-folder", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4658,6 +4667,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-search",
       "tags": ["slice513", "workflow", "mutation", "patients", "portal", "messages", "search", "filter", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-folder-search",
+      "name": "Patient Portal Secure-Message Folder Search Readiness",
+      "description": "Verifies cleanup-backed Sent, All, and Deleted secure-message folder search projections and the modernized Portal search field across those folders.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-folder-search",
+      "tags": ["slice514", "workflow", "mutation", "patients", "portal", "messages", "search", "sent", "all-folder", "deleted-folder", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

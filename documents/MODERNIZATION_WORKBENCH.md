@@ -401,7 +401,7 @@ The shared encounter procedure-result entry plan runs against both targets and v
 
 The shared encounter claims plan runs read-only against both targets and verifies `MOD-PAT-0001` encounter `1000013`, claim `CLAIM-1000013-1`, payer `Acme Health`, `HCFA` target, cleared claim status facts, modernized Encounter detail API claim fields, and modernized Encounters workspace Claim Linkage cards.
 
-The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-513 patient portal secure-message search readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-514 patient portal secure-message Sent/All/Deleted folder search readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 The Workbench also exposes a custom parity run builder on the Test Runs page for each managed application. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
@@ -419,6 +419,8 @@ Slice 511 extends Workbench-previewable probe payload evidence into the patient 
 Slice 512 adds managed Workbench actions for the patient portal secure-message unsupported attachment policy plan on both legacy and modernized targets. The plan proves that attempted non-empty attachment submissions are rejected without mailbox-row creation and that active secure-message upload controls remain absent, preserving the legacy-compatible behavior until a future full attachment workflow is intentionally designed.
 
 Slice 513 adds managed Workbench actions for the patient portal secure-message folder search plan on both legacy and modernized targets. The plan creates cleanup-backed matching and decoy inbox rows for `MOD-PAT-0004`, applies the shared substring query at the workflow/data level, records that the installed legacy portal template does not expose an active rendered search input, and verifies the modernized Portal search field filters the Inbox surface and clears back to the full folder.
+
+Slice 514 adds managed Workbench actions for the patient portal secure-message Sent, All, and Deleted folder search plan on both legacy and modernized targets. The plan creates cleanup-backed sent and archived mailbox rows for `MOD-PAT-0004`, compares shared folder projections, documents the installed legacy Sent/Archive rendered baseline, and verifies the modernized Portal search field filters Sent, All, and Deleted regions.
 
 The Workbench owns seed-data visibility and orchestration.
 

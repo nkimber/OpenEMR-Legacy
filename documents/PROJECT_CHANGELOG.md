@@ -25722,6 +25722,33 @@ Code changes:
 - Net lines: +498
 - Total churn: 576
 
+## 561. Slice 514 Patient Portal Secure-Message Folder Search Readiness
+
+Started: 2026-06-26T08:37:24.2062959-04:00
+Finished: 2026-06-26T08:43:12.1525988-04:00
+Commit: Pending
+
+Implemented Slice 514: patient portal secure-message Sent, All, and Deleted folder search readiness. The parity suite now creates cleanup-backed sent and archived secure-message rows for `MOD-PAT-0004`, verifies Sent/All and Deleted folder search projections, records the installed legacy portal's no-active-search-input Sent/Archive rendered baseline, and verifies the modernized Portal search field filters Sent, All, and Deleted folder regions.
+
+Changes:
+- Added the `workflow-patient-portal-message-folder-search` suite and `slice-514-patient-portal-message-folder-search-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 514 folder-search plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to distinguish Inbox search readiness from Sent/All/Deleted folder-search coverage.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 514 folder-search contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm run typecheck` in `parity-tests`.
+- Ran `npm run typecheck` in `modernization-workbench`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-514-patient-portal-message-folder-search-readiness -Reset test`; run `2026-06-26T124057-923Z-legacy-openemr-plan-slice-514-patient-portal-message-folder-search-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-514-patient-portal-message-folder-search-readiness -Reset test`; run `2026-06-26T124131-640Z-modernized-openemr-plan-slice-514-patient-portal-message-folder-search-readiness` passed.
+- Ran parity comparison for `slice-514-patient-portal-message-folder-search-readiness`; comparison `2026-06-26T124151-052Z-legacy-openemr-vs-modernized-openemr-plan-slice-514-patient-portal-message-folder-search-readiness` matched.
+- Audited probe attachments: legacy captured precondition, result, legacy-ui, and cleanup probes; modernized captured precondition, result, modernized-ui, and cleanup probes.
+- Ran scoped `git diff --check`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
