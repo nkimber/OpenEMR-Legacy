@@ -25295,7 +25295,7 @@ Code changes:
 
 Started: 2026-06-26T05:11:00.0000000-04:00
 Finished: 2026-06-26T05:19:40.3728728-04:00
-Commit: Pending
+Commit: 3776652e
 
 Implemented Slice 501: Slice 247 patient portal problem date-column probe payload attachments. The problem date-column readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, temporary ended-problem lifecycle facts, active and ended problem date-column projections, cleanup state, legacy portal Reported Date/Start Date/End Date table rendering, and modernized Portal problem-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind portal problem parity.
 
