@@ -23237,6 +23237,41 @@ Code changes:
 - Net lines: 467
 - Total churn: 507
 
+## 488. Slice 441 Slice 187 Message Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T22:16:43.0005735-04:00
+Finished: 2026-06-25T22:19:21.5691359-04:00
+Commit: Pending
+
+Implemented Slice 441: Slice 187 patient message mutation authorization-policy probe payload attachments. The message mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Patient Notes ACL preconditions, legacy Patient Notes rendering facts, admin and clinician login facts, clinician read and add-only create facts, clinician status/content/assignment/reply/archive/delete denial facts, admin hard-delete cleanup facts, and final message-count cleanup facts so Workbench comparison drill-ins can preview patient message mutation ACL enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 187 ACL precondition payload attachments for seeded admin Patient Notes write access, clinician Patient Notes add-only access, missing clinician Patient Notes write access, selected patient/message anchors, baseline message counts, configured admin username, and secret-redaction proof.
+- Added legacy Patient Notes rendered payload attachments proving the selected care-team and portal messages render after admin login.
+- Added modernized admin and clinician login payload attachments with session identifiers redacted.
+- Added modernized clinician message-list read payload attachments proving add-only users can still read patient messages.
+- Added modernized clinician add-only message creation payload attachments proving the temporary message count increments.
+- Added modernized clinician status, content, assignment, reply, archive, and hard-delete forbidden payload attachments proving Patient Notes write gates are enforced.
+- Added modernized admin hard-delete payload attachments proving stronger admin Patient Notes write permission can complete cleanup.
+- Added final cleanup payload attachments proving the patient message count returns to the Slice 187 baseline.
+- Updated the Workbench functionality progress ledger so Slice 187 message mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 441 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node, with exactly three Slice 441 evidence-key occurrences.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T021823-005Z-legacy-openemr-plan-slice-187-message-mutation-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T021845-108Z-modernized-openemr-plan-slice-187-message-mutation-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T021905-828Z-legacy-openemr-vs-modernized-openemr-plan-slice-187-message-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `admin-login`, `clinician-login`, `clinician-read`, `clinician-create`, `clinician-status-forbidden`, `clinician-content-forbidden`, `clinician-assignment-forbidden`, `clinician-reply-forbidden`, `clinician-archive-forbidden`, `clinician-delete-forbidden`, `admin-delete`, and `cleanup` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
