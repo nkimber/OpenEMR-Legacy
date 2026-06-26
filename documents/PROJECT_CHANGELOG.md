@@ -23024,6 +23024,42 @@ Code changes:
 - Net lines: 359
 - Total churn: 397
 
+## 482. Slice 435 Slice 181 Billing Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T21:29:50.2393002-04:00
+Finished: 2026-06-25T21:31:34.1651760-04:00
+Commit: Pending
+
+Implemented Slice 435: Slice 181 billing authorization-policy probe payload attachments. The billing authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Billing ACL preconditions, legacy fee-sheet rendering facts, modernized front-desk forbidden billing summary, statement-batch, and billing-line create facts, admin billing summary allow facts, and modernized Fees-page retry rendering facts so Workbench comparison drill-ins can preview Billing ACL enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 181 ACL precondition payload attachments for seeded admin Billing write permission, Back Office Billing write permission, missing front-office Billing permission, front-desk Front Office membership, selected patient/encounter/billing-line anchors, configured admin username, and secret-redaction proof.
+- Added legacy fee-sheet rendered payload attachments proving the selected CPT fee-sheet lines render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk billing-summary forbidden payload attachments proving Billing access is required for fee-sheet summary reads.
+- Added modernized front-desk statement-batch forbidden payload attachments proving Billing access is required for revenue-cycle batch reads.
+- Added modernized front-desk billing-line create forbidden payload attachments proving Billing write access is required before fee-sheet mutation.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin billing-summary allow payload attachments proving ACL-backed admin access returns the seeded encounter fee-sheet anchors.
+- Added modernized Fees-page rendered payload attachments proving the UI shows front-desk denial and then admin fee-sheet success after retry.
+- Updated the Workbench functionality progress ledger so Slice 181 billing authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 435 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T013038-753Z-legacy-openemr-plan-slice-181-billing-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T013102-919Z-modernized-openemr-plan-slice-181-billing-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T013121-963Z-legacy-openemr-vs-modernized-openemr-plan-slice-181-billing-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-summary-forbidden`, `frontdesk-batch-forbidden`, `frontdesk-create-forbidden`, `admin-login`, `admin-summary`, and `rendered` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23033,5 +23069,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, and 180.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, and 181.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
