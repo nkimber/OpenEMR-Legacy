@@ -23475,7 +23475,7 @@ Code changes:
 
 Started: 2026-06-25T23:09:04.8918774-04:00
 Finished: 2026-06-25T23:12:09.6819475-04:00
-Commit: Pending
+Commit: `4bf921e0`
 
 Implemented Slice 448: Slice 194 patient guardian-contact probe payload attachments. The patient guardian-contact readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original mother and guardian contact precondition, temporary contact update, legacy demographics edit rendering, modernized patient chart API and Patient/Client Guardian Contact panel rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind mother and guardian contact parity.
 
