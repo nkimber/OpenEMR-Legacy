@@ -27245,6 +27245,37 @@ Verification:
 Code Metrics:
 - 14 scoped files changed, with 435 insertions and 14 deletions, net +421 lines and 449 total churn, including the backend claim clearing operation, React clearing handoff, and new server-side clearing parity suite.
 
+## 608. Slice 561 Claim Server-Side Adjudication Readiness
+
+Started: 2026-06-26T18:42:40.7343512-04:00
+Finished: 2026-06-26T18:45:15.1476421-04:00
+Commit: `pending`
+
+Implemented Slice 561: focused server-side claim adjudication readiness. The modernized billing claim `Adjudicate` action no longer creates an EOB payment and then stamps claim status metadata from the React UI; it calls the new `POST /api/billing/claims/{claimId}/adjudicate` backend operation, which reads the claim, patient, and encounter context, posts the linked EOB payment and contractual adjustment, persists the X12 835 claim metadata, and returns refreshed billing detail. The shared parity plan creates a cleanup-backed generated Northstar HMO claim against the seeded billing encounter, drives the modernized UI/backend adjudication path or equivalent legacy update, verifies payment, adjustment, ledger, balance, payer-claim number, claim metadata, rendering, and cleanup.
+
+Changes:
+- Added the modernized backend claim adjudication operation and endpoint.
+- Changed the modernized Fees claim card so the Adjudicate button calls the backend billing operation instead of composing payment and claim-status writes in React.
+- Added the `slice-561-claim-server-side-adjudication-readiness` plan over the existing rich claim-adjudication workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 561 server-side adjudication plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim adjudication as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 561 server-side adjudication contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 561 legacy parity plan: `2026-06-26T224420-622Z-legacy-openemr-plan-slice-561-claim-server-side-adjudication-readiness` passed 1/1 tests.
+- Ran the Slice 561 modernized parity plan: `2026-06-26T224420-501Z-modernized-openemr-plan-slice-561-claim-server-side-adjudication-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 561 runs: `2026-06-26T224501-149Z-legacy-openemr-vs-modernized-openemr-plan-slice-561-claim-server-side-adjudication-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 561 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 13 scoped files changed, with 288 insertions and 81 deletions, net +207 lines and 369 total churn, including the backend claim adjudication operation, React adjudication handoff, and managed server-side adjudication parity plan.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
