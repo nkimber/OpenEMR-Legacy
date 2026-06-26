@@ -25751,7 +25751,7 @@ Code changes:
 
 ## 569. Slice 522 Appointment-To-Encounter Conversion Readiness
 
-Commit: pending
+Commit: `fb32bff5`
 Started: `2026-06-26T11:12:49-04:00`
 Finished: `2026-06-26T11:19:09-04:00`
 
