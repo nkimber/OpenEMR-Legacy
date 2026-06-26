@@ -24538,6 +24538,40 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-medical-report/patient-portal-medical-report.spec.ts`: 122 insertions, 3 deletions.
 
+## 526. Slice 479 Slice 225 Patient Portal Generated Medical-Report Probe Payload Attachments
+
+Started: 2026-06-26T02:26:40.0000000-04:00
+Finished: 2026-06-26T02:35:01.1698502-04:00
+Commit: Pending
+
+Implemented Slice 479: Slice 225 patient portal generated medical-report probe payload attachments. The patient portal generated medical-report readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, generated report section/billing/procedure projection facts, legacy generated-report page rendering, and modernized Portal generated-report rendering so Workbench comparison drill-ins can preview the evidence behind portal generated-report parity.
+
+Changes:
+- Added Slice 225 precondition payload attachments for the `MOD-PAT-0004` anchor patient used by generated medical-report checks.
+- Added generated-report projection payload attachments proving included sections, selected procedure order, printable/PDF readiness, report sections, and summary lines.
+- Added legacy portal generated-report surface payload attachments for the `portal_custom_report.php` rendered report page.
+- Added modernized Portal generated-report surface payload attachments for the rendered generated-report region.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, functionality progress ledger, and project changelog with the Slice 479 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 479 Workbench evidence key audit passed with exactly one `slice-479-slice225-patient-portal-generated-medical-report-probe-payload-attachments` occurrence.
+- Legacy Slice 225 parity run passed: `2026-06-26T063316-021Z-legacy-openemr-plan-slice-225-patient-portal-generated-medical-report-readiness`.
+- Modernized Slice 225 parity run passed: `2026-06-26T063347-593Z-modernized-openemr-plan-slice-225-patient-portal-generated-medical-report-readiness`.
+- Slice 225 comparison passed with matched results and no differences: `2026-06-26T063413-559Z-legacy-openemr-vs-modernized-openemr-plan-slice-225-patient-portal-generated-medical-report-readiness`.
+- Attachment audit passed for three legacy patient-portal-generated-medical-report probe payloads and three modernized patient-portal-generated-medical-report probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 1 insertion, 1 deletion.
+- `documents/PROJECT_CHANGELOG.md`: 22 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 1 insertion, 1 deletion.
+- `documents/TEST_ARCHITECTURE.md`: 2 insertions, 2 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-generated-medical-report/patient-portal-generated-medical-report.spec.ts`: 115 insertions, 3 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -24547,5 +24581,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, and 221.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, and 225.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

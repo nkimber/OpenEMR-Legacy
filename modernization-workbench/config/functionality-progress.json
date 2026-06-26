@@ -265,8 +265,8 @@
         },
         {
           "label": "Patient portal generated medical report readiness",
-          "detail": "The modernized patient portal API and Portal page now generate the default customized medical-history report content with patient data, billing rollup, and selected procedure-order lines while parity compares the same generated report behavior against legacy OpenEMR.",
-          "evidence": ["slice-225-patient-portal-generated-medical-report-readiness"]
+          "detail": "The modernized patient portal API and Portal page now generate the default customized medical-history report content with patient data, billing rollup, and selected procedure-order lines while parity compares the same generated report behavior against legacy OpenEMR, and Slice 479 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-225-patient-portal-generated-medical-report-readiness", "slice-479-slice225-patient-portal-generated-medical-report-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report PDF readiness",
