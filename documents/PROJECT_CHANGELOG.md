@@ -22667,6 +22667,35 @@ Code changes:
 - Net lines: 226
 - Total churn: 258
 
+## 472. Slice 425 Slice 171 Billing Protection Probe Payload Attachments
+
+Started: 2026-06-25T20:17:03.8503952-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 425: Slice 171 billing protection probe payload attachments. The billing protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API billing summary/batch/create blocking facts, authenticated legacy/API fee-sheet visibility facts, and modernized Fees-page rendering facts so Workbench comparison drill-ins can preview billing protection evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 171 precondition payload attachments for the MOD-PAT-0001 patient anchor, latest encounter anchor, 99214 and 36415 billing-line anchors, protected legacy fee-sheet route, modernized billing summary/batch/create APIs, configured admin username, and secret-redaction proof.
+- Added legacy unauthenticated payload attachments proving fee-sheet heading and office-visit charge text are not visible before sign-in.
+- Added legacy authenticated payload attachments proving fee-sheet heading, office-visit charge, and venipuncture charge markers render after admin login.
+- Added modernized unauthenticated billing summary payload attachments proving patient billing APIs reject requests without an active session.
+- Added modernized unauthenticated statement-batch payload attachments proving statement batch APIs reject requests without an active session.
+- Added modernized unauthenticated create payload attachments proving billing-line creation is rejected without an active session.
+- Added modernized authenticated billing summary payload attachments proving an active admin session can read the anchored billing encounter with session headers redacted.
+- Added modernized Fees-page rendered payload attachments proving signed-out prompts and disabled controls appear before login and fee-sheet facts appear after login.
+- Updated the Workbench functionality progress ledger so Slice 171 billing protection payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 425 evidence-payload contract.
+
+Verification:
+- Pending.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22676,5 +22705,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, and 169.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, and 171.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
