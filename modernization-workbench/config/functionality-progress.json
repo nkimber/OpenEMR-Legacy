@@ -200,8 +200,8 @@
         },
         {
           "label": "Patient portal secure-message batch archive readiness",
-          "detail": "The modernized patient portal API and Portal page now archive selected patient-visible secure messages together through legacy Delete-status soft-delete semantics, while parity verifies multi-message active-folder removal through database and UI surfaces.",
-          "evidence": ["slice-216-patient-portal-batch-archive-readiness"]
+          "detail": "The modernized patient portal API and Portal page now archive selected patient-visible secure messages together through legacy Delete-status soft-delete semantics, while parity verifies multi-message active-folder removal through database and UI surfaces, and Slice 470 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-216-patient-portal-batch-archive-readiness", "slice-470-slice216-patient-portal-batch-archive-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message All-folder readiness",
