@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
@@ -11,12 +12,34 @@ const portalPassword = "PortalPass207!";
 test.describe("patient portal generated report package parity @slice230 @workflow-patient-portal-report-package @patients @portal @reports", () => {
   test("normalizes generated medical report package metadata", async ({
     targetDb,
+    target,
     workflow
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMedicalReportAnchorPatientId);
     expect(patient).not.toBeNull();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-230-patient-portal-report-package-precondition",
+      description: "Captures the Slice 230 generated medical-report package precondition: the signed-in anchor patient exists before generating package metadata.",
+      expected: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        expectedEntries: ["manifest.json", "medical-report-MOD-PAT-0004-yyyymmdd.pdf", "summary.txt"]
+      },
+      actual: {
+        canonicalId: portalMedicalReportAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-report-package",
+        workflow: "patient-portal-generated-medical-report-package-precondition"
+      }
+    });
 
     const generated = await workflow.generatePatientPortalMedicalReport(portalLoginUsername, portalPassword, {
       sectionIds: ["demographics", "billing"]
@@ -46,20 +69,81 @@ test.describe("patient portal generated report package parity @slice230 @workflo
     expect(generated.packageMetadata.entryNames[0]).toBe("manifest.json");
     expect(generated.packageMetadata.entryNames[1]).toMatch(/^medical-report-MOD-PAT-0004-\d{8}\.pdf$/);
     expect(generated.packageMetadata.entryNames[2]).toBe("summary.txt");
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-230-patient-portal-report-package-result",
+      description: "Captures the Slice 230 generated medical-report package metadata projection, including ZIP filename, entry names, and package availability flags.",
+      expected: {
+        displayName: "Kim, Nora",
+        packageDownloadAvailable: true,
+        contentType: "application/zip",
+        fileNamePattern: "^medical-report-MOD-PAT-0004-\\d{8}\\.zip$",
+        entryNames: ["manifest.json", "medical-report-MOD-PAT-0004-yyyymmdd.pdf", "summary.txt"]
+      },
+      actual: {
+        authenticated: generated.authenticated,
+        username: generated.username,
+        portalUsername: generated.portalUsername,
+        pid: generated.pid,
+        pubpid: generated.pubpid,
+        displayName: generated.displayName,
+        title: generated.title,
+        printableVersionAvailable: generated.printableVersionAvailable,
+        pdfDownloadAvailable: generated.pdfDownloadAvailable,
+        packageDownloadAvailable: generated.packageDownloadAvailable,
+        packageMetadata: generated.packageMetadata
+      },
+      context: {
+        suite: "workflow-patient-portal-report-package",
+        workflow: "patient-portal-generated-medical-report-package-result"
+      }
+    });
   });
 
   test("downloads generated report delivery artifacts", async ({
     page,
     target
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     if (target.type === "legacy-openemr") {
-      await expectLegacyGeneratedMedicalReportSourceArtifacts(page, target);
+      const legacyArtifacts = await expectLegacyGeneratedMedicalReportSourceArtifacts(page, target);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-230-patient-portal-report-package-legacy-ui",
+        description: "Captures the legacy OpenEMR generated-report source artifacts used as the package-delivery reference: printable HTML plus PDF export metadata.",
+        expected: {
+          printablePage: "portal/report/portal_custom_report.php?printable=1",
+          pdfPage: "portal/report/portal_custom_report.php",
+          visibleFacts: ["Modernization Family Medicine", "PATIENT:Kim, Nora"],
+          pdfHeader: "%PDF"
+        },
+        actual: legacyArtifacts,
+        context: {
+          suite: "workflow-patient-portal-report-package",
+          workflow: "patient-portal-generated-medical-report-package-legacy-ui"
+        }
+      });
       return;
     }
 
-    await expectModernizedGeneratedMedicalReportPackage(page, target);
+    const modernizedArtifacts = await expectModernizedGeneratedMedicalReportPackage(page, target);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-230-patient-portal-report-package-modernized-ui",
+      description: "Captures the modernized generated medical-report package API and Portal surface, including ZIP response metadata, entry names, and download-control rendering.",
+      expected: {
+        endpoint: "/api/patient-portal/medical-report/package",
+        contentType: "application/zip",
+        entryNames: ["manifest.json", "medical-report-MOD-PAT-0004-yyyymmdd.pdf", "summary.txt"],
+        visibleFacts: ["Package Download available", "manifest.json", "summary.txt", "Download report package"]
+      },
+      actual: modernizedArtifacts,
+      context: {
+        suite: "workflow-patient-portal-report-package",
+        workflow: "patient-portal-generated-medical-report-package-modernized-ui"
+      }
+    });
   });
 });
 
@@ -109,6 +193,21 @@ async function expectLegacyGeneratedMedicalReportSourceArtifacts(page: Page, tar
   const pdf = await pdfResponse.body();
   expect(pdf.byteLength).toBeGreaterThan(1000);
   expect(pdf.toString("latin1").startsWith("%PDF")).toBeTruthy();
+
+  return {
+    printableUrl: `${target.publicUrl}/portal/report/portal_custom_report.php?${printableParams.toString()}`,
+    pdfUrl: `${target.publicUrl}/portal/report/portal_custom_report.php`,
+    procedureOrderId,
+    printableResponseLength: printableHtml.length,
+    pdfContentType: pdfResponse.headers()["content-type"],
+    pdfByteLength: pdf.byteLength,
+    pdfHeader: pdf.toString("latin1", 0, 4),
+    containsFacts: {
+      printableFacility: printableHtml.includes("Modernization Family Medicine"),
+      printablePatientHeader: printableHtml.includes("PATIENT:Kim, Nora"),
+      pdfHeader: pdf.toString("latin1").startsWith("%PDF")
+    }
+  };
 }
 
 async function expectModernizedGeneratedMedicalReportPackage(page: Page, target: RuntimeTarget) {
@@ -151,6 +250,19 @@ async function expectModernizedGeneratedMedicalReportPackage(page: Page, target:
   await expect(generatedReportRegion).toContainText("summary.txt");
   await expect(page.getByRole("button", { name: "Download report package" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Download report package" })).toBeEnabled();
+
+  return {
+    packageEndpoint: `${target.apiBaseUrl}/api/patient-portal/medical-report/package`,
+    packageContentType: packageResponse.headers()["content-type"],
+    contentDisposition: packageResponse.headers()["content-disposition"],
+    packageByteLength: packageBytes.byteLength,
+    zipHeader: packageBytes.toString("latin1", 0, 2),
+    entryNames,
+    portalUrl: page.url(),
+    regionText: await generatedReportRegion.innerText(),
+    downloadButtonVisible: await page.getByRole("button", { name: "Download report package" }).isVisible(),
+    downloadButtonEnabled: await page.getByRole("button", { name: "Download report package" }).isEnabled()
+  };
 }
 
 function readZipCentralDirectoryEntryNames(packageBytes: Buffer): string[] {

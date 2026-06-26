@@ -300,8 +300,8 @@
         },
         {
           "label": "Patient portal generated medical report package readiness",
-          "detail": "The modernized patient portal API and Portal page now expose and download a generated medical-report ZIP package containing manifest, PDF, and summary entries while parity compares legacy source report artifacts and modernized package delivery.",
-          "evidence": ["slice-230-patient-portal-generated-medical-report-package-readiness"]
+          "detail": "The modernized patient portal API and Portal page now expose and download a generated medical-report ZIP package containing manifest, PDF, and summary entries while parity compares legacy source report artifacts and modernized package delivery, and Slice 484 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-230-patient-portal-generated-medical-report-package-readiness", "slice-484-slice230-patient-portal-generated-medical-report-package-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report lifecycle audit readiness",
