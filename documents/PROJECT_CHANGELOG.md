@@ -24747,7 +24747,7 @@ Code changes:
 
 Started: 2026-06-26T03:19:23.6205050-04:00
 Finished: 2026-06-26T03:22:56.8458963-04:00
-Commit: Pending
+Commit: c0d5e3b8
 
 Implemented Slice 485: Slice 231 patient portal generated medical-report lifecycle audit probe payload attachments. The patient portal generated medical-report lifecycle audit readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, generated-report audit projection facts, legacy printable/PDF source lifecycle evidence, and modernized audit API plus Portal rendering so Workbench comparison drill-ins can preview the lifecycle audit evidence behind generated-report parity.
 
