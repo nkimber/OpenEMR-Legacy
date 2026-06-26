@@ -22706,8 +22706,8 @@ Code changes:
 ## 473. Slice 426 Slice 172 Procedure Protection Probe Payload Attachments
 
 Started: 2026-06-25T20:22:23.4694156-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:25:02.9477927-04:00
+Commit: 54f14694
 
 Implemented Slice 426: Slice 172 procedure protection probe payload attachments. The procedure protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API procedure result/catalog/create blocking facts, authenticated legacy/API procedure result visibility facts, and modernized Procedures-page rendering facts so Workbench comparison drill-ins can preview procedure protection evidence without storing password, cookie, or session material.
 
@@ -22724,13 +22724,20 @@ Changes:
 - Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 426 evidence-payload contract.
 
 Verification:
-- Pending.
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-procedure-protection/procedure-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-172-procedure-protection-readiness` passed with run ID `2026-06-26T002348-915Z-legacy-openemr-plan-slice-172-procedure-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-172-procedure-protection-readiness` passed with run ID `2026-06-26T002410-143Z-modernized-openemr-plan-slice-172-procedure-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-172-procedure-protection-readiness` matched with comparison ID `2026-06-26T002432-435Z-legacy-openemr-vs-modernized-openemr-plan-slice-172-procedure-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-172-procedure-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-172-procedure-protection-precondition`, `unauthenticated-results`, `unauthenticated-catalog`, `unauthenticated-create`, `authenticated-results`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 304
+- Lines deleted: 18
+- Net lines: 286
+- Total churn: 322
 
 ## Next Expected Entries
 
