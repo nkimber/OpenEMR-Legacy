@@ -245,7 +245,7 @@
         },
         {
           "label": "Patient portal prescription start-date readiness",
-          "detail": "The modernized patient portal clinical-summary API and Portal page now preserve and render active prescription date-added timestamps as portal start dates in line with legacy OpenEMR's portal prescription table.",
+          "detail": "The modernized patient portal clinical-summary API and Portal page now preserve and render active prescription date-added timestamps as portal start dates in line with legacy OpenEMR's portal prescription table, and Slice 498 adds path-backed start-date probe payload attachments for Workbench comparison previews.",
           "evidence": ["slice-244-patient-portal-prescription-start-date-readiness"]
         },
         {
@@ -468,7 +468,7 @@
         {
           "label": "Patient portal clinical summary readiness",
           "detail": "Signed-in portal patients can see the same problem date columns, ended problem-list rows, allergy date/referrer columns, ended allergy rows, medication-list date columns, ended medication-list rows, active-prescription, active-prescription modified-date, prescription date-added/start-date, and active-prescription end-date filtering facts that legacy OpenEMR exposes through the portal clinical-list pages.",
-          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-243-patient-portal-prescription-modified-date-readiness", "slice-497-slice243-patient-portal-prescription-modified-date-probe-payload-attachments", "slice-244-patient-portal-prescription-start-date-readiness", "slice-245-patient-portal-prescription-end-date-readiness", "slice-246-patient-portal-medication-date-columns-readiness", "slice-247-patient-portal-problem-date-columns-readiness", "slice-248-patient-portal-allergy-date-columns-readiness"]
+          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-243-patient-portal-prescription-modified-date-readiness", "slice-497-slice243-patient-portal-prescription-modified-date-probe-payload-attachments", "slice-244-patient-portal-prescription-start-date-readiness", "slice-498-slice244-patient-portal-prescription-start-date-probe-payload-attachments", "slice-245-patient-portal-prescription-end-date-readiness", "slice-246-patient-portal-medication-date-columns-readiness", "slice-247-patient-portal-problem-date-columns-readiness", "slice-248-patient-portal-allergy-date-columns-readiness"]
         }
       ],
       "outstanding": [
