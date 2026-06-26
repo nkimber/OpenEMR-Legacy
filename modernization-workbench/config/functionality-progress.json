@@ -85,8 +85,8 @@
         },
         {
           "label": "Patient multi-member care-team readiness",
-          "detail": "The modernized patient API and Patient/Client chart now update and render multiple OpenEMR-style care-team members through shared provider/facility projection and restore-backed parity coverage.",
-          "evidence": ["slice-200-patient-care-team-members-readiness"]
+          "detail": "The modernized patient API and Patient/Client chart now update and render multiple OpenEMR-style care-team members through shared provider/facility projection and restore-backed parity coverage; Slice 454 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-200-patient-care-team-members-readiness", "slice-454-slice200-patient-care-team-members-probe-payload-attachments"]
         },
         {
           "label": "Patient contact-backed care-team readiness",

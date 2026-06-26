@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -31,7 +32,7 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
     target,
     targetDb,
     workflow
-  }) => {
+  }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(careTeamMembersAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -73,11 +74,65 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
       ]
     };
 
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-200-patient-care-team-members-precondition",
+      description: "Captures the Slice 200 multi-member care-team mutation precondition: anchor patient, original team members, and proposed temporary two-member update.",
+      expected: {
+        anchorCanonicalId: careTeamMembersAnchorPatientId,
+        update: {
+          teamName: updated.teamName,
+          teamStatus: updated.teamStatus,
+          members: updated.members
+        },
+        cleanup: "Restore the original multi-member care-team assignment after verification."
+      },
+      actual: {
+        patient,
+        original,
+        updated
+      },
+      context: {
+        canonicalId: careTeamMembersAnchorPatientId,
+        suite: "workflow-patient-care-team-members",
+        workflow: "patient-care-team-members-precondition"
+      }
+    });
+
     try {
       await workflow.updatePatientCareTeamMembersAssignment(updated);
 
       const actual = await workflow.getPatientCareTeamMembersAssignment(patient!.pid);
       expect(actual).toEqual(updated);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-200-patient-care-team-members-updated",
+        description: "Captures the database/read-model state after applying the temporary Slice 200 two-member care-team update.",
+        expected: {
+          teamName: updated.teamName,
+          teamStatus: updated.teamStatus,
+          memberCount: 2,
+          members: updated.members.map((member) => ({
+            memberName: member.memberName,
+            roleDisplay: member.roleDisplay,
+            facilityName: member.facilityName,
+            providerSince: member.providerSince,
+            memberStatus: member.memberStatus,
+            note: member.note
+          }))
+        },
+        actual: {
+          patient,
+          original,
+          updated,
+          actual
+        },
+        context: {
+          canonicalId: careTeamMembersAnchorPatientId,
+          suite: "workflow-patient-care-team-members",
+          workflow: "patient-care-team-members-updated"
+        }
+      });
 
       if (target.type === "legacy-openemr") {
         await loginToLegacyOpenEmr(page, target);
@@ -90,6 +145,46 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
         await expectRenderedText(page, "Case Manager");
         await expectRenderedText(page, "East County Care Center");
         await expectRenderedText(page, "Modernization Family Medicine");
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-200-patient-care-team-members-legacy-surface",
+          description: "Captures the Slice 200 legacy UI evidence that OpenEMR patient summary renders the temporary two-member care team.",
+          expected: {
+            patientLastNameVisible: patient!.lname,
+            teamName: updated.teamName,
+            renderedMembers: [
+              {
+                memberName: "Chen, Alex",
+                roleDisplay: "Primary Care Provider",
+                facilityName: "East County Care Center"
+              },
+              {
+                memberName: "Morris, Robin",
+                roleDisplay: "Case Manager",
+                facilityName: "Modernization Family Medicine"
+              }
+            ]
+          },
+          actual: {
+            patient,
+            updated,
+            surface: {
+              patientSummaryReached: true,
+              renderedFields: {
+                lastName: patient!.lname,
+                teamName: updated.teamName,
+                memberNames: ["Chen, Alex", "Morris, Robin"],
+                roleDisplays: ["Primary Care Provider", "Case Manager"],
+                facilityNames: ["East County Care Center", "Modernization Family Medicine"]
+              }
+            }
+          },
+          context: {
+            canonicalId: careTeamMembersAnchorPatientId,
+            suite: "workflow-patient-care-team-members",
+            workflow: "patient-care-team-members-legacy-surface"
+          }
+        });
       } else {
         const headers = await getModernizedAdminSessionHeaders(page, target);
         const chartResponse = await page.request.get(
@@ -132,6 +227,40 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
             })
           ])
         );
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-200-patient-care-team-members-modernized-api",
+          description: "Captures the Slice 200 modernized patient chart API response after applying the temporary two-member care-team update.",
+          expected: {
+            pubpid: patient!.pubpid,
+            careTeam: {
+              teamName: updated.teamName,
+              teamStatus: updated.teamStatus,
+              teamStatusDisplay: updated.teamStatusDisplay,
+              members: updated.members.map((member) => ({
+                userId: member.userId,
+                memberName: member.memberName,
+                role: member.role,
+                roleDisplay: member.roleDisplay,
+                facilityId: member.facilityId,
+                facilityName: member.facilityName,
+                providerSince: member.providerSince,
+                status: member.memberStatus,
+                statusDisplay: member.memberStatusDisplay,
+                note: member.note
+              }))
+            }
+          },
+          actual: {
+            status: chartResponse.status(),
+            chart
+          },
+          context: {
+            canonicalId: careTeamMembersAnchorPatientId,
+            suite: "workflow-patient-care-team-members",
+            workflow: "patient-care-team-members-modernized-api"
+          }
+        });
 
         await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
         await expect(page.getByRole("heading", { name: new RegExp(patient!.lname) })).toBeVisible();
@@ -143,6 +272,34 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
         await expect(page.locator("body")).toContainText("East County Care Center");
         await expect(page.locator("body")).toContainText("Modernization Family Medicine");
         await expect(page.locator("body")).toContainText("Slice 200 transition navigator");
+        const careTeamPanelText = await page.locator("body").innerText();
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.type,
+          probe: "slice-200-patient-care-team-members-modernized-surface",
+          description: "Captures the Slice 200 modernized Patient/Client care-team rendering after the temporary two-member update.",
+          expected: {
+            heading: patient!.lname,
+            panelTextIncludes: [
+              "Care Team",
+              "Alex Chen",
+              "Robin Morris",
+              "Primary Care Provider",
+              "Case Manager",
+              "East County Care Center",
+              "Modernization Family Medicine",
+              "Slice 200 transition navigator"
+            ]
+          },
+          actual: {
+            patient,
+            careTeamPanelText
+          },
+          context: {
+            canonicalId: careTeamMembersAnchorPatientId,
+            suite: "workflow-patient-care-team-members",
+            workflow: "patient-care-team-members-modernized-surface"
+          }
+        });
       }
     } finally {
       await workflow.updatePatientCareTeamMembersAssignment(original);
@@ -150,5 +307,22 @@ test.describe("patient care team members parity @slice200 @workflow-patient-care
 
     const restored = await workflow.getPatientCareTeamMembersAssignment(patient!.pid);
     expect(restored).toEqual(original);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-200-patient-care-team-members-cleanup",
+      description: "Captures the Slice 200 cleanup state after restoring the original multi-member care-team assignment.",
+      expected: {
+        restoredOriginal: original
+      },
+      actual: {
+        patient,
+        restored
+      },
+      context: {
+        canonicalId: careTeamMembersAnchorPatientId,
+        suite: "workflow-patient-care-team-members",
+        workflow: "patient-care-team-members-cleanup"
+      }
+    });
   });
 });
