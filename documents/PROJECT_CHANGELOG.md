@@ -27337,6 +27337,37 @@ Verification:
 
 Code Metrics:
 - 14 scoped files changed, with 201 insertions and 38 deletions, net +163 lines and 239 total churn, including the backend charge-template catalog lookup, React template handoff, and managed server-side charge-template parity plan.
+## 613. Slice 564 Patient Refund Server-Side Posting Readiness
+
+Started: 2026-06-26T19:17:00.0000000-04:00
+Finished: 2026-06-26T19:30:46.4987984-04:00
+Commit: `6ee064d0`
+
+Implemented Slice 564: focused patient-refund server-side posting readiness. The modernized Fees `Patient refund` mode no longer constructs the OpenEMR-shaped refund posting inside the React UI; it calls the new `POST /api/billing/payments/patient-refunds` backend operation with the patient, encounter, reference, date, payment method, CPT context, memo, and refund amount. The backend owns patient payer identity, `patient_refund` payment type, negative refund amount, zero adjustment, blank account/reason/claim fields, and refreshed billing detail. The shared parity plan now drives the modernized Fees form through that endpoint, verifies the same temporary refund posting, rendering, account-balance and ledger movement, and cleanup against both targets.
+
+Changes:
+- Added the modernized backend patient-refund request contract, repository adapter, and billing API endpoint.
+- Changed the modernized Fees `Patient refund` path so React submits refund intent to the backend instead of building the final payment posting shape itself.
+- Strengthened the patient-refund parity suite so the modernized target creates the refund through the actual Fees form, captures the created payment activity ID from the database probe, and still cleans up deterministically.
+- Added the `slice-564-patient-refund-server-side-posting-readiness` plan over the patient-refund workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 564 patient-refund server-side posting plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count patient refund posting as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 564 server-side refund posting contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 564 legacy parity plan: `2026-06-26T232810-504Z-legacy-openemr-plan-slice-564-patient-refund-server-side-posting-readiness` passed 1/1 tests.
+- Ran the Slice 564 modernized parity plan: `2026-06-26T232906-597Z-modernized-openemr-plan-slice-564-patient-refund-server-side-posting-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 564 runs: `2026-06-26T232957-507Z-legacy-openemr-vs-modernized-openemr-plan-slice-564-patient-refund-server-side-posting-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 564 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 16 scoped files changed, with 217 insertions and 19 deletions, net +198 lines and 236 total churn, including the backend patient-refund operation, React refund handoff, stronger UI-backed parity coverage, and managed server-side refund parity plan.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
