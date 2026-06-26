@@ -25749,6 +25749,36 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 563. Slice 516 Patient Portal Secure-Message Search Counts Readiness
+
+Started: 2026-06-26T09:03:05.1390499-04:00
+Finished: 2026-06-26T09:07:09.9833013-04:00
+Commit: Pending
+
+Implemented Slice 516: patient portal secure-message search-count readiness. The modernized Portal now renders a visible search-count summary that reports filtered and total counts for Inbox, Sent, All, and Deleted secure-message folders. The parity suite creates cleanup-backed Inbox, Sent, and archived Deleted rows for `MOD-PAT-0004`, verifies the shared per-folder count projections for matching queries, records the installed legacy no-active-search-input/count-summary baseline, and verifies the modernized Portal count summary.
+
+Changes:
+- Added the `workflow-patient-portal-message-search-counts` suite and `slice-516-patient-portal-message-search-counts-readiness` plan.
+- Added the modernized Portal secure-message search-count summary beside the search field.
+- Added Workbench managed actions and plan cards for running the Slice 516 search-count plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to include search-count readiness in the patient portal secure-message scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 516 search-count contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm run typecheck` in `parity-tests`.
+- Ran `npm run typecheck` in `modernization-workbench`.
+- Ran `npm run build` in `modernized-openemr/frontend`; build passed with the known Vite large-chunk warning.
+- Rebuilt and restarted the modernized frontend with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-516-patient-portal-message-search-counts-readiness -Reset test`; run `2026-06-26T130533-142Z-legacy-openemr-plan-slice-516-patient-portal-message-search-counts-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-516-patient-portal-message-search-counts-readiness -Reset test`; run `2026-06-26T130627-140Z-modernized-openemr-plan-slice-516-patient-portal-message-search-counts-readiness` passed.
+- Ran parity comparison for `slice-516-patient-portal-message-search-counts-readiness`; comparison `2026-06-26T130654-031Z-legacy-openemr-vs-modernized-openemr-plan-slice-516-patient-portal-message-search-counts-readiness` matched.
+- Audited probe attachments: legacy captured precondition, result, legacy-ui, and cleanup probes; modernized captured precondition, result, modernized-ui, and cleanup probes.
+- Ran scoped `git diff --check`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 13 scoped files changed, with 569 insertions and 8 deletions including the new search-count parity suite.
+
 ## 562. Slice 515 Patient Portal Secure-Message Empty Search Readiness
 
 Started: 2026-06-26T08:49:12.5729169-04:00
@@ -25778,6 +25808,36 @@ Verification:
 
 Code changes:
 - 12 scoped files changed, with 485 insertions and 11 deletions including the new empty-search parity suite.
+
+## 563. Azure Demo Deployment Workbench Surface
+
+Started: 2026-06-26T09:00:33.1013896-04:00
+Finished: 2026-06-26T09:05:31.3909539-04:00
+Commit: pending
+
+Implemented the Workbench-managed Azure demo deployment surface for publishing the legacy OpenEMR baseline, the modernized OpenEMR target, or both to public Azure Container Apps URLs. The implementation keeps the demo intentionally simple: each selected target runs as a public Container App, each target keeps its database beside the app in the same Container App, credentials and results stay in ignored local Workbench artifacts, and the path is documented as disposable synthetic-data demo hosting only.
+
+Changes:
+- Added a Demo Deployment page to the Modernization Workbench navigation with Azure account/resource fields, target checkboxes, reset-on-deploy control, save/validate/deploy/smoke actions, and latest-result rendering.
+- Added Workbench API routes for reading/saving the ignored local Azure demo profile and for running allowlisted validate, deploy, and smoke actions with lifecycle-event evidence.
+- Added Azure prerequisite and deployment scripts for Azure CLI, Docker, Container Apps, Container Registry, legacy OpenEMR plus MariaDB sidecar deployment, modernized frontend/API image builds, PostgreSQL sidecar deployment, and public URL smoke checks.
+- Added modernized Azure demo Dockerfiles, API startup seeding, and nginx proxy configuration so the frontend, API, and PostgreSQL database can run in one public Container App for demos.
+- Added `AZURE_DEMO_DEPLOYMENT.md`, updated the document index, and synchronized the Workbench README and Workbench documentation with the new page and operating model.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- `scripts/Test-AzureDemoPrerequisites.ps1` and `scripts/Deploy-AzureDemo.ps1` parsed successfully as PowerShell scriptblocks.
+- The already-running Workbench returned HTTP 200 from `http://127.0.0.1:5173`, and `http://127.0.0.1:5174/api/demo-deployment` returned the default draft profile and artifact paths.
+- The live Azure deployment action was not run in this slice because it requires an Azure subscription context and creates public Azure resources.
+
+Code changes:
+- Files changed: 16 scoped Azure-demo files or shared Workbench files.
+- Lines added: 1732 from the current scoped working-tree view.
+- Lines deleted: 9 from the current scoped working-tree view.
+- Net lines: +1723.
+- Total churn: 1741.
+- Note: precise commit metrics should be refreshed after the pre-existing dirty Workbench edits in shared files are separated from this slice.
 
 ## Next Expected Entries
 

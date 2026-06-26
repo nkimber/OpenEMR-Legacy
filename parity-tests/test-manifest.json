@@ -1320,6 +1320,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-516-patient-portal-message-search-counts-readiness",
+      "name": "Slice 516 Patient Portal Secure-Message Search Counts Readiness",
+      "description": "Patient portal messaging confidence plan that verifies per-folder secure-message search result counts for cleanup-backed Inbox, Sent, All, and Deleted rows and checks the modernized Portal count summary.",
+      "suites": ["workflow-patient-portal-message-search-counts"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-516", "patients", "portal", "messages", "search", "counts", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4696,6 +4705,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-message-empty-search",
       "tags": ["slice515", "workflow", "mutation", "patients", "portal", "messages", "search", "empty-state", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-message-search-counts",
+      "name": "Patient Portal Secure-Message Search Counts Readiness",
+      "description": "Verifies cleanup-backed secure-message rows produce per-folder filtered and total counts and the modernized Portal renders the search-count summary.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-message-search-counts",
+      "tags": ["slice516", "workflow", "mutation", "patients", "portal", "messages", "search", "counts", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

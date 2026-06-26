@@ -43,10 +43,13 @@ The Progress page also includes curated Capability Rollups from `modernization-w
 
 Modern UI Claude is also registered as a managed frontend-only Docker Compose application. The Applications page shows the `modern-ui-claude` service status, checks `http://localhost:3100/`, exposes Start/Stop/Restart/Open/Logs actions, and keeps its database profile separate by pointing operators back to the modernized OpenEMR backend app for database state. Its compose stack is configured for Vite live reload by bind-mounting the app folder into the container; source edits should not require a rebuild unless dependencies or container configuration change.
 
+The Workbench also has a Demo Deployment page for publishing resettable public Azure Container Apps demos of the legacy baseline, the modernized target, or both. The page saves an ignored local Azure profile, validates local prerequisites, runs the deployment script, runs smoke checks against existing deployed apps, and displays the latest deployment evidence from ignored Workbench artifacts. The Azure demo path is intentionally disposable and keeps the database beside each app container for simple synthetic-data demonstrations only.
+
 Current pages:
 
 - Dashboard.
 - Applications.
+- Demo Deployment.
 - Project Timeline.
 - Progress.
 - Architecture.
@@ -99,7 +102,7 @@ Verified behavior:
 
 - Production build passes with `npm run build`.
 - The UI renders in desktop and mobile viewports.
-- The UI includes a left navigation shell with separate pages for dashboard, applications, timeline, progress, architecture, tests, and seed data.
+- The UI includes a left navigation shell with separate pages for dashboard, applications, demo deployment, timeline, progress, architecture, tests, and seed data.
 - The UI loads the operational app snapshot first, hydrates route-specific progress, timeline, architecture, and test evidence data independently, and keeps periodic polling scoped to app status and lifecycle events.
 - The Architecture page renders a versioned visual stack matrix, source inventory statistics, project topology diagram, architecture-decision notes, and detail tabs for legacy OpenEMR, the Workbench, and modernized OpenEMR.
 - The API can read legacy OpenEMR status.
@@ -401,7 +404,7 @@ The shared encounter procedure-result entry plan runs against both targets and v
 
 The shared encounter claims plan runs read-only against both targets and verifies `MOD-PAT-0001` encounter `1000013`, claim `CLAIM-1000013-1`, payer `Acme Health`, `HCFA` target, cleared claim status facts, modernized Encounter detail API claim fields, and modernized Encounters workspace Claim Linkage cards.
 
-The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-515 patient portal secure-message empty-search readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
+The Workbench now exposes curated plan actions for legacy readiness, slice-1 side-by-side readiness through slice-516 patient portal secure-message search-count readiness, isolated mutations, and the full legacy parity contract. Plan evidence displays the selected suites so an operator can distinguish a plan run from an individual suite run.
 
 The Workbench also exposes a custom parity run builder on the Test Runs page for each managed application. It reads the parity manifest through the Workbench API and lets an operator choose a suite or plan, reset mode, headed mode, and optional grep filter. The backend validates these values before constructing `scripts/Run-OpenEmrParityTests.ps1`, preserving the allowlisted-command model while making targeted runs and reset-strategy experiments available from the UI.
 
@@ -410,6 +413,22 @@ The Test Runs page now renders recent side-by-side comparison artifacts from `pa
 The modernized target test command is `modernized-openemr/scripts/Test-ModernizedBaseline.ps1`, which writes `modernized-openemr/artifacts/latest-modernized-smoke-test.json`. It checks API health, admin login/session/audit readiness, protected access for audit, administration, reports, patient search, clinical lists, appointments, encounters, documents, messages, billing, and procedures, deterministic anchor patient search for `MOD-PAT-0001`, the anchor chart summary response, anchor patient history projection for `MOD-PAT-0010`, anchor insurance subscriber projection for `MOD-PAT-0005`, anchor patient portal account/reset/access/authentication/session/home/home immunization health-snapshot/clinical-summary/lab-results/appointment request-options/secure-message projection for `MOD-PAT-0004`, cleanup-backed patient, patient portal reset, patient portal access, patient portal session logout, patient deceased-status, patient guardian-contact, patient guardian-details, patient social-details, patient insurance subscriber, appointment, encounter, document, message, revenue-cycle, and procedure/lab mutation lifecycles, patient duplicate detection readiness, patient registration validation row safety, encounter amendment history projection, appointment mutation authorization, and the existing administration, access-control, operational-report, and CSV export smoke checks. The reusable side-by-side commands include the `slice-1-readiness` through `slice-255-patient-portal-message-notifications-readiness` parity plans, which write latest summaries for both `legacy-openemr` and `modernized-openemr` under `parity-tests/artifacts/` and can be compared with the parity comparison runner.
 
 This keeps the workbench honest: it reports real automation evidence instead of inventing its own private test flow.
+
+## Azure Demo Deployment
+
+The Demo Deployment page is the Workbench surface for lightweight public Azure demos. It is backed by:
+
+- `GET /api/demo-deployment`
+- `POST /api/demo-deployment/profile`
+- `POST /api/demo-deployment/actions/validate`
+- `POST /api/demo-deployment/actions/deploy`
+- `POST /api/demo-deployment/actions/smoke`
+
+The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, and the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`. Both are under the ignored Workbench artifacts folder.
+
+The deploy action runs `scripts/Deploy-AzureDemo.ps1`. It creates or updates the selected Azure Container Apps resources, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, and smoke-tests the resulting public URLs. The smoke action uses the same script with `-SmokeOnly` and only checks existing deployed apps.
+
+Detailed operating notes live in `AZURE_DEMO_DEPLOYMENT.md`.
 
 
 ## Seed Data Orchestration
@@ -423,6 +442,8 @@ Slice 513 adds managed Workbench actions for the patient portal secure-message f
 Slice 514 adds managed Workbench actions for the patient portal secure-message Sent, All, and Deleted folder search plan on both legacy and modernized targets. The plan creates cleanup-backed sent and archived mailbox rows for `MOD-PAT-0004`, compares shared folder projections, documents the installed legacy Sent/Archive rendered baseline, and verifies the modernized Portal search field filters Sent, All, and Deleted regions.
 
 Slice 515 adds managed Workbench actions for the patient portal secure-message empty-search plan on both legacy and modernized targets. The plan creates cleanup-backed Inbox, Sent, and archived Deleted mailbox rows for `MOD-PAT-0004`, verifies the shared no-hit query returns zero matches across Inbox, Sent, All, and Deleted folder projections, documents the installed legacy no-active-search-input baseline, and verifies the modernized Portal shows deterministic folder-specific empty states before clearing back to the rows.
+
+Slice 516 adds managed Workbench actions for the patient portal secure-message search-count plan on both legacy and modernized targets. The plan creates cleanup-backed Inbox, Sent, and archived Deleted mailbox rows for `MOD-PAT-0004`, verifies shared filtered/total count projections for Inbox, Sent, All, and Deleted queries, documents the installed legacy no-active-search-input baseline, and verifies the modernized Portal search-count summary reports those counts.
 
 The Workbench owns seed-data visibility and orchestration.
 
