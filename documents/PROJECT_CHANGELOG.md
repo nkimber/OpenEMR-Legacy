@@ -25880,7 +25880,7 @@ Code changes:
 
 Started: 2026-06-26T12:57:08.7767270-04:00
 Finished: 2026-06-26T13:00:30.5928290-04:00
-Commit: pending
+Commit: e35d3731
 
 Implemented Slice 530: claim adjudication readiness. The modernized Fees claim card now includes an `Adjudicate` action that posts a linked insurer EOB payment plus contractual adjustment, records payer-claim and reason-code metadata, and updates the claim to a cleared X12 835 state. The shared parity suite creates a cleanup-backed generated Northstar HMO claim on both targets, adjudicates it, verifies payment/adjustment balance movement, ledger rows, payer metadata, modernized UI rendering, and then removes the temporary payment and claim so starting counts are restored.
 
