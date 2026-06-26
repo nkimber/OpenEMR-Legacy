@@ -24576,7 +24576,7 @@ Code changes:
 
 Started: 2026-06-26T02:39:57.0182598-04:00
 Finished: 2026-06-26T02:43:42.9771360-04:00
-Commit: Pending
+Commit: `b9ffa244`
 
 Implemented Slice 480: Slice 226 patient portal generated medical-report PDF probe payload attachments. The patient portal generated medical-report PDF readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, PDF readiness projection facts, legacy PDF export response metadata, and modernized PDF API/download-control rendering so Workbench comparison drill-ins can preview the downloadable PDF evidence behind generated-report parity.
 
