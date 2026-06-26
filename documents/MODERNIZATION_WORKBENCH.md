@@ -693,3 +693,9 @@ The Progress page also records focused missing-payer claim scrubbing as complete
 The Workbench now exposes managed Slice 550 claim invalid-fee plan actions for both the legacy and modernized targets. These actions run `slice-550-claim-invalid-fee-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a queued claim with valid payer, diagnosis, CPT, modifier, units, and service date but a zero CPT fee is flagged with deterministic `SCRUB-FAIL` / `invalid-fee` report metadata without unrelated payer, code, diagnosis-pointer, modifier, unit, future-date, or missing-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
 
 The Progress page also records focused invalid-fee claim scrubbing as completed billing validation scope while keeping broader charge policy, payer-specific fee schedules, clearinghouse edits, and full revenue-cycle exception handling outstanding.
+
+## Slice 551 Workbench Update
+
+The Workbench now exposes managed Slice 551 claim invalid-units plan actions for both the legacy and modernized targets. These actions run `slice-551-claim-invalid-units-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a queued claim with valid payer, diagnosis, CPT, modifier, fee, and service date but zero CPT units is flagged with deterministic `SCRUB-FAIL` / `invalid-units` report metadata without unrelated payer, fee, code, diagnosis-pointer, modifier, future-date, or missing-code misclassification, claim process-file naming, count movement, modernized Scrub rendering, and cleanup side by side.
+
+The Progress page also records focused invalid-units claim scrubbing as completed billing validation scope while keeping broader charge policy, quantity/unit rules, payer-specific fee schedules, clearinghouse edits, and full revenue-cycle exception handling outstanding.

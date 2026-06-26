@@ -750,7 +750,7 @@ LIMIT 1;
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, encounter, billing_date::text AS "billingDate", code_type AS "codeType", code, code_text AS "codeText",
-  COALESCE(modifier, '') AS modifier, COALESCE(fee::text, '') AS fee, COALESCE(justify, '') AS justify
+  COALESCE(modifier, '') AS modifier, COALESCE(fee::text, '') AS fee, units, COALESCE(justify, '') AS justify
 FROM billing
 WHERE pid = ${pid} AND encounter = ${encounter} AND activity = 1
 ORDER BY id;
@@ -764,6 +764,7 @@ ORDER BY id;
       modifier: row.modifier,
       codeText: row.codeText,
       fee: row.fee,
+      units: Number(row.units),
       justify: row.justify
     }));
   }

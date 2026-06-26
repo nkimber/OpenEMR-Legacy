@@ -26934,6 +26934,38 @@ Verification:
 Code Metrics:
 - 11 scoped files changed, with 479 insertions and 8 deletions including the new claim invalid-fee parity suite.
 
+## 598. Slice 551 Claim Invalid Units Readiness
+
+Started: 2026-06-26T16:38:09.8182784-04:00
+Finished: 2026-06-26T16:45:28.5344183-04:00
+Duration: 7 minutes 19 seconds
+Commit: pending
+
+Implemented Slice 551: focused invalid-units readiness. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, positive fee, zero CPT units, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, fee, CPT-code, diagnosis-code, diagnosis-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Relaxed modernized billing-line create/update validation to allow zero units while continuing to reject negative units, so invalid-unit rows can be scrubbed rather than rejected before review.
+- Added billing-line units to the legacy and modernized database probe summaries used by claim scrub parity suites.
+- Added the `workflow-claim-invalid-units` suite and `slice-551-claim-invalid-units-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 551 invalid-units plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused invalid-units claim scrubbing as completed billing validation scope while leaving broader charge policy, quantity/unit rules, payer-specific fee schedules, clearinghouse edits, and full revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 551 invalid-units contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 551 legacy parity plan: `2026-06-26T204443-323Z-legacy-openemr-plan-slice-551-claim-invalid-units-readiness` passed 1/1 tests after the first attempt exposed missing units in the billing-line probe projection.
+- Ran the Slice 551 modernized parity plan: `2026-06-26T204443-775Z-modernized-openemr-plan-slice-551-claim-invalid-units-readiness` passed 1/1 tests after the first attempt exposed missing units in the billing-line probe projection.
+- Compared the two successful Slice 551 runs: `2026-06-26T204517-110Z-legacy-openemr-vs-modernized-openemr-plan-slice-551-claim-invalid-units-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 551 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 13 scoped files changed, with 480 insertions and 9 deletions including the new claim invalid-units parity suite and billing-line units probe projection.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
