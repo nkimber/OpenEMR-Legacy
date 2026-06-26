@@ -27124,7 +27124,7 @@ Code Metrics:
 
 Started: 2026-06-26T17:51:27-04:00
 Finished: 2026-06-26T17:55:51.0442558-04:00
-Commit: TBD
+Commit: `26247666`
 
 Implemented Slice 557: focused server-side claim generation readiness. The modernized billing claim `Generate` action no longer builds deterministic 837P-style claim payloads in the React UI; it calls the new `POST /api/billing/claims/{claimId}/generate` backend operation, which reads the claim and patient identity, persists generated X12 metadata, and returns refreshed billing detail. The shared parity suite creates a cleanup-backed temporary Northstar HMO queued claim against the seeded billing encounter, drives the modernized UI/backend generation path or equivalent legacy update, verifies deterministic process-file metadata, submitted-claim content, claim-card rendering, claim-count stability, and cleanup.
 
