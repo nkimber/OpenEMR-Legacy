@@ -24146,6 +24146,43 @@ Code changes:
 - `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
 - `parity-tests/tests/workflow-patient-portal-thread/patient-portal-thread.spec.ts`: 175 insertions, 3 deletions.
 
+## 515. Slice 468 Slice 214 Patient Portal Secure-Message Archive Probe Payload Attachments
+
+Started: 2026-06-26T01:11:25.8625983-04:00
+Finished: 2026-06-26T01:18:21.4774831-04:00
+Commit: Pending
+
+Implemented Slice 468: Slice 214 patient portal secure-message archive probe payload attachments. The patient portal secure-message archive readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, pre-archive mailbox state, cleanup-backed sent-message creation/archive result, post-cleanup mailbox state, legacy portal Sent/Archive folder rendering, and modernized Portal archive-action rendering so Workbench comparison drill-ins can preview the evidence behind patient portal archive parity.
+
+Changes:
+- Added Slice 214 precondition payload attachments for the `MOD-PAT-0004` anchor patient used by cleanup-backed portal archive checks.
+- Added pre-archive mailbox payload attachments after defensive cleanup and before temporary sent-message creation.
+- Added archive-result payload attachments proving temporary sent-message creation, Delete status transition, active-folder removal, deleted-folder count, sender, recipient, title, and body facts.
+- Added post-cleanup payload attachments proving temporary archived sent-message rows are removed after the parity check.
+- Added legacy patient portal Sent/Archive folder payload attachments proving OpenEMR removes the message from Sent and renders it in Archive.
+- Added modernized Portal archive-action payload attachments proving browser-driven archive shows success feedback and removes the message card from active display.
+- Updated the Workbench functionality progress ledger so Slice 214 patient portal secure-message archive payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 468 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests`.
+- `npm run typecheck` passed in `modernization-workbench`.
+- Slice 468 Workbench evidence key audit passed with exactly one `slice-468-slice214-patient-portal-delete-probe-payload-attachments` occurrence.
+- Legacy Slice 214 parity run passed: `2026-06-26T051613-216Z-legacy-openemr-plan-slice-214-patient-portal-delete-readiness`.
+- Modernized Slice 214 parity run passed: `2026-06-26T051613-407Z-modernized-openemr-plan-slice-214-patient-portal-delete-readiness`.
+- Slice 214 comparison passed with matched results and no differences: `2026-06-26T051807-918Z-legacy-openemr-vs-modernized-openemr-plan-slice-214-patient-portal-delete-readiness`.
+- Attachment audit passed for five legacy patient-portal-delete probe payloads and five modernized patient-portal-delete probe payloads.
+
+Code changes:
+- `documents/INDEX.md`: 1 insertion, 1 deletion.
+- `documents/MODERNIZATION_PLAN.md`: 1 insertion.
+- `documents/MODERNIZATION_WORKBENCH.md`: 2 insertions, 2 deletions.
+- `documents/PROJECT_CHANGELOG.md`: 25 insertions, 1 deletion before final verification metrics.
+- `documents/PROJECT_CONTEXT.md`: 2 insertions, 2 deletions.
+- `documents/TEST_ARCHITECTURE.md`: 3 insertions, 3 deletions.
+- `modernization-workbench/config/functionality-progress.json`: 2 insertions, 2 deletions.
+- `parity-tests/tests/workflow-patient-portal-delete/patient-portal-delete.spec.ts`: 191 insertions, 6 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -24155,5 +24192,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, and 213.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, and 214.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

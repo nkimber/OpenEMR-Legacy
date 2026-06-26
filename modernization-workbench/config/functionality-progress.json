@@ -185,8 +185,8 @@
         },
         {
           "label": "Patient portal secure-message archive readiness",
-          "detail": "The modernized patient portal API and Portal page now archive patient-visible secure messages using the legacy Delete status and soft-delete visibility rules, while parity verifies active-folder removal and archive visibility with cleanup-backed temporary messages.",
-          "evidence": ["slice-214-patient-portal-delete-readiness"]
+          "detail": "The modernized patient portal API and Portal page now archive patient-visible secure messages using the legacy Delete status and soft-delete visibility rules, while parity verifies active-folder removal and archive visibility with cleanup-backed temporary messages, and Slice 468 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-214-patient-portal-delete-readiness", "slice-468-slice214-patient-portal-delete-probe-payload-attachments"]
         },
         {
           "label": "Patient portal secure-message read-status readiness",
