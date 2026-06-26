@@ -26357,7 +26357,7 @@ Code changes:
 
 Started: 2026-06-26T13:17:01.1222184-04:00
 Finished: 2026-06-26T13:24:36.0008513-04:00
-Commit: pending
+Commit: `2af6058c`
 
 Implemented Slice 532: focused claim generation readiness. The modernized Fees claim card `Generate` action now creates a deterministic claim file name and 837P-style submitted-claim payload from the claim, payer, encounter, and patient anchor. The shared parity suite creates a cleanup-backed queued Northstar HMO claim on both targets, drives the modernized UI Generate action or equivalent legacy update, verifies X12 target metadata, process-file naming, key 837P segments, claim-count stability, modernized rendering, and hard-delete cleanup.
 
