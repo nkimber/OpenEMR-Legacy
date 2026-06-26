@@ -22952,6 +22952,43 @@ Code changes:
 - Net lines: 361
 - Total churn: 399
 
+## 480. Slice 433 Slice 179 Patient Document Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T21:10:00.0000000-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 433: Slice 179 patient document authorization-policy probe payload attachments. The patient document authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Documents ACL preconditions, legacy document-list rendering facts, modernized front-desk forbidden document list, content, and create facts, admin document list and content allow facts, and modernized Documents-page retry rendering facts so Workbench comparison drill-ins can preview Documents ACL enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 179 ACL precondition payload attachments for seeded admin Documents write permission, missing front-office Documents permission, front-desk Front Office membership, selected patient/document anchors, configured admin username, and secret-redaction proof.
+- Added legacy document-list rendered payload attachments proving the selected patient document and Medical Record category render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk document-list forbidden payload attachments proving Documents access is required for document list reads.
+- Added modernized front-desk document-content forbidden payload attachments proving Documents access is required for document content reads.
+- Added modernized front-desk document-create forbidden payload attachments proving Documents add-only/write access is required before patient document creation.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin document-list allow payload attachments proving ACL-backed admin access returns the seeded document anchor.
+- Added modernized admin document-content allow payload attachments proving ACL-backed admin access returns the seeded document content anchor with content shortened for preview.
+- Added modernized Documents-page rendered payload attachments proving the UI shows front-desk denial and then admin document-list success after retry.
+- Updated the Workbench functionality progress ledger so Slice 179 patient document authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 433 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T011405-774Z-legacy-openemr-plan-slice-179-document-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T011432-185Z-modernized-openemr-plan-slice-179-document-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T011451-129Z-legacy-openemr-vs-modernized-openemr-plan-slice-179-document-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-list-forbidden`, `frontdesk-content-forbidden`, `frontdesk-create-forbidden`, `admin-login`, `admin-list`, `admin-content`, and `rendered` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22961,5 +22998,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, and 178.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, and 179.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
