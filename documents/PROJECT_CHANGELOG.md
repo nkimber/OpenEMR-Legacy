@@ -23791,6 +23791,37 @@ Code changes:
 - Net lines: +252
 - Total churn: 276
 
+## 505. Slice 458 Slice 204 Patient Portal Account Probe Payload Attachments
+
+Started: 2026-06-26T00:09:13.7737475-04:00
+Finished: 2026-06-26T00:11:06.7653309-04:00
+Commit: Pending
+
+Implemented Slice 458: Slice 204 patient portal account probe payload attachments. The patient portal account readiness parity suite now writes path-backed JSON Playwright attachments for the seeded CMS login and portal-account precondition, legacy demographics edit rendering, modernized patient chart API projection, and modernized Patient/Client Portal Account rendering so Workbench comparison drill-ins can preview the evidence behind portal-account parity.
+
+Changes:
+- Added Slice 204 precondition payload attachments for the `MOD-PAT-0004` anchor patient and seeded CMS login / onsite portal-account facts.
+- Added legacy demographics edit payload attachments proving OpenEMR renders the seeded CMS portal login.
+- Added modernized patient chart API payload attachments proving the modernized target returns the same portal-enabled and portal-account facts.
+- Added modernized Patient/Client chart payload attachments proving the modernized UI renders the Portal Account panel values.
+- Updated the Workbench functionality progress ledger so Slice 204 patient portal account payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 458 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Parsed `modernization-workbench/config/functionality-progress.json`; confirmed exactly one Slice 458 evidence-key occurrence.
+- Legacy parity run passed for `slice-204-patient-portal-account-readiness`: `2026-06-26T041002-598Z-legacy-openemr-plan-slice-204-patient-portal-account-readiness`.
+- Modernized parity run passed for `slice-204-patient-portal-account-readiness`: `2026-06-26T041028-938Z-modernized-openemr-plan-slice-204-patient-portal-account-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T041050-305Z-legacy-openemr-vs-modernized-openemr-plan-slice-204-patient-portal-account-readiness`.
+- Attachment audit confirmed legacy precondition and legacy-surface payloads plus modernized precondition, API, and surface payloads.
+
+Code changes:
+- Lines added: 131
+- Lines deleted: 11
+- Net lines: +120
+- Total churn: 142
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23800,5 +23831,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, and 203.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, and 204.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.

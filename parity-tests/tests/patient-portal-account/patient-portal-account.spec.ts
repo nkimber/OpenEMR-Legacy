@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientDemographicsEditDirect } from "../../src/ui/legacyOpenEmr.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -23,12 +24,12 @@ type PatientChartPortalAccount = {
 };
 
 test.describe("patient portal account parity @slice204 @patient-portal-account @patients", () => {
-  test("renders provisioned portal account facts from the shared gold dataset", async ({ page, target, targetDb }) => {
+  test("renders provisioned portal account facts from the shared gold dataset", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(portalAccountAnchorPatientId);
     expect(patient).not.toBeNull();
 
     const portalAccount = await targetDb.getPatientPortalAccountForPatient(patient!.pid);
-    expect(portalAccount).toEqual({
+    const expectedPortalAccount = {
       patientId: patient!.pid,
       portalEnabled: true,
       accessStatusLabel: "Enabled",
@@ -40,6 +41,26 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
       passwordStatusLabel: "Patient-managed password",
       oneTimeLinkPending: false,
       resetStatusLabel: "No reset pending"
+    };
+    expect(portalAccount).toEqual(expectedPortalAccount);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-204-patient-portal-account-precondition",
+      description: "Captures the Slice 204 portal-account precondition: anchor patient plus seeded CMS login and onsite portal account facts.",
+      expected: {
+        anchorCanonicalId: portalAccountAnchorPatientId,
+        cmsPortalLogin: expectedLogin,
+        portalAccount: expectedPortalAccount
+      },
+      actual: {
+        patient,
+        portalAccount
+      },
+      context: {
+        canonicalId: portalAccountAnchorPatientId,
+        suite: "patient-portal-account",
+        workflow: "patient-portal-account-precondition"
+      }
     });
 
     if (target.type === "legacy-openemr") {
@@ -48,6 +69,26 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
       const cmsPortalLogin = page.locator('input[name*="cmsportal_login"]').first();
       await expect(cmsPortalLogin).toHaveValue(expectedLogin);
       await expectRenderedText(page, expectedLogin);
+      const demographicsEditText = await page.locator("body").innerText();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-204-patient-portal-account-legacy-surface",
+        description: "Captures the Slice 204 legacy demographics edit evidence for the seeded CMS portal login.",
+        expected: {
+          cmsPortalLoginInputValue: expectedLogin,
+          visibleLoginText: expectedLogin
+        },
+        actual: {
+          patient,
+          portalAccount,
+          demographicsEditText
+        },
+        context: {
+          canonicalId: portalAccountAnchorPatientId,
+          suite: "patient-portal-account",
+          workflow: "patient-portal-account-legacy-surface"
+        }
+      });
       return;
     }
 
@@ -60,7 +101,7 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
     const chart = (await chartResponse.json()) as PatientChartPortalAccount;
     expect(chart.pubpid).toBe(patient!.pubpid);
     expect(chart.portalEnabled).toBe(true);
-    expect(chart.portalAccount).toMatchObject({
+    const expectedChartPortalAccount = {
       portalEnabled: true,
       accessStatusLabel: "Enabled",
       cmsPortalLogin: expectedLogin,
@@ -71,6 +112,26 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
       passwordStatusLabel: "Patient-managed password",
       oneTimeLinkPending: false,
       resetStatusLabel: "No reset pending"
+    };
+    expect(chart.portalAccount).toMatchObject(expectedChartPortalAccount);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-204-patient-portal-account-modernized-api",
+      description: "Captures the Slice 204 modernized patient chart API response for seeded portal account facts.",
+      expected: {
+        pubpid: patient!.pubpid,
+        portalEnabled: true,
+        portalAccount: expectedChartPortalAccount
+      },
+      actual: {
+        status: chartResponse.status(),
+        chart
+      },
+      context: {
+        canonicalId: portalAccountAnchorPatientId,
+        suite: "patient-portal-account",
+        workflow: "patient-portal-account-modernized-api"
+      }
     });
 
     await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
@@ -81,5 +142,32 @@ test.describe("patient portal account parity @slice204 @patient-portal-account @
     await expect(page.locator("body")).toContainText("Provisioned");
     await expect(page.locator("body")).toContainText("Patient-managed password");
     await expect(page.locator("body")).toContainText("No reset pending");
+    const patientChartText = await page.locator("body").innerText();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-204-patient-portal-account-modernized-surface",
+      description: "Captures the Slice 204 modernized Patient/Client Portal Account rendering for seeded portal account facts.",
+      expected: {
+        heading: patient!.lname,
+        visiblePortalAccountFields: [
+          "Portal Account",
+          "CMS login",
+          expectedLogin,
+          "Provisioned",
+          "Patient-managed password",
+          "No reset pending"
+        ]
+      },
+      actual: {
+        patient,
+        portalAccount,
+        patientChartText
+      },
+      context: {
+        canonicalId: portalAccountAnchorPatientId,
+        suite: "patient-portal-account",
+        workflow: "patient-portal-account-modernized-surface"
+      }
+    });
   });
 });

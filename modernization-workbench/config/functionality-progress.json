@@ -105,8 +105,8 @@
         },
         {
           "label": "Patient portal account readiness",
-          "detail": "The shared gold dataset now provisions OpenEMR onsite portal-account rows for portal-enabled patients, the modernized PostgreSQL seed/API/Patient chart mirrors the same CMS login and account status facts, and parity verifies database/API/UI behavior.",
-          "evidence": ["slice-204-patient-portal-account-readiness"]
+          "detail": "The shared gold dataset now provisions OpenEMR onsite portal-account rows for portal-enabled patients, the modernized PostgreSQL seed/API/Patient chart mirrors the same CMS login and account status facts, and parity verifies database/API/UI behavior; Slice 458 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-204-patient-portal-account-readiness", "slice-458-slice204-patient-portal-account-probe-payload-attachments"]
         },
         {
           "label": "Patient portal reset readiness",
