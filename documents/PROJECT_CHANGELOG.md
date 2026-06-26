@@ -25749,6 +25749,41 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 572. Slice 525 Patient Payment Receipt Readiness
+
+Started: 2026-06-26T11:48:05.0000000-04:00
+Finished: 2026-06-26T12:02:42.7853312-04:00
+Commit: pending
+
+Implemented Slice 525: patient payment receipt readiness. The modernized billing API now generates a deterministic PDF receipt for an active payment posting, and the modernized Fees page exposes a `Receipt` action on payment rows. The shared parity suite creates a cleanup-backed temporary patient payment on both targets, derives the expected receipt number from patient/date/sequence, inspects the modernized PDF response and visible Fees action, and then voids and deletes the temporary payment.
+
+Changes:
+- Added a modernized billing receipt document contract and `GET /api/billing/payments/{activityId}/receipt.pdf` endpoint for active payment postings.
+- Added the Fees payment-row `Receipt` download action and API client function.
+- Added the `workflow-patient-payment-receipts` suite and `slice-525-patient-payment-receipt-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 525 patient-payment receipt plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count deterministic patient-payment receipt export as completed billing scope while leaving deeper revenue-cycle processing outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 525 receipt contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`, then rebuilt the API container after correcting payer fallback text.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-525-patient-payment-receipt-readiness -Reset test`; run `2026-06-26T160018-435Z-legacy-openemr-plan-slice-525-patient-payment-receipt-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-525-patient-payment-receipt-readiness -Reset test`; first run exposed blank payer fallback and display-name expectation issues, then run `2026-06-26T160154-830Z-modernized-openemr-plan-slice-525-patient-payment-receipt-readiness` passed after correction.
+- Ran parity comparison for `slice-525-patient-payment-receipt-readiness`; comparison `2026-06-26T160220-955Z-legacy-openemr-vs-modernized-openemr-plan-slice-525-patient-payment-receipt-readiness` matched.
+- Audited probe attachments: both targets captured Slice 525 precondition, receipt contract, and cleanup database probes.
+
+Code changes:
+- Files changed: 16
+- Lines added: 607
+- Lines deleted: 9
+- Net lines: +598
+- Total churn: 616
+
 ## 571. Slice 524 Fee-Sheet Charge Template Readiness
 
 Started: 2026-06-26T11:43:34.5824305-04:00

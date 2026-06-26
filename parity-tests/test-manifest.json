@@ -1401,6 +1401,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-525-patient-payment-receipt-readiness",
+      "name": "Slice 525 Patient Payment Receipt Readiness",
+      "description": "Billing confidence plan that verifies a posted patient payment can generate a deterministic receipt PDF from the modernized Fees workflow.",
+      "suites": ["workflow-patient-payment-receipts"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-525", "billing", "payments", "receipts", "patient-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -3717,6 +3726,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-payments",
       "tags": ["slice58", "workflow", "mutation", "billing", "payments", "patient-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-payment-receipts",
+      "name": "Patient Payment Receipts",
+      "description": "Creates a temporary patient payment and verifies deterministic receipt contract and modernized receipt PDF/UI availability.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-payment-receipts",
+      "tags": ["slice525", "workflow", "mutation", "billing", "payments", "receipts", "patient-payments", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

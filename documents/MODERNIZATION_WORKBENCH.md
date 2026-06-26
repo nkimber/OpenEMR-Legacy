@@ -525,6 +525,8 @@ Slice 523 adds managed Workbench actions for `slice-523-appointment-billing-conv
 
 Slice 524 adds managed Workbench actions for `slice-524-billing-charge-template-readiness` on both legacy and modernized targets. The Progress ledger now treats the first fee-sheet charge-template workflow as completed billing scope, while deeper template catalogs, diagnosis pointer validation, modifier validation, audit history, and revenue-cycle exception handling remain visible as remaining gaps.
 
+Slice 525 adds managed Workbench actions for `slice-525-patient-payment-receipt-readiness` on both legacy and modernized targets. The Progress ledger now treats deterministic patient-payment receipt export as completed billing scope, while claim generation depth, payer adjudication, ERA/EOB import, refund/reversal workflows, statement delivery, audit history, diagnosis pointer validation, modifier validation, richer charge-template catalogs, and revenue-cycle exception handling remain visible as remaining gaps.
+
 Suggested states:
 
 - Not started.

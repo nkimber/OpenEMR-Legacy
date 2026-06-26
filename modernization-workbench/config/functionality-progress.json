@@ -625,7 +625,7 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, charge-template readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, charge-template readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, receipt export, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
@@ -639,8 +639,8 @@
         },
         {
           "label": "Claims, payments, ledger, and balances",
-          "detail": "Claim status, payment posting, patient payment capture, account balance, aging, ledger, and statement readiness are covered.",
-          "evidence": ["slice-47-claim-status-readiness", "slice-48-payment-posting-readiness", "slice-49-account-balance-readiness", "slice-50-account-aging-readiness", "slice-51-account-ledger-readiness", "slice-52-account-statement-readiness", "slice-56-payment-posting-mutation-readiness", "slice-57-claim-status-mutation-readiness", "slice-58-patient-payment-capture-readiness"]
+          "detail": "Claim status, payment posting, patient payment capture, deterministic patient-payment receipt export, account balance, aging, ledger, and statement readiness are covered.",
+          "evidence": ["slice-47-claim-status-readiness", "slice-48-payment-posting-readiness", "slice-49-account-balance-readiness", "slice-50-account-aging-readiness", "slice-51-account-ledger-readiness", "slice-52-account-statement-readiness", "slice-56-payment-posting-mutation-readiness", "slice-57-claim-status-mutation-readiness", "slice-58-patient-payment-capture-readiness", "slice-525-patient-payment-receipt-readiness"]
         },
         {
           "label": "Statements, batches, and collections",
@@ -664,16 +664,16 @@
         }
       ],
       "outstanding": [
-        "Claim generation depth, payer adjudication, ERA/EOB import, remittance workflows, refunds/reversals beyond simple voiding, receipt printing, and statement delivery.",
+        "Claim generation depth, payer adjudication, ERA/EOB import, remittance workflows, refunds/reversals beyond simple voiding, and statement delivery.",
         "Audit history, diagnosis pointer validation, modifier validation, richer charge-template catalogs, and richer revenue-cycle exception handling."
       ],
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 56,
+      "completionEstimatePercent": 57,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, charge-template readiness, appointment starter charge handoff, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, charge-template readiness, appointment starter charge handoff, claims status, payments, receipt export, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",
