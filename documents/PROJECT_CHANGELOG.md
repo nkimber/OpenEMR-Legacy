@@ -25749,6 +25749,36 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 562. Slice 515 Patient Portal Secure-Message Empty Search Readiness
+
+Started: 2026-06-26T08:49:12.5729169-04:00
+Finished: 2026-06-26T08:57:15.8755431-04:00
+Commit: Pending
+
+Implemented Slice 515: patient portal secure-message empty-search readiness. The modernized Portal now renders deterministic folder-specific empty states for no-hit secure-message searches, the parity suite creates cleanup-backed Inbox, Sent, and archived Deleted rows for `MOD-PAT-0004`, verifies the shared no-hit query returns zero matches across Inbox, Sent, All, and Deleted projections, records the installed legacy no-active-search-input baseline, and confirms clearing the modernized search restores the folder rows.
+
+Changes:
+- Added the `workflow-patient-portal-message-empty-search` suite and `slice-515-patient-portal-message-empty-search-readiness` plan.
+- Updated the modernized Portal secure-message empty states so no-hit search results show folder-specific text with the active query.
+- Added Workbench managed actions and plan cards for running the Slice 515 empty-search plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to include empty-search readiness in the patient portal secure-message scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 515 empty-search contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm run typecheck` in `parity-tests`.
+- Ran `npm run typecheck` in `modernization-workbench`.
+- Ran `npm run build` in `modernized-openemr/frontend`; build passed with the known Vite large-chunk warning.
+- Rebuilt and restarted the modernized frontend with `docker compose up -d --build frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-515-patient-portal-message-empty-search-readiness -Reset test`; run `2026-06-26T125548-683Z-legacy-openemr-plan-slice-515-patient-portal-message-empty-search-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-515-patient-portal-message-empty-search-readiness -Reset test`; run `2026-06-26T125633-581Z-modernized-openemr-plan-slice-515-patient-portal-message-empty-search-readiness` passed.
+- Ran parity comparison for `slice-515-patient-portal-message-empty-search-readiness`; comparison `2026-06-26T125658-999Z-legacy-openemr-vs-modernized-openemr-plan-slice-515-patient-portal-message-empty-search-readiness` matched.
+- Audited probe attachments: legacy captured precondition, result, legacy-ui, and cleanup probes; modernized captured precondition, result, modernized-ui, and cleanup probes.
+- Ran scoped `git diff --check`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 12 scoped files changed, with 485 insertions and 11 deletions including the new empty-search parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
