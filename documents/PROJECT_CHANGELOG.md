@@ -26782,7 +26782,7 @@ Code changes:
 Started: 2026-06-26T15:47:19.0663467-04:00
 Finished: 2026-06-26T15:50:32.4641781-04:00
 Duration: 3 minutes 13 seconds
-Commit: Pending
+Commit: `b6ed0f9e`
 
 Implemented Slice 546: focused invalid ICD10 diagnosis-code readiness. The modernized Fees claim `Scrub` action now flags ICD10 diagnosis rows whose code does not match the supported ICD10 format as deterministic `invalid-diagnosis-code:<code>` issues. The shared parity suite creates a cleanup-backed temporary encounter with malformed ICD10 diagnosis code `BADCODE`, a valid CPT4 `99214` service line justified by that diagnosis, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without diagnosis-pointer, missing-code, or CPT-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
