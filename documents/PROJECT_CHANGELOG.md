@@ -25850,7 +25850,7 @@ Code changes:
 
 Started: 2026-06-26T12:47:39.8650985-04:00
 Finished: 2026-06-26T12:50:01.0383285-04:00
-Commit: pending
+Commit: 7b603fae
 
 Implemented Slice 529: claim denial readiness. The modernized Fees claim card now includes a `Deny` action that moves a claim to denied status with X12 denial response metadata, a denial process file, and submitted-claim payload evidence. The shared parity suite creates a cleanup-backed Northstar HMO queued claim on both targets, updates it to denied, verifies payer/status/file/payload/count facts, checks modernized Fees rendering, and hard-deletes the temporary claim so the starting claim counts are restored.
 
