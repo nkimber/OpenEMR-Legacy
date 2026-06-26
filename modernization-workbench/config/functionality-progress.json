@@ -100,8 +100,8 @@
         },
         {
           "label": "Patient insurance subscriber readiness",
-          "detail": "The shared gold dataset, legacy seed, modernized PostgreSQL seed, APIs, Patient/Client insurance panel, and parity harness now preserve and mutate OpenEMR subscriber identity, address, phone, sex, date-of-birth, relationship, and employer fields.",
-          "evidence": ["slice-203-insurance-subscriber-readiness"]
+          "detail": "The shared gold dataset, legacy seed, modernized PostgreSQL seed, APIs, Patient/Client insurance panel, and parity harness now preserve and mutate OpenEMR subscriber identity, address, phone, sex, date-of-birth, relationship, and employer fields; Slice 457 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-203-insurance-subscriber-readiness", "slice-457-slice203-insurance-subscriber-probe-payload-attachments"]
         },
         {
           "label": "Patient portal account readiness",
