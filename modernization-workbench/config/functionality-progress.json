@@ -95,8 +95,8 @@
         },
         {
           "label": "Patient history and lifestyle readiness",
-          "detail": "The shared gold dataset now seeds one OpenEMR History and Lifestyle row per patient, the modernized API and Patient/Client chart project the same read-only history fields, and parity verifies database/API/UI behavior.",
-          "evidence": ["slice-202-patient-history-readiness"]
+          "detail": "The shared gold dataset now seeds one OpenEMR History and Lifestyle row per patient, the modernized API and Patient/Client chart project the same read-only history fields, and parity verifies database/API/UI behavior; Slice 456 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-202-patient-history-readiness", "slice-456-slice202-patient-history-probe-payload-attachments"]
         },
         {
           "label": "Patient insurance subscriber readiness",

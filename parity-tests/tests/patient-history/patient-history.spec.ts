@@ -1,4 +1,5 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientHistoryDirect } from "../../src/ui/legacyOpenEmr.js";
 import { getModernizedAdminSessionHeaders, openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
@@ -37,7 +38,7 @@ type PatientChartHistory = {
 };
 
 test.describe("patient history parity @slice202 @patient-history @patients", () => {
-  test("renders history and lifestyle from the shared gold dataset", async ({ page, target, targetDb }) => {
+  test("renders history and lifestyle from the shared gold dataset", async ({ page, target, targetDb }, testInfo) => {
     const patient = await targetDb.findPatientByCanonicalId(patientHistoryAnchorPatientId);
     expect(patient).not.toBeNull();
 
@@ -46,6 +47,24 @@ test.describe("patient history parity @slice202 @patient-history @patients", () 
     expect(history).toMatchObject({
       patientId: patient!.pid,
       ...expectedHistory
+    });
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-202-patient-history-precondition",
+      description: "Captures the Slice 202 read-only patient history precondition: anchor patient plus seeded OpenEMR History and Lifestyle facts.",
+      expected: {
+        anchorCanonicalId: patientHistoryAnchorPatientId,
+        history: expectedHistory
+      },
+      actual: {
+        patient,
+        history
+      },
+      context: {
+        canonicalId: patientHistoryAnchorPatientId,
+        suite: "patient-history",
+        workflow: "patient-history-precondition"
+      }
     });
 
     if (target.type === "legacy-openemr") {
@@ -62,6 +81,31 @@ test.describe("patient history parity @slice202 @patient-history @patients", () 
 
       await page.getByRole("link", { name: "Other", exact: true }).click();
       await expectRenderedText(page, "Gold history for MOD-PAT-0010");
+      const historyPageText = await page.locator("body").innerText();
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-202-patient-history-legacy-surface",
+        description: "Captures the Slice 202 legacy UI evidence that OpenEMR renders the seeded History and Lifestyle tab values.",
+        expected: {
+          patientLastNameVisible: patient!.lname,
+          visibleHistoryFields: {
+            tobacco: expectedHistory.tobacco,
+            exercisePatterns: expectedHistory.exercisePatterns,
+            historyMother: expectedHistory.historyMother,
+            additionalHistory: expectedHistory.additionalHistory
+          }
+        },
+        actual: {
+          patient,
+          history,
+          historyPageText
+        },
+        context: {
+          canonicalId: patientHistoryAnchorPatientId,
+          suite: "patient-history",
+          workflow: "patient-history-legacy-surface"
+        }
+      });
       return;
     }
 
@@ -74,6 +118,24 @@ test.describe("patient history parity @slice202 @patient-history @patients", () 
     const chart = (await chartResponse.json()) as PatientChartHistory;
     expect(chart.pubpid).toBe(patient!.pubpid);
     expect(chart.history).toMatchObject(expectedHistory);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-202-patient-history-modernized-api",
+      description: "Captures the Slice 202 modernized patient chart API response for the seeded History and Lifestyle fields.",
+      expected: {
+        pubpid: patient!.pubpid,
+        history: expectedHistory
+      },
+      actual: {
+        status: chartResponse.status(),
+        chart
+      },
+      context: {
+        canonicalId: patientHistoryAnchorPatientId,
+        suite: "patient-history",
+        workflow: "patient-history-modernized-api"
+      }
+    });
 
     await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
     await expect(page.getByRole("heading", { name: new RegExp(patient!.lname) })).toBeVisible();
@@ -83,5 +145,30 @@ test.describe("patient history parity @slice202 @patient-history @patients", () 
     await expect(page.locator("body")).toContainText("Gold history for MOD-PAT-0010");
     await expect(page.locator("body")).toContainText("Mother: hypertension");
     await expect(page.locator("body")).toContainText("2016-04-20");
+    const chartPageText = await page.locator("body").innerText();
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.type,
+      probe: "slice-202-patient-history-modernized-surface",
+      description: "Captures the Slice 202 modernized Patient/Client chart rendering for seeded History and Lifestyle facts.",
+      expected: {
+        heading: patient!.lname,
+        visibleHistoryFields: {
+          tobacco: expectedHistory.tobacco,
+          exercisePatterns: expectedHistory.exercisePatterns,
+          additionalHistory: expectedHistory.additionalHistory,
+          historyMother: expectedHistory.historyMother,
+          appendectomyDate: expectedHistory.appendectomyDate
+        }
+      },
+      actual: {
+        patient,
+        chartPageText
+      },
+      context: {
+        canonicalId: patientHistoryAnchorPatientId,
+        suite: "patient-history",
+        workflow: "patient-history-modernized-surface"
+      }
+    });
   });
 });
