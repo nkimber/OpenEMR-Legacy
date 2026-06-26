@@ -24440,7 +24440,7 @@ Code changes:
 
 Started: 2026-06-26T02:03:20.4652372-04:00
 Finished: 2026-06-26T02:10:57.8361077-04:00
-Commit: Pending
+Commit: `35449a8a`
 
 Implemented Slice 476: Slice 222 patient portal clinical-summary probe payload attachments. The patient portal clinical-summary readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, clinical-summary projection facts, legacy portal clinical-list page rendering, and modernized Portal clinical-summary rendering so Workbench comparison drill-ins can preview the evidence behind portal clinical-summary parity.
 
