@@ -1199,6 +1199,7 @@ export type AppointmentRecord = {
   recurrenceExdates: string[];
   convertedEncounterId?: number | null;
   convertedEncounterDate?: string | null;
+  convertedBillingLineCount?: number | null;
 };
 
 export type AppointmentSeriesOccurrence = {
@@ -5942,7 +5943,8 @@ LIMIT 1;
       homeText: row.homeText,
       ...parseAppointmentRecurrence(row.recurrenceType, row.recurrenceSpec, row.recurrenceEndDate),
       convertedEncounterId: null,
-      convertedEncounterDate: null
+      convertedEncounterDate: null,
+      convertedBillingLineCount: 0
     };
   }
 

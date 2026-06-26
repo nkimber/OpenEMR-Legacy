@@ -1383,6 +1383,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-523-appointment-billing-conversion-readiness",
+      "name": "Slice 523 Appointment To Billing Conversion Readiness",
+      "description": "Scheduling and billing confidence plan that verifies a converted appointment can create a starter fee-sheet charge linked to the converted encounter.",
+      "suites": ["workflow-appointment-billing-conversion"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-523", "scheduling", "appointments", "encounters", "billing", "fee-sheet", "conversion", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-23-procedure-pending-orders-readiness",
       "name": "Slice 23 Pending Procedure Orders Readiness",
       "description": "Read-only lab procedure confidence plan that verifies future scheduled, reportless procedure orders on both legacy and modernized targets.",
@@ -4829,6 +4838,16 @@
       "layer": "workflow",
       "path": "tests/workflow-appointment-encounter-conversion",
       "tags": ["slice522", "workflow", "mutation", "scheduling", "appointments", "encounters", "conversion", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-appointment-billing-conversion",
+      "name": "Appointment To Billing Conversion Readiness",
+      "description": "Verifies cleanup-backed appointment-to-billing conversion creates a starter fee-sheet charge on the converted encounter.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-billing-conversion",
+      "tags": ["slice523", "workflow", "mutation", "scheduling", "appointments", "encounters", "billing", "fee-sheet", "conversion", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

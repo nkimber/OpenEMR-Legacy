@@ -380,7 +380,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, appointment-to-encounter conversion, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -431,19 +431,24 @@
           "label": "Appointment to encounter conversion readiness",
           "detail": "Modernized Calendar appointment detail can create an encounter from a selected appointment while preserving patient, provider, facility, billing facility, date/time, comments, and source appointment linkage; Slice 522 adds cleanup-backed shared parity coverage for both targets.",
           "evidence": ["slice-522-appointment-encounter-conversion-readiness"]
+        },
+        {
+          "label": "Appointment to billing conversion readiness",
+          "detail": "Modernized Calendar appointment detail can create a starter CPT fee-sheet charge on the converted appointment encounter, expose the active charge count, and prevent duplicate starter charges; Slice 523 adds cleanup-backed shared parity coverage for both targets.",
+          "evidence": ["slice-523-appointment-billing-conversion-readiness"]
         }
       ],
       "outstanding": [
         "Stricter provider and facility availability validation, resource conflict enforcement beyond tolerance/readiness reporting, and waitlist flows.",
-        "Reminder delivery, delivery audit, templates, and appointment-to-billing conversion."
+        "Reminder delivery, delivery audit, and templates."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 85,
+      "completionEstimatePercent": 86,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, appointment-to-encounter conversion, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, appointment-to-billing conversion, and delivery/audit remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, delivery/audit, and templates remain."
     },
     {
       "id": "encounters-clinical-notes",
@@ -620,12 +625,17 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, payment-posting, patient-payment, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
           "detail": "Read-only fee-sheet billing plus CPT creation, diagnosis coding, correction, and modifier workflows are covered.",
           "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness"]
+        },
+        {
+          "label": "Appointment starter charge handoff",
+          "detail": "Converted appointments can create a starter CPT charge on their linked encounter from Calendar while preserving fee-sheet linkage and cleanup-backed parity evidence.",
+          "evidence": ["slice-523-appointment-billing-conversion-readiness"]
         },
         {
           "label": "Claims, payments, ledger, and balances",
@@ -660,10 +670,10 @@
       "deferred": [
         "Production clearinghouse, payer, and payment-provider integrations."
       ],
-      "completionEstimatePercent": 54,
+      "completionEstimatePercent": 55,
       "estimatedScopeWeight": 13,
       "scopeWeightRationale": "Revenue-cycle behavior has a large state space across fees, claims, payments, statements, collections, exceptions, and integrations.",
-      "estimateRationale": "Fee-sheet, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
+      "estimateRationale": "Fee-sheet, appointment starter charge handoff, claims status, payments, statements, batches, collections basics, protected billing access, ACL-backed Billing authorization, and mutation-specific Billing write enforcement are covered; full revenue-cycle processing remains large."
     },
     {
       "id": "documents-attachments",

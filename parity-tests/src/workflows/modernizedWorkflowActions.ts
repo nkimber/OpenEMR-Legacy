@@ -2627,13 +2627,23 @@ SELECT id, pid AS "patientId", provider_id AS "providerId", title,
   recurrence_end_date AS "recurrenceEndDate",
   COALESCE(recurrence_exdates, '') AS "recurrenceExdates",
   ce.encounter AS "convertedEncounterId",
-  ce.encounter_date AS "convertedEncounterDate"
+  ce.encounter_date AS "convertedEncounterDate",
+  COALESCE(ce.converted_billing_line_count, 0) AS "convertedBillingLineCount"
 FROM appointments a
 LEFT JOIN LATERAL (
-  SELECT encounter, encounter_date
-  FROM encounters
-  WHERE source_appointment_id = a.id
-  ORDER BY encounter DESC
+  SELECT
+    e.encounter,
+    e.encounter_date,
+    (
+      SELECT count(*)
+      FROM billing b
+      WHERE b.pid = e.pid
+        AND b.encounter = e.encounter
+        AND b.activity = 1
+    )::int AS converted_billing_line_count
+  FROM encounters e
+  WHERE e.source_appointment_id = a.id
+  ORDER BY e.encounter DESC
   LIMIT 1
 ) ce ON true
 WHERE a.id = ${sqlString(String(id))}
@@ -2669,7 +2679,8 @@ LIMIT 1;
       recurrenceEndDate: row.recurrenceEndDate,
       recurrenceExdates: splitDateList(row.recurrenceExdates),
       convertedEncounterId: nullableNumber(row.convertedEncounterId),
-      convertedEncounterDate: row.convertedEncounterDate || null
+      convertedEncounterDate: row.convertedEncounterDate || null,
+      convertedBillingLineCount: Number(row.convertedBillingLineCount)
     };
   }
 

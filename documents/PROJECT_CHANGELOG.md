@@ -25749,6 +25749,42 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 570. Slice 523 Appointment-To-Billing Conversion Readiness
+
+Started: 2026-06-26T11:30:59.7619825-04:00
+Finished: 2026-06-26T11:35:57.2980539-04:00
+Commit: pending
+
+Implemented Slice 523: appointment-to-billing conversion readiness. The modernized Calendar now exposes a `Create charge` action after an appointment has been converted to an encounter, creates a starter `CPT4 99213` fee-sheet line on the converted encounter through the existing billing API, refreshes the appointment detail with the active converted-charge count, and prevents duplicate starter charges by changing the action to `Charge created`. The shared parity suite creates a cleanup-backed temporary appointment, verifies the converted encounter and starter charge on both targets, confirms the modernized Calendar displays the converted-charge state, and deletes the temporary billing line before deleting the encounter and appointment.
+
+Changes:
+- Added converted appointment billing-line count projection to the modernized appointment API and Calendar appointment read model.
+- Added the Calendar `Create charge` action, billing read-model refresh, and duplicate starter-charge guard for converted appointments.
+- Added the `workflow-appointment-billing-conversion` suite and `slice-523-appointment-billing-conversion-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 523 appointment-to-billing conversion plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count appointment-to-billing starter charge handoff as completed scheduling and billing scope.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 523 conversion contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Parsed `scripts\Run-OpenEmrParityTests.ps1` as a PowerShell scriptblock.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`.
+- Ran legacy parity with `scripts\Run-OpenEmrParityTests.ps1 -Target legacy-openemr -Plan slice-523-appointment-billing-conversion-readiness -Reset test`; run `2026-06-26T153418-076Z-legacy-openemr-plan-slice-523-appointment-billing-conversion-readiness` passed.
+- Ran modernized parity with `scripts\Run-OpenEmrParityTests.ps1 -Target modernized-openemr -Plan slice-523-appointment-billing-conversion-readiness -Reset test`; run `2026-06-26T153500-367Z-modernized-openemr-plan-slice-523-appointment-billing-conversion-readiness` passed.
+- Ran parity comparison for `slice-523-appointment-billing-conversion-readiness`; comparison `2026-06-26T153536-143Z-legacy-openemr-vs-modernized-openemr-plan-slice-523-appointment-billing-conversion-readiness` matched.
+- Audited probe attachments: both targets captured Slice 523 precondition, result, and cleanup database probes.
+
+Code changes:
+- Files changed: 17
+- Lines added: 240
+- Lines deleted: 30
+- Net lines: +210
+- Total churn: 270
+
 ## 569. Slice 522 Appointment-To-Encounter Conversion Readiness
 
 Commit: `fb32bff5`
