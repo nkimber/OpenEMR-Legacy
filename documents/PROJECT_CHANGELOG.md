@@ -24610,7 +24610,7 @@ Code changes:
 
 Started: 2026-06-26T02:49:12.1540946-04:00
 Finished: 2026-06-26T02:52:59.8421607-04:00
-Commit: Pending
+Commit: `73273156`
 
 Implemented Slice 481: Slice 227 patient portal generated medical-report issue-selection probe payload attachments. The patient portal generated medical-report issue-selection readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, selected issue/report projection facts, legacy issue-checkbox generated-report rendering, and modernized Portal issue-selection rendering so Workbench comparison drill-ins can preview the selected clinical issue evidence behind generated-report parity.
 
