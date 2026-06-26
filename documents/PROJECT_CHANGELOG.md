@@ -24644,7 +24644,7 @@ Code changes:
 
 Started: 2026-06-26T02:56:26.3817209-04:00
 Finished: 2026-06-26T03:00:03.0588123-04:00
-Commit: Pending
+Commit: `c92a895c`
 
 Implemented Slice 482: Slice 228 patient portal generated medical-report encounter-form probe payload attachments. The patient portal generated medical-report encounter-form selection readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, selected encounter-form/report projection facts, legacy encounter/form checkbox generated-report rendering, and modernized Portal encounter-form selection rendering so Workbench comparison drill-ins can preview the selected encounter form evidence behind generated-report parity.
 
