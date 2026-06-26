@@ -238,6 +238,7 @@
         "parityClaimServerSideClearingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-560-claim-server-side-clearing-readiness", "-Reset", "test"],
         "parityClaimServerSideAdjudicationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-561-claim-server-side-adjudication-readiness", "-Reset", "test"],
         "parityEobBatchServerSideImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-562-eob-batch-server-side-import-readiness", "-Reset", "test"],
+        "parityChargeTemplateServerSideCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-563-charge-template-server-side-catalog-readiness", "-Reset", "test"],
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
@@ -2281,6 +2282,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-562-eob-batch-server-side-import-readiness.json"
         },
         {
+          "id": "parity-plan-charge-template-server-side-catalog",
+          "name": "Slice 563 charge template server-side catalog plan",
+          "description": "Runs the shared server-side charge-template catalog readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityChargeTemplateServerSideCatalogPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-563-charge-template-server-side-catalog-readiness.json"
+        },
+        {
           "id": "parity-plan-claim-missing-diagnosis-code",
           "name": "Slice 540 claim missing diagnosis code plan",
           "description": "Runs the shared missing-diagnosis-code claim scrubbing readiness plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -3071,6 +3080,7 @@
         "parityClaimServerSideClearingPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-560-claim-server-side-clearing-readiness", "-Reset", "test"],
         "parityClaimServerSideAdjudicationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-561-claim-server-side-adjudication-readiness", "-Reset", "test"],
         "parityEobBatchServerSideImportPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-562-eob-batch-server-side-import-readiness", "-Reset", "test"],
+        "parityChargeTemplateServerSideCatalogPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-563-charge-template-server-side-catalog-readiness", "-Reset", "test"],
         "parityClaimMissingDiagnosisCodePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-540-claim-missing-diagnosis-code-readiness", "-Reset", "test"],
         "parityClaimMultiDiagnosisPointerPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-541-claim-multi-diagnosis-pointer-readiness", "-Reset", "test"],
         "parityClaimDiagnosisPointerCountPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-542-claim-diagnosis-pointer-count-readiness", "-Reset", "test"],
@@ -5038,6 +5048,14 @@
           "layer": "plan",
           "commandName": "parityEobBatchServerSideImportPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-562-eob-batch-server-side-import-readiness.json"
+        },
+        {
+          "id": "parity-plan-charge-template-server-side-catalog",
+          "name": "Slice 563 charge template server-side catalog plan",
+          "description": "Runs the shared server-side charge-template catalog readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityChargeTemplateServerSideCatalogPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-563-charge-template-server-side-catalog-readiness.json"
         },
         {
           "id": "parity-plan-claim-missing-diagnosis-code",

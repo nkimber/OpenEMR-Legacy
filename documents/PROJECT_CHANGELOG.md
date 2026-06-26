@@ -27307,6 +27307,36 @@ Verification:
 Code Metrics:
 - 14 scoped files changed, with 301 insertions and 54 deletions, net +247 lines and 355 total churn, including the backend EOB batch import operation, React import handoff, and managed server-side EOB import parity plan.
 
+## 612. Slice 563 Charge Template Server-Side Catalog Readiness
+
+Started: 2026-06-26T19:05:40.0157150-04:00
+Finished: 2026-06-26T19:10:58.0132085-04:00
+Commit: `TBD`
+
+Implemented Slice 563: focused server-side charge-template catalog readiness. The modernized Fees `Office visit`, `Preventive visit`, `Telehealth follow-up`, and `Complex follow-up` template buttons no longer read CPT, modifier, fee, units, and justification payloads from a React-owned catalog; they call the new `GET /api/billing/charge-templates/{templateId}` backend operation, which returns the deterministic template payload before the existing Save CPT workflow persists the generated fee-sheet row. The shared parity plan applies and saves Office visit and Complex follow-up templates against the seeded billing encounter, verifies payloads, rendering, count movement, and cleanup on both targets.
+
+Changes:
+- Added the modernized backend charge-template catalog response contract, repository lookup, and billing API endpoint.
+- Changed the modernized Fees template buttons so they call the backend billing catalog before populating the CPT form.
+- Added the `slice-563-charge-template-server-side-catalog-readiness` plan over the existing Office visit and Complex follow-up charge-template workflow suites.
+- Added Workbench managed actions and plan cards for running the Slice 563 server-side charge-template catalog plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count the focused charge-template catalog as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 563 server-side charge-template catalog contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 563 legacy parity plan: `2026-06-26T230926-643Z-legacy-openemr-plan-slice-563-charge-template-server-side-catalog-readiness` passed 2/2 tests.
+- Ran the Slice 563 modernized parity plan: `2026-06-26T230926-649Z-modernized-openemr-plan-slice-563-charge-template-server-side-catalog-readiness` passed 2/2 tests.
+- Compared the latest successful Slice 563 runs: `2026-06-26T231020-788Z-legacy-openemr-vs-modernized-openemr-plan-slice-563-charge-template-server-side-catalog-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 563 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 14 scoped files changed, with 201 insertions and 38 deletions, net +163 lines and 239 total churn, including the backend charge-template catalog lookup, React template handoff, and managed server-side charge-template parity plan.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

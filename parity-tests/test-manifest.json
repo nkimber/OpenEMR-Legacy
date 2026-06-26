@@ -2067,6 +2067,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-563-charge-template-server-side-catalog-readiness",
+      "name": "Slice 563 Charge Template Server-Side Catalog Readiness",
+      "description": "Mutation-capable fee-sheet validation plan that applies Office visit and Complex follow-up charge templates from the modernized backend catalog, saves the generated CPT rows, verifies template payloads and cleanup across both targets.",
+      "suites": ["workflow-billing-charge-template", "workflow-billing-charge-template-catalog"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-563", "billing", "fee-sheet", "charge-template", "server-side-business-logic", "ui-orchestration", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",

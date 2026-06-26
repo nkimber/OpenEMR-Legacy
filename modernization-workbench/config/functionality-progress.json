@@ -625,12 +625,12 @@
       "id": "billing-revenue-cycle",
       "name": "Billing, AR, Statements, And Collections",
       "status": "in-progress",
-      "summary": "Fee sheet, expanded charge-template catalog readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, server-side focused claim scrubbing with modifier, modifier-combination, coding, and service-date validation, server-side focused claim resubmission, server-side 837P claim generation, server-side claim denial, server-side claim clearing, server-side focused claim adjudication, server-side starter EOB batch import, payment-posting, patient-payment, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
+      "summary": "Fee sheet, server-side charge-template catalog readiness, appointment starter charge handoff, diagnosis/modifier/correction, claim-status, server-side focused claim scrubbing with modifier, modifier-combination, coding, and service-date validation, server-side focused claim resubmission, server-side 837P claim generation, server-side claim denial, server-side claim clearing, server-side focused claim adjudication, server-side starter EOB batch import, payment-posting, patient-payment, patient refund reversal, insurance payment reversal, adjustment reversal, receipt export, account rollups, statements, batches, collections basics, protected billing access, ACL-authorized Billing access, and Billing write mutation policy are represented; full revenue-cycle processing remains a large tail.",
       "completed": [
         {
           "label": "Fee sheet and billing mutations",
-          "detail": "Read-only fee-sheet billing plus CPT creation, office-visit and complex follow-up charge-template application, diagnosis coding, correction, and modifier workflows are covered.",
-          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness", "slice-535-billing-charge-template-catalog-readiness"]
+          "detail": "Read-only fee-sheet billing plus CPT creation, server-side office-visit and complex follow-up charge-template lookup/application, diagnosis coding, correction, and modifier workflows are covered.",
+          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness", "slice-535-billing-charge-template-catalog-readiness", "slice-563-charge-template-server-side-catalog-readiness"]
         },
         {
           "label": "Appointment starter charge handoff",

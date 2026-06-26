@@ -765,3 +765,9 @@ The Progress page also records focused claim adjudication as server-side billing
 The Workbench now exposes managed Slice 562 EOB batch server-side import plan actions for both the legacy and modernized targets. These actions run `slice-562-eob-batch-server-side-import-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Import EOB` action calls the backend billing operation, creates the deterministic two-line Northstar HMO remittance batch, refreshes the rendered payment/ledger/balance state, and cleans up the temporary EOB payments side by side.
 
 The Progress page also records starter EOB batch import as server-side billing business logic while keeping payer-specific ERA parsing, remittance reconciliation, statement delivery, and production AR behavior outstanding.
+
+## Slice 563 Workbench Update
+
+The Workbench now exposes managed Slice 563 charge-template server-side catalog plan actions for both the legacy and modernized targets. These actions run `slice-563-charge-template-server-side-catalog-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Office visit` and `Complex follow-up` template buttons call the backend billing catalog, populate the expected CPT/modifier/fee/units/justification fields, save the generated fee-sheet rows, and clean up the temporary billing lines side by side.
+
+The Progress page also records the focused charge-template catalog as server-side billing business logic while keeping payer-specific fee schedules, richer coding search, clearinghouse edits, and production revenue-cycle behavior outstanding.
