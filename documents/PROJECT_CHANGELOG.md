@@ -24993,7 +24993,7 @@ Code changes:
 
 Started: 2026-06-26T04:14:22.5779519-04:00
 Finished: 2026-06-26T04:16:54.8412012-04:00
-Commit: Pending
+Commit: 8562b370
 
 Implemented Slice 492: Slice 238 patient portal secure-message recipient-directory probe payload attachments. The recipient-directory readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, normalized recipient-directory routing evidence, legacy compose selector evidence, and modernized recipient selector rendering so Workbench comparison drill-ins can preview secure-message route selection evidence.
 
