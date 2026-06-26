@@ -1,7 +1,9 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
+import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText } from "../../src/ui/legacyOpenEmr.js";
 import { openAuthenticatedModernizedPatientPortal } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
+import type { PatientPortalMessageItem, PatientPortalMessagesResult } from "../../src/workflows/legacyWorkflowActions.js";
 import type { Page } from "@playwright/test";
 
 const portalMessageAnchorPatientId = "MOD-PAT-0004";
@@ -11,7 +13,7 @@ const htmlBody =
   '<p>Slice 240 <strong>bold portal guidance</strong> before <a href="https://example.test">external link text</a><img src=x alt="blocked image"> after image.</p>';
 
 test.describe("patient portal secure-message HTML body rendering parity @slice240 @workflow-patient-portal-message-html @patients @portal @messages", () => {
-  test("preserves raw secure-message HTML bodies at the workflow boundary", async ({ targetDb, workflow }) => {
+  test("preserves raw secure-message HTML bodies at the workflow boundary", async ({ target, targetDb, workflow }, testInfo) => {
     test.setTimeout(120_000);
 
     const patient = await targetDb.findPatientByCanonicalId(portalMessageAnchorPatientId);
@@ -19,6 +21,29 @@ test.describe("patient portal secure-message HTML body rendering parity @slice24
 
     const title = "Slice 240 secure message HTML body API";
     await workflow.cleanupPatientPortalComposedMessage(portalLoginUsername, title);
+    await attachDatabaseProbeEvidence(testInfo, {
+      target: target.id,
+      probe: "slice-240-patient-portal-message-html-precondition",
+      description: "Captures the Slice 240 HTML-body precondition: the signed-in portal anchor patient exists before a cleanup-backed HTML secure message is created.",
+      expected: {
+        canonicalId: portalMessageAnchorPatientId,
+        portalUsername: portalLoginUsername,
+        title,
+        htmlFacts: ["strong", "a href", "img", "blocked image"]
+      },
+      actual: {
+        canonicalId: portalMessageAnchorPatientId,
+        pid: patient!.pid,
+        pubpid: patient!.pubpid,
+        displayName: "Kim, Nora",
+        portalUsername: portalLoginUsername
+      },
+      context: {
+        suite: "workflow-patient-portal-message-html",
+        workflow: "patient-portal-message-html-precondition"
+      }
+    });
+    let cleanupAttached = false;
 
     try {
       const created = await workflow.createPatientPortalInboxMessage(portalLoginUsername, portalPassword, {
@@ -49,19 +74,60 @@ test.describe("patient portal secure-message HTML body rendering parity @slice24
         recipientId: portalLoginUsername,
         isEncrypted: false
       });
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-240-patient-portal-message-html-raw-body",
+        description: "Captures the Slice 240 raw-body workflow result: the temporary secure-message row preserves HTML markup at the workflow/API boundary before UI sanitization.",
+        expected: {
+          title,
+          body: htmlBody,
+          status: "New",
+          senderId: "admin",
+          senderName: "Administrator",
+          recipientId: portalLoginUsername,
+          isEncrypted: false,
+          rawHtmlPreserved: true
+        },
+        actual: {
+          created: summarizePortalMessage(created),
+          rawMessage: rawMessage ? summarizePortalMessage(rawMessage) : null,
+          bodyFacts: summarizeHtmlBody(rawMessage?.body ?? "")
+        },
+        context: {
+          suite: "workflow-patient-portal-message-html",
+          workflow: "patient-portal-message-html-raw-body"
+        }
+      });
     } finally {
       await workflow.cleanupPatientPortalComposedMessage(portalLoginUsername, title);
+      const cleanup = await workflow.getPatientPortalMessages(portalLoginUsername, portalPassword);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.id,
+        probe: "slice-240-patient-portal-message-html-cleanup",
+        description: "Captures the Slice 240 cleanup state after removing the temporary raw-HTML secure-message row.",
+        expected: {
+          titleAbsentFromInbox: title,
+          titleAbsentFromAll: title
+        },
+        actual: summarizeMailbox(cleanup, title),
+        context: {
+          suite: "workflow-patient-portal-message-html",
+          workflow: "patient-portal-message-html-cleanup"
+        }
+      });
+      cleanupAttached = true;
     }
+    expect(cleanupAttached).toBe(true);
   });
 
-  test("renders formatted secure-message bodies without links or images", async ({ page, target, workflow }) => {
+  test("renders formatted secure-message bodies without links or images", async ({ page, target, workflow }, testInfo) => {
     test.setTimeout(240_000);
 
     const title = "Slice 240 secure message HTML body UI";
     await workflow.cleanupPatientPortalComposedMessage(portalLoginUsername, title);
 
     try {
-      await workflow.createPatientPortalInboxMessage(portalLoginUsername, portalPassword, {
+      const created = await workflow.createPatientPortalInboxMessage(portalLoginUsername, portalPassword, {
         title,
         body: htmlBody,
         senderId: "admin",
@@ -69,7 +135,26 @@ test.describe("patient portal secure-message HTML body rendering parity @slice24
       });
 
       if (target.type === "legacy-openemr") {
-        await expectLegacySanitizedMessageBody(page, target, title);
+        const legacyUi = await expectLegacySanitizedMessageBody(page, target, title);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-240-patient-portal-message-html-legacy-ui",
+          description: "Captures the legacy patient portal secure-message detail rendering for sanitized HTML body content.",
+          expected: {
+            visibleFacts: ["bold portal guidance", "external link text", "after image."],
+            allowedMarkup: ["strong"],
+            strippedMarkup: ["a", "img"],
+            hiddenText: ["blocked image"]
+          },
+          actual: {
+            created: summarizePortalMessage(created),
+            legacyUi
+          },
+          context: {
+            suite: "workflow-patient-portal-message-html",
+            workflow: "patient-portal-message-html-legacy-ui"
+          }
+        });
       } else {
         await openAuthenticatedModernizedPatientPortal(page, target, portalLoginUsername, portalPassword);
         const card = page.locator("article.message-item").filter({ hasText: title }).first();
@@ -84,6 +169,26 @@ test.describe("patient portal secure-message HTML body rendering parity @slice24
         await expect(card).not.toContainText("<strong>");
         await expect(card).not.toContainText("<a href");
         await expect(card).not.toContainText("blocked image");
+        const modernizedUi = await captureModernizedSanitizedMessageBody(page, title);
+        await attachDatabaseProbeEvidence(testInfo, {
+          target: target.id,
+          probe: "slice-240-patient-portal-message-html-modernized-ui",
+          description: "Captures the modernized Portal secure-message card rendering for sanitized HTML body content.",
+          expected: {
+            visibleFacts: ["bold portal guidance", "external link text", "after image."],
+            allowedMarkup: ["strong"],
+            strippedMarkup: ["a", "img"],
+            hiddenText: ["blocked image"]
+          },
+          actual: {
+            created: summarizePortalMessage(created),
+            modernizedUi
+          },
+          context: {
+            suite: "workflow-patient-portal-message-html",
+            workflow: "patient-portal-message-html-modernized-ui"
+          }
+        });
       }
     } finally {
       await workflow.cleanupPatientPortalComposedMessage(portalLoginUsername, title);
@@ -119,4 +224,84 @@ async function expectLegacySanitizedMessageBody(page: Page, target: RuntimeTarge
   expect(renderedHtml).not.toContain("<a");
   expect(renderedHtml).not.toContain("<img");
   expect(renderedHtml).not.toContain("blocked image");
+  return {
+    pageTitle: await page.title(),
+    urlPath: new URL(page.url()).pathname,
+    bodyText: normalizeText(await detail.textContent()),
+    renderedHtml,
+    bodyFacts: summarizeHtmlBody(renderedHtml),
+    containsSecureMessaging: await page.locator("body").evaluate((bodyElement) =>
+      bodyElement.textContent?.includes("Secure Messaging") ?? false
+    )
+  };
+}
+
+async function captureModernizedSanitizedMessageBody(page: Page, title: string) {
+  const card = page.locator("article.message-item").filter({ hasText: title }).first();
+  const body = card.locator(".secure-message-body").first();
+  const renderedHtml = await body.evaluate((element) => element.innerHTML);
+  return {
+    pageTitle: await page.title(),
+    urlPath: new URL(page.url()).pathname,
+    cardText: normalizeText(await card.textContent()),
+    renderedHtml,
+    bodyFacts: summarizeHtmlBody(renderedHtml),
+    containsSecureMessages: await page.locator("body").evaluate((bodyElement) =>
+      bodyElement.textContent?.includes("Secure Messages") ?? false
+    )
+  };
+}
+
+function summarizePortalMessage(message: PatientPortalMessageItem) {
+  return {
+    id: message.id,
+    type: message.type,
+    date: message.date,
+    title: message.title,
+    body: message.body,
+    status: message.status,
+    assignedTo: message.assignedTo,
+    senderId: message.senderId,
+    senderName: message.senderName,
+    recipientId: message.recipientId,
+    recipientName: message.recipientName,
+    mailChain: message.mailChain,
+    replyMailChain: message.replyMailChain,
+    portalRelation: message.portalRelation,
+    isEncrypted: message.isEncrypted,
+    bodyFacts: summarizeHtmlBody(message.body)
+  };
+}
+
+function summarizeMailbox(mailbox: PatientPortalMessagesResult, title: string) {
+  return {
+    authenticated: mailbox.authenticated,
+    portalUsername: mailbox.portalUsername,
+    canonicalId: mailbox.canonicalId,
+    pid: mailbox.pid,
+    messageCount: mailbox.messageCount,
+    allMessageCount: mailbox.allMessageCount,
+    deletedMessageCount: mailbox.deletedMessageCount,
+    titlePresentInInbox: mailbox.messages.some((message) => message.title === title),
+    titlePresentInAll: mailbox.allMessages.some((message) => message.title === title),
+    failureReason: mailbox.failureReason,
+    sessionSource: mailbox.sessionSource
+  };
+}
+
+function summarizeHtmlBody(value: string) {
+  return {
+    length: value.length,
+    containsStrong: value.includes("<strong>") || value.includes("<strong "),
+    containsAnchor: value.includes("<a") || value.includes("&lt;a"),
+    containsImage: value.includes("<img") || value.includes("&lt;img"),
+    containsBlockedImageAlt: value.includes("blocked image"),
+    containsExternalLinkText: value.includes("external link text"),
+    containsAfterImageText: value.includes("after image."),
+    containsLiteralStrongText: value.includes("<strong>")
+  };
+}
+
+function normalizeText(value: string | null) {
+  return (value ?? "").replace(/\s+/g, " ").trim();
 }
