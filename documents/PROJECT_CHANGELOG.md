@@ -26297,7 +26297,7 @@ Code changes:
 
 Started: 2026-06-26T09:00:33.1013896-04:00
 Finished: 2026-06-26T09:05:31.3909539-04:00
-Commit: pending
+Commit: b853f9b0
 
 Implemented the Workbench-managed Azure demo deployment surface for publishing the legacy OpenEMR baseline, the modernized OpenEMR target, or both to public Azure Container Apps URLs. The implementation keeps the demo intentionally simple: each selected target runs as a public Container App, each target keeps its database beside the app in the same Container App, credentials and results stay in ignored local Workbench artifacts, and the path is documented as disposable synthetic-data demo hosting only.
 
