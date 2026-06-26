@@ -25127,7 +25127,7 @@ Code changes:
 
 Started: 2026-06-26T04:39:10.0000000-04:00
 Finished: 2026-06-26T04:45:46.5077617-04:00
-Commit: Pending
+Commit: 9c3e3b81
 
 Implemented Slice 496: Slice 242 patient portal secure-message mark-all-read probe payload attachments. The mark-all-read readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, browser-only visible status transitions, persisted unread mailbox state after refresh, cleanup state, legacy toolbar rendering, and modernized Portal rendering so Workbench comparison drill-ins can preview the toolbar status-transition evidence.
 
