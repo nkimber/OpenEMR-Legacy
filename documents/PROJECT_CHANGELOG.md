@@ -25227,7 +25227,7 @@ Code changes:
 
 Started: 2026-06-26T04:57:00.0000000-04:00
 Finished: 2026-06-26T05:04:02.6569865-04:00
-Commit: Pending
+Commit: 1878ee34
 
 Implemented Slice 499: Slice 245 patient portal prescription end-date filtering probe payload attachments. The prescription end-date filtering readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, temporary ended-prescription lifecycle facts, active-prescription filtering, cleanup state, legacy portal End Date table rendering, and modernized Portal prescription-card rendering so Workbench comparison drill-ins can preview the clinical date-column evidence behind active-prescription parity.
 
