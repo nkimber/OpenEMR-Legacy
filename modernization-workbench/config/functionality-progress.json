@@ -235,8 +235,8 @@
         },
         {
           "label": "Patient portal clinical summary readiness",
-          "detail": "The modernized patient portal API and Portal page now render signed-in patient problems, allergies, medication-list entries, and active prescriptions, while parity compares the same portal clinical summary facts against legacy OpenEMR.",
-          "evidence": ["slice-222-patient-portal-clinical-summary-readiness"]
+          "detail": "The modernized patient portal API and Portal page now render signed-in patient problems, allergies, medication-list entries, and active prescriptions, while parity compares the same portal clinical summary facts against legacy OpenEMR, and Slice 476 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-476-slice222-patient-portal-clinical-summary-probe-payload-attachments"]
         },
         {
           "label": "Patient portal prescription modified-date readiness",
