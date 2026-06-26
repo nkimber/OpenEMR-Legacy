@@ -23307,6 +23307,41 @@ Code changes:
 - Net lines: 564
 - Total churn: 604
 
+## 490. Slice 443 Slice 189 Appointment Mutation Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T22:32:47.1980602-04:00
+Finished: 2026-06-25T22:36:41.3431799-04:00
+Commit: Pending
+
+Implemented Slice 443: Slice 189 appointment mutation authorization-policy probe payload attachments. The appointment mutation authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted Appointment ACL preconditions, legacy appointment edit rendering facts, admin login facts, temporary clinician Appointment view-downgrade facts, clinician login and read facts, clinician create, update, status, recurrence-restore, occurrence-reschedule, and delete denial facts, write-grant restoration facts, and final appointment-count cleanup facts so Workbench comparison drill-ins can preview Appointment view-versus-write enforcement evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 189 ACL precondition payload attachments for seeded admin, Front Office, and Clinicians Appointment write access, selected patient/appointment anchors, baseline workflow counts, configured admin username, and secret-redaction proof.
+- Added legacy appointment edit rendered payload attachments proving the selected appointment title, patient display, and date render after admin login.
+- Added modernized admin login payload attachments with the session identifier redacted.
+- Added modernized temporary Clinicians Appointment view-downgrade payload attachments proving the grant exists only at view level during denial checks.
+- Added modernized clinician login and read payload attachments proving Appointment view users can search and open appointment details.
+- Added modernized clinician appointment create, update, status, recurrence-exception restore, occurrence reschedule, and delete forbidden payload attachments proving Appointment write gates are enforced.
+- Added modernized admin write-grant restoration payload attachments proving the permanent Clinicians Appointment write grant is restored after the run.
+- Added final cleanup payload attachments proving appointment counts return to the Slice 189 baseline.
+- Updated the Workbench functionality progress ledger so Slice 189 appointment mutation authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 443 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json`; confirmed exactly three Slice 443 evidence-key occurrences.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed for `slice-189-appointment-mutation-authorization-policy-readiness`: `2026-06-26T023429-564Z-legacy-openemr-plan-slice-189-appointment-mutation-authorization-policy-readiness`.
+- Modernized parity run passed for `slice-189-appointment-mutation-authorization-policy-readiness`: `2026-06-26T023453-003Z-modernized-openemr-plan-slice-189-appointment-mutation-authorization-policy-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T023625-180Z-legacy-openemr-vs-modernized-openemr-plan-slice-189-appointment-mutation-authorization-policy-readiness`.
+- Attachment audit confirmed legacy payloads for Slice 189 precondition and rendered edit evidence, plus modernized payloads for admin login, view downgrade, clinician login/read, create/update/status/restore/reschedule/delete denials, write-grant restore, cleanup, and precondition evidence.
+
+Code changes:
+- Lines added: 457
+- Lines deleted: 19
+- Net lines: +438
+- Total churn: 476
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23316,5 +23351,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, and 188.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, and 189.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
