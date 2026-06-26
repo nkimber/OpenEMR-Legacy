@@ -25463,7 +25463,7 @@ Code changes:
 
 Started: 2026-06-26T05:51:00.0000000-04:00
 Finished: 2026-06-26T05:58:30.1166407-04:00
-Commit: Pending
+Commit: a7819afe
 
 Implemented Slice 506: Slice 252 patient portal profile review queue probe payload attachments. The profile review queue readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, clean staff review queue state, waiting review request projections, cleanup state, legacy normalized review-queue workflow facts, and modernized Admin review-queue rendering so Workbench comparison drill-ins can preview the staff review evidence behind portal parity.
 
