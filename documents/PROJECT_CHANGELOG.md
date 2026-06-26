@@ -26567,7 +26567,7 @@ Code changes:
 
 Started: 2026-06-26T14:27:18.7399273-04:00
 Finished: 2026-06-26T14:36:21.9828060-04:00
-Commit: pending
+Commit: 980eba72
 
 Implemented Slice 539: focused claim modifier-count readiness. The modernized Fees claim `Scrub` action now writes deterministic `modifier-count-exceeded:<count>` issues into the local scrub report when a CPT line has more than four modifier tokens, including compact two-character modifier sequences. The shared parity suite creates a cleanup-backed ICD10 diagnosis line, a CPT line with five supported modifiers encoded as `2559767795`, and a temporary queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content without invalid- or duplicate-modifier misclassification, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
 
