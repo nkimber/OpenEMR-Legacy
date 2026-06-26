@@ -25496,7 +25496,7 @@ Code changes:
 
 Started: 2026-06-26T05:59:00.0000000-04:00
 Finished: 2026-06-26T06:04:43.5798078-04:00
-Commit: Pending
+Commit: 7a626770
 
 Implemented Slice 507: Slice 253 patient portal profile review accept probe payload attachments. The profile review accept readiness parity suite now writes path-backed JSON Playwright attachments for anchor-patient preconditions, original chart demographics, queued review request state, legacy staff accept action facts, modernized Admin Commit to Chart rendering, post-accept queue state, accepted chart demographics, and restoration cleanup so Workbench comparison drill-ins can preview staff acceptance evidence behind portal parity.
 
