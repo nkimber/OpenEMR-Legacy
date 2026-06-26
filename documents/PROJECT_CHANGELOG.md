@@ -22635,8 +22635,8 @@ Code changes:
 ## 471. Slice 424 Slice 170 Message Protection Probe Payload Attachments
 
 Started: 2026-06-25T20:12:02.9822297-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:14:40.6449528-04:00
+Commit: e5d45c3c
 
 Implemented Slice 424: Slice 170 message protection probe payload attachments. The message protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API message list/create blocking facts, authenticated legacy/API message visibility facts, and modernized Messages-page rendering facts so Workbench comparison drill-ins can preview message protection evidence without storing password, cookie, or session material.
 
@@ -22652,13 +22652,20 @@ Changes:
 - Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 424 evidence-payload contract.
 
 Verification:
-- Pending.
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-message-protection/message-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-170-message-protection-readiness` passed with run ID `2026-06-26T001327-678Z-legacy-openemr-plan-slice-170-message-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-170-message-protection-readiness` passed with run ID `2026-06-26T001348-932Z-modernized-openemr-plan-slice-170-message-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-170-message-protection-readiness` matched with comparison ID `2026-06-26T001406-649Z-legacy-openemr-vs-modernized-openemr-plan-slice-170-message-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-170-message-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-170-message-protection-precondition`, `unauthenticated-search`, `unauthenticated-create`, `authenticated-search`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 242
+- Lines deleted: 16
+- Net lines: 226
+- Total churn: 258
 
 ## Next Expected Entries
 
