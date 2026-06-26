@@ -220,8 +220,8 @@
         },
         {
           "label": "Patient portal appointment list readiness",
-          "detail": "The modernized patient portal API and Portal page now list signed-in patient upcoming and past appointment cards with provider, facility, status, and category details, while parity compares the same future/past portal appointment behavior against legacy OpenEMR.",
-          "evidence": ["slice-219-patient-portal-appointments-readiness"]
+          "detail": "The modernized patient portal API and Portal page now list signed-in patient upcoming and past appointment cards with provider, facility, status, and category details, while parity compares the same future/past portal appointment behavior against legacy OpenEMR, and Slice 473 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-219-patient-portal-appointments-readiness", "slice-473-slice219-patient-portal-appointments-probe-payload-attachments"]
         },
         {
           "label": "Patient portal appointment request readiness",
@@ -359,7 +359,7 @@
         },
         {
           "label": "Patient portal appointment list readiness",
-          "detail": "Signed-in portal patients can see the same future and past appointment card facts that legacy OpenEMR exposes from the portal home, with parity anchored to MOD-PAT-0004.",
+          "detail": "Signed-in portal patients can see the same future and past appointment card facts that legacy OpenEMR exposes from the portal home, with parity anchored to MOD-PAT-0004 and Slice 473 Workbench probe-payload preview coverage.",
           "evidence": ["slice-219-patient-portal-appointments-readiness"]
         },
         {
