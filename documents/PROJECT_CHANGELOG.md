@@ -23571,7 +23571,7 @@ Code changes:
 
 Started: 2026-06-25T23:29:34.6592368-04:00
 Finished: 2026-06-25T23:32:12.2508730-04:00
-Commit: Pending
+Commit: `7f8379dd`
 
 Implemented Slice 451: Slice 197 patient employer core probe payload attachments. The patient employer core readiness parity suite now writes path-backed JSON Playwright attachments for the anchor patient/original employer precondition, temporary employer identity/address update, legacy demographics/employer rendering, modernized patient chart API and Patient/Client Employer rendering, and restore cleanup so Workbench comparison drill-ins can preview the evidence behind employer parity.
 
