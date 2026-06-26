@@ -45,8 +45,8 @@
         },
         {
           "label": "Patient registration validation readiness",
-          "detail": "The modernized patient registration API now mirrors OpenEMR PatientValidator rules for required identity fields, DOB format, sex, last-name length, and email syntax, returns structured validation details, renders them in the Patient/Client form, and proves invalid drafts create no row.",
-          "evidence": ["slice-192-patient-registration-validation-readiness"]
+          "detail": "The modernized patient registration API now mirrors OpenEMR PatientValidator rules for required identity fields, DOB format, sex, last-name length, and email syntax, returns structured validation details, renders them in the Patient/Client form, and proves invalid drafts create no row; Slice 446 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-192-patient-registration-validation-readiness", "slice-446-slice192-patient-registration-validation-probe-payload-attachments"]
         },
         {
           "label": "Patient deceased status readiness",

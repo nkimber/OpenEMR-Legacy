@@ -23408,6 +23408,37 @@ Code changes:
 - Net lines: +256
 - Total churn: 426
 
+## 493. Slice 446 Slice 192 Patient Registration Validation Probe Payload Attachments
+
+Started: 2026-06-25T22:58:10.8452404-04:00
+Finished: 2026-06-25T23:01:15.5604174-04:00
+Commit: Pending
+
+Implemented Slice 446: Slice 192 patient registration validation probe payload attachments. The patient registration validation readiness parity suite now writes path-backed JSON Playwright attachments for the legacy PatientValidator/source-rule contract, the invalid registration draft, the structured modernized API validation problem, the modernized Patient/Client validation panel, and the database no-row guard so Workbench comparison drill-ins can preview the evidence behind OpenEMR-style registration validation.
+
+Changes:
+- Added Slice 192 legacy rule payload attachments for the OpenEMR `PatientValidator.php` and `interface/new/new.php` registration validation markers.
+- Added invalid modernized registration draft payload attachments covering the intentionally short last name, missing sex, invalid email, and expected no-row guard.
+- Added modernized API validation problem payload attachments proving the `400` response, problem title, and field-specific validation messages.
+- Added modernized Patient/Client validation-panel payload attachments and database row-count evidence proving invalid drafts do not create patient rows.
+- Updated the Workbench functionality progress ledger so Slice 192 patient registration validation payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 446 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Parsed `modernization-workbench/config/functionality-progress.json`; confirmed exactly one Slice 446 evidence-key occurrence.
+- Legacy parity run passed for `slice-192-patient-registration-validation-readiness`: `2026-06-26T030031-706Z-legacy-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- Modernized parity run passed for `slice-192-patient-registration-validation-readiness`: `2026-06-26T030046-084Z-modernized-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- Legacy-versus-modernized comparison matched with no differences: `2026-06-26T030102-501Z-legacy-openemr-vs-modernized-openemr-plan-slice-192-patient-registration-validation-readiness`.
+- Attachment audit confirmed the legacy Slice 192 validator/source-rule payload and the modernized invalid-registration, API validation problem, and validation-panel/no-row guard payloads.
+
+Code changes:
+- Lines added: 131
+- Lines deleted: 8
+- Net lines: +123
+- Total churn: 139
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -23417,5 +23448,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, and 191.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, and 192.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
