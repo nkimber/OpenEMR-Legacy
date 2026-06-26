@@ -23412,7 +23412,7 @@ Code changes:
 
 Started: 2026-06-25T22:58:10.8452404-04:00
 Finished: 2026-06-25T23:01:15.5604174-04:00
-Commit: Pending
+Commit: `ba3e7d71`
 
 Implemented Slice 446: Slice 192 patient registration validation probe payload attachments. The patient registration validation readiness parity suite now writes path-backed JSON Playwright attachments for the legacy PatientValidator/source-rule contract, the invalid registration draft, the structured modernized API validation problem, the modernized Patient/Client validation panel, and the database no-row guard so Workbench comparison drill-ins can preview the evidence behind OpenEMR-style registration validation.
 
