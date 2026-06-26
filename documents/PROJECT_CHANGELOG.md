@@ -22670,8 +22670,8 @@ Code changes:
 ## 472. Slice 425 Slice 171 Billing Protection Probe Payload Attachments
 
 Started: 2026-06-25T20:17:03.8503952-04:00
-Finished: Pending
-Commit: Pending
+Finished: 2026-06-25T20:19:56.9383323-04:00
+Commit: 7dbf62bd
 
 Implemented Slice 425: Slice 171 billing protection probe payload attachments. The billing protection readiness parity suite now writes path-backed JSON Playwright attachments for redacted protection preconditions, unauthenticated legacy/API billing summary/batch/create blocking facts, authenticated legacy/API fee-sheet visibility facts, and modernized Fees-page rendering facts so Workbench comparison drill-ins can preview billing protection evidence without storing password, cookie, or session material.
 
@@ -22688,13 +22688,20 @@ Changes:
 - Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 425 evidence-payload contract.
 
 Verification:
-- Pending.
+- `npm run typecheck` passed in `parity-tests/`.
+- `node -e "JSON.parse(require('fs').readFileSync('modernization-workbench/config/functionality-progress.json','utf8')); JSON.parse(require('fs').readFileSync('modernization-workbench/config/capability-rollups.json','utf8')); console.log('workbench progress json ok')"` passed.
+- `git diff --check -- documents/INDEX.md documents/MODERNIZATION_PLAN.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md documents/PROJECT_CONTEXT.md documents/TEST_ARCHITECTURE.md modernization-workbench/config/functionality-progress.json parity-tests/tests/workflow-billing-protection/billing-protection.spec.ts` passed with only existing CRLF normalization warnings.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- `npx tsx src/cli/run-tests.ts --target legacy-openemr --plan slice-171-billing-protection-readiness` passed with run ID `2026-06-26T001839-240Z-legacy-openemr-plan-slice-171-billing-protection-readiness`.
+- `npx tsx src/cli/run-tests.ts --target modernized-openemr --plan slice-171-billing-protection-readiness` passed with run ID `2026-06-26T001904-701Z-modernized-openemr-plan-slice-171-billing-protection-readiness`.
+- `npm run compare -- --left-target legacy-openemr --right-target modernized-openemr --plan slice-171-billing-protection-readiness` matched with comparison ID `2026-06-26T001926-481Z-legacy-openemr-vs-modernized-openemr-plan-slice-171-billing-protection-readiness` and no differences.
+- Attachment scan confirmed `db-probe-slice-171-billing-protection-precondition`, `unauthenticated`, and `authenticated` entries in the legacy Playwright JSON report, plus `db-probe-slice-171-billing-protection-precondition`, `unauthenticated-summary`, `unauthenticated-batch`, `unauthenticated-create`, `authenticated-summary`, and `rendered` entries in the modernized report.
 
 Code changes:
-- Lines added: Pending
-- Lines deleted: Pending
-- Net lines: Pending
-- Total churn: Pending
+- Lines added: 286
+- Lines deleted: 18
+- Net lines: 268
+- Total churn: 304
 
 ## Next Expected Entries
 
