@@ -23795,7 +23795,7 @@ Code changes:
 
 Started: 2026-06-26T00:09:13.7737475-04:00
 Finished: 2026-06-26T00:11:06.7653309-04:00
-Commit: Pending
+Commit: `98dd5dd8`
 
 Implemented Slice 458: Slice 204 patient portal account probe payload attachments. The patient portal account readiness parity suite now writes path-backed JSON Playwright attachments for the seeded CMS login and portal-account precondition, legacy demographics edit rendering, modernized patient chart API projection, and modernized Patient/Client Portal Account rendering so Workbench comparison drill-ins can preview the evidence behind portal-account parity.
 
