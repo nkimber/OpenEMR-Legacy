@@ -22880,6 +22880,42 @@ Code changes:
 - Net lines: 260
 - Total churn: 298
 
+## 478. Slice 431 Slice 177 Encounter Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T20:54:58.0540219-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 431: Slice 177 encounter authorization-policy probe payload attachments. The encounter authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy encounter rendering facts, modernized front-desk forbidden encounter search and mutation facts, admin encounter search and detail allow facts, and modernized Encounters-page retry rendering facts so Workbench comparison drill-ins can preview Authorize Any Encounter policy evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 177 ACL precondition payload attachments for seeded admin Authorize Any Encounter write permission, missing front-office Authorize Any Encounter permission, front-desk Front Office membership, encounter/clinical anchors, configured admin username, and secret-redaction proof.
+- Added legacy encounter rendered payload attachments proving the selected encounter topic, SOAP, Vitals, and Assessment markers render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk encounter search forbidden payload attachments proving Authorize Any Encounter access is required for encounter reads.
+- Added modernized front-desk encounter mutation forbidden payload attachments proving Authorize Any Encounter write access is required for encounter creation.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin encounter search allow payload attachments proving ACL-backed admin access returns the expected encounter, patient, vitals, and SOAP anchors.
+- Added modernized admin encounter detail allow payload attachments proving ACL-backed admin access returns expected clinical detail facts.
+- Added modernized Encounters-page rendered payload attachments proving the UI shows front-desk denial and then admin encounter detail success after retry.
+- Updated the Workbench functionality progress ledger so Slice 177 encounter authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 431 evidence-payload contract.
+
+Verification:
+- `npm run typecheck` passed in `parity-tests/`.
+- Parsed `modernization-workbench/config/functionality-progress.json` and `modernization-workbench/config/capability-rollups.json` successfully with Node.
+- `npm run typecheck` passed in `modernization-workbench/`.
+- Legacy parity run passed: `2026-06-26T005623-775Z-legacy-openemr-plan-slice-177-encounter-authorization-policy-readiness`.
+- Modernized parity run passed: `2026-06-26T005647-420Z-modernized-openemr-plan-slice-177-encounter-authorization-policy-readiness`.
+- Side-by-side comparison matched with no differences: `2026-06-26T005709-005Z-legacy-openemr-vs-modernized-openemr-plan-slice-177-encounter-authorization-policy-readiness`.
+- Attachment audit confirmed legacy `precondition` and `legacy-rendered` payloads plus modernized `precondition`, `frontdesk-login`, `frontdesk-search-forbidden`, `frontdesk-mutation-forbidden`, `admin-login`, `admin-search`, `admin-detail`, and `rendered` payloads.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22889,5 +22925,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, and 176.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, and 177.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
