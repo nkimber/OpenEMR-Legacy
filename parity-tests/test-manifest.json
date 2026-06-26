@@ -1779,6 +1779,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-530-claim-adjudication-readiness",
+      "name": "Slice 530 Claim Adjudication Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that creates, adjudicates, renders, and removes a temporary claim adjudication while verifying EOB payment metadata, balance effects, and cleanup.",
+      "suites": ["workflow-claim-adjudication"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-530", "billing", "claims", "adjudication", "payments", "eob", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3762,6 +3771,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-denials",
       "tags": ["slice529", "workflow", "mutation", "billing", "claims", "denials", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-adjudication",
+      "name": "Claim Adjudication",
+      "description": "Creates, adjudicates, renders, and removes a temporary claim adjudication while verifying EOB payment metadata, balance effects, and cleanup on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-adjudication",
+      "tags": ["slice530", "workflow", "mutation", "billing", "claims", "adjudication", "payments", "eob", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

@@ -567,3 +567,9 @@ The Progress page also records adjustment reversal as completed focused billing 
 The Workbench now exposes managed Slice 529 claim denial plan actions for both the legacy and modernized targets. These actions run `slice-529-claim-denial-readiness`, write the standard latest-run artifacts, and let the comparison view show whether queued claim denial status, X12 denial response metadata, submitted-claim payloads, and cleanup remain aligned side by side.
 
 The Progress page also records claim denial as completed focused billing scope while keeping deeper claim generation, payer adjudication, ERA/EOB import, remittance workflows, statement delivery, and production AR behavior outstanding.
+
+## Slice 530 Workbench Update
+
+The Workbench now exposes managed Slice 530 claim adjudication plan actions for both the legacy and modernized targets. These actions run `slice-530-claim-adjudication-readiness`, write the standard latest-run artifacts, and let the comparison view show whether generated claims, EOB payment/adjustment metadata, payer-claim numbers, balance effects, ledger entries, and cleanup remain aligned side by side.
+
+The Progress page also records focused claim adjudication as completed billing scope while keeping deeper claim generation, ERA/EOB import, remittance workflows, statement delivery, and production AR behavior outstanding.

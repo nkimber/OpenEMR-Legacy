@@ -25876,6 +25876,36 @@ Verification:
 Code changes:
 - 12 files changed, 339 insertions, 8 deletions.
 
+## 577. Slice 530 Claim Adjudication Readiness
+
+Started: 2026-06-26T12:57:08.7767270-04:00
+Finished: 2026-06-26T13:00:30.5928290-04:00
+Commit: pending
+
+Implemented Slice 530: claim adjudication readiness. The modernized Fees claim card now includes an `Adjudicate` action that posts a linked insurer EOB payment plus contractual adjustment, records payer-claim and reason-code metadata, and updates the claim to a cleared X12 835 state. The shared parity suite creates a cleanup-backed generated Northstar HMO claim on both targets, adjudicates it, verifies payment/adjustment balance movement, ledger rows, payer metadata, modernized UI rendering, and then removes the temporary payment and claim so starting counts are restored.
+
+Changes:
+- Added a modernized Fees claim-card `Adjudicate` action that creates an insurer payment posting and marks the claim cleared with X12 835 metadata.
+- Added the `workflow-claim-adjudication` suite and `slice-530-claim-adjudication-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 530 claim adjudication plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused claim adjudication as completed billing scope while leaving broader claim generation, ERA/EOB import, remittance, statement delivery, and production AR workflows outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 530 adjudication contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 530 legacy parity plan: `2026-06-26T165922-219Z-legacy-openemr-plan-slice-530-claim-adjudication-readiness` passed 1/1 tests.
+- Ran the Slice 530 modernized parity plan: `2026-06-26T165945-408Z-modernized-openemr-plan-slice-530-claim-adjudication-readiness` passed 1/1 tests.
+- Compared the two Slice 530 runs: `2026-06-26T170008-062Z-legacy-openemr-vs-modernized-openemr-plan-slice-530-claim-adjudication-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 530 file set.
+
+Code changes:
+- 12 files changed, 507 insertions, 9 deletions.
+
 ## 572. Slice 525 Patient Payment Receipt Readiness
 
 Started: 2026-06-26T11:48:05.0000000-04:00
