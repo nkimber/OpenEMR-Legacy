@@ -26625,6 +26625,38 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 481 insertions and 6 deletions including the new claim missing-diagnosis-code parity suite.
 
+## 588. Slice 541 Claim Multi-Diagnosis Pointer Readiness
+
+Started: 2026-06-26T14:51:52.6811875-04:00
+Finished: 2026-06-26T15:02:49.5137915-04:00
+Commit: pending
+
+Implemented Slice 541: focused claim multi-diagnosis-pointer readiness. The modernized Fees claim `Scrub` action now tokenizes comma/space-separated CPT diagnosis pointers before validating them against active ICD10 diagnosis rows on the same encounter. The shared parity suite creates a cleanup-backed temporary encounter with ICD10 lines for `K21.9` and `E11.9`, a CPT line justified by `K21.9,E11.9`, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-PASS` report content, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added diagnosis-pointer token parsing to the modernized Fees claim scrub report builder.
+- Added the `workflow-claim-multi-diagnosis-pointer` suite and `slice-541-claim-multi-diagnosis-pointer-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 541 multi-diagnosis-pointer plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused multi-diagnosis-pointer claim scrubbing as completed billing validation scope while leaving broader diagnosis pointer policy rules, broader modifier compatibility policy rules, and broader revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 541 multi-diagnosis-pointer contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized API and frontend with `docker compose up -d --build api frontend`.
+- Ran the Slice 541 legacy parity plan: `2026-06-26T185758-615Z-legacy-openemr-plan-slice-541-claim-multi-diagnosis-pointer-readiness` passed 1/1 tests.
+- The first Slice 541 modernized run `2026-06-26T185844-782Z-modernized-openemr-plan-slice-541-claim-multi-diagnosis-pointer-readiness` failed because the expected deterministic process timestamp in the suite did not match the modernized scrub report timestamp; the suite was corrected to use the standard `2026-06-18 13:05:00` claim scrub timestamp.
+- Reran the Slice 541 modernized parity plan: `2026-06-26T185958-279Z-modernized-openemr-plan-slice-541-claim-multi-diagnosis-pointer-readiness` passed 1/1 tests.
+- Reran the Slice 541 legacy parity plan after the timestamp correction: `2026-06-26T190159-740Z-legacy-openemr-plan-slice-541-claim-multi-diagnosis-pointer-readiness` passed 1/1 tests.
+- Compared the two successful Slice 541 runs: `2026-06-26T190238-358Z-legacy-openemr-vs-modernized-openemr-plan-slice-541-claim-multi-diagnosis-pointer-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 541 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code changes:
+- 11 scoped files changed, with 556 insertions and 12 deletions including the new claim multi-diagnosis-pointer parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

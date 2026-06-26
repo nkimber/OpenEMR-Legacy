@@ -1869,6 +1869,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-541-claim-multi-diagnosis-pointer-readiness",
+      "name": "Slice 541 Claim Multi-Diagnosis Pointer Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates two encounter ICD10 lines plus a CPT line with comma-separated diagnosis pointers, scrubs a temporary claim, verifies deterministic SCRUB-PASS multi-diagnosis report metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-multi-diagnosis-pointer"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-541", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "multi-diagnosis", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -3961,6 +3970,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-missing-diagnosis-code",
       "tags": ["slice540", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "diagnosis-code-validation", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-multi-diagnosis-pointer",
+      "name": "Claim Multi-Diagnosis Pointer",
+      "description": "Creates two encounter ICD10 lines plus a CPT line with comma-separated diagnosis pointers, scrubs a temporary local claim report, verifies deterministic SCRUB-PASS multi-diagnosis metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-multi-diagnosis-pointer",
+      "tags": ["slice541", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "multi-diagnosis", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
