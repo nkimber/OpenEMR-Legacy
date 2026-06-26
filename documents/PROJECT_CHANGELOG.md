@@ -26939,7 +26939,7 @@ Code Metrics:
 Started: 2026-06-26T16:38:09.8182784-04:00
 Finished: 2026-06-26T16:45:28.5344183-04:00
 Duration: 7 minutes 19 seconds
-Commit: pending
+Commit: `ad5f2b2d`
 
 Implemented Slice 551: focused invalid-units readiness. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, positive fee, zero CPT units, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, fee, CPT-code, diagnosis-code, diagnosis-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
 
