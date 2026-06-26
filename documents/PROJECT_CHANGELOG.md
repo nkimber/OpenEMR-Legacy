@@ -25656,7 +25656,7 @@ Code changes:
 
 Started: 2026-06-26T08:00:55.5580638-04:00
 Finished: 2026-06-26T08:06:31.0726597-04:00
-Commit: Pending
+Commit: db6d5993
 
 Implemented Slice 512: patient portal secure-message unsupported attachment policy readiness. The modernized patient portal compose/reply request contract now accepts attachment-submission metadata but rejects non-empty payloads before mailbox rows are created, matching the legacy OpenEMR portal where secure-message upload controls are not active. A new shared parity plan proves the rejected attachment submission leaves sent, inbox, and All-folder mailbox rows untouched on both targets and captures UI evidence that no active upload controls are exposed.
 
