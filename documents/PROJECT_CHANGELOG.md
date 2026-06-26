@@ -26996,6 +26996,38 @@ Verification:
 Code Metrics:
 - 10 scoped files changed, with 442 insertions and 5 deletions including the new claim missing-CPT-line parity suite.
 
+## 600. Slice 553 Claim Missing Diagnosis Pointer Readiness
+
+Started: 2026-06-26T17:02:33.0782833-04:00
+Finished: 2026-06-26T17:07:26.4407730-04:00
+Duration: 4 minutes 53 seconds
+Commit: Pending
+
+Implemented Slice 553: focused missing-diagnosis-pointer readiness. The modernized billing line create/update API now permits blank diagnosis pointers so claim scrubbing can flag them instead of rejecting the charge before review. The shared parity suite creates a cleanup-backed temporary encounter with valid ICD10 diagnosis `K21.9`, valid CPT4 `99214`, supported modifier `25`, positive fee and units, but a blank CPT diagnosis pointer, and a queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` report content without payer, CPT-line, fee, unit, CPT-code, diagnosis-code, invalid-pointer, modifier, future-date, or missing-code misclassification, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Relaxed modernized billing-line create/update validation to allow blank diagnosis pointers while continuing to reject negative fee and unit values.
+- Added the `workflow-claim-missing-diagnosis-pointer` suite and `slice-553-claim-missing-diagnosis-pointer-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 553 missing-diagnosis-pointer plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused missing-diagnosis-pointer claim scrubbing as completed billing validation scope while leaving broader charge policy, payer-specific clearinghouse edits, medical-necessity policy, and full revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 553 missing-diagnosis-pointer contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 553 legacy parity plan: `2026-06-26T210503-865Z-legacy-openemr-plan-slice-553-claim-missing-diagnosis-pointer-readiness` passed 1/1 tests.
+- Ran the Slice 553 modernized parity plan once before the API validation fix: `2026-06-26T210526-525Z-modernized-openemr-plan-slice-553-claim-missing-diagnosis-pointer-readiness` failed because the modernized billing-line API rejected blank diagnosis pointers with HTTP 400.
+- Reran the Slice 553 modernized parity plan after the API validation fix: `2026-06-26T210650-503Z-modernized-openemr-plan-slice-553-claim-missing-diagnosis-pointer-readiness` passed 1/1 tests.
+- Compared the two successful Slice 553 runs: `2026-06-26T210714-049Z-legacy-openemr-vs-modernized-openemr-plan-slice-553-claim-missing-diagnosis-pointer-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 553 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 11 scoped files changed, with 476 insertions and 7 deletions including the new claim missing-diagnosis-pointer parity suite and billing-line validation fix.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

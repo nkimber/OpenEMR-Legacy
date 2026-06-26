@@ -1977,6 +1977,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-553-claim-missing-diagnosis-pointer-readiness",
+      "name": "Slice 553 Claim Missing Diagnosis Pointer Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT/diagnosis claim with a blank CPT diagnosis pointer, scrubs a temporary claim, verifies deterministic SCRUB-FAIL missing-diagnosis-pointer metadata, and cleans up temporary rows.",
+      "suites": ["workflow-claim-missing-diagnosis-pointer"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-553", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "missing-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4189,6 +4198,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-missing-cpt-line",
       "tags": ["slice552", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-missing-diagnosis-pointer",
+      "name": "Claim Missing Diagnosis Pointer",
+      "description": "Creates a CPT/diagnosis claim with a blank CPT diagnosis pointer, scrubs a temporary local claim report, verifies deterministic missing-diagnosis-pointer metadata, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-missing-diagnosis-pointer",
+      "tags": ["slice553", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-pointer-validation", "missing-diagnosis-pointer", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
