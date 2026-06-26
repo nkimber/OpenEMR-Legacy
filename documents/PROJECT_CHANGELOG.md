@@ -22739,6 +22739,35 @@ Code changes:
 - Net lines: 286
 - Total churn: 322
 
+## 474. Slice 427 Slice 173 Administration Authorization-Policy Probe Payload Attachments
+
+Started: 2026-06-25T20:28:07.1840907-04:00
+Finished: Pending
+Commit: Pending
+
+Implemented Slice 427: Slice 173 administration authorization-policy probe payload attachments. The administration authorization-policy readiness parity suite now writes path-backed JSON Playwright attachments for redacted ACL preconditions, legacy ACL matrix rendering facts, modernized front-desk forbidden directory/mutation facts, admin directory allow facts, and modernized Admin-page retry rendering facts so Workbench comparison drill-ins can preview administration policy evidence without storing password, cookie, or session material.
+
+Changes:
+- Added Slice 173 ACL precondition payload attachments for the seeded admin ACL write permission, front-office patient-demo permission, missing front-office ACL Administration permission, protected modernized administration directory/user APIs, configured admin username, and secret-redaction proof.
+- Added legacy ACL matrix rendered payload attachments proving Groups and Access Controls, ACL Administration, and Front Office markers render after admin login.
+- Added modernized front-desk login payload attachments with the session identifier redacted.
+- Added modernized front-desk directory forbidden payload attachments proving ACL Administration access is required for directory reads.
+- Added modernized front-desk mutation forbidden payload attachments proving ACL Administration access is required for user creation.
+- Added modernized admin login payload attachments with password and session identifier redacted.
+- Added modernized admin directory allow payload attachments proving ACL-backed admin access returns expected directory counts and seeded membership facts.
+- Added modernized Admin-page rendered payload attachments proving the UI shows front-desk denial and then admin directory success after retry.
+- Updated the Workbench functionality progress ledger so Slice 173 administration authorization-policy payload attachments are completed evidence scope while broader workflow payload generation remains outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, test architecture, project context, and project changelog with the Slice 427 evidence-payload contract.
+
+Verification:
+- Pending.
+
+Code changes:
+- Lines added: Pending
+- Lines deleted: Pending
+- Net lines: Pending
+- Total churn: Pending
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
@@ -22748,5 +22777,5 @@ Likely upcoming changelog entries should cover:
 - Full document versioning, scanner-device ingestion, OCR extraction/queueing, external storage adapters, and integration workflows.
 - Additional modernized workflow action adapters for broader reports, ACL administration, and deeper billing/lab workflows.
 - Broader encounter workflows for templates, amendment policy controls beyond signature-derived history, specimen collection, corrected-result amendment/history depth, external lab transmission/reconciliation, charge-capture expansion, audit history, richer code search/validation/charge templates, advanced attachments, and historical document version chains.
-- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, and 172.
+- Normalized database query/result attachment generation for additional read-only workflow and mutation parity probes beyond Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, and 173.
 - Workbench deeper historical reliability charts, evidence-retention policy, and richer report exports.
