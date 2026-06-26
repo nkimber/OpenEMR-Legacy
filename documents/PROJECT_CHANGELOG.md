@@ -26537,7 +26537,7 @@ Code changes:
 
 Started: 2026-06-26T14:18:16.0627653-04:00
 Finished: 2026-06-26T14:25:10.9025827-04:00
-Commit: pending
+Commit: d4f45a8a
 
 Implemented Slice 538: focused claim modifier-compatibility readiness. The modernized Fees claim `Scrub` action now tokenizes comma/space-separated CPT modifiers, validates each modifier token against the supported modifier catalog, and writes deterministic `duplicate-modifier:<value>` issues into the local scrub report when the same supported modifier appears more than once on a CPT line. The shared parity suite creates a cleanup-backed ICD10 diagnosis line, a CPT line with duplicate supported modifier `25,25`, and a temporary queued Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies `SCRUB-FAIL` report content, process-file metadata, claim and billing-line count stability, modernized rendering, and hard-delete cleanup.
 
