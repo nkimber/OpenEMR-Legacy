@@ -1995,6 +1995,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-555-claim-inactive-diagnosis-line-readiness",
+      "name": "Slice 555 Claim Inactive Diagnosis Line Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that creates a CPT/diagnosis claim, marks the ICD10 diagnosis line inactive before scrubbing, verifies deterministic SCRUB-FAIL missing-diagnosis-code metadata from active-line projection, and cleans up temporary rows.",
+      "suites": ["workflow-claim-inactive-diagnosis-line"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-555", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "inactive-diagnosis-line", "missing-diagnosis-code", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
@@ -4227,6 +4236,16 @@
       "layer": "workflow",
       "path": "tests/workflow-claim-inactive-cpt-line",
       "tags": ["slice554", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "cpt-line-validation", "inactive-cpt-line", "missing-cpt-line", "validation", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-claim-inactive-diagnosis-line",
+      "name": "Claim Inactive Diagnosis Line",
+      "description": "Creates a CPT/diagnosis claim, marks the ICD10 diagnosis line inactive before scrubbing, verifies deterministic missing-diagnosis-code metadata from active-line projection, and cleans up temporary rows on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-claim-inactive-diagnosis-line",
+      "tags": ["slice555", "workflow", "mutation", "billing", "claims", "claim-scrubbing", "diagnosis-code-validation", "inactive-diagnosis-line", "missing-diagnosis-code", "validation", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

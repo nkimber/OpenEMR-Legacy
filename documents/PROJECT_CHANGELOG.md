@@ -27058,6 +27058,35 @@ Verification:
 Code Metrics:
 - 10 scoped files changed, with 479 insertions and 5 deletions including the new claim inactive-CPT-line parity suite.
 
+## 602. Slice 555 Claim Inactive Diagnosis Line Readiness
+
+Started: 2026-06-26T17:21:47.7083182-04:00
+Finished: 2026-06-26T17:25:20.5033414-04:00
+Commit: pending
+
+Implemented Slice 555: focused inactive-diagnosis-line readiness. The shared parity suite creates a cleanup-backed temporary encounter with ICD10 diagnosis `K21.9`, marks that diagnosis row billed/inactive before claim scrubbing, creates an active valid CPT4 `99214` line with supported modifier `25`, positive fee, units, and diagnosis pointer `K21.9`, and queues a Northstar HMO claim, then drives the modernized UI Scrub action or equivalent legacy update, verifies deterministic `SCRUB-FAIL` / `missing-diagnosis-code` report content from the active-line projection without payer, CPT-line, fee, unit, CPT-code, diagnosis-pointer, modifier, future-date, or invalid-pointer misclassification, inactive diagnosis row status evidence, process-file metadata, encounter/claim/billing-line count stability, modernized rendering, and hard-delete cleanup.
+
+Changes:
+- Added the `workflow-claim-inactive-diagnosis-line` suite and `slice-555-claim-inactive-diagnosis-line-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 555 inactive-diagnosis-line plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused inactive-diagnosis-line claim scrubbing as completed billing validation scope while leaving broader charge policy, payer-specific clearinghouse edits, medical-necessity policy, and full revenue-cycle exception handling outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 555 inactive-diagnosis-line contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 555 legacy parity plan: `2026-06-26T212422-094Z-legacy-openemr-plan-slice-555-claim-inactive-diagnosis-line-readiness` passed 1/1 tests.
+- Ran the Slice 555 modernized parity plan: `2026-06-26T212445-802Z-modernized-openemr-plan-slice-555-claim-inactive-diagnosis-line-readiness` passed 1/1 tests.
+- Compared the two successful Slice 555 runs: `2026-06-26T212508-576Z-legacy-openemr-vs-modernized-openemr-plan-slice-555-claim-inactive-diagnosis-line-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 555 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 10 scoped files changed, with 478 insertions and 5 deletions including the new claim inactive-diagnosis-line parity suite.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
