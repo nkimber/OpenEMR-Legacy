@@ -1743,6 +1743,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-526-patient-payment-refund-readiness",
+      "name": "Slice 526 Patient Payment Refund Readiness",
+      "description": "Mutation-capable revenue-cycle confidence plan that posts, renders, and removes a temporary patient refund reversal while verifying balance and ledger effects.",
+      "suites": ["workflow-patient-payment-refunds"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-526", "billing", "payments", "refunds", "reversals", "patient-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-59-statement-generation-readiness",
       "name": "Slice 59 Statement Generation Readiness",
       "description": "Read-only revenue-cycle confidence plan that generates a deterministic printable patient statement from the normalized billing ledger and validates modernized Fees rendering.",
@@ -3736,6 +3745,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-payment-receipts",
       "tags": ["slice525", "workflow", "mutation", "billing", "payments", "receipts", "patient-payments", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-payment-refunds",
+      "name": "Patient Payment Refunds",
+      "description": "Posts, renders, and removes a temporary negative patient-refund posting while verifying balance and ledger effects on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-payment-refunds",
+      "tags": ["slice526", "workflow", "mutation", "billing", "payments", "refunds", "reversals", "patient-payments", "revenue-cycle", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

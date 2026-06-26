@@ -25749,6 +25749,39 @@ Verification:
 Code changes:
 - 11 scoped files changed, with 426 insertions and 9 deletions including the new folder-search parity suite.
 
+## 573. Slice 526 Patient Payment Refund Readiness
+
+Started: 2026-06-26T12:03:00.0000000-04:00
+Finished: 2026-06-26T12:17:32.7575193-04:00
+Commit: pending
+
+Implemented Slice 526: patient payment refund readiness. The modernized billing API now accepts explicit `patient_refund` postings as negative patient payments, the Fees payment-posting form includes a `Patient refund` source mode, and refund rows render as refunds in the payment list and statement line surface. The shared parity suite posts a cleanup-backed refund reversal on both targets, verifies payment-session/activity increments, net payment reduction, balance increase, positive refund ledger impact, modernized UI rendering, and final cleanup.
+
+Changes:
+- Added controlled `patient_refund` validation to the modernized billing payment-posting API.
+- Added refund-aware ledger and statement-line projection, including a `refundAmount` statement line field.
+- Added the modernized Fees `Patient refund` posting mode and explicit refund labels for payment rows and statement lines.
+- Added the `workflow-patient-payment-refunds` suite and `slice-526-patient-payment-refund-readiness` plan.
+- Added Workbench managed actions and plan cards for running the Slice 526 refund plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count focused patient-refund reversal as completed billing scope while leaving broader revenue-cycle processing outstanding.
+- Synchronized the project index, modernization plan, Workbench documentation, project context, test architecture, test-data strategy, functionality progress ledger, and project changelog with the Slice 526 refund contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json`.
+- Ran `dotnet build modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix parity-tests run typecheck`.
+- Ran `npm --prefix modernized-openemr\frontend run build`; build passed with the known Vite large-chunk warning.
+- Ran `npm --prefix modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized API/frontend containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 526 legacy parity plan: `2026-06-26T161421-399Z-legacy-openemr-plan-slice-526-patient-payment-refund-readiness` passed 1/1 tests.
+- Ran the Slice 526 modernized parity plan: `2026-06-26T161615-800Z-modernized-openemr-plan-slice-526-patient-payment-refund-readiness` passed 1/1 tests.
+- Compared the two Slice 526 runs: `2026-06-26T161636-574Z-legacy-openemr-vs-modernized-openemr-plan-slice-526-patient-payment-refund-readiness` matched with no differences.
+- Confirmed the Playwright run reports captured the expected precondition, created, and cleanup DB probe attachments for both targets.
+- Ran `git diff --check` on the Slice 526 file set.
+
+Code changes:
+- 15 files changed, 415 insertions, 49 deletions.
+
 ## 572. Slice 525 Patient Payment Receipt Readiness
 
 Started: 2026-06-26T11:48:05.0000000-04:00
