@@ -270,8 +270,8 @@
         },
         {
           "label": "Patient portal generated medical report PDF readiness",
-          "detail": "The modernized patient portal API and Portal page now export the generated customized medical-history report as a deterministic PDF while parity compares legacy portal PDF POST behavior and modernized PDF download behavior.",
-          "evidence": ["slice-226-patient-portal-generated-medical-report-pdf-readiness"]
+          "detail": "The modernized patient portal API and Portal page now export the generated customized medical-history report as a deterministic PDF while parity compares legacy portal PDF POST behavior and modernized PDF download behavior, and Slice 480 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-226-patient-portal-generated-medical-report-pdf-readiness", "slice-480-slice226-patient-portal-generated-medical-report-pdf-probe-payload-attachments"]
         },
         {
           "label": "Patient portal generated medical report issue selection readiness",
