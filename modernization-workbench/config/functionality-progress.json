@@ -140,8 +140,8 @@
         },
         {
           "label": "Patient portal profile readiness",
-          "detail": "The modernized patient portal profile API and Portal page now render legacy-style medical-record demographics plus primary and secondary insurance facts for the signed-in patient.",
-          "evidence": ["slice-250-patient-portal-profile-readiness"]
+          "detail": "The modernized patient portal profile API and Portal page now render legacy-style medical-record demographics plus primary and secondary insurance facts for the signed-in patient; Slice 504 adds path-backed probe payload attachments for Workbench comparison previews.",
+          "evidence": ["slice-250-patient-portal-profile-readiness", "slice-504-slice250-patient-portal-profile-probe-payload-attachments"]
         },
         {
           "label": "Patient portal profile change request readiness",
