@@ -28613,6 +28613,37 @@ Verification:
 Code Metrics:
 - 16 files changed, 647 insertions, 9 deletions.
 
+## 657. Slice 605 Patient Merge Preview Readiness
+
+Started: 2026-06-27T07:41:20.0000000-04:00
+Finished: 2026-06-27T07:59:35.0000000-04:00
+Commit: ab915e1d0
+
+Implemented patient merge-preview readiness for the modernized Patient/Client workflow. The modernized patient API now exposes a protected non-destructive merge preview for duplicate patient charts, and the Patient/Client duplicate-detection panel can render target/source direction, match reasons, combined workflow counts, and explicit safeguards before any destructive merge execution exists.
+
+Changes:
+- Added `GET /api/patients/merge-preview` behind patient write permission.
+- Added backend merge-preview DTOs and repository logic for target/source identity lookup, duplicate-match scoring, workflow-count aggregation, and preview-only safeguards.
+- Added frontend API types/calls and a Patient/Client merge-preview panel reachable from duplicate candidate cards.
+- Added `workflow-patient-merge-preview` parity coverage and the `slice-605-patient-merge-preview-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 605 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so patient merge-preview readiness is completed patient-administration evidence while destructive merge execution remains explicitly deferred.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 605.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
+- Ran the Slice 605 legacy parity plan: `2026-06-27T115710-274Z-legacy-openemr-plan-slice-605-patient-merge-preview-readiness` passed 1/1 tests.
+- Ran the Slice 605 modernized parity plan: `2026-06-27T115737-773Z-modernized-openemr-plan-slice-605-patient-merge-preview-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 605 runs: `2026-06-27T115805-044Z-legacy-openemr-vs-modernized-openemr-plan-slice-605-patient-merge-preview-readiness` matched with no differences.
+
+Code Metrics:
+- 16 files changed, 789 insertions, 11 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
