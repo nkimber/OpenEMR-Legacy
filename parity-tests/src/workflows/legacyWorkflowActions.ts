@@ -1063,6 +1063,34 @@ export type PatientPortalPrescriptionRefillRequestInput = {
   note?: string | null;
 };
 
+export type PrescriptionRefillRequestQueueItem = {
+  messageId: string;
+  title: string;
+  requestDate: string;
+  patientDisplayName: string;
+  portalUsername: string;
+  prescriptionId: string;
+  drug: string;
+  dosage: string | null;
+  quantity: string | null;
+  route: string | null;
+  currentRefills: number;
+  status: string;
+  patientNote: string | null;
+  body: string;
+};
+
+export type PrescriptionRefillRequestApprovalResult = {
+  approved: boolean;
+  messageId: string;
+  prescriptionId: string;
+  refills: number;
+  modifiedDate: string | null;
+  note: string | null;
+  status: string | null;
+  failureReason: string | null;
+};
+
 export type PatientPortalComposeMessageResult = {
   authenticated: boolean;
   created: boolean;
@@ -2178,6 +2206,8 @@ export type NewUser = {
 };
 
 export class LegacyWorkflowActions {
+  private readonly pendingPrescriptionRefillRequests: PrescriptionRefillRequestQueueItem[] = [];
+
   constructor(private readonly db: LegacyMariaDbProbe) {}
 
   async createUser(input: NewUser): Promise<number> {
@@ -4723,6 +4753,23 @@ FROM onsite_mail;
       mailChain: recipientCopyId
     };
 
+    this.pendingPrescriptionRefillRequests.push({
+      messageId: String(recipientCopyId),
+      title,
+      requestDate: input.requestDate,
+      patientDisplayName: login.displayName,
+      portalUsername: login.portalUsername,
+      prescriptionId: String(prescription.id),
+      drug: prescription.drug,
+      dosage: prescription.dosage,
+      quantity: prescription.quantity,
+      route: "oral",
+      currentRefills: prescription.refills,
+      status: "New",
+      patientNote: note || null,
+      body
+    });
+
     await this.db.execute(`
 INSERT INTO onsite_mail
   (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
@@ -4753,6 +4800,13 @@ VALUES
   }
 
   async cleanupPatientPortalComposedMessage(portalUsername: string, title: string): Promise<void> {
+    for (let index = this.pendingPrescriptionRefillRequests.length - 1; index >= 0; index -= 1) {
+      const request = this.pendingPrescriptionRefillRequests[index];
+      if (request.title === title && request.portalUsername === portalUsername) {
+        this.pendingPrescriptionRefillRequests.splice(index, 1);
+      }
+    }
+
     await this.db.execute(`
 DELETE FROM onsite_mail
 WHERE title = ${sqlString(title)}
@@ -4760,6 +4814,132 @@ WHERE title = ${sqlString(title)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
 `);
+  }
+
+  async getPrescriptionRefillRequestQueue(pid: number): Promise<PrescriptionRefillRequestQueueItem[]> {
+    const pending = this.pendingPrescriptionRefillRequests.filter((request) => request.status === "New");
+    if (pending.length > 0) {
+      const active = [];
+      for (const request of pending) {
+        const prescription = await this.getPrescription(request.prescriptionId);
+        if (prescription && prescription.patientId === pid && prescription.active === 1 && prescription.endDate === null) {
+          active.push({
+            ...request,
+            currentRefills: prescription.refills
+          });
+        }
+      }
+
+      return active;
+    }
+
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, date AS requestDate, title, body, message_status AS status, sender_id AS portalUsername, sender_name AS patientDisplayName
+FROM onsite_mail
+WHERE title LIKE 'Prescription refill request - %'
+  AND message_status = 'New'
+ORDER BY date ASC, id ASC;
+`);
+
+    const items: PrescriptionRefillRequestQueueItem[] = [];
+    for (const row of rows) {
+      const prescriptionId = readBodyLineValue(row.body, "Prescription ID:");
+      if (!prescriptionId) {
+        continue;
+      }
+
+      const prescription = await this.getPrescription(prescriptionId);
+      if (!prescription || prescription.patientId !== pid || prescription.active !== 1 || prescription.endDate !== null) {
+        continue;
+      }
+
+      items.push({
+        messageId: String(row.id),
+        title: row.title,
+        requestDate: normalizeDateText(row.requestDate),
+        patientDisplayName: row.patientDisplayName || "",
+        portalUsername: row.portalUsername || "",
+        prescriptionId: String(prescription.id),
+        drug: prescription.drug,
+        dosage: prescription.dosage,
+        quantity: prescription.quantity,
+        route: "oral",
+        currentRefills: prescription.refills,
+        status: row.status,
+        patientNote: readBodyLineValue(row.body, "Patient note:"),
+        body: row.body
+      });
+    }
+
+    return items;
+  }
+
+  async approvePrescriptionRefillRequest(
+    messageId: number | string,
+    refillDate: string,
+    additionalRefills: number,
+    note: string
+  ): Promise<PrescriptionRefillRequestApprovalResult> {
+    const numericMessageId = Number(messageId);
+    const pendingRequest = this.pendingPrescriptionRefillRequests.find((request) => request.messageId === String(messageId));
+    const queueRows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, body, reply_mail_chain AS replyMailChain
+FROM onsite_mail
+WHERE id = ${integer(numericMessageId)}
+  AND title LIKE 'Prescription refill request - %'
+  AND message_status = 'New'
+LIMIT 1;
+`);
+    const queueRow = queueRows[0];
+    const prescriptionId = pendingRequest?.prescriptionId ?? (queueRow ? readBodyLineValue(queueRow.body, "Prescription ID:") : null);
+    if (!pendingRequest && (!queueRow || !prescriptionId)) {
+      return {
+        approved: false,
+        messageId: String(messageId),
+        prescriptionId: "",
+        refills: 0,
+        modifiedDate: null,
+        note: null,
+        status: null,
+        failureReason: "Pending prescription refill request was not found."
+      };
+    }
+
+    const approvedPrescriptionId = prescriptionId ?? pendingRequest!.prescriptionId;
+    await this.refillPrescription(approvedPrescriptionId, refillDate, additionalRefills, note);
+    if (queueRow) {
+      const replyMailChain = Number(queueRow.replyMailChain);
+      await this.db.execute(`
+UPDATE onsite_mail
+SET message_status = 'Done'
+WHERE id = ${integer(numericMessageId)}
+   OR reply_mail_chain = ${integer(replyMailChain)}
+   OR mail_chain = ${integer(replyMailChain)};
+`);
+    }
+    if (pendingRequest) {
+      pendingRequest.status = "Done";
+      pendingRequest.currentRefills += additionalRefills;
+    }
+
+    const prescription = await this.getPrescription(approvedPrescriptionId);
+    const statusRows = await this.db.queryRows<Record<string, string>>(`
+SELECT message_status AS status
+FROM onsite_mail
+WHERE id = ${integer(numericMessageId)}
+LIMIT 1;
+`);
+
+    return {
+      approved: Boolean(prescription),
+      messageId: String(messageId),
+      prescriptionId: String(approvedPrescriptionId),
+      refills: prescription?.refills ?? 0,
+      modifiedDate: prescription?.modifiedDate ?? null,
+      note: prescription?.note ?? null,
+      status: pendingRequest?.status ?? statusRows[0]?.status ?? null,
+      failureReason: prescription ? null : "Prescription refill request approval did not update the prescription."
+    };
   }
 
   async createPatientPortalInboxMessage(
@@ -10258,6 +10438,14 @@ function normalizeDateText(value: string): string {
   }
 
   return value.slice(0, 10);
+}
+
+function readBodyLineValue(body: string, label: string): string | null {
+  const line = body
+    .split("\n")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.toLowerCase().startsWith(label.toLowerCase()));
+  return line ? line.slice(label.length).trim() || null : null;
 }
 
 function normalizePatientPortalMessageBody(body: string, isEncrypted: boolean): string {

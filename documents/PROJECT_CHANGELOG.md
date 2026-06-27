@@ -27862,6 +27862,37 @@ Verification:
 Code Metrics:
 - Commit `95d01415` changed 18 scoped files with 765 insertions and 9 deletions.
 
+## 637. Prescription Refill Request Approval Readiness
+
+Started: 2026-06-27T00:20:00.0000000-04:00
+Finished: 2026-06-27T00:35:25.1310000-04:00
+Commit: pending
+
+Implemented Slice 581: prescription refill request approval readiness. The modernized clinical-list API now projects pending patient-originated portal refill requests into the staff Lists workspace and lets staff approve one or more additional refills while marking the originating mailbox request `Done`.
+
+Changes:
+- Added `PrescriptionRefillRequestItem`, `ClinicalPrescriptionRefillApprovalRequest`, and `PUT /api/clinical-lists/prescription-refill-requests/{messageId}/approve`.
+- Added server-side refill-request queue projection from `portal:prescription-refill-request` mailbox rows linked to active prescriptions.
+- Added approval logic that increments active prescription refills, stamps modified-date/note evidence, and closes the mailbox request as `Done`.
+- Added frontend API typing/helper and a Lists `Refill Requests` staff queue with an `Approve` action.
+- Added parity workflow support for listing and approving prescription refill requests on both legacy and modernized targets.
+- Added the `workflow-prescription-refill-request-approval` parity suite and `slice-581-prescription-refill-request-approval-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 581 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so refill review queue approval is completed prescribing evidence while pharmacy routing, controlled-substance rules, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 581 legacy parity plan: `2026-06-27T042932-148Z-legacy-openemr-plan-slice-581-prescription-refill-request-approval-readiness` passed 1/1 tests.
+- Ran the Slice 581 modernized parity plan: `2026-06-27T043434-781Z-modernized-openemr-plan-slice-581-prescription-refill-request-approval-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 581 runs: `2026-06-27T043525-129Z-legacy-openemr-vs-modernized-openemr-plan-slice-581-prescription-refill-request-approval-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

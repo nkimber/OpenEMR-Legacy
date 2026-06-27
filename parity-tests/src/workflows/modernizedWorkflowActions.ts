@@ -80,6 +80,8 @@ import type {
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
   PatientPortalPrescriptionRefillRequestInput,
+  PrescriptionRefillRequestApprovalResult,
+  PrescriptionRefillRequestQueueItem,
   PatientPortalProfileChangeInput,
   PatientPortalProfileDemographics,
   PatientPortalProfileReviewAcceptResult,
@@ -1719,6 +1721,95 @@ WHERE title = ${sqlString(title)}
     OR sender_id = ${sqlString(portalUsername)}
     OR recipient_id = ${sqlString(portalUsername)});
 `);
+  }
+
+  async getPrescriptionRefillRequestQueue(pid: number): Promise<PrescriptionRefillRequestQueueItem[]> {
+    const rows = await this.db.queryRows<Record<string, any>>(`
+SELECT
+  m.id AS message_id,
+  m.message_date AS request_date,
+  m.title,
+  replace(replace(replace(m.body, chr(13), ''), chr(10), '\\n'), chr(9), ' ') AS body,
+  m.message_status AS status,
+  m.sender_id AS portal_username,
+  m.sender_name AS patient_display_name,
+  p.id::text AS prescription_id,
+  p.drug,
+  p.dosage,
+  p.quantity,
+  p.route,
+  p.refills AS current_refills
+FROM portal_mailbox_messages m
+JOIN prescriptions p
+  ON p.pid = m.pid
+ AND p.id::text = NULLIF(substring(m.body from 'Prescription ID: ([^\\r\\n]+)'), '')
+WHERE m.pid = ${integer(pid)}
+  AND m.deleted = 0
+  AND m.owner = m.assigned_to
+  AND m.portal_relation = 'portal:prescription-refill-request'
+  AND m.message_status = 'New'
+  AND p.active = 1
+  AND p.end_date IS NULL
+ORDER BY m.message_date ASC, m.id ASC;
+`);
+
+    return rows.map((row) => ({
+      messageId: String(row.message_id),
+      title: row.title ?? "",
+      requestDate: normalizeDateText(String(row.request_date ?? "")),
+      patientDisplayName: row.patient_display_name ?? "",
+      portalUsername: row.portal_username ?? "",
+      prescriptionId: String(row.prescription_id ?? ""),
+      drug: row.drug ?? "",
+      dosage: row.dosage ?? null,
+      quantity: row.quantity ?? null,
+      route: row.route ?? null,
+      currentRefills: Number(row.current_refills ?? 0),
+      status: row.status ?? "",
+      patientNote: readBodyLineValue((row.body ?? "").replace(/\\n/g, "\n"), "Patient note:"),
+      body: row.body ?? ""
+    }));
+  }
+
+  async approvePrescriptionRefillRequest(
+    messageId: number | string,
+    refillDate: string,
+    additionalRefills: number,
+    note: string
+  ): Promise<PrescriptionRefillRequestApprovalResult> {
+    const numericMessageId = Number(messageId);
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/clinical-lists/prescription-refill-requests/${encodeURIComponent(String(messageId))}/approve`,
+      {
+        method: "PUT",
+        headers: await this.getAdminJsonHeaders(),
+        body: JSON.stringify({ refillDate, additionalRefills, note })
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Modernized prescription refill request approval failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const result = await response.json();
+    const prescriptionId = result.id ?? "";
+    const prescription = prescriptionId ? await this.getPrescription(prescriptionId) : null;
+    const statusRows = await this.db.queryRows<Record<string, string>>(`
+SELECT message_status AS status
+FROM portal_mailbox_messages
+WHERE id = ${integer(numericMessageId)}
+LIMIT 1;
+`);
+
+    return {
+      approved: Boolean(prescription),
+      messageId: String(messageId),
+      prescriptionId: String(prescriptionId),
+      refills: prescription?.refills ?? 0,
+      modifiedDate: prescription?.modifiedDate ?? null,
+      note: prescription?.note ?? null,
+      status: statusRows[0]?.status ?? null,
+      failureReason: prescription ? null : "Prescription refill request approval did not update the prescription."
+    };
   }
 
   async createPatientPortalInboxMessage(
@@ -6301,6 +6392,18 @@ function portalWorkflowAccessStatusLabel(portalEnabled: boolean, portalUsername:
 
 function normalizeTime(value: string) {
   return value.length === 5 ? `${value}:00` : value;
+}
+
+function normalizeDateText(value: string): string {
+  return value ? value.slice(0, 10) : "";
+}
+
+function readBodyLineValue(body: string, label: string): string | null {
+  const line = body
+    .split("\n")
+    .map((entry) => entry.trim())
+    .find((entry) => entry.toLowerCase().startsWith(label.toLowerCase()));
+  return line ? line.slice(label.length).trim() || null : null;
 }
 
 function nullableNumber(value: unknown) {

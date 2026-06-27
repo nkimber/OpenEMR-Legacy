@@ -1536,6 +1536,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-581-prescription-refill-request-approval-readiness",
+      "name": "Slice 581 Prescription Refill Request Approval Readiness",
+      "description": "Staff refill-request approval readiness plan that creates a temporary portal refill request, verifies the staff clinical queue, approves one additional refill, and checks modernized Lists rendering.",
+      "suites": ["workflow-prescription-refill-request-approval"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-581", "patients", "portal", "prescriptions", "refills", "clinical-lists", "review-queue", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -4021,6 +4030,16 @@
       "layer": "workflow",
       "path": "tests/workflow-patient-portal-prescription-refill-request",
       "tags": ["slice580", "workflow", "mutation", "patients", "portal", "prescriptions", "refills", "secure-messages", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-prescription-refill-request-approval",
+      "name": "Prescription Refill Request Approval Readiness",
+      "description": "Creates a temporary portal refill request, verifies the staff clinical queue, approves one additional refill, and checks modernized Lists rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-prescription-refill-request-approval",
+      "tags": ["slice581", "workflow", "mutation", "patients", "portal", "prescriptions", "refills", "clinical-lists", "review-queue", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
