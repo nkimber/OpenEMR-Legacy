@@ -27715,7 +27715,7 @@ Code Metrics:
 
 Started: 2026-06-26T22:28:00.0000000-04:00
 Finished: 2026-06-26T22:32:27.8973795-04:00
-Commit: pending
+Commit: 19634332
 
 Implemented Slice 576: appointment waitlist readiness. The modernized appointment API now exposes `GET /api/appointments/waitlist` to project active portal appointment requests (`status = '^'`) into a staff-facing scheduling queue, including requested slot, patient, provider, facility, reason, linked provider reminder, and deterministic priority. The Calendar page now renders that waitlist queue and lets staff promote a waiting request to OpenEMR pending status (`~`) through the existing appointment status mutation path.
 
@@ -27739,7 +27739,7 @@ Verification:
 - Compared the latest successful Slice 576 runs: `2026-06-27T023535-822Z-legacy-openemr-vs-modernized-openemr-plan-slice-576-appointment-waitlist-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics until the Slice 576 files are staged separately from unrelated in-progress Azure demo documentation and Workbench changes.
+- Commit `19634332` changed 16 scoped files with 638 insertions and 6 deletions.
 
 ## Next Expected Entries
 
