@@ -4459,6 +4459,19 @@
           "slice-591-document-ocr-completion-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentPdfThumbnailPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-592-document-pdf-thumbnail-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7205,6 +7218,14 @@
           "layer": "plan",
           "commandName": "parityDocumentOcrCompletionPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-591-document-ocr-completion-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-pdf-thumbnail",
+          "name": "Slice 592 document PDF thumbnail plan",
+          "description": "Runs the shared document PDF thumbnail source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentPdfThumbnailPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-592-document-pdf-thumbnail-readiness.json"
         }
       ],
       "testPlans": [
@@ -7214,7 +7235,8 @@
         "slice-588-medication-reconciliation-readiness",
         "slice-589-appointment-conflict-enforcement-readiness",
         "slice-590-document-ocr-queue-readiness",
-        "slice-591-document-ocr-completion-readiness"
+        "slice-591-document-ocr-completion-readiness",
+        "slice-592-document-pdf-thumbnail-readiness"
       ]
     },
     {
@@ -11550,6 +11572,19 @@
           "slice-591-document-ocr-completion-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentPdfThumbnailPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-592-document-pdf-thumbnail-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14209,6 +14244,14 @@
           "layer": "plan",
           "commandName": "parityDocumentOcrCompletionPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-591-document-ocr-completion-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-pdf-thumbnail",
+          "name": "Slice 592 document PDF thumbnail plan",
+          "description": "Runs the shared document PDF thumbnail plan against the modernized target, including protected generated-thumbnail API payload and Documents card rendering evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentPdfThumbnailPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-592-document-pdf-thumbnail-readiness.json"
         }
       ],
       "testPlans": [
@@ -14218,7 +14261,8 @@
         "slice-588-medication-reconciliation-readiness",
         "slice-589-appointment-conflict-enforcement-readiness",
         "slice-590-document-ocr-queue-readiness",
-        "slice-591-document-ocr-completion-readiness"
+        "slice-591-document-ocr-completion-readiness",
+        "slice-592-document-pdf-thumbnail-readiness"
       ]
     },
     {

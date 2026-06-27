@@ -4181,6 +4181,28 @@
       ]
     },
     {
+      "id": "slice-592-document-pdf-thumbnail-readiness",
+      "name": "Slice 592 document PDF thumbnail readiness",
+      "description": "Document PDF thumbnail readiness plan that proves source PDF document facts and verifies the modernized Documents workspace renders a generated SVG thumbnail for database-backed PDF rows.",
+      "suites": [
+        "workflow-document-pdf-thumbnail"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-592",
+        "documents",
+        "attachments",
+        "thumbnail",
+        "pdf",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10265,6 +10287,26 @@
         "attachments",
         "ocr",
         "completion",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-pdf-thumbnail",
+      "name": "Document PDF generated thumbnail workflow",
+      "description": "Creates a temporary PDF document and verifies the modernized Documents workspace renders the generated PDF thumbnail while legacy source facts remain comparable.",
+      "path": "tests/workflow-document-pdf-thumbnail",
+      "tags": [
+        "slice592",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "thumbnail",
+        "pdf",
         "comparison-ready"
       ],
       "targets": [
