@@ -1245,22 +1245,22 @@
         },
         {
           "label": "Preview, thumbnail, lifecycle, and scanned-readiness",
-            "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, generated PDF thumbnails, lifecycle timeline, scanned attachment readiness, pending-OCR work queue projection, focused OCR completion, pending-review routing queue projection, and deterministic retention policy projection are covered.",
+          "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, generated PDF thumbnails, lifecycle timeline, scanned attachment readiness, pending-OCR work queue projection, focused OCR completion, pending-review routing queue projection, and deterministic retention policy projection are covered.",
           "evidence": [
             "slice-53-document-preview-readiness",
             "slice-54-document-revision-readiness",
             "slice-88-document-image-preview-readiness",
             "slice-89-document-image-thumbnail-readiness",
-              "slice-90-document-pdf-preview-readiness",
-              "slice-592-document-pdf-thumbnail-readiness",
-              "slice-91-document-lifecycle-readiness",
+            "slice-90-document-pdf-preview-readiness",
+            "slice-592-document-pdf-thumbnail-readiness",
+            "slice-91-document-lifecycle-readiness",
             "slice-92-document-scanned-attachment-readiness",
-             "slice-590-document-ocr-queue-readiness",
-             "slice-591-document-ocr-completion-readiness",
-             "slice-593-document-routing-queue-readiness",
-             "slice-594-document-retention-policy-readiness"
-            ]
-          },
+            "slice-590-document-ocr-queue-readiness",
+            "slice-591-document-ocr-completion-readiness",
+            "slice-593-document-routing-queue-readiness",
+            "slice-594-document-retention-policy-readiness"
+          ]
+        },
         {
           "label": "Document protection readiness",
           "detail": "The modernized patient document API now requires an active session, the Documents page gates document search and mutations until sign-in, and parity compares legacy document-page protection with modernized API/UI protection.",

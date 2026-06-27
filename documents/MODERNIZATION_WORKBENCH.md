@@ -952,4 +952,10 @@ The Progress page also records pending-review document routing queues as complet
 
 The Workbench now exposes managed Slice 594 document retention policy plan actions for both the legacy and modernized targets. These actions run `slice-594-document-retention-policy-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable active document source facts plus modernized retain-until/disposition API/UI evidence.
 
-The Progress page also records deterministic retention policy projection as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and destructive retention disposition execution outstanding.
+The Progress page also records deterministic retention policy projection as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and controlled/destructive retention disposition execution outstanding.
+
+## Slice 595 Workbench Update
+
+The Workbench now exposes managed Slice 595 document retention disposition plan actions for both the legacy and modernized targets. These actions run `slice-595-document-retention-disposition-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable archive/disposition facts plus modernized protected retention-disposition API/UI action evidence.
+
+The Progress page also records controlled retention disposition/archive as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, external storage, encryption/key management, and production-grade purge/legal-hold/export retention workflows outstanding.

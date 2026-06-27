@@ -4247,6 +4247,29 @@
       ]
     },
     {
+      "id": "slice-595-document-retention-disposition-readiness",
+      "name": "Slice 595 document retention disposition readiness",
+      "description": "Document retention disposition readiness plan that creates an eligible retention-policy document, executes controlled archive disposition, verifies the archived state, and proves the modernized Documents workspace can trigger the workflow.",
+      "suites": [
+        "workflow-document-retention-disposition"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-595",
+        "documents",
+        "attachments",
+        "retention",
+        "disposition",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10391,6 +10414,26 @@
         "attachments",
         "retention",
         "policy",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-retention-disposition",
+      "name": "Document retention disposition workflow",
+      "description": "Creates an eligible retention-policy document, executes controlled disposition/archive behavior, and verifies legacy and modernized archived source facts remain comparable.",
+      "path": "tests/workflow-document-retention-disposition",
+      "tags": [
+        "slice595",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "retention",
+        "disposition",
         "comparison-ready"
       ],
       "targets": [

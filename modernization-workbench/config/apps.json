@@ -4498,6 +4498,19 @@
           "slice-594-document-retention-policy-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentRetentionDispositionPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-595-document-retention-disposition-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7162,6 +7175,14 @@
           "layer": "all",
           "commandName": "parityAllTests",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-all.json"
+        },
+        {
+          "id": "parity-plan-document-retention-disposition",
+          "name": "Slice 595 document retention disposition plan",
+          "description": "Runs the shared document retention disposition source-fact/archive plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentRetentionDispositionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-595-document-retention-disposition-readiness.json"
         }
       ],
       "actions": [
@@ -7280,7 +7301,8 @@
         "slice-591-document-ocr-completion-readiness",
         "slice-592-document-pdf-thumbnail-readiness",
         "slice-593-document-routing-queue-readiness",
-        "slice-594-document-retention-policy-readiness"
+        "slice-594-document-retention-policy-readiness",
+        "slice-595-document-retention-disposition-readiness"
       ]
     },
     {
@@ -11655,6 +11677,19 @@
           "slice-594-document-retention-policy-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentRetentionDispositionPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-595-document-retention-disposition-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14232,6 +14267,14 @@
           "layer": "plan",
           "commandName": "parityPrescriptionRefillRequestApprovalPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-581-prescription-refill-request-approval-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-retention-disposition",
+          "name": "Slice 595 document retention disposition plan",
+          "description": "Runs the shared document retention disposition plan against the modernized target, including protected retention disposition API and Documents workspace action evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentRetentionDispositionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-595-document-retention-disposition-readiness.json"
         }
       ],
       "actions": [
@@ -14350,7 +14393,8 @@
         "slice-591-document-ocr-completion-readiness",
         "slice-592-document-pdf-thumbnail-readiness",
         "slice-593-document-routing-queue-readiness",
-        "slice-594-document-retention-policy-readiness"
+        "slice-594-document-retention-policy-readiness",
+        "slice-595-document-retention-disposition-readiness"
       ]
     },
     {
