@@ -380,7 +380,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list/request/request-options, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -396,6 +396,11 @@
           "label": "Overlap and reminder readiness",
           "detail": "Provider, patient, and room overlap tolerance plus seeded reminder due/channel/contact derivation are covered.",
           "evidence": ["slice-117-appointment-provider-overlap-readiness", "slice-118-appointment-patient-overlap-readiness", "slice-119-appointment-room-overlap-readiness", "slice-120-appointment-reminders-readiness"]
+        },
+        {
+          "label": "Appointment availability validation readiness",
+          "detail": "The modernized appointment API can validate a proposed appointment before creation, report provider, patient, room, and shared bookable-window conflicts, and render the availability result in Calendar.",
+          "evidence": ["slice-575-appointment-availability-validation-readiness"]
         },
         {
           "label": "Appointment protection readiness",
@@ -439,16 +444,16 @@
         }
       ],
       "outstanding": [
-        "Stricter provider and facility availability validation, resource conflict enforcement beyond tolerance/readiness reporting, and waitlist flows.",
+        "Resource conflict enforcement beyond availability/readiness reporting and waitlist flows.",
         "Reminder delivery, delivery audit, and templates."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 86,
+      "completionEstimatePercent": 88,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; advanced availability, waitlists, delivery/audit, and templates remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, recurrence, overlap, reminder-readiness, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; waitlists, delivery/audit, and templates remain."
     },
     {
       "id": "encounters-clinical-notes",

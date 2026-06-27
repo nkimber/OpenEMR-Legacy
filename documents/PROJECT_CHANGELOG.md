@@ -27680,6 +27680,37 @@ Verification:
 
 Code Metrics:
 - 16 scoped files changed, with 602 insertions and 10 deletions, net +592 lines and 612 total churn, including backend email outbox persistence, React outbox rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+
+## 630. Appointment Availability Validation Readiness
+
+Started: 2026-06-26T21:57:00.0000000-04:00
+Finished: 2026-06-26T22:10:15.2590000-04:00
+Commit: pending
+
+Implemented Slice 575: appointment availability validation readiness. The modernized appointment API now exposes a non-mutating `POST /api/appointments/availability/validate` operation that resolves the patient, provider, and facility, evaluates the shared Monday-Friday 08:00-17:00 provider/facility bookable window, and reports active provider, patient, and room conflicts before an appointment is created. The Calendar create form now includes a `Check availability` action that renders available/unavailable status, provider/facility availability, conflict counts, and validation messages.
+
+Changes:
+- Added appointment availability validation DTOs and repository logic for provider/facility bookable-window checks plus active provider/patient/room conflict projection.
+- Added the modernized appointment availability validation endpoint behind Appointment write permission.
+- Added frontend API types/helper and Calendar create-form availability checking UI.
+- Added the `workflow-appointment-availability-validation` parity suite and `slice-575-appointment-availability-validation-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 575 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so provider/facility availability validation is completed scheduling evidence while waitlists and reminder delivery remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized API with `docker compose up -d --build api`.
+- Ran the Slice 575 legacy parity plan: `2026-06-27T020709-017Z-legacy-openemr-plan-slice-575-appointment-availability-validation-readiness` passed 1/1 tests.
+- Ran the Slice 575 modernized parity plan: `2026-06-27T020917-797Z-modernized-openemr-plan-slice-575-appointment-availability-validation-readiness` passed 1/1 tests after fixing the provider-name query to use the modernized `staff.first_name` / `staff.last_name` schema.
+- Compared the latest successful Slice 575 runs: `2026-06-27T021015-258Z-legacy-openemr-vs-modernized-openemr-plan-slice-575-appointment-availability-validation-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics until the Slice 575 files are staged separately from unrelated in-progress Azure demo documentation and Workbench changes.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

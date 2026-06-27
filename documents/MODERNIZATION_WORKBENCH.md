@@ -835,3 +835,9 @@ The Progress page also records patient-portal statement document delivery as com
 The Workbench now exposes managed Slice 574 statement email outbox plan actions for both the legacy and modernized targets. These actions run `slice-574-statement-email-outbox-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target queues deterministic local statement email outbox records for email-ready statement batch candidates.
 
 The Progress page also records local statement email outbox readiness as completed revenue-cycle evidence while keeping live SMTP/provider delivery, bounce handling, production mail credentials, print-provider integration, and mailing fulfillment outstanding.
+
+## Slice 575 Workbench Update
+
+The Workbench now exposes managed Slice 575 appointment availability validation plan actions for both the legacy and modernized targets. These actions run `slice-575-appointment-availability-validation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Calendar and appointment API report provider/facility bookable-window status plus active provider, patient, and room conflicts before creating an appointment.
+
+The Progress page also records provider/facility availability validation as completed scheduling evidence while keeping waitlists, reminder delivery/audit, templates, and richer scheduling policy configuration outstanding.
