@@ -28550,6 +28550,37 @@ Verification:
 Code Metrics:
 - 17 files changed, 796 insertions, 10 deletions.
 
+## 655. Slice 603 Appointment Reminder Template Administration Readiness
+
+Started: 2026-06-27T07:08:00.0000000-04:00
+Finished: 2026-06-27T07:24:36.8023253-04:00
+Commit: a9782972
+
+Implemented appointment reminder template administration readiness for the modernized Calendar workflow. The modernized appointment API now exposes a protected reminder-template catalog, accepts a compatible selected template when dispatching a due reminder, rejects incompatible template selections before queueing, and preserves prior default dispatch behavior when no template is supplied.
+
+Changes:
+- Added `GET /api/appointments/reminders/templates` and optional selected-template dispatch input for `POST /api/appointments/{appointmentId}/reminders/dispatch`.
+- Added a deterministic reminder-template catalog with default channel templates plus SMS/email and email arrival-instructions variants.
+- Updated dispatch preview generation so arrival-instructions templates append arrival/insurance/photo-ID guidance.
+- Added frontend API types/calls plus a Calendar reminder-template selector that filters templates by the selected appointment reminder channel.
+- Added the `workflow-appointment-reminder-template-administration` parity suite and `slice-603-appointment-reminder-template-administration-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 603 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so reminder template administration is completed scheduling evidence and scheduling completion moves to 96%.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 603.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
+- Ran the Slice 603 legacy parity plan: `2026-06-27T112047-454Z-legacy-openemr-plan-slice-603-appointment-reminder-template-administration-readiness` passed 1/1 tests.
+- Ran the Slice 603 modernized parity plan: `2026-06-27T112149-407Z-modernized-openemr-plan-slice-603-appointment-reminder-template-administration-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 603 runs: `2026-06-27T112210-921Z-legacy-openemr-vs-modernized-openemr-plan-slice-603-appointment-reminder-template-administration-readiness` matched with no differences.
+
+Code Metrics:
+- 16 files changed, 804 insertions, 32 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
