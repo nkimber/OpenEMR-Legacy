@@ -2112,6 +2112,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-568-patient-payment-server-side-posting-readiness",
+      "name": "Slice 568 Patient Payment Server-Side Posting Readiness",
+      "description": "Mutation-capable revenue-cycle validation plan that posts, renders, voids, and removes a temporary patient payment while the modernized Fees UI delegates patient payment semantics to a dedicated backend operation.",
+      "suites": ["workflow-patient-payments"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-568", "billing", "payments", "patient-payments", "server-side-business-logic", "ui-orchestration", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",
