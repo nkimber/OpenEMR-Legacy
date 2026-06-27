@@ -27617,7 +27617,7 @@ Code Metrics:
 
 Started: 2026-06-26T19:31:55.0000000-04:00
 Finished: 2026-06-26T19:35:35.1571255-04:00
-Commit: pending
+Commit: efc8449f
 
 Improved the Workbench Demo Deployment page operator feedback for long-running Azure actions. Save profile, Validate, Deploy latest, and Smoke test now show a temporary elapsed-time counter while the action is in flight, so the page visibly confirms that Azure validation, provider registration, image build/push, deployment, or smoke-test work is still running.
 
@@ -27637,7 +27637,7 @@ Code Metrics:
 
 Started: 2026-06-26T19:50:46.8918695-04:00
 Finished: 2026-06-26T20:00:25.4585725-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the next Azure demo deployment blocker from the copied Workbench evidence. Azure CLI reached `az containerapp create --yaml` for the legacy demo app, ignored the separate environment flag, and then rejected the create request because the generated YAML did not carry the managed Container Apps environment resource ID. The deployment script now writes `properties.environmentId` into both generated Container App YAML files and redacts Azure Container Registry credential output before deployment evidence is saved or copied.
 
@@ -27662,7 +27662,7 @@ Code Metrics:
 
 Started: 2026-06-26T20:03:54.5236887-04:00
 Finished: 2026-06-26T20:08:09.6714111-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the next Azure demo deployment blocker from the copied Workbench evidence. Azure CLI still rejected `az containerapp create --yaml` with `environmentId is required` even after the generated YAML included `properties.environmentId`. Inspection of the installed Azure CLI Container Apps create path showed that the CLI wrapper checks for a root-level `environmentId` before building the Container App resource body. The generated legacy and modernized YAML now include the managed environment resource ID at both the CLI YAML root and `properties.environmentId`.
 
@@ -27683,7 +27683,7 @@ Code Metrics:
 
 Started: 2026-06-26T20:15:05.3502370-04:00
 Finished: 2026-06-26T20:21:09.6008642-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the next Azure demo deployment blocker from the copied Workbench evidence. After the root-level `environmentId` change, Azure CLI advanced past its local YAML guard but the server rejected the `create --yaml` payload with a JSON boolean conversion error. The deployment script now avoids first-time `az containerapp create --yaml`: missing Container Apps are bootstrapped with a small public placeholder image through ordinary create flags, then immediately updated with the generated multi-container YAML that defines the OpenEMR app container, database sidecar, secrets, ingress, and scale settings.
 
@@ -27709,7 +27709,7 @@ Code Metrics:
 
 Started: 2026-06-26T20:28:03.4826382-04:00
 Finished: 2026-06-26T20:32:42.6212890-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the next Azure demo deployment blocker from the copied Workbench evidence. The legacy Container App now creates, updates, and smokes successfully, and deployment then failed while building the modernized API image because Windows-local `.NET` restore metadata from `obj/project.assets.json` was copied into the Linux Docker build. The repository root now has a Docker ignore file for the Azure demo build context so host-generated outputs stay out of the image build.
 
@@ -27733,7 +27733,7 @@ Code Metrics:
 
 Started: 2026-06-26T20:34:18.0000000-04:00
 Finished: 2026-06-26T20:55:15.6290276-04:00
-Commit: pending
+Commit: efc8449f
 
 Improved the Workbench Demo Deployment page after the first successful public Azure deployment. The page now turns successful deploy or smoke evidence into a visible live deployment status, shows direct public links for the legacy and modernized Azure Container Apps, and can refresh live runtime plus Cost Management estimates from Azure.
 
@@ -27788,7 +27788,7 @@ Code Metrics:
 
 Started: 2026-06-26T21:25:00.0000000-04:00
 Finished: 2026-06-26T22:12:45.0000000-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the Azure Demo Deployment false-positive path where Workbench public links could still open the generic Azure Container Apps placeholder page. The deployment script now applies the generated Container App YAML in the shape accepted by `az containerapp update --yaml`, verifies the active Azure template contains the expected final images after each update, waits for the colocated legacy MariaDB sidecar before starting OpenEMR, and rejects placeholder page content during smoke polling. The Workbench live-status refresh now also inspects active Container App images and treats the default placeholder image as unknown instead of live.
 
@@ -27847,7 +27847,7 @@ Code Metrics:
 
 Started: 2026-06-26T22:16:00.0000000-04:00
 Finished: 2026-06-26T22:27:20.0000000-04:00
-Commit: pending
+Commit: efc8449f
 
 Fixed the modernized Azure demo login failure after the public sites became reachable. The frontend reported `Login readiness check failed with 500`; API container logs showed PostgreSQL error `42P01: relation "auth_accounts" does not exist`. Azure had round-tripped unquoted YAML booleans as `True`, while the Linux API entrypoint only seeded the PostgreSQL sidecar when the flags equaled lowercase `true`, so the modernized API started without applying the auth-capable demo seed.
 
@@ -27927,7 +27927,7 @@ Code Metrics:
 
 Started: 2026-06-26T23:05:00.0000000-04:00
 Finished: 2026-06-27T03:02:36.2965773-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented Slice 578: medication duplicate detection readiness. The modernized clinical-list API now groups active medication-list rows by normalized title and exposes duplicate count, source IDs, date range, and diagnosis evidence. The Lists page renders a medication duplicate summary so safety-relevant duplicate active medications are visible instead of being buried in the list.
 
@@ -27948,7 +27948,7 @@ Code Metrics:
 
 Started: 2026-06-26T22:35:00.0000000-04:00
 Finished: 2026-06-26T23:04:08.3571743-04:00
-Commit: pending
+Commit: efc8449f
 
 Added a separate public Demo Portal landing page to the Workbench-managed Azure demo deployment path. The Demo Deployment page now treats `demo-portal` as a first-class target beside legacy and modernized OpenEMR, migrates older saved local profiles to include that target, previews the role-specific directory entries from `modernization-workbench/config/demo-directory.json`, and resolves live portal links from Azure status. The deployment script builds a tiny Nginx static portal image with generated directory JSON, deploys it as `openemr-demo-portal`, smoke-tests the public landing page title, and the status refresh verifies deployed images by repository prefix when smoke-only evidence does not include deployment-specific image tags.
 
@@ -27979,7 +27979,7 @@ Code Metrics:
 
 Started: 2026-06-26T23:18:00.0000000-04:00
 Finished: 2026-06-27T00:16:45.7771278-04:00
-Commit: pending
+Commit: efc8449f
 
 Added a demo login preset contract for public Demo Portal links. The Workbench demo directory registry now records role-specific `demoPreset` values, the generated public portal data appends `demo=staff` or `demo=patient` to target login URLs, and the Workbench preview shows which preset each entry uses without placing passwords in URLs.
 
@@ -28013,8 +28013,8 @@ Code Metrics:
 ## 637. Prescription Refill Authorization Readiness
 
 Started: 2026-06-26T23:24:00.0000000-04:00
-Finished: pending
-Commit: pending
+Finished: 2026-06-27T11:28:30.0000000-04:00
+Commit: efc8449f
 
 Implemented Slice 579: prescription refill authorization readiness. The modernized clinical-list API now authorizes one or more additional refills on active prescriptions, stamps the modified date, preserves note evidence, and returns the refreshed clinical-list detail. The Lists page now exposes a `Refill` action on prescription cards and renders the updated refill count and note.
 
@@ -28036,7 +28036,7 @@ Code Metrics:
 
 Started: 2026-06-26T23:49:00.0000000-04:00
 Finished: 2026-06-26T23:59:49.3240000-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented Slice 580: patient portal prescription refill request readiness. The modernized patient portal API now validates that a signed-in portal patient owns an active prescription before creating secure-message sent and recipient mailbox rows for a refill request. The Portal clinical summary now exposes a `Request refill` action on prescription cards and refreshes message/audit evidence after the request is sent.
 
@@ -28067,7 +28067,7 @@ Code Metrics:
 ## 639. Prescription Refill Request Approval Readiness
 
 Started: 2026-06-27T00:20:00.0000000-04:00
-Finished: pending
+Finished: 2026-06-27T02:09:26.0000000-04:00
 Commit: ccedb7ec
 
 Implemented Slice 581: prescription refill request approval readiness. The modernized clinical-list API now projects pending patient-originated portal refill requests into the staff Lists workspace and lets staff approve one or more additional refills while marking the originating mailbox request `Done`.
@@ -28128,7 +28128,7 @@ Code Metrics:
 
 Started: 2026-06-27T00:23:41.2400617-04:00
 Finished: 2026-06-27T00:38:17.5805770-04:00
-Commit: pending
+Commit: efc8449f
 
 Enhanced the public Demo Portal landing page with a compact visual technology-stack comparison for each application card. The legacy card now highlights AngularJS, PHP, and MariaDB, while the modernized card highlights React, .NET, and PostgreSQL, giving demo visitors an immediate visual cue for the modernization shift without changing the launch-page structure.
 
@@ -28186,7 +28186,7 @@ Code Metrics:
 
 Started: 2026-06-27T01:33:52.3982163-04:00
 Finished: 2026-06-27T01:37:32.9083676-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented prescription audit-history readiness for the modernized clinical-list prescription workflow. The modernized API now persists focused prescription audit events for create, refill, route, and deactivate operations, exposes a protected prescription audit-history endpoint, and the Lists page can render a selected prescription's event stream.
 
@@ -28218,7 +28218,7 @@ Code Metrics:
 
 Started: 2026-06-27T01:57:33.8276581-04:00
 Finished: 2026-06-27T02:00:12.4188404-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented prescription structured-dose readiness for the modernized clinical-list prescription workflow. The modernized API now accepts, stores, and projects prescription dose amount, dose unit, frequency, and duration fields while preserving the legacy dosage and quantity text that existing OpenEMR users expect.
 
@@ -28251,7 +28251,7 @@ Code Metrics:
 
 Started: 2026-06-27T02:24:03.1320698-04:00
 Finished: 2026-06-27T02:27:37.1995272-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented focused medication vocabulary readiness for the modernized clinical-list prescription workflow. The modernized API now exposes a protected RxNorm-style medication catalog lookup, the PostgreSQL seed/runtime schema includes a deterministic catalog, and the Lists prescription form can search/select vocabulary entries to populate prescription fields before save.
 
@@ -28282,7 +28282,7 @@ Code Metrics:
 
 Started: 2026-06-27T02:34:00.0000000-04:00
 Finished: 2026-06-27T02:47:06.5310979-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented prescription diagnosis interaction readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active prescription diagnoses with active problem-list diagnoses, reports matched active-problem and unmatched prescription diagnosis states, and renders the summary in the Lists prescription panel.
 
@@ -28312,8 +28312,8 @@ Code Metrics:
 ## 645. Slice 588 Medication Reconciliation Readiness
 
 Started: 2026-06-27T02:52:00.0000000-04:00
-Finished: pending
-Commit: pending
+Finished: 2026-06-27T11:28:30.0000000-04:00
+Commit: efc8449f
 
 Implemented medication reconciliation readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active medication-list rows with active prescriptions by normalized medication name, reports matched, medication-list-only, and prescription-only states, and renders the summary in the Lists medication panel.
 
@@ -28343,8 +28343,8 @@ Code Metrics:
 ## 646. Slice 589 Appointment Conflict Enforcement Readiness
 
 Started: 2026-06-27T03:14:51.7800602-04:00
-Finished: pending
-Commit: pending
+Finished: 2026-06-27T11:28:30.0000000-04:00
+Commit: efc8449f
 
 Implemented strict appointment conflict enforcement readiness for the modernized scheduling workflow. The modernized appointment create contract can now opt into conflict-policy enforcement, validates the requested slot before insert, returns HTTP 409 with provider/room conflict evidence, and the Calendar create form exposes a `Block conflicts` toggle that renders the returned conflict message.
 
@@ -28369,7 +28369,7 @@ Code Metrics:
 
 Started: 2026-06-27T04:24:00.0000000-04:00
 Finished: 2026-06-27T04:37:06.8231583-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented controlled document retention disposition readiness for the modernized Documents workflow. The modernized API now validates retention eligibility from the deterministic retain-until calculation, archives eligible active documents through a dedicated disposition command, appends disposition evidence to document notes, and refreshes document and retention-policy state for the UI.
 
@@ -28592,7 +28592,7 @@ Code Metrics:
 
 Started: 2026-06-27T08:30:00.0000000-04:00
 Finished: 2026-06-27T09:54:13.3881263-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented a real first-page entry experience for the modernized OpenEMR frontend. The app now opens to a chooser with `Staff` and `Patient Portal`, requires Staff users to authenticate through a core staff login page before any staff modules render, lets staff log out from the physician/staff shell back to the chooser, and keeps the Patient Portal as a separate patient-facing path instead of a staff sidebar module.
 
@@ -28625,7 +28625,7 @@ Code Metrics:
 
 Started: 2026-06-27T11:05:00.0000000-04:00
 Finished: 2026-06-27T11:22:56.8568038-04:00
-Commit: pending
+Commit: efc8449f
 
 Implemented a generated DeepWiki-style technical reference guide for the modernized OpenEMR target and exposed it through the Modernization Workbench. The generated guide is stored as a project document, stamped with generation metadata and source commit state, and summarizes the modernized target source tree, runtime stack, frontend modules, backend API endpoints, repository/DTO map, PostgreSQL schema signals, parity-plan coverage, and regeneration command.
 
