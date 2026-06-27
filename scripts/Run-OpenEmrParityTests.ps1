@@ -38,6 +38,8 @@ param(
         "account-statement-pdf",
         "account-statement-batch",
         "account-statement-batch-package",
+        "account-statement-delivery",
+        "account-statement-dispatch",
         "account-collections-work-queue",
         "account-collections-follow-up",
         "admin",

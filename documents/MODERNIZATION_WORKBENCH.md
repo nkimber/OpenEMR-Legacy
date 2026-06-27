@@ -813,3 +813,9 @@ The Progress page also records focused payment-create API contract hardening as 
 The Workbench now exposes managed Slice 570 statement delivery manifest plan actions for both the legacy and modernized targets. These actions run `slice-570-statement-delivery-manifest-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Delivery Manifest` action prepares the same queued statement handoff metadata as the legacy database projection for the top statement batch candidates.
 
 The Progress page also records deterministic statement delivery manifest preparation as completed revenue-cycle readiness while keeping actual outbound email, print, mailing, portal delivery, and delivery audit integrations outstanding.
+
+## Slice 571 Workbench Update
+
+The Workbench now exposes managed Slice 571 statement dispatch handoff plan actions for both the legacy and modernized targets. These actions run `slice-571-statement-dispatch-handoff-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Dispatch Handoff` action produces the same deterministic local email/print queue evidence as the legacy-derived statement candidate projection.
+
+The Progress page also records local statement dispatch handoff evidence as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, mailing fulfillment, portal delivery, and durable delivery-audit storage outstanding.

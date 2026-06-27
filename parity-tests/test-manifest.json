@@ -2184,6 +2184,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-571-statement-dispatch-handoff-readiness",
+      "name": "Slice 571 Statement Dispatch Handoff Readiness",
+      "description": "Revenue-cycle confidence plan that creates deterministic local statement dispatch handoff metadata for the top batch candidates and validates modernized Fees dispatch evidence rendering.",
+      "suites": ["account-statement-dispatch"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-571", "billing", "patient-statements", "statement-delivery", "statement-dispatch", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -3011,6 +3020,16 @@
       "layer": "parity",
       "path": "tests/account-statement-delivery",
       "tags": ["slice570", "account-statement-delivery", "patient-statements", "statement-delivery", "billing", "revenue-cycle", "read-only", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "account-statement-dispatch",
+      "name": "Account Statement Dispatch Handoff",
+      "description": "Compares deterministic local statement dispatch audit handoff metadata and modernized Fees dispatch rendering against seeded statement candidates.",
+      "layer": "parity",
+      "path": "tests/account-statement-dispatch",
+      "tags": ["slice571", "account-statement-dispatch", "patient-statements", "statement-delivery", "statement-dispatch", "billing", "revenue-cycle", "mutation", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
