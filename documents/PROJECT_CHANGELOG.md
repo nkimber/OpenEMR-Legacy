@@ -28240,6 +28240,36 @@ Verification:
 
 Code Metrics:
 - Commit `9cf88033` changed 11 scoped files with 547 insertions and 18 deletions.
+## 650. Slice 593 Document Routing Queue Readiness
+
+Started: 2026-06-27T04:00:00.0000000-04:00
+Finished: 2026-06-27T04:10:41.6760691-04:00
+Commit: 6b75fca3
+
+Implemented document routing queue readiness for the modernized document workflow. Active pending-review documents are now projected as routed work items with route destination, priority, queue status, review status, category, patient, and reason evidence, and the Documents workspace renders that work queue beside the OCR queue.
+
+Changes:
+- Added document routing queue DTOs and protected `GET /api/documents/routing-queue`.
+- Added repository projection for active pending-review documents with explicit `Route to:` and `Routing priority:` note support plus category-based default routing.
+- Added frontend API typing/client support for the routing queue.
+- Rendered a Documents Routing Queue panel with queued/high-priority counts, route destination, review status, priority, and reason evidence.
+- Added the `workflow-document-routing-queue` parity suite and `slice-593-document-routing-queue-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 593 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so pending-review document routing queue projection is completed document functionality while scanner capture, production OCR engine integration, full version history, storage, encryption, and retention remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 593 legacy parity plan: `2026-06-27T080702-816Z-legacy-openemr-plan-slice-593-document-routing-queue-readiness` passed 1/1 tests.
+- Ran the Slice 593 modernized parity plan: `2026-06-27T080728-840Z-modernized-openemr-plan-slice-593-document-routing-queue-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 593 runs: `2026-06-27T080750-733Z-legacy-openemr-vs-modernized-openemr-plan-slice-593-document-routing-queue-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `6b75fca3` changed 15 scoped files with 620 insertions and 16 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
