@@ -27431,6 +27431,38 @@ Verification:
 
 Code Metrics:
 - 14 scoped files changed, with 222 insertions and 14 deletions, net +208 lines and 236 total churn, including the backend adjustment-reversal operation, React reversal handoff, stronger UI-backed parity coverage, and managed server-side reversal parity plan.
+
+## 616. Slice 567 Insurance Payment Server-Side Posting Readiness
+
+Started: 2026-06-26T19:54:20.0000000-04:00
+Finished: 2026-06-26T20:04:15.0697023-04:00
+Commit: `0092872f`
+
+Implemented Slice 567: focused insurance-payment server-side posting readiness. The modernized Fees `Insurance` payment source no longer constructs the OpenEMR-shaped insurer-backed payment posting inside the React UI; it calls the new `POST /api/billing/payments/insurance-payments` backend operation with the patient, encounter, payer, reference, date, payment method, CPT context, memo, payment amount, adjustment amount, reason code, and payer claim number. The backend owns primary payer identity, `insurance_payment` payment type, positive payment amount, non-negative adjustment amount, account-code derivation from the reason code, payer claim preservation, and refreshed billing detail. The shared parity plan now drives the modernized Fees form through that endpoint, verifies the same temporary insurer-backed payment plus adjustment posting, rendering, void rollback, account-balance and ledger movement, payer claim number, reason code, and cleanup against both targets.
+
+Changes:
+- Added the modernized backend insurance-payment request contract, repository adapter, and billing API endpoint.
+- Changed the modernized Fees `Insurance` payment path so React submits payment intent to the backend instead of building the final payment posting shape itself.
+- Strengthened the payment-posting parity suite so the modernized target creates the insurance payment through the actual Fees form, waits for payment-form initialization, asserts the intended encounter before submit, captures the created payment activity ID from the database probe, and still voids and cleans up deterministically.
+- Added the `slice-567-insurance-payment-server-side-posting-readiness` plan over the payment-posting workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 567 insurance-payment server-side posting plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count insurance payment posting as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, and project changelog with the Slice 567 server-side insurance payment posting contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 567 legacy parity plan: `2026-06-27T000216-561Z-legacy-openemr-plan-slice-567-insurance-payment-server-side-posting-readiness` passed 1/1 tests.
+- Ran the Slice 567 modernized parity plan: `2026-06-27T000256-141Z-modernized-openemr-plan-slice-567-insurance-payment-server-side-posting-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 567 runs: `2026-06-27T000335-319Z-legacy-openemr-vs-modernized-openemr-plan-slice-567-insurance-payment-server-side-posting-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 567 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 15 scoped files changed, with 237 insertions and 13 deletions, net +224 lines and 250 total churn, including the backend insurance-payment operation, React payment handoff, stronger UI-backed parity coverage, and managed server-side payment parity plan.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
