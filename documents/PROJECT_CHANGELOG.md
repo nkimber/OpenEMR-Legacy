@@ -27934,7 +27934,7 @@ Code Metrics:
 
 Started: 2026-06-27T01:10:08.1202991-04:00
 Finished: 2026-06-27T01:14:25.7218319-04:00
-Commit: pending
+Commit: c07a081e
 
 Implemented controlled-substance pharmacy-routing guard readiness for the modernized clinical-list prescription workflow. Controlled-substance prescriptions now carry schedule/review evidence in the modernized Lists read model, ordinary pharmacy routing returns a blocked route result before pharmacy/eRx transmit fields are stamped, and the shared parity suite verifies the same blocked behavior against the legacy adapter and modernized target.
 
@@ -27958,7 +27958,7 @@ Verification:
 - Compared the latest successful Slice 583 runs: `2026-06-27T051344-550Z-legacy-openemr-vs-modernized-openemr-plan-slice-583-prescription-controlled-substance-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `c07a081e` changed 16 scoped files with 441 insertions and 10 deletions.
 
 ## Next Expected Entries
 
