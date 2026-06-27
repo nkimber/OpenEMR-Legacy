@@ -28270,6 +28270,36 @@ Verification:
 
 Code Metrics:
 - Commit `6b75fca3` changed 15 scoped files with 620 insertions and 16 deletions.
+## 651. Slice 594 Document Retention Policy Readiness
+
+Started: 2026-06-27T04:12:00.0000000-04:00
+Finished: 2026-06-27T04:22:31.8617929-04:00
+Commit: 69f23612
+
+Implemented document retention policy readiness for the modernized document workflow. Active documents are now projected into deterministic retention-policy rows with retention class, retention years, retain-until date, disposition status, and policy-basis evidence calculated from the synthetic dataset base date, and the Documents workspace renders that evidence in a Retention Policy panel.
+
+Changes:
+- Added document retention policy DTOs and protected `GET /api/documents/retention-policy`.
+- Added repository retention projection with explicit `Retention class:`, `Retention years:`, and `Retention basis:` note support plus category-based defaults.
+- Added frontend API typing/client support for the retention policy view.
+- Rendered a Documents Retention Policy panel with tracked/eligible counts, as-of date, retention class, retain-until date, disposition status, retention years, and policy basis.
+- Added the `workflow-document-retention-policy` parity suite and `slice-594-document-retention-policy-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 594 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so deterministic retention policy projection is completed document functionality while destructive disposition execution remains outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 594 legacy parity plan: `2026-06-27T082013-787Z-legacy-openemr-plan-slice-594-document-retention-policy-readiness` passed 1/1 tests.
+- Ran the Slice 594 modernized parity plan: `2026-06-27T082037-126Z-modernized-openemr-plan-slice-594-document-retention-policy-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 594 runs: `2026-06-27T082058-778Z-legacy-openemr-vs-modernized-openemr-plan-slice-594-document-retention-policy-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `69f23612` changed 15 scoped files with 620 insertions and 13 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
