@@ -27898,7 +27898,7 @@ Code Metrics:
 
 Started: 2026-06-27T00:40:00.0000000-04:00
 Finished: 2026-06-27T00:56:34.1910000-04:00
-Commit: pending
+Commit: a2a0a653
 
 Implemented Slice 582: prescription pharmacy routing readiness. The modernized prescribing surface now supports routing an active prescription to deterministic pharmacy evidence, persists local eRx transmit metadata in the business tier, renders the routed state in Lists, and compares the behavior with legacy OpenEMR pharmacy/prescription fields.
 
@@ -27928,7 +27928,7 @@ Verification:
 - Compared the latest successful Slice 582 runs: `2026-06-27T045634-190Z-legacy-openemr-vs-modernized-openemr-plan-slice-582-prescription-pharmacy-routing-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `a2a0a653` changed 19 scoped files with 727 insertions and 18 deletions.
 
 ## Next Expected Entries
 
