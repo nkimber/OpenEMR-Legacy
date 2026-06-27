@@ -6,7 +6,7 @@
       "id": "patient-chart-registration",
       "name": "Patient Chart And Registration",
       "status": "in-progress",
-      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/profile demographics and insurance/profile pending-review change requests plus staff-side profile review queue, acceptance, and revert-edits handling, home immunization health-snapshot/clinical-summary problem, allergy, and medication date-column plus prescription modified-date/start-date/end-date filtering/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination/notification/attachment readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
+      "summary": "Core patient lookup, protected and ACL-authorized chart access, chart summary, duplicate detection, non-destructive merge-preview readiness, registration validation, deceased-status administration, guardian-contact/detail administration, social-detail administration, primary-provider assignment, provider and contact-backed care-team membership, patient history/lifestyle, insurance subscriber details, portal account/reset/access/authentication/session/home/profile demographics and insurance/profile pending-review change requests plus staff-side profile review queue, acceptance, and revert-edits handling, home immunization health-snapshot/clinical-summary problem, allergy, and medication date-column plus prescription modified-date/start-date/end-date filtering/lab-results/medical-report/appointments/appointment-request/secure-message inbox/compose/reply/thread-view/archive/read-status/mark-all-read/batch-archive/all-folder/pagination/notification/attachment readiness, portal generated-report issue selection, encounter-form selection, procedure-order selection, procedure-order delivery artifacts, printable template metadata, and report package delivery, demographics, contact, registration, insurance, and immunization workflows have parity coverage, with richer administrative paths still open.",
       "completed": [
         {
           "label": "Patient search and chart summary",
@@ -562,11 +562,19 @@
             "slice-231-patient-portal-generated-medical-report-audit-readiness",
             "slice-485-slice231-patient-portal-generated-medical-report-audit-probe-payload-attachments"
           ]
+        },
+        {
+          "label": "Patient merge preview readiness",
+          "detail": "The modernized patient API now exposes a protected non-destructive merge preview for duplicate patient charts, the Patient/Client duplicate panel renders target/source direction, match reasons, combined workflow counts, and safeguards, and parity compares the preview evidence against the legacy normalized database baseline.",
+          "evidence": [
+            "slice-605-patient-merge-preview-readiness"
+          ]
         }
       ],
       "outstanding": [
-        "Patient merge and broader guarantor insurance-party workflows.",
-        "Address validation catalogs, broader lifecycle audit trail, and broader patient administration policy depth."
+        "Broader guarantor insurance-party workflows.",
+        "Address validation catalogs, broader lifecycle audit trail, and broader patient administration policy depth.",
+        "Destructive patient merge execution remains deferred until full record-move auditing and rollback safeguards are implemented."
       ],
       "deferred": [
         "External vaccine registry submission, forecast rules, inventory coupling, and broader immunization registry workflows."

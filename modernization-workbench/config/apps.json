@@ -4628,6 +4628,15 @@
           "slice-604-encounter-soap-template-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPatientMergePreviewPlan": [
+          "npx",
+          "tsx",
+          "src/cli/run-tests.ts",
+          "--target",
+          "legacy-openemr",
+          "--plan",
+          "slice-605-patient-merge-preview-readiness"
         ]
       },
       "services": [
@@ -7478,6 +7487,14 @@
           "layer": "plan",
           "commandName": "parityEncounterSoapTemplatePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-604-encounter-soap-template-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-merge-preview",
+          "name": "Slice 605 patient merge preview plan",
+          "description": "Runs the shared patient merge-preview source/target count and safeguard plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientMergePreviewPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-605-patient-merge-preview-readiness.json"
         }
       ],
       "testPlans": [
@@ -7500,7 +7517,8 @@
         "slice-601-appointment-reminder-retry-readiness",
         "slice-602-patient-portal-reminder-preferences-readiness",
         "slice-603-appointment-reminder-template-administration-readiness",
-        "slice-604-encounter-soap-template-readiness"
+        "slice-604-encounter-soap-template-readiness",
+        "slice-605-patient-merge-preview-readiness"
       ]
     },
     {
@@ -12005,6 +12023,15 @@
           "slice-604-encounter-soap-template-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPatientMergePreviewPlan": [
+          "npx",
+          "tsx",
+          "src/cli/run-tests.ts",
+          "--target",
+          "modernized-openemr",
+          "--plan",
+          "slice-605-patient-merge-preview-readiness"
         ]
       },
       "services": [
@@ -14768,6 +14795,14 @@
           "layer": "plan",
           "commandName": "parityEncounterSoapTemplatePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-604-encounter-soap-template-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-merge-preview",
+          "name": "Slice 605 patient merge preview plan",
+          "description": "Runs the shared patient merge-preview plan against the modernized target, including API payload, Patient/Client preview panel rendering, and cleanup.",
+          "layer": "plan",
+          "commandName": "parityPatientMergePreviewPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-605-patient-merge-preview-readiness.json"
         }
       ],
       "testPlans": [
@@ -14790,7 +14825,8 @@
         "slice-601-appointment-reminder-retry-readiness",
         "slice-602-patient-portal-reminder-preferences-readiness",
         "slice-603-appointment-reminder-template-administration-readiness",
-        "slice-604-encounter-soap-template-readiness"
+        "slice-604-encounter-soap-template-readiness",
+        "slice-605-patient-merge-preview-readiness"
       ]
     },
     {

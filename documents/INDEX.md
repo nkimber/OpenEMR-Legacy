@@ -38,6 +38,8 @@ Slice 603 index update: appointment reminder template administration is now cove
 
 Slice 604 index update: encounter SOAP note template readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on the protected encounter SOAP-template catalog, Encounters workspace template application, SOAP note save behavior, or Workbench plan execution for `slice-604-encounter-soap-template-readiness`.
 
+Slice 605 index update: patient merge-preview readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on non-destructive duplicate-patient merge preview, target/source count projection, merge safeguards, or Workbench plan execution for `slice-605-patient-merge-preview-readiness`.
+
 ### `AZURE_DEMO_DEPLOYMENT.md`
 
 Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, or both to public Azure demo URLs from the Modernization Workbench.

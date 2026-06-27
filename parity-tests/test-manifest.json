@@ -8154,6 +8154,27 @@
       ]
     },
     {
+      "id": "slice-605-patient-merge-preview-readiness",
+      "name": "Slice 605 Patient Merge Preview Readiness",
+      "description": "Patient chart confidence plan that creates a temporary duplicate chart, verifies non-destructive merge-preview direction/count/safeguard evidence, renders the modernized merge-preview panel, and cleans up the temporary source chart.",
+      "suites": [
+        "workflow-patient-merge-preview"
+      ],
+      "resetMode": "run",
+      "tags": [
+        "slice605",
+        "patients",
+        "patient-merge",
+        "duplicate-detection",
+        "workflow",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "full-parity",
       "name": "Full Parity Contract",
       "description": "Complete parity plan for every implemented workflow suite. Modernized target joins this plan after mutation-capable workflow slices exist.",
@@ -8344,7 +8365,8 @@
         "account-statement-pdf",
         "account-statement-batch",
         "account-statement-batch-package",
-        "account-collections-work-queue"
+        "account-collections-work-queue",
+        "workflow-patient-merge-preview"
       ],
       "resetMode": "run",
       "tags": [
@@ -15768,6 +15790,26 @@
         "access-control",
         "authentication",
         "security",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-patient-merge-preview",
+      "name": "Patient Merge Preview Readiness",
+      "description": "Creates a temporary duplicate patient registration, verifies non-destructive merge-preview source/target counts and safeguards, renders the modernized Patient/Client merge-preview panel, and cleans up the temporary source chart.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-merge-preview",
+      "tags": [
+        "slice605",
+        "workflow",
+        "patients",
+        "patient-merge",
+        "duplicate-detection",
         "comparison-ready"
       ],
       "targets": [

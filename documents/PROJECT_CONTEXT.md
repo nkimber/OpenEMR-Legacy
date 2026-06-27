@@ -206,7 +206,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 604 moving encounters forward by adding a protected SOAP-note template catalog, Encounters workspace template application, and cleanup-backed parity coverage for saved SOAP payloads.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 605 moving patient administration forward by adding protected non-destructive duplicate-patient merge-preview evidence, Patient/Client preview rendering, and cleanup-backed parity coverage.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.

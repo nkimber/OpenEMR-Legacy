@@ -1011,3 +1011,9 @@ The Progress page now records reminder template administration as completed sche
 The Workbench now exposes managed Slice 604 encounter SOAP template plan actions for both the legacy and modernized targets. These actions run `slice-604-encounter-soap-template-readiness`, write the standard latest-run artifacts, and let the comparison view show selected SOAP-template payload evidence, protected modernized catalog lookup, Encounters workspace template application, saved SOAP note facts, and cleanup state.
 
 The Progress page now records encounter SOAP templates as completed encounter/clinical-note evidence, moves Encounters And Clinical Notes to 74%, and keeps multi-form encounter packages, deeper amendment policy, coding validation, charge-capture expansion, and comprehensive audit export outstanding.
+
+## Slice 605 Workbench Update
+
+The Workbench now exposes managed Slice 605 patient merge-preview plan actions for both the legacy and modernized targets. These actions run `slice-605-patient-merge-preview-readiness`, write the standard latest-run artifacts, and let the comparison view show temporary duplicate-patient source creation, target/source/combined workflow counts, non-destructive merge safeguards, modernized preview API evidence, Patient/Client preview rendering, and cleanup state.
+
+The Progress page now records patient merge-preview readiness as completed patient-administration evidence while keeping broader guarantor insurance-party workflows, address validation catalogs, lifecycle audit depth, broader patient administration policy, and destructive merge execution with full record-move auditing/rollback as remaining scope.
