@@ -1601,6 +1601,28 @@
       ]
     },
     {
+      "id": "slice-585-prescription-structured-dose-readiness",
+      "name": "Slice 585 prescription structured dose readiness",
+      "description": "Prescription structured-dose readiness plan that creates a temporary prescription with dose amount, dose unit, frequency, and duration, verifies shared workflow evidence, and checks modernized Lists rendering.",
+      "suites": [
+        "workflow-prescription-structured-dose"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "mutation",
+        "slice-585",
+        "prescriptions",
+        "clinical-lists",
+        "structured-dose",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -4143,6 +4165,25 @@
         "prescriptions",
         "pharmacy",
         "audit-history",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-prescription-structured-dose",
+      "name": "Prescription structured dose workflow",
+      "description": "Creates a temporary prescription with dose amount, dose unit, frequency, and duration, verifies shared workflow evidence, and checks modernized Lists rendering.",
+      "path": "tests/workflow-prescription-structured-dose",
+      "tags": [
+        "slice585",
+        "workflow",
+        "mutation",
+        "clinical-lists",
+        "prescriptions",
+        "structured-dose",
         "comparison-ready"
       ],
       "targets": [

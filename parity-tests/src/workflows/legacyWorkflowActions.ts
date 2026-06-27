@@ -1382,6 +1382,10 @@ export type PrescriptionRecord = {
   drug: string;
   dosage: string;
   quantity: string;
+  doseAmount?: number | null;
+  doseUnit?: string | null;
+  frequency?: string | null;
+  durationDays?: number | null;
   refills: number;
   active: number;
   note: string;
@@ -1941,6 +1945,10 @@ export type NewPrescription = {
   rxNormCode: string;
   dosage: string;
   quantity: string;
+  doseAmount?: number | null;
+  doseUnit?: string | null;
+  frequency?: string | null;
+  durationDays?: number | null;
   refills: number;
   note: string;
   diagnosis: string;
@@ -2250,6 +2258,7 @@ export type NewUser = {
 export class LegacyWorkflowActions {
   private readonly pendingPrescriptionRefillRequests: PrescriptionRefillRequestQueueItem[] = [];
   private readonly prescriptionAuditEvents = new Map<string, PrescriptionAuditEventRecord[]>();
+  private readonly prescriptionStructuredDoses = new Map<string, Pick<PrescriptionRecord, "doseAmount" | "doseUnit" | "frequency" | "durationDays">>();
 
   constructor(private readonly db: LegacyMariaDbProbe) {}
 
@@ -7080,6 +7089,12 @@ VALUES
 SELECT LAST_INSERT_ID() AS id;
 `);
     const prescriptionId = Number(rows[0]?.id);
+    this.prescriptionStructuredDoses.set(String(prescriptionId), {
+      doseAmount: input.doseAmount ?? null,
+      doseUnit: input.doseUnit ?? null,
+      frequency: input.frequency ?? null,
+      durationDays: input.durationDays ?? null
+    });
     this.recordPrescriptionAuditEvent(prescriptionId, {
       action: "create",
       occurredAt: `${input.startDate} 10:00:00`,
@@ -7254,6 +7269,7 @@ LIMIT 1;
       drug: row.drug,
       dosage: row.dosage,
       quantity: row.quantity,
+      ...(this.prescriptionStructuredDoses.get(String(legacyId)) ?? {}),
       refills: Number(row.refills),
       active: Number(row.active),
       note: row.note,
@@ -7331,6 +7347,7 @@ WHERE id = ${integer(legacyId)}
   async deletePrescription(id: number | string): Promise<void> {
     const legacyId = legacyInteger(id);
     this.prescriptionAuditEvents.delete(String(legacyId));
+    this.prescriptionStructuredDoses.delete(String(legacyId));
     await this.db.execute(`
 DELETE FROM prescriptions
 WHERE id = ${integer(legacyId)};

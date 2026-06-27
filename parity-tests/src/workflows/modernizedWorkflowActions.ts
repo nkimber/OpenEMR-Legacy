@@ -3910,6 +3910,10 @@ LIMIT 1;
         rxNormCode: input.rxNormCode,
         dosage: input.dosage,
         quantity: input.quantity,
+        doseAmount: input.doseAmount ?? null,
+        doseUnit: input.doseUnit ?? null,
+        frequency: input.frequency ?? null,
+        durationDays: input.durationDays ?? null,
         route: "oral",
         refills: input.refills,
         note: input.note,
@@ -3999,10 +4003,21 @@ LIMIT 1;
   }
 
   async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {
+    await this.db.execute(`
+ALTER TABLE prescriptions
+  ADD COLUMN IF NOT EXISTS dose_amount numeric(10,2),
+  ADD COLUMN IF NOT EXISTS dose_unit text,
+  ADD COLUMN IF NOT EXISTS frequency text,
+  ADD COLUMN IF NOT EXISTS duration_days integer;
+`);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", provider_id AS "providerId", start_date AS "startDate",
   COALESCE(modified_date::text, '') AS "modifiedDate", COALESCE(end_date::text, '') AS "endDate", drug, COALESCE(dosage, '') AS dosage,
   COALESCE(quantity, '') AS quantity, refills, active, COALESCE(note, '') AS note,
+  COALESCE(dose_amount::text, '') AS "doseAmount",
+  COALESCE(dose_unit, '') AS "doseUnit",
+  COALESCE(frequency, '') AS frequency,
+  COALESCE(duration_days::text, '') AS "durationDays",
   COALESCE(pharmacy_id::text, '') AS "pharmacyId",
   COALESCE(pharmacy_name, '') AS "pharmacyName",
   COALESCE(pharmacy_ncpdp::text, '') AS "pharmacyNcpdp",
@@ -4028,6 +4043,10 @@ LIMIT 1;
       drug: row.drug,
       dosage: row.dosage,
       quantity: row.quantity,
+      doseAmount: row.doseAmount ? Number(row.doseAmount) : null,
+      doseUnit: row.doseUnit || null,
+      frequency: row.frequency || null,
+      durationDays: row.durationDays ? Number(row.durationDays) : null,
       refills: Number(row.refills),
       active: Number(row.active),
       note: row.note,

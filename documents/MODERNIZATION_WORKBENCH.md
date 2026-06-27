@@ -858,7 +858,7 @@ The Progress page also records local appointment reminder dispatch and audit his
 
 The Workbench now exposes managed Slice 578 medication duplicate detection plan actions for both the legacy and modernized targets. These actions run `slice-578-medication-duplicate-detection-readiness`, write the standard latest-run artifacts, and let the comparison view show whether two active medication-list rows with the same normalized title are detected as a safety-relevant duplicate group.
 
-The Progress page also records medication duplicate detection as completed clinical-list evidence while keeping clinical vocabulary lookup, medication reconciliation, structured dose/frequency fields, audit history, pharmacy routing, and broader e-prescribing workflow outstanding.
+The Progress page also records medication duplicate detection as completed clinical-list evidence while keeping clinical vocabulary lookup, medication reconciliation, audit history, pharmacy routing, and broader e-prescribing workflow outstanding.
 
 ## Slice 579 Workbench Update
 
@@ -894,4 +894,10 @@ The Progress page also records the local controlled-substance routing guard as c
 
 The Workbench now exposes managed Slice 584 prescription audit-history plan actions for both the legacy and modernized targets. These actions run `slice-584-prescription-audit-history-readiness`, write the standard latest-run artifacts, and let the comparison view show whether create, refill, and selected-pharmacy route operations produce the expected prescription audit event stream.
 
-The Progress page also records prescription mutation audit history as completed clinical-list and prescribing evidence while keeping vocabulary lookup, medication reconciliation, structured dose/frequency fields, and broader e-prescribing workflow outstanding.
+The Progress page also records prescription mutation audit history as completed clinical-list and prescribing evidence while keeping vocabulary lookup, medication reconciliation, and broader e-prescribing workflow outstanding.
+
+## Slice 585 Workbench Update
+
+The Workbench now exposes managed Slice 585 prescription structured-dose plan actions for both the legacy and modernized targets. These actions run `slice-585-prescription-structured-dose-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a cleanup-backed prescription preserves dose amount, dose unit, frequency, and duration evidence.
+
+The Progress page also records structured prescription dose/frequency/duration fields as completed clinical-list and prescribing evidence while keeping vocabulary lookup, diagnosis interactions, medication reconciliation, and broader e-prescribing workflow outstanding.

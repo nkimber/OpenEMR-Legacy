@@ -27992,6 +27992,39 @@ Verification:
 Code Metrics:
 - Commit `c0617287` changed 19 scoped files with 946 insertions and 17 deletions.
 
+## 642. Slice 585 Prescription Structured Dose Readiness
+
+Started: 2026-06-27T01:57:33.8276581-04:00
+Finished: 2026-06-27T02:00:12.4188404-04:00
+Commit: pending
+
+Implemented prescription structured-dose readiness for the modernized clinical-list prescription workflow. The modernized API now accepts, stores, and projects prescription dose amount, dose unit, frequency, and duration fields while preserving the legacy dosage and quantity text that existing OpenEMR users expect.
+
+Changes:
+- Added additive modernized PostgreSQL prescription columns for `dose_amount`, `dose_unit`, `frequency`, and `duration_days` to the seed schema plus runtime schema guards for existing local databases.
+- Extended clinical-list prescription DTOs, repository create/read logic, and frontend API types for structured prescription dose fields.
+- Added Lists form inputs for structured dose amount/unit, frequency, and duration.
+- Added structured-dose evidence rendering on modernized Lists prescription cards.
+- Added parity workflow support for structured prescription dose evidence on both legacy and modernized targets, using a legacy adapter sidecar for test-created prescriptions because the legacy table does not have equivalent native columns.
+- Added the `workflow-prescription-structured-dose` parity suite and `slice-585-prescription-structured-dose-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 585 against legacy and modernized targets.
+- Fixed the modernized seed reset drop order so `prescription_audit_events` is removed before `patients`, preserving reset compatibility after the Slice 584 audit table.
+- Updated the Workbench Progress ledger so structured prescription dose/frequency/duration fields are completed prescribing functionality while vocabulary lookup, diagnosis interactions, medication reconciliation, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 585 legacy parity plan: `2026-06-27T055822-630Z-legacy-openemr-plan-slice-585-prescription-structured-dose-readiness` passed 1/1 tests.
+- Ran the Slice 585 modernized parity plan: `2026-06-27T055925-362Z-modernized-openemr-plan-slice-585-prescription-structured-dose-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 585 runs: `2026-06-27T060007-438Z-legacy-openemr-vs-modernized-openemr-plan-slice-585-prescription-structured-dose-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
