@@ -580,7 +580,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, staff waitlist queue projection, lifecycle, recurrence, reassignment, status, overlap, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list/request/request-options, staff waitlist queue projection, lifecycle, recurrence, reassignment, status, overlap, strict conflict enforcement, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -625,6 +625,13 @@
           "detail": "The modernized appointment API can validate a proposed appointment before creation, report provider, patient, room, and shared bookable-window conflicts, and render the availability result in Calendar.",
           "evidence": [
             "slice-575-appointment-availability-validation-readiness"
+          ]
+        },
+        {
+          "label": "Appointment conflict enforcement readiness",
+          "detail": "Strict modernized appointment creation can now use the shared availability engine to block active provider and room conflicts before inserting a conflicting appointment row, while legacy source facts remain comparable.",
+          "evidence": [
+            "slice-589-appointment-conflict-enforcement-readiness"
           ]
         },
         {
@@ -694,16 +701,16 @@
         }
       ],
       "outstanding": [
-        "Resource conflict enforcement beyond availability/readiness reporting and richer waitlist management beyond request promotion.",
+        "Richer waitlist management beyond request promotion.",
         "External reminder-provider integrations, richer template administration, retry handling, and patient-facing delivery preferences."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 90,
+      "completionEstimatePercent": 92,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, staff waitlist projection and promotion, recurrence, overlap, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; richer waitlist management, external provider integrations, template administration, and retry policy remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, staff waitlist projection and promotion, recurrence, overlap, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, strict provider/room conflict enforcement, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; richer waitlist management, external provider integrations, template administration, and retry policy remain."
     },
     {
       "id": "encounters-clinical-notes",

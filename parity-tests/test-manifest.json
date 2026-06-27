@@ -4115,6 +4115,28 @@
       ]
     },
     {
+      "id": "slice-589-appointment-conflict-enforcement-readiness",
+      "name": "Slice 589 appointment conflict enforcement readiness",
+      "description": "Appointment conflict enforcement readiness plan that proves provider and room conflicts are detected from shared source facts and strict modernized appointment creation blocks overlapping appointments without inserting a row.",
+      "suites": [
+        "workflow-appointment-conflict-enforcement"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-589",
+        "scheduling",
+        "appointments",
+        "conflicts",
+        "availability",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10146,6 +10168,25 @@
         "modernized-openemr"
       ],
       "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-appointment-conflict-enforcement",
+      "name": "Appointment conflict enforcement workflow",
+      "description": "Proves provider and room conflict source facts and verifies strict modernized appointment creation blocks conflicting appointments.",
+      "path": "tests/workflow-appointment-conflict-enforcement",
+      "tags": [
+        "slice589",
+        "workflow",
+        "scheduling",
+        "appointments",
+        "conflicts",
+        "availability",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
     },
     {
       "id": "workflow-appointment-waitlist",

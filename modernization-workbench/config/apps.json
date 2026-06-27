@@ -4420,6 +4420,19 @@
           "slice-588-medication-reconciliation-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentConflictEnforcementPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-589-appointment-conflict-enforcement-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7142,13 +7155,22 @@
           "layer": "plan",
           "commandName": "parityMedicationReconciliationPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-588-medication-reconciliation-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-conflict-enforcement",
+          "name": "Slice 589 appointment conflict enforcement plan",
+          "description": "Runs the shared appointment conflict enforcement source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentConflictEnforcementPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-589-appointment-conflict-enforcement-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
         "slice-586-medication-vocabulary-readiness",
         "slice-587-prescription-diagnosis-interactions-readiness",
-        "slice-588-medication-reconciliation-readiness"
+        "slice-588-medication-reconciliation-readiness",
+        "slice-589-appointment-conflict-enforcement-readiness"
       ]
     },
     {
@@ -11445,6 +11467,19 @@
           "slice-588-medication-reconciliation-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentConflictEnforcementPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-589-appointment-conflict-enforcement-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14080,13 +14115,22 @@
           "layer": "plan",
           "commandName": "parityMedicationReconciliationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-588-medication-reconciliation-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-conflict-enforcement",
+          "name": "Slice 589 appointment conflict enforcement plan",
+          "description": "Runs the shared appointment conflict enforcement plan against the modernized target, including strict create rejection evidence.",
+          "layer": "plan",
+          "commandName": "parityAppointmentConflictEnforcementPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
         "slice-586-medication-vocabulary-readiness",
         "slice-587-prescription-diagnosis-interactions-readiness",
-        "slice-588-medication-reconciliation-readiness"
+        "slice-588-medication-reconciliation-readiness",
+        "slice-589-appointment-conflict-enforcement-readiness"
       ]
     },
     {

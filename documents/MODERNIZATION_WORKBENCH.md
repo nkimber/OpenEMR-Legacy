@@ -920,3 +920,9 @@ The Progress page also records prescription diagnosis interaction readiness as c
 The Workbench now exposes managed Slice 588 medication reconciliation plan actions for both the legacy and modernized targets. These actions run `slice-588-medication-reconciliation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether active medication-list rows and active prescriptions reconcile into matched, medication-list-only, and prescription-only states on both targets.
 
 The Progress page also records medication reconciliation readiness as completed clinical-list and prescribing evidence while keeping broader e-prescribing workflow depth outstanding.
+
+## Slice 589 Workbench Update
+
+The Workbench now exposes managed Slice 589 appointment conflict enforcement plan actions for both the legacy and modernized targets. These actions run `slice-589-appointment-conflict-enforcement-readiness`, write the standard latest-run artifacts, and let the comparison view show whether provider/room conflict facts are detected and strict modernized appointment creation blocks a conflicting appointment before insert.
+
+The Progress page also records appointment conflict enforcement readiness as completed scheduling evidence while keeping richer waitlist management, external reminder integrations, template administration, retry handling, and patient-facing delivery preferences outstanding.

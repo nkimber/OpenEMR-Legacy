@@ -208,3 +208,5 @@ Slice 587 index update: `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `MODERN
 
 
 Slice 588 index update: `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `MODERNIZATION_WORKBENCH.md`, `PROJECT_CONTEXT.md`, and `TEST_DATA_STRATEGY.md` now record medication reconciliation readiness. The modernized clinical-list read model compares active medication-list rows with active prescriptions, the Lists medication panel renders matched, medication-list-only, and prescription-only evidence, and the Workbench can run `slice-588-medication-reconciliation-readiness` against both targets.
+
+Slice 589 index update: `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `MODERNIZATION_WORKBENCH.md`, `PROJECT_CONTEXT.md`, and `TEST_DATA_STRATEGY.md` now record appointment conflict enforcement readiness. The modernized appointment create API can opt into strict conflict policy, blocks provider/room overlaps before insert with HTTP 409 evidence, the Calendar create form exposes `Block conflicts`, and the Workbench can run `slice-589-appointment-conflict-enforcement-readiness` against both targets.
