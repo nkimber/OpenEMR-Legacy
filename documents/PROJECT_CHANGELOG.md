@@ -27775,7 +27775,7 @@ Code Metrics:
 
 Started: 2026-06-26T23:05:00.0000000-04:00
 Finished: 2026-06-26T23:13:30.0000000-04:00
-Commit: pending
+Commit: 841551df
 
 Implemented Slice 578: medication duplicate detection readiness. The modernized clinical-list API now groups active medication-list rows by normalized title and exposes duplicate count, source IDs, date range, and diagnosis evidence. The Lists page renders a medication duplicate summary so safety-relevant duplicate active medications are visible instead of being buried in the list.
 
@@ -27798,7 +27798,7 @@ Verification:
 - Compared the latest successful Slice 578 runs: `2026-06-27T031308-588Z-legacy-openemr-vs-modernized-openemr-plan-slice-578-medication-duplicate-detection-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `841551df` changed 15 scoped files with 388 insertions and 7 deletions.
 
 ## Next Expected Entries
 
