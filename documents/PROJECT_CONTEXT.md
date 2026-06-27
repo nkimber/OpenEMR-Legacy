@@ -204,7 +204,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 583 moving prescribing forward by flagging controlled-substance prescriptions and blocking ordinary pharmacy routing before local eRx transmit evidence is stamped while preserving side-by-side parity evidence.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 584 moving prescribing forward by adding focused prescription audit history for create, refill, route, and deactivate operations while preserving side-by-side parity evidence.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.

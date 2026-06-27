@@ -27960,6 +27960,38 @@ Verification:
 Code Metrics:
 - Commit `c07a081e` changed 16 scoped files with 441 insertions and 10 deletions.
 
+## 641. Slice 584 Prescription Audit History Readiness
+
+Started: 2026-06-27T01:33:52.3982163-04:00
+Finished: 2026-06-27T01:37:32.9083676-04:00
+Commit: pending
+
+Implemented prescription audit-history readiness for the modernized clinical-list prescription workflow. The modernized API now persists focused prescription audit events for create, refill, route, and deactivate operations, exposes a protected prescription audit-history endpoint, and the Lists page can render a selected prescription's event stream.
+
+Changes:
+- Added the modernized `prescription_audit_events` table to the seed schema plus runtime table creation for existing local databases.
+- Added `GET /api/clinical-lists/prescriptions/{prescriptionId}/audit-history`.
+- Recorded audit events for prescription create, refill, refill-request approval, route, route block, and deactivate operations.
+- Added a Lists prescription `History` action that renders event count, action, actor, timestamp, note, refill movement, pharmacy, and failure evidence.
+- Added parity workflow support for prescription audit-history evidence on both legacy and modernized targets.
+- Added the `workflow-prescription-audit-history` parity suite and `slice-584-prescription-audit-history-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 584 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so prescription mutation audit history is completed prescribing functionality while vocabulary lookup, medication reconciliation, structured dose/frequency fields, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 584 legacy parity plan: `2026-06-27T053639-441Z-legacy-openemr-plan-slice-584-prescription-audit-history-readiness` passed 1/1 tests.
+- Ran the Slice 584 modernized parity plan: `2026-06-27T053704-290Z-modernized-openemr-plan-slice-584-prescription-audit-history-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 584 runs: `2026-06-27T053727-674Z-legacy-openemr-vs-modernized-openemr-plan-slice-584-prescription-audit-history-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -118,6 +118,7 @@ import type {
   ProblemRecord,
   ProcedureOrderRecord,
   ProcedureOrderUpdate,
+  PrescriptionAuditHistoryRecord,
   ProcedureLabProviderRecord,
   ProcedureReportRecord,
   ProcedureReportSignOff,
@@ -4036,6 +4037,47 @@ LIMIT 1;
       erxUploaded: Number(row.erxUploaded ?? 0),
       erxSentAt: row.erxSentAt || null,
       erxPayload: row.erxPayload ? row.erxPayload.replace(/\\n/g, "\n") : null
+    };
+  }
+
+  async getPrescriptionAuditHistory(id: number | string): Promise<PrescriptionAuditHistoryRecord> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(id))}/audit-history`, {
+      headers: await this.getAdminSessionHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized prescription audit history failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const history = await response.json() as {
+      prescriptionId: string;
+      eventCount: number;
+      events: Array<{
+        action: string;
+        occurredAt: string;
+        actor: string;
+        detail?: string | null;
+        beforeRefills?: number | null;
+        afterRefills?: number | null;
+        pharmacyId?: number | null;
+        pharmacyName?: string | null;
+        failureReason?: string | null;
+      }>;
+    };
+    return {
+      prescriptionId: history.prescriptionId,
+      eventCount: history.eventCount,
+      events: history.events.map((event) => ({
+        action: event.action,
+        occurredAt: event.occurredAt,
+        actor: event.actor,
+        detail: event.detail ?? null,
+        beforeRefills: event.beforeRefills ?? null,
+        afterRefills: event.afterRefills ?? null,
+        pharmacyId: event.pharmacyId ?? null,
+        pharmacyName: event.pharmacyName ?? null,
+        failureReason: event.failureReason ?? null
+      }))
     };
   }
 

@@ -889,3 +889,9 @@ The Progress page also records pharmacy routing transmit evidence as completed c
 The Workbench now exposes managed Slice 583 prescription controlled-substance plan actions for both the legacy and modernized targets. These actions run `slice-583-prescription-controlled-substance-readiness`, write the standard latest-run artifacts, and let the comparison view show whether ordinary pharmacy routing is blocked for a controlled-substance prescription before eRx transmit evidence is stamped.
 
 The Progress page also records the local controlled-substance routing guard as completed clinical-list and prescribing evidence while keeping broader EPCS completion and e-prescribing workflow outstanding.
+
+## Slice 584 Workbench Update
+
+The Workbench now exposes managed Slice 584 prescription audit-history plan actions for both the legacy and modernized targets. These actions run `slice-584-prescription-audit-history-readiness`, write the standard latest-run artifacts, and let the comparison view show whether create, refill, and selected-pharmacy route operations produce the expected prescription audit event stream.
+
+The Progress page also records prescription mutation audit history as completed clinical-list and prescribing evidence while keeping vocabulary lookup, medication reconciliation, structured dose/frequency fields, and broader e-prescribing workflow outstanding.

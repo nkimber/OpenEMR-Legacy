@@ -1393,6 +1393,24 @@ export type PrescriptionRecord = {
   erxPayload?: string | null;
 };
 
+export type PrescriptionAuditEventRecord = {
+  action: string;
+  occurredAt: string;
+  actor: string;
+  detail: string | null;
+  beforeRefills: number | null;
+  afterRefills: number | null;
+  pharmacyId: number | null;
+  pharmacyName: string | null;
+  failureReason: string | null;
+};
+
+export type PrescriptionAuditHistoryRecord = {
+  prescriptionId: number | string;
+  eventCount: number;
+  events: PrescriptionAuditEventRecord[];
+};
+
 export type NewPharmacy = {
   id?: number;
   name: string;
@@ -2231,6 +2249,7 @@ export type NewUser = {
 
 export class LegacyWorkflowActions {
   private readonly pendingPrescriptionRefillRequests: PrescriptionRefillRequestQueueItem[] = [];
+  private readonly prescriptionAuditEvents = new Map<string, PrescriptionAuditEventRecord[]>();
 
   constructor(private readonly db: LegacyMariaDbProbe) {}
 
@@ -7060,7 +7079,19 @@ VALUES
    'default', ${sqlString(input.startDate)}, 'community', 'order', ${sqlString(input.diagnosis)}, 1, 1);
 SELECT LAST_INSERT_ID() AS id;
 `);
-    return Number(rows[0]?.id);
+    const prescriptionId = Number(rows[0]?.id);
+    this.recordPrescriptionAuditEvent(prescriptionId, {
+      action: "create",
+      occurredAt: `${input.startDate} 10:00:00`,
+      actor: "admin",
+      detail: input.note,
+      beforeRefills: null,
+      afterRefills: input.refills,
+      pharmacyId: null,
+      pharmacyName: null,
+      failureReason: null
+    });
+    return prescriptionId;
   }
 
   async createPharmacy(input: NewPharmacy): Promise<number> {
@@ -7118,10 +7149,22 @@ WHERE id = ${integer(id)};
 
     const controlledSubstance = getControlledSubstanceInfo(prescription.drug);
     if (controlledSubstance.reviewRequired) {
-      return {
+      const blocked = {
         routed: false,
         failureReason: controlledSubstance.reason
       };
+      this.recordPrescriptionAuditEvent(legacyId, {
+        action: "route-blocked",
+        occurredAt: sentAt,
+        actor: "admin",
+        detail: note,
+        beforeRefills: null,
+        afterRefills: null,
+        pharmacyId: pharmacy.id,
+        pharmacyName: pharmacy.name,
+        failureReason: controlledSubstance.reason
+      });
+      return blocked;
     }
 
     const payload = [
@@ -7145,6 +7188,17 @@ SET pharmacy_id = ${integer(pharmacy.id)},
 WHERE id = ${integer(legacyId)}
   AND active = 1;
 `);
+    this.recordPrescriptionAuditEvent(legacyId, {
+      action: "route-pharmacy",
+      occurredAt: sentAt,
+      actor: "admin",
+      detail: note,
+      beforeRefills: null,
+      afterRefills: null,
+      pharmacyId: pharmacy.id,
+      pharmacyName: pharmacy.name,
+      failureReason: null
+    });
     return { routed: true, failureReason: null };
   }
 
@@ -7219,10 +7273,22 @@ UPDATE prescriptions
 SET active = 0, end_date = ${sqlString(endDate)}, note = ${sqlString(note)}, date_modified = NOW(), updated_by = 1
 WHERE id = ${integer(legacyId)};
 `);
+    this.recordPrescriptionAuditEvent(legacyId, {
+      action: "deactivate",
+      occurredAt: `${endDate} 10:00:00`,
+      actor: "admin",
+      detail: note,
+      beforeRefills: null,
+      afterRefills: null,
+      pharmacyId: null,
+      pharmacyName: null,
+      failureReason: null
+    });
   }
 
   async refillPrescription(id: number | string, refillDate: string, additionalRefills: number, note: string): Promise<void> {
     const legacyId = legacyInteger(id);
+    const before = await this.getPrescription(legacyId);
     await this.db.execute(`
 UPDATE prescriptions
 SET refills = refills + ${integer(additionalRefills)},
@@ -7232,10 +7298,39 @@ SET refills = refills + ${integer(additionalRefills)},
 WHERE id = ${integer(legacyId)}
   AND active = 1;
 `);
+    this.recordPrescriptionAuditEvent(legacyId, {
+      action: "refill",
+      occurredAt: `${refillDate} 10:00:00`,
+      actor: "admin",
+      detail: note,
+      beforeRefills: before?.refills ?? null,
+      afterRefills: before ? before.refills + additionalRefills : null,
+      pharmacyId: null,
+      pharmacyName: null,
+      failureReason: null
+    });
+  }
+
+  async getPrescriptionAuditHistory(id: number | string): Promise<PrescriptionAuditHistoryRecord> {
+    const key = String(id);
+    const events = [...(this.prescriptionAuditEvents.get(key) ?? [])];
+    return {
+      prescriptionId: id,
+      eventCount: events.length,
+      events
+    };
+  }
+
+  private recordPrescriptionAuditEvent(id: number | string, event: PrescriptionAuditEventRecord): void {
+    const key = String(id);
+    const events = this.prescriptionAuditEvents.get(key) ?? [];
+    events.push(event);
+    this.prescriptionAuditEvents.set(key, events);
   }
 
   async deletePrescription(id: number | string): Promise<void> {
     const legacyId = legacyInteger(id);
+    this.prescriptionAuditEvents.delete(String(legacyId));
     await this.db.execute(`
 DELETE FROM prescriptions
 WHERE id = ${integer(legacyId)};

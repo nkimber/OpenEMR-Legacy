@@ -523,7 +523,7 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, pharmacy routing transmit evidence, controlled-substance pharmacy-routing guard behavior, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and broader prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, pharmacy routing transmit evidence, controlled-substance pharmacy-routing guard behavior, prescription audit history, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and broader prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
@@ -579,19 +579,24 @@
           "label": "Prescription controlled-substance routing guard readiness",
           "detail": "Controlled-substance prescriptions are flagged in the modernized Lists read model, ordinary pharmacy routing is blocked before transmit evidence is stamped, and parity compares the blocked result with the legacy adapter.",
           "evidence": ["slice-583-prescription-controlled-substance-readiness"]
+        },
+        {
+          "label": "Prescription audit history readiness",
+          "detail": "Prescription create, refill, route, and deactivate operations can record focused audit events, the modernized Lists page can render selected prescription history, and parity compares the normalized event stream with the legacy-derived workflow evidence.",
+          "evidence": ["slice-584-prescription-audit-history-readiness"]
         }
       ],
       "outstanding": [
-        "Vocabulary lookup, diagnosis interactions, medication reconciliation, structured dose/frequency fields, and audit history.",
+        "Vocabulary lookup, diagnosis interactions, medication reconciliation, and structured dose/frequency fields.",
         "Broader e-prescribing workflow, including EPCS completion beyond the local controlled-substance guard."
       ],
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 70,
+      "completionEstimatePercent": 72,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, staff can approve those requests from a clinical queue, and staff can route prescriptions to a selected pharmacy with deterministic local transmit evidence, and controlled-substance prescriptions now block ordinary pharmacy routing before transmit evidence is stamped; vocabulary lookup, medication reconciliation, audit history, and broader prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, staff can approve those requests from a clinical queue, and staff can route prescriptions to a selected pharmacy with deterministic local transmit evidence, and controlled-substance prescriptions now block ordinary pharmacy routing before transmit evidence is stamped, and prescription mutation audit history is available through the API and Lists UI; vocabulary lookup, medication reconciliation, structured dose/frequency fields, and broader prescribing controls remain."
     },
     {
       "id": "messaging-portal",

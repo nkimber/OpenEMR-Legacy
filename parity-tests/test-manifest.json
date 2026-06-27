@@ -1578,6 +1578,29 @@
       ]
     },
     {
+      "id": "slice-584-prescription-audit-history-readiness",
+      "name": "Slice 584 prescription audit history readiness",
+      "description": "Prescription audit-history readiness plan that creates, refills, and routes a temporary prescription, verifies normalized audit events, and checks modernized Lists history rendering.",
+      "suites": [
+        "workflow-prescription-audit-history"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "mutation",
+        "slice-584",
+        "prescriptions",
+        "clinical-lists",
+        "pharmacy",
+        "audit-history",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -4100,6 +4123,26 @@
         "pharmacy",
         "controlled-substance",
         "erx",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-prescription-audit-history",
+      "name": "Prescription audit history workflow",
+      "description": "Creates, refills, and routes a temporary prescription, verifies normalized audit events, and checks modernized Lists history rendering.",
+      "path": "tests/workflow-prescription-audit-history",
+      "tags": [
+        "slice584",
+        "workflow",
+        "mutation",
+        "clinical-lists",
+        "prescriptions",
+        "pharmacy",
+        "audit-history",
         "comparison-ready"
       ],
       "targets": [
