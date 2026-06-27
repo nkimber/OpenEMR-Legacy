@@ -40,6 +40,7 @@ import type {
   ProcedureReportReviewQueueFilters,
   ProcedureReportSummary,
   ProcedureResultSummary,
+  ProcedureResultVersionSummary,
   ProcedureSpecimenSummary,
   ProcedureResultsSummary,
   TemporalCoverageRow
@@ -1643,6 +1644,7 @@ LIMIT 1;
   }
 
   async getProcedureResultsForPatient(pid: number): Promise<ProcedureResultsSummary> {
+    await this.ensureProcedureResultVersionsTable();
     const orderRows = await this.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", encounter AS "encounterId", order_date AS "dateOrdered",
   order_status AS "orderStatus", COALESCE(order_priority, '') AS "orderPriority",
@@ -1742,16 +1744,22 @@ ORDER BY report_date DESC, id DESC;
       const resultRows = await this.queryRows<Record<string, string>>(`
 SELECT id, report_id AS "reportId", COALESCE(code, '') AS code, COALESCE(text, '') AS text,
   COALESCE(units, '') AS units, COALESCE(result, '') AS result, COALESCE(range, '') AS range,
-  COALESCE(abnormal, '') AS abnormal, result_date::date AS "resultDate", COALESCE(result_status, '') AS "resultStatus"
+  COALESCE(abnormal, '') AS abnormal, result_date::date AS "resultDate", COALESCE(result_status, '') AS "resultStatus",
+  (select count(*) from procedure_result_versions v where v.result_id = lab_results.id)::text AS "priorVersionCount"
 FROM lab_results
 WHERE report_id IN (${reportIdList})
 ORDER BY id;
 `);
+      const versionHistoryByResult = await this.getProcedureResultVersionHistory(
+        resultRows.map((row) => Number(row.id)),
+        resultRows
+      );
 
       const resultsByReport = new Map<number, ProcedureResultSummary[]>();
       for (const row of resultRows) {
         const reportId = Number(row.reportId);
         const reportResults = resultsByReport.get(reportId) ?? [];
+        const currentVersion = Number(row.priorVersionCount) + 1;
         reportResults.push({
           id: Number(row.id),
           reportId,
@@ -1762,7 +1770,12 @@ ORDER BY id;
           range: row.range,
           abnormal: row.abnormal,
           resultDate: row.resultDate,
-          resultStatus: row.resultStatus
+          resultStatus: row.resultStatus,
+          currentVersion,
+          versionLabel: `Version ${currentVersion}`,
+          versionHistoryCount: currentVersion,
+          hasPriorVersions: Number(row.priorVersionCount) > 0,
+          versionHistory: versionHistoryByResult.get(Number(row.id)) ?? []
         });
         resultsByReport.set(reportId, reportResults);
       }
@@ -1800,6 +1813,96 @@ ORDER BY id;
       patientId: pid,
       orders: procedures.orders.filter((order) => order.encounterId === encounter)
     };
+  }
+
+  private async getProcedureResultVersionHistory(
+    resultIds: number[],
+    currentRows: Record<string, string>[]
+  ): Promise<Map<number, ProcedureResultVersionSummary[]>> {
+    const byResult = new Map<number, ProcedureResultVersionSummary[]>();
+    if (resultIds.length === 0) {
+      return byResult;
+    }
+
+    const currentByResult = new Map(currentRows.map((row) => [Number(row.id), row]));
+    const versionRows = await this.queryRows<Record<string, string>>(`
+SELECT result_id AS "resultId", version_no AS version, to_char(captured_at, 'YYYY-MM-DD HH24:MI') AS "capturedAt",
+  COALESCE(code, '') AS code, COALESCE(text, '') AS text, COALESCE(units, '') AS units,
+  COALESCE(result, '') AS result, COALESCE(range, '') AS range, COALESCE(abnormal, '') AS abnormal,
+  COALESCE(to_char(result_date, 'YYYY-MM-DD HH24:MI'), '') AS "resultDate",
+  COALESCE(result_status, '') AS "resultStatus"
+FROM procedure_result_versions
+WHERE result_id IN (${resultIds.join(", ")})
+ORDER BY result_id, version_no DESC;
+`);
+
+    for (const id of resultIds) {
+      const current = currentByResult.get(id);
+      if (!current) {
+        continue;
+      }
+
+      const currentVersion = Number(current.priorVersionCount) + 1;
+      byResult.set(id, [{
+        version: currentVersion,
+        versionLabel: `Version ${currentVersion}`,
+        versionStatus: "Current version",
+        capturedAt: current.resultDate,
+        code: current.code,
+        text: current.text,
+        units: current.units,
+        result: current.result,
+        range: current.range,
+        abnormal: current.abnormal,
+        resultDate: current.resultDate,
+        resultStatus: current.resultStatus
+      }]);
+    }
+
+    for (const row of versionRows) {
+      const resultId = Number(row.resultId);
+      const rows = byResult.get(resultId) ?? [];
+      rows.push({
+        version: Number(row.version),
+        versionLabel: `Version ${row.version}`,
+        versionStatus: "Prior version",
+        capturedAt: row.capturedAt,
+        code: row.code,
+        text: row.text,
+        units: row.units,
+        result: row.result,
+        range: row.range,
+        abnormal: row.abnormal,
+        resultDate: row.resultDate,
+        resultStatus: row.resultStatus
+      });
+      byResult.set(resultId, rows);
+    }
+
+    return byResult;
+  }
+
+  private async ensureProcedureResultVersionsTable(): Promise<void> {
+    await this.execute(`
+CREATE TABLE IF NOT EXISTS procedure_result_versions (
+  id bigserial primary key,
+  result_id integer not null references lab_results(id) on delete cascade,
+  version_no integer not null,
+  captured_at timestamp not null,
+  code text,
+  text text,
+  units text,
+  result text,
+  range text,
+  abnormal text,
+  result_date timestamp,
+  result_status text,
+  unique (result_id, version_no)
+);
+
+CREATE INDEX IF NOT EXISTS idx_procedure_result_versions_result
+  ON procedure_result_versions (result_id, version_no desc);
+`);
   }
 
   async getProcedureReportReviewQueue(

@@ -1310,11 +1310,11 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, patient portal lab-results visibility, procedure lifecycle, corrections, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, patient portal lab-results visibility, procedure lifecycle, corrections, result version-history rows, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
-          "detail": "Completed result read, pending orders, create/complete/report/result/delete, encounter procedure-order/result entry, result correction, specimen metadata/detail, order correction, report correction, and report sign-off are covered.",
+          "detail": "Procedure result read, order create/update/status/transmit/delete, report create/correction/sign-off/reopen, result creation/correction, result version-history rows, specimen metadata/detail, clinical order queues, and cleanup-backed lifecycle paths are covered.",
           "evidence": [
             "slice-6-procedures-readiness",
             "slice-17-procedure-mutation-readiness",
@@ -1322,6 +1322,7 @@
             "slice-75-encounter-procedure-order-entry-readiness",
             "slice-76-encounter-procedure-result-entry-readiness",
             "slice-129-procedure-result-correction-readiness",
+            "slice-598-procedure-result-version-history-readiness",
             "slice-130-procedure-specimen-readiness",
             "slice-131-procedure-specimen-detail-readiness",
             "slice-132-procedure-order-correction-readiness",
@@ -1389,16 +1390,16 @@
         }
       ],
       "outstanding": [
-        "Reviewer assignment, queue notifications, result amendment/version history depth, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "Reviewer assignment, queue notifications, deeper result amendment policy beyond current-plus-prior version rows, chain-of-custody beyond current specimen fields, and audit-log export.",
         "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and deeper role-specific authorization breadth beyond the first mutation-specific lab policy slice."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 71,
+      "completionEstimatePercent": 73,
       "estimatedScopeWeight": 12,
       "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
-      "estimateRationale": "Procedure lifecycle, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, patient portal lab-results visibility, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations and deeper lab policy remain."
+      "estimateRationale": "Procedure lifecycle, result correction with current-plus-prior version history, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, patient portal lab-results visibility, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations, reviewer assignment, chain-of-custody, and deeper lab policy remain."
     },
     {
       "id": "admin-security-audit",

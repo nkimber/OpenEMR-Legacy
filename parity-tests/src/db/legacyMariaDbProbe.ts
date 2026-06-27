@@ -888,6 +888,26 @@ export type ProcedureResultSummary = {
   abnormal: string;
   resultDate: string;
   resultStatus: string;
+  currentVersion: number;
+  versionLabel: string;
+  versionHistoryCount: number;
+  hasPriorVersions: boolean;
+  versionHistory?: ProcedureResultVersionSummary[];
+};
+
+export type ProcedureResultVersionSummary = {
+  version: number;
+  versionLabel: string;
+  versionStatus: string;
+  capturedAt: string;
+  code: string;
+  text: string;
+  units: string;
+  result: string;
+  range: string;
+  abnormal: string;
+  resultDate: string;
+  resultStatus: string;
 };
 
 export type ProcedureReportSummary = {
@@ -2726,7 +2746,12 @@ ORDER BY procedure_result_id;
           range: row.resultRange,
           abnormal: row.abnormal,
           resultDate: row.resultDate,
-          resultStatus: row.resultStatus
+          resultStatus: row.resultStatus,
+          currentVersion: 1,
+          versionLabel: "Version 1",
+          versionHistoryCount: 1,
+          hasPriorVersions: false,
+          versionHistory: []
         });
         resultsByReport.set(reportId, reportResults);
       }

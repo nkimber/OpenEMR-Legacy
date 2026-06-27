@@ -1724,6 +1724,21 @@ export type ProcedureResultRecord = {
   result: string;
   abnormal: string;
   status: string;
+  currentVersion: number;
+  versionLabel: string;
+  versionHistoryCount: number;
+  hasPriorVersions: boolean;
+  versionHistory?: ProcedureResultVersionRecord[];
+};
+
+export type ProcedureResultVersionRecord = {
+  version: number;
+  versionLabel: string;
+  versionStatus: string;
+  resultText: string;
+  result: string;
+  abnormal: string;
+  status: string;
 };
 
 export type FacilityRecord = {
@@ -8780,7 +8795,12 @@ LIMIT 1;
       resultText: row.resultText,
       result: row.result,
       abnormal: row.abnormal,
-      status: row.status
+      status: row.status,
+      currentVersion: 1,
+      versionLabel: "Version 1",
+      versionHistoryCount: 1,
+      hasPriorVersions: false,
+      versionHistory: []
     };
   }
 

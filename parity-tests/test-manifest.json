@@ -4315,6 +4315,29 @@
       ]
     },
     {
+      "id": "slice-598-procedure-result-version-history-readiness",
+      "name": "Slice 598 Procedure Result Version History Readiness",
+      "description": "Mutation-capable lab result history plan that creates a temporary procedure result, corrects it twice, verifies current-plus-prior version history on the modernized target, and keeps the legacy overwrite baseline comparable.",
+      "suites": [
+        "workflow-procedure-result-version-history"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-598",
+        "procedures",
+        "labs",
+        "result-history",
+        "correction",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -12460,6 +12483,26 @@
         "modernized-openemr"
       ],
       "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-procedure-result-version-history",
+      "name": "Procedure result version history workflow",
+      "description": "Creates a temporary lab result, corrects it twice, verifies modernized current-plus-prior result version history while preserving the legacy overwrite baseline, and removes the temporary lab workflow.",
+      "path": "tests/workflow-procedure-result-version-history",
+      "tags": [
+        "slice598",
+        "workflow",
+        "mutation",
+        "procedures",
+        "labs",
+        "result-history",
+        "correction",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
     },
     {
       "id": "workflow-procedure-specimen",

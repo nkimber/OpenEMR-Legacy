@@ -969,3 +969,9 @@ The Workbench now exposes managed Slice 596 document scanner-capture plan action
 The Workbench now exposes managed Slice 597 document version-history plan actions for both the legacy and modernized targets. These actions run `slice-597-document-version-history-readiness`, write the standard latest-run artifacts, and let the comparison view show legacy overwrite-baseline evidence beside modernized current-plus-prior patient document version-history evidence.
 
 The Progress page also records current-plus-prior patient document version-history rows as completed document evidence while keeping production OCR engine integration, external storage, encryption/key management, and production-grade purge/legal-hold/export retention workflows outstanding.
+
+## Slice 598 Workbench Update
+
+The Workbench now exposes managed Slice 598 procedure result version-history plan actions for both the legacy and modernized targets. These actions run `slice-598-procedure-result-version-history-readiness`, write the standard latest-run artifacts, and let the comparison view show legacy overwrite-baseline evidence beside modernized current-plus-prior lab result correction history.
+
+The Progress page also records current-plus-prior procedure result version-history rows as completed lab/procedure evidence while keeping external lab operations, reviewer assignment, chain-of-custody depth, and broader lab audit export outstanding.

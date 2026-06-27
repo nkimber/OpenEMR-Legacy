@@ -4537,6 +4537,19 @@
           "slice-597-document-version-history-readiness",
           "-Reset",
           "test"
+        ],
+        "parityProcedureResultVersionHistoryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-598-procedure-result-version-history-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7331,6 +7344,14 @@
           "layer": "plan",
           "commandName": "parityDocumentVersionHistoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-597-document-version-history-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-result-version-history",
+          "name": "Slice 598 procedure result version history plan",
+          "description": "Runs the shared procedure result version-history plan against the legacy target and captures current-plus-prior correction evidence for comparison.",
+          "layer": "plan",
+          "commandName": "parityProcedureResultVersionHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-598-procedure-result-version-history-readiness.json"
         }
       ],
       "testPlans": [
@@ -7346,7 +7367,8 @@
         "slice-594-document-retention-policy-readiness",
         "slice-595-document-retention-disposition-readiness",
         "slice-596-document-scanner-capture-readiness",
-        "slice-597-document-version-history-readiness"
+        "slice-597-document-version-history-readiness",
+        "slice-598-procedure-result-version-history-readiness"
       ]
     },
     {
@@ -11760,6 +11782,19 @@
           "slice-597-document-version-history-readiness",
           "-Reset",
           "test"
+        ],
+        "parityProcedureResultVersionHistoryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-598-procedure-result-version-history-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14467,6 +14502,14 @@
           "layer": "plan",
           "commandName": "parityDocumentVersionHistoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-597-document-version-history-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-result-version-history",
+          "name": "Slice 598 procedure result version history plan",
+          "description": "Runs the shared procedure result version-history plan against the modernized target and captures current-plus-prior correction evidence for comparison.",
+          "layer": "plan",
+          "commandName": "parityProcedureResultVersionHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-598-procedure-result-version-history-readiness.json"
         }
       ],
       "testPlans": [
@@ -14482,7 +14525,8 @@
         "slice-594-document-retention-policy-readiness",
         "slice-595-document-retention-disposition-readiness",
         "slice-596-document-scanner-capture-readiness",
-        "slice-597-document-version-history-readiness"
+        "slice-597-document-version-history-readiness",
+        "slice-598-procedure-result-version-history-readiness"
       ]
     },
     {
