@@ -4576,6 +4576,19 @@
           "slice-600-appointment-waitlist-deferral-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentReminderRetryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-601-appointment-reminder-retry-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7256,6 +7269,14 @@
           "layer": "plan",
           "commandName": "parityDocumentScannerCapturePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-596-document-scanner-capture-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-retry",
+          "name": "Slice 601 appointment reminder retry plan",
+          "description": "Runs the shared appointment reminder retry plan against the legacy target and captures retry audit evidence after the initial dispatch.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderRetryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-601-appointment-reminder-retry-readiness.json"
         }
       ],
       "actions": [
@@ -7412,7 +7433,8 @@
         "slice-597-document-version-history-readiness",
         "slice-598-procedure-result-version-history-readiness",
         "slice-599-procedure-report-review-assignment-readiness",
-        "slice-600-appointment-waitlist-deferral-readiness"
+        "slice-600-appointment-waitlist-deferral-readiness",
+        "slice-601-appointment-reminder-retry-readiness"
       ]
     },
     {
@@ -11865,6 +11887,19 @@
           "slice-600-appointment-waitlist-deferral-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentReminderRetryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-601-appointment-reminder-retry-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14458,6 +14493,14 @@
           "layer": "plan",
           "commandName": "parityDocumentScannerCapturePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-596-document-scanner-capture-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-retry",
+          "name": "Slice 601 appointment reminder retry plan",
+          "description": "Runs the shared appointment reminder retry plan against the modernized target and captures retry audit evidence after the initial dispatch.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderRetryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness.json"
         }
       ],
       "actions": [
@@ -14614,7 +14657,8 @@
         "slice-597-document-version-history-readiness",
         "slice-598-procedure-result-version-history-readiness",
         "slice-599-procedure-report-review-assignment-readiness",
-        "slice-600-appointment-waitlist-deferral-readiness"
+        "slice-600-appointment-waitlist-deferral-readiness",
+        "slice-601-appointment-reminder-retry-readiness"
       ]
     },
     {

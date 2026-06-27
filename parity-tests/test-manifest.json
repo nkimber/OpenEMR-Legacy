@@ -4384,6 +4384,29 @@
       ]
     },
     {
+      "id": "slice-601-appointment-reminder-retry-readiness",
+      "name": "Slice 601 Appointment Reminder Retry Readiness",
+      "description": "Mutation-capable scheduling reminder plan that dispatches a due appointment reminder, retries the local delivery queue, verifies retry audit history, and compares the behavior with the legacy-derived reminder expectation.",
+      "suites": [
+        "workflow-appointment-reminder-retry"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-601",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "retry",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10662,6 +10685,28 @@
         "modernized-openemr"
       ],
       "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-appointment-reminder-retry",
+      "name": "Appointment Reminder Retry Readiness",
+      "description": "Dispatches a deterministic local appointment reminder, retries it from the Calendar workflow, verifies retry audit history, and keeps the legacy-derived source expectation comparable.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-reminder-retry",
+      "tags": [
+        "slice601",
+        "workflow",
+        "mutation",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "retry",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
     },
     {
       "id": "workflow-encounters",

@@ -206,7 +206,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 600 moving scheduling forward by allowing staff to defer waiting portal appointment requests while keeping the appointment in waiting status.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 601 moving scheduling forward by adding deterministic appointment reminder retry handling and audit evidence after local reminder dispatch.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.

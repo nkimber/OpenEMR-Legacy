@@ -30,6 +30,8 @@ It explains how the workbench relates to the legacy OpenEMR baseline and the mod
 
 Slice 599 index update: procedure report reviewer assignment readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on lab report assigned-reviewer state, review queue parity, or Workbench plan execution for `slice-599-procedure-report-review-assignment-readiness`.
 
+Slice 601 index update: appointment reminder retry readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on Calendar reminder retry handling, appointment reminder dispatch audit history, or Workbench plan execution for `slice-601-appointment-reminder-retry-readiness`.
+
 ### `AZURE_DEMO_DEPLOYMENT.md`
 
 Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, or both to public Azure demo URLs from the Modernization Workbench.

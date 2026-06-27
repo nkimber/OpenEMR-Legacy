@@ -987,3 +987,9 @@ The Progress page now records reviewer assignment as completed lab/procedure evi
 The Workbench now exposes managed Slice 600 appointment waitlist deferral plan actions for both the legacy and modernized targets. These actions run `slice-600-appointment-waitlist-deferral-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a waiting portal appointment request can be deferred through its linked `Patient Reminders` message while the appointment itself remains in OpenEMR waiting status.
 
 The Progress page now records appointment waitlist deferral as completed scheduling evidence and keeps external reminder-provider integrations, richer template administration, retry handling, and patient-facing delivery preferences outstanding.
+
+## Slice 601 Workbench Update
+
+The Workbench now exposes managed Slice 601 appointment reminder retry plan actions for both the legacy and modernized targets. These actions run `slice-601-appointment-reminder-retry-readiness`, write the standard latest-run artifacts, and let the comparison view show deterministic retry audit metadata after an initial local appointment reminder dispatch.
+
+The Progress page now records local reminder retry handling as completed scheduling evidence and keeps external reminder-provider integrations, richer template administration, and patient-facing delivery preferences outstanding.
