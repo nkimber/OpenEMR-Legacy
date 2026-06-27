@@ -84,6 +84,34 @@ function parseProcedureCompendiumCsv(csvText: string, vendorFormat: "pathgroup" 
   return rows;
 }
 
+function buildScannerCapturePdfFixtureBase64(name: string, captureSource: string, pageCount: number) {
+  const text = `OpenEMR scanner capture parity fixture | ${name} | ${captureSource} | ${pageCount} page${pageCount === 1 ? "" : "s"}`;
+  const stream = `BT /F1 10 Tf 24 100 Td (${text.replace(/[()\\]/g, "\\$&")}) Tj ET`;
+  const pdf = [
+    "%PDF-1.4",
+    "% Scanner capture parity fixture",
+    "1 0 obj",
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "endobj",
+    "2 0 obj",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "endobj",
+    "3 0 obj",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 420 144] /Contents 4 0 R >>",
+    "endobj",
+    "4 0 obj",
+    `<< /Length ${Buffer.byteLength(stream, "utf8")} >>`,
+    "stream",
+    stream,
+    "endstream",
+    "endobj",
+    "%%EOF",
+    ""
+  ].join("\n");
+
+  return Buffer.from(pdf, "utf8").toString("base64");
+}
+
 export type PatientContact = {
   pid: number;
   pubpid: string;
@@ -1914,9 +1942,23 @@ export type NewPatientBinaryDocument = {
   mimetype: string;
   contentBase64: string;
   notes: string;
+  pages?: number;
 };
 
 export type NewEncounterBinaryDocument = NewPatientBinaryDocument;
+
+export type NewPatientScannerCaptureDocument = {
+  patientId: number;
+  categoryId: number;
+  categoryName: string;
+  name: string;
+  docDate: string;
+  encounter: number;
+  captureSource: string;
+  pageCount: number;
+  capturedBy: string;
+  notes: string;
+};
 
 export type NewPatientExternalLinkDocument = {
   patientId: number;
@@ -6801,7 +6843,7 @@ FROM documents;
     const documentKey = `DOC-BINARY-PARITY-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
     const contentBytes = Buffer.from(input.contentBase64, "base64");
     const contentHex = contentBytes.toString("hex");
-    const pages = input.mimetype === "application/pdf" ? 1 : 0;
+    const pages = input.pages ?? (input.mimetype === "application/pdf" ? 1 : 0);
 
     await this.db.execute(`
 INSERT INTO documents
@@ -6819,6 +6861,31 @@ VALUES (${integer(input.categoryId)}, ${integer(id)});
 `);
 
     return id;
+  }
+
+  async createPatientScannerCapture(input: NewPatientScannerCaptureDocument): Promise<number> {
+    const notes = [
+      `Scan source: ${input.captureSource}`,
+      "OCR pending",
+      `Captured by: ${input.capturedBy}`,
+      `Scan pages: ${input.pageCount}`,
+      input.notes
+    ].filter(Boolean).join("; ");
+    const fileName = input.name.toLowerCase().endsWith(".pdf") ? input.name : `${input.name}.pdf`;
+
+    return this.createPatientBinaryDocument({
+      patientId: input.patientId,
+      categoryId: input.categoryId,
+      categoryName: input.categoryName,
+      name: input.name,
+      docDate: input.docDate,
+      encounter: input.encounter,
+      fileName,
+      mimetype: "application/pdf",
+      contentBase64: buildScannerCapturePdfFixtureBase64(input.name, input.captureSource, input.pageCount),
+      notes,
+      pages: input.pageCount
+    });
   }
 
   async createPatientExternalLinkDocument(input: NewPatientExternalLinkDocument): Promise<number> {
@@ -6866,8 +6933,12 @@ SELECT d.id,
   COALESCE(d.encounter_id, 0) AS encounter,
   COALESCE(d.mimetype, '') AS mimetype,
   COALESCE(d.url, '') AS url,
-  COALESCE(d.name, '') AS fileName,
+  CASE
+    WHEN d.url LIKE 'gold://documents/%/%' THEN SUBSTRING_INDEX(d.url, '/', -1)
+    ELSE COALESCE(d.name, '')
+  END AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
+  COALESCE(d.pages, 0) AS pages,
   CASE
     WHEN d.type = 'web_url' THEN 'web_url'
     WHEN d.type = 'file_url' THEN 'file_url'
@@ -6912,6 +6983,7 @@ LIMIT 1;
       fileName: row.fileName,
       url: row.url,
       sizeBytes: Number(row.sizeBytes),
+      pages: Number(row.pages),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
       reviewStatus: row.reviewStatus,

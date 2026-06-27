@@ -959,3 +959,7 @@ The Progress page also records deterministic retention policy projection as comp
 The Workbench now exposes managed Slice 595 document retention disposition plan actions for both the legacy and modernized targets. These actions run `slice-595-document-retention-disposition-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable archive/disposition facts plus modernized protected retention-disposition API/UI action evidence.
 
 The Progress page also records controlled retention disposition/archive as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, external storage, encryption/key management, and production-grade purge/legal-hold/export retention workflows outstanding.
+
+## Slice 596 Workbench Update
+
+The Workbench now exposes managed Slice 596 document scanner-capture plan actions for both the legacy and modernized targets. These actions run `slice-596-document-scanner-capture-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable scanner-created document source facts plus modernized protected scanner-capture API and Documents scanner-intake/OCR Queue evidence.

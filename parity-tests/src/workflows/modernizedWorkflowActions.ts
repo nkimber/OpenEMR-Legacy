@@ -36,6 +36,7 @@ import type {
   NewPatientExternalLinkDocument,
   NewPatientInsurance,
   NewPatientRegistration,
+  NewPatientScannerCaptureDocument,
   NewProblem,
   NewProcedureLabProvider,
   NewProcedureLabProviderAddressBookOrganization,
@@ -3565,6 +3566,31 @@ LIMIT 1;
     return mutation.id;
   }
 
+  async createPatientScannerCapture(input: NewPatientScannerCaptureDocument): Promise<number> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/documents/scanner-captures`, {
+      method: "POST",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        patientId: String(input.patientId),
+        categoryId: input.categoryId,
+        name: input.name,
+        docDate: input.docDate,
+        encounter: input.encounter,
+        captureSource: input.captureSource,
+        pageCount: input.pageCount,
+        capturedBy: input.capturedBy,
+        notes: input.notes
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized scanner-captured patient document create failed with ${response.status}: ${await response.text()}`);
+    }
+
+    const mutation = (await response.json()) as { id: number };
+    return mutation.id;
+  }
+
   async createPatientExternalLinkDocument(input: NewPatientExternalLinkDocument): Promise<number> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/documents/external-link`, {
       method: "POST",
@@ -3595,6 +3621,7 @@ SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "ca
   COALESCE(url, '') AS url,
   COALESCE(encounter::text, '0') AS encounter,
   COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
+  COALESCE(pages::text, '0') AS pages,
   COALESCE(storage_method, '') AS "storageMethod", deleted,
   COALESCE(review_status, 'pending') AS "reviewStatus",
   COALESCE(reviewed_by, '') AS "reviewedBy",
@@ -3629,6 +3656,7 @@ LIMIT 1;
       fileName: row.fileName,
       url: row.url,
       sizeBytes: Number(row.sizeBytes),
+      pages: Number(row.pages),
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
       reviewStatus: row.reviewStatus,

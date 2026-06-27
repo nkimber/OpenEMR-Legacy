@@ -1628,7 +1628,10 @@ SELECT d.id,
   d.date AS uploadedAt,
   d.revision AS revisionAt,
   COALESCE(d.mimetype, '') AS mimetype,
-  COALESCE(d.name, '') AS fileName,
+  CASE
+    WHEN d.url LIKE 'gold://documents/%/%' THEN SUBSTRING_INDEX(d.url, '/', -1)
+    ELSE COALESCE(d.name, '')
+  END AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
   COALESCE(d.pages, 0) AS pages,
   COALESCE(d.encounter_id, 0) AS encounter,
@@ -1704,7 +1707,10 @@ SELECT d.id,
   d.date AS uploadedAt,
   d.revision AS revisionAt,
   COALESCE(d.mimetype, '') AS mimetype,
-  COALESCE(d.name, '') AS fileName,
+  CASE
+    WHEN d.url LIKE 'gold://documents/%/%' THEN SUBSTRING_INDEX(d.url, '/', -1)
+    ELSE COALESCE(d.name, '')
+  END AS fileName,
   COALESCE(d.size, 0) AS sizeBytes,
   COALESCE(d.pages, 0) AS pages,
   COALESCE(d.encounter_id, 0) AS encounter,

@@ -1223,7 +1223,7 @@
       "id": "documents-attachments",
       "name": "Documents And Attachments",
       "status": "in-progress",
-      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, OCR queue/completion readiness, routing queue readiness, retention policy readiness, generated PDF thumbnails, external-link behavior, patient portal list/download, protected document access, ACL-authorized document access, and mutation-specific document authorization are broadly covered; production document operations remain open.",
+      "summary": "Patient and encounter document read, upload, retrieval, preview, sign-off, denial, metadata, archive, replacement, revision, lifecycle, scanned-readiness, scanner capture, OCR queue/completion readiness, routing queue readiness, retention policy readiness, generated PDF thumbnails, external-link behavior, patient portal list/download, protected document access, ACL-authorized document access, and mutation-specific document authorization are broadly covered; production document operations remain open.",
       "completed": [
         {
           "label": "Patient document read, retrieval, and mutation",
@@ -1245,7 +1245,7 @@
         },
         {
           "label": "Preview, thumbnail, lifecycle, and scanned-readiness",
-          "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, generated PDF thumbnails, lifecycle timeline, scanned attachment readiness, pending-OCR work queue projection, focused OCR completion, pending-review routing queue projection, and deterministic retention policy projection are covered.",
+          "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, generated PDF thumbnails, lifecycle timeline, scanned attachment readiness, direct scanner capture, pending-OCR work queue projection, focused OCR completion, pending-review routing queue projection, and deterministic retention policy projection are covered.",
           "evidence": [
             "slice-53-document-preview-readiness",
             "slice-54-document-revision-readiness",
@@ -1255,6 +1255,7 @@
             "slice-592-document-pdf-thumbnail-readiness",
             "slice-91-document-lifecycle-readiness",
             "slice-92-document-scanned-attachment-readiness",
+            "slice-596-document-scanner-capture-readiness",
             "slice-590-document-ocr-queue-readiness",
             "slice-591-document-ocr-completion-readiness",
             "slice-593-document-routing-queue-readiness",
@@ -1293,16 +1294,16 @@
         }
       ],
       "outstanding": [
-        "Direct scanner capture, production OCR engine integration beyond deterministic completion, full historical version rows, encryption/key management, and destructive retention disposition execution.",
+        "Production OCR engine integration beyond deterministic scanner/OCR completion, full historical version rows, encryption/key management, and destructive retention disposition execution.",
         "External object storage, CCDA import/export, broader patient-portal document access rules beyond active owned list/download, and document delivery integrations."
       ],
       "deferred": [
         "Fax/SMS attachments and external storage provider adapters."
       ],
-      "completionEstimatePercent": 76,
+      "completionEstimatePercent": 78,
       "estimatedScopeWeight": 10,
       "scopeWeightRationale": "Document workflows span storage, previews, reviews, revisions, retention, authorization, scanner/OCR, and patient/encounter contexts.",
-      "estimateRationale": "Document read, upload, preview, generated PDF thumbnails, review, archive, replacement, revision, scanned-readiness, pending-OCR queue projection, focused OCR completion, pending-review routing queue projection, deterministic retention policy projection, patient portal list/download, protected access, focused ACL-authorized access, and mutation-specific add/write/delete document authorization paths are broad; scanner capture, production OCR engine integration, storage, and destructive disposition execution remain."
+      "estimateRationale": "Document read, upload, scanner capture, preview, generated PDF thumbnails, review, archive, replacement, revision, scanned-readiness, pending-OCR queue projection, focused OCR completion, pending-review routing queue projection, deterministic retention policy projection, patient portal list/download, protected access, focused ACL-authorized access, and mutation-specific add/write/delete document authorization paths are broad; production OCR engine integration, storage, and destructive disposition execution remain."
     },
     {
       "id": "labs-procedures",

@@ -4511,6 +4511,19 @@
           "slice-595-document-retention-disposition-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentScannerCapturePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-596-document-scanner-capture-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7183,6 +7196,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRetentionDispositionPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-595-document-retention-disposition-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-scanner-capture",
+          "name": "Slice 596 document scanner capture plan",
+          "description": "Runs the shared scanner-capture document plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentScannerCapturePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-596-document-scanner-capture-readiness.json"
         }
       ],
       "actions": [
@@ -7302,7 +7323,8 @@
         "slice-592-document-pdf-thumbnail-readiness",
         "slice-593-document-routing-queue-readiness",
         "slice-594-document-retention-policy-readiness",
-        "slice-595-document-retention-disposition-readiness"
+        "slice-595-document-retention-disposition-readiness",
+        "slice-596-document-scanner-capture-readiness"
       ]
     },
     {
@@ -11690,6 +11712,19 @@
           "slice-595-document-retention-disposition-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentScannerCapturePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-596-document-scanner-capture-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14275,6 +14310,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRetentionDispositionPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-595-document-retention-disposition-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-scanner-capture",
+          "name": "Slice 596 document scanner capture plan",
+          "description": "Runs the shared scanner-capture document plan against the modernized target, including protected scanner-capture API and Documents workspace intake evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentScannerCapturePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-596-document-scanner-capture-readiness.json"
         }
       ],
       "actions": [
@@ -14394,7 +14437,8 @@
         "slice-592-document-pdf-thumbnail-readiness",
         "slice-593-document-routing-queue-readiness",
         "slice-594-document-retention-policy-readiness",
-        "slice-595-document-retention-disposition-readiness"
+        "slice-595-document-retention-disposition-readiness",
+        "slice-596-document-scanner-capture-readiness"
       ]
     },
     {

@@ -92,7 +92,7 @@ Current update: Slice 514 extends patient portal secure-message folder search re
 
 ## Why OpenEMR
 
-Current document-workflow update: Slice 595 adds controlled retention disposition after Slice 594 retention policy projection. The modernized document API now archives eligible retention-policy documents through `POST /api/documents/{documentId}/retention/dispose`, records disposition evidence in document notes, refreshes the retention policy read model, and the Documents workspace exposes a `Dispose` action for eligible rows. The shared parity plan verifies comparable legacy archive behavior and modernized API/UI disposition behavior while cleaning up the temporary document.
+Current document-workflow update: Slice 596 adds scanner-capture readiness after Slice 595 controlled retention disposition. The modernized document API now creates database-backed PDF scanner captures through `POST /api/documents/scanner-captures`, records scanner source, captured-by, page-count, and OCR-pending evidence, refreshes the OCR queue, and the Documents workspace exposes a `Scanner Capture` intake form. The shared parity plan verifies comparable legacy scanner document facts and modernized UI-driven scanner intake while cleaning up the temporary document.
 
 OpenEMR is a mature, open source electronic health records and medical practice management application. It is large enough to contain real modernization challenges: legacy UI patterns, server-side business behavior, database coupling, authentication and authorization concerns, reporting, healthcare workflows, and integration surfaces.
 
@@ -206,7 +206,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 595 moving document operations forward by executing controlled retention disposition/archive behavior while preserving side-by-side parity evidence.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 596 moving document operations forward by adding scanner-capture intake and OCR-pending queue evidence while preserving side-by-side parity evidence.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.

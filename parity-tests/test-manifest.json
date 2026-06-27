@@ -4270,6 +4270,29 @@
       ]
     },
     {
+      "id": "slice-596-document-scanner-capture-readiness",
+      "name": "Slice 596 document scanner capture readiness",
+      "description": "Document scanner-capture readiness plan that creates a multi-page scanner-captured PDF document, verifies OCR-pending scan metadata, and proves the modernized Documents workspace can trigger scanner intake.",
+      "suites": [
+        "workflow-document-scanner-capture"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-596",
+        "documents",
+        "attachments",
+        "scanner",
+        "ocr",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10434,6 +10457,26 @@
         "attachments",
         "retention",
         "disposition",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-scanner-capture",
+      "name": "Document scanner capture workflow",
+      "description": "Creates a multi-page scanner-captured document, verifies normalized OCR-pending scan metadata, renders target-specific document surfaces, and removes the temporary document.",
+      "path": "tests/workflow-document-scanner-capture",
+      "tags": [
+        "slice596",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "scanner",
+        "ocr",
         "comparison-ready"
       ],
       "targets": [
