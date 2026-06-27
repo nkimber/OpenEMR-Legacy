@@ -1,4 +1,4 @@
-# Project Changelog
+﻿# Project Changelog
 
 Created: 2026-06-18
 
@@ -27618,6 +27618,37 @@ Verification:
 
 Code Metrics:
 - 17 scoped files changed, with 625 insertions and 8 deletions, net +617 lines and 633 total churn, including backend audit-history persistence, React history rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+
+## 573. Statement Portal Delivery Readiness
+
+Started: 2026-06-26T21:16:00.0000000-04:00
+Finished: 2026-06-26T21:35:42.1490000-04:00
+Commit: `5195a4d9`
+
+Implemented Slice 573: patient portal statement delivery readiness. The modernized billing API now publishes deterministic statement PDFs into eligible patient portal document lists for login-ready portal accounts, using the `Invoices` document category and idempotent `portal-statement-{statementNumber}` document keys. The React Fees statement batch panel exposes a `Portal Delivery` action and renders delivered document, portal username, category, statement, and file evidence. The shared parity plan compares the normalized legacy-derived portal delivery expectation with the modernized API, Fees UI, and patient portal Documents view.
+
+Changes:
+- Added statement portal delivery DTOs, repository publication logic, PDF document persistence, and `POST /api/billing/statements/batch/portal-delivery` guarded by Billing write permission.
+- Added the modernized frontend API helper plus Fees statement batch `Portal Delivery` action and delivery evidence rendering.
+- Added the `account-statement-portal-delivery` parity suite and `slice-573-statement-portal-delivery-readiness` plan.
+- Added Workbench managed actions/cards for running the Slice 573 plan against legacy and modernized targets.
+- Updated the Workbench Progress ledger to count patient-portal statement document delivery as completed revenue-cycle readiness while leaving real SMTP, print-provider, and mailing fulfillment integrations outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 573 statement portal delivery contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `git diff --check` on the Slice 573 file set; only existing LF-to-CRLF working-copy warnings were reported.
+- Rebuilt the modernized stack with `docker compose up -d --build`.
+- Ran the Slice 573 legacy parity plan: `2026-06-27T012902-475Z-legacy-openemr-plan-slice-573-statement-portal-delivery-readiness` passed 1/1 tests.
+- Ran the Slice 573 modernized parity plan: `2026-06-27T013306-906Z-modernized-openemr-plan-slice-573-statement-portal-delivery-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 573 runs: `2026-06-27T013542-148Z-legacy-openemr-vs-modernized-openemr-plan-slice-573-statement-portal-delivery-readiness` matched with no differences.
+
+Code Metrics:
+- 16 scoped files changed, with 632 insertions and 8 deletions, net +624 lines and 640 total churn, including backend portal document publication, React portal delivery rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
