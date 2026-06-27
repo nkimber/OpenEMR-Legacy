@@ -5,7 +5,7 @@ import { openAuthenticatedModernizedFees } from "../../src/ui/modernizedOpenEmr.
 const paymentPostingMutationAnchorPatientId = "MOD-PAT-0005";
 const paymentPostingEncounter = 1000052;
 
-test.describe("payment posting mutation parity @slice56 @workflow-payment-posting @mutation @billing", () => {
+test.describe("payment posting mutation parity @slice56 @slice567 @workflow-payment-posting @mutation @billing", () => {
   test("creates, renders, voids, and removes a payment posting", async ({
     page,
     target,
@@ -93,9 +93,36 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
         }
       });
 
-      paymentPostingId = await workflow.createPaymentPosting(paymentInput);
+      if (target.type === "legacy-openemr") {
+        paymentPostingId = await workflow.createPaymentPosting(paymentInput);
+      } else {
+        await openAuthenticatedModernizedFees(page, target, patient!.pubpid);
+        await expect(page.locator("body")).toContainText("Payment Posting");
+        await expect(page.getByLabel("New payment encounter")).not.toHaveValue("");
+        await page.getByLabel("New payment source").selectOption("insurance");
+        await page.getByLabel("New payment post date").fill(paymentInput.postDate);
+        await page.getByLabel("New payment payer ID").fill(String(paymentInput.payerId));
+        await page.getByLabel("New payment payer name").fill(paymentInput.payerName);
+        await page.getByLabel("New payment reference").fill(reference);
+        await page.getByLabel("New payment method").selectOption(paymentInput.paymentMethod);
+        await page.getByLabel("New payment amount").fill(paymentInput.payAmount);
+        await page.getByLabel("New payment adjustment amount").fill(paymentInput.adjustmentAmount);
+        await page.getByLabel("New payment CPT code").fill(paymentInput.code);
+        await page.getByLabel("New payment reason code").fill(paymentInput.reasonCode);
+        await page.getByLabel("New payment payer claim number").fill(payerClaimNumber);
+        await page.getByLabel("New payment memo").fill(paymentInput.memo);
+        await page.getByLabel("New payment encounter").fill(String(paymentPostingEncounter));
+        await expect(page.getByLabel("New payment encounter")).toHaveValue(String(paymentPostingEncounter));
+        await page.getByRole("button", { name: "Post Payment" }).click();
+        await expect(page.locator("body")).toContainText("Payment posting saved");
+        await expect(page.locator("body")).toContainText(reference);
 
-      const created = await workflow.getPaymentPosting(paymentPostingId);
+        const createdPostings = await targetDb.getPaymentPostingsForPatient(patient!.pid);
+        paymentPostingId = createdPostings.find((posting) => posting.reference === reference)?.activityId ?? null;
+        expect(paymentPostingId).not.toBeNull();
+      }
+
+      const created = await workflow.getPaymentPosting(paymentPostingId!);
       expect(created).toMatchObject({
         patientId: patient!.pid,
         encounter: paymentPostingEncounter,
@@ -224,8 +251,10 @@ test.describe("payment posting mutation parity @slice56 @workflow-payment-postin
         await expect(page.locator("body")).toContainText(`Claim ${payerClaimNumber}`);
       }
 
-      await workflow.voidPaymentPosting(paymentPostingId);
-      const voided = await workflow.getPaymentPosting(paymentPostingId);
+      expect(paymentPostingId).not.toBeNull();
+      const activePaymentPostingId = paymentPostingId!;
+      await workflow.voidPaymentPosting(activePaymentPostingId);
+      const voided = await workflow.getPaymentPosting(activePaymentPostingId);
       expect(voided).not.toBeNull();
       expect(voided!.deleted).not.toBe("");
 
