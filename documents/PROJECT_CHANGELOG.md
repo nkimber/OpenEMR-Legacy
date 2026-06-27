@@ -27893,6 +27893,43 @@ Verification:
 
 Code Metrics:
 - Commit `4ff59fcb` changed 18 scoped files with 920 insertions and 10 deletions.
+
+## 638. Prescription Pharmacy Routing Readiness
+
+Started: 2026-06-27T00:40:00.0000000-04:00
+Finished: 2026-06-27T00:56:34.1910000-04:00
+Commit: pending
+
+Implemented Slice 582: prescription pharmacy routing readiness. The modernized prescribing surface now supports routing an active prescription to deterministic pharmacy evidence, persists local eRx transmit metadata in the business tier, renders the routed state in Lists, and compares the behavior with legacy OpenEMR pharmacy/prescription fields.
+
+Changes:
+- Added a focused modernized PostgreSQL `pharmacies` seed table plus prescription pharmacy/transmit columns.
+- Added seeded modernized pharmacy rows for Northstar Community Pharmacy, Summit Mail Order Pharmacy, and Lakeside 24 Hour Pharmacy.
+- Added `ClinicalPrescriptionPharmacyRouteRequest` and `PUT /api/clinical-lists/prescriptions/{prescriptionId}/route-pharmacy`.
+- Added server-side pharmacy lookup, routed prescription updates, modified-date/note stamping, and deterministic local eRx payload generation.
+- Extended the clinical-list prescription read model and frontend API types with pharmacy ID/name/NCPDP, eRx uploaded status, sent timestamp, and payload evidence.
+- Added a Lists `Route` action and rendered pharmacy/transmit evidence on routed prescription cards.
+- Added parity workflow support for deterministic pharmacy fixtures and prescription routing on both legacy and modernized targets.
+- Added the `workflow-prescription-pharmacy-routing` parity suite and `slice-582-prescription-pharmacy-routing-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 582 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so pharmacy routing transmit evidence is completed prescribing functionality while controlled-substance rules and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Regenerated the modernized PostgreSQL seed artifact with `node .\modernized-openemr\scripts\generate-postgres-seed.mjs`.
+- Applied the matching pharmacy/routing DDL to the live local modernized PostgreSQL database for verification.
+- Ran the Slice 582 legacy parity plan: `2026-06-27T045506-443Z-legacy-openemr-plan-slice-582-prescription-pharmacy-routing-readiness` passed 1/1 tests.
+- Ran the Slice 582 modernized parity plan: `2026-06-27T045609-350Z-modernized-openemr-plan-slice-582-prescription-pharmacy-routing-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 582 runs: `2026-06-27T045634-190Z-legacy-openemr-vs-modernized-openemr-plan-slice-582-prescription-pharmacy-routing-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

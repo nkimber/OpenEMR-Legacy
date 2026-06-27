@@ -1385,6 +1385,25 @@ export type PrescriptionRecord = {
   refills: number;
   active: number;
   note: string;
+  pharmacyId?: number | null;
+  pharmacyName?: string | null;
+  pharmacyNcpdp?: number | null;
+  erxUploaded?: number;
+  erxSentAt?: string | null;
+  erxPayload?: string | null;
+};
+
+export type NewPharmacy = {
+  id?: number;
+  name: string;
+  email: string;
+  ncpdp: number;
+  npi: number;
+};
+
+export type PharmacyRecord = NewPharmacy & {
+  id: number;
+  transmitMethod: number;
 };
 
 export type ImmunizationRecord = {
@@ -7039,13 +7058,106 @@ SELECT LAST_INSERT_ID() AS id;
     return Number(rows[0]?.id);
   }
 
+  async createPharmacy(input: NewPharmacy): Promise<number> {
+    const rows = await this.db.queryRows<{ id: string }>(`
+INSERT INTO pharmacies
+  (id, name, transmit_method, email, ncpdp, npi)
+VALUES
+  (${integer(input.id ?? 0)}, ${sqlString(input.name)}, 1, ${sqlString(input.email)}, ${integer(input.ncpdp)}, ${integer(input.npi)})
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  transmit_method = VALUES(transmit_method),
+  email = VALUES(email),
+  ncpdp = VALUES(ncpdp),
+  npi = VALUES(npi);
+SELECT ${integer(input.id ?? 0)} AS id;
+`);
+    return input.id ?? Number(rows[0]?.id);
+  }
+
+  async deletePharmacy(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM pharmacies
+WHERE id = ${integer(id)};
+`);
+  }
+
+  async routePrescriptionToPharmacy(
+    prescriptionId: number | string,
+    pharmacyId: number,
+    sentAt: string,
+    note: string
+  ): Promise<void> {
+    const legacyId = legacyInteger(prescriptionId);
+    const pharmacy = await this.getPharmacy(pharmacyId);
+    if (!pharmacy) {
+      throw new Error(`Legacy pharmacy ${pharmacyId} was not found.`);
+    }
+
+    const prescription = await this.getPrescription(legacyId);
+    if (!prescription) {
+      throw new Error(`Legacy prescription ${legacyId} was not found.`);
+    }
+
+    const payload = [
+      `Prescription ID: ${legacyId}`,
+      `Drug: ${prescription.drug}`,
+      `Dosage: ${prescription.dosage || "Not recorded"}`,
+      `Quantity: ${prescription.quantity || "Not recorded"}`,
+      `Pharmacy: ${pharmacy.name}`,
+      `NCPDP: ${pharmacy.ncpdp}`,
+      `Sent: ${sentAt}`
+    ].join("\n");
+
+    await this.db.execute(`
+UPDATE prescriptions
+SET pharmacy_id = ${integer(pharmacy.id)},
+    erx_uploaded = 1,
+    drug_info_erx = ${sqlString(payload)},
+    date_modified = ${sqlString(sentAt)},
+    note = ${sqlString(note)},
+    updated_by = 1
+WHERE id = ${integer(legacyId)}
+  AND active = 1;
+`);
+  }
+
+  async getPharmacy(id: number): Promise<PharmacyRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, name, transmit_method AS transmitMethod, email, ncpdp, npi
+FROM pharmacies
+WHERE id = ${integer(id)}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      name: row.name,
+      transmitMethod: Number(row.transmitMethod),
+      email: row.email,
+      ncpdp: Number(row.ncpdp),
+      npi: Number(row.npi)
+    };
+  }
+
   async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
-SELECT id, patient_id AS patientId, provider_id AS providerId, DATE(start_date) AS startDate,
-  DATE(date_modified) AS modifiedDate, DATE(end_date) AS endDate, drug, dosage, quantity, refills, active, note
-FROM prescriptions
-WHERE id = ${integer(legacyId)}
+SELECT p.id, p.patient_id AS patientId, p.provider_id AS providerId, DATE(p.start_date) AS startDate,
+  DATE(p.date_modified) AS modifiedDate, DATE(p.end_date) AS endDate, p.drug, p.dosage, p.quantity, p.refills, p.active, p.note,
+  p.pharmacy_id AS pharmacyId,
+  ph.name AS pharmacyName,
+  ph.ncpdp AS pharmacyNcpdp,
+  p.erx_uploaded AS erxUploaded,
+  DATE_FORMAT(p.date_modified, '%Y-%m-%d %H:%i:%s') AS erxSentAt,
+  p.drug_info_erx AS erxPayload
+FROM prescriptions p
+LEFT JOIN pharmacies ph ON ph.id = p.pharmacy_id
+WHERE p.id = ${integer(legacyId)}
 LIMIT 1;
 `);
     const row = rows[0];
@@ -7064,7 +7176,13 @@ LIMIT 1;
       quantity: row.quantity,
       refills: Number(row.refills),
       active: Number(row.active),
-      note: row.note
+      note: row.note,
+      pharmacyId: dbNullToNull(row.pharmacyId) === null ? null : Number(row.pharmacyId),
+      pharmacyName: dbNullToNull(row.pharmacyName),
+      pharmacyNcpdp: dbNullToNull(row.pharmacyNcpdp) === null ? null : Number(row.pharmacyNcpdp),
+      erxUploaded: Number(row.erxUploaded ?? 0),
+      erxSentAt: Number(row.erxUploaded ?? 0) === 1 ? dbNullToNull(row.erxSentAt) : null,
+      erxPayload: dbNullToNull(row.erxPayload)
     };
   }
 

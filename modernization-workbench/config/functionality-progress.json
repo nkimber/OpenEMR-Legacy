@@ -523,7 +523,7 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and broader prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, pharmacy routing transmit evidence, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and broader prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
@@ -569,19 +569,24 @@
           "label": "Prescription refill request approval readiness",
           "detail": "Staff can see pending patient-originated portal refill requests in the modernized Lists clinical queue, approve one additional refill, close the mailbox request as Done, and compare the result with legacy onsite_mail and prescription-row behavior.",
           "evidence": ["slice-581-prescription-refill-request-approval-readiness"]
+        },
+        {
+          "label": "Prescription pharmacy routing readiness",
+          "detail": "Staff can route an active prescription to a selected pharmacy, persist pharmacy identity and deterministic local eRx transmit evidence, render the routed state in Lists, and compare the result with legacy prescription pharmacy fields.",
+          "evidence": ["slice-582-prescription-pharmacy-routing-readiness"]
         }
       ],
       "outstanding": [
         "Vocabulary lookup, diagnosis interactions, medication reconciliation, structured dose/frequency fields, and audit history.",
-        "Pharmacy routing, controlled-substance rules, and broader e-prescribing workflow."
+        "Controlled-substance rules and broader e-prescribing workflow."
       ],
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 66,
+      "completionEstimatePercent": 68,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, and staff can approve those requests from a clinical queue; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, staff can approve those requests from a clinical queue, and staff can route prescriptions to a selected pharmacy with deterministic local transmit evidence; vocabulary lookup, medication reconciliation, controlled-substance rules, and broader prescribing controls remain."
     },
     {
       "id": "messaging-portal",

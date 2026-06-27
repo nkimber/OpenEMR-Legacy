@@ -877,3 +877,9 @@ The Progress page also records patient-originated portal refill requests as comp
 The Workbench now exposes managed Slice 581 prescription refill request approval plan actions for both the legacy and modernized targets. These actions run `slice-581-prescription-refill-request-approval-readiness`, write the standard latest-run artifacts, and let the comparison view show whether staff can approve a patient-originated portal refill request from the clinical-list queue.
 
 The Progress page also records refill review queue approval as completed clinical-list and prescribing evidence while keeping pharmacy routing, controlled-substance rules, and broader e-prescribing workflow outstanding.
+
+## Slice 582 Workbench Update
+
+The Workbench now exposes managed Slice 582 prescription pharmacy routing plan actions for both the legacy and modernized targets. These actions run `slice-582-prescription-pharmacy-routing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether an active prescription can be routed to deterministic Northstar pharmacy evidence with local eRx transmit metadata.
+
+The Progress page also records pharmacy routing transmit evidence as completed clinical-list and prescribing evidence while keeping controlled-substance rules and broader e-prescribing workflow outstanding.

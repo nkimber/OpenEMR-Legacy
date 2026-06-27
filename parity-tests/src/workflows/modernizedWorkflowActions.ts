@@ -49,6 +49,7 @@ import type {
   NewProcedureReport,
   NewProcedureResult,
   NewProcedureSpecimen,
+  NewPharmacy,
   NewPrescription,
   NewSoapNote,
   NewVitals,
@@ -107,6 +108,7 @@ import type {
   PatientPortalSessionResult,
   PatientPortalAccountResetState,
   PatientInsuranceRecord,
+  PharmacyRecord,
   PatientMessageRecord,
   PaymentPostingRecord,
   MedicationRecord,
@@ -3921,11 +3923,72 @@ LIMIT 1;
     return mutation.id;
   }
 
+  async createPharmacy(input: NewPharmacy): Promise<number> {
+    const id = 910000 + Math.floor(Math.random() * 100000);
+    await this.db.execute(`
+INSERT INTO pharmacies (id, name, transmit_method, email, ncpdp, npi)
+VALUES (${id}, ${sqlString(input.name)}, 1, ${sqlString(input.email)}, ${input.ncpdp}, ${input.npi});
+`);
+    return id;
+  }
+
+  async deletePharmacy(id: number): Promise<void> {
+    await this.db.execute(`
+DELETE FROM pharmacies
+WHERE id = ${id};
+`);
+  }
+
+  async getPharmacy(id: number): Promise<PharmacyRecord | null> {
+    const rows = await this.db.queryRows<Record<string, string>>(`
+SELECT id, name, transmit_method AS "transmitMethod", COALESCE(email, '') AS email, ncpdp, npi
+FROM pharmacies
+WHERE id = ${id}
+LIMIT 1;
+`);
+    const row = rows[0];
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: Number(row.id),
+      name: row.name,
+      transmitMethod: Number(row.transmitMethod),
+      email: row.email,
+      ncpdp: Number(row.ncpdp),
+      npi: Number(row.npi)
+    };
+  }
+
+  async routePrescriptionToPharmacy(
+    prescriptionId: number | string,
+    pharmacyId: number,
+    sentAt: string,
+    note: string
+  ): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(prescriptionId))}/route-pharmacy`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({ pharmacyId, sentAt, note })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized prescription pharmacy route failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
   async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", provider_id AS "providerId", start_date AS "startDate",
   COALESCE(modified_date::text, '') AS "modifiedDate", COALESCE(end_date::text, '') AS "endDate", drug, COALESCE(dosage, '') AS dosage,
-  COALESCE(quantity, '') AS quantity, refills, active, COALESCE(note, '') AS note
+  COALESCE(quantity, '') AS quantity, refills, active, COALESCE(note, '') AS note,
+  COALESCE(pharmacy_id::text, '') AS "pharmacyId",
+  COALESCE(pharmacy_name, '') AS "pharmacyName",
+  COALESCE(pharmacy_ncpdp::text, '') AS "pharmacyNcpdp",
+  erx_uploaded AS "erxUploaded",
+  COALESCE(TO_CHAR(erx_sent_at, 'YYYY-MM-DD HH24:MI:SS'), '') AS "erxSentAt",
+  COALESCE(replace(replace(erx_payload, chr(13), ''), chr(10), '\\n'), '') AS "erxPayload"
 FROM prescriptions
 WHERE id = ${sqlString(String(id))}
 LIMIT 1;
@@ -3947,7 +4010,13 @@ LIMIT 1;
       quantity: row.quantity,
       refills: Number(row.refills),
       active: Number(row.active),
-      note: row.note
+      note: row.note,
+      pharmacyId: row.pharmacyId ? Number(row.pharmacyId) : null,
+      pharmacyName: row.pharmacyName || null,
+      pharmacyNcpdp: row.pharmacyNcpdp ? Number(row.pharmacyNcpdp) : null,
+      erxUploaded: Number(row.erxUploaded ?? 0),
+      erxSentAt: row.erxSentAt || null,
+      erxPayload: row.erxPayload ? row.erxPayload.replace(/\\n/g, "\n") : null
     };
   }
 

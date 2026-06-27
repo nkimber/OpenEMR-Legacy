@@ -1545,6 +1545,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-582-prescription-pharmacy-routing-readiness",
+      "name": "Slice 582 Prescription Pharmacy Routing Readiness",
+      "description": "Prescription pharmacy routing readiness plan that creates a temporary pharmacy and active prescription, routes the prescription to the pharmacy, verifies transmit evidence, and checks modernized Lists rendering.",
+      "suites": ["workflow-prescription-pharmacy-routing"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-582", "prescriptions", "clinical-lists", "pharmacy", "erx", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -4040,6 +4049,16 @@
       "layer": "workflow",
       "path": "tests/workflow-prescription-refill-request-approval",
       "tags": ["slice581", "workflow", "mutation", "patients", "portal", "prescriptions", "refills", "clinical-lists", "review-queue", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-prescription-pharmacy-routing",
+      "name": "Prescription Pharmacy Routing Readiness",
+      "description": "Creates a temporary pharmacy and active prescription, routes the prescription to that pharmacy, verifies transmit evidence, and checks modernized Lists rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-prescription-pharmacy-routing",
+      "tags": ["slice582", "workflow", "mutation", "clinical-lists", "prescriptions", "pharmacy", "erx", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },
