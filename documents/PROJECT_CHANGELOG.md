@@ -28331,6 +28331,36 @@ Verification:
 Code Metrics:
 - Commit `9be1603d` changed 15 scoped files with 500 insertions and 18 deletions.
 
+## 648. Slice 596 Document Scanner Capture Readiness
+
+Started: 2026-06-27T04:38:00.0000000-04:00
+Finished: 2026-06-27T04:58:25.5941367-04:00
+Commit: a73cfb4a
+
+Implemented scanner-capture readiness for the modernized Documents workflow. The modernized API now creates database-backed PDF scanner captures with scanner source, captured-by, page-count, and OCR-pending metadata, refreshes document/OCR queue state, and the Documents workspace exposes a `Scanner Capture` intake form.
+
+Changes:
+- Added `POST /api/documents/scanner-captures` with document add authorization.
+- Added scanner-capture request DTO and repository logic that creates multi-page PDF-style database documents with scan metadata.
+- Added frontend API typing/client support and a Scanner Capture form on the Documents page.
+- Extended legacy and modernized parity workflow adapters with scanner-capture document creation support.
+- Added the `workflow-document-scanner-capture` parity suite and `slice-596-document-scanner-capture-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 596 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so direct scanner capture is completed while production OCR engine integration and storage/encryption depth remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 596 legacy parity plan: `2026-06-27T085614-855Z-legacy-openemr-plan-slice-596-document-scanner-capture-readiness` passed 1/1 tests.
+- Ran the Slice 596 modernized parity plan: `2026-06-27T085741-102Z-modernized-openemr-plan-slice-596-document-scanner-capture-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 596 runs: `2026-06-27T085810-740Z-legacy-openemr-vs-modernized-openemr-plan-slice-596-document-scanner-capture-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `a73cfb4a` changed 18 scoped files with 870 insertions and 15 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
