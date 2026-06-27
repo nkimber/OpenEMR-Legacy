@@ -28393,6 +28393,38 @@ Verification:
 
 Code Metrics:
 - 19 files changed, 731 insertions, 64 deletions.
+## 650. Slice 598 Procedure Result Version History Readiness
+
+Started: 2026-06-27T05:25:00.0000000-04:00
+Finished: 2026-06-27T05:40:32.2950000-04:00
+Commit: ad769dff
+
+Implemented procedure result version-history readiness for the modernized Procedures workflow. The modernized procedure repository now snapshots the current lab result row into `procedure_result_versions` before correction, returns current-plus-prior result version rows through procedure detail responses, and renders the correction history in the Procedures result card while preserving legacy OpenEMR as an overwrite-only comparison baseline.
+
+Changes:
+- Added the `procedure_result_versions` runtime table and generated-seed schema definition.
+- Extended procedure result DTO/API shapes with current-version and prior-version counts plus version-history rows.
+- Updated result correction so the modernized target saves the prior result payload before overwriting the active row.
+- Rendered result version-history rows in the modernized Procedures result card.
+- Extended legacy and modernized parity probes/workflow records with explicit version-history fields.
+- Added the `workflow-procedure-result-version-history` parity suite and `slice-598-procedure-result-version-history-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 598 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so current-plus-prior procedure result version-history rows are completed lab/procedure evidence.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `node .\scripts\generate-postgres-seed.mjs` in `modernized-openemr\` and regenerated the PostgreSQL seed artifact with the empty result-history table.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 598 legacy parity plan: `2026-06-27T093927-585Z-legacy-openemr-plan-slice-598-procedure-result-version-history-readiness` passed 1/1 tests.
+- Ran the Slice 598 modernized parity plan: `2026-06-27T094001-543Z-modernized-openemr-plan-slice-598-procedure-result-version-history-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 598 runs: `2026-06-27T094032-295Z-legacy-openemr-vs-modernized-openemr-plan-slice-598-procedure-result-version-history-readiness` matched with no differences.
+
+Code Metrics:
+- 21 files changed, 881 insertions, 28 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
