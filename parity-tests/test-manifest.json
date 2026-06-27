@@ -4338,6 +4338,29 @@
       ]
     },
     {
+      "id": "slice-599-procedure-report-review-assignment-readiness",
+      "name": "Slice 599 Procedure Report Review Assignment Readiness",
+      "description": "Mutation-capable lab report review assignment plan that creates a temporary received report, assigns it to a reviewer, verifies assigned queue/report metadata, and removes the temporary workflow.",
+      "suites": [
+        "workflow-procedure-report-review-assignment"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-599",
+        "procedures",
+        "labs",
+        "review-assignment",
+        "review-queue",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -12607,6 +12630,29 @@
         "reports",
         "signoff",
         "review",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-procedure-report-review-assignment",
+      "name": "Procedure Report Review Assignment",
+      "description": "Creates a temporary lab procedure report, assigns reviewer metadata, verifies assigned unreviewed queue/report state, and removes the temporary workflow on both targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-procedure-report-review-assignment",
+      "tags": [
+        "slice599",
+        "workflow",
+        "mutation",
+        "procedures",
+        "labs",
+        "reports",
+        "review-assignment",
+        "review-queue",
         "comparison-ready"
       ],
       "targets": [

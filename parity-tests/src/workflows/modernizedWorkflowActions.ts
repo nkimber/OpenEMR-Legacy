@@ -123,6 +123,7 @@ import type {
   PrescriptionAuditHistoryRecord,
   ProcedureLabProviderRecord,
   ProcedureReportRecord,
+  ProcedureReportReviewAssignment,
   ProcedureReportSignOff,
   ProcedureReportUpdate,
   ProcedureResultRecord,
@@ -5182,6 +5183,21 @@ LIMIT 1;
 
     if (!response.ok) {
       throw new Error(`Modernized procedure report sign-off failed with ${response.status}: ${await response.text()}`);
+    }
+  }
+
+  async assignProcedureReportReviewer(id: number, input: ProcedureReportReviewAssignment): Promise<void> {
+    const response = await fetch(`${this.target.apiBaseUrl}/api/procedures/reports/${encodeURIComponent(String(id))}/review-assignment`, {
+      method: "PUT",
+      headers: await this.getAdminJsonHeaders(),
+      body: JSON.stringify({
+        assignedTo: input.assignedTo,
+        assignedAt: input.assignedAt
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Modernized procedure report reviewer assignment failed with ${response.status}: ${await response.text()}`);
     }
   }
 

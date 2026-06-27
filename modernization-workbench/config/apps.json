@@ -4550,6 +4550,19 @@
           "slice-598-procedure-result-version-history-readiness",
           "-Reset",
           "test"
+        ],
+        "parityProcedureReportReviewAssignmentPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-599-procedure-report-review-assignment-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7352,6 +7365,14 @@
           "layer": "plan",
           "commandName": "parityProcedureResultVersionHistoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-598-procedure-result-version-history-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-report-review-assignment",
+          "name": "Slice 599 procedure report review assignment plan",
+          "description": "Runs the shared procedure report reviewer-assignment plan against the legacy target and captures assigned queue/report metadata for comparison.",
+          "layer": "plan",
+          "commandName": "parityProcedureReportReviewAssignmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-599-procedure-report-review-assignment-readiness.json"
         }
       ],
       "testPlans": [
@@ -7368,7 +7389,8 @@
         "slice-595-document-retention-disposition-readiness",
         "slice-596-document-scanner-capture-readiness",
         "slice-597-document-version-history-readiness",
-        "slice-598-procedure-result-version-history-readiness"
+        "slice-598-procedure-result-version-history-readiness",
+        "slice-599-procedure-report-review-assignment-readiness"
       ]
     },
     {
@@ -11795,6 +11817,19 @@
           "slice-598-procedure-result-version-history-readiness",
           "-Reset",
           "test"
+        ],
+        "parityProcedureReportReviewAssignmentPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-599-procedure-report-review-assignment-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14510,6 +14545,14 @@
           "layer": "plan",
           "commandName": "parityProcedureResultVersionHistoryPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-598-procedure-result-version-history-readiness.json"
+        },
+        {
+          "id": "parity-plan-procedure-report-review-assignment",
+          "name": "Slice 599 procedure report review assignment plan",
+          "description": "Runs the shared procedure report reviewer-assignment plan against the modernized target and captures assigned queue/report metadata for comparison.",
+          "layer": "plan",
+          "commandName": "parityProcedureReportReviewAssignmentPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-599-procedure-report-review-assignment-readiness.json"
         }
       ],
       "testPlans": [
@@ -14526,7 +14569,8 @@
         "slice-595-document-retention-disposition-readiness",
         "slice-596-document-scanner-capture-readiness",
         "slice-597-document-version-history-readiness",
-        "slice-598-procedure-result-version-history-readiness"
+        "slice-598-procedure-result-version-history-readiness",
+        "slice-599-procedure-report-review-assignment-readiness"
       ]
     },
     {

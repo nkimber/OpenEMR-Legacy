@@ -2270,6 +2270,11 @@ export type ProcedureReportSignOff = {
   reviewedAt: string;
 };
 
+export type ProcedureReportReviewAssignment = {
+  assignedTo: string;
+  assignedAt: string;
+};
+
 export type NewProcedureSpecimen = {
   orderId: number;
   specimenIdentifier: string;
@@ -8621,8 +8626,8 @@ SELECT LAST_INSERT_ID() AS id;
 SELECT pr.procedure_report_id AS id, pr.procedure_order_id AS orderId, pr.report_status AS reportStatus,
   DATE(pr.date_collected) AS dateCollected, DATE(pr.date_report) AS dateReport, COALESCE(pr.specimen_num, '') AS specimenNumber,
   pr.review_status AS reviewStatus,
-  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
-  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
   COALESCE(pr.report_notes, '') AS reportNotes
 FROM procedure_report pr
 LEFT JOIN users u ON u.id = pr.source
@@ -8667,6 +8672,17 @@ INNER JOIN users u ON u.username = ${sqlString(input.reviewedBy)}
 SET pr.review_status = 'reviewed',
     pr.source = u.id,
     pr.date_report = ${sqlString(input.reviewedAt)}
+WHERE pr.procedure_report_id = ${integer(id)};
+`);
+  }
+
+  async assignProcedureReportReviewer(id: number, input: ProcedureReportReviewAssignment): Promise<void> {
+    await this.db.execute(`
+UPDATE procedure_report pr
+INNER JOIN users u ON u.username = ${sqlString(input.assignedTo)}
+SET pr.review_status = 'assigned',
+    pr.source = u.id,
+    pr.date_report = ${sqlString(input.assignedAt)}
 WHERE pr.procedure_report_id = ${integer(id)};
 `);
   }

@@ -787,7 +787,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused report review queue visibility and queue-state transition only. Procedure report bulk sign-off is covered by Slice 153. It does not implement reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused report review queue visibility and queue-state transition only. Procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. It does not implement queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 136: Procedure Report Review Queue Filters Readiness
 
@@ -817,7 +817,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused patient/date filtering for the report review queue only. Provider filtering is covered by Slice 137, and procedure report bulk sign-off is covered by Slice 153. It does not implement saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused patient/date filtering for the report review queue only. Provider filtering is covered by Slice 137, procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. It does not implement saved queue filters, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 137: Procedure Report Review Queue Provider Filters Readiness
 
@@ -847,7 +847,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused provider filtering for the report review queue only. Lab filtering through `form_lab_search` / `procedure_order.lab_id` is covered by Slice 138, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused provider filtering for the report review queue only. Lab filtering through `form_lab_search` / `procedure_order.lab_id` is covered by Slice 138, procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. Saved queue filters, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 138: Procedure Report Review Queue Lab Filters Readiness
 
@@ -877,7 +877,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs are covered by Slice 139, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice proves focused lab filtering for the report review queue only. Permanent gold-data lab-provider catalogs are covered by Slice 139, procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. Saved queue filters, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 139: Procedure Lab Provider Catalog Readiness
 
@@ -907,7 +907,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice makes the lab-provider catalog permanent in the gold dataset. Directory-level lab-provider list behavior is covered by Slice 140, and procedure report bulk sign-off is covered by Slice 153. Saved queue filters, reviewer assignment, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
+- This slice makes the lab-provider catalog permanent in the gold dataset. Directory-level lab-provider list behavior is covered by Slice 140, procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. Saved queue filters, queue notifications, queue export, role-based reviewer authorization, external lab reconciliation, amendment history, and audit-log export remain deferred.
 
 ### Slice 140: Procedure Lab Provider Directory Readiness
 
@@ -1157,7 +1157,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice covers clinical order queue visibility and queue-state transition into reported status only. Procedure order transmit readiness is covered by Slice 151 and procedure report bulk sign-off is covered by Slice 153. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, reviewer assignment, or audit export.
+- This slice covers clinical order queue visibility and queue-state transition into reported status only. Procedure order transmit readiness is covered by Slice 151, procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. It does not implement actual HL7 generation, external transmission, filesystem/SFTP/web-service execution, bulk transmit, queue notifications, or audit export.
 
 ### Slice 151: Procedure Order Transmit Readiness
 
@@ -1183,7 +1183,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves the OpenEMR-compatible `date_transmitted` state transition only. Procedure report bulk sign-off is covered by Slice 153. It does not generate HL7 payloads, write outbound files, call SFTP/filesystem/web-service transports, model external lab acknowledgements, implement retry/failure queues, queue notifications, reviewer assignment, bulk transmit, or audit export.
+- This slice proves the OpenEMR-compatible `date_transmitted` state transition only. Procedure report bulk sign-off is covered by Slice 153, and reviewer assignment is covered by Slice 599. It does not generate HL7 payloads, write outbound files, call SFTP/filesystem/web-service transports, model external lab acknowledgements, implement retry/failure queues, queue notifications, bulk transmit, or audit export.
 
 ### Slice 153: Procedure Report Bulk Sign-Off Readiness
 
@@ -1210,7 +1210,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused bulk report sign-off only. Procedure report reopen review is covered by Slice 154. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused bulk report sign-off only. Procedure report reopen review is covered by Slice 154, and reviewer assignment is covered by Slice 599. It does not implement role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 154: Procedure Report Reopen Review Readiness
 
@@ -1236,7 +1236,7 @@ Acceptance:
 
 Current limitations:
 
-- This slice proves focused signed-report reopen behavior only. It does not implement reviewer assignment, role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
+- This slice proves focused signed-report reopen behavior only. Reviewer assignment is covered by Slice 599. It does not implement role-specific review authorization, queue notifications, saved review batches, legal attestation text, external lab reconciliation, amendment history, or audit-log export.
 
 ### Slice 155: Workbench Comparison Report Links
 
@@ -5108,3 +5108,5 @@ As of 2026-06-20:
 - The five-hundred-ninety-sixth implementation slice adds document scanner-capture readiness. The modernized document API exposes protected `POST /api/documents/scanner-captures`, creates a database-backed PDF scanner capture with scanner source, captured-by, page-count, and `OCR pending` evidence, and refreshes document/OCR queue state. The Documents workspace exposes a `Scanner Capture` form, and the shared parity plan creates or UI-captures a cleanup-backed Medical Record PDF for `MOD-PAT-0001`, proves comparable legacy scanner document facts, verifies modernized card/viewer/OCR queue rendering, and removes it during cleanup.
 - The five-hundred-ninety-seventh implementation slice adds patient document version-history readiness. The modernized document repository now snapshots the current patient document row into `patient_document_versions` before text or binary content replacement, projects current-plus-prior version rows from the content API, and renders those rows in the Documents viewer. The shared parity plan creates a cleanup-backed text document for `MOD-PAT-0001`, replaces it twice, proves the modernized target exposes Version 3 with two prior versions while the legacy target remains an overwrite-only Version 1 baseline, verifies card/viewer rendering, and removes the temporary document.
 - The five-hundred-ninety-eighth implementation slice adds procedure result version-history readiness. The modernized procedure repository now snapshots the current lab result row into `procedure_result_versions` before correction, projects current-plus-prior result version rows through procedure detail responses, and renders those rows in the Procedures result card. The shared parity plan creates a cleanup-backed lab result for `MOD-PAT-0009`, corrects it twice, proves the modernized target exposes Version 3 with two prior results while the legacy target remains an overwrite-only Version 1 baseline, verifies Procedures UI rendering, and removes the temporary procedure tree and encounter.
+
+- The five-hundred-ninety-ninth implementation slice adds procedure report reviewer assignment readiness. The modernized procedure API now exposes `PUT /api/procedures/reports/{reportId}/review-assignment`, stores assigned reviewer metadata as `review_status = assigned`, renders assigned reviewer/timestamp state on the Procedures report card, and refreshes the review queue. The shared parity plan creates a cleanup-backed received report for `MOD-PAT-0009`, assigns it to `admin`, verifies assigned metadata remains in the unreviewed queue rather than the reviewed queue, compares both targets, and removes the temporary procedure tree and encounter.

@@ -2698,8 +2698,8 @@ ORDER BY collected_date DESC, procedure_specimen_id DESC;
 SELECT pr.procedure_report_id AS id, pr.procedure_order_id AS orderId, DATE(pr.date_collected) AS dateCollected,
   DATE(pr.date_report) AS reportDate, COALESCE(pr.specimen_num, '') AS specimenNumber,
   COALESCE(pr.report_status, '') AS status, COALESCE(pr.review_status, '') AS reviewStatus,
-  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
-  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
   COALESCE(pr.report_notes, '') AS reportNotes
 FROM procedure_report pr
 LEFT JOIN users u ON u.id = pr.source
@@ -2841,8 +2841,8 @@ SELECT pr.procedure_report_id AS reportId, po.procedure_order_id AS orderId, po.
   DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') AS reportDate,
   COALESCE(pr.report_status, '') AS reportStatus,
   COALESCE(pr.review_status, '') AS reviewStatus,
-  CASE WHEN pr.review_status = 'reviewed' THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
-  CASE WHEN pr.review_status = 'reviewed' THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN COALESCE(u.username, '') ELSE '' END AS reviewedBy,
+  CASE WHEN pr.review_status IN ('assigned', 'reviewed') THEN DATE_FORMAT(pr.date_report, '%Y-%m-%d %H:%i') ELSE '' END AS reviewedAt,
   COALESCE(pr.specimen_num, '') AS specimenNumber,
   COALESCE(pr.report_notes, '') AS notes
 FROM procedure_report pr

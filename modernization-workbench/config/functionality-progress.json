@@ -1310,7 +1310,7 @@
       "id": "labs-procedures",
       "name": "Labs And Procedures",
       "status": "in-progress",
-      "summary": "Completed results, pending orders, patient portal lab-results visibility, procedure lifecycle, corrections, result version-history rows, specimens, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
+      "summary": "Completed results, pending orders, patient portal lab-results visibility, procedure lifecycle, corrections, result version-history rows, specimens, clinical order queues, order transmit readiness, review queues, reviewer assignment, bulk report sign-off, report review reopen, procedure order catalog seed/read/lifecycle/import behavior, lab-provider catalog/directory/lifecycle/configuration/address-book linkage, protected procedure access, ACL-authorized Lab Results access, and mutation-specific lab add/write/sign authorization are parity-covered; real external lab operations remain open.",
       "completed": [
         {
           "label": "Procedure order/result lifecycle",
@@ -1332,12 +1332,13 @@
         },
         {
           "label": "Review queues and lab providers",
-          "detail": "Clinical order queue, order transmit readiness, report review queue, patient/date/provider/lab filters, two-report bulk sign-off, signed-report reopen review, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
+          "detail": "Clinical order queue, order transmit readiness, report review queue, patient/date/provider/lab filters, reviewer assignment, two-report bulk sign-off, signed-report reopen review, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
           "evidence": [
             "slice-135-procedure-report-review-queue-readiness",
             "slice-136-procedure-report-review-queue-filters-readiness",
             "slice-137-procedure-report-review-queue-provider-filters-readiness",
             "slice-138-procedure-report-review-queue-lab-filters-readiness",
+            "slice-599-procedure-report-review-assignment-readiness",
             "slice-149-procedure-order-queue-readiness",
             "slice-151-procedure-order-transmit-readiness",
             "slice-153-procedure-report-bulk-signoff-readiness",
@@ -1390,16 +1391,16 @@
         }
       ],
       "outstanding": [
-        "Reviewer assignment, queue notifications, deeper result amendment policy beyond current-plus-prior version rows, chain-of-custody beyond current specimen fields, and audit-log export.",
+        "Queue notifications, deeper result amendment policy beyond current-plus-prior version rows, chain-of-custody beyond current specimen fields, and audit-log export.",
         "External SFTP/filesystem/web-service execution, external lab reconciliation, credential encryption/rotation policy, linked-provider deletion policy, and deeper role-specific authorization breadth beyond the first mutation-specific lab policy slice."
       ],
       "deferred": [
         "Production external lab ordering interfaces and richer address-book organization lifecycle administration."
       ],
-      "completionEstimatePercent": 73,
+      "completionEstimatePercent": 74,
       "estimatedScopeWeight": 12,
       "scopeWeightRationale": "Labs and procedures include order/result lifecycle, queues, providers, catalogs, specimens, reports, and future external transport/reconciliation.",
-      "estimateRationale": "Procedure lifecycle, result correction with current-plus-prior version history, clinical order queues, order transmit readiness, review queues, bulk report sign-off, report review reopen, patient portal lab-results visibility, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations, reviewer assignment, chain-of-custody, and deeper lab policy remain."
+      "estimateRationale": "Procedure lifecycle, result correction with current-plus-prior version history, clinical order queues, order transmit readiness, review queues, reviewer assignment, bulk report sign-off, report review reopen, patient portal lab-results visibility, providers, configuration, address-book linkage, order catalog reads/lifecycle mutations, focused vendor compendium import, protected procedure access, ACL-backed Lab Results authorization, and add/write/sign mutation policy boundaries are covered; external lab operations, queue notifications, chain-of-custody, audit export, and deeper lab policy remain."
     },
     {
       "id": "admin-security-audit",

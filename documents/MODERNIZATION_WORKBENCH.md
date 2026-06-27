@@ -974,4 +974,10 @@ The Progress page also records current-plus-prior patient document version-histo
 
 The Workbench now exposes managed Slice 598 procedure result version-history plan actions for both the legacy and modernized targets. These actions run `slice-598-procedure-result-version-history-readiness`, write the standard latest-run artifacts, and let the comparison view show legacy overwrite-baseline evidence beside modernized current-plus-prior lab result correction history.
 
-The Progress page also records current-plus-prior procedure result version-history rows as completed lab/procedure evidence while keeping external lab operations, reviewer assignment, chain-of-custody depth, and broader lab audit export outstanding.
+The Progress page also records current-plus-prior procedure result version-history rows as completed lab/procedure evidence; reviewer assignment is covered by Slice 599, while external lab operations, chain-of-custody depth, and broader lab audit export remain outstanding.
+
+## Slice 599 Workbench Update
+
+The Workbench now exposes managed Slice 599 procedure report reviewer-assignment plan actions for both the legacy and modernized targets. These actions run `slice-599-procedure-report-review-assignment-readiness`, write the standard latest-run artifacts, and let the comparison view show assigned reviewer/timestamp metadata on a cleanup-backed received lab report.
+
+The Progress page now records reviewer assignment as completed lab/procedure evidence and keeps queue notifications, external lab operations, chain-of-custody depth, and broader lab audit export outstanding.
