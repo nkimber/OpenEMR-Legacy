@@ -28300,6 +28300,37 @@ Verification:
 
 Code Metrics:
 - Commit `69f23612` changed 15 scoped files with 620 insertions and 13 deletions.
+
+## 652. Slice 595 Document Retention Disposition Readiness
+
+Started: 2026-06-27T04:24:00.0000000-04:00
+Finished: 2026-06-27T04:37:06.8231583-04:00
+Commit: 9be1603d
+
+Implemented controlled document retention disposition readiness for the modernized Documents workflow. The modernized API now validates retention eligibility from the deterministic retain-until calculation, archives eligible active documents through a dedicated disposition command, appends disposition evidence to document notes, and refreshes document and retention-policy state for the UI.
+
+Changes:
+- Added `POST /api/documents/{documentId}/retention/dispose` with document write authorization.
+- Added retention disposition request/response DTOs and repository logic that blocks non-eligible documents.
+- Added frontend API typing/client support and a `Dispose` action on eligible Retention Policy rows.
+- Added the `workflow-document-retention-disposition` parity suite and `slice-595-document-retention-disposition-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 595 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so controlled retention disposition/archive is completed while production purge/legal-hold/export retention workflows remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 595 legacy parity plan: `2026-06-27T083342-073Z-legacy-openemr-plan-slice-595-document-retention-disposition-readiness` passed 1/1 tests.
+- Ran the Slice 595 modernized parity plan: `2026-06-27T083406-131Z-modernized-openemr-plan-slice-595-document-retention-disposition-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 595 runs: `2026-06-27T083450-610Z-legacy-openemr-vs-modernized-openemr-plan-slice-595-document-retention-disposition-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `9be1603d` changed 15 scoped files with 500 insertions and 18 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
