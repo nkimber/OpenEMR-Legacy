@@ -1,4 +1,4 @@
-# Modernization Workbench
+﻿# Modernization Workbench
 
 Created: 2026-06-18
 First implemented: 2026-06-18
@@ -825,3 +825,8 @@ The Progress page also records local statement dispatch handoff evidence as comp
 The Workbench now exposes managed Slice 572 statement dispatch history plan actions for both the legacy and modernized targets. These actions run `slice-572-statement-dispatch-history-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target persists the same deterministic statement dispatch audit events that the legacy-derived statement candidate projection expects.
 
 The Progress page also records durable local statement dispatch audit history as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, mailing fulfillment, and portal delivery outstanding.
+## Slice 573 Workbench Update
+
+The Workbench now exposes managed Slice 573 statement portal delivery plan actions for both the legacy and modernized targets. These actions run `slice-573-statement-portal-delivery-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target publishes deterministic statement PDFs into eligible patient portal document lists.
+
+The Progress page also records patient-portal statement document delivery as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, and mailing fulfillment outstanding.

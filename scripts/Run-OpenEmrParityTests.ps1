@@ -41,6 +41,7 @@ param(
         "account-statement-delivery",
         "account-statement-dispatch",
         "account-statement-dispatch-history",
+        "account-statement-portal-delivery",
         "account-collections-work-queue",
         "account-collections-follow-up",
         "admin",

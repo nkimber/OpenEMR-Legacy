@@ -2202,6 +2202,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-573-statement-portal-delivery-readiness",
+      "name": "Slice 573 Statement Portal Delivery Readiness",
+      "description": "Revenue-cycle confidence plan that publishes deterministic statement PDFs to eligible patient portal document lists and validates modernized portal delivery rendering.",
+      "suites": ["account-statement-portal-delivery"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-573", "billing", "patient-statements", "statement-delivery", "portal-delivery", "documents", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -3049,6 +3058,16 @@
       "layer": "parity",
       "path": "tests/account-statement-dispatch-history",
       "tags": ["slice572", "account-statement-dispatch-history", "patient-statements", "statement-delivery", "statement-dispatch", "audit-history", "billing", "revenue-cycle", "mutation", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "account-statement-portal-delivery",
+      "name": "Account Statement Portal Delivery",
+      "description": "Compares deterministic statement portal delivery document publication and modernized portal document rendering against seeded statement candidates.",
+      "layer": "parity",
+      "path": "tests/account-statement-portal-delivery",
+      "tags": ["slice573", "account-statement-portal-delivery", "patient-statements", "statement-delivery", "portal-delivery", "patient-portal", "documents", "billing", "revenue-cycle", "mutation", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
