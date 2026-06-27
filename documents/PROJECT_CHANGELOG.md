@@ -27524,6 +27524,37 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 163 insertions and 148 deletions, net +15 lines and 311 total churn, including API route removal, frontend generic path removal, focused parity routing, Workbench plan wiring, and synchronized documentation.
+
+## 619. Slice 570 Statement Delivery Manifest Readiness
+
+Started: 2026-06-26T20:28:00.0000000-04:00
+Finished: 2026-06-26T20:45:00.0000000-04:00
+Commit: `0899d57f`
+
+Implemented Slice 570: statement delivery manifest readiness. The modernized billing API now prepares deterministic queued delivery handoff metadata from the same top statement batch candidates used by the existing batch/package statement flows. The React Fees statement batch panel exposes a `Delivery Manifest` action that renders the delivery ID, prepared timestamp, queued/email/print counts, statement rows, destinations, file names, balances, and due dates without sending mail, printing, or mutating delivery state. The shared parity plan compares the normalized legacy database projection with the modernized API and UI behavior.
+
+Changes:
+- Added the modernized statement delivery manifest response contracts, repository projection, and `POST /api/billing/statements/batch/delivery-manifest` endpoint.
+- Added the modernized frontend API helper and Fees statement batch delivery manifest UI action/rendering.
+- Added the `account-statement-delivery` parity suite and `slice-570-statement-delivery-manifest-readiness` plan.
+- Added Workbench managed actions/cards for running the Slice 570 plan against legacy and modernized targets.
+- Updated the Workbench Progress ledger to count deterministic statement delivery handoff manifests as completed revenue-cycle readiness while leaving production delivery integrations outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, and project changelog with the Slice 570 statement delivery manifest contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `git diff --check` on the Slice 570 file set; only existing LF-to-CRLF working-copy warnings were reported.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend`.
+- Ran the Slice 570 legacy parity plan: `2026-06-27T004239-290Z-legacy-openemr-plan-slice-570-statement-delivery-manifest-readiness` passed 1/1 tests.
+- Ran the Slice 570 modernized parity plan: `2026-06-27T004322-217Z-modernized-openemr-plan-slice-570-statement-delivery-manifest-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 570 runs: `2026-06-27T004403-144Z-legacy-openemr-vs-modernized-openemr-plan-slice-570-statement-delivery-manifest-readiness` matched with no differences.
+
+Code Metrics:
+- 15 scoped files changed, with 462 insertions and 7 deletions, net +455 lines and 469 total churn, including the backend delivery-manifest projection, React delivery manifest panel, dedicated parity suite, Workbench plan wiring, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
