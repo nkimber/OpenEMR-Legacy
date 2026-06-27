@@ -28211,6 +28211,35 @@ Verification:
 
 Code Metrics:
 - Commit `70a388f6` changed 15 scoped files with 494 insertions and 11 deletions.
+## 649. Slice 592 Document PDF Thumbnail Readiness
+
+Started: 2026-06-27T03:46:00.0000000-04:00
+Finished: 2026-06-27T03:58:26.3410494-04:00
+Commit: 9cf88033
+
+Implemented generated PDF thumbnail readiness for the modernized document workflow. Small database-backed PDF documents now receive deterministic SVG thumbnail data URIs from the document read model, and the Documents workspace renders those thumbnails in the existing document-card preview slot.
+
+Changes:
+- Added generated SVG PDF thumbnail creation in the modernized document repository while preserving existing inline image-thumbnail behavior.
+- Included PDF file name, page count, and size evidence in the generated thumbnail content.
+- Added the `workflow-document-pdf-thumbnail` parity suite and `slice-592-document-pdf-thumbnail-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 592 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so generated PDF thumbnails are completed document functionality while scanner capture, production OCR engine integration, routing, storage, encryption, and retention remain outstanding.
+- Updated project direction, test architecture, test data, modernization plan, Workbench, and document-index notes for the new slice.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 592 legacy parity plan: `2026-06-27T075426-319Z-legacy-openemr-plan-slice-592-document-pdf-thumbnail-readiness` passed 1/1 tests.
+- Ran the Slice 592 modernized parity plan: `2026-06-27T075454-169Z-modernized-openemr-plan-slice-592-document-pdf-thumbnail-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 592 runs: `2026-06-27T075537-189Z-legacy-openemr-vs-modernized-openemr-plan-slice-592-document-pdf-thumbnail-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `9cf88033` changed 11 scoped files with 547 insertions and 18 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
