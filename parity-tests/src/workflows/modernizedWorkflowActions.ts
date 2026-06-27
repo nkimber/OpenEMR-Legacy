@@ -79,6 +79,7 @@ import type {
   PatientPortalMedicalReportResult,
   PatientPortalComposeMessageInput,
   PatientPortalComposeMessageResult,
+  PatientPortalPrescriptionRefillRequestInput,
   PatientPortalProfileChangeInput,
   PatientPortalProfileDemographics,
   PatientPortalProfileReviewAcceptResult,
@@ -1596,6 +1597,103 @@ WHERE canonical_id = ${sqlString(patientId)};
         pubpid: result.pubpid ?? "",
         displayName: result.displayName ?? "",
         recipientId: result.recipientId ?? input.recipientId,
+        recipientName: result.recipientName ?? "",
+        sentMessage: result.sentMessage ? mapPatientPortalMessageItem(result.sentMessage, result.portalUsername) : null,
+        recipientMessage: result.recipientMessage ? mapPatientPortalMessageItem(result.recipientMessage, result.portalUsername) : null,
+        messageCount: result.messageCount ?? 0,
+        sentMessageCount: result.sentMessageCount ?? 0,
+        failureReason: result.failureReason ?? null,
+        sessionSource: result.sessionSource ?? "modernized-openemr-portal"
+      };
+    } finally {
+      await this.endPatientPortalSession(login.sessionId);
+    }
+  }
+
+  async requestPatientPortalPrescriptionRefill(
+    username: string,
+    password: string,
+    input: PatientPortalPrescriptionRefillRequestInput
+  ): Promise<PatientPortalComposeMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || !login.sessionId) {
+      return {
+        authenticated: false,
+        created: false,
+        username,
+        portalUsername: "",
+        canonicalId: "",
+        pid: null,
+        pubpid: "",
+        displayName: "",
+        recipientId: "admin",
+        recipientName: "",
+        sentMessage: null,
+        recipientMessage: null,
+        messageCount: 0,
+        sentMessageCount: 0,
+        failureReason: login.failureReason ?? "Patient portal sign-in was rejected.",
+        sessionSource: "modernized-openemr-portal"
+      };
+    }
+
+    try {
+      const prescription = await this.getPrescription(input.prescriptionId);
+      if (!prescription) {
+        return {
+          authenticated: true,
+          created: false,
+          username: login.username,
+          portalUsername: login.portalUsername,
+          canonicalId: login.canonicalId,
+          pid: login.pid,
+          pubpid: login.pubpid,
+          displayName: login.displayName,
+          recipientId: "admin",
+          recipientName: "",
+          sentMessage: null,
+          recipientMessage: null,
+          messageCount: 0,
+          sentMessageCount: 0,
+          failureReason: "Active prescription was not found for the signed-in portal patient.",
+          sessionSource: "modernized-openemr-portal"
+        };
+      }
+
+      await this.cleanupPatientPortalComposedMessage(
+        login.portalUsername,
+        `Prescription refill request - ${prescription.drug}`
+      );
+      const response = await fetch(
+        `${this.target.apiBaseUrl}/api/patient-portal/prescriptions/${encodeURIComponent(String(input.prescriptionId))}/refill-request`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "X-OpenEMR-Patient-Portal-Session": login.sessionId
+          },
+          body: JSON.stringify({
+            requestDate: input.requestDate,
+            note: input.note ?? null
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Modernized patient portal prescription refill request failed with ${response.status}: ${await response.text()}`);
+      }
+
+      const result = await response.json();
+      return {
+        authenticated: Boolean(result.authenticated),
+        created: Boolean(result.created),
+        username: result.username ?? username,
+        portalUsername: result.portalUsername ?? "",
+        canonicalId: result.canonicalId ?? "",
+        pid: result.legacyPid ?? null,
+        pubpid: result.pubpid ?? "",
+        displayName: result.displayName ?? "",
+        recipientId: result.recipientId ?? "admin",
         recipientName: result.recipientName ?? "",
         sentMessage: result.sentMessage ? mapPatientPortalMessageItem(result.sentMessage, result.portalUsername) : null,
         recipientMessage: result.recipientMessage ? mapPatientPortalMessageItem(result.recipientMessage, result.portalUsername) : null,

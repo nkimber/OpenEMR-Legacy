@@ -1057,6 +1057,12 @@ export type PatientPortalComposeMessageInput = {
   attachments?: PatientPortalMessageAttachmentSubmission[] | null;
 };
 
+export type PatientPortalPrescriptionRefillRequestInput = {
+  prescriptionId: number | string;
+  requestDate: string;
+  note?: string | null;
+};
+
 export type PatientPortalComposeMessageResult = {
   authenticated: boolean;
   created: boolean;
@@ -4633,6 +4639,96 @@ INSERT INTO onsite_mail
 VALUES
   (${integer(sentId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(sentId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0),
   (${integer(recipientCopyId)}, ${sqlString(messageDate)}, ${sqlString(body)}, ${sqlString(recipientId)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(recipientCopyId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0);
+`);
+
+    const refreshed = await this.getPatientPortalMessages(username, password);
+    return {
+      authenticated: true,
+      created: true,
+      username: login.username,
+      portalUsername: login.portalUsername,
+      canonicalId: login.canonicalId,
+      pid: login.pid,
+      pubpid: login.pubpid,
+      displayName: login.displayName,
+      recipientId,
+      recipientName,
+      sentMessage,
+      recipientMessage,
+      messageCount: refreshed.messageCount,
+      sentMessageCount: refreshed.sentMessageCount,
+      failureReason: null,
+      sessionSource: "legacy-openemr-portal"
+    };
+  }
+
+  async requestPatientPortalPrescriptionRefill(
+    username: string,
+    password: string,
+    input: PatientPortalPrescriptionRefillRequestInput
+  ): Promise<PatientPortalComposeMessageResult> {
+    const login = await this.verifyPatientPortalLogin(username, password);
+    if (!login.authenticated || login.pid === null) {
+      return buildEmptyPortalComposeMessageResult(username, "admin", login.failureReason ?? "Patient portal sign-in was rejected.");
+    }
+
+    const prescription = await this.getPrescription(input.prescriptionId);
+    if (!prescription || prescription.active !== 1 || prescription.endDate !== null) {
+      return buildEmptyPortalComposeMessageResult(username, "admin", "Active prescription was not found for the signed-in portal patient.");
+    }
+
+    const title = `Prescription refill request - ${prescription.drug}`;
+    const note = input.note?.trim();
+    const body = [
+      `Patient ${login.displayName} requested a prescription refill on ${input.requestDate}.`,
+      `Prescription: ${prescription.drug}`,
+      `Dosage: ${prescription.dosage || "Not recorded"}`,
+      `Quantity: ${prescription.quantity || "Not recorded"}`,
+      "Route: oral",
+      `Prescription ID: ${prescription.id}`,
+      note ? `Patient note: ${note}` : null
+    ].filter(Boolean).join("\n");
+
+    await this.cleanupPatientPortalComposedMessage(login.portalUsername, title);
+    const recipientId = "admin";
+    const recipientName = await this.getPortalMessageRecipientName(recipientId);
+    const idRows = await this.db.queryRows<{ nextId: string }>(`
+SELECT GREATEST(COALESCE(MAX(id), 9391000) + 1, 9391001) AS nextId
+FROM onsite_mail;
+`);
+    const sentId = Number(idRows[0]?.nextId ?? 9391001);
+    const recipientCopyId = sentId + 1;
+    const sentMessage: PatientPortalMessageItem = {
+      id: String(sentId),
+      type: "Message",
+      date: input.requestDate,
+      title,
+      body,
+      status: "New",
+      assignedTo: recipientId,
+      senderId: login.portalUsername,
+      senderName: login.displayName,
+      recipientId,
+      recipientName,
+      mailChain: sentId,
+      replyMailChain: sentId,
+      portalRelation: "portal:prescription-refill-request",
+      isEncrypted: false,
+      attachmentCount: 0,
+      attachments: []
+    };
+    const recipientMessage: PatientPortalMessageItem = {
+      ...sentMessage,
+      id: String(recipientCopyId),
+      mailChain: recipientCopyId
+    };
+
+    await this.db.execute(`
+INSERT INTO onsite_mail
+  (id, date, body, owner, user, groupname, activity, authorized, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain, is_msg_encrypted)
+VALUES
+  (${integer(sentId)}, ${sqlString(input.requestDate)}, ${sqlString(body)}, ${sqlString(login.portalUsername)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(sentId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0),
+  (${integer(recipientCopyId)}, ${sqlString(input.requestDate)}, ${sqlString(body)}, ${sqlString(recipientId)}, ${sqlString(login.portalUsername)}, 'Default', 1, 1, ${sqlString(title)}, ${sqlString(recipientId)}, 'New', ${integer(recipientCopyId)}, ${sqlString(login.portalUsername)}, ${sqlString(login.displayName)}, ${sqlString(recipientId)}, ${sqlString(recipientName)}, ${integer(sentId)}, 0);
 `);
 
     const refreshed = await this.getPatientPortalMessages(username, password);

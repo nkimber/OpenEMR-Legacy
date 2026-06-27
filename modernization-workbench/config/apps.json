@@ -320,6 +320,7 @@
         "parityMedicationListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-32-medication-list-mutation-readiness", "-Reset", "test"],
         "parityMedicationDuplicateDetectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-578-medication-duplicate-detection-readiness", "-Reset", "test"],
         "parityPrescriptionRefillPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-579-prescription-refill-readiness", "-Reset", "test"],
+        "parityPatientPortalPrescriptionRefillRequestPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-580-patient-portal-prescription-refill-request-readiness", "-Reset", "test"],
         "parityFullPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "full-parity", "-Reset", "run"],
         "parityAllTests": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Suite", "all", "-Reset", "run"],
         "parityAppointmentBillingLocationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-101-appointment-billing-location-readiness", "-Reset", "test"],
@@ -2978,6 +2979,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-579-prescription-refill-readiness.json"
         },
         {
+          "id": "parity-plan-patient-portal-prescription-refill-request",
+          "name": "Slice 580 patient portal prescription refill request plan",
+          "description": "Runs the shared patient portal prescription refill request plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalPrescriptionRefillRequestPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness.json"
+        },
+        {
           "id": "parity-plan-full",
           "name": "Full parity plan",
           "description": "Runs the target-neutral full parity plan that will later execute against both legacy and modernized targets.",
@@ -3306,6 +3315,7 @@
         "parityMedicationListMutationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-32-medication-list-mutation-readiness", "-Reset", "test"],
         "parityMedicationDuplicateDetectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-578-medication-duplicate-detection-readiness", "-Reset", "test"],
         "parityPrescriptionRefillPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-579-prescription-refill-readiness", "-Reset", "test"],
+        "parityPatientPortalPrescriptionRefillRequestPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-580-patient-portal-prescription-refill-request-readiness", "-Reset", "test"],
         "parityAppointmentBillingLocationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-101-appointment-billing-location-readiness", "-Reset", "test"],
         "parityAppointmentCommentsPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-102-appointment-comments-readiness", "-Reset", "test"],
         "parityAppointmentRecurrencePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-103-appointment-recurrence-readiness", "-Reset", "test"],
@@ -5888,6 +5898,14 @@
           "layer": "plan",
           "commandName": "parityPrescriptionRefillPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-579-prescription-refill-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-prescription-refill-request",
+          "name": "Slice 580 patient portal prescription refill request plan",
+          "description": "Runs the shared patient portal prescription refill request plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalPrescriptionRefillRequestPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness.json"
         }
       ]
     },
