@@ -6403,6 +6403,30 @@
       ]
     },
     {
+      "id": "slice-603-appointment-reminder-template-administration-readiness",
+      "name": "Slice 603 Appointment Reminder Template Administration Readiness",
+      "description": "Scheduling readiness plan that exposes a protected reminder template catalog, dispatches a due appointment with a selected compatible template, rejects incompatible template selection, and verifies modernized Calendar template rendering.",
+      "suites": [
+        "workflow-appointment-reminder-template-administration"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "mutation",
+        "slice-603",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "templates",
+        "dispatch",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -10725,6 +10749,29 @@
         "scheduling",
         "reminders",
         "retry",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-appointment-reminder-template-administration",
+      "name": "Appointment Reminder Template Administration Readiness",
+      "description": "Verifies the reminder template catalog, compatible selected-template dispatch, invalid-template guard, and modernized Calendar selected-template evidence.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-reminder-template-administration",
+      "tags": [
+        "slice603",
+        "workflow",
+        "mutation",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "templates",
+        "dispatch",
         "comparison-ready"
       ],
       "targets": [

@@ -4602,6 +4602,19 @@
           "slice-602-patient-portal-reminder-preferences-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentReminderTemplateAdministrationPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-603-appointment-reminder-template-administration-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7436,6 +7449,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentWaitlistDeferralPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-600-appointment-waitlist-deferral-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-template-administration",
+          "name": "Slice 603 appointment reminder template administration plan",
+          "description": "Runs the shared reminder template administration source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderTemplateAdministrationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-603-appointment-reminder-template-administration-readiness.json"
         }
       ],
       "testPlans": [
@@ -7456,7 +7477,8 @@
         "slice-599-procedure-report-review-assignment-readiness",
         "slice-600-appointment-waitlist-deferral-readiness",
         "slice-601-appointment-reminder-retry-readiness",
-        "slice-602-patient-portal-reminder-preferences-readiness"
+        "slice-602-patient-portal-reminder-preferences-readiness",
+        "slice-603-appointment-reminder-template-administration-readiness"
       ]
     },
     {
@@ -11935,6 +11957,19 @@
           "slice-602-patient-portal-reminder-preferences-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentReminderTemplateAdministrationPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-603-appointment-reminder-template-administration-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14682,6 +14717,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentWaitlistDeferralPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-template-administration",
+          "name": "Slice 603 appointment reminder template administration plan",
+          "description": "Runs the shared reminder template administration plan against the modernized target, including catalog, selected-template dispatch, invalid-template guard, and Calendar rendering evidence.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderTemplateAdministrationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-603-appointment-reminder-template-administration-readiness.json"
         }
       ],
       "testPlans": [
@@ -14702,7 +14745,8 @@
         "slice-599-procedure-report-review-assignment-readiness",
         "slice-600-appointment-waitlist-deferral-readiness",
         "slice-601-appointment-reminder-retry-readiness",
-        "slice-602-patient-portal-reminder-preferences-readiness"
+        "slice-602-patient-portal-reminder-preferences-readiness",
+        "slice-603-appointment-reminder-template-administration-readiness"
       ]
     },
     {

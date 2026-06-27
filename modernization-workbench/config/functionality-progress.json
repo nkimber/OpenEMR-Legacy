@@ -580,7 +580,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, staff waitlist queue projection, waitlist deferral, lifecycle, recurrence, reassignment, status, overlap, strict conflict enforcement, reminder-readiness, local reminder dispatch/audit/retry, patient-facing reminder delivery preferences, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment search/detail, protected Calendar access, creates/updates/deletes, reschedule/arrival/check-out/no-show/status/category/recurrence and occurrence handling, conflict detection/enforcement, reminder dispatch/retry/template selection, portal appointment requests/waitlist/deferral, portal appointment lists, portal reminder preferences, appointment-to-encounter conversion, and appointment-to-billing conversion have parity coverage; only external reminder-provider integrations remain open.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -707,18 +707,25 @@
           "evidence": [
             "slice-523-appointment-billing-conversion-readiness"
           ]
+        },
+        {
+          "label": "Appointment reminder template administration readiness",
+          "detail": "Modernized appointment reminders expose a protected template catalog, reject incompatible template selections, dispatch selected compatible templates, and render selected-template evidence in the Calendar while preserving default dispatch behavior.",
+          "evidence": [
+            "slice-603-appointment-reminder-template-administration-readiness"
+          ]
         }
       ],
       "outstanding": [
-        "External reminder-provider integrations and richer template administration."
+        "External reminder-provider integrations."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 95,
+      "completionEstimatePercent": 96,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, staff waitlist projection, promotion, and deferral, recurrence, overlap, reminder-readiness, local reminder dispatch/audit/retry, patient-facing reminder delivery preferences, provider/facility availability validation, strict provider/room conflict enforcement, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; external provider integrations, template administration, and advanced scheduling policy remain."
+      "estimateRationale": "The scheduling parity surface now covers core appointment CRUD, recurrence and occurrence handling, conflict enforcement, patient portal request/list/preference workflows, waitlist operations, local reminder dispatch/retry/template selection, and conversion to encounter/billing. Remaining scope is limited to production external reminder-provider integrations beyond the deterministic local queue used for parity."
     },
     {
       "id": "encounters-clinical-notes",

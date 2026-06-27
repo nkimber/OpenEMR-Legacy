@@ -999,3 +999,9 @@ The Progress page now records local reminder retry handling as completed schedul
 The Workbench now exposes managed Slice 602 patient portal reminder preferences plan actions for both the legacy and modernized targets. These actions run `slice-602-patient-portal-reminder-preferences-readiness`, write the standard latest-run artifacts, and let the comparison view show Portal profile SMS/email reminder consent submission, staff review acceptance, contact permission persistence, and reminder channel derivation changing from `SMS + Email` to `Email`.
 
 The Progress page now records patient-facing reminder delivery preferences as completed scheduling evidence, moves Scheduling to 95%, and keeps external reminder-provider integrations plus richer template administration outstanding.
+
+## Slice 603 Workbench Update
+
+The Workbench now exposes managed Slice 603 appointment reminder template administration plan actions for both the legacy and modernized targets. These actions run `slice-603-appointment-reminder-template-administration-readiness`, write the standard latest-run artifacts, and let the comparison view show reminder-template catalog evidence, selected compatible template dispatch, incompatible template rejection, and modernized Calendar selected-template rendering.
+
+The Progress page now records reminder template administration as completed scheduling evidence, moves Scheduling to 96%, and keeps external reminder-provider integrations outstanding.
