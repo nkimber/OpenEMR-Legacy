@@ -28118,6 +28118,35 @@ Verification:
 Code Metrics:
 - Commit `e991a778` changed 14 scoped files with 585 insertions and 13 deletions.
 
+## 646. Slice 589 Appointment Conflict Enforcement Readiness
+
+Started: 2026-06-27T03:15:00.0000000-04:00
+Finished: 2026-06-27T03:23:53.1703346-04:00
+Commit: 2f8f3c2b
+
+Implemented appointment conflict enforcement readiness for the modernized scheduling workflow. The modernized appointment create path now supports an explicit strict conflict policy that reuses the availability engine before insert, returns HTTP 409 with provider/room conflict evidence, and leaves the legacy-compatible permissive create path intact.
+
+Changes:
+- Added the `enforceConflictPolicy` create-contract flag and pre-insert availability validation to the modernized appointment API.
+- Returned structured conflict evidence for strict appointment creation failures.
+- Added frontend API conflict handling and a Calendar `Block conflicts` toggle that displays the returned conflict message.
+- Added the `workflow-appointment-conflict-enforcement` parity suite and `slice-589-appointment-conflict-enforcement-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 589 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so strict provider/room conflict enforcement is completed scheduling functionality while richer waitlist management and external reminder-provider work remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 589 legacy parity plan: `2026-06-27T071753-471Z-legacy-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` passed 1/1 tests.
+- Ran the Slice 589 modernized parity plan: `2026-06-27T072020-591Z-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 589 runs: `2026-06-27T072040-313Z-legacy-openemr-vs-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `2f8f3c2b` changed 14 scoped files with 440 insertions and 13 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
