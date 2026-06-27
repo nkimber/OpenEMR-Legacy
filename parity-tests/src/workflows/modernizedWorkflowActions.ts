@@ -4088,31 +4088,11 @@ LIMIT 1;
   }
 
   async createPaymentPosting(input: NewPaymentPosting): Promise<string> {
-    const response = await fetch(`${this.target.apiBaseUrl}/api/billing/payments`, {
+    const { path, body } = this.toFocusedPaymentCreateRequest(input);
+    const response = await fetch(`${this.target.apiBaseUrl}${path}`, {
       method: "POST",
       headers: await this.getAdminJsonHeaders(),
-      body: JSON.stringify({
-        patientId: String(input.patientId),
-        encounter: input.encounter,
-        payerId: input.payerId,
-        payerName: input.payerName,
-        payerType: input.payerType,
-        reference: input.reference,
-        postDate: input.postDate,
-        checkDate: input.postDate,
-        depositDate: input.postDate,
-        paymentType: input.paymentType,
-        paymentMethod: input.paymentMethod,
-        codeType: input.codeType,
-        code: input.code,
-        modifier: input.modifier ?? "",
-        memo: input.memo,
-        payAmount: Number(input.payAmount),
-        adjustmentAmount: Number(input.adjustmentAmount),
-        accountCode: input.accountCode,
-        reasonCode: input.reasonCode,
-        payerClaimNumber: input.payerClaimNumber
-      })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -4121,6 +4101,78 @@ LIMIT 1;
 
     const mutation = (await response.json()) as { id: string };
     return mutation.id;
+  }
+
+  private toFocusedPaymentCreateRequest(input: NewPaymentPosting): { path: string; body: Record<string, unknown> } {
+    const common = {
+      patientId: String(input.patientId),
+      encounter: input.encounter,
+      reference: input.reference,
+      postDate: input.postDate,
+      checkDate: input.postDate,
+      depositDate: input.postDate,
+      paymentMethod: input.paymentMethod,
+      codeType: input.codeType,
+      code: input.code,
+      modifier: input.modifier ?? "",
+      memo: input.memo
+    };
+
+    switch (input.paymentType) {
+      case "patient_payment":
+        return {
+          path: "/api/billing/payments/patient-payments",
+          body: {
+            ...common,
+            payAmount: Math.abs(Number(input.payAmount))
+          }
+        };
+      case "patient_refund":
+        return {
+          path: "/api/billing/payments/patient-refunds",
+          body: {
+            ...common,
+            refundAmount: Math.abs(Number(input.payAmount))
+          }
+        };
+      case "insurance_payment":
+        return {
+          path: "/api/billing/payments/insurance-payments",
+          body: {
+            ...common,
+            payerId: input.payerId,
+            payerName: input.payerName,
+            payAmount: Math.abs(Number(input.payAmount)),
+            adjustmentAmount: Number(input.adjustmentAmount),
+            reasonCode: input.reasonCode,
+            payerClaimNumber: input.payerClaimNumber
+          }
+        };
+      case "insurance_reversal":
+        return {
+          path: "/api/billing/payments/insurance-reversals",
+          body: {
+            ...common,
+            payerId: input.payerId,
+            payerName: input.payerName,
+            reversalAmount: Math.abs(Number(input.payAmount)),
+            payerClaimNumber: input.payerClaimNumber
+          }
+        };
+      case "adjustment_reversal":
+        return {
+          path: "/api/billing/payments/adjustment-reversals",
+          body: {
+            ...common,
+            payerId: input.payerId,
+            payerName: input.payerName,
+            adjustmentAmount: Math.abs(Number(input.adjustmentAmount)),
+            payerClaimNumber: input.payerClaimNumber
+          }
+        };
+      default:
+        throw new Error(`Unsupported modernized payment posting type: ${input.paymentType}`);
+    }
   }
 
   async getPaymentPosting(id: number | string): Promise<PaymentPostingRecord | null> {

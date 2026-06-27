@@ -2121,6 +2121,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-569-billing-focused-payment-contract-readiness",
+      "name": "Slice 569 Billing Focused Payment Contract Readiness",
+      "description": "Mutation-policy validation plan that proves modernized payment creation is only exposed through focused business operations, retires the broad payment-create endpoint, and keeps billing write authorization coverage on the focused insurance-payment endpoint.",
+      "suites": ["workflow-billing-mutation-authorization-policy"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-569", "billing", "payments", "authorization", "server-side-business-logic", "api-contract", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-534-claim-resubmission-readiness",
       "name": "Slice 534 Claim Resubmission Readiness",
       "description": "Mutation-capable revenue-cycle exception plan that creates, resubmits, renders, and removes a temporary denied claim while verifying queued status, X12 resubmission metadata, process-file naming, payload content, and cleanup behavior.",

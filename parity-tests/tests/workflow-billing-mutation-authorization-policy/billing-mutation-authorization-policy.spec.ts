@@ -174,7 +174,7 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         modernizedCollectionsQueuePath: "/api/billing/collections/work-queue",
         modernizedBillingLinePath: "/api/billing/lines",
         modernizedClaimPath: "/api/billing/claims",
-        modernizedPaymentPath: "/api/billing/payments",
+        modernizedPaymentPath: "/api/billing/payments/insurance-payments",
         modernizedCollectionsFollowUpPath: "/api/billing/collections/follow-ups",
         secretMaterialRedacted: true
       },
@@ -345,6 +345,41 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
         }
       });
       const clinicianHeaders = { "X-OpenEMR-Session": clinicianLogin.sessionId! };
+
+      const retiredBroadPaymentCreate = await requestText(`${target.apiBaseUrl}/api/billing/payments`, {
+        method: "POST",
+        headers: {
+          ...adminHeaders,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          patientId: patient!.pubpid,
+          encounter: encounter!.encounter,
+          paymentType: "insurance_payment"
+        })
+      });
+      expect(retiredBroadPaymentCreate.statusCode).toBe(405);
+      await attachDatabaseProbeEvidence(testInfo, {
+        target: target.type,
+        probe: "slice-569-billing-focused-payment-contract-broad-create-retired",
+        description:
+          "Captures that the modernized broad payment-create endpoint is retired even for admin sessions, leaving focused payment operations as the only create entry points.",
+        expected: {
+          retiredPath: "/api/billing/payments",
+          statusCode: 405,
+          focusedInsurancePaymentPath: "/api/billing/payments/insurance-payments",
+          secretMaterialRedacted: true
+        },
+        actual: {
+          statusCode: retiredBroadPaymentCreate.statusCode,
+          responseBodyLength: retiredBroadPaymentCreate.body.length,
+          adminSessionHeaderRedacted: true
+        },
+        context: {
+          suite: "workflow-billing-mutation-authorization-policy",
+          workflow: "billing-focused-payment-contract-broad-create-retired"
+        }
+      });
 
       const clinicianBilling = await requestText(
         `${target.apiBaseUrl}/api/billing/${encodeURIComponent(patient!.pubpid)}`,
@@ -623,19 +658,17 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
 
       const paymentCreate = await postJson<ModernizedAuthorizationFailure>(
         target,
-        "/api/billing/payments",
+        "/api/billing/payments/insurance-payments",
         clinicianHeaders,
         {
           patientId: patient!.pubpid,
           encounter: encounter!.encounter,
           payerId: 9005,
           payerName: "Northstar HMO",
-          payerType: 1,
           reference: "EOB-BLOCKED-SLICE-188",
           postDate: billingMutationAuthorizationDate,
           checkDate: billingMutationAuthorizationDate,
           depositDate: billingMutationAuthorizationDate,
-          paymentType: "insurance_payment",
           paymentMethod: "check_payment",
           codeType: "CPT4",
           code: officeVisit!.code,
@@ -643,7 +676,6 @@ test.describe("billing mutation authorization policy parity @workflow-billing-mu
           memo: "Blocked Slice 188 payment posting",
           payAmount: 21,
           adjustmentAmount: 3.5,
-          accountCode: "CO45",
           reasonCode: "CO-45",
           payerClaimNumber: "NSTAR-BLOCKED-SLICE-188"
         },

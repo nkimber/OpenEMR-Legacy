@@ -204,7 +204,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 568 moving billing forward by moving patient payment capture semantics out of the React UI and into a dedicated server-side billing operation while preserving parity.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 569 moving billing forward by retiring the broad payment-create API route and forcing payment creation through focused server-side billing operations while preserving parity evidence.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.
