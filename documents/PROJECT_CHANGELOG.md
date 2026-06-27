@@ -28056,6 +28056,37 @@ Verification:
 Code Metrics:
 - Commit `17069bef` changed 19 scoped files with 20599 insertions and 2537 deletions.
 
+## 644. Slice 587 Prescription Diagnosis Interaction Readiness
+
+Started: 2026-06-27T02:34:00.0000000-04:00
+Finished: 2026-06-27T02:47:06.5310979-04:00
+Commit: pending
+
+Implemented prescription diagnosis interaction readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active prescription diagnoses with active problem-list diagnoses, reports matched active-problem and unmatched prescription diagnosis states, and renders the summary in the Lists prescription panel.
+
+Changes:
+- Added `prescriptionDiagnosisInteractions` to `ClinicalListsResponse`.
+- Added business-tier diagnosis normalization and active problem matching for active prescription diagnoses.
+- Added frontend API typing for prescription diagnosis interaction summaries.
+- Rendered a prescription diagnosis interaction summary in the modernized Lists prescription panel.
+- Added the `workflow-prescription-diagnosis-interactions` parity suite and `slice-587-prescription-diagnosis-interactions-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 587 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so prescription diagnosis interaction readiness is completed while medication reconciliation remains outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 587 legacy parity plan: `2026-06-27T064552-111Z-legacy-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness` passed 1/1 tests.
+- Ran the Slice 587 modernized parity plan: `2026-06-27T064612-829Z-modernized-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 587 runs: `2026-06-27T064654-573Z-legacy-openemr-vs-modernized-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

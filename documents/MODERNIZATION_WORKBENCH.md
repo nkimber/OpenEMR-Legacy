@@ -907,3 +907,9 @@ The Progress page also records structured prescription dose/frequency/duration f
 The Workbench now exposes managed Slice 586 medication vocabulary plan actions for both the legacy and modernized targets. These actions run `slice-586-medication-vocabulary-readiness`, write the standard latest-run artifacts, and let the comparison view show whether deterministic RxNorm-style catalog lookup and modernized prescription-form selection match the legacy adapter.
 
 The Progress page also records focused medication vocabulary lookup as completed clinical-list and prescribing evidence while keeping diagnosis interactions, medication reconciliation, and broader e-prescribing workflow outstanding.
+
+## Slice 587 Workbench Update
+
+The Workbench now exposes managed Slice 587 prescription diagnosis interaction plan actions for both the legacy and modernized targets. These actions run `slice-587-prescription-diagnosis-interactions-readiness`, write the standard latest-run artifacts, and let the comparison view show whether active prescription diagnoses match active problem-list diagnoses on both targets.
+
+The Progress page also records prescription diagnosis interaction readiness as completed clinical-list and prescribing evidence while keeping medication reconciliation and broader e-prescribing workflow outstanding.

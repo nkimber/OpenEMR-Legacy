@@ -4394,6 +4394,19 @@
           "slice-586-medication-vocabulary-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPrescriptionDiagnosisInteractionsPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-587-prescription-diagnosis-interactions-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7100,11 +7113,20 @@
           "layer": "plan",
           "commandName": "parityMedicationVocabularyPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-586-medication-vocabulary-readiness.json"
+        },
+        {
+          "id": "parity-plan-prescription-diagnosis-interactions",
+          "name": "Slice 587 prescription diagnosis interactions plan",
+          "description": "Runs the shared prescription diagnosis interactions plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPrescriptionDiagnosisInteractionsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
-        "slice-586-medication-vocabulary-readiness"
+        "slice-586-medication-vocabulary-readiness",
+        "slice-587-prescription-diagnosis-interactions-readiness"
       ]
     },
     {
@@ -11375,6 +11397,19 @@
           "slice-586-medication-vocabulary-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPrescriptionDiagnosisInteractionsPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-587-prescription-diagnosis-interactions-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -13994,11 +14029,20 @@
           "layer": "plan",
           "commandName": "parityMedicationVocabularyPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-586-medication-vocabulary-readiness.json"
+        },
+        {
+          "id": "parity-plan-prescription-diagnosis-interactions",
+          "name": "Slice 587 prescription diagnosis interactions plan",
+          "description": "Runs the shared prescription diagnosis interactions plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityPrescriptionDiagnosisInteractionsPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
-        "slice-586-medication-vocabulary-readiness"
+        "slice-586-medication-vocabulary-readiness",
+        "slice-587-prescription-diagnosis-interactions-readiness"
       ]
     },
     {

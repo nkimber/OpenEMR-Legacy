@@ -4072,6 +4072,27 @@
       ]
     },
     {
+      "id": "slice-587-prescription-diagnosis-interactions-readiness",
+      "name": "Slice 587 prescription diagnosis interactions readiness",
+      "description": "Prescription diagnosis interaction readiness plan that compares active prescription diagnoses with active problem-list diagnoses and renders matched/unmatched evidence in the modernized Lists workspace.",
+      "suites": [
+        "workflow-prescription-diagnosis-interactions"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-587",
+        "clinical-lists",
+        "prescriptions",
+        "diagnosis-interactions",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10431,6 +10452,24 @@
         "clinical-lists",
         "prescriptions",
         "medication-vocabulary",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-prescription-diagnosis-interactions",
+      "name": "Prescription diagnosis interactions workflow",
+      "description": "Compares active prescription diagnoses with active problem-list diagnoses and checks modernized Lists matched/unmatched rendering.",
+      "path": "tests/workflow-prescription-diagnosis-interactions",
+      "tags": [
+        "slice587",
+        "workflow",
+        "clinical-lists",
+        "prescriptions",
+        "diagnosis-interactions",
         "comparison-ready"
       ],
       "targets": [
