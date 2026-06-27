@@ -28425,6 +28425,38 @@ Verification:
 
 Code Metrics:
 - 21 files changed, 881 insertions, 28 deletions.
+## 651. Slice 599 Procedure Report Review Assignment Readiness
+
+Started: 2026-06-27T05:43:00.0000000-04:00
+Finished: 2026-06-27T06:00:43.3470000-04:00
+Commit: 7bc90df0
+
+Implemented procedure report reviewer assignment readiness for the modernized Procedures workflow. The modernized API now exposes a reviewer-assignment mutation that stores `review_status = assigned`, reviewer identity, and assignment timestamp, the Procedures report card renders assigned reviewer state distinctly from signed state, and the shared parity plan compares the behavior with the legacy OpenEMR report review queue.
+
+Changes:
+- Added `PUT /api/procedures/reports/{reportId}/review-assignment` and the `ProcedureReportReviewAssignmentRequest` DTO.
+- Added repository behavior that assigns a received report to a reviewer without marking it reviewed/signed.
+- Added frontend API support plus a Procedures report-card `Assign Reviewer` action that renders `Assigned to` and `Assigned` timestamp text.
+- Extended legacy and modernized parity workflow actions with `assignProcedureReportReviewer`.
+- Updated legacy parity probes so assigned report metadata is visible while received/reopened reports still clear reviewer metadata.
+- Added the `workflow-procedure-report-review-assignment` parity suite and `slice-599-procedure-report-review-assignment-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 599 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so reviewer assignment is completed lab/procedure evidence and labs/procedures completion moves to 74%.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`, then rebuilt the frontend after correcting the assignment timestamp.
+- Ran the Slice 599 legacy parity plan: `2026-06-27T095820-147Z-legacy-openemr-plan-slice-599-procedure-report-review-assignment-readiness` passed 1/1 tests.
+- Ran the Slice 599 modernized parity plan: `2026-06-27T100014-420Z-modernized-openemr-plan-slice-599-procedure-report-review-assignment-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 599 runs: `2026-06-27T100043-347Z-legacy-openemr-vs-modernized-openemr-plan-slice-599-procedure-report-review-assignment-readiness` matched with no differences.
+
+Code Metrics:
+- 18 files changed, 586 insertions, 29 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
