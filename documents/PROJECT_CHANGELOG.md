@@ -28025,6 +28025,37 @@ Verification:
 Code Metrics:
 - Commit `ccedb7ec` changed 18 scoped files with 426 insertions and 25 deletions.
 
+## 643. Slice 586 Medication Vocabulary Readiness
+
+Started: 2026-06-27T02:24:03.1320698-04:00
+Finished: 2026-06-27T02:27:37.1995272-04:00
+Commit: pending
+
+Implemented focused medication vocabulary readiness for the modernized clinical-list prescription workflow. The modernized API now exposes a protected RxNorm-style medication catalog lookup, the PostgreSQL seed/runtime schema includes a deterministic catalog, and the Lists prescription form can search/select vocabulary entries to populate prescription fields before save.
+
+Changes:
+- Added the modernized `medication_vocabulary` table to the seed schema plus runtime table creation/upsert for existing local databases.
+- Added `GET /api/clinical-lists/medication-vocabulary` with session/clinical-list access protection.
+- Added frontend API types and a Lists prescription-form vocabulary search/select control that fills drug, dosage, quantity, dose amount/unit, frequency, duration, and note evidence.
+- Added parity workflow support for medication vocabulary lookup on both legacy and modernized targets.
+- Added the `workflow-medication-vocabulary` parity suite and `slice-586-medication-vocabulary-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 586 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so focused medication vocabulary lookup is completed prescribing functionality while diagnosis interactions, medication reconciliation, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 586 legacy parity plan: `2026-06-27T062310-922Z-legacy-openemr-plan-slice-586-medication-vocabulary-readiness` passed 1/1 tests.
+- Ran the Slice 586 modernized parity plan: `2026-06-27T062327-718Z-modernized-openemr-plan-slice-586-medication-vocabulary-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 586 runs: `2026-06-27T062347-875Z-legacy-openemr-vs-modernized-openemr-plan-slice-586-medication-vocabulary-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -1,6 +1,6 @@
 {
   "version": "0.3.0",
-  "lastUpdated": "2026-06-26",
+  "lastUpdated": "2026-06-27",
   "areas": [
     {
       "id": "patient-chart-registration",
@@ -11,357 +11,557 @@
         {
           "label": "Patient search and chart summary",
           "detail": "React chart workspace, patient APIs, PostgreSQL seed mapping, and side-by-side patient-readiness parity are implemented.",
-          "evidence": ["slice-1-readiness"]
+          "evidence": [
+            "slice-1-readiness"
+          ]
         },
         {
           "label": "Patient demographic/contact mutation",
           "detail": "Contact update, demographics update/restore, and temporary registration lifecycle behavior are covered.",
-          "evidence": ["slice-10-contact-mutation-readiness", "slice-36-patient-demographics-mutation-readiness", "slice-37-patient-registration-readiness"]
+          "evidence": [
+            "slice-10-contact-mutation-readiness",
+            "slice-36-patient-demographics-mutation-readiness",
+            "slice-37-patient-registration-readiness"
+          ]
         },
         {
           "label": "Insurance and immunization coverage",
           "detail": "Read and mutation paths for insurance plus pediatric immunization history and entered-in-error workflows are covered.",
-          "evidence": ["slice-28-insurance-readiness", "slice-34-insurance-mutation-readiness", "slice-29-immunizations-readiness", "slice-30-immunization-mutation-readiness"]
+          "evidence": [
+            "slice-28-insurance-readiness",
+            "slice-34-insurance-mutation-readiness",
+            "slice-29-immunizations-readiness",
+            "slice-30-immunization-mutation-readiness"
+          ]
         },
         {
           "label": "Patient chart protection readiness",
           "detail": "The modernized patient search/chart API now requires an active session, the Patient/Client page gates search and chart data until sign-in, and parity compares legacy patient-page protection with modernized API/UI protection.",
-          "evidence": ["slice-165-patient-protection-readiness"]
+          "evidence": [
+            "slice-165-patient-protection-readiness"
+          ]
         },
         {
           "label": "Patient chart authorization policy readiness",
           "detail": "The modernized patient search/chart API now enforces mirrored Demographics ACL access, accepts both admin and front-desk demo sessions through seeded write grants, and parity compares that behavior with the legacy ACL matrix; Slice 432 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-178-patient-authorization-policy-readiness", "slice-432-slice178-patient-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-178-patient-authorization-policy-readiness",
+            "slice-432-slice178-patient-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient mutation authorization policy readiness",
           "detail": "The modernized patient mutation API now distinguishes Demographics add-only registration access from write-level existing chart updates, contact edits, insurance edits, and temporary patient deletion; Slice 438 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-184-patient-mutation-authorization-policy-readiness", "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-184-patient-mutation-authorization-policy-readiness",
+            "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient duplicate detection readiness",
           "detail": "The modernized patient API and Patient/Client page now surface candidate duplicates from first name, last name, date of birth, phone, and email matches, with parity coverage that creates and cleans up temporary duplicate registrations; Slice 445 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-191-patient-duplicate-detection-readiness", "slice-445-slice191-patient-duplicate-detection-probe-payload-attachments"]
+          "evidence": [
+            "slice-191-patient-duplicate-detection-readiness",
+            "slice-445-slice191-patient-duplicate-detection-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient registration validation readiness",
           "detail": "The modernized patient registration API now mirrors OpenEMR PatientValidator rules for required identity fields, DOB format, sex, last-name length, and email syntax, returns structured validation details, renders them in the Patient/Client form, and proves invalid drafts create no row; Slice 446 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-192-patient-registration-validation-readiness", "slice-446-slice192-patient-registration-validation-probe-payload-attachments"]
+          "evidence": [
+            "slice-192-patient-registration-validation-readiness",
+            "slice-446-slice192-patient-registration-validation-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient deceased status readiness",
           "detail": "The modernized patient API, Patient/Client chart, PostgreSQL seed schema, and parity harness now mirror OpenEMR deceased date and reason fields with restore-backed mutation coverage; Slice 447 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-193-patient-deceased-status-readiness", "slice-447-slice193-patient-deceased-status-probe-payload-attachments"]
+          "evidence": [
+            "slice-193-patient-deceased-status-readiness",
+            "slice-447-slice193-patient-deceased-status-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient guardian contact readiness",
           "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR mother and guardian contact fields with restore-backed mutation coverage; Slice 448 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-194-patient-guardian-contact-readiness", "slice-448-slice194-patient-guardian-contact-probe-payload-attachments"]
+          "evidence": [
+            "slice-194-patient-guardian-contact-readiness",
+            "slice-448-slice194-patient-guardian-contact-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient guardian demographic/address readiness",
           "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR guardian sex, address, country, and work-phone fields with restore-backed mutation coverage; Slice 449 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-195-patient-guardian-details-readiness", "slice-449-slice195-patient-guardian-details-probe-payload-attachments"]
+          "evidence": [
+            "slice-195-patient-guardian-details-readiness",
+            "slice-449-slice195-patient-guardian-details-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient social detail readiness",
           "detail": "The modernized patient API, Patient/Client chart, shared gold dataset, and parity harness now mirror OpenEMR race, ethnicity, interpreter, family size, monthly income, homeless, and financial-review fields with restore-backed mutation coverage; Slice 450 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-196-patient-social-details-readiness", "slice-450-slice196-patient-social-details-probe-payload-attachments"]
+          "evidence": [
+            "slice-196-patient-social-details-readiness",
+            "slice-450-slice196-patient-social-details-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient employer core readiness",
           "detail": "The modernized patient API, Patient/Client chart, PostgreSQL employer table, shared gold dataset, and parity harness now mirror OpenEMR employer identity and address fields with restore-backed mutation coverage; Slice 451 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-197-patient-employer-core-readiness", "slice-451-slice197-patient-employer-core-probe-payload-attachments"]
+          "evidence": [
+            "slice-197-patient-employer-core-readiness",
+            "slice-451-slice197-patient-employer-core-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient provider assignment readiness",
           "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR primary provider assignment through provider-option menus, ID/name projection, and restore-backed parity coverage; Slice 452 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-198-patient-provider-assignment-readiness", "slice-452-slice198-patient-provider-assignment-probe-payload-attachments"]
+          "evidence": [
+            "slice-198-patient-provider-assignment-readiness",
+            "slice-452-slice198-patient-provider-assignment-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient care-team membership readiness",
           "detail": "The modernized patient API and Patient/Client chart now mirror OpenEMR care-team lead-member assignment through care-team tables, provider/facility projection, and restore-backed parity coverage; Slice 453 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-199-patient-care-team-readiness", "slice-453-slice199-patient-care-team-probe-payload-attachments"]
+          "evidence": [
+            "slice-199-patient-care-team-readiness",
+            "slice-453-slice199-patient-care-team-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient multi-member care-team readiness",
           "detail": "The modernized patient API and Patient/Client chart now update and render multiple OpenEMR-style care-team members through shared provider/facility projection and restore-backed parity coverage; Slice 454 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-200-patient-care-team-members-readiness", "slice-454-slice200-patient-care-team-members-probe-payload-attachments"]
+          "evidence": [
+            "slice-200-patient-care-team-members-readiness",
+            "slice-454-slice200-patient-care-team-members-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient contact-backed care-team readiness",
           "detail": "The modernized patient API and Patient/Client chart now update and render patient-contact care-team members through deterministic related-contact seed rows and restore-backed parity coverage; Slice 455 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-201-patient-care-team-contact-readiness", "slice-455-slice201-patient-care-team-contact-probe-payload-attachments"]
+          "evidence": [
+            "slice-201-patient-care-team-contact-readiness",
+            "slice-455-slice201-patient-care-team-contact-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient history and lifestyle readiness",
           "detail": "The shared gold dataset now seeds one OpenEMR History and Lifestyle row per patient, the modernized API and Patient/Client chart project the same read-only history fields, and parity verifies database/API/UI behavior; Slice 456 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-202-patient-history-readiness", "slice-456-slice202-patient-history-probe-payload-attachments"]
+          "evidence": [
+            "slice-202-patient-history-readiness",
+            "slice-456-slice202-patient-history-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient insurance subscriber readiness",
           "detail": "The shared gold dataset, legacy seed, modernized PostgreSQL seed, APIs, Patient/Client insurance panel, and parity harness now preserve and mutate OpenEMR subscriber identity, address, phone, sex, date-of-birth, relationship, and employer fields; Slice 457 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-203-insurance-subscriber-readiness", "slice-457-slice203-insurance-subscriber-probe-payload-attachments"]
+          "evidence": [
+            "slice-203-insurance-subscriber-readiness",
+            "slice-457-slice203-insurance-subscriber-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal account readiness",
           "detail": "The shared gold dataset now provisions OpenEMR onsite portal-account rows for portal-enabled patients, the modernized PostgreSQL seed/API/Patient chart mirrors the same CMS login and account status facts, and parity verifies database/API/UI behavior; Slice 458 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-204-patient-portal-account-readiness", "slice-458-slice204-patient-portal-account-probe-payload-attachments"]
+          "evidence": [
+            "slice-204-patient-portal-account-readiness",
+            "slice-458-slice204-patient-portal-account-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal reset readiness",
           "detail": "The modernized patient API and Patient/Client Portal Account panel now issue and clear one-time portal reset state while parity mutates/restores the matching legacy `patient_access_onsite` fields; Slice 459 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-205-patient-portal-reset-readiness", "slice-459-slice205-patient-portal-reset-probe-payload-attachments"]
+          "evidence": [
+            "slice-205-patient-portal-reset-readiness",
+            "slice-459-slice205-patient-portal-reset-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal access readiness",
           "detail": "The modernized patient API and Patient/Client Portal Account panel now revoke and grant portal access while preserving provisioned account facts, and parity mutates/restores legacy `patient_data.allow_patient_portal`; Slice 460 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-206-patient-portal-access-readiness", "slice-460-slice206-patient-portal-access-probe-payload-attachments"]
+          "evidence": [
+            "slice-206-patient-portal-access-readiness",
+            "slice-460-slice206-patient-portal-access-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal authentication readiness",
           "detail": "The shared gold dataset now includes a deterministic synthetic portal credential, the modernized patient portal API issues patient-session readiness responses, and parity verifies valid login plus invalid, disabled, and pending-reset rejection paths; Slice 461 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-207-patient-portal-authentication-readiness", "slice-461-slice207-patient-portal-authentication-probe-payload-attachments"]
+          "evidence": [
+            "slice-207-patient-portal-authentication-readiness",
+            "slice-461-slice207-patient-portal-authentication-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal session readiness",
           "detail": "The modernized patient portal API now ends portal sessions, the Patient/Client Portal Account panel exposes an end-session command after readiness sign-in, and parity verifies active-session read, logout, and reuse rejection against legacy portal logout behavior; Slice 462 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-208-patient-portal-session-readiness", "slice-462-slice208-patient-portal-session-probe-payload-attachments"]
+          "evidence": [
+            "slice-208-patient-portal-session-readiness",
+            "slice-462-slice208-patient-portal-session-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal home readiness",
           "detail": "The modernized patient portal API and Portal page now open a session-protected home summary with identity, message counts, and upcoming appointments for the signed-in portal patient, with parity anchored to MOD-PAT-0004; Slice 463 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-209-patient-portal-home-readiness", "slice-463-slice209-patient-portal-home-probe-payload-attachments"]
+          "evidence": [
+            "slice-209-patient-portal-home-readiness",
+            "slice-463-slice209-patient-portal-home-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal home immunization readiness",
           "detail": "The modernized patient portal home API and Portal page now render the legacy health-snapshot immunization list, including entered-in-error rows that legacy OpenEMR's portal home still displays; Slice 503 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-249-patient-portal-home-immunizations-readiness", "slice-503-slice249-patient-portal-home-immunizations-probe-payload-attachments"]
+          "evidence": [
+            "slice-249-patient-portal-home-immunizations-readiness",
+            "slice-503-slice249-patient-portal-home-immunizations-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal profile readiness",
           "detail": "The modernized patient portal profile API and Portal page now render legacy-style medical-record demographics plus primary and secondary insurance facts for the signed-in patient; Slice 504 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-250-patient-portal-profile-readiness", "slice-504-slice250-patient-portal-profile-probe-payload-attachments"]
+          "evidence": [
+            "slice-250-patient-portal-profile-readiness",
+            "slice-504-slice250-patient-portal-profile-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal profile change request readiness",
           "detail": "The modernized patient portal profile API, PostgreSQL seed schema, Portal page, and parity harness now store patient-submitted profile edits as waiting review requests without mutating the medical-record demographics; Slice 505 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-251-patient-portal-profile-change-request-readiness", "slice-505-slice251-patient-portal-profile-change-request-probe-payload-attachments"]
+          "evidence": [
+            "slice-251-patient-portal-profile-change-request-readiness",
+            "slice-505-slice251-patient-portal-profile-change-request-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal profile review queue readiness",
           "detail": "The modernized administration directory API and Admin page now surface waiting patient portal profile review requests with requested demographics, counts, patient identity, parity coverage against legacy onsite portal activity rows, and Slice 506 Workbench-previewable probe payloads for queue state and review request evidence.",
-          "evidence": ["slice-252-patient-portal-profile-review-queue-readiness", "slice-506-slice252-patient-portal-profile-review-queue-probe-payload-attachments"]
+          "evidence": [
+            "slice-252-patient-portal-profile-review-queue-readiness",
+            "slice-506-slice252-patient-portal-profile-review-queue-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal profile review accept readiness",
           "detail": "The modernized administration API and Admin page now commit staff-accepted portal profile edits to chart demographics, close the waiting review request, prove the same cleanup-backed acceptance outcome against legacy OpenEMR, and expose Slice 507 Workbench-previewable probe payloads for acceptance evidence.",
-          "evidence": ["slice-253-patient-portal-profile-review-accept-readiness", "slice-507-slice253-patient-portal-profile-review-accept-probe-payload-attachments"]
+          "evidence": [
+            "slice-253-patient-portal-profile-review-accept-readiness",
+            "slice-507-slice253-patient-portal-profile-review-accept-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal profile review revert readiness",
           "detail": "The modernized administration API and Admin page now support legacy-style Revert Edits handling that closes a waiting profile review while leaving chart demographics unchanged and exposes Slice 508 Workbench-previewable probe payloads for rejection evidence.",
-          "evidence": ["slice-254-patient-portal-profile-review-revert-readiness", "slice-508-slice254-patient-portal-profile-review-revert-probe-payload-attachments"]
+          "evidence": [
+            "slice-254-patient-portal-profile-review-revert-readiness",
+            "slice-508-slice254-patient-portal-profile-review-revert-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message readiness",
           "detail": "The legacy gold seed now projects portal message anchors into OpenEMR onsite_mail, the modernized patient portal API and Portal page render the signed-in patient's secure-message inbox, parity verifies MOD-PAT-0004 message detail on both portal surfaces, and Slice 464 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-464-slice210-patient-portal-messages-probe-payload-attachments"]
+          "evidence": [
+            "slice-210-patient-portal-messages-readiness",
+            "slice-464-slice210-patient-portal-messages-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message compose readiness",
           "detail": "The modernized patient portal API and Portal page now compose secure messages into mailbox-style sent and recipient copies, parity verifies the same cleanup-backed sent-message behavior against legacy onsite_mail, and Slice 465 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-211-patient-portal-compose-readiness", "slice-465-slice211-patient-portal-compose-probe-payload-attachments"]
+          "evidence": [
+            "slice-211-patient-portal-compose-readiness",
+            "slice-465-slice211-patient-portal-compose-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message reply readiness",
           "detail": "The modernized patient portal API and Portal page now reply to seeded inbox messages with mailbox thread linkage, parity verifies cleanup-backed reply and sent-folder behavior against legacy onsite_mail, and Slice 466 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-212-patient-portal-reply-readiness", "slice-466-slice212-patient-portal-reply-probe-payload-attachments"]
+          "evidence": [
+            "slice-212-patient-portal-reply-readiness",
+            "slice-466-slice212-patient-portal-reply-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message thread view readiness",
           "detail": "The modernized patient portal API and Portal page now load patient-visible secure-message conversation threads around seeded inbox messages, while parity compares chronological thread rows against legacy onsite_mail after a cleanup-backed reply, and Slice 467 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-213-patient-portal-thread-readiness", "slice-467-slice213-patient-portal-thread-probe-payload-attachments"]
+          "evidence": [
+            "slice-213-patient-portal-thread-readiness",
+            "slice-467-slice213-patient-portal-thread-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message archive readiness",
           "detail": "The modernized patient portal API and Portal page now archive patient-visible secure messages using the legacy Delete status and soft-delete visibility rules, while parity verifies active-folder removal and archive visibility with cleanup-backed temporary messages, and Slice 468 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-214-patient-portal-delete-readiness", "slice-468-slice214-patient-portal-delete-probe-payload-attachments"]
+          "evidence": [
+            "slice-214-patient-portal-delete-readiness",
+            "slice-468-slice214-patient-portal-delete-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message read-status readiness",
           "detail": "The modernized patient portal API and Portal page now mark patient-visible secure messages read while preserving inbox visibility, and parity verifies legacy New-to-Read behavior with cleanup-backed temporary inbound messages, and Slice 469 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-215-patient-portal-read-readiness", "slice-469-slice215-patient-portal-read-probe-payload-attachments"]
+          "evidence": [
+            "slice-215-patient-portal-read-readiness",
+            "slice-469-slice215-patient-portal-read-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message mark-all-read readiness",
           "detail": "The modernized Portal now mirrors legacy OpenEMR's toolbar mark-all-read behavior as a browser-visible status change that is cleared on refresh rather than persisted to the mailbox row.",
-          "evidence": ["slice-242-patient-portal-message-mark-all-read-readiness"]
+          "evidence": [
+            "slice-242-patient-portal-message-mark-all-read-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message batch archive readiness",
           "detail": "The modernized patient portal API and Portal page now archive selected patient-visible secure messages together through legacy Delete-status soft-delete semantics, while parity verifies multi-message active-folder removal through database and UI surfaces, and Slice 470 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-216-patient-portal-batch-archive-readiness", "slice-470-slice216-patient-portal-batch-archive-probe-payload-attachments"]
+          "evidence": [
+            "slice-216-patient-portal-batch-archive-readiness",
+            "slice-470-slice216-patient-portal-batch-archive-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message All-folder readiness",
           "detail": "The modernized patient portal API and Portal page now expose the legacy active All-folder mailbox view, while parity verifies temporary inbound and sent message inclusion plus archived-row exclusion for the signed-in patient, and Slice 471 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-217-patient-portal-all-messages-readiness", "slice-471-slice217-patient-portal-all-messages-probe-payload-attachments"]
+          "evidence": [
+            "slice-217-patient-portal-all-messages-readiness",
+            "slice-471-slice217-patient-portal-all-messages-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message notification readiness",
           "detail": "The modernized patient portal API and Portal page now project active patient reminders as legacy-style read-only Notification rows in Inbox and All while excluding them from Sent and Deleted, and Slice 509 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-255-patient-portal-message-notifications-readiness", "slice-509-slice255-patient-portal-message-notifications-probe-payload-attachments"]
+          "evidence": [
+            "slice-255-patient-portal-message-notifications-readiness",
+            "slice-509-slice255-patient-portal-message-notifications-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message attachment metadata readiness",
           "detail": "The modernized portal message DTO/API and Portal page now expose explicit zero-attachment metadata for current secure-message rows, while parity verifies cleanup-backed composed messages return empty attachment collections on both targets and render `Attachments 0` in the modernized sent surface.",
-          "evidence": ["slice-510-patient-portal-message-attachments-readiness", "slice-511-slice510-patient-portal-message-attachments-probe-payload-attachments"]
+          "evidence": [
+            "slice-510-patient-portal-message-attachments-readiness",
+            "slice-511-slice510-patient-portal-message-attachments-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message attachment policy readiness",
           "detail": "The modernized portal message compose/reply contract now accepts attachment-submission metadata but rejects non-empty payloads before creating mailbox rows, matching the legacy portal where secure-message upload controls remain inactive.",
-          "evidence": ["slice-512-patient-portal-message-attachment-policy-readiness"]
+          "evidence": [
+            "slice-512-patient-portal-message-attachment-policy-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search readiness",
           "detail": "The modernized Portal now exposes a usable secure-message search field for Inbox, Sent, All, and Deleted folders with a case-insensitive substring model, resets paging when the query changes, and the shared parity plan verifies cleanup-backed matching and decoy rows while documenting that the installed legacy portal template has no active rendered search input.",
-          "evidence": ["slice-513-patient-portal-message-search-readiness"]
+          "evidence": [
+            "slice-513-patient-portal-message-search-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message folder search readiness",
           "detail": "The modernized Portal search field is now covered across Sent, All, and Deleted folder regions with cleanup-backed sent and archived secure-message rows, while parity records the installed legacy Sent/Archive baseline and verifies shared folder projections.",
-          "evidence": ["slice-514-patient-portal-message-folder-search-readiness"]
+          "evidence": [
+            "slice-514-patient-portal-message-folder-search-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message empty-search readiness",
           "detail": "The modernized Portal now renders deterministic folder-specific empty states for no-hit secure-message searches and restores Inbox, Sent, All, and Deleted rows when the search is cleared, while parity records the legacy no-active-search-input baseline.",
-          "evidence": ["slice-515-patient-portal-message-empty-search-readiness"]
+          "evidence": [
+            "slice-515-patient-portal-message-empty-search-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search-count readiness",
           "detail": "The modernized Portal now renders a secure-message search-count summary that reports filtered and total counts for Inbox, Sent, All, and Deleted folders, while parity verifies shared per-folder count projections against cleanup-backed mailbox rows.",
-          "evidence": ["slice-516-patient-portal-message-search-counts-readiness"]
+          "evidence": [
+            "slice-516-patient-portal-message-search-counts-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message clear-search readiness",
           "detail": "The modernized Portal now exposes a Clear search action that removes the secure-message query, resets folder paging, disables itself when no query is active, and restores Inbox rows while parity records the legacy no-active-search-control baseline.",
-          "evidence": ["slice-517-patient-portal-message-search-clear-readiness"]
+          "evidence": [
+            "slice-517-patient-portal-message-search-clear-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search-normalization readiness",
           "detail": "The modernized Portal secure-message search now has parity coverage for padded mixed-case queries and exposes the search-count summary as a live status update, while parity records the legacy no-active-search-summary baseline.",
-          "evidence": ["slice-518-patient-portal-message-search-normalization-readiness"]
+          "evidence": [
+            "slice-518-patient-portal-message-search-normalization-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search-selection readiness",
           "detail": "The modernized Portal now clears hidden selected secure-message rows when a search query changes, preventing batch archive from acting on invisible selections while parity records the legacy no-active-search-filter baseline.",
-          "evidence": ["slice-519-patient-portal-message-search-selection-readiness"]
+          "evidence": [
+            "slice-519-patient-portal-message-search-selection-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search mark-all-read readiness",
           "detail": "The modernized Portal now scopes Mark all as read to the currently filtered secure-message rows, leaving hidden unread rows New when search is cleared while parity records the legacy no-active-search-filter baseline.",
-          "evidence": ["slice-520-patient-portal-message-search-mark-all-read-readiness"]
+          "evidence": [
+            "slice-520-patient-portal-message-search-mark-all-read-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message search pagination readiness",
           "detail": "The modernized Portal now resets secure-message folder pagination to the first filtered page when search changes, preserving search-before-pagination behavior while parity records the legacy no-active-search-input baseline.",
-          "evidence": ["slice-521-patient-portal-message-search-pagination-readiness"]
+          "evidence": [
+            "slice-521-patient-portal-message-search-pagination-readiness"
+          ]
         },
         {
           "label": "Patient portal document list/download readiness",
           "detail": "The modernized patient portal API and Portal page now list active patient-owned documents by legacy category and build a selected-document ZIP download, while parity compares the same list and download package behavior against legacy OpenEMR, and Slice 472 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-218-patient-portal-documents-readiness", "slice-472-slice218-patient-portal-documents-probe-payload-attachments"]
+          "evidence": [
+            "slice-218-patient-portal-documents-readiness",
+            "slice-472-slice218-patient-portal-documents-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal appointment list readiness",
           "detail": "The modernized patient portal API and Portal page now list signed-in patient upcoming and past appointment cards with provider, facility, status, and category details, while parity compares the same future/past portal appointment behavior against legacy OpenEMR, and Slice 473 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-219-patient-portal-appointments-readiness", "slice-473-slice219-patient-portal-appointments-probe-payload-attachments"]
+          "evidence": [
+            "slice-219-patient-portal-appointments-readiness",
+            "slice-473-slice219-patient-portal-appointments-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal appointment request readiness",
           "detail": "The modernized patient portal API and Portal page now let a signed-in patient request a pending appointment and create the matching provider reminder note, while parity compares the same portal scheduling request behavior against legacy OpenEMR, and Slice 474 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-220-patient-portal-appointment-request-readiness", "slice-474-slice220-patient-portal-appointment-request-probe-payload-attachments"]
+          "evidence": [
+            "slice-220-patient-portal-appointment-request-readiness",
+            "slice-474-slice220-patient-portal-appointment-request-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal appointment request options readiness",
           "detail": "The modernized patient portal API and Portal page now derive appointment request visit, provider, facility, duration, and default selections from target data instead of hard-coded form IDs, while parity compares the same option readiness against legacy OpenEMR, and Slice 475 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-221-patient-portal-appointment-options-readiness", "slice-475-slice221-patient-portal-appointment-options-probe-payload-attachments"]
+          "evidence": [
+            "slice-221-patient-portal-appointment-options-readiness",
+            "slice-475-slice221-patient-portal-appointment-options-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal clinical summary readiness",
           "detail": "The modernized patient portal API and Portal page now render signed-in patient problems, allergies, medication-list entries, and active prescriptions, while parity compares the same portal clinical summary facts against legacy OpenEMR, and Slice 476 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-476-slice222-patient-portal-clinical-summary-probe-payload-attachments"]
+          "evidence": [
+            "slice-222-patient-portal-clinical-summary-readiness",
+            "slice-476-slice222-patient-portal-clinical-summary-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal prescription modified-date readiness",
           "detail": "The modernized patient portal clinical-summary API and Portal page now preserve and render active prescription modified dates in line with legacy OpenEMR's portal prescription table.",
-          "evidence": ["slice-243-patient-portal-prescription-modified-date-readiness"]
+          "evidence": [
+            "slice-243-patient-portal-prescription-modified-date-readiness"
+          ]
         },
         {
           "label": "Patient portal prescription start-date readiness",
           "detail": "The modernized patient portal clinical-summary API and Portal page now preserve and render active prescription date-added timestamps as portal start dates in line with legacy OpenEMR's portal prescription table, and Slice 498 adds path-backed start-date probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-244-patient-portal-prescription-start-date-readiness"]
+          "evidence": [
+            "slice-244-patient-portal-prescription-start-date-readiness"
+          ]
         },
         {
           "label": "Patient portal prescription end-date filtering readiness",
           "detail": "The modernized patient portal clinical-summary API and Portal page now keep ended prescriptions out of the active prescription list while preserving null end dates for active prescription cards, and Slice 499 adds path-backed end-date filtering probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-245-patient-portal-prescription-end-date-readiness"]
+          "evidence": [
+            "slice-245-patient-portal-prescription-end-date-readiness"
+          ]
         },
         {
           "label": "Patient portal lab results readiness",
           "detail": "The modernized patient portal API and Portal page now render signed-in patient lab orders, reports, and final result rows, while parity compares the same portal lab-results facts against legacy OpenEMR, and Slice 477 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-223-patient-portal-lab-results-readiness", "slice-477-slice223-patient-portal-lab-results-probe-payload-attachments"]
+          "evidence": [
+            "slice-223-patient-portal-lab-results-readiness",
+            "slice-477-slice223-patient-portal-lab-results-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal medical report readiness",
           "detail": "The modernized patient portal API and Portal page now render customized medical-history report sections, issue choices, encounter/form choices, procedure-order choices, and preview facts while parity compares the same report-builder readiness against legacy OpenEMR, and Slice 478 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-224-patient-portal-medical-report-readiness", "slice-478-slice224-patient-portal-medical-report-probe-payload-attachments"]
+          "evidence": [
+            "slice-224-patient-portal-medical-report-readiness",
+            "slice-478-slice224-patient-portal-medical-report-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report readiness",
           "detail": "The modernized patient portal API and Portal page now generate the default customized medical-history report content with patient data, billing rollup, and selected procedure-order lines while parity compares the same generated report behavior against legacy OpenEMR, and Slice 479 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-225-patient-portal-generated-medical-report-readiness", "slice-479-slice225-patient-portal-generated-medical-report-probe-payload-attachments"]
+          "evidence": [
+            "slice-225-patient-portal-generated-medical-report-readiness",
+            "slice-479-slice225-patient-portal-generated-medical-report-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report PDF readiness",
           "detail": "The modernized patient portal API and Portal page now export the generated customized medical-history report as a deterministic PDF while parity compares legacy portal PDF POST behavior and modernized PDF download behavior, and Slice 480 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-226-patient-portal-generated-medical-report-pdf-readiness", "slice-480-slice226-patient-portal-generated-medical-report-pdf-probe-payload-attachments"]
+          "evidence": [
+            "slice-226-patient-portal-generated-medical-report-pdf-readiness",
+            "slice-480-slice226-patient-portal-generated-medical-report-pdf-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report issue selection readiness",
           "detail": "The modernized patient portal API and Portal page now include selected issue rows in generated customized medical-history reports while parity compares legacy issue-checkbox POST behavior and modernized issue ID and checkbox behavior, and Slice 481 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-227-patient-portal-generated-medical-report-issue-selection-readiness", "slice-481-slice227-patient-portal-generated-medical-report-issue-selection-probe-payload-attachments"]
+          "evidence": [
+            "slice-227-patient-portal-generated-medical-report-issue-selection-readiness",
+            "slice-481-slice227-patient-portal-generated-medical-report-issue-selection-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report encounter-form selection readiness",
           "detail": "The modernized patient portal API and Portal page now include selected encounter form rows in generated customized medical-history reports while parity compares legacy encounter/form checkbox POST behavior and modernized encounter form ID and checkbox behavior, and Slice 482 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-228-patient-portal-generated-medical-report-form-selection-readiness", "slice-482-slice228-patient-portal-generated-medical-report-form-selection-probe-payload-attachments"]
+          "evidence": [
+            "slice-228-patient-portal-generated-medical-report-form-selection-readiness",
+            "slice-482-slice228-patient-portal-generated-medical-report-form-selection-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report procedure-order selection readiness",
           "detail": "The modernized patient portal generated-report panel now surfaces selected procedure-order count evidence while parity creates a cleanup-backed temporary order and compares explicit procedure-order inclusion against legacy OpenEMR, and Slice 490 adds path-backed procedure-order selection probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-236-patient-portal-generated-medical-report-procedure-selection-readiness", "slice-490-slice236-patient-portal-generated-medical-report-procedure-selection-probe-payload-attachments"]
+          "evidence": [
+            "slice-236-patient-portal-generated-medical-report-procedure-selection-readiness",
+            "slice-490-slice236-patient-portal-generated-medical-report-procedure-selection-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report procedure-order artifact readiness",
           "detail": "Selected procedure orders now carry into generated medical-report PDF and ZIP package artifacts while parity compares legacy source printable/PDF artifacts with modernized PDF, manifest, summary, and package PDF contents, and Slice 491 adds path-backed procedure-order artifact probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness", "slice-491-slice237-patient-portal-generated-medical-report-procedure-artifacts-probe-payload-attachments"]
+          "evidence": [
+            "slice-237-patient-portal-generated-medical-report-procedure-artifacts-readiness",
+            "slice-491-slice237-patient-portal-generated-medical-report-procedure-artifacts-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report printable template readiness",
           "detail": "The modernized patient portal API, Portal page, and PDF payload now expose printable generated-report facility, patient header, generated-on, and signature-line metadata while parity compares the same legacy printable report header behavior, and Slice 483 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-229-patient-portal-generated-medical-report-template-readiness", "slice-483-slice229-patient-portal-generated-medical-report-template-probe-payload-attachments"]
+          "evidence": [
+            "slice-229-patient-portal-generated-medical-report-template-readiness",
+            "slice-483-slice229-patient-portal-generated-medical-report-template-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report package readiness",
           "detail": "The modernized patient portal API and Portal page now expose and download a generated medical-report ZIP package containing manifest, PDF, and summary entries while parity compares legacy source report artifacts and modernized package delivery, and Slice 484 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-230-patient-portal-generated-medical-report-package-readiness", "slice-484-slice230-patient-portal-generated-medical-report-package-probe-payload-attachments"]
+          "evidence": [
+            "slice-230-patient-portal-generated-medical-report-package-readiness",
+            "slice-484-slice230-patient-portal-generated-medical-report-package-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal generated medical report lifecycle audit readiness",
           "detail": "The modernized patient portal API now records generated-report, PDF-download, and package-download audit events, exposes a session-protected audit history endpoint, renders the report audit timeline in the Portal page, parity compares normalized lifecycle evidence against the legacy generated-report source actions, and Slice 485 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-231-patient-portal-generated-medical-report-audit-readiness", "slice-485-slice231-patient-portal-generated-medical-report-audit-probe-payload-attachments"]
+          "evidence": [
+            "slice-231-patient-portal-generated-medical-report-audit-readiness",
+            "slice-485-slice231-patient-portal-generated-medical-report-audit-probe-payload-attachments"
+          ]
         }
       ],
       "outstanding": [
@@ -385,72 +585,112 @@
         {
           "label": "Appointment read and lifecycle",
           "detail": "Future appointment search/detail plus create, cancel, delete, reschedule, arrival, check-out, no-show, category, pending status, comments, provider, facility, and billing-location edits are implemented.",
-          "evidence": ["slice-2-scheduling-readiness", "slice-11-appointment-mutation-readiness", "slice-93-appointment-reschedule-readiness", "slice-94-appointment-arrival-readiness", "slice-95-appointment-checkout-readiness", "slice-96-appointment-noshow-readiness"]
+          "evidence": [
+            "slice-2-scheduling-readiness",
+            "slice-11-appointment-mutation-readiness",
+            "slice-93-appointment-reschedule-readiness",
+            "slice-94-appointment-arrival-readiness",
+            "slice-95-appointment-checkout-readiness",
+            "slice-96-appointment-noshow-readiness"
+          ]
         },
         {
           "label": "Recurring appointment behavior",
           "detail": "Recurring metadata, generated series expansion, exception dates, occurrence cancel/restore/reschedule, recurring root propagation, monthly/day/workday/year units, days-of-week, monthly repeat-on, and series recurrence update are covered.",
-          "evidence": ["slice-103-appointment-recurrence-readiness", "slice-104-appointment-series-readiness", "slice-116-appointment-series-recurrence-update-readiness"]
+          "evidence": [
+            "slice-103-appointment-recurrence-readiness",
+            "slice-104-appointment-series-readiness",
+            "slice-116-appointment-series-recurrence-update-readiness"
+          ]
         },
         {
           "label": "Overlap and reminder readiness",
           "detail": "Provider, patient, and room overlap tolerance plus seeded reminder due/channel/contact derivation are covered.",
-          "evidence": ["slice-117-appointment-provider-overlap-readiness", "slice-118-appointment-patient-overlap-readiness", "slice-119-appointment-room-overlap-readiness", "slice-120-appointment-reminders-readiness"]
+          "evidence": [
+            "slice-117-appointment-provider-overlap-readiness",
+            "slice-118-appointment-patient-overlap-readiness",
+            "slice-119-appointment-room-overlap-readiness",
+            "slice-120-appointment-reminders-readiness"
+          ]
         },
         {
           "label": "Appointment reminder dispatch readiness",
           "detail": "Due appointment reminders can be queued through a deterministic local dispatch contract, persisted as audit history, and rendered in the modernized Calendar.",
-          "evidence": ["slice-577-appointment-reminder-dispatch-readiness"]
+          "evidence": [
+            "slice-577-appointment-reminder-dispatch-readiness"
+          ]
         },
         {
           "label": "Appointment availability validation readiness",
           "detail": "The modernized appointment API can validate a proposed appointment before creation, report provider, patient, room, and shared bookable-window conflicts, and render the availability result in Calendar.",
-          "evidence": ["slice-575-appointment-availability-validation-readiness"]
+          "evidence": [
+            "slice-575-appointment-availability-validation-readiness"
+          ]
         },
         {
           "label": "Appointment waitlist readiness",
           "detail": "Pending portal appointment requests are projected into a staff Calendar waitlist queue with requested slot, reason, reminder, and priority context, and staff can promote a request to OpenEMR pending status.",
-          "evidence": ["slice-576-appointment-waitlist-readiness"]
+          "evidence": [
+            "slice-576-appointment-waitlist-readiness"
+          ]
         },
         {
           "label": "Appointment protection readiness",
           "detail": "The modernized appointment API now requires an active session, the Calendar page gates appointment search and mutations until sign-in, and parity compares legacy schedule-page protection with modernized API/UI protection.",
-          "evidence": ["slice-167-appointment-protection-readiness"]
+          "evidence": [
+            "slice-167-appointment-protection-readiness"
+          ]
         },
         {
           "label": "Appointment authorization policy readiness",
           "detail": "The modernized appointment API now enforces mirrored Appointment ACL access, the seeded front-desk session can retrieve appointment schedules through its Front Office membership, and parity compares that behavior with the legacy ACL matrix; Slice 430 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-176-appointment-authorization-policy-readiness", "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-176-appointment-authorization-policy-readiness",
+            "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Appointment mutation authorization policy readiness",
           "detail": "The modernized appointment API now distinguishes Appointment view access from write-level create, update, status, recurrence restore, occurrence reschedule, and deletion operations; Slice 443 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-189-appointment-mutation-authorization-policy-readiness", "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-189-appointment-mutation-authorization-policy-readiness",
+            "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal appointment list readiness",
           "detail": "Signed-in portal patients can see the same future and past appointment card facts that legacy OpenEMR exposes from the portal home, with parity anchored to MOD-PAT-0004 and Slice 473 Workbench probe-payload preview coverage.",
-          "evidence": ["slice-219-patient-portal-appointments-readiness"]
+          "evidence": [
+            "slice-219-patient-portal-appointments-readiness"
+          ]
         },
         {
           "label": "Patient portal appointment request readiness",
           "detail": "Signed-in portal patients can request a pending appointment and generate the same provider-facing reminder note that legacy OpenEMR records for portal scheduling requests, with Slice 474 Workbench probe-payload preview coverage.",
-          "evidence": ["slice-220-patient-portal-appointment-request-readiness"]
+          "evidence": [
+            "slice-220-patient-portal-appointment-request-readiness"
+          ]
         },
         {
           "label": "Patient portal appointment request options readiness",
           "detail": "Signed-in portal patients now receive request-form visit categories, provider choices, facility choices, duration defaults, and patient-specific default provider/facility selections from target data, with Slice 475 Workbench probe-payload preview coverage.",
-          "evidence": ["slice-221-patient-portal-appointment-options-readiness"]
+          "evidence": [
+            "slice-221-patient-portal-appointment-options-readiness"
+          ]
         },
         {
           "label": "Appointment to encounter conversion readiness",
           "detail": "Modernized Calendar appointment detail can create an encounter from a selected appointment while preserving patient, provider, facility, billing facility, date/time, comments, and source appointment linkage; Slice 522 adds cleanup-backed shared parity coverage for both targets.",
-          "evidence": ["slice-522-appointment-encounter-conversion-readiness"]
+          "evidence": [
+            "slice-522-appointment-encounter-conversion-readiness"
+          ]
         },
         {
           "label": "Appointment to billing conversion readiness",
           "detail": "Modernized Calendar appointment detail can create a starter CPT fee-sheet charge on the converted appointment encounter, expose the active charge count, and prevent duplicate starter charges; Slice 523 adds cleanup-backed shared parity coverage for both targets.",
-          "evidence": ["slice-523-appointment-billing-conversion-readiness"]
+          "evidence": [
+            "slice-523-appointment-billing-conversion-readiness"
+          ]
         }
       ],
       "outstanding": [
@@ -474,37 +714,70 @@
         {
           "label": "Encounter lifecycle and clinical note facts",
           "detail": "Encounter search/detail, vitals, SOAP create/update/delete, metadata mutation, sign-off, and co-signature readiness are covered.",
-          "evidence": ["slice-3-encounters-readiness", "slice-12-encounter-mutation-readiness", "slice-35-encounter-metadata-readiness", "slice-77-encounter-signoff-readiness", "slice-121-encounter-cosignature-readiness"]
+          "evidence": [
+            "slice-3-encounters-readiness",
+            "slice-12-encounter-mutation-readiness",
+            "slice-35-encounter-metadata-readiness",
+            "slice-77-encounter-signoff-readiness",
+            "slice-121-encounter-cosignature-readiness"
+          ]
         },
         {
           "label": "Encounter amendment history readiness",
           "detail": "Encounter signature amendment text is now projected as ordered amendment history, blank sign-off notes are filtered, and the modernized API/UI render the same history proven against legacy e-sign rows; Slice 444 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-190-encounter-amendment-history-readiness", "slice-444-slice190-encounter-amendment-history-probe-payload-attachments"]
+          "evidence": [
+            "slice-190-encounter-amendment-history-readiness",
+            "slice-444-slice190-encounter-amendment-history-probe-payload-attachments"
+          ]
         },
         {
           "label": "Encounter billing, claim, procedure, and diagnosis linkage",
           "detail": "Read-only linkages and focused mutation paths for billing, diagnoses, fee-sheet entry, procedure-order entry, and procedure-result entry are covered.",
-          "evidence": ["slice-68-encounter-billing-readiness", "slice-69-encounter-claims-readiness", "slice-70-encounter-procedures-readiness", "slice-71-encounter-diagnoses-readiness", "slice-74-encounter-fee-sheet-entry-readiness", "slice-75-encounter-procedure-order-entry-readiness", "slice-76-encounter-procedure-result-entry-readiness"]
+          "evidence": [
+            "slice-68-encounter-billing-readiness",
+            "slice-69-encounter-claims-readiness",
+            "slice-70-encounter-procedures-readiness",
+            "slice-71-encounter-diagnoses-readiness",
+            "slice-74-encounter-fee-sheet-entry-readiness",
+            "slice-75-encounter-procedure-order-entry-readiness",
+            "slice-76-encounter-procedure-result-entry-readiness"
+          ]
         },
         {
           "label": "Encounter-scoped documents",
           "detail": "Encounter attachment visibility, upload, binary upload, sign-off, denial, metadata refiling, movement, content replacement, archive/restore, lifecycle timeline, external link, revision, scanned attachment, and binary replacement are covered.",
-          "evidence": ["slice-67-encounter-documents-readiness", "slice-78-encounter-document-upload-readiness", "slice-79-encounter-binary-document-upload-readiness", "slice-122-encounter-document-revision-readiness", "slice-123-encounter-document-revision-replace-readiness", "slice-126-encounter-document-scanned-attachment-readiness", "slice-127-encounter-document-binary-content-replace-readiness"]
+          "evidence": [
+            "slice-67-encounter-documents-readiness",
+            "slice-78-encounter-document-upload-readiness",
+            "slice-79-encounter-binary-document-upload-readiness",
+            "slice-122-encounter-document-revision-readiness",
+            "slice-123-encounter-document-revision-replace-readiness",
+            "slice-126-encounter-document-scanned-attachment-readiness",
+            "slice-127-encounter-document-binary-content-replace-readiness"
+          ]
         },
         {
           "label": "Encounter protection readiness",
           "detail": "The modernized encounter API now requires an active session, the Encounters page gates encounter search and mutations until sign-in, and parity compares legacy encounter-page protection with modernized API/UI protection.",
-          "evidence": ["slice-168-encounter-protection-readiness"]
+          "evidence": [
+            "slice-168-encounter-protection-readiness"
+          ]
         },
         {
           "label": "Encounter authorization policy readiness",
           "detail": "The modernized encounter API now enforces mirrored Authorize Any Encounter access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 431 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-177-encounter-authorization-policy-readiness", "slice-431-slice177-encounter-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-177-encounter-authorization-policy-readiness",
+            "slice-431-slice177-encounter-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Encounter mutation authorization policy readiness",
           "detail": "The modernized encounter mutation API now requires Authorize Any Encounter write access for core encounter create, update, sign, clinical-note, vitals, signature, and delete operations while a temporary Clinicians view-only grant proves read-only denial; Slice 439 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-185-encounter-mutation-authorization-policy-readiness", "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-185-encounter-mutation-authorization-policy-readiness",
+            "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments"
+          ]
         }
       ],
       "outstanding": [
@@ -523,85 +796,135 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, pharmacy routing transmit evidence, controlled-substance pharmacy-routing guard behavior, prescription audit history, structured prescription dose/frequency/duration fields, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary, medication reconciliation, and broader prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-originated portal refill requests, staff refill-request approval queues, pharmacy routing transmit evidence, controlled-substance pharmacy-routing guard behavior, prescription audit history, structured prescription dose/frequency/duration fields, focused RxNorm-style medication vocabulary lookup, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while diagnosis interactions, medication reconciliation, and broader e-prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
           "detail": "Problems, allergies, medication list entries, and prescriptions render through the modernized Lists module and shared parity plan.",
-          "evidence": ["slice-4-clinical-lists-readiness"]
+          "evidence": [
+            "slice-4-clinical-lists-readiness"
+          ]
         },
         {
           "label": "Focused clinical list mutations",
           "detail": "Allergy, problem-list, medication-list, prescription, and immunization lifecycle behaviors are covered.",
-          "evidence": ["slice-13-clinical-list-mutation-readiness", "slice-31-problem-mutation-readiness", "slice-32-medication-list-mutation-readiness", "slice-15-prescription-mutation-readiness", "slice-30-immunization-mutation-readiness"]
+          "evidence": [
+            "slice-13-clinical-list-mutation-readiness",
+            "slice-31-problem-mutation-readiness",
+            "slice-32-medication-list-mutation-readiness",
+            "slice-15-prescription-mutation-readiness",
+            "slice-30-immunization-mutation-readiness"
+          ]
         },
         {
           "label": "Clinical list protection readiness",
           "detail": "The modernized clinical-list API now requires an active session, the Lists page gates chart-list data until sign-in, and parity compares legacy chart-list protection with modernized API/UI protection.",
-          "evidence": ["slice-166-clinical-list-protection-readiness"]
+          "evidence": [
+            "slice-166-clinical-list-protection-readiness"
+          ]
         },
         {
           "label": "Clinical list authorization policy readiness",
           "detail": "The modernized clinical-list API now enforces mirrored Medical/History access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 429 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-175-clinical-list-authorization-policy-readiness", "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-175-clinical-list-authorization-policy-readiness",
+            "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal clinical summary readiness",
           "detail": "Signed-in portal patients can see the same problem date columns, ended problem-list rows, allergy date/referrer columns, ended allergy rows, medication-list date columns, ended medication-list rows, active-prescription, active-prescription modified-date, prescription date-added/start-date, and active-prescription end-date filtering facts that legacy OpenEMR exposes through the portal clinical-list pages, and Slice 502 adds path-backed allergy date-column probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-222-patient-portal-clinical-summary-readiness", "slice-243-patient-portal-prescription-modified-date-readiness", "slice-497-slice243-patient-portal-prescription-modified-date-probe-payload-attachments", "slice-244-patient-portal-prescription-start-date-readiness", "slice-498-slice244-patient-portal-prescription-start-date-probe-payload-attachments", "slice-245-patient-portal-prescription-end-date-readiness", "slice-499-slice245-patient-portal-prescription-end-date-probe-payload-attachments", "slice-246-patient-portal-medication-date-columns-readiness", "slice-500-slice246-patient-portal-medication-date-columns-probe-payload-attachments", "slice-247-patient-portal-problem-date-columns-readiness", "slice-501-slice247-patient-portal-problem-date-columns-probe-payload-attachments", "slice-248-patient-portal-allergy-date-columns-readiness", "slice-502-slice248-patient-portal-allergy-date-columns-probe-payload-attachments"]
+          "evidence": [
+            "slice-222-patient-portal-clinical-summary-readiness",
+            "slice-243-patient-portal-prescription-modified-date-readiness",
+            "slice-497-slice243-patient-portal-prescription-modified-date-probe-payload-attachments",
+            "slice-244-patient-portal-prescription-start-date-readiness",
+            "slice-498-slice244-patient-portal-prescription-start-date-probe-payload-attachments",
+            "slice-245-patient-portal-prescription-end-date-readiness",
+            "slice-499-slice245-patient-portal-prescription-end-date-probe-payload-attachments",
+            "slice-246-patient-portal-medication-date-columns-readiness",
+            "slice-500-slice246-patient-portal-medication-date-columns-probe-payload-attachments",
+            "slice-247-patient-portal-problem-date-columns-readiness",
+            "slice-501-slice247-patient-portal-problem-date-columns-probe-payload-attachments",
+            "slice-248-patient-portal-allergy-date-columns-readiness",
+            "slice-502-slice248-patient-portal-allergy-date-columns-probe-payload-attachments"
+          ]
         },
         {
           "label": "Medication duplicate detection readiness",
           "detail": "The modernized clinical-list API now groups active medication-list rows by normalized medication title, exposes duplicate-count/date/diagnosis/source-ID evidence, renders the warning evidence in Lists, and parity compares it against a cleanup-backed legacy database projection.",
-          "evidence": ["slice-578-medication-duplicate-detection-readiness"]
+          "evidence": [
+            "slice-578-medication-duplicate-detection-readiness"
+          ]
         },
         {
           "label": "Prescription refill authorization readiness",
           "detail": "The modernized clinical-list API and Lists page now authorize an additional refill on an active prescription while preserving active status, updating modified date and note evidence, and parity compares the result with the legacy prescription row.",
-          "evidence": ["slice-579-prescription-refill-readiness"]
+          "evidence": [
+            "slice-579-prescription-refill-readiness"
+          ]
         },
         {
           "label": "Patient portal prescription refill request readiness",
           "detail": "Signed-in portal patients can request a refill for an active prescription; the modernized API validates prescription ownership, creates secure-message sent/recipient evidence, renders a Portal request action, and parity compares the mailbox result with legacy onsite_mail behavior.",
-          "evidence": ["slice-580-patient-portal-prescription-refill-request-readiness"]
+          "evidence": [
+            "slice-580-patient-portal-prescription-refill-request-readiness"
+          ]
         },
         {
           "label": "Prescription refill request approval readiness",
           "detail": "Staff can see pending patient-originated portal refill requests in the modernized Lists clinical queue, approve one additional refill, close the mailbox request as Done, and compare the result with legacy onsite_mail and prescription-row behavior.",
-          "evidence": ["slice-581-prescription-refill-request-approval-readiness"]
+          "evidence": [
+            "slice-581-prescription-refill-request-approval-readiness"
+          ]
         },
         {
           "label": "Prescription pharmacy routing readiness",
           "detail": "Staff can route an active prescription to a selected pharmacy, persist pharmacy identity and deterministic local eRx transmit evidence, render the routed state in Lists, and compare the result with legacy prescription pharmacy fields.",
-          "evidence": ["slice-582-prescription-pharmacy-routing-readiness"]
+          "evidence": [
+            "slice-582-prescription-pharmacy-routing-readiness"
+          ]
         },
         {
           "label": "Prescription controlled-substance routing guard readiness",
           "detail": "Controlled-substance prescriptions are flagged in the modernized Lists read model, ordinary pharmacy routing is blocked before transmit evidence is stamped, and parity compares the blocked result with the legacy adapter.",
-          "evidence": ["slice-583-prescription-controlled-substance-readiness"]
+          "evidence": [
+            "slice-583-prescription-controlled-substance-readiness"
+          ]
         },
         {
           "label": "Prescription audit history readiness",
           "detail": "Prescription create, refill, route, and deactivate operations can record focused audit events, the modernized Lists page can render selected prescription history, and parity compares the normalized event stream with the legacy-derived workflow evidence.",
-          "evidence": ["slice-584-prescription-audit-history-readiness"]
+          "evidence": [
+            "slice-584-prescription-audit-history-readiness"
+          ]
         },
         {
           "label": "Prescription structured dose readiness",
-          "detail": "The modernized clinical-list API now persists structured dose amount, dose unit, frequency, and duration fields while retaining legacy dosage/quantity text, the Lists page renders those fields on prescription cards, and parity compares cleanup-backed prescription evidence against the legacy adapter.",
-          "evidence": ["slice-585-prescription-structured-dose-readiness"]
+          "detail": "The modernized clinical-list API persists structured dose amount, dose unit, frequency, and duration fields while retaining legacy dosage/quantity text, the Lists page renders those fields on prescription cards, and parity compares cleanup-backed prescription evidence against the legacy adapter.",
+          "evidence": [
+            "slice-585-prescription-structured-dose-readiness"
+          ]
+        },
+        {
+          "label": "Medication vocabulary readiness",
+          "detail": "The modernized clinical-list API exposes a protected focused RxNorm-style medication vocabulary lookup, the Lists prescription form can search/select entries to populate drug, RxNorm, dose, frequency, and duration fields, and parity compares the deterministic catalog with the legacy adapter.",
+          "evidence": [
+            "slice-586-medication-vocabulary-readiness"
+          ]
         }
       ],
       "outstanding": [
-        "Vocabulary lookup, diagnosis interactions, and medication reconciliation.",
+        "Diagnosis interactions and medication reconciliation.",
         "Broader e-prescribing workflow, including EPCS completion beyond the local controlled-substance guard."
       ],
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 74,
+      "completionEstimatePercent": 76,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, staff can approve those requests from a clinical queue, and staff can route prescriptions to a selected pharmacy with deterministic local transmit evidence, and controlled-substance prescriptions now block ordinary pharmacy routing before transmit evidence is stamped, and prescription mutation audit history plus structured dose/frequency/duration fields are available through the API and Lists UI; vocabulary lookup, diagnosis interactions, medication reconciliation, and broader prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, staff refill authorization updates active prescription refill metadata, portal patients can submit secure-message refill requests for active prescriptions, staff can approve those requests from a clinical queue, staff can route prescriptions to a selected pharmacy with deterministic local transmit evidence, controlled-substance prescriptions now block ordinary pharmacy routing before transmit evidence is stamped, prescription mutation audit history plus structured dose/frequency/duration fields are available through the API and Lists UI, and focused medication vocabulary lookup can populate prescription fields; diagnosis interactions, medication reconciliation, and broader prescribing controls remain."
     },
     {
       "id": "messaging-portal",
@@ -612,57 +935,118 @@
         {
           "label": "Patient messages and portal-enabled state",
           "detail": "Portal flag and patient-message read behavior are covered through the Messages module.",
-          "evidence": ["slice-5-messaging-readiness"]
+          "evidence": [
+            "slice-5-messaging-readiness"
+          ]
         },
         {
           "label": "Message lifecycle, assignment, content, and reply",
           "detail": "Create, close, soft-delete, hard-delete, reassignment, title/body edit, and pnotes-compatible reply append behavior are covered.",
-          "evidence": ["slice-14-message-mutation-readiness", "slice-65-message-assignment-readiness", "slice-66-message-content-readiness", "slice-156-message-reply-readiness"]
+          "evidence": [
+            "slice-14-message-mutation-readiness",
+            "slice-65-message-assignment-readiness",
+            "slice-66-message-content-readiness",
+            "slice-156-message-reply-readiness"
+          ]
         },
         {
           "label": "Portal metadata preservation",
           "detail": "Seeded pnotes portal relation and plaintext encryption flags are mirrored into the modernized message schema, API, UI, and parity probes.",
-          "evidence": ["slice-157-message-portal-metadata-readiness"]
+          "evidence": [
+            "slice-157-message-portal-metadata-readiness"
+          ]
         },
         {
           "label": "Message update metadata stamping",
           "detail": "Patient-message edits now preserve pnotes-compatible update_by/update_date behavior through modernized schema, API, UI, parity probes, and shared mutation tests.",
-          "evidence": ["slice-158-message-update-metadata-readiness"]
+          "evidence": [
+            "slice-158-message-update-metadata-readiness"
+          ]
         },
         {
           "label": "Message protection readiness",
           "detail": "The modernized message API now requires an active session, the Messages page gates patient-message search and mutations until sign-in, and parity compares legacy patient-notes protection with modernized API/UI protection.",
-          "evidence": ["slice-170-message-protection-readiness"]
+          "evidence": [
+            "slice-170-message-protection-readiness"
+          ]
         },
         {
           "label": "Message authorization policy readiness",
           "detail": "The modernized message API now enforces mirrored Patient Notes access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 434 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-180-message-authorization-policy-readiness", "slice-434-slice180-message-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-180-message-authorization-policy-readiness",
+            "slice-434-slice180-message-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Message mutation authorization policy readiness",
           "detail": "The modernized message mutation API now requires Patient Notes add-only for message creation and Patient Notes write for status, content, assignment, reply, archive, and delete changes; Slice 441 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-187-message-mutation-authorization-policy-readiness", "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-187-message-mutation-authorization-policy-readiness",
+            "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message inbox, compose, recipient directory, subject presets, HTML body rendering, pagination, search, reply, thread view, archive, read status, mark-all-read, batch archive, All folder, Deleted folder, notification rows, attachment metadata, and unsupported attachment policy",
           "detail": "The signed-in patient portal can render inbox messages, preserve raw secure-message HTML at the data/workflow boundary, render allowed formatting while stripping links and images at the UI boundary, page message folders with the OpenEMR-compatible 20-message page size, filter modernized secure-message folders with case-insensitive substring search before pagination while recording the installed legacy template's inactive/no-input search baseline, cover Sent, All, and Deleted search projections with cleanup-backed sent and archived rows, expose deterministic empty-search states, report filtered/total search counts, clear active searches back to restored Inbox rows, announce search-count updates as a live status, clear hidden selected rows when search changes, scope Mark all as read to filtered rows, reset folder pagination to the first filtered page when search changes, load the OpenEMR-compatible recipient directory with admin fallback routing, load OpenEMR-compatible compose subject presets, compose sent and practice copies through the selected route, reply to seeded inbox messages with reply_mail_chain linkage, view chronological conversation threads, archive active messages through legacy soft-delete semantics, mark active messages read while preserving inbox visibility, mirror the legacy toolbar mark-all-read browser-only status change, archive selected messages together, view the active All-folder mailbox projection, inspect owner-scoped archived rows in the Deleted folder, Slice 510 adds explicit zero-attachment metadata for current secure-message rows with cleanup-backed parity coverage, Slice 511 adds Workbench-previewable probe payload attachments, Slice 512 rejects non-empty attachment submissions without creating mailbox rows while upload controls remain inactive, Slice 513 verifies folder search with cleanup-backed matching and decoy portal messages, Slice 514 extends search coverage across Sent, All, and Deleted folders, Slice 515 verifies empty-search states, Slice 516 verifies search-count summaries, Slice 517 verifies clear-search restoration, Slice 518 verifies padded mixed-case search normalization plus live summary semantics, Slice 519 verifies search changes clear hidden selected rows before batch archive, Slice 520 verifies filtered Mark all as read leaves hidden unread rows New, and Slice 521 verifies search changes reset pagination to the first filtered page.",
-          "evidence": ["slice-210-patient-portal-messages-readiness", "slice-211-patient-portal-compose-readiness", "slice-212-patient-portal-reply-readiness", "slice-213-patient-portal-thread-readiness", "slice-214-patient-portal-delete-readiness", "slice-215-patient-portal-read-readiness", "slice-242-patient-portal-message-mark-all-read-readiness", "slice-216-patient-portal-batch-archive-readiness", "slice-217-patient-portal-all-messages-readiness", "slice-235-patient-portal-deleted-messages-readiness", "slice-489-slice235-patient-portal-deleted-messages-probe-payload-attachments", "slice-238-patient-portal-message-recipient-directory-readiness", "slice-492-slice238-patient-portal-message-recipient-directory-probe-payload-attachments", "slice-239-patient-portal-message-subject-presets-readiness", "slice-493-slice239-patient-portal-message-subject-presets-probe-payload-attachments", "slice-240-patient-portal-message-html-body-readiness", "slice-494-slice240-patient-portal-message-html-body-probe-payload-attachments", "slice-241-patient-portal-message-pagination-readiness", "slice-495-slice241-patient-portal-message-pagination-probe-payload-attachments", "slice-496-slice242-patient-portal-message-mark-all-read-probe-payload-attachments", "slice-510-patient-portal-message-attachments-readiness", "slice-511-slice510-patient-portal-message-attachments-probe-payload-attachments", "slice-512-patient-portal-message-attachment-policy-readiness", "slice-513-patient-portal-message-search-readiness", "slice-514-patient-portal-message-folder-search-readiness", "slice-515-patient-portal-message-empty-search-readiness", "slice-516-patient-portal-message-search-counts-readiness", "slice-517-patient-portal-message-search-clear-readiness", "slice-518-patient-portal-message-search-normalization-readiness", "slice-519-patient-portal-message-search-selection-readiness", "slice-520-patient-portal-message-search-mark-all-read-readiness", "slice-521-patient-portal-message-search-pagination-readiness"]
+          "evidence": [
+            "slice-210-patient-portal-messages-readiness",
+            "slice-211-patient-portal-compose-readiness",
+            "slice-212-patient-portal-reply-readiness",
+            "slice-213-patient-portal-thread-readiness",
+            "slice-214-patient-portal-delete-readiness",
+            "slice-215-patient-portal-read-readiness",
+            "slice-242-patient-portal-message-mark-all-read-readiness",
+            "slice-216-patient-portal-batch-archive-readiness",
+            "slice-217-patient-portal-all-messages-readiness",
+            "slice-235-patient-portal-deleted-messages-readiness",
+            "slice-489-slice235-patient-portal-deleted-messages-probe-payload-attachments",
+            "slice-238-patient-portal-message-recipient-directory-readiness",
+            "slice-492-slice238-patient-portal-message-recipient-directory-probe-payload-attachments",
+            "slice-239-patient-portal-message-subject-presets-readiness",
+            "slice-493-slice239-patient-portal-message-subject-presets-probe-payload-attachments",
+            "slice-240-patient-portal-message-html-body-readiness",
+            "slice-494-slice240-patient-portal-message-html-body-probe-payload-attachments",
+            "slice-241-patient-portal-message-pagination-readiness",
+            "slice-495-slice241-patient-portal-message-pagination-probe-payload-attachments",
+            "slice-496-slice242-patient-portal-message-mark-all-read-probe-payload-attachments",
+            "slice-510-patient-portal-message-attachments-readiness",
+            "slice-511-slice510-patient-portal-message-attachments-probe-payload-attachments",
+            "slice-512-patient-portal-message-attachment-policy-readiness",
+            "slice-513-patient-portal-message-search-readiness",
+            "slice-514-patient-portal-message-folder-search-readiness",
+            "slice-515-patient-portal-message-empty-search-readiness",
+            "slice-516-patient-portal-message-search-counts-readiness",
+            "slice-517-patient-portal-message-search-clear-readiness",
+            "slice-518-patient-portal-message-search-normalization-readiness",
+            "slice-519-patient-portal-message-search-selection-readiness",
+            "slice-520-patient-portal-message-search-mark-all-read-readiness",
+            "slice-521-patient-portal-message-search-pagination-readiness"
+          ]
         },
         {
           "label": "Patient portal secure-message lifecycle audit readiness",
           "detail": "The modernized patient portal now records compose, reply, read-status, single-message archive, and selected-message archive audit events, exposes a session-protected message-audit endpoint, renders a Message Audit timeline in the Portal Secure Messages panel, parity compares normalized legacy source-action evidence with stored modernized audit history, and Slice 486 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-232-patient-portal-message-audit-readiness", "slice-486-slice232-patient-portal-message-audit-probe-payload-attachments"]
+          "evidence": [
+            "slice-232-patient-portal-message-audit-readiness",
+            "slice-486-slice232-patient-portal-message-audit-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message encrypted-body readiness",
           "detail": "The modernized patient portal now protects encrypted secure-message bodies at the API boundary, renders a fixed protected-body placeholder in the Portal Secure Messages panel, parity verifies the behavior with cleanup-backed encrypted mailbox rows on both targets, and Slice 487 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-233-patient-portal-message-encryption-readiness", "slice-487-slice233-patient-portal-message-encryption-probe-payload-attachments"]
+          "evidence": [
+            "slice-233-patient-portal-message-encryption-readiness",
+            "slice-487-slice233-patient-portal-message-encryption-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal secure-message forward-to-practice readiness",
           "detail": "The modernized patient portal can forward an inbound secure message into the practice-side patient-message queue, update the portal message status to Sent, and render the forward control while parity verifies cleanup-backed forwarding on both targets, and Slice 488 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-234-patient-portal-message-forward-readiness", "slice-488-slice234-patient-portal-message-forward-probe-payload-attachments"]
+          "evidence": [
+            "slice-234-patient-portal-message-forward-readiness",
+            "slice-488-slice234-patient-portal-message-forward-probe-payload-attachments"
+          ]
         }
       ],
       "outstanding": [
@@ -685,37 +1069,122 @@
         {
           "label": "Fee sheet and billing mutations",
           "detail": "Read-only fee-sheet billing plus CPT creation, server-side office-visit and complex follow-up charge-template lookup/application, diagnosis coding, correction, and modifier workflows are covered.",
-          "evidence": ["slice-7-billing-readiness", "slice-16-billing-mutation-readiness", "slice-44-billing-diagnosis-readiness", "slice-45-billing-correction-readiness", "slice-46-billing-modifier-readiness", "slice-524-billing-charge-template-readiness", "slice-535-billing-charge-template-catalog-readiness", "slice-563-charge-template-server-side-catalog-readiness"]
+          "evidence": [
+            "slice-7-billing-readiness",
+            "slice-16-billing-mutation-readiness",
+            "slice-44-billing-diagnosis-readiness",
+            "slice-45-billing-correction-readiness",
+            "slice-46-billing-modifier-readiness",
+            "slice-524-billing-charge-template-readiness",
+            "slice-535-billing-charge-template-catalog-readiness",
+            "slice-563-charge-template-server-side-catalog-readiness"
+          ]
         },
         {
           "label": "Appointment starter charge handoff",
           "detail": "Converted appointments can create a starter CPT charge on their linked encounter from Calendar while preserving fee-sheet linkage and cleanup-backed parity evidence.",
-          "evidence": ["slice-523-appointment-billing-conversion-readiness"]
+          "evidence": [
+            "slice-523-appointment-billing-conversion-readiness"
+          ]
         },
         {
           "label": "Claims, payments, ledger, and balances",
           "detail": "Claim status, server-side focused claim scrubbing with invalid-modifier, duplicate-modifier, incompatible-modifier-combination, modifier-count, missing-payer, invalid-fee, invalid-units, missing-CPT-line, inactive-CPT-line, inactive-diagnosis-line, missing-diagnosis-pointer, missing-diagnosis-code, invalid-diagnosis-pointer, multi-diagnosis-pointer, diagnosis-pointer-count, duplicate-diagnosis-pointer, duplicate-diagnosis-code, invalid-CPT-code, invalid-ICD10-diagnosis-code, and future-service-date validation, server-side focused claim resubmission, server-side 837P claim generation, server-side claim denial, server-side claim clearing, server-side focused claim adjudication, server-side starter EOB batch import, server-side insurance payment posting, server-side patient payment capture, server-side patient refund posting, server-side insurance payment reversal, server-side adjustment reversal, focused payment-create API contract hardening, deterministic patient-payment receipt export, account balance, aging, ledger, and statement readiness are covered.",
-          "evidence": ["slice-47-claim-status-readiness", "slice-48-payment-posting-readiness", "slice-49-account-balance-readiness", "slice-50-account-aging-readiness", "slice-51-account-ledger-readiness", "slice-52-account-statement-readiness", "slice-56-payment-posting-mutation-readiness", "slice-567-insurance-payment-server-side-posting-readiness", "slice-57-claim-status-mutation-readiness", "slice-58-patient-payment-capture-readiness", "slice-568-patient-payment-server-side-posting-readiness", "slice-569-billing-focused-payment-contract-readiness", "slice-525-patient-payment-receipt-readiness", "slice-526-patient-payment-refund-readiness", "slice-564-patient-refund-server-side-posting-readiness", "slice-527-insurance-payment-reversal-readiness", "slice-565-insurance-reversal-server-side-posting-readiness", "slice-528-adjustment-reversal-readiness", "slice-566-adjustment-reversal-server-side-posting-readiness", "slice-529-claim-denial-readiness", "slice-530-claim-adjudication-readiness", "slice-531-eob-batch-import-readiness", "slice-532-claim-generation-readiness", "slice-533-claim-scrubbing-readiness", "slice-534-claim-resubmission-readiness", "slice-536-claim-modifier-scrubbing-readiness", "slice-537-claim-diagnosis-pointer-scrubbing-readiness", "slice-538-claim-modifier-compatibility-readiness", "slice-539-claim-modifier-count-readiness", "slice-540-claim-missing-diagnosis-code-readiness", "slice-541-claim-multi-diagnosis-pointer-readiness", "slice-542-claim-diagnosis-pointer-count-readiness", "slice-543-claim-duplicate-diagnosis-pointer-readiness", "slice-544-claim-duplicate-diagnosis-code-readiness", "slice-545-claim-invalid-cpt-code-readiness", "slice-546-claim-invalid-diagnosis-code-readiness", "slice-547-claim-future-service-date-readiness", "slice-548-claim-incompatible-modifier-combination-readiness", "slice-549-claim-missing-payer-readiness", "slice-550-claim-invalid-fee-readiness", "slice-551-claim-invalid-units-readiness", "slice-552-claim-missing-cpt-line-readiness", "slice-553-claim-missing-diagnosis-pointer-readiness", "slice-554-claim-inactive-cpt-line-readiness", "slice-555-claim-inactive-diagnosis-line-readiness", "slice-556-claim-server-side-scrubbing-readiness", "slice-557-claim-server-side-generation-readiness", "slice-558-claim-server-side-resubmission-readiness", "slice-559-claim-server-side-denial-readiness", "slice-560-claim-server-side-clearing-readiness", "slice-561-claim-server-side-adjudication-readiness", "slice-562-eob-batch-server-side-import-readiness"]
+          "evidence": [
+            "slice-47-claim-status-readiness",
+            "slice-48-payment-posting-readiness",
+            "slice-49-account-balance-readiness",
+            "slice-50-account-aging-readiness",
+            "slice-51-account-ledger-readiness",
+            "slice-52-account-statement-readiness",
+            "slice-56-payment-posting-mutation-readiness",
+            "slice-567-insurance-payment-server-side-posting-readiness",
+            "slice-57-claim-status-mutation-readiness",
+            "slice-58-patient-payment-capture-readiness",
+            "slice-568-patient-payment-server-side-posting-readiness",
+            "slice-569-billing-focused-payment-contract-readiness",
+            "slice-525-patient-payment-receipt-readiness",
+            "slice-526-patient-payment-refund-readiness",
+            "slice-564-patient-refund-server-side-posting-readiness",
+            "slice-527-insurance-payment-reversal-readiness",
+            "slice-565-insurance-reversal-server-side-posting-readiness",
+            "slice-528-adjustment-reversal-readiness",
+            "slice-566-adjustment-reversal-server-side-posting-readiness",
+            "slice-529-claim-denial-readiness",
+            "slice-530-claim-adjudication-readiness",
+            "slice-531-eob-batch-import-readiness",
+            "slice-532-claim-generation-readiness",
+            "slice-533-claim-scrubbing-readiness",
+            "slice-534-claim-resubmission-readiness",
+            "slice-536-claim-modifier-scrubbing-readiness",
+            "slice-537-claim-diagnosis-pointer-scrubbing-readiness",
+            "slice-538-claim-modifier-compatibility-readiness",
+            "slice-539-claim-modifier-count-readiness",
+            "slice-540-claim-missing-diagnosis-code-readiness",
+            "slice-541-claim-multi-diagnosis-pointer-readiness",
+            "slice-542-claim-diagnosis-pointer-count-readiness",
+            "slice-543-claim-duplicate-diagnosis-pointer-readiness",
+            "slice-544-claim-duplicate-diagnosis-code-readiness",
+            "slice-545-claim-invalid-cpt-code-readiness",
+            "slice-546-claim-invalid-diagnosis-code-readiness",
+            "slice-547-claim-future-service-date-readiness",
+            "slice-548-claim-incompatible-modifier-combination-readiness",
+            "slice-549-claim-missing-payer-readiness",
+            "slice-550-claim-invalid-fee-readiness",
+            "slice-551-claim-invalid-units-readiness",
+            "slice-552-claim-missing-cpt-line-readiness",
+            "slice-553-claim-missing-diagnosis-pointer-readiness",
+            "slice-554-claim-inactive-cpt-line-readiness",
+            "slice-555-claim-inactive-diagnosis-line-readiness",
+            "slice-556-claim-server-side-scrubbing-readiness",
+            "slice-557-claim-server-side-generation-readiness",
+            "slice-558-claim-server-side-resubmission-readiness",
+            "slice-559-claim-server-side-denial-readiness",
+            "slice-560-claim-server-side-clearing-readiness",
+            "slice-561-claim-server-side-adjudication-readiness",
+            "slice-562-eob-batch-server-side-import-readiness"
+          ]
         },
         {
           "label": "Statements, batches, and collections",
           "detail": "Statement generation, statement PDF export, batch candidate/package export, deterministic statement delivery handoff manifest preparation, local statement dispatch handoff evidence, durable local statement dispatch audit history, patient-portal statement document delivery, local statement email outbox readiness, collections work queue, and follow-up task lifecycle are covered.",
-          "evidence": ["slice-59-statement-generation-readiness", "slice-60-statement-pdf-export-readiness", "slice-61-statement-batch-readiness", "slice-62-statement-batch-package-readiness", "slice-570-statement-delivery-manifest-readiness", "slice-571-statement-dispatch-handoff-readiness", "slice-572-statement-dispatch-history-readiness", "slice-573-statement-portal-delivery-readiness", "slice-574-statement-email-outbox-readiness", "slice-63-collections-work-queue-readiness", "slice-64-collections-follow-up-readiness"]
+          "evidence": [
+            "slice-59-statement-generation-readiness",
+            "slice-60-statement-pdf-export-readiness",
+            "slice-61-statement-batch-readiness",
+            "slice-62-statement-batch-package-readiness",
+            "slice-570-statement-delivery-manifest-readiness",
+            "slice-571-statement-dispatch-handoff-readiness",
+            "slice-572-statement-dispatch-history-readiness",
+            "slice-573-statement-portal-delivery-readiness",
+            "slice-574-statement-email-outbox-readiness",
+            "slice-63-collections-work-queue-readiness",
+            "slice-64-collections-follow-up-readiness"
+          ]
         },
         {
           "label": "Billing protection readiness",
           "detail": "The modernized billing API group now requires an active session, the Fees page gates fee sheet, statement, batch, collections, and revenue-cycle mutations until sign-in, and parity compares legacy fee-sheet protection with modernized API/UI protection.",
-          "evidence": ["slice-171-billing-protection-readiness"]
+          "evidence": [
+            "slice-171-billing-protection-readiness"
+          ]
         },
         {
           "label": "Billing authorization policy readiness",
           "detail": "The modernized billing API now enforces mirrored Billing access, accepts admin sessions through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 435 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-181-billing-authorization-policy-readiness", "slice-435-slice181-billing-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-181-billing-authorization-policy-readiness",
+            "slice-435-slice181-billing-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Billing mutation authorization policy readiness",
           "detail": "The modernized billing mutation API now keeps fee-sheet and revenue-cycle reads on Billing view access while requiring Billing write for billing-line, claim, focused payment, and collections follow-up mutations; Slice 569 retires the broad payment-create endpoint so payment creation enters through focused business operations only.",
-          "evidence": ["slice-188-billing-mutation-authorization-policy-readiness", "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments", "slice-569-billing-focused-payment-contract-readiness"]
+          "evidence": [
+            "slice-188-billing-mutation-authorization-policy-readiness",
+            "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments",
+            "slice-569-billing-focused-payment-contract-readiness"
+          ]
         }
       ],
       "outstanding": [
@@ -739,32 +1208,63 @@
         {
           "label": "Patient document read, retrieval, and mutation",
           "detail": "Document metadata, text content retrieval/download, text and binary upload, sign-off, denial, metadata refiling, archive/restore, content replacement, replacement revision, binary replacement, and external-link filing are covered.",
-          "evidence": ["slice-25-documents-readiness", "slice-26-document-mutation-readiness", "slice-27-document-content-readiness", "slice-33-binary-document-mutation-readiness", "slice-38-document-signoff-readiness", "slice-39-document-external-link-readiness", "slice-40-document-denial-readiness", "slice-41-document-metadata-readiness", "slice-42-document-archive-readiness", "slice-43-document-content-replace-readiness", "slice-55-document-revision-replace-readiness", "slice-128-document-binary-content-replace-readiness"]
+          "evidence": [
+            "slice-25-documents-readiness",
+            "slice-26-document-mutation-readiness",
+            "slice-27-document-content-readiness",
+            "slice-33-binary-document-mutation-readiness",
+            "slice-38-document-signoff-readiness",
+            "slice-39-document-external-link-readiness",
+            "slice-40-document-denial-readiness",
+            "slice-41-document-metadata-readiness",
+            "slice-42-document-archive-readiness",
+            "slice-43-document-content-replace-readiness",
+            "slice-55-document-revision-replace-readiness",
+            "slice-128-document-binary-content-replace-readiness"
+          ]
         },
         {
           "label": "Preview, thumbnail, lifecycle, and scanned-readiness",
           "detail": "Document preview readiness, current revision facts, image inline preview, image thumbnail, PDF inline preview, lifecycle timeline, and scanned attachment readiness are covered.",
-          "evidence": ["slice-53-document-preview-readiness", "slice-54-document-revision-readiness", "slice-88-document-image-preview-readiness", "slice-89-document-image-thumbnail-readiness", "slice-90-document-pdf-preview-readiness", "slice-91-document-lifecycle-readiness", "slice-92-document-scanned-attachment-readiness"]
+          "evidence": [
+            "slice-53-document-preview-readiness",
+            "slice-54-document-revision-readiness",
+            "slice-88-document-image-preview-readiness",
+            "slice-89-document-image-thumbnail-readiness",
+            "slice-90-document-pdf-preview-readiness",
+            "slice-91-document-lifecycle-readiness",
+            "slice-92-document-scanned-attachment-readiness"
+          ]
         },
         {
           "label": "Document protection readiness",
           "detail": "The modernized patient document API now requires an active session, the Documents page gates document search and mutations until sign-in, and parity compares legacy document-page protection with modernized API/UI protection.",
-          "evidence": ["slice-169-document-protection-readiness"]
+          "evidence": [
+            "slice-169-document-protection-readiness"
+          ]
         },
         {
           "label": "Patient document authorization policy readiness",
           "detail": "The modernized patient document API now enforces mirrored Documents ACL access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 433 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-179-document-authorization-policy-readiness", "slice-433-slice179-document-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-179-document-authorization-policy-readiness",
+            "slice-433-slice179-document-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient document mutation authorization policy readiness",
           "detail": "The modernized patient and encounter document mutation APIs now separate Documents add-only filing from write-level metadata/content/review/archive operations and Documents Delete hard-delete authority; Slice 440 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-186-document-mutation-authorization-policy-readiness", "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-186-document-mutation-authorization-policy-readiness",
+            "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal document list/download readiness",
           "detail": "The authenticated patient portal can render active patient-owned document categories and create a selected-document ZIP package with OpenEMR-compatible ownership, deleted-row, non-downloadable external-link filtering, and Slice 472 Workbench probe-payload preview coverage.",
-          "evidence": ["slice-218-patient-portal-documents-readiness"]
+          "evidence": [
+            "slice-218-patient-portal-documents-readiness"
+          ]
         }
       ],
       "outstanding": [
@@ -788,37 +1288,77 @@
         {
           "label": "Procedure order/result lifecycle",
           "detail": "Completed result read, pending orders, create/complete/report/result/delete, encounter procedure-order/result entry, result correction, specimen metadata/detail, order correction, report correction, and report sign-off are covered.",
-          "evidence": ["slice-6-procedures-readiness", "slice-17-procedure-mutation-readiness", "slice-23-procedure-pending-orders-readiness", "slice-75-encounter-procedure-order-entry-readiness", "slice-76-encounter-procedure-result-entry-readiness", "slice-129-procedure-result-correction-readiness", "slice-130-procedure-specimen-readiness", "slice-131-procedure-specimen-detail-readiness", "slice-132-procedure-order-correction-readiness", "slice-133-procedure-report-correction-readiness", "slice-134-procedure-report-signoff-readiness"]
+          "evidence": [
+            "slice-6-procedures-readiness",
+            "slice-17-procedure-mutation-readiness",
+            "slice-23-procedure-pending-orders-readiness",
+            "slice-75-encounter-procedure-order-entry-readiness",
+            "slice-76-encounter-procedure-result-entry-readiness",
+            "slice-129-procedure-result-correction-readiness",
+            "slice-130-procedure-specimen-readiness",
+            "slice-131-procedure-specimen-detail-readiness",
+            "slice-132-procedure-order-correction-readiness",
+            "slice-133-procedure-report-correction-readiness",
+            "slice-134-procedure-report-signoff-readiness"
+          ]
         },
         {
           "label": "Review queues and lab providers",
           "detail": "Clinical order queue, order transmit readiness, report review queue, patient/date/provider/lab filters, two-report bulk sign-off, signed-report reopen review, lab-provider catalog ownership, provider directory, provider lifecycle, provider transport/configuration fields, and linked address-book organization behavior are covered.",
-          "evidence": ["slice-135-procedure-report-review-queue-readiness", "slice-136-procedure-report-review-queue-filters-readiness", "slice-137-procedure-report-review-queue-provider-filters-readiness", "slice-138-procedure-report-review-queue-lab-filters-readiness", "slice-149-procedure-order-queue-readiness", "slice-151-procedure-order-transmit-readiness", "slice-153-procedure-report-bulk-signoff-readiness", "slice-154-procedure-report-reopen-review-readiness", "slice-139-procedure-lab-provider-catalog-readiness", "slice-140-procedure-lab-provider-directory-readiness", "slice-141-procedure-lab-provider-lifecycle-readiness", "slice-142-procedure-lab-provider-configuration-readiness", "slice-144-procedure-lab-provider-address-book-readiness"]
+          "evidence": [
+            "slice-135-procedure-report-review-queue-readiness",
+            "slice-136-procedure-report-review-queue-filters-readiness",
+            "slice-137-procedure-report-review-queue-provider-filters-readiness",
+            "slice-138-procedure-report-review-queue-lab-filters-readiness",
+            "slice-149-procedure-order-queue-readiness",
+            "slice-151-procedure-order-transmit-readiness",
+            "slice-153-procedure-report-bulk-signoff-readiness",
+            "slice-154-procedure-report-reopen-review-readiness",
+            "slice-139-procedure-lab-provider-catalog-readiness",
+            "slice-140-procedure-lab-provider-directory-readiness",
+            "slice-141-procedure-lab-provider-lifecycle-readiness",
+            "slice-142-procedure-lab-provider-configuration-readiness",
+            "slice-144-procedure-lab-provider-address-book-readiness"
+          ]
         },
         {
           "label": "Procedure order catalog",
           "detail": "Permanent gold-data procedure order catalog rows, provider groups, orderable panel rows, modernized Reports rendering, temporary catalog item create/update/deactivate/delete lifecycle behavior, and PathGroup-style vendor compendium import semantics are covered.",
-          "evidence": ["slice-145-procedure-order-catalog-readiness", "slice-147-procedure-order-catalog-lifecycle-readiness", "slice-148-procedure-vendor-compendium-import-readiness"]
+          "evidence": [
+            "slice-145-procedure-order-catalog-readiness",
+            "slice-147-procedure-order-catalog-lifecycle-readiness",
+            "slice-148-procedure-vendor-compendium-import-readiness"
+          ]
         },
         {
           "label": "Procedure protection readiness",
           "detail": "The modernized procedure API group now requires an active session, the Procedures page gates procedure results and mutations until sign-in, and parity compares legacy procedure-page protection with modernized API/UI protection.",
-          "evidence": ["slice-172-procedure-protection-readiness"]
+          "evidence": [
+            "slice-172-procedure-protection-readiness"
+          ]
         },
         {
           "label": "Procedure authorization policy readiness",
           "detail": "The modernized procedure API now enforces mirrored Lab Results access, accepts admin sessions through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, keeps the Procedures access panel available for retry, and parity compares that behavior with the legacy ACL matrix; Slice 436 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-182-procedure-authorization-policy-readiness", "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-182-procedure-authorization-policy-readiness",
+            "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Procedure mutation authorization policy readiness",
           "detail": "The modernized procedure mutation API now separates Lab Results add-only, Lab Results write, and Sign Lab Results authority so clinicians can create order/report records while status updates, deletion, and sign-off require stronger permissions; Slice 437 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-183-procedure-mutation-authorization-policy-readiness", "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-183-procedure-mutation-authorization-policy-readiness",
+            "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient portal lab results readiness",
           "detail": "Signed-in portal patients can see completed lab order, report, and result facts for their own record, with parity against legacy `portal/get_lab_results.php`; Slice 477 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-223-patient-portal-lab-results-readiness"]
+          "evidence": [
+            "slice-223-patient-portal-lab-results-readiness"
+          ]
         }
       ],
       "outstanding": [
@@ -842,167 +1382,251 @@
         {
           "label": "Administration directory and lifecycle basics",
           "detail": "Users/facilities directory behavior, facility lifecycle, and user lifecycle are implemented.",
-          "evidence": ["slice-8-admin-readiness", "slice-18-admin-facility-mutation-readiness", "slice-19-admin-user-mutation-readiness"]
+          "evidence": [
+            "slice-8-admin-readiness",
+            "slice-18-admin-facility-mutation-readiness",
+            "slice-19-admin-user-mutation-readiness"
+          ]
         },
         {
           "label": "Focused access-control behavior",
           "detail": "Default ACL matrix, focused access-permission grant/revoke, and user group membership mutation are covered.",
-          "evidence": ["slice-20-access-control-readiness", "slice-21-access-permission-mutation-readiness", "slice-22-user-group-membership-mutation-readiness"]
+          "evidence": [
+            "slice-20-access-control-readiness",
+            "slice-21-access-permission-mutation-readiness",
+            "slice-22-user-group-membership-mutation-readiness"
+          ]
         },
         {
           "label": "Admin login readiness",
           "detail": "The modernized app seeds a hashed demo admin credential, exposes a login-readiness API, renders an Admin-page verification panel, and compares login success and invalid-password rejection with legacy.",
-          "evidence": ["slice-159-admin-login-readiness"]
+          "evidence": [
+            "slice-159-admin-login-readiness"
+          ]
         },
         {
           "label": "Admin login audit readiness",
           "detail": "Successful and failed admin login attempts are recorded in a modernized audit table, surfaced through an API and Admin-page audit panel, and compared with legacy OpenEMR login log rows.",
-          "evidence": ["slice-160-admin-login-audit-readiness"]
+          "evidence": [
+            "slice-160-admin-login-audit-readiness"
+          ]
         },
         {
           "label": "Admin session readiness",
           "detail": "Successful admin login issues a modernized session, current-session validation and logout endpoints are exposed, the Admin page renders session status, and parity compares legacy cookie logout behavior with the modernized session lifecycle.",
-          "evidence": ["slice-161-admin-session-readiness"]
+          "evidence": [
+            "slice-161-admin-session-readiness"
+          ]
         },
         {
           "label": "Admin audit protection readiness",
           "detail": "The login audit endpoint now requires an active admin session, the Admin page only loads audit events after sign-in, and parity compares legacy log-viewer protection with modernized API/UI protection.",
-          "evidence": ["slice-162-admin-audit-protection-readiness"]
+          "evidence": [
+            "slice-162-admin-audit-protection-readiness"
+          ]
         },
         {
           "label": "Admin directory protection readiness",
           "detail": "The modernized administration API group now requires an active admin session, the Admin page loads user/facility/ACL data only after sign-in, and parity compares legacy admin-page protection with modernized API/UI protection.",
-          "evidence": ["slice-163-admin-directory-protection-readiness"]
+          "evidence": [
+            "slice-163-admin-directory-protection-readiness"
+          ]
         },
         {
           "label": "Administration authorization policy readiness",
           "detail": "The modernized administration API group now enforces the mirrored ACL Administration permission, accepts the admin session, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
-          "evidence": ["slice-173-admin-authorization-policy-readiness"]
+          "evidence": [
+            "slice-173-admin-authorization-policy-readiness"
+          ]
         },
         {
           "label": "Operational reports authorization policy readiness",
           "detail": "The modernized operational reports API and CSV export now enforce mirrored Patient Report access, accept the admin session through the OpenEMR return-value hierarchy, reject an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
-          "evidence": ["slice-174-reports-authorization-policy-readiness"]
+          "evidence": [
+            "slice-174-reports-authorization-policy-readiness"
+          ]
         },
         {
           "label": "Patient chart authorization policy readiness",
           "detail": "The modernized patient search/chart API now enforces mirrored Demographics access, accepts admin and front-desk sessions through seeded write grants, and parity compares that behavior with the legacy ACL matrix; Slice 432 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-178-patient-authorization-policy-readiness", "slice-432-slice178-patient-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-178-patient-authorization-policy-readiness",
+            "slice-432-slice178-patient-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient mutation authorization policy readiness",
           "detail": "The modernized patient mutation API now separates Demographics add-only registration access from write-level contact, demographics, insurance, and deletion authority; Slice 438 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-184-patient-mutation-authorization-policy-readiness", "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-184-patient-mutation-authorization-policy-readiness",
+            "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Clinical list authorization policy readiness",
           "detail": "The modernized clinical-list API now enforces mirrored Medical/History access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 429 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-175-clinical-list-authorization-policy-readiness", "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-175-clinical-list-authorization-policy-readiness",
+            "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Appointment authorization policy readiness",
           "detail": "The modernized appointment API now enforces mirrored Appointment access, seeds the front-desk demo account into the Front Office ACL group, accepts that session for calendar retrieval, and parity compares the policy with the legacy ACL matrix; Slice 430 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-176-appointment-authorization-policy-readiness", "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-176-appointment-authorization-policy-readiness",
+            "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Appointment mutation authorization policy readiness",
           "detail": "The modernized appointment API now requires Appointment write access for schedule create, update, status, recurrence restore, occurrence reschedule, and deletion mutations while preserving view-only schedule reads; Slice 443 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-189-appointment-mutation-authorization-policy-readiness", "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-189-appointment-mutation-authorization-policy-readiness",
+            "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Encounter authorization policy readiness",
           "detail": "The modernized encounter API now enforces mirrored Authorize Any Encounter access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix.",
-          "evidence": ["slice-177-encounter-authorization-policy-readiness"]
+          "evidence": [
+            "slice-177-encounter-authorization-policy-readiness"
+          ]
         },
         {
           "label": "Encounter mutation authorization policy readiness",
           "detail": "The modernized core encounter mutation API now requires Authorize Any Encounter write access and parity proves a Clinicians view-only grant can read encounters while create, update, sign, and delete operations remain blocked; Slice 439 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-185-encounter-mutation-authorization-policy-readiness", "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-185-encounter-mutation-authorization-policy-readiness",
+            "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient document authorization policy readiness",
           "detail": "The modernized document API now enforces mirrored Documents access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 433 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-179-document-authorization-policy-readiness", "slice-433-slice179-document-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-179-document-authorization-policy-readiness",
+            "slice-433-slice179-document-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient document mutation authorization policy readiness",
           "detail": "The modernized document mutation API now requires Documents add-only for document filing, Documents write for metadata/content/review/archive changes, and Documents Delete write for hard deletion; Slice 440 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-186-document-mutation-authorization-policy-readiness", "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-186-document-mutation-authorization-policy-readiness",
+            "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient message authorization policy readiness",
           "detail": "The modernized message API now enforces mirrored Patient Notes access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 434 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-180-message-authorization-policy-readiness", "slice-434-slice180-message-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-180-message-authorization-policy-readiness",
+            "slice-434-slice180-message-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Patient message mutation authorization policy readiness",
           "detail": "The modernized message mutation API now requires Patient Notes add-only for clinician-created notes and Patient Notes write for status, content, assignment, reply, archive, and delete operations; Slice 441 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-187-message-mutation-authorization-policy-readiness", "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-187-message-mutation-authorization-policy-readiness",
+            "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Billing authorization policy readiness",
           "detail": "The modernized billing API now enforces mirrored Billing access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 435 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-181-billing-authorization-policy-readiness", "slice-435-slice181-billing-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-181-billing-authorization-policy-readiness",
+            "slice-435-slice181-billing-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Billing mutation authorization policy readiness",
           "detail": "The modernized billing mutation API now requires Billing write for fee-sheet, claim, payment, and collections follow-up mutations while Billing view remains sufficient for read-only revenue-cycle data; Slice 442 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-188-billing-mutation-authorization-policy-readiness", "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-188-billing-mutation-authorization-policy-readiness",
+            "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Procedure authorization policy readiness",
           "detail": "The modernized procedure API now enforces mirrored Lab Results access, accepts the admin session through the OpenEMR return-value hierarchy, rejects an authenticated front-desk session with 403, and parity compares that behavior with the legacy ACL matrix; Slice 436 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-182-procedure-authorization-policy-readiness", "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-182-procedure-authorization-policy-readiness",
+            "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Procedure mutation authorization policy readiness",
           "detail": "The modernized procedure mutation API now requires Lab Results add-only for clinician-created order/report records, Lab Results write for status/delete updates, and Sign Lab Results write for report sign-off; Slice 437 adds path-backed probe payload attachments for Workbench comparison previews.",
-          "evidence": ["slice-183-procedure-mutation-authorization-policy-readiness", "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments"]
+          "evidence": [
+            "slice-183-procedure-mutation-authorization-policy-readiness",
+            "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments"
+          ]
         },
         {
           "label": "Operational reports protection readiness",
           "detail": "The modernized operational reports API and CSV export now require an active session, the Reports page gates operational report data until sign-in, and parity compares legacy report-page protection with modernized API/UI protection.",
-          "evidence": ["slice-164-reports-protection-readiness"]
+          "evidence": [
+            "slice-164-reports-protection-readiness"
+          ]
         },
         {
           "label": "Patient chart protection readiness",
           "detail": "The modernized patient search/chart API now requires an active session, the Patient/Client page gates patient data until sign-in, and parity compares legacy patient-page protection with modernized API/UI protection.",
-          "evidence": ["slice-165-patient-protection-readiness"]
+          "evidence": [
+            "slice-165-patient-protection-readiness"
+          ]
         },
         {
           "label": "Clinical list protection readiness",
           "detail": "The modernized clinical-list API now requires an active session, the Lists page gates chart-list data until sign-in, and parity compares legacy clinical-list protection with modernized API/UI protection.",
-          "evidence": ["slice-166-clinical-list-protection-readiness"]
+          "evidence": [
+            "slice-166-clinical-list-protection-readiness"
+          ]
         },
         {
           "label": "Appointment protection readiness",
           "detail": "The modernized appointment API now requires an active session, the Calendar page gates schedule search and appointment mutations until sign-in, and parity compares legacy schedule-page protection with modernized API/UI protection.",
-          "evidence": ["slice-167-appointment-protection-readiness"]
+          "evidence": [
+            "slice-167-appointment-protection-readiness"
+          ]
         },
         {
           "label": "Encounter protection readiness",
           "detail": "The modernized encounter API group now requires an active session, the Encounters page gates encounter search and mutations until sign-in, and parity compares legacy encounter-page protection with modernized API/UI protection.",
-          "evidence": ["slice-168-encounter-protection-readiness"]
+          "evidence": [
+            "slice-168-encounter-protection-readiness"
+          ]
         },
         {
           "label": "Document protection readiness",
           "detail": "The modernized document API group now requires an active session, the Documents page gates document search and mutations until sign-in, and parity compares legacy document-page protection with modernized API/UI protection.",
-          "evidence": ["slice-169-document-protection-readiness"]
+          "evidence": [
+            "slice-169-document-protection-readiness"
+          ]
         },
         {
           "label": "Message protection readiness",
           "detail": "The modernized message API group now requires an active session, the Messages page gates patient-message search and mutations until sign-in, and parity compares legacy patient-notes protection with modernized API/UI protection.",
-          "evidence": ["slice-170-message-protection-readiness"]
+          "evidence": [
+            "slice-170-message-protection-readiness"
+          ]
         },
         {
           "label": "Billing protection readiness",
           "detail": "The modernized billing API group now requires an active session, the Fees page gates fee-sheet and revenue-cycle data until sign-in, and parity compares legacy fee-sheet protection with modernized API/UI protection.",
-          "evidence": ["slice-171-billing-protection-readiness"]
+          "evidence": [
+            "slice-171-billing-protection-readiness"
+          ]
         },
         {
           "label": "Procedure protection readiness",
           "detail": "The modernized procedure API group now requires an active session, the Procedures page gates procedure results and mutations until sign-in, and parity compares legacy procedure-page protection with modernized API/UI protection.",
-          "evidence": ["slice-172-procedure-protection-readiness"]
+          "evidence": [
+            "slice-172-procedure-protection-readiness"
+          ]
         }
       ],
       "outstanding": [
@@ -1026,52 +1650,210 @@
         {
           "label": "Operational reporting",
           "detail": "Gold-dataset operational reports and normalized CSV export behavior are covered.",
-          "evidence": ["slice-9-reports-readiness", "slice-24-reports-export-readiness"]
+          "evidence": [
+            "slice-9-reports-readiness",
+            "slice-24-reports-export-readiness"
+          ]
         },
         {
           "label": "Workbench orchestration and evidence",
           "detail": "Managed lifecycle controls, seed actions, native tests, parity plans, custom parity runs, side-by-side comparisons, drill-ins, artifact links, direct run/report evidence links, screenshot thumbnail previews, normalized probe detail views, safe probe attachment previews, database contract probe payload attachments, Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, and 212 workflow database payload attachments, accepted-difference tracking, reliability trend summaries, timeline, architecture, and progress views are implemented.",
-          "evidence": ["workbench-v1", "slice-124-comparison-drill-ins", "slice-125-artifact-links", "slice-155-comparison-report-links", "slice-256-comparison-screenshot-thumbnails", "slice-257-comparison-probe-details", "slice-258-accepted-difference-tracking", "slice-259-reliability-trends", "slice-260-probe-attachment-previews", "slice-261-database-probe-payload-attachments", "slice-262-slice1-workflow-probe-payload-attachments", "slice-263-slice2-scheduling-probe-payload-attachments", "slice-264-slice3-encounter-probe-payload-attachments", "slice-265-slice4-clinical-list-probe-payload-attachments", "slice-266-slice5-messaging-probe-payload-attachments", "slice-267-slice6-procedure-probe-payload-attachments", "slice-268-slice7-billing-probe-payload-attachments", "slice-269-slice8-admin-probe-payload-attachments", "slice-270-slice9-reports-probe-payload-attachments", "slice-271-slice10-contact-mutation-probe-payload-attachments", "slice-272-slice11-appointment-mutation-probe-payload-attachments", "slice-273-slice12-encounter-mutation-probe-payload-attachments", "slice-274-slice13-clinical-list-mutation-probe-payload-attachments", "slice-275-slice14-message-mutation-probe-payload-attachments", "slice-276-slice15-prescription-mutation-probe-payload-attachments", "slice-277-slice16-billing-mutation-probe-payload-attachments", "slice-278-slice17-procedure-mutation-probe-payload-attachments", "slice-279-slice18-admin-facility-mutation-probe-payload-attachments", "slice-280-slice19-admin-user-mutation-probe-payload-attachments", "slice-281-slice20-access-control-probe-payload-attachments", "slice-282-slice21-access-permission-mutation-probe-payload-attachments", "slice-283-slice22-user-group-membership-probe-payload-attachments", "slice-284-slice23-pending-procedure-order-probe-payload-attachments", "slice-285-slice24-reports-export-probe-payload-attachments", "slice-286-slice25-documents-probe-payload-attachments", "slice-287-slice26-document-mutation-probe-payload-attachments", "slice-288-slice27-document-content-probe-payload-attachments", "slice-289-slice28-insurance-probe-payload-attachments", "slice-290-slice29-immunization-probe-payload-attachments", "slice-291-slice30-immunization-mutation-probe-payload-attachments", "slice-292-slice31-problem-mutation-probe-payload-attachments", "slice-293-slice32-medication-mutation-probe-payload-attachments", "slice-294-slice33-binary-document-mutation-probe-payload-attachments", "slice-295-slice34-insurance-mutation-probe-payload-attachments", "slice-296-slice35-encounter-metadata-probe-payload-attachments", "slice-297-slice36-patient-demographics-probe-payload-attachments", "slice-298-slice37-patient-registration-probe-payload-attachments", "slice-299-slice38-document-signoff-probe-payload-attachments", "slice-300-slice39-document-external-link-probe-payload-attachments", "slice-301-slice40-document-denial-probe-payload-attachments", "slice-302-slice41-document-metadata-probe-payload-attachments", "slice-303-slice42-document-archive-probe-payload-attachments", "slice-304-slice43-document-content-replace-probe-payload-attachments", "slice-305-slice44-billing-diagnosis-probe-payload-attachments", "slice-306-slice45-billing-correction-probe-payload-attachments", "slice-307-slice46-billing-modifier-probe-payload-attachments", "slice-308-slice47-claim-status-probe-payload-attachments", "slice-309-slice48-payment-posting-probe-payload-attachments", "slice-310-slice49-account-balance-probe-payload-attachments", "slice-311-slice50-account-aging-probe-payload-attachments", "slice-312-slice51-account-ledger-probe-payload-attachments", "slice-313-slice52-account-statement-probe-payload-attachments", "slice-314-slice53-document-preview-probe-payload-attachments", "slice-315-slice54-document-revision-probe-payload-attachments", "slice-316-slice55-document-revision-replace-probe-payload-attachments", "slice-317-slice56-payment-posting-mutation-probe-payload-attachments", "slice-318-slice57-claim-status-mutation-probe-payload-attachments", "slice-319-slice58-patient-payment-capture-probe-payload-attachments", "slice-320-slice59-statement-generation-probe-payload-attachments", "slice-321-slice60-statement-pdf-probe-payload-attachments", "slice-322-slice61-statement-batch-probe-payload-attachments", "slice-323-slice62-statement-batch-package-probe-payload-attachments", "slice-324-slice63-collections-work-queue-probe-payload-attachments", "slice-325-slice64-collections-follow-up-probe-payload-attachments", "slice-326-slice65-message-assignment-probe-payload-attachments", "slice-327-slice66-message-content-probe-payload-attachments", "slice-328-slice67-encounter-document-attachment-probe-payload-attachments", "slice-329-slice68-encounter-billing-probe-payload-attachments", "slice-330-slice69-encounter-claims-probe-payload-attachments", "slice-331-slice70-encounter-procedures-probe-payload-attachments", "slice-332-slice71-encounter-diagnoses-probe-payload-attachments", "slice-333-slice72-encounter-billing-mutation-probe-payload-attachments", "slice-334-slice73-encounter-diagnosis-mutation-probe-payload-attachments", "slice-335-slice74-encounter-fee-sheet-entry-probe-payload-attachments", "slice-336-slice75-encounter-procedure-order-entry-probe-payload-attachments", "slice-337-slice76-encounter-procedure-result-entry-probe-payload-attachments", "slice-338-slice77-encounter-signoff-probe-payload-attachments", "slice-339-slice78-encounter-document-upload-probe-payload-attachments", "slice-340-slice79-encounter-binary-document-upload-probe-payload-attachments",
-        "slice-341-slice80-encounter-document-signoff-probe-payload-attachments",
-        "slice-342-slice81-encounter-document-denial-probe-payload-attachments",
-        "slice-343-slice82-encounter-document-metadata-probe-payload-attachments",
-        "slice-344-slice83-encounter-document-move-probe-payload-attachments",
-        "slice-345-slice84-encounter-document-content-replace-probe-payload-attachments",
-        "slice-346-slice85-encounter-document-archive-probe-payload-attachments",
-        "slice-347-slice86-encounter-document-lifecycle-probe-payload-attachments",
-        "slice-348-slice87-encounter-document-external-link-probe-payload-attachments",
-        "slice-349-slice88-document-image-preview-probe-payload-attachments",
-        "slice-350-slice89-document-image-thumbnail-probe-payload-attachments",
-        "slice-351-slice90-document-pdf-preview-probe-payload-attachments",
-        "slice-352-slice91-document-lifecycle-probe-payload-attachments",
-        "slice-353-slice92-document-scanned-attachment-probe-payload-attachments",
-        "slice-354-slice93-appointment-reschedule-probe-payload-attachments",
-        "slice-355-slice94-appointment-arrival-probe-payload-attachments",
-        "slice-356-slice95-appointment-checkout-probe-payload-attachments",
-        "slice-357-slice96-appointment-noshow-probe-payload-attachments",
-        "slice-358-slice97-appointment-category-probe-payload-attachments",
-        "slice-359-slice98-appointment-pending-probe-payload-attachments",
-        "slice-360-slice99-appointment-provider-probe-payload-attachments",
-        "slice-361-slice100-appointment-facility-probe-payload-attachments",
-        "slice-362-slice101-appointment-billing-location-probe-payload-attachments",
-        "slice-363-slice102-appointment-comments-probe-payload-attachments",
-        "slice-364-slice103-appointment-recurrence-probe-payload-attachments",
-        "slice-365-slice104-appointment-series-probe-payload-attachments",
-        "slice-366-slice105-appointment-recurrence-exceptions-probe-payload-attachments",
-        "slice-367-slice106-appointment-occurrence-cancel-probe-payload-attachments",
-        "slice-368-slice107-appointment-occurrence-restore-probe-payload-attachments",
-        "slice-369-slice108-appointment-occurrence-reschedule-probe-payload-attachments",
-        "slice-370-slice109-appointment-recurrence-exception-edit-probe-payload-attachments",
-        "slice-371-slice110-appointment-series-root-update-probe-payload-attachments",
-        "slice-372-slice111-appointment-series-root-metadata-probe-payload-attachments",
-        "slice-373-slice112-appointment-monthly-recurrence-probe-payload-attachments",
-        "slice-374-slice113-appointment-recurrence-unit-matrix-probe-payload-attachments",
-        "slice-375-slice114-appointment-days-of-week-recurrence-probe-payload-attachments",
-        "slice-376-slice115-appointment-monthly-repeat-on-recurrence-probe-payload-attachments",
-        "slice-377-slice116-appointment-series-recurrence-update-probe-payload-attachments",
-        "slice-378-slice117-appointment-provider-overlap-probe-payload-attachments",
-        "slice-379-slice118-appointment-patient-overlap-probe-payload-attachments",
-        "slice-380-slice119-appointment-room-overlap-probe-payload-attachments", "slice-381-slice120-appointment-reminders-probe-payload-attachments", "slice-382-slice121-encounter-cosignature-probe-payload-attachments", "slice-383-slice122-encounter-document-revision-probe-payload-attachments", "slice-384-slice123-encounter-document-revision-replace-probe-payload-attachments", "slice-385-slice126-encounter-document-scanned-attachment-probe-payload-attachments", "slice-386-slice127-encounter-document-binary-content-replace-probe-payload-attachments", "slice-387-slice128-document-binary-content-replace-probe-payload-attachments", "slice-388-slice129-procedure-result-correction-probe-payload-attachments", "slice-389-slice130-procedure-specimen-probe-payload-attachments", "slice-390-slice131-procedure-specimen-detail-probe-payload-attachments", "slice-391-slice132-procedure-order-correction-probe-payload-attachments", "slice-392-slice133-procedure-report-correction-probe-payload-attachments", "slice-393-slice134-procedure-report-signoff-probe-payload-attachments", "slice-394-slice135-procedure-report-review-queue-probe-payload-attachments", "slice-395-slice136-procedure-report-review-filters-probe-payload-attachments", "slice-396-slice137-procedure-report-review-provider-filters-probe-payload-attachments", "slice-397-slice138-procedure-report-review-lab-filters-probe-payload-attachments", "slice-398-slice139-procedure-lab-provider-catalog-probe-payload-attachments", "slice-399-slice140-procedure-lab-provider-directory-probe-payload-attachments", "slice-400-slice141-procedure-lab-provider-lifecycle-probe-payload-attachments", "slice-401-slice142-procedure-lab-provider-configuration-probe-payload-attachments", "slice-402-slice144-procedure-lab-provider-address-book-probe-payload-attachments", "slice-403-slice145-procedure-order-catalog-probe-payload-attachments", "slice-404-slice147-procedure-order-catalog-lifecycle-probe-payload-attachments", "slice-405-slice148-procedure-vendor-compendium-import-probe-payload-attachments", "slice-406-slice149-procedure-order-queue-probe-payload-attachments", "slice-407-slice151-procedure-order-transmit-probe-payload-attachments", "slice-408-slice153-procedure-report-bulk-signoff-probe-payload-attachments", "slice-409-slice154-procedure-report-reopen-review-probe-payload-attachments", "slice-410-slice156-message-reply-probe-payload-attachments", "slice-411-slice157-message-portal-metadata-probe-payload-attachments", "slice-412-slice158-message-update-metadata-probe-payload-attachments", "slice-413-slice159-admin-login-probe-payload-attachments", "slice-414-slice160-admin-login-audit-probe-payload-attachments", "slice-415-slice161-admin-session-probe-payload-attachments", "slice-416-slice162-admin-audit-protection-probe-payload-attachments", "slice-417-slice163-admin-directory-protection-probe-payload-attachments", "slice-418-slice164-reports-protection-probe-payload-attachments", "slice-419-slice165-patient-protection-probe-payload-attachments", "slice-420-slice166-clinical-list-protection-probe-payload-attachments", "slice-421-slice167-appointment-protection-probe-payload-attachments", "slice-422-slice168-encounter-protection-probe-payload-attachments", "slice-423-slice169-document-protection-probe-payload-attachments", "slice-424-slice170-message-protection-probe-payload-attachments", "slice-425-slice171-billing-protection-probe-payload-attachments", "slice-426-slice172-procedure-protection-probe-payload-attachments", "slice-427-slice173-admin-authorization-policy-probe-payload-attachments", "slice-428-slice174-reports-authorization-policy-probe-payload-attachments", "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments", "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments", "slice-431-slice177-encounter-authorization-policy-probe-payload-attachments", "slice-432-slice178-patient-authorization-policy-probe-payload-attachments", "slice-433-slice179-document-authorization-policy-probe-payload-attachments", "slice-434-slice180-message-authorization-policy-probe-payload-attachments", "slice-435-slice181-billing-authorization-policy-probe-payload-attachments", "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments", "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments", "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments", "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments", "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments", "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments", "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments", "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments", "slice-444-slice190-encounter-amendment-history-probe-payload-attachments", "slice-445-slice191-patient-duplicate-detection-probe-payload-attachments"]
+          "evidence": [
+            "workbench-v1",
+            "slice-124-comparison-drill-ins",
+            "slice-125-artifact-links",
+            "slice-155-comparison-report-links",
+            "slice-256-comparison-screenshot-thumbnails",
+            "slice-257-comparison-probe-details",
+            "slice-258-accepted-difference-tracking",
+            "slice-259-reliability-trends",
+            "slice-260-probe-attachment-previews",
+            "slice-261-database-probe-payload-attachments",
+            "slice-262-slice1-workflow-probe-payload-attachments",
+            "slice-263-slice2-scheduling-probe-payload-attachments",
+            "slice-264-slice3-encounter-probe-payload-attachments",
+            "slice-265-slice4-clinical-list-probe-payload-attachments",
+            "slice-266-slice5-messaging-probe-payload-attachments",
+            "slice-267-slice6-procedure-probe-payload-attachments",
+            "slice-268-slice7-billing-probe-payload-attachments",
+            "slice-269-slice8-admin-probe-payload-attachments",
+            "slice-270-slice9-reports-probe-payload-attachments",
+            "slice-271-slice10-contact-mutation-probe-payload-attachments",
+            "slice-272-slice11-appointment-mutation-probe-payload-attachments",
+            "slice-273-slice12-encounter-mutation-probe-payload-attachments",
+            "slice-274-slice13-clinical-list-mutation-probe-payload-attachments",
+            "slice-275-slice14-message-mutation-probe-payload-attachments",
+            "slice-276-slice15-prescription-mutation-probe-payload-attachments",
+            "slice-277-slice16-billing-mutation-probe-payload-attachments",
+            "slice-278-slice17-procedure-mutation-probe-payload-attachments",
+            "slice-279-slice18-admin-facility-mutation-probe-payload-attachments",
+            "slice-280-slice19-admin-user-mutation-probe-payload-attachments",
+            "slice-281-slice20-access-control-probe-payload-attachments",
+            "slice-282-slice21-access-permission-mutation-probe-payload-attachments",
+            "slice-283-slice22-user-group-membership-probe-payload-attachments",
+            "slice-284-slice23-pending-procedure-order-probe-payload-attachments",
+            "slice-285-slice24-reports-export-probe-payload-attachments",
+            "slice-286-slice25-documents-probe-payload-attachments",
+            "slice-287-slice26-document-mutation-probe-payload-attachments",
+            "slice-288-slice27-document-content-probe-payload-attachments",
+            "slice-289-slice28-insurance-probe-payload-attachments",
+            "slice-290-slice29-immunization-probe-payload-attachments",
+            "slice-291-slice30-immunization-mutation-probe-payload-attachments",
+            "slice-292-slice31-problem-mutation-probe-payload-attachments",
+            "slice-293-slice32-medication-mutation-probe-payload-attachments",
+            "slice-294-slice33-binary-document-mutation-probe-payload-attachments",
+            "slice-295-slice34-insurance-mutation-probe-payload-attachments",
+            "slice-296-slice35-encounter-metadata-probe-payload-attachments",
+            "slice-297-slice36-patient-demographics-probe-payload-attachments",
+            "slice-298-slice37-patient-registration-probe-payload-attachments",
+            "slice-299-slice38-document-signoff-probe-payload-attachments",
+            "slice-300-slice39-document-external-link-probe-payload-attachments",
+            "slice-301-slice40-document-denial-probe-payload-attachments",
+            "slice-302-slice41-document-metadata-probe-payload-attachments",
+            "slice-303-slice42-document-archive-probe-payload-attachments",
+            "slice-304-slice43-document-content-replace-probe-payload-attachments",
+            "slice-305-slice44-billing-diagnosis-probe-payload-attachments",
+            "slice-306-slice45-billing-correction-probe-payload-attachments",
+            "slice-307-slice46-billing-modifier-probe-payload-attachments",
+            "slice-308-slice47-claim-status-probe-payload-attachments",
+            "slice-309-slice48-payment-posting-probe-payload-attachments",
+            "slice-310-slice49-account-balance-probe-payload-attachments",
+            "slice-311-slice50-account-aging-probe-payload-attachments",
+            "slice-312-slice51-account-ledger-probe-payload-attachments",
+            "slice-313-slice52-account-statement-probe-payload-attachments",
+            "slice-314-slice53-document-preview-probe-payload-attachments",
+            "slice-315-slice54-document-revision-probe-payload-attachments",
+            "slice-316-slice55-document-revision-replace-probe-payload-attachments",
+            "slice-317-slice56-payment-posting-mutation-probe-payload-attachments",
+            "slice-318-slice57-claim-status-mutation-probe-payload-attachments",
+            "slice-319-slice58-patient-payment-capture-probe-payload-attachments",
+            "slice-320-slice59-statement-generation-probe-payload-attachments",
+            "slice-321-slice60-statement-pdf-probe-payload-attachments",
+            "slice-322-slice61-statement-batch-probe-payload-attachments",
+            "slice-323-slice62-statement-batch-package-probe-payload-attachments",
+            "slice-324-slice63-collections-work-queue-probe-payload-attachments",
+            "slice-325-slice64-collections-follow-up-probe-payload-attachments",
+            "slice-326-slice65-message-assignment-probe-payload-attachments",
+            "slice-327-slice66-message-content-probe-payload-attachments",
+            "slice-328-slice67-encounter-document-attachment-probe-payload-attachments",
+            "slice-329-slice68-encounter-billing-probe-payload-attachments",
+            "slice-330-slice69-encounter-claims-probe-payload-attachments",
+            "slice-331-slice70-encounter-procedures-probe-payload-attachments",
+            "slice-332-slice71-encounter-diagnoses-probe-payload-attachments",
+            "slice-333-slice72-encounter-billing-mutation-probe-payload-attachments",
+            "slice-334-slice73-encounter-diagnosis-mutation-probe-payload-attachments",
+            "slice-335-slice74-encounter-fee-sheet-entry-probe-payload-attachments",
+            "slice-336-slice75-encounter-procedure-order-entry-probe-payload-attachments",
+            "slice-337-slice76-encounter-procedure-result-entry-probe-payload-attachments",
+            "slice-338-slice77-encounter-signoff-probe-payload-attachments",
+            "slice-339-slice78-encounter-document-upload-probe-payload-attachments",
+            "slice-340-slice79-encounter-binary-document-upload-probe-payload-attachments",
+            "slice-341-slice80-encounter-document-signoff-probe-payload-attachments",
+            "slice-342-slice81-encounter-document-denial-probe-payload-attachments",
+            "slice-343-slice82-encounter-document-metadata-probe-payload-attachments",
+            "slice-344-slice83-encounter-document-move-probe-payload-attachments",
+            "slice-345-slice84-encounter-document-content-replace-probe-payload-attachments",
+            "slice-346-slice85-encounter-document-archive-probe-payload-attachments",
+            "slice-347-slice86-encounter-document-lifecycle-probe-payload-attachments",
+            "slice-348-slice87-encounter-document-external-link-probe-payload-attachments",
+            "slice-349-slice88-document-image-preview-probe-payload-attachments",
+            "slice-350-slice89-document-image-thumbnail-probe-payload-attachments",
+            "slice-351-slice90-document-pdf-preview-probe-payload-attachments",
+            "slice-352-slice91-document-lifecycle-probe-payload-attachments",
+            "slice-353-slice92-document-scanned-attachment-probe-payload-attachments",
+            "slice-354-slice93-appointment-reschedule-probe-payload-attachments",
+            "slice-355-slice94-appointment-arrival-probe-payload-attachments",
+            "slice-356-slice95-appointment-checkout-probe-payload-attachments",
+            "slice-357-slice96-appointment-noshow-probe-payload-attachments",
+            "slice-358-slice97-appointment-category-probe-payload-attachments",
+            "slice-359-slice98-appointment-pending-probe-payload-attachments",
+            "slice-360-slice99-appointment-provider-probe-payload-attachments",
+            "slice-361-slice100-appointment-facility-probe-payload-attachments",
+            "slice-362-slice101-appointment-billing-location-probe-payload-attachments",
+            "slice-363-slice102-appointment-comments-probe-payload-attachments",
+            "slice-364-slice103-appointment-recurrence-probe-payload-attachments",
+            "slice-365-slice104-appointment-series-probe-payload-attachments",
+            "slice-366-slice105-appointment-recurrence-exceptions-probe-payload-attachments",
+            "slice-367-slice106-appointment-occurrence-cancel-probe-payload-attachments",
+            "slice-368-slice107-appointment-occurrence-restore-probe-payload-attachments",
+            "slice-369-slice108-appointment-occurrence-reschedule-probe-payload-attachments",
+            "slice-370-slice109-appointment-recurrence-exception-edit-probe-payload-attachments",
+            "slice-371-slice110-appointment-series-root-update-probe-payload-attachments",
+            "slice-372-slice111-appointment-series-root-metadata-probe-payload-attachments",
+            "slice-373-slice112-appointment-monthly-recurrence-probe-payload-attachments",
+            "slice-374-slice113-appointment-recurrence-unit-matrix-probe-payload-attachments",
+            "slice-375-slice114-appointment-days-of-week-recurrence-probe-payload-attachments",
+            "slice-376-slice115-appointment-monthly-repeat-on-recurrence-probe-payload-attachments",
+            "slice-377-slice116-appointment-series-recurrence-update-probe-payload-attachments",
+            "slice-378-slice117-appointment-provider-overlap-probe-payload-attachments",
+            "slice-379-slice118-appointment-patient-overlap-probe-payload-attachments",
+            "slice-380-slice119-appointment-room-overlap-probe-payload-attachments",
+            "slice-381-slice120-appointment-reminders-probe-payload-attachments",
+            "slice-382-slice121-encounter-cosignature-probe-payload-attachments",
+            "slice-383-slice122-encounter-document-revision-probe-payload-attachments",
+            "slice-384-slice123-encounter-document-revision-replace-probe-payload-attachments",
+            "slice-385-slice126-encounter-document-scanned-attachment-probe-payload-attachments",
+            "slice-386-slice127-encounter-document-binary-content-replace-probe-payload-attachments",
+            "slice-387-slice128-document-binary-content-replace-probe-payload-attachments",
+            "slice-388-slice129-procedure-result-correction-probe-payload-attachments",
+            "slice-389-slice130-procedure-specimen-probe-payload-attachments",
+            "slice-390-slice131-procedure-specimen-detail-probe-payload-attachments",
+            "slice-391-slice132-procedure-order-correction-probe-payload-attachments",
+            "slice-392-slice133-procedure-report-correction-probe-payload-attachments",
+            "slice-393-slice134-procedure-report-signoff-probe-payload-attachments",
+            "slice-394-slice135-procedure-report-review-queue-probe-payload-attachments",
+            "slice-395-slice136-procedure-report-review-filters-probe-payload-attachments",
+            "slice-396-slice137-procedure-report-review-provider-filters-probe-payload-attachments",
+            "slice-397-slice138-procedure-report-review-lab-filters-probe-payload-attachments",
+            "slice-398-slice139-procedure-lab-provider-catalog-probe-payload-attachments",
+            "slice-399-slice140-procedure-lab-provider-directory-probe-payload-attachments",
+            "slice-400-slice141-procedure-lab-provider-lifecycle-probe-payload-attachments",
+            "slice-401-slice142-procedure-lab-provider-configuration-probe-payload-attachments",
+            "slice-402-slice144-procedure-lab-provider-address-book-probe-payload-attachments",
+            "slice-403-slice145-procedure-order-catalog-probe-payload-attachments",
+            "slice-404-slice147-procedure-order-catalog-lifecycle-probe-payload-attachments",
+            "slice-405-slice148-procedure-vendor-compendium-import-probe-payload-attachments",
+            "slice-406-slice149-procedure-order-queue-probe-payload-attachments",
+            "slice-407-slice151-procedure-order-transmit-probe-payload-attachments",
+            "slice-408-slice153-procedure-report-bulk-signoff-probe-payload-attachments",
+            "slice-409-slice154-procedure-report-reopen-review-probe-payload-attachments",
+            "slice-410-slice156-message-reply-probe-payload-attachments",
+            "slice-411-slice157-message-portal-metadata-probe-payload-attachments",
+            "slice-412-slice158-message-update-metadata-probe-payload-attachments",
+            "slice-413-slice159-admin-login-probe-payload-attachments",
+            "slice-414-slice160-admin-login-audit-probe-payload-attachments",
+            "slice-415-slice161-admin-session-probe-payload-attachments",
+            "slice-416-slice162-admin-audit-protection-probe-payload-attachments",
+            "slice-417-slice163-admin-directory-protection-probe-payload-attachments",
+            "slice-418-slice164-reports-protection-probe-payload-attachments",
+            "slice-419-slice165-patient-protection-probe-payload-attachments",
+            "slice-420-slice166-clinical-list-protection-probe-payload-attachments",
+            "slice-421-slice167-appointment-protection-probe-payload-attachments",
+            "slice-422-slice168-encounter-protection-probe-payload-attachments",
+            "slice-423-slice169-document-protection-probe-payload-attachments",
+            "slice-424-slice170-message-protection-probe-payload-attachments",
+            "slice-425-slice171-billing-protection-probe-payload-attachments",
+            "slice-426-slice172-procedure-protection-probe-payload-attachments",
+            "slice-427-slice173-admin-authorization-policy-probe-payload-attachments",
+            "slice-428-slice174-reports-authorization-policy-probe-payload-attachments",
+            "slice-429-slice175-clinical-list-authorization-policy-probe-payload-attachments",
+            "slice-430-slice176-appointment-authorization-policy-probe-payload-attachments",
+            "slice-431-slice177-encounter-authorization-policy-probe-payload-attachments",
+            "slice-432-slice178-patient-authorization-policy-probe-payload-attachments",
+            "slice-433-slice179-document-authorization-policy-probe-payload-attachments",
+            "slice-434-slice180-message-authorization-policy-probe-payload-attachments",
+            "slice-435-slice181-billing-authorization-policy-probe-payload-attachments",
+            "slice-436-slice182-procedure-authorization-policy-probe-payload-attachments",
+            "slice-437-slice183-procedure-mutation-authorization-policy-probe-payload-attachments",
+            "slice-438-slice184-patient-mutation-authorization-policy-probe-payload-attachments",
+            "slice-439-slice185-encounter-mutation-authorization-policy-probe-payload-attachments",
+            "slice-440-slice186-document-mutation-authorization-policy-probe-payload-attachments",
+            "slice-441-slice187-message-mutation-authorization-policy-probe-payload-attachments",
+            "slice-442-slice188-billing-mutation-authorization-policy-probe-payload-attachments",
+            "slice-443-slice189-appointment-mutation-authorization-policy-probe-payload-attachments",
+            "slice-444-slice190-encounter-amendment-history-probe-payload-attachments",
+            "slice-445-slice191-patient-duplicate-detection-probe-payload-attachments"
+          ]
         }
       ],
       "outstanding": [
@@ -1096,7 +1878,11 @@
         {
           "label": "Deterministic synthetic migration contract",
           "detail": "The shared gold dataset maps to both legacy MariaDB and modernized PostgreSQL for implemented workflows.",
-          "evidence": ["openemr-shared-synthetic-v1", "legacy-openemr seed", "modernized-openemr seed"]
+          "evidence": [
+            "openemr-shared-synthetic-v1",
+            "legacy-openemr seed",
+            "modernized-openemr seed"
+          ]
         }
       ],
       "outstanding": [

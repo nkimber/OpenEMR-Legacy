@@ -1299,6 +1299,20 @@ export type MedicationRecord = {
   date: string;
 };
 
+export type MedicationVocabularyItem = {
+  rxNormCode: string;
+  drugName: string;
+  displayName: string;
+  form: string;
+  strength: string;
+  route: string;
+  doseAmount: number | null;
+  doseUnit: string | null;
+  frequency: string | null;
+  durationDays: number | null;
+  controlledSubstanceSchedule: string | null;
+};
+
 export type PatientMessageRecord = {
   id: number | string;
   patientId: number;
@@ -2254,6 +2268,14 @@ export type NewUser = {
   npi: string;
   active: boolean;
 };
+
+const medicationVocabularyCatalog: MedicationVocabularyItem[] = [
+  { rxNormCode: "860975", drugName: "Metformin", displayName: "Metformin 500 mg tablet", form: "tablet", strength: "500 mg", route: "oral", doseAmount: 500, doseUnit: "mg", frequency: "twice daily", durationDays: 30, controlledSubstanceSchedule: null },
+  { rxNormCode: "1049502", drugName: "Omeprazole", displayName: "Omeprazole 20 mg delayed release capsule", form: "capsule", strength: "20 mg", route: "oral", doseAmount: 20, doseUnit: "mg", frequency: "once daily", durationDays: 30, controlledSubstanceSchedule: null },
+  { rxNormCode: "312615", drugName: "Lisinopril", displayName: "Lisinopril 10 mg tablet", form: "tablet", strength: "10 mg", route: "oral", doseAmount: 10, doseUnit: "mg", frequency: "once daily", durationDays: 30, controlledSubstanceSchedule: null },
+  { rxNormCode: "617314", drugName: "Atorvastatin", displayName: "Atorvastatin 20 mg tablet", form: "tablet", strength: "20 mg", route: "oral", doseAmount: 20, doseUnit: "mg", frequency: "nightly", durationDays: 30, controlledSubstanceSchedule: null },
+  { rxNormCode: "1049621", drugName: "Oxycodone", displayName: "Oxycodone 5 mg tablet", form: "tablet", strength: "5 mg", route: "oral", doseAmount: 5, doseUnit: "mg", frequency: "every 6 hours as needed", durationDays: 7, controlledSubstanceSchedule: "CII" }
+];
 
 export class LegacyWorkflowActions {
   private readonly pendingPrescriptionRefillRequests: PrescriptionRefillRequestQueueItem[] = [];
@@ -6608,6 +6630,18 @@ WHERE id = ${integer(legacyId)} AND type = 'medication';
 DELETE FROM lists
 WHERE id = ${integer(legacyId)} AND type = 'medication';
 `);
+  }
+
+  async searchMedicationVocabulary(query: string): Promise<MedicationVocabularyItem[]> {
+    const normalized = query.trim().toLowerCase();
+    return medicationVocabularyCatalog
+      .filter((item) =>
+        !normalized
+        || item.drugName.toLowerCase().includes(normalized)
+        || item.displayName.toLowerCase().includes(normalized)
+        || item.rxNormCode === normalized)
+      .sort((left, right) => left.drugName.localeCompare(right.drugName) || left.rxNormCode.localeCompare(right.rxNormCode))
+      .slice(0, 10);
   }
 
   async createPatientMessage(input: NewPatientMessage): Promise<number> {

@@ -111,6 +111,7 @@ import type {
   PharmacyRecord,
   PatientMessageRecord,
   PaymentPostingRecord,
+  MedicationVocabularyItem,
   MedicationRecord,
   ProcedureOrderCatalogItemRecord,
   ProcedureVendorCompendiumImportInput,
@@ -3927,6 +3928,25 @@ LIMIT 1;
 
     const mutation = (await response.json()) as { id: string };
     return mutation.id;
+  }
+
+  async searchMedicationVocabulary(query: string): Promise<MedicationVocabularyItem[]> {
+    const params = new URLSearchParams();
+    if (query.trim()) {
+      params.set("query", query.trim());
+    }
+    const response = await fetch(
+      `${this.target.apiBaseUrl}/api/clinical-lists/medication-vocabulary${params.size ? `?${params.toString()}` : ""}`,
+      {
+        headers: await this.getAdminSessionHeaders()
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Modernized medication vocabulary search failed with ${response.status}: ${await response.text()}`);
+    }
+
+    return await response.json() as MedicationVocabularyItem[];
   }
 
   async createPharmacy(input: NewPharmacy): Promise<number> {
