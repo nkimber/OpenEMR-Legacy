@@ -2229,6 +2229,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-576-appointment-waitlist-readiness",
+      "name": "Slice 576 Appointment Waitlist Readiness",
+      "description": "Scheduling readiness plan that projects pending portal appointment requests into the staff waitlist queue and promotes one request to OpenEMR pending status.",
+      "suites": ["workflow-appointment-waitlist"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-576", "appointments", "scheduling", "waitlist", "portal-requests", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -3876,6 +3885,16 @@
       "layer": "workflow",
       "path": "tests/workflow-appointment-availability-validation",
       "tags": ["slice575", "workflow", "mutation", "appointments", "scheduling", "availability", "conflicts", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-appointment-waitlist",
+      "name": "Appointment Waitlist Readiness",
+      "description": "Creates a temporary portal appointment request, verifies the staff waitlist projection, promotes the request to pending status, and removes the temporary appointment and reminder.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-waitlist",
+      "tags": ["slice576", "workflow", "mutation", "appointments", "scheduling", "waitlist", "portal-requests", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },

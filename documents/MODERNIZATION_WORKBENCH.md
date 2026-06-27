@@ -841,3 +841,9 @@ The Progress page also records local statement email outbox readiness as complet
 The Workbench now exposes managed Slice 575 appointment availability validation plan actions for both the legacy and modernized targets. These actions run `slice-575-appointment-availability-validation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Calendar and appointment API report provider/facility bookable-window status plus active provider, patient, and room conflicts before creating an appointment.
 
 The Progress page also records provider/facility availability validation as completed scheduling evidence while keeping waitlists, reminder delivery/audit, templates, and richer scheduling policy configuration outstanding.
+
+## Slice 576 Workbench Update
+
+The Workbench now exposes managed Slice 576 appointment waitlist plan actions for both the legacy and modernized targets. These actions run `slice-576-appointment-waitlist-readiness`, write the standard latest-run artifacts, and let the comparison view show whether pending portal appointment requests are projected into the staff Calendar waitlist queue, retain the linked provider reminder, and promote to OpenEMR pending status without changing the requested slot.
+
+The Progress page also records staff waitlist projection and promotion as completed scheduling evidence while keeping richer waitlist management, reminder delivery/audit, templates, and broader scheduling policy configuration outstanding.

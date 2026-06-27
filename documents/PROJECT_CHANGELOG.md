@@ -27711,6 +27711,36 @@ Verification:
 Code Metrics:
 - Commit `e7ddedd3` changed 16 scoped files with 741 insertions and 7 deletions.
 
+## 632. Appointment Waitlist Readiness
+
+Started: 2026-06-26T22:28:00.0000000-04:00
+Finished: 2026-06-26T22:32:27.8973795-04:00
+Commit: pending
+
+Implemented Slice 576: appointment waitlist readiness. The modernized appointment API now exposes `GET /api/appointments/waitlist` to project active portal appointment requests (`status = '^'`) into a staff-facing scheduling queue, including requested slot, patient, provider, facility, reason, linked provider reminder, and deterministic priority. The Calendar page now renders that waitlist queue and lets staff promote a waiting request to OpenEMR pending status (`~`) through the existing appointment status mutation path.
+
+Changes:
+- Added appointment waitlist DTOs and repository projection logic over pending portal-request appointments plus linked `Patient Reminders` messages.
+- Added the modernized appointment waitlist endpoint behind Appointment view permission.
+- Added frontend API types/helper, Calendar waitlist loading state, staff waitlist rendering, and a `Promote pending` action.
+- Added the `workflow-appointment-waitlist` parity suite and `slice-576-appointment-waitlist-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 576 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so waitlist projection and promotion are completed scheduling evidence while richer waitlist management and reminder delivery remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 576 legacy parity plan: `2026-06-27T023440-404Z-legacy-openemr-plan-slice-576-appointment-waitlist-readiness` passed 1/1 tests.
+- Ran the Slice 576 modernized parity plan: `2026-06-27T023509-760Z-modernized-openemr-plan-slice-576-appointment-waitlist-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 576 runs: `2026-06-27T023535-822Z-legacy-openemr-vs-modernized-openemr-plan-slice-576-appointment-waitlist-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics until the Slice 576 files are staged separately from unrelated in-progress Azure demo documentation and Workbench changes.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
