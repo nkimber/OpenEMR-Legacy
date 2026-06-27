@@ -1,4 +1,4 @@
-﻿# Project Changelog
+# Project Changelog
 
 Created: 2026-06-18
 
@@ -27649,6 +27649,37 @@ Verification:
 
 Code Metrics:
 - 16 scoped files changed, with 632 insertions and 8 deletions, net +624 lines and 640 total churn, including backend portal document publication, React portal delivery rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+
+## 574. Statement Email Outbox Readiness
+
+Started: 2026-06-26T21:36:00.0000000-04:00
+Finished: 2026-06-26T21:52:43.1490000-04:00
+Commit: `eab76ee0`
+
+Implemented Slice 574: statement email outbox readiness. The modernized billing API now filters top statement batch candidates to email-ready recipients, queues deterministic local statement email outbox records, persists them in `statement_email_outbox`, and returns outbox message IDs, recipients, subjects, attachment file names, queue names, delivery statuses, and local references. The React Fees statement batch panel exposes an `Email Outbox` action and renders queued email evidence without sending SMTP mail. The shared parity plan compares the normalized legacy-derived email outbox expectation with the modernized API and UI behavior.
+
+Changes:
+- Added statement email outbox DTOs, repository persistence, idempotent local outbox upsert behavior, runtime table/index creation, and `POST /api/billing/statements/batch/email-outbox` guarded by Billing write permission.
+- Added the modernized frontend API helper plus Fees statement batch `Email Outbox` action and queued-message evidence rendering.
+- Added the `account-statement-email-outbox` parity suite and `slice-574-statement-email-outbox-readiness` plan.
+- Added Workbench managed actions/cards for running the Slice 574 plan against legacy and modernized targets.
+- Updated the Workbench Progress ledger to count local statement email outbox readiness as completed revenue-cycle evidence while leaving live SMTP/provider delivery, bounce handling, production mail credentials, print-provider integration, and mailing fulfillment outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 574 statement email outbox contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `git diff --check` on the Slice 574 file set; only existing LF-to-CRLF working-copy warnings were reported.
+- Rebuilt the modernized stack with `docker compose up -d --build`.
+- Ran the Slice 574 legacy parity plan: `2026-06-27T014945-798Z-legacy-openemr-plan-slice-574-statement-email-outbox-readiness` passed 1/1 tests.
+- Ran the Slice 574 modernized parity plan: `2026-06-27T015154-638Z-modernized-openemr-plan-slice-574-statement-email-outbox-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 574 runs: `2026-06-27T015243-147Z-legacy-openemr-vs-modernized-openemr-plan-slice-574-statement-email-outbox-readiness` matched with no differences.
+
+Code Metrics:
+- 16 scoped files changed, with 602 insertions and 10 deletions, net +592 lines and 612 total churn, including backend email outbox persistence, React outbox rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
