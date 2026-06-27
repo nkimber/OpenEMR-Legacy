@@ -28457,6 +28457,36 @@ Verification:
 Code Metrics:
 - 18 files changed, 586 insertions, 29 deletions.
 
+## 652. Slice 600 Appointment Waitlist Deferral Readiness
+
+Started: 2026-06-27T06:12:00.0000000-04:00
+Finished: 2026-06-27T06:20:46.3030000-04:00
+Commit: 4f6d5095
+
+Implemented appointment waitlist deferral readiness for the modernized Calendar workflow. The Calendar staff waitlist now exposes a `Defer request` action that updates the linked `Patient Reminders` row to `Deferred` with staff follow-up body evidence while preserving the appointment request in OpenEMR waiting status.
+
+Changes:
+- Added a Calendar waitlist `Defer request` action that reuses the protected patient-message status mutation path.
+- Added the `workflow-appointment-waitlist-deferral` parity suite and `slice-600-appointment-waitlist-deferral-readiness` plan.
+- Verified the shared workflow creates a cleanup-backed portal appointment request, defers the linked provider reminder, proves the appointment remains waiting, and removes both temporary rows.
+- Added Workbench managed actions/cards for running Slice 600 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so waitlist deferral is completed scheduling evidence and scheduling completion moves to 93%.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 600.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build frontend` from `modernized-openemr/`.
+- Ran the Slice 600 legacy parity plan: `2026-06-27T101956-093Z-legacy-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` passed 1/1 tests.
+- Ran the Slice 600 modernized parity plan: `2026-06-27T102025-153Z-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 600 runs: `2026-06-27T102046-301Z-legacy-openemr-vs-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` matched with no differences.
+
+Code Metrics:
+- 11 files changed, 316 insertions, 11 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
