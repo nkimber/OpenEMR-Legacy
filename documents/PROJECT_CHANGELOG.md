@@ -27586,6 +27586,38 @@ Verification:
 
 Code Metrics:
 - 16 scoped files changed, with 478 insertions and 7 deletions, net +471 lines and 485 total churn, including the backend dispatch handoff projection, React dispatch handoff rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+
+## 572. Statement Dispatch History Readiness
+
+Started: 2026-06-26T21:00:00.0000000-04:00
+Finished: 2026-06-26T21:14:33.2050000-04:00
+Commit: `089ed31d`
+
+Implemented Slice 572: durable local statement dispatch audit-history readiness. The modernized billing API now persists each deterministic `Dispatch Handoff` row in `statement_delivery_audit_events`, exposes `GET /api/billing/statements/batch/dispatch-history`, and keeps saved dispatch IDs, audit IDs, timestamps, queue names, statuses, external references, destinations, and statement file names available after the original dispatch response. The React Fees statement batch panel exposes a `Dispatch History` action and renders the persisted history. The shared parity plan compares the normalized legacy-derived history expectation with the modernized API and UI behavior.
+
+Changes:
+- Added the `statement_delivery_audit_events` generated PostgreSQL seed table plus runtime table/index creation for already-running environments.
+- Added statement dispatch audit-history DTOs, persistence, idempotent upsert behavior, and `GET /api/billing/statements/batch/dispatch-history`.
+- Added the modernized frontend API helper plus Fees statement batch `Dispatch History` action and saved audit-history rendering.
+- Added the `account-statement-dispatch-history` parity suite and `slice-572-statement-dispatch-history-readiness` plan.
+- Added Workbench managed actions/cards for running the Slice 572 plan against legacy and modernized targets.
+- Updated the Workbench Progress ledger to count durable local statement dispatch audit history as completed revenue-cycle readiness while leaving real SMTP, print-provider, mailing, and portal delivery integrations outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 572 statement dispatch history contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `git diff --check` on the Slice 572 file set; only existing LF-to-CRLF working-copy warnings were reported.
+- Rebuilt and restarted the modernized stack with `docker compose up -d --build`, then rebuilt the API again after timestamp-kind normalization.
+- Ran the Slice 572 legacy parity plan: `2026-06-27T010914-225Z-legacy-openemr-plan-slice-572-statement-dispatch-history-readiness` passed 1/1 tests.
+- Ran the Slice 572 modernized parity plan: `2026-06-27T011348-538Z-modernized-openemr-plan-slice-572-statement-dispatch-history-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 572 runs: `2026-06-27T011433-204Z-legacy-openemr-vs-modernized-openemr-plan-slice-572-statement-dispatch-history-readiness` matched with no differences.
+
+Code Metrics:
+- 17 scoped files changed, with 625 insertions and 8 deletions, net +617 lines and 633 total churn, including backend audit-history persistence, React history rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
