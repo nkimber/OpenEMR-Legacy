@@ -40,6 +40,7 @@ param(
         "account-statement-batch-package",
         "account-statement-delivery",
         "account-statement-dispatch",
+        "account-statement-dispatch-history",
         "account-collections-work-queue",
         "account-collections-follow-up",
         "admin",

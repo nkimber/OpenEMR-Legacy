@@ -819,3 +819,9 @@ The Progress page also records deterministic statement delivery manifest prepara
 The Workbench now exposes managed Slice 571 statement dispatch handoff plan actions for both the legacy and modernized targets. These actions run `slice-571-statement-dispatch-handoff-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized Fees `Dispatch Handoff` action produces the same deterministic local email/print queue evidence as the legacy-derived statement candidate projection.
 
 The Progress page also records local statement dispatch handoff evidence as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, mailing fulfillment, portal delivery, and durable delivery-audit storage outstanding.
+
+## Slice 572 Workbench Update
+
+The Workbench now exposes managed Slice 572 statement dispatch history plan actions for both the legacy and modernized targets. These actions run `slice-572-statement-dispatch-history-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target persists the same deterministic statement dispatch audit events that the legacy-derived statement candidate projection expects.
+
+The Progress page also records durable local statement dispatch audit history as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, mailing fulfillment, and portal delivery outstanding.

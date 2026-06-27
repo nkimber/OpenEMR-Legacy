@@ -266,6 +266,7 @@
         "parityStatementBatchPackagePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-62-statement-batch-package-readiness", "-Reset", "run"],
         "parityStatementDeliveryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-570-statement-delivery-manifest-readiness", "-Reset", "run"],
         "parityStatementDispatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-571-statement-dispatch-handoff-readiness", "-Reset", "run"],
+        "parityStatementDispatchHistoryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-572-statement-dispatch-history-readiness", "-Reset", "run"],
         "parityCollectionsWorkQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-63-collections-work-queue-readiness", "-Reset", "run"],
         "parityCollectionsFollowUpPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-64-collections-follow-up-readiness", "-Reset", "test"],
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
@@ -2514,6 +2515,14 @@
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-571-statement-dispatch-handoff-readiness.json"
         },
         {
+          "id": "parity-plan-statement-dispatch-history",
+          "name": "Slice 572 statement dispatch history plan",
+          "description": "Runs the shared statement dispatch history readiness plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityStatementDispatchHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-572-statement-dispatch-history-readiness.json"
+        },
+        {
           "id": "parity-plan-collections-work-queue",
           "name": "Slice 63 collections work queue plan",
           "description": "Runs the shared read-only collections work queue plan against the legacy target for side-by-side comparison with the modernized target.",
@@ -3180,6 +3189,7 @@
         "parityStatementBatchPackagePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-62-statement-batch-package-readiness", "-Reset", "run"],
         "parityStatementDeliveryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-570-statement-delivery-manifest-readiness", "-Reset", "run"],
         "parityStatementDispatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-571-statement-dispatch-handoff-readiness", "-Reset", "run"],
+        "parityStatementDispatchHistoryPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-572-statement-dispatch-history-readiness", "-Reset", "run"],
         "parityCollectionsWorkQueuePlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-63-collections-work-queue-readiness", "-Reset", "run"],
         "parityCollectionsFollowUpPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-64-collections-follow-up-readiness", "-Reset", "test"],
         "parityMessageAssignmentPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-65-message-assignment-readiness", "-Reset", "test"],
@@ -5352,6 +5362,14 @@
           "layer": "plan",
           "commandName": "parityStatementDispatchPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-571-statement-dispatch-handoff-readiness.json"
+        },
+        {
+          "id": "parity-plan-statement-dispatch-history",
+          "name": "Slice 572 statement dispatch history plan",
+          "description": "Runs the shared statement dispatch history readiness plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityStatementDispatchHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-572-statement-dispatch-history-readiness.json"
         },
         {
           "id": "parity-plan-collections-work-queue",
