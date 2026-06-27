@@ -4159,6 +4159,28 @@
       ]
     },
     {
+      "id": "slice-591-document-ocr-completion-readiness",
+      "name": "Slice 591 document OCR completion readiness",
+      "description": "Document OCR completion readiness plan that proves scanned pending-OCR source facts and verifies the modernized Documents workspace can complete OCR and remove the item from the queue.",
+      "suites": [
+        "workflow-document-ocr-completion"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-591",
+        "documents",
+        "attachments",
+        "ocr",
+        "completion",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10223,6 +10245,26 @@
         "attachments",
         "ocr",
         "queue",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-ocr-completion",
+      "name": "Document OCR completion workflow",
+      "description": "Creates a temporary scanned pending-OCR document and verifies modernized OCR completion removes it from the queue.",
+      "path": "tests/workflow-document-ocr-completion",
+      "tags": [
+        "slice591",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "ocr",
+        "completion",
         "comparison-ready"
       ],
       "targets": [

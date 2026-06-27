@@ -4446,6 +4446,19 @@
           "slice-590-document-ocr-queue-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentOcrCompletionPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-591-document-ocr-completion-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7184,6 +7197,14 @@
           "layer": "plan",
           "commandName": "parityDocumentOcrQueuePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-590-document-ocr-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-ocr-completion",
+          "name": "Slice 591 document OCR completion plan",
+          "description": "Runs the shared document OCR completion source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentOcrCompletionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-591-document-ocr-completion-readiness.json"
         }
       ],
       "testPlans": [
@@ -7192,7 +7213,8 @@
         "slice-587-prescription-diagnosis-interactions-readiness",
         "slice-588-medication-reconciliation-readiness",
         "slice-589-appointment-conflict-enforcement-readiness",
-        "slice-590-document-ocr-queue-readiness"
+        "slice-590-document-ocr-queue-readiness",
+        "slice-591-document-ocr-completion-readiness"
       ]
     },
     {
@@ -11515,6 +11537,19 @@
           "slice-590-document-ocr-queue-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentOcrCompletionPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-591-document-ocr-completion-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14166,6 +14201,14 @@
           "layer": "plan",
           "commandName": "parityDocumentOcrQueuePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-590-document-ocr-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-ocr-completion",
+          "name": "Slice 591 document OCR completion plan",
+          "description": "Runs the shared document OCR completion plan against the modernized target, including protected OCR completion API and Documents workspace evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentOcrCompletionPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-591-document-ocr-completion-readiness.json"
         }
       ],
       "testPlans": [
@@ -14174,7 +14217,8 @@
         "slice-587-prescription-diagnosis-interactions-readiness",
         "slice-588-medication-reconciliation-readiness",
         "slice-589-appointment-conflict-enforcement-readiness",
-        "slice-590-document-ocr-queue-readiness"
+        "slice-590-document-ocr-queue-readiness",
+        "slice-591-document-ocr-completion-readiness"
       ]
     },
     {
