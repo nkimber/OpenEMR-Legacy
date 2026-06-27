@@ -28179,6 +28179,38 @@ Verification:
 
 Code Metrics:
 - Commit `b4c07832` changed 15 scoped files with 587 insertions and 11 deletions.
+
+## 648. Slice 591 Document OCR Completion Readiness
+
+Started: 2026-06-27T03:36:00.0000000-04:00
+Finished: 2026-06-27T03:45:07.4105804-04:00
+Commit: 70a388f6
+
+Implemented focused document OCR completion readiness for the modernized document workflow. Staff can now complete a pending scanned-document OCR item from the Documents OCR Queue, which updates the document to `OCR complete`, preserves extracted-text evidence, refreshes the viewer, and removes the completed item from the OCR queue.
+
+Changes:
+- Added OCR completion request/response contracts.
+- Added protected `POST /api/documents/{documentId}/ocr/complete` behind Documents write access.
+- Added repository logic that converts `OCR pending` evidence to `OCR complete`, records completion metadata, appends extracted-text evidence, and returns the refreshed document plus queue.
+- Added frontend API typing and client support for OCR completion.
+- Added the Documents OCR Queue `Complete OCR` action and viewer refresh behavior.
+- Added the `workflow-document-ocr-completion` parity suite and `slice-591-document-ocr-completion-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 591 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so focused OCR completion is completed document functionality while scanner capture, production OCR engine integration, thumbnails, routing, storage, encryption, and retention remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 591 legacy parity plan: `2026-06-27T074210-586Z-legacy-openemr-plan-slice-591-document-ocr-completion-readiness` passed 1/1 tests.
+- Ran the Slice 591 modernized parity plan: `2026-06-27T074227-452Z-modernized-openemr-plan-slice-591-document-ocr-completion-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 591 runs: `2026-06-27T074247-808Z-legacy-openemr-vs-modernized-openemr-plan-slice-591-document-ocr-completion-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `70a388f6` changed 15 scoped files with 494 insertions and 11 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
