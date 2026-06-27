@@ -27831,34 +27831,38 @@ Code Metrics:
 - Commit `8b4eefba` changed 18 scoped files with 378 insertions and 9 deletions.
 
 ## 636. Patient Portal Prescription Refill Request Readiness
+
 Started: 2026-06-26T23:49:00.0000000-04:00
 Finished: 2026-06-26T23:59:49.3240000-04:00
-Commit: pending
-Implemented Slice 580: patient portal prescription refill request readiness. The modernized patient portal API now validates that a signed-in portal patient owns an active prescription before creating secure-message sent and recipient mailbox rows for a refill request. The Portal clinical summary now exposes a Request refill action on prescription cards and refreshes message/audit evidence after the request is sent.
+Commit: 95d01415
+
+Implemented Slice 580: patient portal prescription refill request readiness. The modernized patient portal API now validates that a signed-in portal patient owns an active prescription before creating secure-message sent and recipient mailbox rows for a refill request. The Portal clinical summary now exposes a `Request refill` action on prescription cards and refreshes message/audit evidence after the request is sent.
+
 Changes:
-- Added PatientPortalPrescriptionRefillRequest and POST /api/patient-portal/prescriptions/{prescriptionId}/refill-request.
+- Added `PatientPortalPrescriptionRefillRequest` and `POST /api/patient-portal/prescriptions/{prescriptionId}/refill-request`.
 - Added server-side active-prescription ownership validation using the portal session and text-shaped prescription id contract.
-- Added secure-message mailbox creation with deterministic refill-request title/body evidence and portal:prescription-refill-request relation metadata on the modernized target.
-- Added frontend API typing/helper and a Portal prescription-card Request refill action.
+- Added secure-message mailbox creation with deterministic refill-request title/body evidence and `portal:prescription-refill-request` relation metadata on the modernized target.
+- Added frontend API typing/helper and a Portal prescription-card `Request refill` action.
 - Added parity workflow support for patient-originated refill requests on both legacy and modernized targets.
-- Added the workflow-patient-portal-prescription-refill-request parity suite and slice-580-patient-portal-prescription-refill-request-readiness plan.
+- Added the `workflow-patient-portal-prescription-refill-request` parity suite and `slice-580-patient-portal-prescription-refill-request-readiness` plan.
 - Added Workbench managed actions/cards for running Slice 580 against legacy and modernized targets.
 - Updated the Workbench Progress ledger so patient-originated portal refill requests are completed prescribing evidence while refill review queues, pharmacy routing, controlled-substance rules, and broader e-prescribing remain outstanding.
+
 Verification:
-- Parsed parity-tests/test-manifest.json, modernization-workbench/config/apps.json, and modernization-workbench/config/functionality-progress.json successfully.
-- Ran dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj.
-- Ran 
-pm --prefix .\parity-tests run typecheck.
-- Ran 
-pm --prefix .\modernization-workbench run typecheck.
-- Ran 
-pm --prefix .\modernized-openemr\frontend run build; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with docker compose up -d --build.
-- Ran the Slice 580 legacy parity plan: 2026-06-27T035103-620Z-legacy-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness passed 1/1 tests.
-- Ran the Slice 580 modernized parity plan: 2026-06-27T035923-383Z-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness passed 1/1 tests.
-- Compared the latest successful Slice 580 runs: 2026-06-27T035949-323Z-legacy-openemr-vs-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness matched with no differences.
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 580 legacy parity plan: `2026-06-27T035103-620Z-legacy-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness` passed 1/1 tests.
+- Ran the Slice 580 modernized parity plan: `2026-06-27T035923-383Z-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 580 runs: `2026-06-27T035949-323Z-legacy-openemr-vs-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness` matched with no differences.
+
 Code Metrics:
-- Pending commit-scoped metrics.## Next Expected Entries
+- Commit `95d01415` changed 18 scoped files with 765 insertions and 9 deletions.
+
+## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
 
