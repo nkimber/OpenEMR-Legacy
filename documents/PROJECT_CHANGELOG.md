@@ -28087,6 +28087,37 @@ Verification:
 Code Metrics:
 - Commit `c22356f4` changed 15 scoped files with 493 insertions and 10 deletions.
 
+## 645. Slice 588 Medication Reconciliation Readiness
+
+Started: 2026-06-27T02:52:00.0000000-04:00
+Finished: 2026-06-27T03:02:36.2965773-04:00
+Commit: e991a778
+
+Implemented medication reconciliation readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active medication-list rows with active prescriptions by normalized medication name, reports matched, medication-list-only, and prescription-only states, and renders the summary in the Lists medication panel.
+
+Changes:
+- Added `medicationReconciliations` to `ClinicalListsResponse`.
+- Added business-tier medication-name normalization and active medication-list/prescription grouping.
+- Added frontend API typing for medication reconciliation summaries.
+- Rendered a medication reconciliation summary in the modernized Lists medication panel.
+- Added the `workflow-medication-reconciliation` parity suite and `slice-588-medication-reconciliation-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 588 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so medication reconciliation readiness is completed while broader e-prescribing remains outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 588 legacy parity plan: `2026-06-27T070153-383Z-legacy-openemr-plan-slice-588-medication-reconciliation-readiness` passed 1/1 tests.
+- Ran the Slice 588 modernized parity plan: `2026-06-27T070214-646Z-modernized-openemr-plan-slice-588-medication-reconciliation-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 588 runs: `2026-06-27T070231-895Z-legacy-openemr-vs-modernized-openemr-plan-slice-588-medication-reconciliation-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `e991a778` changed 14 scoped files with 585 insertions and 13 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
