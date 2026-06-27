@@ -28361,6 +28361,38 @@ Verification:
 
 Code Metrics:
 - Commit `a73cfb4a` changed 18 scoped files with 870 insertions and 15 deletions.
+## 649. Slice 597 Document Version History Readiness
+
+Started: 2026-06-27T05:00:00.0000000-04:00
+Finished: 2026-06-27T05:23:10.9670000-04:00
+Commit: c811de31
+
+Implemented patient document version-history readiness for the modernized Documents workflow. The modernized repository now snapshots the current patient document row into `patient_document_versions` before text or binary replacement, returns current-plus-prior version rows from the content API, and renders the version history in the Documents viewer while preserving legacy OpenEMR as an overwrite-only comparison baseline.
+
+Changes:
+- Added the `patient_document_versions` runtime table and generated-seed schema definition.
+- Extended patient document list/content responses with current-version and prior-version counts plus version-history rows.
+- Updated text and binary content replacement so the modernized target saves the prior document payload before overwriting the active row.
+- Rendered version-history rows in the modernized Documents viewer.
+- Added the `workflow-document-version-history` parity suite and `slice-597-document-version-history-readiness` plan.
+- Updated Slice 55 document revision replacement expectations so modernized versioning and legacy overwrite behavior are both intentional.
+- Added Workbench managed actions/cards for running Slice 597 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so current-plus-prior patient document version-history rows are completed document evidence.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `node .\scripts\generate-postgres-seed.mjs` in `modernized-openemr\` and regenerated the PostgreSQL seed artifact with the empty version-history table.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 597 legacy parity plan: `2026-06-27T092223-792Z-legacy-openemr-plan-slice-597-document-version-history-readiness` passed 1/1 tests.
+- Ran the Slice 597 modernized parity plan: `2026-06-27T092245-896Z-modernized-openemr-plan-slice-597-document-version-history-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 597 runs: `2026-06-27T092310-966Z-legacy-openemr-vs-modernized-openemr-plan-slice-597-document-version-history-readiness` matched with no differences.
+
+Code Metrics:
+- 19 files changed, 731 insertions, 64 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
