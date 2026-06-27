@@ -948,3 +948,8 @@ The Progress page also records generated PDF thumbnails as completed document ev
 The Workbench now exposes managed Slice 593 document routing queue plan actions for both the legacy and modernized targets. These actions run `slice-593-document-routing-queue-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable pending-review source facts plus modernized routing queue API/UI evidence.
 
 The Progress page also records pending-review document routing queues as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and retention policy outstanding.
+## Slice 594 Workbench Update
+
+The Workbench now exposes managed Slice 594 document retention policy plan actions for both the legacy and modernized targets. These actions run `slice-594-document-retention-policy-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable active document source facts plus modernized retain-until/disposition API/UI evidence.
+
+The Progress page also records deterministic retention policy projection as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and destructive retention disposition execution outstanding.

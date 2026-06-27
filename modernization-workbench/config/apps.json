@@ -4485,6 +4485,19 @@
           "slice-593-document-routing-queue-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentRetentionPolicyPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-594-document-retention-policy-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7247,6 +7260,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRoutingQueuePlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-593-document-routing-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-retention-policy",
+          "name": "Slice 594 document retention policy plan",
+          "description": "Runs the shared document retention policy source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentRetentionPolicyPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-594-document-retention-policy-readiness.json"
         }
       ],
       "testPlans": [
@@ -7258,7 +7279,8 @@
         "slice-590-document-ocr-queue-readiness",
         "slice-591-document-ocr-completion-readiness",
         "slice-592-document-pdf-thumbnail-readiness",
-        "slice-593-document-routing-queue-readiness"
+        "slice-593-document-routing-queue-readiness",
+        "slice-594-document-retention-policy-readiness"
       ]
     },
     {
@@ -11620,6 +11642,19 @@
           "slice-593-document-routing-queue-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentRetentionPolicyPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-594-document-retention-policy-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14295,6 +14330,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRoutingQueuePlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-593-document-routing-queue-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-retention-policy",
+          "name": "Slice 594 document retention policy plan",
+          "description": "Runs the shared document retention policy plan against the modernized target, including protected retention policy API and Documents workspace evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentRetentionPolicyPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-594-document-retention-policy-readiness.json"
         }
       ],
       "testPlans": [
@@ -14306,7 +14349,8 @@
         "slice-590-document-ocr-queue-readiness",
         "slice-591-document-ocr-completion-readiness",
         "slice-592-document-pdf-thumbnail-readiness",
-        "slice-593-document-routing-queue-readiness"
+        "slice-593-document-routing-queue-readiness",
+        "slice-594-document-retention-policy-readiness"
       ]
     },
     {

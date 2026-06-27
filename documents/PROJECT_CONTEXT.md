@@ -92,7 +92,7 @@ Current update: Slice 514 extends patient portal secure-message folder search re
 
 ## Why OpenEMR
 
-Current document-workflow update: Slice 593 adds document routing queue readiness after Slice 592 generated PDF thumbnails. The modernized document API now exposes active pending-review documents as routed work items with category, destination, priority, and reason evidence, the Documents workspace renders a Routing Queue panel beside OCR Queue, and the shared parity plan verifies legacy pending-review source facts plus modernized API/UI routing evidence while cleaning up the temporary document.
+Current document-workflow update: Slice 594 adds document retention policy readiness after Slice 593 routing queues. The modernized document API now projects active documents into deterministic retention-policy rows with retention class, retain-until date, disposition status, and policy-basis evidence, the Documents workspace renders a Retention Policy panel, and the shared parity plan verifies legacy document source facts plus modernized API/UI retention evidence while cleaning up the temporary document.
 
 OpenEMR is a mature, open source electronic health records and medical practice management application. It is large enough to contain real modernization challenges: legacy UI patterns, server-side business behavior, database coupling, authentication and authorization concerns, reporting, healthcare workflows, and integration surfaces.
 
@@ -206,7 +206,7 @@ Each slice should include:
 
 ## Near-Term Next Steps
 
-1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 593 moving document operations forward by adding routed pending-review queue evidence while preserving side-by-side parity evidence.
+1. Continue implementing modernized workflow slices that close functional gaps in the major OpenEMR clinical, scheduling, billing, lab, message, administration, reports, documents, integration, and mutation paths, with Slice 594 moving document operations forward by adding deterministic retention policy evidence while preserving side-by-side parity evidence.
 2. Add modernized workflow action adapters for the remaining CRUD-capable slices as they are selected.
 3. Promote mature read-only and mutation slices into broader side-by-side parity plans.
 4. Extend normalized database query/result attachment generation from the database contract suite plus implemented workflow suites into additional read-only workflow and mutation parity tests, then expand Workbench comparison views with deeper historical reliability charts and long-term evidence-retention policy.
