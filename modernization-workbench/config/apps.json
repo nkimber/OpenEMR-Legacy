@@ -4524,6 +4524,19 @@
           "slice-596-document-scanner-capture-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentVersionHistoryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-597-document-version-history-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7310,6 +7323,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRetentionPolicyPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-594-document-retention-policy-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-version-history",
+          "name": "Slice 597 document version history plan",
+          "description": "Runs the shared document version-history plan against the legacy target and captures current-plus-prior revision evidence for comparison.",
+          "layer": "plan",
+          "commandName": "parityDocumentVersionHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-597-document-version-history-readiness.json"
         }
       ],
       "testPlans": [
@@ -7324,7 +7345,8 @@
         "slice-593-document-routing-queue-readiness",
         "slice-594-document-retention-policy-readiness",
         "slice-595-document-retention-disposition-readiness",
-        "slice-596-document-scanner-capture-readiness"
+        "slice-596-document-scanner-capture-readiness",
+        "slice-597-document-version-history-readiness"
       ]
     },
     {
@@ -11725,6 +11747,19 @@
           "slice-596-document-scanner-capture-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentVersionHistoryPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-597-document-version-history-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14424,6 +14459,14 @@
           "layer": "plan",
           "commandName": "parityDocumentRetentionPolicyPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-594-document-retention-policy-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-version-history",
+          "name": "Slice 597 document version history plan",
+          "description": "Runs the shared document version-history plan against the modernized target and captures current-plus-prior revision evidence for comparison.",
+          "layer": "plan",
+          "commandName": "parityDocumentVersionHistoryPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-597-document-version-history-readiness.json"
         }
       ],
       "testPlans": [
@@ -14438,7 +14481,8 @@
         "slice-593-document-routing-queue-readiness",
         "slice-594-document-retention-policy-readiness",
         "slice-595-document-retention-disposition-readiness",
-        "slice-596-document-scanner-capture-readiness"
+        "slice-596-document-scanner-capture-readiness",
+        "slice-597-document-version-history-readiness"
       ]
     },
     {

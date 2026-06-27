@@ -271,6 +271,20 @@ export type PatientDocumentContentSummary = PatientDocumentSummary & {
   content: string;
   contentBase64: string;
   isBinary: boolean;
+  versionHistory?: PatientDocumentVersionSummary[];
+};
+
+export type PatientDocumentVersionSummary = {
+  version: number;
+  versionLabel: string;
+  versionStatus: string;
+  capturedAt: string;
+  fileName: string;
+  mimetype: string;
+  sizeBytes: number;
+  pages: number;
+  hash: string;
+  contentPreview: string;
 };
 
 export type PatientDocumentPreviewFields = {

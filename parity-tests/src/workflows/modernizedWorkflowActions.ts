@@ -3615,6 +3615,27 @@ LIMIT 1;
   }
 
   async getPatientDocument(id: number | string): Promise<PatientDocumentRecord | null> {
+    await this.db.execute(`
+CREATE TABLE IF NOT EXISTS patient_document_versions (
+  id bigserial primary key,
+  document_id integer not null references patient_documents(id) on delete cascade,
+  version_no integer not null,
+  captured_at timestamp not null,
+  file_name text,
+  mimetype text,
+  size_bytes integer,
+  pages integer,
+  storage_method text,
+  url text,
+  hash text,
+  content text,
+  content_bytes bytea,
+  unique (document_id, version_no)
+);
+
+CREATE INDEX IF NOT EXISTS idx_patient_document_versions_document
+  ON patient_document_versions (document_id, version_no desc);
+`);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "categoryId",
   category_name AS "categoryName", name, doc_date AS "docDate", COALESCE(mimetype, '') AS mimetype,
@@ -3622,6 +3643,7 @@ SELECT id, pid AS "patientId", document_key AS "documentKey", category_id AS "ca
   COALESCE(encounter::text, '0') AS encounter,
   COALESCE(file_name, name) AS "fileName", COALESCE(size_bytes::text, '0') AS "sizeBytes",
   COALESCE(pages::text, '0') AS pages,
+  (select count(*) from patient_document_versions v where v.document_id = patient_documents.id)::text AS "priorVersionCount",
   COALESCE(storage_method, '') AS "storageMethod", deleted,
   COALESCE(review_status, 'pending') AS "reviewStatus",
   COALESCE(reviewed_by, '') AS "reviewedBy",
@@ -3657,6 +3679,8 @@ LIMIT 1;
       url: row.url,
       sizeBytes: Number(row.sizeBytes),
       pages: Number(row.pages),
+      currentVersion: Number(row.priorVersionCount) + 1,
+      versionHistoryCount: Number(row.priorVersionCount) + 1,
       storageMethod: row.storageMethod,
       deleted: Number(row.deleted),
       reviewStatus: row.reviewStatus,

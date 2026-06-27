@@ -4293,6 +4293,28 @@
       ]
     },
     {
+      "id": "slice-597-document-version-history-readiness",
+      "name": "Slice 597 Document Version History Readiness",
+      "description": "Mutation-capable document version-history confidence plan that creates a temporary patient document, replaces it twice, verifies current-plus-prior version history on the modernized target, and keeps the legacy overwrite baseline comparable.",
+      "suites": [
+        "workflow-document-version-history"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-597",
+        "documents",
+        "version-history",
+        "revision",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10477,6 +10499,26 @@
         "attachments",
         "scanner",
         "ocr",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-version-history",
+      "name": "Document version history workflow",
+      "description": "Creates a temporary text document, replaces it twice, verifies current-plus-prior version history on the modernized target while preserving the legacy overwrite baseline, and removes the temporary document.",
+      "path": "tests/workflow-document-version-history",
+      "tags": [
+        "slice597",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "version-history",
+        "revision",
         "comparison-ready"
       ],
       "targets": [

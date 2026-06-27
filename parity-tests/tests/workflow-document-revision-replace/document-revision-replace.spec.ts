@@ -137,13 +137,14 @@ test.describe("patient document replacement revision parity @slice55 @workflow-d
 
       const replacedContent = await targetDb.getPatientDocumentContent(Number(documentId));
       expect(replacedContent).not.toBeNull();
+      const expectedCurrentVersion = target.type === "modernized-openemr" ? 2 : 1;
       expect(replacedContent).toMatchObject({
         id: Number(documentId),
-        currentVersion: 1,
-        versionLabel: "Version 1",
+        currentVersion: expectedCurrentVersion,
+        versionLabel: `Version ${expectedCurrentVersion}`,
         versionStatus: "Current version",
-        versionHistoryCount: 1,
-        hasPriorVersions: false,
+        versionHistoryCount: expectedCurrentVersion,
+        hasPriorVersions: target.type === "modernized-openemr",
         mimetype: "text/plain",
         storageMethod: "database"
       });
@@ -162,11 +163,11 @@ test.describe("patient document replacement revision parity @slice55 @workflow-d
         expected: {
           content: {
             id: Number(documentId),
-            currentVersion: 1,
-            versionLabel: "Version 1",
+            currentVersion: expectedCurrentVersion,
+            versionLabel: `Version ${expectedCurrentVersion}`,
             versionStatus: "Current version",
-            versionHistoryCount: 1,
-            hasPriorVersions: false,
+            versionHistoryCount: expectedCurrentVersion,
+            hasPriorVersions: target.type === "modernized-openemr",
             mimetype: "text/plain",
             storageMethod: "database",
             includes: replacementBody,
@@ -209,14 +210,16 @@ test.describe("patient document replacement revision parity @slice55 @workflow-d
         const documentCard = page.locator(".document-card").filter({ hasText: documentName }).first();
         await expect(documentCard).toBeVisible();
         await expect(documentCard).toContainText(replacementBody);
-        await expect(documentCard).toContainText("Version 1 / Current version");
-        await expect(documentCard).toContainText("No prior versions");
+        await expect(documentCard).toContainText("Version 2 / Current version");
+        await expect(documentCard).toContainText("2 versions");
 
         await documentCard.getByRole("button", { name: "View" }).click();
         await expect(page.getByRole("heading", { name: "Document Viewer" })).toBeVisible();
         const viewer = page.getByLabel("Document viewer");
-        await expect(viewer).toContainText("Version 1");
-        await expect(viewer).toContainText("1 current version");
+        await expect(viewer).toContainText("Version 2");
+        await expect(viewer).toContainText("2 versions");
+        await expect(viewer).toContainText("Prior version");
+        await expect(viewer).toContainText(originalBody);
         await expect(viewer).toContainText(replacementBody);
       }
 

@@ -622,10 +622,12 @@ LIMIT 1;
   }
 
   async getPatientDocumentsForPatient(pid: number): Promise<PatientDocumentsSummary> {
+    await this.ensurePatientDocumentVersionsTable();
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
   uploaded_at AS "revisionAt",
+  (select count(*) from patient_document_versions v where v.document_id = patient_documents.id)::text AS "priorVersionCount",
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
   COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
@@ -655,6 +657,8 @@ ORDER BY doc_date DESC, id DESC;
           docDate: row.docDate,
           uploadedAt: row.uploadedAt,
           revisionAt: row.revisionAt,
+          currentVersion: Number(row.priorVersionCount) + 1,
+          versionHistoryCount: Number(row.priorVersionCount) + 1,
           mimetype: row.mimetype,
           sizeBytes: Number(row.sizeBytes),
           pages: Number(row.pages),
@@ -687,10 +691,12 @@ ORDER BY doc_date DESC, id DESC;
   }
 
   async getPatientDocumentContent(documentId: number): Promise<PatientDocumentContentSummary | null> {
+    await this.ensurePatientDocumentVersionsTable();
     const rows = await this.queryRows<Record<string, string>>(`
 SELECT id, document_key AS "documentKey", category_id AS "categoryId", category_name AS "categoryName",
   name, doc_date AS "docDate", uploaded_at AS "uploadedAt", COALESCE(mimetype, '') AS mimetype,
   uploaded_at AS "revisionAt",
+  (select count(*) from patient_document_versions v where v.document_id = patient_documents.id)::text AS "priorVersionCount",
   COALESCE(size_bytes::text, '0') AS "sizeBytes", COALESCE(pages::text, '0') AS pages,
   COALESCE(encounter::text, '\\N') AS encounter, COALESCE(storage_method, '') AS "storageMethod",
   COALESCE(file_name, name) AS "fileName", COALESCE(url, '') AS url, COALESCE(hash, '') AS hash,
@@ -722,6 +728,8 @@ LIMIT 1;
       docDate: row.docDate,
       uploadedAt: row.uploadedAt,
       revisionAt: row.revisionAt,
+      currentVersion: Number(row.priorVersionCount) + 1,
+      versionHistoryCount: Number(row.priorVersionCount) + 1,
       mimetype: row.mimetype,
       fileName: row.fileName,
       sizeBytes: Number(row.sizeBytes),
@@ -739,12 +747,90 @@ LIMIT 1;
       isBinary: row.isBinary === "1"
     };
 
+    const versionHistory = await this.getPatientDocumentVersionHistory(documentId, document);
+
     return {
       ...document,
       ...buildPatientDocumentRevisionFields(document),
       ...buildPatientDocumentPreviewFields(document),
-      ...buildPatientDocumentScanFields(document)
+      ...buildPatientDocumentScanFields(document),
+      versionHistory
     };
+  }
+
+  private async getPatientDocumentVersionHistory(documentId: number, current: {
+    currentVersion: number;
+    revisionAt: string;
+    fileName: string;
+    mimetype: string;
+    sizeBytes: number;
+    pages: number;
+    hash: string;
+    contentPreview: string;
+  }) {
+    const rows = await this.queryRows<Record<string, string>>(`
+SELECT version_no AS version, captured_at AS "capturedAt", COALESCE(file_name, '') AS "fileName",
+  COALESCE(mimetype, '') AS mimetype, COALESCE(size_bytes::text, '0') AS "sizeBytes",
+  COALESCE(pages::text, '0') AS pages, COALESCE(hash, '') AS hash,
+  case
+    when content_bytes is not null then left(coalesce(content, ''), 260)
+    else left(regexp_replace(coalesce(content, ''), E'[\\r\\n]+', ' ', 'g'), 260)
+  end AS "contentPreview"
+FROM patient_document_versions
+WHERE document_id = ${documentId}
+ORDER BY version_no DESC;
+`);
+
+    return [
+      {
+        version: current.currentVersion,
+        versionLabel: `Version ${current.currentVersion}`,
+        versionStatus: "Current version",
+        capturedAt: current.revisionAt,
+        fileName: current.fileName,
+        mimetype: current.mimetype,
+        sizeBytes: current.sizeBytes,
+        pages: current.pages,
+        hash: current.hash,
+        contentPreview: current.contentPreview
+      },
+      ...rows.map((row) => ({
+        version: Number(row.version),
+        versionLabel: `Version ${row.version}`,
+        versionStatus: "Prior version",
+        capturedAt: row.capturedAt,
+        fileName: row.fileName,
+        mimetype: row.mimetype,
+        sizeBytes: Number(row.sizeBytes),
+        pages: Number(row.pages),
+        hash: row.hash,
+        contentPreview: row.contentPreview
+      }))
+    ];
+  }
+
+  private async ensurePatientDocumentVersionsTable() {
+    await this.execute(`
+CREATE TABLE IF NOT EXISTS patient_document_versions (
+  id bigserial primary key,
+  document_id integer not null references patient_documents(id) on delete cascade,
+  version_no integer not null,
+  captured_at timestamp not null,
+  file_name text,
+  mimetype text,
+  size_bytes integer,
+  pages integer,
+  storage_method text,
+  url text,
+  hash text,
+  content text,
+  content_bytes bytea,
+  unique (document_id, version_no)
+);
+
+CREATE INDEX IF NOT EXISTS idx_patient_document_versions_document
+  ON patient_document_versions (document_id, version_no desc);
+`);
   }
 
   async getBillingLinesForEncounter(pid: number, encounter: number): Promise<BillingLineSummary[]> {
