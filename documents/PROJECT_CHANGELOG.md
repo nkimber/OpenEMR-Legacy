@@ -27685,7 +27685,7 @@ Code Metrics:
 
 Started: 2026-06-26T21:57:00.0000000-04:00
 Finished: 2026-06-26T22:10:15.2590000-04:00
-Commit: pending
+Commit: e7ddedd3
 
 Implemented Slice 575: appointment availability validation readiness. The modernized appointment API now exposes a non-mutating `POST /api/appointments/availability/validate` operation that resolves the patient, provider, and facility, evaluates the shared Monday-Friday 08:00-17:00 provider/facility bookable window, and reports active provider, patient, and room conflicts before an appointment is created. The Calendar create form now includes a `Check availability` action that renders available/unavailable status, provider/facility availability, conflict counts, and validation messages.
 
@@ -27709,7 +27709,7 @@ Verification:
 - Compared the latest successful Slice 575 runs: `2026-06-27T021015-258Z-legacy-openemr-vs-modernized-openemr-plan-slice-575-appointment-availability-validation-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics until the Slice 575 files are staged separately from unrelated in-progress Azure demo documentation and Workbench changes.
+- Commit `e7ddedd3` changed 16 scoped files with 741 insertions and 7 deletions.
 
 ## Next Expected Entries
 
