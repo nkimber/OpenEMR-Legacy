@@ -224,7 +224,7 @@ Acceptance:
 Current limitations:
 
 - This slice is read-only.
-- Allergy create, deactivate, and delete workflows are covered by Slice 13 for the focused allergy lifecycle. Prescription create, active rendering, deactivate, and delete workflows are covered by Slice 15 for the focused prescription lifecycle. Problem-list mutation is covered by Slice 31. Medication-list mutation is covered by Slice 32. Prescription audit history is covered by Slice 584 for create, refill, route, and deactivate events. Structured prescription dose/frequency/duration fields are covered by Slice 585. Focused medication vocabulary lookup is covered by Slice 586. Prescription diagnosis interaction readiness is covered by Slice 587. Duplicate detection is covered by Slice 578. Medication reconciliation and broader e-prescribing workflows remain deferred.
+- Allergy create, deactivate, and delete workflows are covered by Slice 13 for the focused allergy lifecycle. Prescription create, active rendering, deactivate, and delete workflows are covered by Slice 15 for the focused prescription lifecycle. Problem-list mutation is covered by Slice 31. Medication-list mutation is covered by Slice 32. Prescription audit history is covered by Slice 584 for create, refill, route, and deactivate events. Structured prescription dose/frequency/duration fields are covered by Slice 585. Focused medication vocabulary lookup is covered by Slice 586. Prescription diagnosis interaction readiness is covered by Slice 587. Medication reconciliation readiness is covered by Slice 588. Duplicate detection is covered by Slice 578. Broader e-prescribing workflows remain deferred.
 
 ### Slice 5: Messaging And Portal-Facing Data
 
@@ -532,7 +532,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused prescription lifecycle only.
-- Focused medication-list mutation is covered by Slice 32. Allergy/problem interactions, pharmacy routing, electronic prescribing, controlled-substance rules, refill requests, medication reconciliation, and audit history remain deferred to later medication workflow slices.
+- Focused medication-list mutation is covered by Slice 32. Medication reconciliation readiness is covered by Slice 588. Allergy/problem interactions, pharmacy routing, electronic prescribing, controlled-substance rules, refill requests, and audit history remain deferred to later medication workflow slices.
 
 ### Slice 16: Billing Mutation
 
@@ -1972,7 +1972,7 @@ Acceptance:
 Current limitations:
 
 - This slice covers a focused medication-list create, deactivate, and delete lifecycle only.
-- Medication reconciliation, allergy/problem interactions, broader electronic prescribing, and production controlled-substance/EPCS workflows remain deferred.
+- Medication reconciliation readiness is covered by Slice 588. Allergy/problem interactions, broader electronic prescribing, and production controlled-substance/EPCS workflows remain deferred.
 
 ### Slice 33: Binary Patient Document Mutation
 
@@ -5097,3 +5097,4 @@ As of 2026-06-20:
 - The five-hundred-eighty-fifth implementation slice adds prescription structured-dose readiness. The modernized PostgreSQL schema and runtime guard now support `dose_amount`, `dose_unit`, `frequency`, and `duration_days` on prescriptions while retaining legacy dosage and quantity text, the clinical-list API accepts and projects those fields, and the Lists prescription card renders the structured dose line. The shared parity plan creates a cleanup-backed prescription for `MOD-PAT-0008`, verifies structured dose/frequency/duration evidence through both workflow adapters, checks modernized card rendering, and removes the temporary prescription.
 - The five-hundred-eighty-sixth implementation slice adds medication vocabulary lookup readiness. The modernized PostgreSQL schema now includes a focused `medication_vocabulary` catalog, the clinical-list API exposes protected `GET /api/clinical-lists/medication-vocabulary`, and the Lists prescription form can search/select RxNorm-style entries to populate drug, RxNorm, dose, frequency, duration, and note evidence. The shared parity plan searches Metformin for `MOD-PAT-0008`, verifies RxNorm `860975` and dose/frequency/duration evidence through both adapters, checks modernized result rendering and selection, and creates no patient-specific rows.
 - The five-hundred-eighty-seventh implementation slice adds prescription diagnosis interaction readiness. The modernized clinical-list read model derives `prescriptionDiagnosisInteractions` by comparing active prescription diagnoses with active problem-list diagnoses, reports matched active-problem and unmatched diagnosis evidence, and renders the summary in the Lists prescription panel. The shared parity plan creates a cleanup-backed active problem, one matched prescription, and one unmatched prescription for `MOD-PAT-0008`, compares normalized legacy and modernized source facts, verifies the modernized API projection and UI rendering, and removes all temporary rows.
+- The five-hundred-eighty-eighth implementation slice adds medication reconciliation readiness. The modernized clinical-list read model derives `medicationReconciliations` by comparing active medication-list rows with active prescriptions by normalized medication name, reports matched, medication-list-only, and prescription-only states, and renders the summary in the Lists medication panel. The shared parity plan creates cleanup-backed matched, medication-list-only, and prescription-only evidence for `MOD-PAT-0008`, compares normalized legacy and modernized source facts, verifies the modernized API projection and UI rendering, and removes all temporary rows.

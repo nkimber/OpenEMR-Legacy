@@ -4407,6 +4407,19 @@
           "slice-587-prescription-diagnosis-interactions-readiness",
           "-Reset",
           "test"
+        ],
+        "parityMedicationReconciliationPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-588-medication-reconciliation-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7121,12 +7134,21 @@
           "layer": "plan",
           "commandName": "parityPrescriptionDiagnosisInteractionsPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness.json"
+        },
+        {
+          "id": "parity-plan-medication-reconciliation",
+          "name": "Slice 588 medication reconciliation plan",
+          "description": "Runs the shared medication reconciliation plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMedicationReconciliationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-588-medication-reconciliation-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
         "slice-586-medication-vocabulary-readiness",
-        "slice-587-prescription-diagnosis-interactions-readiness"
+        "slice-587-prescription-diagnosis-interactions-readiness",
+        "slice-588-medication-reconciliation-readiness"
       ]
     },
     {
@@ -11410,6 +11432,19 @@
           "slice-587-prescription-diagnosis-interactions-readiness",
           "-Reset",
           "test"
+        ],
+        "parityMedicationReconciliationPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-588-medication-reconciliation-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14037,12 +14072,21 @@
           "layer": "plan",
           "commandName": "parityPrescriptionDiagnosisInteractionsPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness.json"
+        },
+        {
+          "id": "parity-plan-medication-reconciliation",
+          "name": "Slice 588 medication reconciliation plan",
+          "description": "Runs the shared medication reconciliation plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityMedicationReconciliationPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-588-medication-reconciliation-readiness.json"
         }
       ],
       "testPlans": [
         "slice-585-prescription-structured-dose-readiness",
         "slice-586-medication-vocabulary-readiness",
-        "slice-587-prescription-diagnosis-interactions-readiness"
+        "slice-587-prescription-diagnosis-interactions-readiness",
+        "slice-588-medication-reconciliation-readiness"
       ]
     },
     {

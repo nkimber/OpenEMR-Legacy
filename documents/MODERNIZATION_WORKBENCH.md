@@ -912,4 +912,11 @@ The Progress page also records focused medication vocabulary lookup as completed
 
 The Workbench now exposes managed Slice 587 prescription diagnosis interaction plan actions for both the legacy and modernized targets. These actions run `slice-587-prescription-diagnosis-interactions-readiness`, write the standard latest-run artifacts, and let the comparison view show whether active prescription diagnoses match active problem-list diagnoses on both targets.
 
-The Progress page also records prescription diagnosis interaction readiness as completed clinical-list and prescribing evidence while keeping medication reconciliation and broader e-prescribing workflow outstanding.
+The Progress page also records prescription diagnosis interaction readiness as completed clinical-list and prescribing evidence.
+
+
+## Slice 588 Workbench Update
+
+The Workbench now exposes managed Slice 588 medication reconciliation plan actions for both the legacy and modernized targets. These actions run `slice-588-medication-reconciliation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether active medication-list rows and active prescriptions reconcile into matched, medication-list-only, and prescription-only states on both targets.
+
+The Progress page also records medication reconciliation readiness as completed clinical-list and prescribing evidence while keeping broader e-prescribing workflow depth outstanding.

@@ -4093,6 +4093,28 @@
       ]
     },
     {
+      "id": "slice-588-medication-reconciliation-readiness",
+      "name": "Slice 588 medication reconciliation readiness",
+      "description": "Medication reconciliation readiness plan that compares active medication-list rows with active prescriptions and renders matched, medication-list-only, and prescription-only evidence in the modernized Lists workspace.",
+      "suites": [
+        "workflow-medication-reconciliation"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-588",
+        "clinical-lists",
+        "medications",
+        "prescriptions",
+        "medication-reconciliation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10470,6 +10492,25 @@
         "clinical-lists",
         "prescriptions",
         "diagnosis-interactions",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-medication-reconciliation",
+      "name": "Medication reconciliation workflow",
+      "description": "Compares active medication-list rows with active prescriptions and checks modernized Lists reconciliation rendering.",
+      "path": "tests/workflow-medication-reconciliation",
+      "tags": [
+        "slice588",
+        "workflow",
+        "clinical-lists",
+        "medications",
+        "prescriptions",
+        "medication-reconciliation",
         "comparison-ready"
       ],
       "targets": [
