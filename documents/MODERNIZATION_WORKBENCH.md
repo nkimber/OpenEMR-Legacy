@@ -847,3 +847,9 @@ The Progress page also records provider/facility availability validation as comp
 The Workbench now exposes managed Slice 576 appointment waitlist plan actions for both the legacy and modernized targets. These actions run `slice-576-appointment-waitlist-readiness`, write the standard latest-run artifacts, and let the comparison view show whether pending portal appointment requests are projected into the staff Calendar waitlist queue, retain the linked provider reminder, and promote to OpenEMR pending status without changing the requested slot.
 
 The Progress page also records staff waitlist projection and promotion as completed scheduling evidence while keeping richer waitlist management, reminder delivery/audit, templates, and broader scheduling policy configuration outstanding.
+
+## Slice 577 Workbench Update
+
+The Workbench now exposes managed Slice 577 appointment reminder dispatch plan actions for both the legacy and modernized targets. These actions run `slice-577-appointment-reminder-dispatch-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a due appointment reminder is converted into deterministic local queue/audit/template/external-reference evidence and persisted in modernized dispatch history.
+
+The Progress page also records local appointment reminder dispatch and audit history as completed scheduling evidence while keeping external reminder-provider integrations, richer template administration, retry handling, patient delivery preferences, and broader scheduling policy configuration outstanding.

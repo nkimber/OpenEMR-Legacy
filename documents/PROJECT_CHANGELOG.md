@@ -27741,6 +27741,36 @@ Verification:
 Code Metrics:
 - Commit `19634332` changed 16 scoped files with 638 insertions and 6 deletions.
 
+## 633. Appointment Reminder Dispatch Readiness
+
+Started: 2026-06-26T22:51:00.0000000-04:00
+Finished: pending
+Commit: pending
+
+Implemented Slice 577: appointment reminder dispatch readiness. The modernized appointment API now dispatches due reminders through a deterministic local queue contract, persists idempotent audit history, and exposes saved dispatch events. The Calendar page now renders a `Dispatch reminder` action on due appointment reminders, shows the queue/audit/template/external-reference evidence, and displays the latest saved dispatch history for the selected appointment.
+
+Changes:
+- Added appointment reminder dispatch DTOs, repository dispatch derivation, idempotent audit-table persistence, and dispatch-history retrieval.
+- Added `POST /api/appointments/{appointmentId}/reminders/dispatch` behind Appointment write permission and `GET /api/appointments/reminders/dispatch-history` behind Appointment view permission.
+- Added frontend API types/helpers, Calendar dispatch loading/error state, a `Dispatch reminder` action, and dispatch/history evidence panels.
+- Added the `workflow-appointment-reminder-dispatch` parity suite and `slice-577-appointment-reminder-dispatch-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 577 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so local reminder dispatch/audit is completed scheduling evidence while external provider integrations and richer template administration remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 577 legacy parity plan: `2026-06-27T025333-329Z-legacy-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` passed 1/1 tests.
+- Ran the Slice 577 modernized parity plan: `2026-06-27T025552-413Z-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 577 runs: `2026-06-27T025614-993Z-legacy-openemr-vs-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

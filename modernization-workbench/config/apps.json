@@ -342,6 +342,7 @@
         "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"],
         "parityAppointmentAvailabilityValidationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-575-appointment-availability-validation-readiness", "-Reset", "run"],
         "parityAppointmentWaitlistPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-576-appointment-waitlist-readiness", "-Reset", "run"],
+        "parityAppointmentReminderDispatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-577-appointment-reminder-dispatch-readiness", "-Reset", "run"],
         "parityMessageProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-170-message-protection-readiness", "-Reset", "run"],
         "parityBillingProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-171-billing-protection-readiness", "-Reset", "run"],
         "parityProcedureProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "legacy-openemr", "-Plan", "slice-172-procedure-protection-readiness", "-Reset", "run"]
@@ -765,6 +766,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentWaitlistPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-576-appointment-waitlist-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-dispatch",
+          "name": "Slice 577 appointment reminder dispatch plan",
+          "description": "Runs the shared appointment reminder dispatch and audit plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderDispatchPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-577-appointment-reminder-dispatch-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",
@@ -3299,6 +3308,7 @@
         "parityAppointmentRemindersPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-120-appointment-reminders-readiness", "-Reset", "run"],
         "parityAppointmentAvailabilityValidationPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-575-appointment-availability-validation-readiness", "-Reset", "run"],
         "parityAppointmentWaitlistPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-576-appointment-waitlist-readiness", "-Reset", "run"],
+        "parityAppointmentReminderDispatchPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-577-appointment-reminder-dispatch-readiness", "-Reset", "run"],
         "parityMessageProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-170-message-protection-readiness", "-Reset", "run"],
         "parityBillingProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-171-billing-protection-readiness", "-Reset", "run"],
         "parityProcedureProtectionPlan": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "..\\scripts\\Run-OpenEmrParityTests.ps1", "-Target", "modernized-openemr", "-Plan", "slice-172-procedure-protection-readiness", "-Reset", "run"]
@@ -3650,6 +3660,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentWaitlistPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-576-appointment-waitlist-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-reminder-dispatch",
+          "name": "Slice 577 appointment reminder dispatch plan",
+          "description": "Runs the shared appointment reminder dispatch and audit plan against the modernized target.",
+          "layer": "plan",
+          "commandName": "parityAppointmentReminderDispatchPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness.json"
         },
         {
           "id": "parity-plan-encounter-mutation",

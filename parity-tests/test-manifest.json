@@ -2238,6 +2238,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-577-appointment-reminder-dispatch-readiness",
+      "name": "Slice 577 Appointment Reminder Dispatch Readiness",
+      "description": "Scheduling readiness plan that dispatches a deterministic local appointment reminder, persists audit history, and verifies modernized Calendar dispatch rendering.",
+      "suites": ["workflow-appointment-reminder-dispatch"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-577", "appointments", "scheduling", "reminders", "dispatch", "audit", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -3895,6 +3904,16 @@
       "layer": "workflow",
       "path": "tests/workflow-appointment-waitlist",
       "tags": ["slice576", "workflow", "mutation", "appointments", "scheduling", "waitlist", "portal-requests", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-appointment-reminder-dispatch",
+      "name": "Appointment Reminder Dispatch Readiness",
+      "description": "Dispatches a due appointment reminder through a deterministic local queue, verifies audit history, and checks modernized Calendar dispatch evidence.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-reminder-dispatch",
+      "tags": ["slice577", "workflow", "mutation", "appointments", "scheduling", "reminders", "dispatch", "audit", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
