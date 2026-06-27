@@ -27555,6 +27555,37 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 462 insertions and 7 deletions, net +455 lines and 469 total churn, including the backend delivery-manifest projection, React delivery manifest panel, dedicated parity suite, Workbench plan wiring, and synchronized documentation.
+
+## 620. Slice 571 Statement Dispatch Handoff Readiness
+
+Started: 2026-06-26T20:46:00.0000000-04:00
+Finished: 2026-06-26T20:57:00.0000000-04:00
+Commit: `5de716e1`
+
+Implemented Slice 571: statement dispatch handoff readiness. The modernized billing API now converts deterministic statement delivery manifest rows into local email/print queue handoff evidence with dispatch audit IDs, queue names, dispatch statuses, external references, destinations, and statement file names. The React Fees statement batch panel exposes a `Dispatch Handoff` action and renders the dispatch summary/rows without sending email, printing, mailing, or inserting durable delivery state. The shared parity plan compares the normalized legacy-derived handoff expectation with the modernized API and UI behavior.
+
+Changes:
+- Added the modernized statement dispatch response contracts, repository projection, and `POST /api/billing/statements/batch/dispatch` endpoint guarded by Billing write permission.
+- Added the modernized frontend API helper plus Fees statement batch `Dispatch Handoff` action and dispatch evidence rendering.
+- Added the `account-statement-dispatch` parity suite and `slice-571-statement-dispatch-handoff-readiness` plan.
+- Added Workbench managed actions/cards for running the Slice 571 plan against legacy and modernized targets.
+- Updated the Workbench Progress ledger to count local statement dispatch handoff evidence as completed revenue-cycle readiness while leaving real delivery integrations and durable audit storage outstanding.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 571 statement dispatch handoff contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `git diff --check` on the Slice 571 file set; only existing LF-to-CRLF working-copy warnings were reported.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend`.
+- Ran the Slice 571 legacy parity plan: `2026-06-27T005415-658Z-legacy-openemr-plan-slice-571-statement-dispatch-handoff-readiness` passed 1/1 tests.
+- Ran the Slice 571 modernized parity plan: `2026-06-27T005506-964Z-modernized-openemr-plan-slice-571-statement-dispatch-handoff-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 571 runs: `2026-06-27T005602-673Z-legacy-openemr-vs-modernized-openemr-plan-slice-571-statement-dispatch-handoff-readiness` matched with no differences.
+
+Code Metrics:
+- 16 scoped files changed, with 478 insertions and 7 deletions, net +471 lines and 485 total churn, including the backend dispatch handoff projection, React dispatch handoff rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
