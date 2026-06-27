@@ -580,7 +580,7 @@
       "id": "scheduling",
       "name": "Scheduling",
       "status": "in-progress",
-      "summary": "Appointment read, portal appointment list/request/request-options, staff waitlist queue projection, lifecycle, recurrence, reassignment, status, overlap, strict conflict enforcement, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
+      "summary": "Appointment read, portal appointment list/request/request-options, staff waitlist queue projection, waitlist deferral, lifecycle, recurrence, reassignment, status, overlap, strict conflict enforcement, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, ACL-authorized front-desk schedule access, and mutation-specific Appointment write authorization are heavily covered; advanced scheduling policy remains outstanding.",
       "completed": [
         {
           "label": "Appointment read and lifecycle",
@@ -636,9 +636,10 @@
         },
         {
           "label": "Appointment waitlist readiness",
-          "detail": "Pending portal appointment requests are projected into a staff Calendar waitlist queue with requested slot, reason, reminder, and priority context, and staff can promote a request to OpenEMR pending status.",
+          "detail": "Pending portal appointment requests are projected into a staff Calendar waitlist queue with requested slot, reason, reminder, and priority context; staff can promote a request to OpenEMR pending status or defer the linked reminder while keeping the request waiting.",
           "evidence": [
-            "slice-576-appointment-waitlist-readiness"
+            "slice-576-appointment-waitlist-readiness",
+            "slice-600-appointment-waitlist-deferral-readiness"
           ]
         },
         {
@@ -701,16 +702,15 @@
         }
       ],
       "outstanding": [
-        "Richer waitlist management beyond request promotion.",
         "External reminder-provider integrations, richer template administration, retry handling, and patient-facing delivery preferences."
       ],
       "deferred": [
         "Category administration beyond seeded categories and richer scheduling policy configuration."
       ],
-      "completionEstimatePercent": 92,
+      "completionEstimatePercent": 93,
       "estimatedScopeWeight": 8,
       "scopeWeightRationale": "Scheduling is functionally important and broad, but the implemented slice set already covers much of its core behavior.",
-      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, staff waitlist projection and promotion, recurrence, overlap, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, strict provider/room conflict enforcement, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; richer waitlist management, external provider integrations, template administration, and retry policy remain."
+      "estimateRationale": "Appointment lifecycle, portal appointment lists, patient-requested pending appointments, request-form options/defaults, staff waitlist projection, promotion, and deferral, recurrence, overlap, reminder-readiness, local reminder dispatch/audit, provider/facility availability validation, strict provider/room conflict enforcement, appointment-to-encounter conversion, appointment-to-billing starter charge handoff, protected schedule access, front-desk ACL-authorized access, and mutation-specific Appointment write enforcement are broad; external provider integrations, template administration, delivery preferences, and retry policy remain."
     },
     {
       "id": "encounters-clinical-notes",

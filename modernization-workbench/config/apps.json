@@ -4563,6 +4563,19 @@
           "slice-599-procedure-report-review-assignment-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentWaitlistDeferralPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-600-appointment-waitlist-deferral-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7373,6 +7386,14 @@
           "layer": "plan",
           "commandName": "parityProcedureReportReviewAssignmentPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-599-procedure-report-review-assignment-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-waitlist-deferral",
+          "name": "Slice 600 appointment waitlist deferral plan",
+          "description": "Runs the shared appointment waitlist deferral plan against the legacy target and captures deferred reminder metadata while the request remains waiting.",
+          "layer": "plan",
+          "commandName": "parityAppointmentWaitlistDeferralPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-600-appointment-waitlist-deferral-readiness.json"
         }
       ],
       "testPlans": [
@@ -7390,7 +7411,8 @@
         "slice-596-document-scanner-capture-readiness",
         "slice-597-document-version-history-readiness",
         "slice-598-procedure-result-version-history-readiness",
-        "slice-599-procedure-report-review-assignment-readiness"
+        "slice-599-procedure-report-review-assignment-readiness",
+        "slice-600-appointment-waitlist-deferral-readiness"
       ]
     },
     {
@@ -11830,6 +11852,19 @@
           "slice-599-procedure-report-review-assignment-readiness",
           "-Reset",
           "test"
+        ],
+        "parityAppointmentWaitlistDeferralPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-600-appointment-waitlist-deferral-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14553,6 +14588,14 @@
           "layer": "plan",
           "commandName": "parityProcedureReportReviewAssignmentPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-599-procedure-report-review-assignment-readiness.json"
+        },
+        {
+          "id": "parity-plan-appointment-waitlist-deferral",
+          "name": "Slice 600 appointment waitlist deferral plan",
+          "description": "Runs the shared appointment waitlist deferral plan against the modernized target and captures deferred reminder metadata while the request remains waiting.",
+          "layer": "plan",
+          "commandName": "parityAppointmentWaitlistDeferralPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness.json"
         }
       ],
       "testPlans": [
@@ -14570,7 +14613,8 @@
         "slice-596-document-scanner-capture-readiness",
         "slice-597-document-version-history-readiness",
         "slice-598-procedure-result-version-history-readiness",
-        "slice-599-procedure-report-review-assignment-readiness"
+        "slice-599-procedure-report-review-assignment-readiness",
+        "slice-600-appointment-waitlist-deferral-readiness"
       ]
     },
     {

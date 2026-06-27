@@ -36,6 +36,8 @@ Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR ta
 
 It explains the intentionally simple Azure Container Apps design, the local-only Workbench profile, the database-sidecar tradeoff, and why the path is for disposable synthetic-data demos only.
 
+Slice 600 index update: appointment waitlist deferral readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on Calendar waitlist deferral, portal appointment-request queue management, or Workbench plan execution for `slice-600-appointment-waitlist-deferral-readiness`.
+
 ### `MODERNIZATION_PLAN.md`
 
 Read this when planning or implementing the modernized OpenEMR target, choosing vertical slices, preserving UI fidelity, designing PostgreSQL mappings, or deciding whether a workflow is complete.

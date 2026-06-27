@@ -981,3 +981,9 @@ The Progress page also records current-plus-prior procedure result version-histo
 The Workbench now exposes managed Slice 599 procedure report reviewer-assignment plan actions for both the legacy and modernized targets. These actions run `slice-599-procedure-report-review-assignment-readiness`, write the standard latest-run artifacts, and let the comparison view show assigned reviewer/timestamp metadata on a cleanup-backed received lab report.
 
 The Progress page now records reviewer assignment as completed lab/procedure evidence and keeps queue notifications, external lab operations, chain-of-custody depth, and broader lab audit export outstanding.
+
+## Slice 600 Workbench Update
+
+The Workbench now exposes managed Slice 600 appointment waitlist deferral plan actions for both the legacy and modernized targets. These actions run `slice-600-appointment-waitlist-deferral-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a waiting portal appointment request can be deferred through its linked `Patient Reminders` message while the appointment itself remains in OpenEMR waiting status.
+
+The Progress page now records appointment waitlist deferral as completed scheduling evidence and keeps external reminder-provider integrations, richer template administration, retry handling, and patient-facing delivery preferences outstanding.

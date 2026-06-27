@@ -4361,6 +4361,29 @@
       ]
     },
     {
+      "id": "slice-600-appointment-waitlist-deferral-readiness",
+      "name": "Slice 600 Appointment Waitlist Deferral Readiness",
+      "description": "Mutation-capable scheduling waitlist plan that creates a temporary portal appointment request, defers the linked staff reminder, verifies the request remains waiting, and removes the temporary workflow.",
+      "suites": [
+        "workflow-appointment-waitlist-deferral"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-600",
+        "appointments",
+        "scheduling",
+        "waitlist",
+        "deferral",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10593,6 +10616,29 @@
         "modernized-openemr"
       ],
       "defaultResetMode": "run"
+    },
+    {
+      "id": "workflow-appointment-waitlist-deferral",
+      "name": "Appointment Waitlist Deferral Readiness",
+      "description": "Creates a temporary portal appointment request, defers the linked staff reminder while keeping the appointment waiting, verifies queue state, and removes the temporary appointment and reminder.",
+      "layer": "workflow",
+      "path": "tests/workflow-appointment-waitlist-deferral",
+      "tags": [
+        "slice600",
+        "workflow",
+        "mutation",
+        "appointments",
+        "scheduling",
+        "waitlist",
+        "deferral",
+        "portal-requests",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
     },
     {
       "id": "workflow-appointment-reminder-dispatch",
