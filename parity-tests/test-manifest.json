@@ -4203,6 +4203,28 @@
       ]
     },
     {
+      "id": "slice-593-document-routing-queue-readiness",
+      "name": "Slice 593 document routing queue readiness",
+      "description": "Document routing queue readiness plan that proves pending-review source facts and verifies the modernized Documents workspace renders routed review work items.",
+      "suites": [
+        "workflow-document-routing-queue"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-593",
+        "documents",
+        "attachments",
+        "routing",
+        "queue",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10307,6 +10329,26 @@
         "attachments",
         "thumbnail",
         "pdf",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-routing-queue",
+      "name": "Document routing queue workflow",
+      "description": "Creates a temporary pending-review document and verifies the modernized Documents workspace renders routed review queue evidence while legacy source facts remain comparable.",
+      "path": "tests/workflow-document-routing-queue",
+      "tags": [
+        "slice593",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "routing",
+        "queue",
         "comparison-ready"
       ],
       "targets": [

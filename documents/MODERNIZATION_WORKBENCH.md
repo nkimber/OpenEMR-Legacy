@@ -943,3 +943,8 @@ The Progress page also records focused OCR completion as completed document evid
 The Workbench now exposes managed Slice 592 document PDF thumbnail plan actions for both the legacy and modernized targets. These actions run `slice-592-document-pdf-thumbnail-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable PDF source facts plus generated-thumbnail API/UI evidence from the modernized Documents workspace.
 
 The Progress page also records generated PDF thumbnails as completed document evidence while keeping direct scanner capture, production OCR engine integration, document routing queues, storage, encryption/key management, and retention policy outstanding.
+## Slice 593 Workbench Update
+
+The Workbench now exposes managed Slice 593 document routing queue plan actions for both the legacy and modernized targets. These actions run `slice-593-document-routing-queue-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable pending-review source facts plus modernized routing queue API/UI evidence.
+
+The Progress page also records pending-review document routing queues as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and retention policy outstanding.
