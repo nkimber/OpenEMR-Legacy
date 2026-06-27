@@ -28487,6 +28487,37 @@ Verification:
 Code Metrics:
 - 11 files changed, 316 insertions, 11 deletions.
 
+## 653. Slice 601 Appointment Reminder Retry Readiness
+
+Started: 2026-06-27T06:24:00.0000000-04:00
+Finished: 2026-06-27T06:36:36.1870000-04:00
+Commit: 6cba5c7c
+
+Implemented appointment reminder retry readiness for the modernized Calendar workflow. The modernized appointment API now appends deterministic retry audit events after an initial local reminder dispatch, and the Calendar detail panel exposes a `Retry reminder` action once reminder dispatch history exists.
+
+Changes:
+- Added protected `POST /api/appointments/{appointmentId}/reminders/dispatch/retry` behind Appointment write permission.
+- Extended `appointment_reminder_dispatch_audit` with retry metadata, including `retry_of_dispatch_id` and `retry_attempt`, with schema evolution for already-created local tables.
+- Added frontend API support plus a Calendar `Retry reminder` action and retry metadata rendering in the dispatch/history panels.
+- Added the `workflow-appointment-reminder-retry` parity suite and `slice-601-appointment-reminder-retry-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 601 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so local reminder retry handling is completed scheduling evidence and scheduling completion moves to 94%.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 601.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
+- Ran the Slice 601 legacy parity plan: `2026-06-27T103547-852Z-legacy-openemr-plan-slice-601-appointment-reminder-retry-readiness` passed 1/1 tests.
+- Ran the Slice 601 modernized parity plan: `2026-06-27T103612-679Z-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 601 runs: `2026-06-27T103636-186Z-legacy-openemr-vs-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness` matched with no differences.
+
+Code Metrics:
+- 15 files changed, 632 insertions, 16 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
