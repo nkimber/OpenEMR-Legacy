@@ -27494,6 +27494,36 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 218 insertions and 19 deletions, net +199 lines and 237 total churn, including the backend patient-payment operation, React patient-payment handoff, stronger UI-backed parity coverage, and managed server-side patient-payment parity plan.
+## 618. Slice 569 Billing Focused Payment Contract Readiness
+
+Started: 2026-06-26T20:13:00.0000000-04:00
+Finished: 2026-06-26T20:27:29.2220000-04:00
+Commit: `1bf9edc8`
+
+Implemented Slice 569: focused billing payment-create contract readiness. The modernized API no longer exposes broad `POST /api/billing/payments` creation; payment creation now enters through focused patient-payment, patient-refund, insurance-payment, insurance-reversal, and adjustment-reversal operations. The React Fees shell no longer carries the generic payment-posting helper or fallback, the parity workflow adapter routes temporary payment creation through the focused endpoints, the modernized baseline smoke script uses those same focused routes, and the billing mutation authorization-policy suite proves the broad create method returns 405 even for an admin session while payment void/delete-by-id routes remain available.
+
+Changes:
+- Removed the broad public billing payment-create route from the modernized API while preserving focused payment create operations and existing void/delete/receipt routes.
+- Removed the generic frontend payment-posting API helper, React handler, Fees workspace prop, and unreachable generic fallback.
+- Updated the modernized parity workflow adapter to translate legacy-style temporary payment fixtures into focused create endpoint calls based on payment type.
+- Updated the billing mutation authorization-policy suite so the clinician create denial targets the focused insurance-payment endpoint and the admin contract probe verifies broad payment creation is method-not-allowed.
+- Updated the modernized baseline smoke script to create insurance and patient payments through their focused routes.
+- Added the `slice-569-billing-focused-payment-contract-readiness` plan, Workbench managed actions/cards, progress ledger evidence, and synchronized modernization/test-data/test-architecture/index/workbench/project-context documentation.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 569 legacy parity plan: `2026-06-27T002509-053Z-legacy-openemr-plan-slice-569-billing-focused-payment-contract-readiness` passed 1/1 tests.
+- Ran the Slice 569 modernized parity plan after correcting the expected retired-route status to 405: `2026-06-27T002638-327Z-modernized-openemr-plan-slice-569-billing-focused-payment-contract-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 569 runs: `2026-06-27T002729-221Z-legacy-openemr-vs-modernized-openemr-plan-slice-569-billing-focused-payment-contract-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 569 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 15 scoped files changed, with 163 insertions and 148 deletions, net +15 lines and 311 total churn, including API route removal, frontend generic path removal, focused parity routing, Workbench plan wiring, and synchronized documentation.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
