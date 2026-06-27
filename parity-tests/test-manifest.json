@@ -2211,6 +2211,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-574-statement-email-outbox-readiness",
+      "name": "Slice 574 Statement Email Outbox Readiness",
+      "description": "Revenue-cycle confidence plan that queues deterministic local statement email outbox records and validates modernized Fees email outbox rendering.",
+      "suites": ["account-statement-email-outbox"],
+      "resetMode": "run",
+      "tags": ["readiness", "mutation", "slice-574", "billing", "patient-statements", "statement-delivery", "email-outbox", "revenue-cycle", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -3068,6 +3077,16 @@
       "layer": "parity",
       "path": "tests/account-statement-portal-delivery",
       "tags": ["slice573", "account-statement-portal-delivery", "patient-statements", "statement-delivery", "portal-delivery", "patient-portal", "documents", "billing", "revenue-cycle", "mutation", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "run"
+    },
+    {
+      "id": "account-statement-email-outbox",
+      "name": "Account Statement Email Outbox",
+      "description": "Compares deterministic local statement email outbox records and modernized Fees email outbox rendering against seeded statement candidates.",
+      "layer": "parity",
+      "path": "tests/account-statement-email-outbox",
+      "tags": ["slice574", "account-statement-email-outbox", "patient-statements", "statement-delivery", "email-outbox", "billing", "revenue-cycle", "mutation", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "run"
     },
