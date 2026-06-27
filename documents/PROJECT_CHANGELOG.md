@@ -27337,6 +27337,7 @@ Verification:
 
 Code Metrics:
 - 14 scoped files changed, with 201 insertions and 38 deletions, net +163 lines and 239 total churn, including the backend charge-template catalog lookup, React template handoff, and managed server-side charge-template parity plan.
+
 ## 613. Slice 564 Patient Refund Server-Side Posting Readiness
 
 Started: 2026-06-26T19:17:00.0000000-04:00
@@ -27368,6 +27369,7 @@ Verification:
 
 Code Metrics:
 - 16 scoped files changed, with 217 insertions and 19 deletions, net +198 lines and 236 total churn, including the backend patient-refund operation, React refund handoff, stronger UI-backed parity coverage, and managed server-side refund parity plan.
+
 ## 614. Slice 565 Insurance Reversal Server-Side Posting Readiness
 
 Started: 2026-06-26T19:33:00.0000000-04:00
@@ -27463,6 +27465,7 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 237 insertions and 13 deletions, net +224 lines and 250 total churn, including the backend insurance-payment operation, React payment handoff, stronger UI-backed parity coverage, and managed server-side payment parity plan.
+
 ## 617. Slice 568 Patient Payment Server-Side Posting Readiness
 
 Started: 2026-06-26T20:04:20.0000000-04:00
@@ -27494,6 +27497,7 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 218 insertions and 19 deletions, net +199 lines and 237 total churn, including the backend patient-payment operation, React patient-payment handoff, stronger UI-backed parity coverage, and managed server-side patient-payment parity plan.
+
 ## 618. Slice 569 Billing Focused Payment Contract Readiness
 
 Started: 2026-06-26T20:13:00.0000000-04:00
@@ -27525,67 +27529,228 @@ Verification:
 Code Metrics:
 - 15 scoped files changed, with 163 insertions and 148 deletions, net +15 lines and 311 total churn, including API route removal, frontend generic path removal, focused parity routing, Workbench plan wiring, and synchronized documentation.
 
-## 619. Slice 570 Statement Delivery Manifest Readiness
+## 619. Azure Demo Evidence Copy And Stale Result Clearing
 
-Started: 2026-06-26T20:28:00.0000000-04:00
-Finished: 2026-06-26T20:45:00.0000000-04:00
-Commit: `0899d57f`
+Started: 2026-06-26T18:59:04.1210597-04:00
+Finished: 2026-06-26T18:59:58.6556678-04:00
+Commit: 4ff59fcb
 
-Implemented Slice 570: statement delivery manifest readiness. The modernized billing API now prepares deterministic queued delivery handoff metadata from the same top statement batch candidates used by the existing batch/package statement flows. The React Fees statement batch panel exposes a `Delivery Manifest` action that renders the delivery ID, prepared timestamp, queued/email/print counts, statement rows, destinations, file names, balances, and due dates without sending mail, printing, or mutating delivery state. The shared parity plan compares the normalized legacy database projection with the modernized API and UI behavior.
-
-Changes:
-- Added the modernized statement delivery manifest response contracts, repository projection, and `POST /api/billing/statements/batch/delivery-manifest` endpoint.
-- Added the modernized frontend API helper and Fees statement batch delivery manifest UI action/rendering.
-- Added the `account-statement-delivery` parity suite and `slice-570-statement-delivery-manifest-readiness` plan.
-- Added Workbench managed actions/cards for running the Slice 570 plan against legacy and modernized targets.
-- Updated the Workbench Progress ledger to count deterministic statement delivery handoff manifests as completed revenue-cycle readiness while leaving production delivery integrations outstanding.
-- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, and project changelog with the Slice 570 statement delivery manifest contract.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Ran `git diff --check` on the Slice 570 file set; only existing LF-to-CRLF working-copy warnings were reported.
-- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend`.
-- Ran the Slice 570 legacy parity plan: `2026-06-27T004239-290Z-legacy-openemr-plan-slice-570-statement-delivery-manifest-readiness` passed 1/1 tests.
-- Ran the Slice 570 modernized parity plan: `2026-06-27T004322-217Z-modernized-openemr-plan-slice-570-statement-delivery-manifest-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 570 runs: `2026-06-27T004403-144Z-legacy-openemr-vs-modernized-openemr-plan-slice-570-statement-delivery-manifest-readiness` matched with no differences.
-
-Code Metrics:
-- 15 scoped files changed, with 462 insertions and 7 deletions, net +455 lines and 469 total churn, including the backend delivery-manifest projection, React delivery manifest panel, dedicated parity suite, Workbench plan wiring, and synchronized documentation.
-
-## 620. Slice 571 Statement Dispatch Handoff Readiness
-
-Started: 2026-06-26T20:46:00.0000000-04:00
-Finished: 2026-06-26T20:57:00.0000000-04:00
-Commit: `5de716e1`
-
-Implemented Slice 571: statement dispatch handoff readiness. The modernized billing API now converts deterministic statement delivery manifest rows into local email/print queue handoff evidence with dispatch audit IDs, queue names, dispatch statuses, external references, destinations, and statement file names. The React Fees statement batch panel exposes a `Dispatch Handoff` action and renders the dispatch summary/rows without sending email, printing, mailing, or inserting durable delivery state. The shared parity plan compares the normalized legacy-derived handoff expectation with the modernized API and UI behavior.
+Improved the Workbench Demo Deployment page while the Azure deployment flow was being exercised from the portal/operator workflow. The page now clears prior visible deployment evidence when a new save, validate, deploy, or smoke action starts, preventing stale failed output from looking like the current run. The evidence panel now exposes copy buttons for the latest JSON result, command output, and a combined troubleshooting payload so Azure deployment failures can be pasted directly into Codex Desktop.
 
 Changes:
-- Added the modernized statement dispatch response contracts, repository projection, and `POST /api/billing/statements/batch/dispatch` endpoint guarded by Billing write permission.
-- Added the modernized frontend API helper plus Fees statement batch `Dispatch Handoff` action and dispatch evidence rendering.
-- Added the `account-statement-dispatch` parity suite and `slice-571-statement-dispatch-handoff-readiness` plan.
-- Added Workbench managed actions/cards for running the Slice 571 plan against legacy and modernized targets.
-- Updated the Workbench Progress ledger to count local statement dispatch handoff evidence as completed revenue-cycle readiness while leaving real delivery integrations and durable audit storage outstanding.
-- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 571 statement dispatch handoff contract.
+- Cleared `demoDeploymentAction` and the visible latest result before starting a new Demo Deployment action.
+- Preserved the saved profile state while hiding stale deployment evidence during the next active run.
+- Added `Copy all`, `Copy result`, and `Copy output` actions with clipboard fallback support.
+- Updated Azure demo deployment docs, Workbench docs, and the Workbench README to describe stale-result clearing and copyable evidence.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Ran `git diff --check` on the Slice 571 file set; only existing LF-to-CRLF working-copy warnings were reported.
-- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose -f .\modernized-openemr\docker-compose.yml up -d --build api frontend`.
-- Ran the Slice 571 legacy parity plan: `2026-06-27T005415-658Z-legacy-openemr-plan-slice-571-statement-dispatch-handoff-readiness` passed 1/1 tests.
-- Ran the Slice 571 modernized parity plan: `2026-06-27T005506-964Z-modernized-openemr-plan-slice-571-statement-dispatch-handoff-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 571 runs: `2026-06-27T005602-673Z-legacy-openemr-vs-modernized-openemr-plan-slice-571-statement-dispatch-handoff-readiness` matched with no differences.
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
 
 Code Metrics:
-- 16 scoped files changed, with 478 insertions and 7 deletions, net +471 lines and 485 total churn, including the backend dispatch handoff projection, React dispatch handoff rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+- Pending commit-scoped metrics because the touched Workbench files already contain unrelated in-progress changes.
+
+## 620. Azure Demo ResourceNotFound Deployment Recovery
+
+Started: 2026-06-26T19:04:33.9671806-04:00
+Finished: 2026-06-26T19:04:49.7879877-04:00
+Commit: c07a081e
+
+Fixed the Azure demo deployment script so first-run missing-resource checks do not abort deployment. The copied deployment evidence showed `az containerapp env show` returning `ResourceNotFound` for the missing `openemr-demo-env` Container Apps environment, which should have been treated as an expected create-path signal. The native command runner now captures stderr and nonzero exit codes without terminating when an existence check allows failure, letting the script proceed to create missing Azure resources.
+
+Changes:
+- Updated the Azure deployment command runner to temporarily relax PowerShell error action behavior around native commands, capture stderr/stdout, record exit codes, and throw only after logging when failure is not allowed.
+- Updated the Azure prerequisite command capture helper with the same defensive native-command behavior.
+- Documented that first-run `ResourceNotFound` responses are expected for missing Azure demo resources and should flow into create/update behavior.
+
+Verification:
+- Parsed `scripts/Test-AzureDemoPrerequisites.ps1` and `scripts/Deploy-AzureDemo.ps1` as PowerShell scriptblocks.
+- Reproduced the `az containerapp env show` missing-environment check with the full Azure CLI path and confirmed it is captured as `exitCode=1` output instead of terminating the shell.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo scripts are currently untracked in this worktree.
+
+## 621. Azure Demo Provider Registration Recovery
+
+Started: 2026-06-26T19:20:08.0000000-04:00
+Finished: 2026-06-26T19:23:40.8365043-04:00
+Commit: ccedb7ec
+
+Fixed the next Azure demo first-run deployment blocker from the copied Workbench evidence. The deployment reached Container Apps environment creation, then Azure rejected it because the subscription had not registered the `Microsoft.OperationalInsights` resource provider. The Workbench deployment path now treats required resource-provider registration as part of deployment preparation instead of leaving the operator to recover manually in the Azure portal.
+
+Changes:
+- Added deploy-time registration for `Microsoft.App`, `Microsoft.ContainerRegistry`, and `Microsoft.OperationalInsights` before creating Azure resources.
+- Added Validate reporting for the same provider registration states while allowing Deploy latest to perform any needed registration.
+- Updated Azure demo deployment and Workbench documentation to describe first-run provider registration behavior.
+
+Verification:
+- Parsed `scripts/Test-AzureDemoPrerequisites.ps1` and `scripts/Deploy-AzureDemo.ps1` as PowerShell scriptblocks.
+- Queried the Azure CLI provider registration states by full Azure CLI path and confirmed `Microsoft.App=Registered`, `Microsoft.ContainerRegistry=Registered`, and `Microsoft.OperationalInsights=NotRegistered`.
+- Ran `git diff --check -- scripts/Deploy-AzureDemo.ps1 scripts/Test-AzureDemoPrerequisites.ps1 documents/AZURE_DEMO_DEPLOYMENT.md documents/MODERNIZATION_WORKBENCH.md`; only the existing Workbench documentation LF-to-CRLF working-copy warning was reported.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo scripts are currently untracked in this worktree.
+
+## 622. Azure Demo Provider Registration Polling
+
+Started: 2026-06-26T19:27:14.0000000-04:00
+Finished: 2026-06-26T19:30:12.8772820-04:00
+Commit: c0617287
+
+Fixed the next Azure demo first-run deployment edge case from the copied Workbench evidence. Azure CLI returned success from `az provider register --wait`, but the immediate follow-up provider-state read still reported `Microsoft.OperationalInsights` as `Registering`. The deployment script now treats provider registration as asynchronous and polls until Azure reports `Registered` before creating the demo resources.
+
+Changes:
+- Added a provider-state helper around `az provider show`.
+- Changed deploy-time provider registration to skip duplicate registration when Azure already reports `Registering`.
+- Added a 10-minute registration poll loop before resource creation, with a clearer retry message if Azure still has not completed subscription registration.
+- Updated Azure demo deployment and Workbench documentation to describe provider registration waiting behavior.
+
+Verification:
+- Parsed `scripts/Test-AzureDemoPrerequisites.ps1` and `scripts/Deploy-AzureDemo.ps1` as PowerShell scriptblocks.
+- Queried the Azure CLI provider registration states by full Azure CLI path and confirmed `Microsoft.App=Registered`, `Microsoft.ContainerRegistry=Registered`, and `Microsoft.OperationalInsights=Registered`.
+- Ran `git diff --check -- scripts/Deploy-AzureDemo.ps1 documents/AZURE_DEMO_DEPLOYMENT.md documents/MODERNIZATION_WORKBENCH.md`; only the existing Workbench documentation LF-to-CRLF working-copy warning was reported.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo scripts are currently untracked in this worktree.
+
+## 623. Azure Demo Action Elapsed Timer
+
+Started: 2026-06-26T19:31:55.0000000-04:00
+Finished: 2026-06-26T19:35:35.1571255-04:00
+Commit: pending
+
+Improved the Workbench Demo Deployment page operator feedback for long-running Azure actions. Save profile, Validate, Deploy latest, and Smoke test now show a temporary elapsed-time counter while the action is in flight, so the page visibly confirms that Azure validation, provider registration, image build/push, deployment, or smoke-test work is still running.
+
+Changes:
+- Added a Demo Deployment running-state timer that starts when the Azure demo busy state begins and resets when control returns to the page.
+- Rendered a temporary action-row status chip with a rotating refresh icon, action label, and elapsed time.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to describe the running counter.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+
+Code Metrics:
+- Pending commit-scoped metrics because the touched Workbench files already contain unrelated in-progress changes.
+
+## 624. Azure Demo Container App YAML Environment Recovery
+
+Started: 2026-06-26T19:50:46.8918695-04:00
+Finished: 2026-06-26T20:00:25.4585725-04:00
+Commit: pending
+
+Fixed the next Azure demo deployment blocker from the copied Workbench evidence. Azure CLI reached `az containerapp create --yaml` for the legacy demo app, ignored the separate environment flag, and then rejected the create request because the generated YAML did not carry the managed Container Apps environment resource ID. The deployment script now writes `properties.environmentId` into both generated Container App YAML files and redacts Azure Container Registry credential output before deployment evidence is saved or copied.
+
+Changes:
+- Added the selected managed environment resource ID to generated legacy and modernized Container Apps YAML.
+- Removed the separate `--environment` create flag from the YAML create path so the environment source of truth is the generated YAML.
+- Changed the deployment command logger so secret-bearing commands can return raw output to the script while saving only redacted output in Workbench evidence.
+- Redacted the Azure Container Registry password command output from the current ignored latest-result artifact.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to describe the YAML environment ID and redacted copied evidence.
+
+Verification:
+- Parsed `scripts/Deploy-AzureDemo.ps1` as a PowerShell scriptblock.
+- Parsed `scripts/Test-AzureDemoPrerequisites.ps1` as a PowerShell scriptblock.
+- Ran static checks confirming the deployment script writes `environmentId`, uses the managed environment resource ID path, and redacts the ACR credential command output.
+- Confirmed the current ignored `latest-result.json` has the ACR credential command output redacted.
+- Ran `git diff --check -- scripts/Deploy-AzureDemo.ps1 documents/AZURE_DEMO_DEPLOYMENT.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md modernization-workbench/README.md`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo script is untracked and the shared documentation files contain staged or unrelated in-progress changes.
+
+## 625. Azure Demo CLI Root EnvironmentId Recovery
+
+Started: 2026-06-26T20:03:54.5236887-04:00
+Finished: 2026-06-26T20:08:09.6714111-04:00
+Commit: pending
+
+Fixed the next Azure demo deployment blocker from the copied Workbench evidence. Azure CLI still rejected `az containerapp create --yaml` with `environmentId is required` even after the generated YAML included `properties.environmentId`. Inspection of the installed Azure CLI Container Apps create path showed that the CLI wrapper checks for a root-level `environmentId` before building the Container App resource body. The generated legacy and modernized YAML now include the managed environment resource ID at both the CLI YAML root and `properties.environmentId`.
+
+Changes:
+- Added root-level `environmentId` to generated legacy and modernized Container Apps YAML.
+- Kept `properties.environmentId` in the generated YAML so the resource body remains explicit for Container Apps update/create processing.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to describe the two environment ID locations required by the Azure CLI YAML create path.
+
+Verification:
+- Read the copied Workbench deployment evidence and confirmed the ACR credential output remains redacted.
+- Inspected the installed Azure CLI Container Apps command module constants to confirm the `environmentId is required` guard belongs to the create YAML setup path.
+- Confirmed the existing generated YAML contained `properties.environmentId`, proving the failure was caused by the missing root-level CLI wrapper key.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo script is untracked and the shared documentation files contain staged or unrelated in-progress changes.
+
+## 626. Azure Demo Placeholder Create Bootstrap Recovery
+
+Started: 2026-06-26T20:15:05.3502370-04:00
+Finished: 2026-06-26T20:21:09.6008642-04:00
+Commit: pending
+
+Fixed the next Azure demo deployment blocker from the copied Workbench evidence. After the root-level `environmentId` change, Azure CLI advanced past its local YAML guard but the server rejected the `create --yaml` payload with a JSON boolean conversion error. The deployment script now avoids first-time `az containerapp create --yaml`: missing Container Apps are bootstrapped with a small public placeholder image through ordinary create flags, then immediately updated with the generated multi-container YAML that defines the OpenEMR app container, database sidecar, secrets, ingress, and scale settings.
+
+Changes:
+- Added a reusable public placeholder Container Apps image for first-time resource bootstrap.
+- Changed missing Container App creation to use ordinary `az containerapp create` flags with the selected managed environment, external ingress, and the placeholder image.
+- Immediately apply the generated final Container App YAML with `az containerapp update --yaml` after the placeholder resource exists.
+- Removed root-level `environmentId` from the generated YAML so the update payload stays focused on the Container App resource body.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to describe the placeholder create/update flow.
+
+Verification:
+- Read the copied Workbench deployment evidence and confirmed Azure rejected the `create --yaml` path after root-level `environmentId` was added.
+- Confirmed the ACR credential output remains redacted in copied evidence.
+- Preserved the newer Slice 568 and Slice 569 project changelog entries and renumbered the Azure demo entries after them.
+- Parsed `scripts/Deploy-AzureDemo.ps1` and `scripts/Test-AzureDemoPrerequisites.ps1` as PowerShell scriptblocks.
+- Ran static checks confirming generated YAML no longer has root-level `environmentId`, still has two `properties.environmentId` entries, and the missing-app path now creates a placeholder app before applying YAML with `az containerapp update --yaml`.
+- Ran `git diff --check -- scripts/Deploy-AzureDemo.ps1 documents/AZURE_DEMO_DEPLOYMENT.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md modernization-workbench/README.md`; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo script is untracked and the shared documentation files contain staged or unrelated in-progress changes.
+
+## 627. Azure Demo Docker Context Hygiene
+
+Started: 2026-06-26T20:28:03.4826382-04:00
+Finished: 2026-06-26T20:32:42.6212890-04:00
+Commit: pending
+
+Fixed the next Azure demo deployment blocker from the copied Workbench evidence. The legacy Container App now creates, updates, and smokes successfully, and deployment then failed while building the modernized API image because Windows-local `.NET` restore metadata from `obj/project.assets.json` was copied into the Linux Docker build. The repository root now has a Docker ignore file for the Azure demo build context so host-generated outputs stay out of the image build.
+
+Changes:
+- Added a repo-root `.dockerignore` for Azure demo image builds that use the repository root as Docker context.
+- Excluded host-generated `bin/`, `obj/`, `node_modules/`, `dist/`, coverage, test-result, cache, and artifact folders from those builds.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to describe the root Docker context hygiene requirement.
+
+Verification:
+- Read the copied Workbench deployment evidence and confirmed legacy OpenEMR deployed and smoked successfully before the modernized API image build failed on Windows-local NuGet fallback metadata.
+- Parsed `scripts/Deploy-AzureDemo.ps1` and `scripts/Test-AzureDemoPrerequisites.ps1` as PowerShell scriptblocks.
+- Ran `git diff --check -- .dockerignore infra/azure/demo/modernized-api-demo.Dockerfile documents/AZURE_DEMO_DEPLOYMENT.md documents/MODERNIZATION_WORKBENCH.md documents/PROJECT_CHANGELOG.md modernization-workbench/README.md`; only existing documentation LF-to-CRLF working-copy warnings were reported.
+- Ran `docker build --progress=plain -f .\infra\azure\demo\modernized-api-demo.Dockerfile -t openemr-modernized-api-demo-test:local .`; it passed, loaded the repo-root `.dockerignore`, and completed the Linux `dotnet publish` step.
+- Ran `docker build --progress=plain -f .\infra\azure\demo\modernized-frontend-demo.Dockerfile -t openemr-modernized-frontend-demo-test:local .`; it passed with the existing Vite large-chunk warning.
+- Ran `docker build --no-cache --progress=plain -f .\infra\azure\demo\modernized-api-demo.Dockerfile -t openemr-modernized-api-demo-test:nocache .`; it passed with a fresh Linux `dotnet restore` and `dotnet publish`.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo files are untracked and shared documentation files contain unrelated in-progress changes.
+
+## 628. Azure Demo Live Status And Cost Tracking
+
+Started: 2026-06-26T20:34:18.0000000-04:00
+Finished: 2026-06-26T20:55:15.6290276-04:00
+Commit: pending
+
+Improved the Workbench Demo Deployment page after the first successful public Azure deployment. The page now turns successful deploy or smoke evidence into a visible live deployment status, shows direct public links for the legacy and modernized Azure Container Apps, and can refresh live runtime plus Cost Management estimates from Azure.
+
+Changes:
+- Added a Workbench live-status model for Azure demo deployments, including per-target public URLs, health URLs, latest smoke detail, Azure runtime state, HTTP probe result, revision metadata, and image tag evidence.
+- Added `POST /api/demo-deployment/status/refresh` to resolve Azure CLI, read each selected Container App, probe public endpoints, persist `live-status.json`, and query Azure Cost Management for resource-group month-to-date, daily-average, today-posted, and latest-posted costs.
+- Added a Demo Deployment status panel with target cards, open-site and health links, runtime facts, cost cards, and Cost Management lag/permission guidance.
+- Updated Azure demo deployment, Workbench, and README documentation for the live-status artifact, refresh action, and cost-tracking caveats.
+
+Verification:
+- `npm --prefix modernization-workbench run typecheck` passed.
+- `npm --prefix modernization-workbench run build` passed.
+- Called the running Workbench `GET /api/demo-deployment` endpoint and confirmed it returns `Live deployment verified` from latest deploy evidence with both public target links.
+- Called the running Workbench `POST /api/demo-deployment/status/refresh` endpoint and confirmed both Azure Container Apps refreshed as live with HTTP 200 and Azure Cost Management returned available data.
+
+Code Metrics:
+- Pending commit-scoped metrics because the touched Workbench and documentation files already contain unrelated in-progress Azure demo changes.
 
 ## 572. Statement Dispatch History Readiness
 
@@ -27619,67 +27784,34 @@ Verification:
 Code Metrics:
 - 17 scoped files changed, with 625 insertions and 8 deletions, net +617 lines and 633 total churn, including backend audit-history persistence, React history rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
 
-## 573. Statement Portal Delivery Readiness
+## 629. Azure Demo Placeholder Link Verification Recovery
 
-Started: 2026-06-26T21:16:00.0000000-04:00
-Finished: 2026-06-26T21:35:42.1490000-04:00
-Commit: `5195a4d9`
+Started: 2026-06-26T21:25:00.0000000-04:00
+Finished: 2026-06-26T22:12:45.0000000-04:00
+Commit: pending
 
-Implemented Slice 573: patient portal statement delivery readiness. The modernized billing API now publishes deterministic statement PDFs into eligible patient portal document lists for login-ready portal accounts, using the `Invoices` document category and idempotent `portal-statement-{statementNumber}` document keys. The React Fees statement batch panel exposes a `Portal Delivery` action and renders delivered document, portal username, category, statement, and file evidence. The shared parity plan compares the normalized legacy-derived portal delivery expectation with the modernized API, Fees UI, and patient portal Documents view.
-
-Changes:
-- Added statement portal delivery DTOs, repository publication logic, PDF document persistence, and `POST /api/billing/statements/batch/portal-delivery` guarded by Billing write permission.
-- Added the modernized frontend API helper plus Fees statement batch `Portal Delivery` action and delivery evidence rendering.
-- Added the `account-statement-portal-delivery` parity suite and `slice-573-statement-portal-delivery-readiness` plan.
-- Added Workbench managed actions/cards for running the Slice 573 plan against legacy and modernized targets.
-- Updated the Workbench Progress ledger to count patient-portal statement document delivery as completed revenue-cycle readiness while leaving real SMTP, print-provider, and mailing fulfillment integrations outstanding.
-- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 573 statement portal delivery contract.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Ran `git diff --check` on the Slice 573 file set; only existing LF-to-CRLF working-copy warnings were reported.
-- Rebuilt the modernized stack with `docker compose up -d --build`.
-- Ran the Slice 573 legacy parity plan: `2026-06-27T012902-475Z-legacy-openemr-plan-slice-573-statement-portal-delivery-readiness` passed 1/1 tests.
-- Ran the Slice 573 modernized parity plan: `2026-06-27T013306-906Z-modernized-openemr-plan-slice-573-statement-portal-delivery-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 573 runs: `2026-06-27T013542-148Z-legacy-openemr-vs-modernized-openemr-plan-slice-573-statement-portal-delivery-readiness` matched with no differences.
-
-Code Metrics:
-- 16 scoped files changed, with 632 insertions and 8 deletions, net +624 lines and 640 total churn, including backend portal document publication, React portal delivery rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
-
-## 574. Statement Email Outbox Readiness
-
-Started: 2026-06-26T21:36:00.0000000-04:00
-Finished: 2026-06-26T21:52:43.1490000-04:00
-Commit: `eab76ee0`
-
-Implemented Slice 574: statement email outbox readiness. The modernized billing API now filters top statement batch candidates to email-ready recipients, queues deterministic local statement email outbox records, persists them in `statement_email_outbox`, and returns outbox message IDs, recipients, subjects, attachment file names, queue names, delivery statuses, and local references. The React Fees statement batch panel exposes an `Email Outbox` action and renders queued email evidence without sending SMTP mail. The shared parity plan compares the normalized legacy-derived email outbox expectation with the modernized API and UI behavior.
+Fixed the Azure Demo Deployment false-positive path where Workbench public links could still open the generic Azure Container Apps placeholder page. The deployment script now applies the generated Container App YAML in the shape accepted by `az containerapp update --yaml`, verifies the active Azure template contains the expected final images after each update, waits for the colocated legacy MariaDB sidecar before starting OpenEMR, and rejects placeholder page content during smoke polling. The Workbench live-status refresh now also inspects active Container App images and treats the default placeholder image as unknown instead of live.
 
 Changes:
-- Added statement email outbox DTOs, repository persistence, idempotent local outbox upsert behavior, runtime table/index creation, and `POST /api/billing/statements/batch/email-outbox` guarded by Billing write permission.
-- Added the modernized frontend API helper plus Fees statement batch `Email Outbox` action and queued-message evidence rendering.
-- Added the `account-statement-email-outbox` parity suite and `slice-574-statement-email-outbox-readiness` plan.
-- Added Workbench managed actions/cards for running the Slice 574 plan against legacy and modernized targets.
-- Updated the Workbench Progress ledger to count local statement email outbox readiness as completed revenue-cycle evidence while leaving live SMTP/provider delivery, bounce handling, production mail credentials, print-provider integration, and mailing fulfillment outstanding.
-- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, runner allowlist, and project changelog with the Slice 574 statement email outbox contract.
+- Changed generated Container App update YAML to root-level `environmentId`, `configuration`, and `template` fields so Azure applies the final sidecar containers instead of leaving the bootstrap placeholder active.
+- Added post-update active-image assertions for legacy OpenEMR, MariaDB, modernized frontend, modernized API, and PostgreSQL.
+- Added a legacy OpenEMR startup wait for the colocated MariaDB sidecar and removed the MariaDB command override that caused the database to run as root.
+- Extended smoke polling and made smoke checks reject the generic Azure Container Apps placeholder text.
+- Updated Workbench live-status refresh to persist active container image evidence, reject placeholder images, require expected modernized image repositories, and clear stale smoke details when Azure refresh succeeds.
+- Synchronized Azure demo deployment documentation, Workbench documentation, and the Workbench README with the corrected placeholder-bootstrap/update behavior.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
 - Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Ran `git diff --check` on the Slice 574 file set; only existing LF-to-CRLF working-copy warnings were reported.
-- Rebuilt the modernized stack with `docker compose up -d --build`.
-- Ran the Slice 574 legacy parity plan: `2026-06-27T014945-798Z-legacy-openemr-plan-slice-574-statement-email-outbox-readiness` passed 1/1 tests.
-- Ran the Slice 574 modernized parity plan: `2026-06-27T015154-638Z-modernized-openemr-plan-slice-574-statement-email-outbox-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 574 runs: `2026-06-27T015243-147Z-legacy-openemr-vs-modernized-openemr-plan-slice-574-statement-email-outbox-readiness` matched with no differences.
+- Parsed `scripts/Deploy-AzureDemo.ps1` with the PowerShell parser.
+- Ran a legacy-only Azure deploy update and confirmed `openemr-demo-legacy image update=True` plus `Legacy OpenEMR smoke=True`.
+- Ran a modernized-only Azure deploy update and confirmed `openemr-demo-modernized image update=True` plus `Modernized OpenEMR smoke=True`.
+- Queried Azure Container Apps directly and confirmed legacy is running `openemr/openemr:8.1.0-2026-06-18` plus `mariadb:11.8.8`, while modernized is running `openemr-demo-modernized-web`, `openemr-demo-modernized-api`, and `postgres:17-alpine`.
+- Checked the public legacy URL and confirmed it returns the OpenEMR login page rather than the Azure placeholder page.
+- Checked the public modernized URL and `/health` endpoint and confirmed they return the modernized app and `modernized-openemr-api` health payload rather than the Azure placeholder page.
+- Called `POST /api/demo-deployment/status/refresh` and confirmed the Workbench returns `Live deployment verified`, 2 of 2 targets live, current smoke details, active image evidence, and available Cost Management data with lag guidance.
 
 Code Metrics:
-- 16 scoped files changed, with 602 insertions and 10 deletions, net +592 lines and 612 total churn, including backend email outbox persistence, React outbox rendering, dedicated parity suite, Workbench plan wiring, runner allowlist, and synchronized documentation.
+- Pending commit-scoped metrics because the Azure demo deployment files are already part of an uncommitted deployment slice with unrelated in-progress Workbench and modernized OpenEMR changes in the working tree.
 
 ## 630. Appointment Availability Validation Readiness
 
@@ -27710,6 +27842,34 @@ Verification:
 
 Code Metrics:
 - Commit `e7ddedd3` changed 16 scoped files with 741 insertions and 7 deletions.
+
+## 631. Azure Modernized Demo Login Seed Recovery
+
+Started: 2026-06-26T22:16:00.0000000-04:00
+Finished: 2026-06-26T22:27:20.0000000-04:00
+Commit: pending
+
+Fixed the modernized Azure demo login failure after the public sites became reachable. The frontend reported `Login readiness check failed with 500`; API container logs showed PostgreSQL error `42P01: relation "auth_accounts" does not exist`. Azure had round-tripped unquoted YAML booleans as `True`, while the Linux API entrypoint only seeded the PostgreSQL sidecar when the flags equaled lowercase `true`, so the modernized API started without applying the auth-capable demo seed.
+
+Changes:
+- Quoted the generated modernized Container App `DEMO_SEED_ON_STARTUP` and `DEMO_RESET_ON_STARTUP` values as lowercase strings in `scripts/Deploy-AzureDemo.ps1`.
+- Made the modernized API Azure entrypoint normalize seed/reset flags to lowercase before comparing them.
+- Added a modernized login smoke check that posts demo `admin` / `pass` credentials to `/api/auth/login` after the health smoke check.
+- Updated Azure demo deployment documentation, Workbench documentation, and the Workbench README to record the lowercase seed/reset flag requirement and the login smoke gate.
+
+Verification:
+- Reproduced the public `POST /api/auth/login` failure as HTTP 500.
+- Pulled Azure API container logs and confirmed `relation "auth_accounts" does not exist`.
+- Queried the live Container App environment and confirmed the broken revision stored `DEMO_SEED_ON_STARTUP=True` and `DEMO_RESET_ON_STARTUP=True`.
+- Parsed `scripts/Deploy-AzureDemo.ps1` with the PowerShell parser.
+- Redeployed only the modernized target; deployment passed, including `Modernized OpenEMR login smoke` with `authenticated=True`.
+- Called the public modernized `/api/auth/login` endpoint with `admin` / `pass` and confirmed `authenticated=true`, `displayName=Administrator`, and an active session ID.
+- Confirmed Azure API startup logs showed the PostgreSQL seed creating tables and copying data before the API started.
+- Ran smoke-only verification for both public demo apps; legacy, modernized health, and modernized login smoke checks passed.
+- Refreshed the Workbench Demo Deployment Azure status and confirmed latest action `smoke`, latest status `passed`, live source `azure-refresh`, and both targets live.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo deployment files remain part of an uncommitted deployment slice with unrelated in-progress Workbench and modernized OpenEMR changes in the working tree.
 
 ## 632. Appointment Waitlist Readiness
 
@@ -27758,15 +27918,7 @@ Changes:
 - Updated the Workbench Progress ledger so local reminder dispatch/audit is completed scheduling evidence while external provider integrations and richer template administration remain outstanding.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
-- Ran the Slice 577 legacy parity plan: `2026-06-27T025333-329Z-legacy-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` passed 1/1 tests.
-- Ran the Slice 577 modernized parity plan: `2026-06-27T025552-413Z-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 577 runs: `2026-06-27T025614-993Z-legacy-openemr-vs-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` matched with no differences.
+- Pending.
 
 Code Metrics:
 - Commit `d0272c1e` changed 16 scoped files with 1016 insertions and 6 deletions.
@@ -27774,8 +27926,8 @@ Code Metrics:
 ## 634. Medication Duplicate Detection Readiness
 
 Started: 2026-06-26T23:05:00.0000000-04:00
-Finished: 2026-06-26T23:13:30.0000000-04:00
-Commit: 841551df
+Finished: 2026-06-27T03:02:36.2965773-04:00
+Commit: pending
 
 Implemented Slice 578: medication duplicate detection readiness. The modernized clinical-list API now groups active medication-list rows by normalized title and exposes duplicate count, source IDs, date range, and diagnosis evidence. The Lists page renders a medication duplicate summary so safety-relevant duplicate active medications are visible instead of being buried in the list.
 
@@ -27787,24 +27939,82 @@ Changes:
 - Updated the Workbench Progress ledger so medication duplicate detection is completed clinical-list evidence while vocabulary lookup, reconciliation, structured dose/frequency fields, audit history, pharmacy routing, and broader e-prescribing remain outstanding.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
-- Ran the Slice 578 legacy parity plan: `2026-06-27T031046-385Z-legacy-openemr-plan-slice-578-medication-duplicate-detection-readiness` passed 1/1 tests.
-- Ran the Slice 578 modernized parity plan: `2026-06-27T031245-200Z-modernized-openemr-plan-slice-578-medication-duplicate-detection-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 578 runs: `2026-06-27T031308-588Z-legacy-openemr-vs-modernized-openemr-plan-slice-578-medication-duplicate-detection-readiness` matched with no differences.
+- Pending.
 
 Code Metrics:
-- Commit `841551df` changed 15 scoped files with 388 insertions and 7 deletions.
+- Commit `4ff59fcb` changed 18 scoped files with 920 insertions and 10 deletions.
 
-## 635. Prescription Refill Authorization Readiness
+## 635. Azure Demo Portal Directory
+
+Started: 2026-06-26T22:35:00.0000000-04:00
+Finished: 2026-06-26T23:04:08.3571743-04:00
+Commit: pending
+
+Added a separate public Demo Portal landing page to the Workbench-managed Azure demo deployment path. The Demo Deployment page now treats `demo-portal` as a first-class target beside legacy and modernized OpenEMR, migrates older saved local profiles to include that target, previews the role-specific directory entries from `modernization-workbench/config/demo-directory.json`, and resolves live portal links from Azure status. The deployment script builds a tiny Nginx static portal image with generated directory JSON, deploys it as `openemr-demo-portal`, smoke-tests the public landing page title, and the status refresh verifies deployed images by repository prefix when smoke-only evidence does not include deployment-specific image tags.
+
+Changes:
+- Added `modernization-workbench/config/demo-directory.json` as the Workbench-owned registry for public demo app cards, entry points, and demo credentials.
+- Added the static Demo Portal assets, Nginx config, and Dockerfile under `infra/azure/demo/`.
+- Extended `scripts/Deploy-AzureDemo.ps1` with `demo-portal` deployment, generated portal data, portal YAML, image verification, smoke checks, and Azure CLI discovery through the installed Azure CLI Python module path.
+- Extended `scripts/Test-AzureDemoPrerequisites.ps1` with the same Azure CLI discovery so validation works when `az` is not on `PATH`.
+- Extended the Workbench API/types/UI so the Demo Deployment tab includes a Demo Portal target, a public Demo Directory preview, profile-version migration, portal status, and portal links.
+- Updated live-status image expectations so smoke-only results do not make healthy deployed images look stale because the current Git hash changed after the last deploy.
+- Updated Azure deployment, Workbench, README, and index documentation for the public landing page and Azure CLI resolver behavior.
+
+Verification:
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run build`.
+- Parsed `scripts/Deploy-AzureDemo.ps1` and `scripts/Test-AzureDemoPrerequisites.ps1` with the PowerShell parser.
+- Validated `modernization-workbench/config/demo-directory.json` and confirmed the registry contains `legacy-openemr` and `modernized-openemr`, each with two entry points.
+- Deployed the portal-only Azure target with `scripts/Deploy-AzureDemo.ps1` using a temporary portal profile; the result passed `openemr-demo-portal image update` and `Demo Portal smoke`.
+- Verified the public portal at `https://openemr-demo-portal.whitemeadow-cbde6dea.eastus.azurecontainerapps.io`, confirmed it renders the OpenEMR Demo Portal page, loads two app cards, exposes four entry points, and includes the Nora Kim patient portal credential.
+- Ran all-target smoke-only verification after migrating the saved local profile; legacy, modernized health, modernized login, and Demo Portal smoke checks passed.
+- Refreshed Workbench Azure status after the smoke-only image-tag fix and confirmed `3 of 3 Azure demo targets passed live HTTP verification` for legacy, modernized, and Demo Portal.
+- Checked `https://openemr-demo-portal.whitemeadow-cbde6dea.eastus.azurecontainerapps.io/health` and confirmed `demo-portal-ok`.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo deployment files remain part of an uncommitted deployment slice with unrelated in-progress Workbench and modernized OpenEMR changes in the working tree.
+
+## 636. Azure Demo Login Presets
+
+Started: 2026-06-26T23:18:00.0000000-04:00
+Finished: 2026-06-27T00:16:45.7771278-04:00
+Commit: pending
+
+Added a demo login preset contract for public Demo Portal links. The Workbench demo directory registry now records role-specific `demoPreset` values, the generated public portal data appends `demo=staff` or `demo=patient` to target login URLs, and the Workbench preview shows which preset each entry uses without placing passwords in URLs.
+
+Changes:
+- Added demo preset metadata to the legacy and modernized staff/patient entry points in `modernization-workbench/config/demo-directory.json`.
+- Extended Demo Portal data generation and Workbench directory preview URL resolution so preset links preserve existing query strings and append only the preset name.
+- Added a small derived legacy OpenEMR Azure image that injects a demo-only login helper script into the staff and patient portal login pages.
+- Enabled the disposable legacy patient portal in Azure with `OPENEMR_SETTING_portal_onsite_two_enable=1` and added a patient-portal smoke check so disabled portal configuration fails deployment evidence.
+- Added a minimal legacy demo bootstrap seed for the single synthetic Nora Kim `MOD-PAT-0004` portal account and filled the legacy portal email confirmation field for `demo=patient`.
+- Added dirty-worktree timestamp image tags for deploy actions so Azure receives fresh images before a slice is committed; smoke-only evidence now leaves image tags blank because it does not build images.
+- Updated the modernized React frontend so `module=admin` and `module=portal` links open directly to the relevant login module while retaining synthetic demo credentials in the fields.
+- Updated Azure status image expectations so the legacy demo target verifies the derived ACR image rather than the stock upstream image.
+- Updated Azure demo deployment and Workbench documentation for the preset contract and no-password-in-URL rule.
+
+Verification:
+- `npm run typecheck` in `modernization-workbench`.
+- `npm run build` in `modernization-workbench`.
+- `npm run build` in `modernized-openemr/frontend`.
+- PowerShell parser check for `scripts/Deploy-AzureDemo.ps1`.
+- JSON validation for `modernization-workbench/config/demo-directory.json`.
+- Local Docker build of `infra/azure/demo/legacy-openemr-demo.Dockerfile` and helper-script injection check.
+- Azure legacy deploy updated `openemrdemo.azurecr.io/openemr-demo-legacy-openemr:7e632f7b-dirty-20260627001015`; a later full deploy was intentionally not treated as final because unrelated dirty modernized backend work failed `dotnet publish` after the legacy update had already applied.
+- Smoke-only evidence passed on `2026-06-27T04:15:13.4551530Z` for legacy staff, legacy patient portal, modernized health/login, and Demo Portal public checks.
+- Public `demo-portal-data.json` contains four role links with `demoPreset` values and no password-like values in URLs.
+- Browser verification against the live Azure links confirmed legacy staff `admin` / `pass`, legacy patient `mod-pat-0004@example.test` / `PortalPass207!` plus email confirmation, modernized staff `admin` / `pass`, and modernized patient `mod-pat-0004@example.test` / `PortalPass207!` were pre-filled.
+- Browser verification signed into the live legacy patient portal and landed on `/portal/home.php` without the OpenEMR "Something went wrong" error.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo deployment files remain part of an uncommitted deployment slice with unrelated in-progress Workbench and modernized OpenEMR changes in the working tree.
+
+## 637. Prescription Refill Authorization Readiness
 
 Started: 2026-06-26T23:24:00.0000000-04:00
-Finished: 2026-06-26T23:30:00.0000000-04:00
-Commit: 8b4eefba
+Finished: pending
+Commit: pending
 
 Implemented Slice 579: prescription refill authorization readiness. The modernized clinical-list API now authorizes one or more additional refills on active prescriptions, stamps the modified date, preserves note evidence, and returns the refreshed clinical-list detail. The Lists page now exposes a `Refill` action on prescription cards and renders the updated refill count and note.
 
@@ -27817,24 +28027,16 @@ Changes:
 - Updated the Workbench Progress ledger so staff refill authorization is completed prescribing evidence while patient-originated refill requests, pharmacy routing, controlled-substance rules, and broader e-prescribing remain outstanding.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
-- Ran the Slice 579 legacy parity plan: `2026-06-27T032849-775Z-legacy-openemr-plan-slice-579-prescription-refill-readiness` passed 1/1 tests.
-- Ran the Slice 579 modernized parity plan: `2026-06-27T032916-860Z-modernized-openemr-plan-slice-579-prescription-refill-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 579 runs: `2026-06-27T032943-882Z-legacy-openemr-vs-modernized-openemr-plan-slice-579-prescription-refill-readiness` matched with no differences.
+- Pending.
 
 Code Metrics:
-- Commit `8b4eefba` changed 18 scoped files with 378 insertions and 9 deletions.
+- Commit `ccedb7ec` changed 18 scoped files with 426 insertions and 25 deletions.
 
-## 636. Patient Portal Prescription Refill Request Readiness
+## 638. Patient Portal Prescription Refill Request Readiness
 
 Started: 2026-06-26T23:49:00.0000000-04:00
 Finished: 2026-06-26T23:59:49.3240000-04:00
-Commit: 95d01415
+Commit: pending
 
 Implemented Slice 580: patient portal prescription refill request readiness. The modernized patient portal API now validates that a signed-in portal patient owns an active prescription before creating secure-message sent and recipient mailbox rows for a refill request. The Portal clinical summary now exposes a `Request refill` action on prescription cards and refreshes message/audit evidence after the request is sent.
 
@@ -27860,13 +28062,13 @@ Verification:
 - Compared the latest successful Slice 580 runs: `2026-06-27T035949-323Z-legacy-openemr-vs-modernized-openemr-plan-slice-580-patient-portal-prescription-refill-request-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `95d01415` changed 18 scoped files with 765 insertions and 9 deletions.
+- Commit `c0617287` changed 19 scoped files with 946 insertions and 17 deletions.
 
-## 637. Prescription Refill Request Approval Readiness
+## 639. Prescription Refill Request Approval Readiness
 
 Started: 2026-06-27T00:20:00.0000000-04:00
-Finished: 2026-06-27T00:35:25.1310000-04:00
-Commit: 4ff59fcb
+Finished: pending
+Commit: ccedb7ec
 
 Implemented Slice 581: prescription refill request approval readiness. The modernized clinical-list API now projects pending patient-originated portal refill requests into the staff Lists workspace and lets staff approve one or more additional refills while marking the originating mailbox request `Done`.
 
@@ -27881,20 +28083,12 @@ Changes:
 - Updated the Workbench Progress ledger so refill review queue approval is completed prescribing evidence while pharmacy routing, controlled-substance rules, and broader e-prescribing remain outstanding.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
-- Ran the Slice 581 legacy parity plan: `2026-06-27T042932-148Z-legacy-openemr-plan-slice-581-prescription-refill-request-approval-readiness` passed 1/1 tests.
-- Ran the Slice 581 modernized parity plan: `2026-06-27T043434-781Z-modernized-openemr-plan-slice-581-prescription-refill-request-approval-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 581 runs: `2026-06-27T043525-129Z-legacy-openemr-vs-modernized-openemr-plan-slice-581-prescription-refill-request-approval-readiness` matched with no differences.
+- Pending.
 
 Code Metrics:
-- Commit `4ff59fcb` changed 18 scoped files with 920 insertions and 10 deletions.
+- Commit `ccedb7ec` changed 18 scoped files with 426 insertions and 25 deletions.
 
-## 638. Prescription Pharmacy Routing Readiness
+## 640. Prescription Pharmacy Routing Readiness
 
 Started: 2026-06-27T00:40:00.0000000-04:00
 Finished: 2026-06-27T00:56:34.1910000-04:00
@@ -27930,6 +28124,34 @@ Verification:
 Code Metrics:
 - Commit `a2a0a653` changed 19 scoped files with 727 insertions and 18 deletions.
 
+## 639. Demo Portal Technology Stack Graphics
+
+Started: 2026-06-27T00:23:41.2400617-04:00
+Finished: 2026-06-27T00:38:17.5805770-04:00
+Commit: pending
+
+Enhanced the public Demo Portal landing page with a compact visual technology-stack comparison for each application card. The legacy card now highlights AngularJS, PHP, and MariaDB, while the modernized card highlights React, .NET, and PostgreSQL, giving demo visitors an immediate visual cue for the modernization shift without changing the launch-page structure.
+
+Changes:
+- Added `techStack` metadata to `modernization-workbench/config/demo-directory.json` so future demo app variants can carry their own stack chips through the same registry.
+- Added a technology-stack strip to the static Demo Portal cards, including local inline logo-style SVG marks for the known technologies and CDN/fallback support for future technologies.
+- Extended the Workbench Demo Directory preview types, API normalization, and UI so the Demo Deployment page shows the same stack chips before deploying the public portal image.
+- Extended `scripts/Deploy-AzureDemo.ps1` so generated `demo-portal-data.json` includes stack metadata and uses clean pluralized status labels such as `2 links ready`.
+- Updated Azure demo deployment and Workbench documentation for the visual stack chips.
+
+Verification:
+- Parsed `modernization-workbench/config/demo-directory.json` successfully.
+- Parsed `scripts/Deploy-AzureDemo.ps1` with the PowerShell parser.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run build`.
+- Rendered the static Demo Portal from a temporary local HTTP server and captured Playwright desktop and mobile screenshots showing the responsive stack strips.
+- Deployed the Demo Portal Azure target only with a temporary portal profile; deployment passed with image `openemrdemo.azurecr.io/openemr-demo-demo-portal:7e632f7b-dirty-20260627003615` and the Demo Portal smoke check returned HTTP 200.
+- Verified the live public `demo-portal-data.json` reports `AngularJS, PHP, MariaDB` for legacy and `React, .NET, PostgreSQL` for modernized, with `2 links ready` status labels.
+- Captured a Playwright screenshot of the live public Demo Portal showing the technology-stack graphics.
+
+Code Metrics:
+- Pending commit-scoped metrics because the Azure demo deployment files remain part of an uncommitted deployment slice with unrelated in-progress Workbench and modernized OpenEMR changes in the working tree.
+
 ## 640. Slice 583 Prescription Controlled-Substance Routing Guard
 
 Started: 2026-06-27T01:10:08.1202991-04:00
@@ -27964,7 +28186,7 @@ Code Metrics:
 
 Started: 2026-06-27T01:33:52.3982163-04:00
 Finished: 2026-06-27T01:37:32.9083676-04:00
-Commit: c0617287
+Commit: pending
 
 Implemented prescription audit-history readiness for the modernized clinical-list prescription workflow. The modernized API now persists focused prescription audit events for create, refill, route, and deactivate operations, exposes a protected prescription audit-history endpoint, and the Lists page can render a selected prescription's event stream.
 
@@ -27990,13 +28212,13 @@ Verification:
 - Compared the latest successful Slice 584 runs: `2026-06-27T053727-674Z-legacy-openemr-vs-modernized-openemr-plan-slice-584-prescription-audit-history-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `c0617287` changed 19 scoped files with 946 insertions and 17 deletions.
+- Pending commit-scoped metrics.
 
 ## 642. Slice 585 Prescription Structured Dose Readiness
 
 Started: 2026-06-27T01:57:33.8276581-04:00
 Finished: 2026-06-27T02:00:12.4188404-04:00
-Commit: ccedb7ec
+Commit: pending
 
 Implemented prescription structured-dose readiness for the modernized clinical-list prescription workflow. The modernized API now accepts, stores, and projects prescription dose amount, dose unit, frequency, and duration fields while preserving the legacy dosage and quantity text that existing OpenEMR users expect.
 
@@ -28023,13 +28245,13 @@ Verification:
 - Compared the latest successful Slice 585 runs: `2026-06-27T060007-438Z-legacy-openemr-vs-modernized-openemr-plan-slice-585-prescription-structured-dose-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `ccedb7ec` changed 18 scoped files with 426 insertions and 25 deletions.
+- Pending commit-scoped metrics.
 
 ## 643. Slice 586 Medication Vocabulary Readiness
 
 Started: 2026-06-27T02:24:03.1320698-04:00
 Finished: 2026-06-27T02:27:37.1995272-04:00
-Commit: 17069bef
+Commit: pending
 
 Implemented focused medication vocabulary readiness for the modernized clinical-list prescription workflow. The modernized API now exposes a protected RxNorm-style medication catalog lookup, the PostgreSQL seed/runtime schema includes a deterministic catalog, and the Lists prescription form can search/select vocabulary entries to populate prescription fields before save.
 
@@ -28054,13 +28276,13 @@ Verification:
 - Compared the latest successful Slice 586 runs: `2026-06-27T062347-875Z-legacy-openemr-vs-modernized-openemr-plan-slice-586-medication-vocabulary-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `17069bef` changed 19 scoped files with 20599 insertions and 2537 deletions.
+- Pending commit-scoped metrics.
 
 ## 644. Slice 587 Prescription Diagnosis Interaction Readiness
 
 Started: 2026-06-27T02:34:00.0000000-04:00
 Finished: 2026-06-27T02:47:06.5310979-04:00
-Commit: c22356f4
+Commit: pending
 
 Implemented prescription diagnosis interaction readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active prescription diagnoses with active problem-list diagnoses, reports matched active-problem and unmatched prescription diagnosis states, and renders the summary in the Lists prescription panel.
 
@@ -28085,13 +28307,13 @@ Verification:
 - Compared the latest successful Slice 587 runs: `2026-06-27T064654-573Z-legacy-openemr-vs-modernized-openemr-plan-slice-587-prescription-diagnosis-interactions-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `c22356f4` changed 15 scoped files with 493 insertions and 10 deletions.
+- Pending commit-scoped metrics.
 
 ## 645. Slice 588 Medication Reconciliation Readiness
 
 Started: 2026-06-27T02:52:00.0000000-04:00
-Finished: 2026-06-27T03:02:36.2965773-04:00
-Commit: e991a778
+Finished: pending
+Commit: pending
 
 Implemented medication reconciliation readiness for the modernized clinical-list prescribing workflow. The modernized read model now compares active medication-list rows with active prescriptions by normalized medication name, reports matched, medication-list-only, and prescription-only states, and renders the summary in the Lists medication panel.
 
@@ -28116,196 +28338,38 @@ Verification:
 - Compared the latest successful Slice 588 runs: `2026-06-27T070231-895Z-legacy-openemr-vs-modernized-openemr-plan-slice-588-medication-reconciliation-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `e991a778` changed 14 scoped files with 585 insertions and 13 deletions.
+- Pending commit-scoped metrics.
 
 ## 646. Slice 589 Appointment Conflict Enforcement Readiness
 
-Started: 2026-06-27T03:15:00.0000000-04:00
-Finished: 2026-06-27T03:23:53.1703346-04:00
-Commit: 2f8f3c2b
+Started: 2026-06-27T03:14:51.7800602-04:00
+Finished: pending
+Commit: pending
 
-Implemented appointment conflict enforcement readiness for the modernized scheduling workflow. The modernized appointment create path now supports an explicit strict conflict policy that reuses the availability engine before insert, returns HTTP 409 with provider/room conflict evidence, and leaves the legacy-compatible permissive create path intact.
+Implemented strict appointment conflict enforcement readiness for the modernized scheduling workflow. The modernized appointment create contract can now opt into conflict-policy enforcement, validates the requested slot before insert, returns HTTP 409 with provider/room conflict evidence, and the Calendar create form exposes a `Block conflicts` toggle that renders the returned conflict message.
 
 Changes:
-- Added the `enforceConflictPolicy` create-contract flag and pre-insert availability validation to the modernized appointment API.
-- Returned structured conflict evidence for strict appointment creation failures.
-- Added frontend API conflict handling and a Calendar `Block conflicts` toggle that displays the returned conflict message.
+- Added `enforceConflictPolicy` to the appointment create contract.
+- Added create-time availability validation for strict appointment creates and structured HTTP 409 conflict responses.
+- Added frontend appointment-create typing, conflict response parsing, and Calendar strict-conflict UI state.
 - Added the `workflow-appointment-conflict-enforcement` parity suite and `slice-589-appointment-conflict-enforcement-readiness` plan.
 - Added Workbench managed actions/cards for running Slice 589 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so strict provider/room conflict enforcement is completed scheduling functionality while richer waitlist management and external reminder-provider work remain outstanding.
+- Updated the Workbench Progress ledger so appointment conflict enforcement readiness is completed scheduling functionality while richer waitlist management remains outstanding.
 
 Verification:
 - Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
 - Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
 - Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 589 legacy parity plan: `2026-06-27T071753-471Z-legacy-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` passed 1/1 tests.
-- Ran the Slice 589 modernized parity plan: `2026-06-27T072020-591Z-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 589 runs: `2026-06-27T072040-313Z-legacy-openemr-vs-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness` matched with no differences.
+- Pending final verification runs.
 
 Code Metrics:
-- Commit `2f8f3c2b` changed 14 scoped files with 440 insertions and 13 deletions.
+- Pending commit-scoped metrics.
 
-## 647. Slice 590 Document OCR Queue Readiness
-
-Started: 2026-06-27T03:25:00.0000000-04:00
-Finished: 2026-06-27T03:34:59.2732896-04:00
-Commit: b4c07832
-
-Implemented document OCR queue readiness for the modernized document workflow. The modernized document API now projects active scanned documents with `OCR pending` evidence into a protected staff work queue, and the Documents workspace renders the queue beside existing document summary and viewer panels.
-
-Changes:
-- Added `PatientDocumentOcrQueueResponse` and `PatientDocumentOcrQueueItem` contracts.
-- Added `GET /api/documents/ocr-queue`, protected by the existing Documents view ACL, with optional patient filtering.
-- Derived queue items from scanned active document source facts, including capture source, scan page count, OCR status, queue status, priority, patient, category, and encounter context.
-- Added frontend API typing and loading for the OCR queue.
-- Rendered a Documents workspace OCR Queue panel with queued count, page count, status, priority, and source evidence.
-- Added the `workflow-document-ocr-queue` parity suite and `slice-590-document-ocr-queue-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 590 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so pending-OCR queue projection is completed document functionality while OCR execution, scanner capture, storage, routing, encryption, and retention remain outstanding.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 590 legacy parity plan: `2026-06-27T073155-643Z-legacy-openemr-plan-slice-590-document-ocr-queue-readiness` passed 1/1 tests.
-- Ran the Slice 590 modernized parity plan: `2026-06-27T073216-842Z-modernized-openemr-plan-slice-590-document-ocr-queue-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 590 runs: `2026-06-27T073236-767Z-legacy-openemr-vs-modernized-openemr-plan-slice-590-document-ocr-queue-readiness` matched with no differences.
-
-Code Metrics:
-- Commit `b4c07832` changed 15 scoped files with 587 insertions and 11 deletions.
-
-## 648. Slice 591 Document OCR Completion Readiness
-
-Started: 2026-06-27T03:36:00.0000000-04:00
-Finished: 2026-06-27T03:45:07.4105804-04:00
-Commit: 70a388f6
-
-Implemented focused document OCR completion readiness for the modernized document workflow. Staff can now complete a pending scanned-document OCR item from the Documents OCR Queue, which updates the document to `OCR complete`, preserves extracted-text evidence, refreshes the viewer, and removes the completed item from the OCR queue.
-
-Changes:
-- Added OCR completion request/response contracts.
-- Added protected `POST /api/documents/{documentId}/ocr/complete` behind Documents write access.
-- Added repository logic that converts `OCR pending` evidence to `OCR complete`, records completion metadata, appends extracted-text evidence, and returns the refreshed document plus queue.
-- Added frontend API typing and client support for OCR completion.
-- Added the Documents OCR Queue `Complete OCR` action and viewer refresh behavior.
-- Added the `workflow-document-ocr-completion` parity suite and `slice-591-document-ocr-completion-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 591 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so focused OCR completion is completed document functionality while scanner capture, production OCR engine integration, thumbnails, routing, storage, encryption, and retention remain outstanding.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 591 legacy parity plan: `2026-06-27T074210-586Z-legacy-openemr-plan-slice-591-document-ocr-completion-readiness` passed 1/1 tests.
-- Ran the Slice 591 modernized parity plan: `2026-06-27T074227-452Z-modernized-openemr-plan-slice-591-document-ocr-completion-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 591 runs: `2026-06-27T074247-808Z-legacy-openemr-vs-modernized-openemr-plan-slice-591-document-ocr-completion-readiness` matched with no differences.
-
-Code Metrics:
-- Commit `70a388f6` changed 15 scoped files with 494 insertions and 11 deletions.
-## 649. Slice 592 Document PDF Thumbnail Readiness
-
-Started: 2026-06-27T03:46:00.0000000-04:00
-Finished: 2026-06-27T03:58:26.3410494-04:00
-Commit: 9cf88033
-
-Implemented generated PDF thumbnail readiness for the modernized document workflow. Small database-backed PDF documents now receive deterministic SVG thumbnail data URIs from the document read model, and the Documents workspace renders those thumbnails in the existing document-card preview slot.
-
-Changes:
-- Added generated SVG PDF thumbnail creation in the modernized document repository while preserving existing inline image-thumbnail behavior.
-- Included PDF file name, page count, and size evidence in the generated thumbnail content.
-- Added the `workflow-document-pdf-thumbnail` parity suite and `slice-592-document-pdf-thumbnail-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 592 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so generated PDF thumbnails are completed document functionality while scanner capture, production OCR engine integration, routing, storage, encryption, and retention remain outstanding.
-- Updated project direction, test architecture, test data, modernization plan, Workbench, and document-index notes for the new slice.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 592 legacy parity plan: `2026-06-27T075426-319Z-legacy-openemr-plan-slice-592-document-pdf-thumbnail-readiness` passed 1/1 tests.
-- Ran the Slice 592 modernized parity plan: `2026-06-27T075454-169Z-modernized-openemr-plan-slice-592-document-pdf-thumbnail-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 592 runs: `2026-06-27T075537-189Z-legacy-openemr-vs-modernized-openemr-plan-slice-592-document-pdf-thumbnail-readiness` matched with no differences.
-
-Code Metrics:
-- Commit `9cf88033` changed 11 scoped files with 547 insertions and 18 deletions.
-## 650. Slice 593 Document Routing Queue Readiness
-
-Started: 2026-06-27T04:00:00.0000000-04:00
-Finished: 2026-06-27T04:10:41.6760691-04:00
-Commit: 6b75fca3
-
-Implemented document routing queue readiness for the modernized document workflow. Active pending-review documents are now projected as routed work items with route destination, priority, queue status, review status, category, patient, and reason evidence, and the Documents workspace renders that work queue beside the OCR queue.
-
-Changes:
-- Added document routing queue DTOs and protected `GET /api/documents/routing-queue`.
-- Added repository projection for active pending-review documents with explicit `Route to:` and `Routing priority:` note support plus category-based default routing.
-- Added frontend API typing/client support for the routing queue.
-- Rendered a Documents Routing Queue panel with queued/high-priority counts, route destination, review status, priority, and reason evidence.
-- Added the `workflow-document-routing-queue` parity suite and `slice-593-document-routing-queue-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 593 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so pending-review document routing queue projection is completed document functionality while scanner capture, production OCR engine integration, full version history, storage, encryption, and retention remain outstanding.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 593 legacy parity plan: `2026-06-27T080702-816Z-legacy-openemr-plan-slice-593-document-routing-queue-readiness` passed 1/1 tests.
-- Ran the Slice 593 modernized parity plan: `2026-06-27T080728-840Z-modernized-openemr-plan-slice-593-document-routing-queue-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 593 runs: `2026-06-27T080750-733Z-legacy-openemr-vs-modernized-openemr-plan-slice-593-document-routing-queue-readiness` matched with no differences.
-
-Code Metrics:
-- Commit `6b75fca3` changed 15 scoped files with 620 insertions and 16 deletions.
-## 651. Slice 594 Document Retention Policy Readiness
-
-Started: 2026-06-27T04:12:00.0000000-04:00
-Finished: 2026-06-27T04:22:31.8617929-04:00
-Commit: 69f23612
-
-Implemented document retention policy readiness for the modernized document workflow. Active documents are now projected into deterministic retention-policy rows with retention class, retention years, retain-until date, disposition status, and policy-basis evidence calculated from the synthetic dataset base date, and the Documents workspace renders that evidence in a Retention Policy panel.
-
-Changes:
-- Added document retention policy DTOs and protected `GET /api/documents/retention-policy`.
-- Added repository retention projection with explicit `Retention class:`, `Retention years:`, and `Retention basis:` note support plus category-based defaults.
-- Added frontend API typing/client support for the retention policy view.
-- Rendered a Documents Retention Policy panel with tracked/eligible counts, as-of date, retention class, retain-until date, disposition status, retention years, and policy basis.
-- Added the `workflow-document-retention-policy` parity suite and `slice-594-document-retention-policy-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 594 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so deterministic retention policy projection is completed document functionality while destructive disposition execution remains outstanding.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
-- Ran the Slice 594 legacy parity plan: `2026-06-27T082013-787Z-legacy-openemr-plan-slice-594-document-retention-policy-readiness` passed 1/1 tests.
-- Ran the Slice 594 modernized parity plan: `2026-06-27T082037-126Z-modernized-openemr-plan-slice-594-document-retention-policy-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 594 runs: `2026-06-27T082058-778Z-legacy-openemr-vs-modernized-openemr-plan-slice-594-document-retention-policy-readiness` matched with no differences.
-
-Code Metrics:
-- Commit `69f23612` changed 15 scoped files with 620 insertions and 13 deletions.
-
-## 652. Slice 595 Document Retention Disposition Readiness
+## 647. Slice 595 Document Retention Disposition Readiness
 
 Started: 2026-06-27T04:24:00.0000000-04:00
 Finished: 2026-06-27T04:37:06.8231583-04:00
-Commit: 9be1603d
+Commit: pending
 
 Implemented controlled document retention disposition readiness for the modernized Documents workflow. The modernized API now validates retention eligibility from the deterministic retain-until calculation, archives eligible active documents through a dedicated disposition command, appends disposition evidence to document notes, and refreshes document and retention-policy state for the UI.
 
@@ -28318,7 +28382,7 @@ Changes:
 - Updated the Workbench Progress ledger so controlled retention disposition/archive is completed while production purge/legal-hold/export retention workflows remain outstanding.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Parsed `parity-tests/test-manifest.json` and `modernization-workbench/config/apps.json` successfully.
 - Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
 - Ran `npm --prefix .\parity-tests run typecheck`.
 - Ran `npm --prefix .\modernization-workbench run typecheck`.
@@ -28329,7 +28393,7 @@ Verification:
 - Compared the latest successful Slice 595 runs: `2026-06-27T083450-610Z-legacy-openemr-vs-modernized-openemr-plan-slice-595-document-retention-disposition-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `9be1603d` changed 15 scoped files with 500 insertions and 18 deletions.
+- Pending commit-scoped metrics.
 
 ## 648. Slice 596 Document Scanner Capture Readiness
 
@@ -28360,7 +28424,8 @@ Verification:
 - Compared the latest successful Slice 596 runs: `2026-06-27T085810-740Z-legacy-openemr-vs-modernized-openemr-plan-slice-596-document-scanner-capture-readiness` matched with no differences.
 
 Code Metrics:
-- Commit `a73cfb4a` changed 18 scoped files with 870 insertions and 15 deletions.
+- 18 files changed, 870 insertions, 15 deletions.
+
 ## 649. Slice 597 Document Version History Readiness
 
 Started: 2026-06-27T05:00:00.0000000-04:00
@@ -28393,6 +28458,7 @@ Verification:
 
 Code Metrics:
 - 19 files changed, 731 insertions, 64 deletions.
+
 ## 650. Slice 598 Procedure Result Version History Readiness
 
 Started: 2026-06-27T05:25:00.0000000-04:00
@@ -28425,6 +28491,7 @@ Verification:
 
 Code Metrics:
 - 21 files changed, 881 insertions, 28 deletions.
+
 ## 651. Slice 599 Procedure Report Review Assignment Readiness
 
 Started: 2026-06-27T05:43:00.0000000-04:00
@@ -28455,68 +28522,7 @@ Verification:
 - Compared the latest successful Slice 599 runs: `2026-06-27T100043-347Z-legacy-openemr-vs-modernized-openemr-plan-slice-599-procedure-report-review-assignment-readiness` matched with no differences.
 
 Code Metrics:
-- 18 files changed, 586 insertions, 29 deletions.
-
-## 652. Slice 600 Appointment Waitlist Deferral Readiness
-
-Started: 2026-06-27T06:12:00.0000000-04:00
-Finished: 2026-06-27T06:20:46.3030000-04:00
-Commit: 4f6d5095
-
-Implemented appointment waitlist deferral readiness for the modernized Calendar workflow. The Calendar staff waitlist now exposes a `Defer request` action that updates the linked `Patient Reminders` row to `Deferred` with staff follow-up body evidence while preserving the appointment request in OpenEMR waiting status.
-
-Changes:
-- Added a Calendar waitlist `Defer request` action that reuses the protected patient-message status mutation path.
-- Added the `workflow-appointment-waitlist-deferral` parity suite and `slice-600-appointment-waitlist-deferral-readiness` plan.
-- Verified the shared workflow creates a cleanup-backed portal appointment request, defers the linked provider reminder, proves the appointment remains waiting, and removes both temporary rows.
-- Added Workbench managed actions/cards for running Slice 600 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so waitlist deferral is completed scheduling evidence and scheduling completion moves to 93%.
-- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 600.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build frontend` from `modernized-openemr/`.
-- Ran the Slice 600 legacy parity plan: `2026-06-27T101956-093Z-legacy-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` passed 1/1 tests.
-- Ran the Slice 600 modernized parity plan: `2026-06-27T102025-153Z-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 600 runs: `2026-06-27T102046-301Z-legacy-openemr-vs-modernized-openemr-plan-slice-600-appointment-waitlist-deferral-readiness` matched with no differences.
-
-Code Metrics:
-- 11 files changed, 316 insertions, 11 deletions.
-
-## 653. Slice 601 Appointment Reminder Retry Readiness
-
-Started: 2026-06-27T06:24:00.0000000-04:00
-Finished: 2026-06-27T06:36:36.1870000-04:00
-Commit: 6cba5c7c
-
-Implemented appointment reminder retry readiness for the modernized Calendar workflow. The modernized appointment API now appends deterministic retry audit events after an initial local reminder dispatch, and the Calendar detail panel exposes a `Retry reminder` action once reminder dispatch history exists.
-
-Changes:
-- Added protected `POST /api/appointments/{appointmentId}/reminders/dispatch/retry` behind Appointment write permission.
-- Extended `appointment_reminder_dispatch_audit` with retry metadata, including `retry_of_dispatch_id` and `retry_attempt`, with schema evolution for already-created local tables.
-- Added frontend API support plus a Calendar `Retry reminder` action and retry metadata rendering in the dispatch/history panels.
-- Added the `workflow-appointment-reminder-retry` parity suite and `slice-601-appointment-reminder-retry-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 601 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so local reminder retry handling is completed scheduling evidence and scheduling completion moves to 94%.
-- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 601.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
-- Ran the Slice 601 legacy parity plan: `2026-06-27T103547-852Z-legacy-openemr-plan-slice-601-appointment-reminder-retry-readiness` passed 1/1 tests.
-- Ran the Slice 601 modernized parity plan: `2026-06-27T103612-679Z-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 601 runs: `2026-06-27T103636-186Z-legacy-openemr-vs-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness` matched with no differences.
-
-Code Metrics:
-- 15 files changed, 632 insertions, 16 deletions.
+- 18 files changed, 623 insertions, 73 deletions.
 
 ## 654. Slice 602 Patient Portal Reminder Preferences Readiness
 
@@ -28582,67 +28588,65 @@ Verification:
 Code Metrics:
 - 16 files changed, 804 insertions, 32 deletions.
 
-## 656. Slice 604 Encounter SOAP Template Readiness
+## 656. Modernized Staff Entry Login Gate
 
-Started: 2026-06-27T07:26:00.0000000-04:00
-Finished: 2026-06-27T07:41:05.0953904-04:00
-Commit: c0c6ddde
+Started: 2026-06-27T08:30:00.0000000-04:00
+Finished: 2026-06-27T09:54:13.3881263-04:00
+Commit: pending
 
-Implemented encounter SOAP note template readiness for the modernized Encounters workflow. The modernized encounter API now exposes a protected SOAP-template catalog owned by the backend, and the Encounters workspace can apply a selected template into the SOAP Subjective, Objective, Assessment, and Plan draft fields before saving the note.
-
-Changes:
-- Added `GET /api/encounters/soap-note-templates` behind Encounter write permission.
-- Added a deterministic SOAP-template catalog for stable follow-up, diabetes follow-up, acute respiratory, and preventive annual note patterns.
-- Added frontend API types/calls plus Encounters workspace template selection and `Apply template` behavior for the SOAP form.
-- Added the `workflow-encounter-soap-template` parity suite and `slice-604-encounter-soap-template-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 604 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so encounter SOAP templates are completed encounter/clinical-note evidence and Encounters And Clinical Notes moves to 74%.
-- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 604.
-
-Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
-- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
-- Ran the Slice 604 legacy parity plan: `2026-06-27T113544-335Z-legacy-openemr-plan-slice-604-encounter-soap-template-readiness` passed 1/1 tests.
-- Ran the Slice 604 modernized parity plan: `2026-06-27T113710-268Z-modernized-openemr-plan-slice-604-encounter-soap-template-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 604 runs: `2026-06-27T113737-201Z-legacy-openemr-vs-modernized-openemr-plan-slice-604-encounter-soap-template-readiness` matched with no differences.
-
-Code Metrics:
-- 16 files changed, 647 insertions, 9 deletions.
-
-## 657. Slice 605 Patient Merge Preview Readiness
-
-Started: 2026-06-27T07:41:20.0000000-04:00
-Finished: 2026-06-27T07:59:35.0000000-04:00
-Commit: ab915e1d0
-
-Implemented patient merge-preview readiness for the modernized Patient/Client workflow. The modernized patient API now exposes a protected non-destructive merge preview for duplicate patient charts, and the Patient/Client duplicate-detection panel can render target/source direction, match reasons, combined workflow counts, and explicit safeguards before any destructive merge execution exists.
+Implemented a real first-page entry experience for the modernized OpenEMR frontend. The app now opens to a chooser with `Staff` and `Patient Portal`, requires Staff users to authenticate through a core staff login page before any staff modules render, lets staff log out from the physician/staff shell back to the chooser, and keeps the Patient Portal as a separate patient-facing path instead of a staff sidebar module.
 
 Changes:
-- Added `GET /api/patients/merge-preview` behind patient write permission.
-- Added backend merge-preview DTOs and repository logic for target/source identity lookup, duplicate-match scoring, workflow-count aggregation, and preview-only safeguards.
-- Added frontend API types/calls and a Patient/Client merge-preview panel reachable from duplicate candidate cards.
-- Added `workflow-patient-merge-preview` parity coverage and the `slice-605-patient-merge-preview-readiness` plan.
-- Added Workbench managed actions/cards for running Slice 605 against legacy and modernized targets.
-- Updated the Workbench Progress ledger so patient merge-preview readiness is completed patient-administration evidence while destructive merge execution remains explicitly deferred.
-- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 605.
+- Added a first-page entry chooser and staff login screen to the modernized React app.
+- Expanded the chooser with automated-modernization context, versioned original OpenEMR versus Modern OpenEMR technology stack panels, technology logos, and the Neil Kimber / Codex 5.5 / June 2026 attribution footnote.
+- Shared the authenticated OpenEMR staff session across staff modules and added a shell-level `Log out` action that ends the staff session and returns to the chooser.
+- Added a `?entry=chooser` URL mode that clears saved staff-session state and forces the chooser.
+- Updated the Workbench Modernized OpenEMR managed app URL so the Applications page opens the chooser rather than a module deep link or restored staff shell.
+- Removed the Patient Portal from the staff module navigation while preserving a standalone Patient Portal entry path.
+- Updated Administration session handling so the existing admin session can be supplied by the global staff login flow.
+- Updated parity UI helpers and affected security/admin tests so modernized staff workflows verify chooser modernization copy, enter through the chooser, pass the staff login gate, and use the chooser-return logout path.
+- Updated project context, modernization plan, test architecture, Workbench documentation, and the frontend README to record the new entry behavior.
 
 Verification:
-- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
-- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
-- Ran `npm --prefix .\parity-tests run typecheck`.
-- Ran `npm --prefix .\modernization-workbench run typecheck`.
 - Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
-- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
-- Ran the Slice 605 legacy parity plan: `2026-06-27T115710-274Z-legacy-openemr-plan-slice-605-patient-merge-preview-readiness` passed 1/1 tests.
-- Ran the Slice 605 modernized parity plan: `2026-06-27T115737-773Z-modernized-openemr-plan-slice-605-patient-merge-preview-readiness` passed 1/1 tests.
-- Compared the latest successful Slice 605 runs: `2026-06-27T115805-044Z-legacy-openemr-vs-modernized-openemr-plan-slice-605-patient-merge-preview-readiness` matched with no differences.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran a headless Playwright smoke against the edited frontend at `http://127.0.0.1:3101`, verifying chooser-first rendering, Staff login, authenticated staff shell, Portal removal from staff nav, logout back to the chooser, and Patient Portal chooser entry.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Parsed `modernization-workbench/config/apps.json` and `modernization-workbench/config/demo-directory.json`.
+- Rebuilt and restarted the running modernized target with `docker compose up -d --build frontend` from `modernized-openemr/`.
+- Verified `http://localhost:3000/src/App.tsx` contains the chooser and logout updates.
+- Verified `http://localhost:5173/api/apps` reports the Modernized OpenEMR URL as `http://localhost:3000/?entry=chooser`.
+- Verified with Playwright CLI that `http://localhost:3000/?entry=chooser` renders the modernization summary, original/modern stack panels with version numbers, Neil Kimber / Codex 5.5 attribution, and the `Staff` and `Patient Portal` chooser buttons.
 
 Code Metrics:
-- 16 files changed, 789 insertions, 11 deletions.
+- Pending commit-scoped metrics because the working tree already contained unrelated pending changes.
+
+## 657. Modernized Target Technical Reference Guide
+
+Started: 2026-06-27T11:05:00.0000000-04:00
+Finished: 2026-06-27T11:22:56.8568038-04:00
+Commit: pending
+
+Implemented a generated DeepWiki-style technical reference guide for the modernized OpenEMR target and exposed it through the Modernization Workbench. The generated guide is stored as a project document, stamped with generation metadata and source commit state, and summarizes the modernized target source tree, runtime stack, frontend modules, backend API endpoints, repository/DTO map, PostgreSQL schema signals, parity-plan coverage, and regeneration command.
+
+Changes:
+- Added `npm run generate:technical-reference` in the Workbench and a repeatable generator script at `modernization-workbench/scripts/generate-technical-reference.mjs`.
+- Generated `documents/MODERNIZED_OPENEMR_TECHNICAL_REFERENCE.md` and `modernization-workbench/config/technical-reference.json`.
+- Added `/api/technical-reference` and `/api/technical-reference/markdown` to the Workbench API.
+- Added a Workbench Technical Reference navigation page that shows generation metadata, summary metrics, section links, rendered Markdown content, and a direct Markdown link.
+- Updated the project index, project context, Workbench documentation, and Workbench README to record the reference-guide role and regeneration contract.
+
+Verification:
+- Ran `npm run generate:technical-reference` from `modernization-workbench/`.
+- Parsed `modernization-workbench/config/technical-reference.json` successfully.
+- Verified `http://127.0.0.1:5174/api/technical-reference` returns the generated title, 217 backend endpoints, 9 sections, and the expected document path.
+- Verified `http://127.0.0.1:5174/api/technical-reference/markdown` returns HTTP 200 with `text/markdown`.
+- Ran `npm run typecheck` from `modernization-workbench/`.
+- Ran `npm run build` from `modernization-workbench/`.
+- Opened `http://127.0.0.1:5173/#/technical-reference` with Playwright CLI and verified the navigation item, page heading, metadata metrics, guide section links, and rendered generated guide content.
+
+Code Metrics:
+- Pending commit-scoped metrics because the working tree already contained unrelated pending changes in several files touched by this slice.
 
 ## Next Expected Entries
 

@@ -35,6 +35,8 @@ Workbench URLs:
 
 The Workbench currently manages the legacy OpenEMR baseline and the modernized OpenEMR target as it grows slice by slice. It now uses a left-side application shell with hash-routed pages. It can show status, check health, start, stop, restart, start all configured Docker Compose app stacks, surface Docker Desktop and compose readiness guidance on the Dashboard and Applications pages, run smoke tests, run OpenEMR-native PHPUnit and Jest tests for the legacy target, run parity test suites and plans for implemented targets, run custom parity runs with selected reset strategy, render recent side-by-side comparison artifacts with expandable drill-ins, safe artifact links, direct run/report links, screenshot thumbnails, normalized probe detail views, safe text-like probe attachment previews, path-backed database contract plus Slice 1 through Slice 142 plus Slices 144, 145, 147, 148, 149, 151, 153, 154, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, and 233 workflow probe payloads, accepted-difference status, and reliability trend summaries, run gold seed actions, run the starter seed action for legacy, display latest smoke-test, native-test, parity-test, and seed results, show Docker Compose logs, display database profiles, list action history, render the project changelog as a build timeline with timing and code-change metrics, and show architecture/progress views. The Progress page now renders both delivery milestone rows and a curated functionality progress ledger that separates completed, outstanding, and deferred project scope by domain area, with scope-adjusted completion estimates for each area. The Architecture page now presents a tabbed model with a versioned stack matrix, project topology map, architecture decisions, source inventory statistics, and per-system detail views for the legacy baseline, Workbench, and modernized target.
 
+The Workbench also includes a Technical Reference page for the modernized target. It reads `documents/MODERNIZED_OPENEMR_TECHNICAL_REFERENCE.md` plus `modernization-workbench/config/technical-reference.json`, shows generation metadata and source-count metrics, renders the generated Markdown guide in the browser, and exposes a direct Markdown endpoint at `/api/technical-reference/markdown`. Regenerate the reference from `modernization-workbench/` with `npm run generate:technical-reference` after meaningful modernized-target API, schema, frontend, runtime, or parity-plan changes.
+
 The Workbench frontend uses route-scoped hydration so the shell can show managed application status quickly without waiting for every historical and evidence-heavy dataset. Initial load fetches the operational app, event, and seed-data snapshot; the Dashboard then hydrates progress and timeline summaries independently; the Project Timeline, Progress, Architecture, and Test Runs pages fetch their heavier datasets when those pages are active. The app snapshot API is also split into lightweight summaries and rich details: `/api/apps` returns the runtime, health, source, and container summary without latest run artifacts, database profiles, or large test/seed definitions, while `/api/apps/:appId` hydrates those details for active pages. The recurring 15-second refresh polls only app snapshots and lifecycle events, and the client preserves already-loaded detail fields when summary refreshes arrive. The header refresh button reloads the current page plus the operational snapshot.
 
 The Project Timeline uses paged changelog hydration so the growing project history does not block the rest of the Workbench. `/api/changelog/summary` serves the Dashboard with a compact parsed-only count and latest-entry summary, while `/api/changelog` returns the newest 100 rich timeline entries by default, includes `hasMore` and `nextOffset` pagination metadata, accepts explicit `offset`, `limit`, and `order` query parameters, and caches the parsed changelog plus one shared bounded Git-enrichment build in memory until `documents/PROJECT_CHANGELOG.md` changes. The Timeline page appends additional 100-entry pages only when the operator asks to load more.
@@ -43,7 +45,9 @@ The Progress page also includes curated Capability Rollups from `modernization-w
 
 Modern UI Claude is also registered as a managed frontend-only Docker Compose application. The Applications page shows the `modern-ui-claude` service status, checks `http://localhost:3100/`, exposes Start/Stop/Restart/Open/Logs actions, and keeps its database profile separate by pointing operators back to the modernized OpenEMR backend app for database state. Its compose stack is configured for Vite live reload by bind-mounting the app folder into the container; source edits should not require a rebuild unless dependencies or container configuration change.
 
-The Workbench also has a Demo Deployment page for publishing resettable public Azure Container Apps demos of the legacy baseline, the modernized target, or both. The page saves an ignored local Azure profile, validates local prerequisites, runs the deployment script, runs smoke checks against existing deployed apps, clears stale evidence when a new action starts, displays a temporary elapsed-time counter while save/validate/deploy/smoke actions are running, and displays copyable deployment evidence from ignored Workbench artifacts with sensitive command output redacted. The Azure demo path is intentionally disposable and keeps the database beside each app container for simple synthetic-data demonstrations only.
+The Modernized OpenEMR Applications-page Open link targets the root chooser entry (`?entry=chooser`) so operators land on the Staff / Patient Portal choice even when the browser has a previously saved staff session.
+
+The Workbench also has a Demo Deployment page for publishing resettable public Azure Container Apps demos of the legacy baseline, the modernized target, and a public Demo Portal landing page. The page saves an ignored local Azure profile, validates local prerequisites, runs the deployment script, runs smoke checks against existing deployed apps, clears stale evidence when a new action starts, displays a temporary elapsed-time counter while save/validate/deploy/smoke actions are running, and displays copyable deployment evidence from ignored Workbench artifacts with sensitive command output redacted. The Demo Directory preview is driven by `modernization-workbench/config/demo-directory.json` and shows the role-specific landing-page entries, demo preset names, demo credentials, and compact technology-stack logo chips that will be baked into the public portal image. Demo preset links append only values such as `demo=staff` or `demo=patient`, leaving each target app to fill its own synthetic login form without putting passwords in URLs. The live-status panel verifies public URLs against active Azure Container App images, rejects the generic Container Apps placeholder image, persists refreshed status under the ignored deployment artifacts folder, and shows cost estimates when Azure Cost Management data is available. The Azure demo path is intentionally disposable and keeps the database beside each OpenEMR app container for simple synthetic-data demonstrations only.
 
 Current pages:
 
@@ -53,6 +57,7 @@ Current pages:
 - Project Timeline.
 - Progress.
 - Architecture.
+- Technical Reference.
 - Test Runs.
 - Seed Data.
 
@@ -423,10 +428,13 @@ The Demo Deployment page is the Workbench surface for lightweight public Azure d
 - `POST /api/demo-deployment/actions/validate`
 - `POST /api/demo-deployment/actions/deploy`
 - `POST /api/demo-deployment/actions/smoke`
+- `POST /api/demo-deployment/status/refresh`
 
-The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, and the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`. Both are under the ignored Workbench artifacts folder. The page clears the visible prior result when a new save, validate, deploy, or smoke action starts, shows a temporary elapsed-time counter while the action is in flight, then offers copy buttons for the latest JSON result, command output, and combined evidence payload. Sensitive command output, including Azure Container Registry passwords, is redacted before it reaches the copied evidence.
+The saved profile lives at `modernization-workbench/artifacts/azure-demo-deployment/profile.local.json`, the latest action result lives at `modernization-workbench/artifacts/azure-demo-deployment/latest-result.json`, and the latest live Azure status snapshot lives at `modernization-workbench/artifacts/azure-demo-deployment/live-status.json`. All are under the ignored Workbench artifacts folder. The page clears the visible prior result when a new save, validate, deploy, or smoke action starts, shows a temporary elapsed-time counter while the action is in flight, then offers copy buttons for the latest JSON result, command output, and combined evidence payload. Sensitive command output, including Azure Container Registry passwords, is redacted before it reaches the copied evidence.
 
-The deploy action runs `scripts/Deploy-AzureDemo.ps1`. It registers the required Azure resource providers when needed, waits for Azure to report registration completion, creates missing Azure Container Apps with a small public placeholder image through ordinary CLI flags, updates the selected Container Apps with generated sidecar YAML, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, and smoke-tests the resulting public URLs. The smoke action uses the same script with `-SmokeOnly` and only checks existing deployed apps.
+The Demo Deployment page includes a public Demo Directory preview and an Azure runtime status panel. The directory preview reads `modernization-workbench/config/demo-directory.json`, resolves entry-point URLs from the latest live status when available, and shows the staff/admin and patient-portal demo credentials plus the visual stack chips that the public portal will display. The runtime panel immediately summarizes the latest successful deploy or smoke evidence as last-known live status, shows public links for the legacy, modernized, and Demo Portal Container Apps when available, and can refresh directly against Azure. The refresh endpoint resolves the installed Azure CLI, reads each selected Container App, probes the public URL or health endpoint, persists a live-status snapshot, and attempts a resource-group-scoped Azure Cost Management query for month-to-date cost, daily average, today's posted cost, and latest posted daily cost. Cost numbers are best-effort because Azure Cost Management data can lag and depends on the signed-in account's Cost Management permissions.
+
+The deploy action runs `scripts/Deploy-AzureDemo.ps1`. The validation and deployment scripts resolve Azure CLI from `AZURE_CLI_PATH`, the standard Windows Azure CLI Python module install path, or `az` on `PATH`. The deploy action registers the required Azure resource providers when needed, waits for Azure to report registration completion, creates missing Azure Container Apps with a small public placeholder image through ordinary CLI flags, updates the selected Container Apps with generated sidecar YAML, deploys the legacy OpenEMR image with a MariaDB sidecar, builds and pushes the modernized API/frontend images to Azure Container Registry, deploys the modernized target with a PostgreSQL sidecar, builds and pushes the Demo Portal image, and smoke-tests the resulting public URLs. The repo-root `.dockerignore` keeps host-generated `bin/`, `obj/`, `node_modules/`, `dist/`, and broad artifact folders out of those Azure demo image builds so the Linux containers build from source; the Demo Portal passes its generated directory JSON through a Docker build argument so profile artifacts and secrets remain outside the Docker context. The legacy sidecar YAML enables the disposable patient portal with `OPENEMR_SETTING_portal_onsite_two_enable=1`, upserts the single Nora Kim portal demo account, and smoke-tests the legacy patient portal login page so broken portal links fail deployment evidence. Dirty worktree deploys use timestamped image tags so Azure receives a fresh revision before the slice is committed. The modernized sidecar YAML emits lowercase string seed/reset flags, the API entrypoint normalizes those values before deciding whether to seed, and the smoke action verifies both `/health` and the demo `admin` / `pass` login endpoint so missing auth seed tables fail deployment evidence immediately. The Demo Portal smoke check verifies the public landing page title. The smoke action uses the same script with `-SmokeOnly`, checks existing deployed apps, and leaves build image tags blank.
 
 Detailed operating notes live in `AZURE_DEMO_DEPLOYMENT.md`.
 
@@ -825,11 +833,13 @@ The Progress page also records local statement dispatch handoff evidence as comp
 The Workbench now exposes managed Slice 572 statement dispatch history plan actions for both the legacy and modernized targets. These actions run `slice-572-statement-dispatch-history-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target persists the same deterministic statement dispatch audit events that the legacy-derived statement candidate projection expects.
 
 The Progress page also records durable local statement dispatch audit history as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, mailing fulfillment, and portal delivery outstanding.
+
 ## Slice 573 Workbench Update
 
 The Workbench now exposes managed Slice 573 statement portal delivery plan actions for both the legacy and modernized targets. These actions run `slice-573-statement-portal-delivery-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target publishes deterministic statement PDFs into eligible patient portal document lists.
 
 The Progress page also records patient-portal statement document delivery as completed revenue-cycle readiness while keeping real SMTP delivery, print-provider integration, and mailing fulfillment outstanding.
+
 ## Slice 574 Workbench Update
 
 The Workbench now exposes managed Slice 574 statement email outbox plan actions for both the legacy and modernized targets. These actions run `slice-574-statement-email-outbox-readiness`, write the standard latest-run artifacts, and let the comparison view show whether the modernized target queues deterministic local statement email outbox records for email-ready statement batch candidates.
@@ -868,7 +878,7 @@ The Progress page also records staff prescription refill authorization as comple
 
 ## Slice 580 Workbench Update
 
-The Workbench now exposes managed Slice 580 patient portal prescription refill request plan actions for both the legacy and modernized targets. These actions run slice-580-patient-portal-prescription-refill-request-readiness, write the standard latest-run artifacts, and let the comparison view show whether a signed-in portal patient can request a refill for an active prescription through secure-message mailbox evidence.
+The Workbench now exposes managed Slice 580 patient portal prescription refill request plan actions for both the legacy and modernized targets. These actions run `slice-580-patient-portal-prescription-refill-request-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a signed-in portal patient can request a refill for an active prescription through secure-message mailbox evidence.
 
 The Progress page also records patient-originated portal refill requests as completed clinical-list and prescribing evidence while keeping refill review queues, pharmacy routing, controlled-substance rules, and broader e-prescribing workflow outstanding.
 
@@ -914,7 +924,6 @@ The Workbench now exposes managed Slice 587 prescription diagnosis interaction p
 
 The Progress page also records prescription diagnosis interaction readiness as completed clinical-list and prescribing evidence.
 
-
 ## Slice 588 Workbench Update
 
 The Workbench now exposes managed Slice 588 medication reconciliation plan actions for both the legacy and modernized targets. These actions run `slice-588-medication-reconciliation-readiness`, write the standard latest-run artifacts, and let the comparison view show whether active medication-list rows and active prescriptions reconcile into matched, medication-list-only, and prescription-only states on both targets.
@@ -938,16 +947,19 @@ The Progress page also records pending-OCR queue readiness as completed document
 The Workbench now exposes managed Slice 591 document OCR completion plan actions for both the legacy and modernized targets. These actions run `slice-591-document-ocr-completion-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a scanned pending-OCR document can be completed in the modernized Documents workspace and removed from the OCR queue.
 
 The Progress page also records focused OCR completion as completed document evidence while keeping direct scanner capture, production OCR engine integration, generated PDF thumbnails, document routing queues, storage, encryption/key management, and retention policy outstanding.
+
 ## Slice 592 Workbench Update
 
 The Workbench now exposes managed Slice 592 document PDF thumbnail plan actions for both the legacy and modernized targets. These actions run `slice-592-document-pdf-thumbnail-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable PDF source facts plus generated-thumbnail API/UI evidence from the modernized Documents workspace.
 
 The Progress page also records generated PDF thumbnails as completed document evidence while keeping direct scanner capture, production OCR engine integration, document routing queues, storage, encryption/key management, and retention policy outstanding.
+
 ## Slice 593 Workbench Update
 
 The Workbench now exposes managed Slice 593 document routing queue plan actions for both the legacy and modernized targets. These actions run `slice-593-document-routing-queue-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable pending-review source facts plus modernized routing queue API/UI evidence.
 
 The Progress page also records pending-review document routing queues as completed document evidence while keeping direct scanner capture, production OCR engine integration, full historical version rows, storage, encryption/key management, and retention policy outstanding.
+
 ## Slice 594 Workbench Update
 
 The Workbench now exposes managed Slice 594 document retention policy plan actions for both the legacy and modernized targets. These actions run `slice-594-document-retention-policy-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable active document source facts plus modernized retain-until/disposition API/UI evidence.
@@ -958,11 +970,11 @@ The Progress page also records deterministic retention policy projection as comp
 
 The Workbench now exposes managed Slice 595 document retention disposition plan actions for both the legacy and modernized targets. These actions run `slice-595-document-retention-disposition-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable archive/disposition facts plus modernized protected retention-disposition API/UI action evidence.
 
-The Progress page also records controlled retention disposition/archive and direct scanner capture as completed document evidence while keeping production OCR engine integration, full historical version rows, external storage, encryption/key management, and production-grade purge/legal-hold/export retention workflows outstanding.
-
 ## Slice 596 Workbench Update
 
 The Workbench now exposes managed Slice 596 document scanner-capture plan actions for both the legacy and modernized targets. These actions run `slice-596-document-scanner-capture-readiness`, write the standard latest-run artifacts, and let the comparison view show comparable scanner-created document source facts plus modernized protected scanner-capture API and Documents scanner-intake/OCR Queue evidence.
+
+The Progress page also records controlled retention disposition/archive and direct scanner capture as completed document evidence while keeping production OCR engine integration, full historical version rows, external storage, encryption/key management, and production-grade purge/legal-hold/export retention workflows outstanding.
 
 ## Slice 597 Workbench Update
 

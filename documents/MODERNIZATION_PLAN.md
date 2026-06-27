@@ -44,6 +44,9 @@ The implementation should not preserve legacy technical constraints:
 
 - React with TypeScript.
 - SPA-like client-side application.
+- Main entry chooser with separate `Staff` and `Patient Portal` paths, modernization context, versioned original/modern stack comparisons, and project attribution before protected workflows render.
+- Staff session gate that authenticates against the backend auth/session APIs before rendering the staff shell, shares that session across staff modules, and returns users to the chooser on logout.
+- Patient Portal kept as its own patient-facing entry path rather than a staff navigation module.
 - Route-based modules that mirror OpenEMR user tasks.
 - API client layer that calls the modernized backend.
 - UI components organized by workflow slice.

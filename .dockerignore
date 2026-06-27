@@ -1,0 +1,26 @@
+.git
+.gitignore
+
+# Keep host-generated outputs out of repo-root Azure demo Docker builds.
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/coverage/
+**/TestResults/
+**/.cache/
+**/.vite/
+**/.vs/
+
+modernization-workbench/artifacts/
+modernized-openemr/artifacts/
+parity-tests/artifacts/
+
+**/*.local
+**/*.user
+**/*.suo
+**/.env
+**/.env.*
+!**/.env.example
+
+documents/~$*

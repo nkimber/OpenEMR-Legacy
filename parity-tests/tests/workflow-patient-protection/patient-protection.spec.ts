@@ -1,6 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { expectRenderedText, loginToLegacyOpenEmr, openPatientSummaryDirect } from "../../src/ui/legacyOpenEmr.js";
+import { openAuthenticatedModernizedPatient } from "../../src/ui/modernizedOpenEmr.js";
 
 test.describe("patient chart protection parity @slice165 @patient-protection", () => {
   test("requires an active session before patient search and chart data are visible", async ({ page, target, targetDb }, testInfo) => {
@@ -231,17 +232,12 @@ test.describe("patient chart protection parity @slice165 @patient-protection", (
     });
 
     await page.goto(target.publicUrl);
-    await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
-    await expect(page.locator("body")).toContainText("Sign in to search patient charts");
-    await expect(page.locator("body")).toContainText("Sign in to load patient charts");
+    await expect(page.getByRole("button", { name: "Staff" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Patient Portal" })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("Patient/Client");
     await expect(page.locator("body")).not.toContainText("Stone, Avery");
 
-    const accessPanel = page.locator('form[aria-label="Patient access"]');
-    await accessPanel.getByLabel("Username").fill(target.credentials.username);
-    await accessPanel.getByLabel("Password").fill(target.credentials.password);
-    await accessPanel.getByRole("button", { name: "Verify Patient Access" }).click();
-
-    await page.getByLabel("Search patients").fill(patient!.pubpid);
+    await openAuthenticatedModernizedPatient(page, target, patient!.pubpid);
     await expect(page.getByRole("button", { name: /Stone, Avery/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Stone, Avery" })).toBeVisible();
     await expect(page.locator("body")).toContainText(patient!.pubpid);
@@ -251,10 +247,10 @@ test.describe("patient chart protection parity @slice165 @patient-protection", (
       target: target.type,
       probe: "slice-165-patient-protection-rendered",
       description:
-        "Captures modernized Patient/Client-page protection rendering facts before and after login.",
+        "Captures modernized entry-gated Patient/Client rendering facts before and after staff login.",
       expected: {
-        rendersSignedOutSearchPrompt: "Sign in to search patient charts",
-        rendersSignedOutChartPrompt: "Sign in to load patient charts",
+        rendersEntryChooserBeforeLogin: true,
+        hidesPatientWorkspaceBeforeLogin: true,
         hidesPatientBeforeLogin: true,
         rendersDisplayName: "Stone, Avery",
         rendersCanonicalId: patient!.pubpid,
@@ -264,8 +260,8 @@ test.describe("patient chart protection parity @slice165 @patient-protection", (
       actual: {
         surfaceFacts: {
           modernizedPatientClientPage: {
-            renderedSignedOutSearchPrompt: "Sign in to search patient charts",
-            renderedSignedOutChartPrompt: "Sign in to load patient charts",
+            renderedEntryChooserBeforeLogin: true,
+            hidPatientWorkspaceBeforeLogin: true,
             didNotRenderPatientBeforeLogin: true,
             renderedDisplayName: "Stone, Avery",
             renderedCanonicalId: patient!.pubpid,

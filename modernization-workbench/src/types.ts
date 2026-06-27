@@ -435,6 +435,167 @@ export type LifecycleEvent = {
   stderrPreview: string;
 };
 
+export type CommandResult = {
+  command: string[];
+  cwd: string;
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+};
+
+export type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "demo-portal";
+
+export type AzureDemoDeploymentProfile = {
+  profileVersion: number;
+  subscriptionId: string;
+  tenantId: string;
+  location: string;
+  resourceGroup: string;
+  containerAppEnvironment: string;
+  containerRegistry: string;
+  appNamePrefix: string;
+  targets: AzureDemoDeploymentTarget[];
+  resetOnDeploy: boolean;
+  legacyAdminUser: string;
+  legacyAdminPassword: string;
+  databasePassword: string;
+};
+
+export type AzureDemoDeploymentApplicationStatus = {
+  target: AzureDemoDeploymentTarget;
+  label: string;
+  name: string;
+  url?: string;
+  healthUrl?: string;
+  state: "live" | "unknown" | "unavailable";
+  detail: string;
+  lastVerifiedAt?: string;
+  evidenceSource: "latest-result" | "azure-refresh";
+  smokePassed?: boolean;
+  smokeDetail?: string;
+  images?: {
+    imageTag?: string;
+    legacyImage?: string;
+    apiImage?: string;
+    webImage?: string;
+    portalImage?: string;
+  };
+  azure?: {
+    runningStatus?: string;
+    provisioningState?: string;
+    latestRevisionName?: string;
+    latestReadyRevisionName?: string;
+    createdAt?: string;
+    lastModifiedAt?: string;
+    containers?: Array<{ name: string; image: string }>;
+  };
+  http?: {
+    url: string;
+    ok: boolean;
+    statusCode: number | null;
+    durationMs: number;
+    error?: string;
+  };
+};
+
+export type AzureDemoDeploymentCostSummary = {
+  status: "available" | "unavailable";
+  lastRefreshedAt: string;
+  currency: string;
+  monthToDateCost?: number;
+  averageDailyCost?: number;
+  todayCost?: number;
+  latestDailyCost?: number;
+  latestDailyCostDate?: string;
+  dailyCosts: Array<{ date: string; amount: number }>;
+  note: string;
+  error?: string;
+  queryScope?: string;
+};
+
+export type AzureDemoDeploymentLiveStatus = {
+  generatedAt: string;
+  source: "latest-result" | "azure-refresh";
+  state: "live" | "unknown" | "unavailable";
+  label: string;
+  detail: string;
+  lastVerifiedAt?: string;
+  applications: AzureDemoDeploymentApplicationStatus[];
+  costs?: AzureDemoDeploymentCostSummary;
+};
+
+export type AzureDemoDeploymentStatus = {
+  profileExists: boolean;
+  profilePath: string;
+  artifactDirectory: string;
+  latestResult: unknown;
+  live?: AzureDemoDeploymentLiveStatus;
+  directory?: AzureDemoDirectory;
+};
+
+export type AzureDemoDirectoryCredential = {
+  label: string;
+  username: string;
+  password: string;
+};
+
+export type AzureDemoDirectoryTechnology = {
+  id: string;
+  label: string;
+  name: string;
+  logoText?: string;
+  logoUrl?: string;
+  color?: string;
+};
+
+export type AzureDemoDirectoryEntryPoint = {
+  id: string;
+  label: string;
+  role: string;
+  target: AzureDemoDeploymentTarget | string;
+  path?: string;
+  url?: string;
+  staticUrl?: string;
+  demoPreset?: string;
+  note?: string;
+  credentials: AzureDemoDirectoryCredential[];
+};
+
+export type AzureDemoDirectoryApplication = {
+  id: string;
+  name: string;
+  versionLabel: string;
+  summary: string;
+  tags: string[];
+  techStack?: AzureDemoDirectoryTechnology[];
+  statusLabel: string;
+  entryPoints: AzureDemoDirectoryEntryPoint[];
+};
+
+export type AzureDemoDirectory = {
+  version: number | string;
+  title: string;
+  subtitle: string;
+  notice: string;
+  generatedAt: string;
+  applications: AzureDemoDirectoryApplication[];
+};
+
+export type AzureDemoDeploymentState = {
+  profile: AzureDemoDeploymentProfile;
+  status: AzureDemoDeploymentStatus;
+};
+
+export type AzureDemoDeploymentActionResponse = {
+  result: CommandResult;
+  event: LifecycleEvent;
+  latestResult: unknown;
+  status: AzureDemoDeploymentStatus;
+};
+
 export type ArchitectureTechnology = {
   id: string;
   name: string;
@@ -535,6 +696,41 @@ export type SourceInventory = {
   warnings: string[];
 };
 
+export type TechnicalReferenceSummary = {
+  fileCount: number;
+  lineCount: number;
+  endpointCount: number;
+  frontendModuleCount: number;
+  repositoryCount: number;
+  dtoModelFileCount: number;
+  databaseTableCount: number;
+  parityPlanCount: number;
+  dockerServiceCount: number;
+};
+
+export type TechnicalReferenceSection = {
+  id: string;
+  title: string;
+};
+
+export type TechnicalReference = {
+  version: string;
+  title: string;
+  generatedAt: string;
+  generatedBy: string;
+  sourceRoot: string;
+  documentPath: string;
+  sourceCommit: {
+    full: string;
+    short: string;
+    dirty: boolean;
+  };
+  summary: TechnicalReferenceSummary;
+  sections: TechnicalReferenceSection[];
+  markdown: string;
+  warnings: string[];
+};
+
 export type ArchitectureSystemSummary = {
   id: string;
   name: string;
@@ -592,6 +788,38 @@ export type FunctionalityProgressArea = {
   deferred: string[];
 };
 
+export type CapabilitySliceType = {
+  id: string;
+  name: string;
+  detail: string;
+};
+
+export type CapabilityRollupChild = {
+  label: string;
+  detail: string;
+  status: string;
+  sliceType: string;
+  evidence: string[];
+};
+
+export type CapabilityRollup = {
+  id: string;
+  name: string;
+  status: string;
+  areaIds: string[];
+  summary: string;
+  operatorSignal?: string;
+  children: CapabilityRollupChild[];
+  outstanding: string[];
+};
+
+export type CapabilityRollupModel = {
+  version: string;
+  lastUpdated: string;
+  sliceTypes: CapabilitySliceType[];
+  rollups: CapabilityRollup[];
+};
+
 export type FunctionalityProgressSummary = {
   areaCount: number;
   simpleAveragePercent: number;
@@ -641,6 +869,7 @@ export type ProgressResponse = {
   functionalityVersion: string;
   functionalityLastUpdated: string;
   functionalityAreas: FunctionalityProgressArea[];
+  capabilityRollups: CapabilityRollupModel;
   functionalitySummary: FunctionalityProgressSummary;
   functionalityHistory: FunctionalityProgressHistoryPoint[];
   functionalityForecast: FunctionalityProgressForecast;

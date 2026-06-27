@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "title": "Modernized OpenEMR Technical Reference",
+  "generatedAt": "2026-06-27T15:20:41.790Z",
+  "generatedBy": "modernization-workbench/scripts/generate-technical-reference.mjs",
+  "sourceRoot": "modernized-openemr",
+  "documentPath": "documents/MODERNIZED_OPENEMR_TECHNICAL_REFERENCE.md",
+  "sourceCommit": {
+    "full": "cab3539e0378cfaf55fc54bc87f3c74a42dae31f",
+    "short": "cab3539e0378",
+    "dirty": true
+  },
+  "summary": {
+    "fileCount": 57,
+    "lineCount": 86862,
+    "endpointCount": 217,
+    "frontendModuleCount": 11,
+    "repositoryCount": 12,
+    "dtoModelFileCount": 12,
+    "databaseTableCount": 53,
+    "parityPlanCount": 343,
+    "dockerServiceCount": 3
+  },
+  "sections": [
+    {
+      "id": "how-to-use",
+      "title": "How to use this reference"
+    },
+    {
+      "id": "system-map",
+      "title": "System map"
+    },
+    {
+      "id": "runtime-and-stack",
+      "title": "Runtime and stack"
+    },
+    {
+      "id": "frontend",
+      "title": "Frontend modules"
+    },
+    {
+      "id": "backend-api",
+      "title": "Backend API surface"
+    },
+    {
+      "id": "data-and-schema",
+      "title": "Data and schema map"
+    },
+    {
+      "id": "parity-and-evidence",
+      "title": "Parity and evidence map"
+    },
+    {
+      "id": "source-inventory",
+      "title": "Source inventory"
+    },
+    {
+      "id": "regeneration",
+      "title": "Regeneration contract"
+    }
+  ]
+}

@@ -3,6 +3,9 @@ import type {
   AppSnapshot,
   ArchitectureModel,
   ArchitectureSystemSummary,
+  AzureDemoDeploymentActionResponse,
+  AzureDemoDeploymentProfile,
+  AzureDemoDeploymentState,
   CustomParityRunRequest,
   LifecycleEvent,
   NativeJestRunResult,
@@ -17,7 +20,8 @@ import type {
   SeedDataset,
   SeedResult,
   SmokeResult,
-  SourceInventory
+  SourceInventory,
+  TechnicalReference
 } from "./types";
 
 async function requestJson<T>(url: string, options?: RequestInit): Promise<T> {
@@ -74,9 +78,31 @@ export const api = {
   async getEvents() {
     return requestJson<{ events: LifecycleEvent[] }>("/api/events");
   },
+  async getDemoDeployment() {
+    return requestJson<AzureDemoDeploymentState>("/api/demo-deployment");
+  },
+  async saveDemoDeploymentProfile(profile: AzureDemoDeploymentProfile) {
+    return requestJson<AzureDemoDeploymentState>("/api/demo-deployment/profile", {
+      method: "POST",
+      body: JSON.stringify(profile)
+    });
+  },
+  async runDemoDeploymentAction(action: "validate" | "deploy" | "smoke") {
+    return requestJson<AzureDemoDeploymentActionResponse>(`/api/demo-deployment/actions/${action}`, {
+      method: "POST"
+    });
+  },
+  async refreshDemoDeploymentStatus() {
+    return requestJson<AzureDemoDeploymentState>("/api/demo-deployment/status/refresh", {
+      method: "POST"
+    });
+  },
   async getArchitecture() {
     const data = await requestJson<{ systems: ArchitectureSystemSummary[]; sourceInventory: SourceInventory }>("/api/architecture");
     return buildArchitectureModel(data.systems, data.sourceInventory);
+  },
+  async getTechnicalReference() {
+    return requestJson<TechnicalReference>("/api/technical-reference");
   },
   async getProgress() {
     return requestJson<ProgressResponse>("/api/progress");

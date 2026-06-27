@@ -113,6 +113,144 @@ type LifecycleEvent = {
   stderrPreview: string;
 };
 
+type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "demo-portal";
+
+type AzureDemoDeploymentProfile = {
+  profileVersion: number;
+  subscriptionId: string;
+  tenantId: string;
+  location: string;
+  resourceGroup: string;
+  containerAppEnvironment: string;
+  containerRegistry: string;
+  appNamePrefix: string;
+  targets: AzureDemoDeploymentTarget[];
+  resetOnDeploy: boolean;
+  legacyAdminUser: string;
+  legacyAdminPassword: string;
+  databasePassword: string;
+};
+
+type AzureDemoDeploymentApplicationStatus = {
+  target: AzureDemoDeploymentTarget;
+  label: string;
+  name: string;
+  url?: string;
+  healthUrl?: string;
+  state: "live" | "unknown" | "unavailable";
+  detail: string;
+  lastVerifiedAt?: string;
+  evidenceSource: "latest-result" | "azure-refresh";
+  smokePassed?: boolean;
+  smokeDetail?: string;
+  images?: {
+    imageTag?: string;
+    legacyImage?: string;
+    apiImage?: string;
+    webImage?: string;
+    portalImage?: string;
+  };
+  azure?: {
+    runningStatus?: string;
+    provisioningState?: string;
+    latestRevisionName?: string;
+    latestReadyRevisionName?: string;
+    createdAt?: string;
+    lastModifiedAt?: string;
+    containers?: Array<{ name: string; image: string }>;
+  };
+  http?: {
+    url: string;
+    ok: boolean;
+    statusCode: number | null;
+    durationMs: number;
+    error?: string;
+  };
+};
+
+type AzureDemoDeploymentCostSummary = {
+  status: "available" | "unavailable";
+  lastRefreshedAt: string;
+  currency: string;
+  monthToDateCost?: number;
+  averageDailyCost?: number;
+  todayCost?: number;
+  latestDailyCost?: number;
+  latestDailyCostDate?: string;
+  dailyCosts: Array<{ date: string; amount: number }>;
+  note: string;
+  error?: string;
+  queryScope?: string;
+};
+
+type AzureDemoDeploymentLiveStatus = {
+  generatedAt: string;
+  source: "latest-result" | "azure-refresh";
+  state: "live" | "unknown" | "unavailable";
+  label: string;
+  detail: string;
+  lastVerifiedAt?: string;
+  applications: AzureDemoDeploymentApplicationStatus[];
+  costs?: AzureDemoDeploymentCostSummary;
+};
+
+type AzureDemoDeploymentStatus = {
+  profileExists: boolean;
+  profilePath: string;
+  artifactDirectory: string;
+  latestResult: unknown;
+  live: AzureDemoDeploymentLiveStatus;
+  directory: AzureDemoDirectory;
+};
+
+type AzureDemoDirectoryCredential = {
+  label: string;
+  username: string;
+  password: string;
+};
+
+type AzureDemoDirectoryTechnology = {
+  id: string;
+  label: string;
+  name: string;
+  logoText?: string;
+  logoUrl?: string;
+  color?: string;
+};
+
+type AzureDemoDirectoryEntryPoint = {
+  id: string;
+  label: string;
+  role: string;
+  target: AzureDemoDeploymentTarget | string;
+  path?: string;
+  url?: string;
+  staticUrl?: string;
+  demoPreset?: string;
+  note?: string;
+  credentials: AzureDemoDirectoryCredential[];
+};
+
+type AzureDemoDirectoryApplication = {
+  id: string;
+  name: string;
+  versionLabel: string;
+  summary: string;
+  tags: string[];
+  techStack: AzureDemoDirectoryTechnology[];
+  statusLabel: string;
+  entryPoints: AzureDemoDirectoryEntryPoint[];
+};
+
+type AzureDemoDirectory = {
+  version: number | string;
+  title: string;
+  subtitle: string;
+  notice: string;
+  generatedAt: string;
+  applications: AzureDemoDirectoryApplication[];
+};
+
 type AppConfig = {
   apps: ManagedApp[];
 };
@@ -145,6 +283,38 @@ type FunctionalityProgressConfig = {
   version: string;
   lastUpdated: string;
   areas: FunctionalityProgressArea[];
+};
+
+type CapabilitySliceType = {
+  id: string;
+  name: string;
+  detail: string;
+};
+
+type CapabilityRollupChild = {
+  label: string;
+  detail: string;
+  status: string;
+  sliceType: string;
+  evidence: string[];
+};
+
+type CapabilityRollup = {
+  id: string;
+  name: string;
+  status: string;
+  areaIds: string[];
+  summary: string;
+  operatorSignal?: string;
+  children: CapabilityRollupChild[];
+  outstanding: string[];
+};
+
+type CapabilityRollupConfig = {
+  version: string;
+  lastUpdated: string;
+  sliceTypes: CapabilitySliceType[];
+  rollups: CapabilityRollup[];
 };
 
 type FunctionalityProgressSummary = {
@@ -565,6 +735,35 @@ type SourceInventory = {
   warnings: string[];
 };
 
+type TechnicalReferenceMetadata = {
+  version: string;
+  title: string;
+  generatedAt: string;
+  generatedBy: string;
+  sourceRoot: string;
+  documentPath: string;
+  sourceCommit: {
+    full: string;
+    short: string;
+    dirty: boolean;
+  };
+  summary: {
+    fileCount: number;
+    lineCount: number;
+    endpointCount: number;
+    frontendModuleCount: number;
+    repositoryCount: number;
+    dtoModelFileCount: number;
+    databaseTableCount: number;
+    parityPlanCount: number;
+    dockerServiceCount: number;
+  };
+  sections: Array<{
+    id: string;
+    title: string;
+  }>;
+};
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workbenchRoot = path.resolve(__dirname, "..");
 const repoRoot = process.env.WORKBENCH_REPO_ROOT
@@ -572,16 +771,24 @@ const repoRoot = process.env.WORKBENCH_REPO_ROOT
   : path.resolve(workbenchRoot, "..");
 const configPath = path.join(workbenchRoot, "config", "apps.json");
 const functionalityProgressPath = path.join(workbenchRoot, "config", "functionality-progress.json");
+const capabilityRollupsPath = path.join(workbenchRoot, "config", "capability-rollups.json");
 const acceptedDifferencesPath = path.join(workbenchRoot, "config", "accepted-differences.json");
+const demoDirectoryPath = path.join(workbenchRoot, "config", "demo-directory.json");
 const functionalityProgressBackfillPath = path.join(workbenchRoot, "config", "functionality-progress-backfill.json");
 const sourceInventoryPath = path.join(workbenchRoot, "config", "source-inventory.json");
 const sourceInventorySnapshotPath = path.join(workbenchRoot, "config", "source-inventory.snapshot.json");
+const technicalReferenceMetadataPath = path.join(workbenchRoot, "config", "technical-reference.json");
+const technicalReferenceDocumentPath = path.join(repoRoot, "documents", "MODERNIZED_OPENEMR_TECHNICAL_REFERENCE.md");
 const seedDataManifestPath = path.join(workbenchRoot, "seed-data", "manifest.json");
 const changelogPath = path.join(repoRoot, "documents", "PROJECT_CHANGELOG.md");
 const parityManifestPath = path.join(repoRoot, "parity-tests", "test-manifest.json");
 const parityComparisonsRoot = path.join(repoRoot, "parity-tests", "artifacts", "comparisons");
 const parityRunsRoot = path.join(repoRoot, "parity-tests", "artifacts", "runs");
 const artifactsRoot = path.join(workbenchRoot, "artifacts");
+const azureDemoDeploymentRoot = path.join(artifactsRoot, "azure-demo-deployment");
+const azureDemoDeploymentProfilePath = path.join(azureDemoDeploymentRoot, "profile.local.json");
+const azureDemoDeploymentLatestResultPath = path.join(azureDemoDeploymentRoot, "latest-result.json");
+const azureDemoDeploymentLiveStatusPath = path.join(azureDemoDeploymentRoot, "live-status.json");
 const eventsPath = path.join(artifactsRoot, "events.json");
 const apiPort = Number(process.env.WORKBENCH_API_PORT ?? "5174");
 const apiHost = process.env.WORKBENCH_API_HOST ?? "127.0.0.1";
@@ -589,6 +796,7 @@ const changelogGitEnrichmentCommitLimit = 150;
 let parsedChangelogCache: ParsedChangelogCache | null = null;
 let changelogCache: ChangelogCache | null = null;
 let changelogCacheBuild: { mtimeMs: number; promise: Promise<ChangelogCache> } | null = null;
+let azureCliCommandCache: string[] | null = null;
 const sourceInventoryCacheMs = 10 * 1000;
 const progressHistoryCacheMs = 30 * 1000;
 let sourceInventoryCache: { expiresAt: number; inventory: SourceInventory } | null = null;
@@ -648,6 +856,11 @@ async function readFunctionalityProgress(): Promise<FunctionalityProgressConfig>
   return JSON.parse(text) as FunctionalityProgressConfig;
 }
 
+async function readCapabilityRollups(): Promise<CapabilityRollupConfig> {
+  const text = await fs.readFile(capabilityRollupsPath, "utf8");
+  return JSON.parse(text) as CapabilityRollupConfig;
+}
+
 async function readAcceptedDifferences(): Promise<AcceptedDifferencesConfig> {
   const text = await fs.readFile(acceptedDifferencesPath, "utf8");
   const config = JSON.parse(text) as AcceptedDifferencesConfig;
@@ -671,6 +884,398 @@ async function readSeedDataManifest(): Promise<SeedDataManifest> {
 async function readParityManifest(): Promise<ParityManifest> {
   const text = await fs.readFile(parityManifestPath, "utf8");
   return JSON.parse(text) as ParityManifest;
+}
+
+function defaultAzureDemoDeploymentProfile(): AzureDemoDeploymentProfile {
+  return {
+    profileVersion: 2,
+    subscriptionId: "",
+    tenantId: "",
+    location: "eastus",
+    resourceGroup: "openemr-demo-rg",
+    containerAppEnvironment: "openemr-demo-env",
+    containerRegistry: "openemrdemo",
+    appNamePrefix: "openemr-demo",
+    targets: ["legacy-openemr", "modernized-openemr", "demo-portal"],
+    resetOnDeploy: true,
+    legacyAdminUser: "admin",
+    legacyAdminPassword: "pass",
+    databasePassword: "openemr_demo"
+  };
+}
+
+function normalizeAzureDemoDeploymentProfile(input: unknown): AzureDemoDeploymentProfile {
+  const value = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
+  const defaults = defaultAzureDemoDeploymentProfile();
+  const targetValues = Array.isArray(value.targets) ? value.targets : defaults.targets;
+  const targets = targetValues
+    .filter((target): target is AzureDemoDeploymentTarget => target === "legacy-openemr" || target === "modernized-openemr" || target === "demo-portal");
+  const profileVersion = typeof value.profileVersion === "number" ? value.profileVersion : 1;
+  if (profileVersion < 2 && !targets.includes("demo-portal")) {
+    targets.push("demo-portal");
+  }
+
+  return {
+    profileVersion: 2,
+    subscriptionId: String(value.subscriptionId ?? defaults.subscriptionId).trim(),
+    tenantId: String(value.tenantId ?? defaults.tenantId).trim(),
+    location: String(value.location ?? defaults.location).trim(),
+    resourceGroup: String(value.resourceGroup ?? defaults.resourceGroup).trim(),
+    containerAppEnvironment: String(value.containerAppEnvironment ?? defaults.containerAppEnvironment).trim(),
+    containerRegistry: String(value.containerRegistry ?? defaults.containerRegistry).trim(),
+    appNamePrefix: String(value.appNamePrefix ?? defaults.appNamePrefix).trim(),
+    targets: targets.length ? targets : defaults.targets,
+    resetOnDeploy: typeof value.resetOnDeploy === "boolean" ? value.resetOnDeploy : defaults.resetOnDeploy,
+    legacyAdminUser: String(value.legacyAdminUser ?? defaults.legacyAdminUser).trim(),
+    legacyAdminPassword: String(value.legacyAdminPassword ?? defaults.legacyAdminPassword),
+    databasePassword: String(value.databasePassword ?? defaults.databasePassword)
+  };
+}
+
+async function readAzureDemoDeploymentProfile(): Promise<{ profile: AzureDemoDeploymentProfile; profileExists: boolean }> {
+  const existing = await readJsonIfExists(azureDemoDeploymentProfilePath);
+  return existing
+    ? { profile: normalizeAzureDemoDeploymentProfile(existing), profileExists: true }
+    : { profile: defaultAzureDemoDeploymentProfile(), profileExists: false };
+}
+
+async function saveAzureDemoDeploymentProfile(profile: AzureDemoDeploymentProfile) {
+  await fs.mkdir(azureDemoDeploymentRoot, { recursive: true });
+  await fs.writeFile(azureDemoDeploymentProfilePath, JSON.stringify(profile, null, 2), "utf8");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function targetLabel(target: AzureDemoDeploymentTarget) {
+  if (target === "legacy-openemr") {
+    return "Legacy OpenEMR";
+  }
+  if (target === "modernized-openemr") {
+    return "Modernized OpenEMR";
+  }
+  return "Demo Portal";
+}
+
+function normalizeAzureDemoTarget(value: unknown): AzureDemoDeploymentTarget | null {
+  return value === "legacy-openemr" || value === "modernized-openemr" || value === "demo-portal" ? value : null;
+}
+
+function normalizeAzureAppNamePrefix(value: string) {
+  const normalized = value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/^-+|-+$/g, "");
+  const trimmed = normalized.length > 40 ? normalized.slice(0, 40).replace(/-+$/g, "") : normalized;
+  return trimmed || "openemr-demo";
+}
+
+function azureDemoAppName(profile: AzureDemoDeploymentProfile, target: AzureDemoDeploymentTarget) {
+  const prefix = normalizeAzureAppNamePrefix(profile.appNamePrefix);
+  if (target === "legacy-openemr") {
+    return `${prefix}-legacy`;
+  }
+  if (target === "modernized-openemr") {
+    return `${prefix}-modernized`;
+  }
+  return `${prefix}-portal`;
+}
+
+function normalizeAzureDate(value: unknown) {
+  const text = stringValue(value);
+  if (!text) {
+    return undefined;
+  }
+  const withZone = /(?:z|[+-]\d{2}:?\d{2})$/i.test(text) ? text : `${text}Z`;
+  const date = new Date(withZone);
+  return Number.isNaN(date.getTime()) ? text : date.toISOString();
+}
+
+function latestResultApplications(latestResult: unknown) {
+  const result = isRecord(latestResult) ? latestResult : {};
+  const applications = Array.isArray(result.applications) ? result.applications : [];
+  return applications.flatMap((item) => {
+    if (!isRecord(item)) {
+      return [];
+    }
+    const target = normalizeAzureDemoTarget(item.target);
+    if (!target) {
+      return [];
+    }
+    return [{
+      target,
+      name: stringValue(item.name),
+      url: stringValue(item.url) || undefined,
+      healthUrl: stringValue(item.healthUrl) || undefined,
+      legacyImage: stringValue(item.legacyImage) || undefined,
+      apiImage: stringValue(item.apiImage) || undefined,
+      webImage: stringValue(item.webImage) || undefined,
+      portalImage: stringValue(item.portalImage) || undefined
+    }];
+  });
+}
+
+function latestResultSmokeCheck(latestResult: unknown, target: AzureDemoDeploymentTarget) {
+  return latestResultCheckByName(latestResult, `${targetLabel(target)} smoke`);
+}
+
+function latestResultCheckByName(latestResult: unknown, checkName: string) {
+  const result = isRecord(latestResult) ? latestResult : {};
+  const checks = Array.isArray(result.checks) ? result.checks : [];
+  for (const item of checks) {
+    if (!isRecord(item)) {
+      continue;
+    }
+    if (stringValue(item.name).toLowerCase() === checkName.toLowerCase()) {
+      return {
+        passed: item.passed === true,
+        detail: stringValue(item.detail)
+      };
+    }
+  }
+  return undefined;
+}
+
+function azureDemoTargetsForStatus(profile: AzureDemoDeploymentProfile, latestResult: unknown) {
+  const targets = new Set<AzureDemoDeploymentTarget>(profile.targets);
+  for (const app of latestResultApplications(latestResult)) {
+    targets.add(app.target);
+  }
+  return [...targets];
+}
+
+function buildAzureDemoLiveStatusFromLatestResult(
+  profile: AzureDemoDeploymentProfile,
+  latestResult: unknown,
+  source: AzureDemoDeploymentLiveStatus["source"] = "latest-result"
+): AzureDemoDeploymentLiveStatus {
+  const now = new Date().toISOString();
+  const result = isRecord(latestResult) ? latestResult : {};
+  const resultStatus = stringValue(result.status);
+  const resultPassed = resultStatus.toLowerCase() === "passed";
+  const action = stringValue(result.action).toLowerCase();
+  const finishedAt = normalizeAzureDate(result.finishedAt);
+  const imageTag = action === "deploy" ? stringValue(result.imageTag) || undefined : undefined;
+  const applicationsByTarget = new Map(latestResultApplications(latestResult).map((app) => [app.target, app]));
+
+  const applications = azureDemoTargetsForStatus(profile, latestResult).map((target): AzureDemoDeploymentApplicationStatus => {
+    const app = applicationsByTarget.get(target);
+    const smoke = latestResultSmokeCheck(latestResult, target);
+    const imageCheck = app?.name ? latestResultCheckByName(latestResult, `${app.name} image update`) : undefined;
+    const imageReady = action === "deploy" ? imageCheck?.passed === true : true;
+    const url = app?.url;
+    const healthUrl = app?.healthUrl ?? (target === "modernized-openemr" && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
+    const isLive = resultPassed && smoke?.passed === true && imageReady && Boolean(url);
+    return {
+      target,
+      label: targetLabel(target),
+      name: app?.name || azureDemoAppName(profile, target),
+      url,
+      healthUrl,
+      state: isLive ? "live" : resultStatus.toLowerCase() === "failed" ? "unavailable" : "unknown",
+      detail: imageReady
+        ? smoke?.detail || (resultPassed ? "Deployment completed, but no smoke check was recorded for this target." : "No successful deployment evidence has been recorded for this target.")
+        : imageCheck?.detail || "Deployment evidence did not verify that Azure applied the final demo container images.",
+      lastVerifiedAt: smoke ? finishedAt : undefined,
+      evidenceSource: source,
+      smokePassed: smoke?.passed,
+      smokeDetail: smoke?.detail,
+      images: {
+        imageTag,
+        legacyImage: app?.legacyImage,
+        apiImage: app?.apiImage,
+        webImage: app?.webImage,
+        portalImage: app?.portalImage
+      }
+    };
+  });
+
+  const liveCount = applications.filter((app) => app.state === "live").length;
+  const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
+    ? "live"
+    : liveCount > 0
+      ? "unknown"
+      : resultStatus.toLowerCase() === "failed"
+        ? "unavailable"
+        : "unknown";
+
+  return {
+    generatedAt: now,
+    source,
+    state,
+    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
+    detail: state === "live"
+      ? `${liveCount} Azure demo target${liveCount === 1 ? "" : "s"} passed the latest smoke evidence.`
+      : "Run Deploy latest, Smoke test, or Refresh Azure status to verify the public demo targets.",
+    lastVerifiedAt: finishedAt,
+    applications
+  };
+}
+
+function normalizeStoredAzureDemoLiveStatus(value: unknown): AzureDemoDeploymentLiveStatus | null {
+  if (!isRecord(value) || !Array.isArray(value.applications)) {
+    return null;
+  }
+  return value as AzureDemoDeploymentLiveStatus;
+}
+
+function preferredAzureDemoLiveStatus(
+  profile: AzureDemoDeploymentProfile,
+  latestResult: unknown,
+  storedLiveStatus: unknown
+) {
+  const latest = buildAzureDemoLiveStatusFromLatestResult(profile, latestResult);
+  const stored = normalizeStoredAzureDemoLiveStatus(storedLiveStatus);
+  if (!stored) {
+    return latest;
+  }
+
+  const storedTime = new Date(stored.generatedAt).getTime();
+  const latestTime = latest.lastVerifiedAt ? new Date(latest.lastVerifiedAt).getTime() : 0;
+  return storedTime >= latestTime ? stored : latest;
+}
+
+function joinDemoDirectoryUrl(baseUrl: string | undefined, entryPath: string | undefined) {
+  if (!baseUrl) {
+    return undefined;
+  }
+  if (!entryPath || entryPath === "/") {
+    return baseUrl.replace(/\/+$/, "");
+  }
+  if (/^https?:\/\//i.test(entryPath)) {
+    return entryPath;
+  }
+  return `${baseUrl.replace(/\/+$/, "")}/${entryPath.replace(/^\/+/, "")}`;
+}
+
+function appendDemoPresetToDirectoryUrl(url: string | undefined, demoPreset: string | undefined) {
+  if (!url || !demoPreset) {
+    return url;
+  }
+
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set("demo", demoPreset);
+    return parsed.toString();
+  } catch {
+    const [withoutFragment, fragment = ""] = url.split("#", 2);
+    const separator = withoutFragment.includes("?") ? "&" : "?";
+    return `${withoutFragment}${separator}demo=${encodeURIComponent(demoPreset)}${fragment ? `#${fragment}` : ""}`;
+  }
+}
+
+function normalizeDirectoryCredentials(value: unknown): AzureDemoDirectoryCredential[] {
+  return Array.isArray(value)
+    ? value.flatMap((item) => {
+        if (!isRecord(item)) {
+          return [];
+        }
+        return [{
+          label: stringValue(item.label) || "Credential",
+          username: stringValue(item.username),
+          password: stringValue(item.password)
+        }];
+      })
+    : [];
+}
+
+function normalizeDirectoryTechStack(value: unknown): AzureDemoDirectoryTechnology[] {
+  return Array.isArray(value)
+    ? value.flatMap((item) => {
+        if (!isRecord(item)) {
+          return [];
+        }
+
+        const name = stringValue(item.name);
+        if (!name) {
+          return [];
+        }
+
+        return [{
+          id: stringValue(item.id) || name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          label: stringValue(item.label) || "Stack",
+          name,
+          logoText: stringValue(item.logoText) || undefined,
+          logoUrl: stringValue(item.logoUrl) || undefined,
+          color: stringValue(item.color) || undefined
+        }];
+      })
+    : [];
+}
+
+async function readAzureDemoDirectory(liveStatus: AzureDemoDeploymentLiveStatus): Promise<AzureDemoDirectory> {
+  const raw = await readJsonIfExists(demoDirectoryPath);
+  const root = isRecord(raw) ? raw : {};
+  const applications = Array.isArray(root.applications) ? root.applications : [];
+  const urlsByTarget = new Map(liveStatus.applications.map((application) => [application.target, application.url]));
+
+  return {
+    version: typeof root.version === "number" || typeof root.version === "string" ? root.version : 1,
+    title: stringValue(root.title) || "OpenEMR Demo Portal",
+    subtitle: stringValue(root.subtitle) || "Choose an available demo application.",
+    notice: stringValue(root.notice) || "Synthetic demo data only.",
+    generatedAt: liveStatus.generatedAt,
+    applications: applications.flatMap((item): AzureDemoDirectoryApplication[] => {
+      if (!isRecord(item)) {
+        return [];
+      }
+
+      const entryPoints = (Array.isArray(item.entryPoints) ? item.entryPoints : []).flatMap((entry): AzureDemoDirectoryEntryPoint[] => {
+        if (!isRecord(entry)) {
+          return [];
+        }
+
+        const target = stringValue(entry.target);
+        const staticUrl = stringValue(entry.staticUrl) || undefined;
+        const entryPath = stringValue(entry.path) || undefined;
+        const demoPreset = stringValue(entry.demoPreset) || undefined;
+        const targetUrl = urlsByTarget.get(target as AzureDemoDeploymentTarget);
+        const url = appendDemoPresetToDirectoryUrl(staticUrl || joinDemoDirectoryUrl(targetUrl, entryPath), demoPreset);
+
+        return [{
+          id: stringValue(entry.id) || stringValue(entry.label) || "entry",
+          label: stringValue(entry.label) || "Entry point",
+          role: stringValue(entry.role) || "Demo role",
+          target,
+          path: entryPath,
+          url,
+          staticUrl,
+          demoPreset,
+          note: stringValue(entry.note) || undefined,
+          credentials: normalizeDirectoryCredentials(entry.credentials)
+        }];
+      });
+
+      const readyCount = entryPoints.filter((entry) => Boolean(entry.url)).length;
+      return [{
+        id: stringValue(item.id) || stringValue(item.name) || "demo-app",
+        name: stringValue(item.name) || "OpenEMR Demo",
+        versionLabel: stringValue(item.versionLabel) || "Demo",
+        summary: stringValue(item.summary),
+        tags: toStringArray(item.tags),
+        techStack: normalizeDirectoryTechStack(item.techStack),
+        statusLabel: readyCount > 0 ? `${readyCount} link${readyCount === 1 ? "" : "s"} ready` : "Waiting for deployment",
+        entryPoints
+      }];
+    })
+  };
+}
+
+async function readAzureDemoDeploymentStatus(): Promise<AzureDemoDeploymentStatus> {
+  const { profile, profileExists } = await readAzureDemoDeploymentProfile();
+  const latestResult = await readJsonIfExists(azureDemoDeploymentLatestResultPath);
+  const storedLiveStatus = await readJsonIfExists(azureDemoDeploymentLiveStatusPath);
+  const live = preferredAzureDemoLiveStatus(profile, latestResult, storedLiveStatus);
+  return {
+    profileExists,
+    profilePath: azureDemoDeploymentProfilePath,
+    artifactDirectory: azureDemoDeploymentRoot,
+    latestResult,
+    live,
+    directory: await readAzureDemoDirectory(live)
+  };
 }
 
 async function readSourceInventory(): Promise<SourceInventory> {
@@ -697,6 +1302,50 @@ async function readSourceInventory(): Promise<SourceInventory> {
   }
   sourceInventoryCache = { expiresAt: now + sourceInventoryCacheMs, inventory };
   return inventory;
+}
+
+async function readTechnicalReference() {
+  try {
+    const [metadataText, markdown] = await Promise.all([
+      fs.readFile(technicalReferenceMetadataPath, "utf8"),
+      fs.readFile(technicalReferenceDocumentPath, "utf8")
+    ]);
+    const metadata = JSON.parse(metadataText) as TechnicalReferenceMetadata;
+    return {
+      ...metadata,
+      markdown,
+      warnings: []
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      version: "unavailable",
+      title: "Modernized OpenEMR Technical Reference",
+      generatedAt: "",
+      generatedBy: "modernization-workbench/scripts/generate-technical-reference.mjs",
+      sourceRoot: "modernized-openemr",
+      documentPath: path.relative(repoRoot, technicalReferenceDocumentPath).replaceAll("\\", "/"),
+      sourceCommit: {
+        full: "",
+        short: "",
+        dirty: false
+      },
+      summary: {
+        fileCount: 0,
+        lineCount: 0,
+        endpointCount: 0,
+        frontendModuleCount: 0,
+        repositoryCount: 0,
+        dtoModelFileCount: 0,
+        databaseTableCount: 0,
+        parityPlanCount: 0,
+        dockerServiceCount: 0
+      },
+      sections: [],
+      markdown: "Run `npm run generate:technical-reference` in `modernization-workbench/` to create the technical reference artifacts.",
+      warnings: [`Technical reference is unavailable. ${message}`]
+    };
+  }
 }
 
 function cleanMarkdownText(text: string) {
@@ -1866,9 +2515,8 @@ function safeCommand(command: string[]) {
   return command;
 }
 
-async function runCommandDefinition(managedApp: ManagedApp, command: string[], timeoutMs = 120000): Promise<CommandResult> {
+async function runCommandInDirectory(command: string[], cwd: string, timeoutMs = 120000): Promise<CommandResult> {
   command = safeCommand(command);
-  const cwd = resolveProjectPath(managedApp.workingDirectory);
   const startedAt = new Date();
 
   return await new Promise<CommandResult>((resolve) => {
@@ -1913,6 +2561,10 @@ async function runCommandDefinition(managedApp: ManagedApp, command: string[], t
       });
     });
   });
+}
+
+async function runCommandDefinition(managedApp: ManagedApp, command: string[], timeoutMs = 120000): Promise<CommandResult> {
+  return await runCommandInDirectory(command, resolveProjectPath(managedApp.workingDirectory), timeoutMs);
 }
 
 async function runCommand(managedApp: ManagedApp, commandName: CommandName, timeoutMs = 120000): Promise<CommandResult> {
@@ -2138,6 +2790,387 @@ async function readJsonIfExists(filePath: string) {
   } catch {
     return null;
   }
+}
+
+function azureCliCandidates() {
+  const windowsCandidates = [
+    process.env.AZURE_CLI_PATH ? [process.env.AZURE_CLI_PATH] : undefined,
+    ["C:\\Program Files\\Microsoft SDKs\\Azure\\CLI2\\python.exe", "-IBm", "azure.cli"],
+    ["C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\python.exe", "-IBm", "azure.cli"],
+    ["az"]
+  ];
+  const defaultCandidates = [
+    process.env.AZURE_CLI_PATH ? [process.env.AZURE_CLI_PATH] : undefined,
+    ["az"]
+  ];
+  return (process.platform === "win32" ? windowsCandidates : defaultCandidates)
+    .filter((candidate): candidate is string[] => Boolean(candidate));
+}
+
+async function resolveAzureCliCommand() {
+  if (azureCliCommandCache) {
+    return azureCliCommandCache;
+  }
+
+  const attempted: string[] = [];
+  const seen = new Set<string>();
+  for (const candidate of azureCliCandidates()) {
+    const key = candidate.join(" ");
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    attempted.push(key);
+    const result = await runCommandInDirectory([...candidate, "--version"], repoRoot, 20000);
+    if (result.exitCode === 0) {
+      azureCliCommandCache = candidate;
+      return candidate;
+    }
+  }
+
+  throw new Error(`Azure CLI was not found. Tried: ${attempted.join(", ")}`);
+}
+
+async function runAzureCli(args: string[], timeoutMs = 60000) {
+  const command = await resolveAzureCliCommand();
+  return await runCommandInDirectory([...command, ...args], repoRoot, timeoutMs);
+}
+
+function commandFailureDetail(result: CommandResult, maxLength = 900) {
+  return preview(commandOutput(result) || `Command exited with code ${result.exitCode ?? "unknown"}.`, maxLength);
+}
+
+async function setAzureSubscription(profile: AzureDemoDeploymentProfile) {
+  if (!profile.subscriptionId) {
+    throw new Error("Azure subscription ID is required before refreshing deployment status.");
+  }
+
+  const result = await runAzureCli(["account", "set", "--subscription", profile.subscriptionId], 45000);
+  if (result.exitCode !== 0) {
+    throw new Error(commandFailureDetail(result));
+  }
+}
+
+function azureStatusUnavailableCostSummary(lastRefreshedAt: string, error: string): AzureDemoDeploymentCostSummary {
+  return {
+    status: "unavailable",
+    lastRefreshedAt,
+    currency: "USD",
+    dailyCosts: [],
+    note: "Azure Cost Management data can lag by several hours and requires Cost Management read access on the selected resource group.",
+    error: preview(error, 900)
+  };
+}
+
+function parseCostDate(value: unknown) {
+  const text = String(value ?? "").trim();
+  const yyyymmdd = text.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if (yyyymmdd) {
+    return `${yyyymmdd[1]}-${yyyymmdd[2]}-${yyyymmdd[3]}`;
+  }
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? text : date.toISOString().slice(0, 10);
+}
+
+function columnIndex(columns: unknown[], names: string[]) {
+  const normalizedNames = names.map((name) => name.toLowerCase());
+  return columns.findIndex((column) => isRecord(column) && normalizedNames.includes(stringValue(column.name).toLowerCase()));
+}
+
+function parseAzureCostSummary(raw: unknown, lastRefreshedAt: string, queryScope: string): AzureDemoDeploymentCostSummary {
+  const root = isRecord(raw) ? raw : {};
+  const properties = isRecord(root.properties) ? root.properties : {};
+  const columns = Array.isArray(properties.columns) ? properties.columns : [];
+  const rows = Array.isArray(properties.rows) ? properties.rows : [];
+  const costIndex = columnIndex(columns, ["PreTaxCost", "Cost", "CostUSD", "TotalCost", "totalCost"]);
+  const dateIndex = columnIndex(columns, ["UsageDate", "Date"]);
+  const currencyIndex = columnIndex(columns, ["Currency", "CurrencyCode"]);
+  const dailyCosts = new Map<string, number>();
+  let currency = "USD";
+
+  if (costIndex < 0 || dateIndex < 0) {
+    return azureStatusUnavailableCostSummary(lastRefreshedAt, "Azure Cost Management returned an unexpected response shape.");
+  }
+
+  for (const row of rows) {
+    if (!Array.isArray(row)) {
+      continue;
+    }
+    const date = parseCostDate(row[dateIndex]);
+    const amount = Number(row[costIndex]);
+    if (!date || !Number.isFinite(amount)) {
+      continue;
+    }
+    dailyCosts.set(date, (dailyCosts.get(date) ?? 0) + amount);
+    if (currencyIndex >= 0) {
+      const rowCurrency = stringValue(row[currencyIndex]);
+      if (rowCurrency) {
+        currency = rowCurrency;
+      }
+    }
+  }
+
+  const sortedDailyCosts = [...dailyCosts.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, amount]) => ({ date, amount }));
+  const monthToDateCost = sortedDailyCosts.reduce((sum, item) => sum + item.amount, 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const latestDailyCost = sortedDailyCosts.at(-1);
+
+  return {
+    status: "available",
+    lastRefreshedAt,
+    currency,
+    monthToDateCost,
+    averageDailyCost: monthToDateCost / Math.max(1, new Date().getUTCDate()),
+    todayCost: sortedDailyCosts.find((item) => item.date === today)?.amount ?? 0,
+    latestDailyCost: latestDailyCost?.amount,
+    latestDailyCostDate: latestDailyCost?.date,
+    dailyCosts: sortedDailyCosts,
+    queryScope,
+    note: "Azure Cost Management data is posted usage data, so newly created demo resources can show zero or lag behind the live runtime state."
+  };
+}
+
+async function queryAzureDemoCosts(profile: AzureDemoDeploymentProfile, lastRefreshedAt: string): Promise<AzureDemoDeploymentCostSummary> {
+  const scope = `/subscriptions/${profile.subscriptionId}/resourceGroups/${profile.resourceGroup}`;
+  const url = `https://management.azure.com/subscriptions/${encodeURIComponent(profile.subscriptionId)}/resourceGroups/${encodeURIComponent(profile.resourceGroup)}/providers/Microsoft.CostManagement/query?api-version=2025-03-01`;
+  const body = {
+    type: "Usage",
+    timeframe: "MonthToDate",
+    dataset: {
+      granularity: "Daily",
+      aggregation: {
+        totalCost: {
+          name: "PreTaxCost",
+          function: "Sum"
+        }
+      }
+    }
+  };
+
+  try {
+    const result = await runAzureCli(["rest", "--method", "post", "--url", url, "--body", JSON.stringify(body)], 90000);
+    if (result.exitCode !== 0) {
+      return azureStatusUnavailableCostSummary(lastRefreshedAt, commandFailureDetail(result));
+    }
+    return parseAzureCostSummary(JSON.parse(result.stdout) as unknown, lastRefreshedAt, scope);
+  } catch (error) {
+    return azureStatusUnavailableCostSummary(lastRefreshedAt, error instanceof Error ? error.message : String(error));
+  }
+}
+
+function parseContainerApp(value: unknown) {
+  const root = isRecord(value) ? value : {};
+  const properties = isRecord(root.properties) ? root.properties : {};
+  const configuration = isRecord(properties.configuration) ? properties.configuration : {};
+  const ingress = isRecord(configuration.ingress) ? configuration.ingress : {};
+  const systemData = isRecord(root.systemData) ? root.systemData : {};
+  const template = isRecord(properties.template) ? properties.template : {};
+  const containers = Array.isArray(template.containers)
+    ? template.containers.flatMap((container) => {
+        if (!isRecord(container)) {
+          return [];
+        }
+        return [{
+          name: stringValue(container.name),
+          image: stringValue(container.image)
+        }];
+      })
+    : [];
+  return {
+    fqdn: stringValue(ingress.fqdn),
+    runningStatus: stringValue(properties.runningStatus),
+    provisioningState: stringValue(properties.provisioningState),
+    latestRevisionName: stringValue(properties.latestRevisionName),
+    latestReadyRevisionName: stringValue(properties.latestReadyRevisionName),
+    createdAt: normalizeAzureDate(systemData.createdAt),
+    lastModifiedAt: normalizeAzureDate(systemData.lastModifiedAt),
+    containers
+  };
+}
+
+type ExpectedAzureDemoImage = {
+  label: string;
+  matches: (actualImage: string) => boolean;
+};
+
+function exactAzureDemoImage(image: string): ExpectedAzureDemoImage {
+  return {
+    label: image,
+    matches: (actualImage) => actualImage === image
+  };
+}
+
+function prefixedAzureDemoImage(label: string, prefix: string): ExpectedAzureDemoImage {
+  return {
+    label,
+    matches: (actualImage) => actualImage.startsWith(prefix)
+  };
+}
+
+function expectedImagesForAzureDemoStatus(profile: AzureDemoDeploymentProfile, appStatus: AzureDemoDeploymentApplicationStatus) {
+  const prefix = normalizeAzureAppNamePrefix(profile.appNamePrefix);
+  const registry = normalizeAzureAppNamePrefix(profile.containerRegistry);
+  if (appStatus.target === "legacy-openemr") {
+    const legacyImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-legacy-openemr:` : "";
+    const legacyImage = appStatus.images?.legacyImage
+      ?? (appStatus.images?.imageTag && registry ? `${legacyImagePrefix}${appStatus.images.imageTag}` : undefined);
+    return [
+      legacyImage ? exactAzureDemoImage(legacyImage) : prefixedAzureDemoImage(`${legacyImagePrefix}*`, legacyImagePrefix),
+      exactAzureDemoImage("mariadb:11.8.8")
+    ].filter((expected) => expected.label !== "*");
+  }
+
+  if (appStatus.target === "demo-portal") {
+    const portalImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-demo-portal:` : "";
+    const portalImage = appStatus.images?.portalImage;
+    return [
+      portalImage ? exactAzureDemoImage(portalImage) : prefixedAzureDemoImage(`${portalImagePrefix}*`, portalImagePrefix)
+    ].filter((expected) => expected.label !== "*");
+  }
+
+  const webImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-modernized-web:` : "";
+  const apiImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-modernized-api:` : "";
+  const webImage = appStatus.images?.webImage
+    ?? (appStatus.images?.imageTag && registry ? `${webImagePrefix}${appStatus.images.imageTag}` : undefined);
+  const apiImage = appStatus.images?.apiImage
+    ?? (appStatus.images?.imageTag && registry ? `${apiImagePrefix}${appStatus.images.imageTag}` : undefined);
+
+  const requiredImages: ExpectedAzureDemoImage[] = [
+    webImage ? exactAzureDemoImage(webImage) : prefixedAzureDemoImage(`${webImagePrefix}*`, webImagePrefix),
+    apiImage ? exactAzureDemoImage(apiImage) : prefixedAzureDemoImage(`${apiImagePrefix}*`, apiImagePrefix),
+    exactAzureDemoImage("postgres:17-alpine")
+  ];
+
+  return requiredImages.filter((expected) => expected.label !== "*");
+}
+
+async function refreshAzureDemoAppStatus(
+  profile: AzureDemoDeploymentProfile,
+  base: AzureDemoDeploymentApplicationStatus
+): Promise<AzureDemoDeploymentApplicationStatus> {
+  const name = base.name || azureDemoAppName(profile, base.target);
+  const result = await runAzureCli(["containerapp", "show", "--name", name, "--resource-group", profile.resourceGroup, "-o", "json"], 60000);
+  if (result.exitCode !== 0) {
+    return {
+      ...base,
+      name,
+      state: "unavailable",
+      evidenceSource: "azure-refresh",
+      detail: `Azure Container App ${name} could not be read. ${commandFailureDetail(result, 520)}`
+    };
+  }
+
+  let parsed: ReturnType<typeof parseContainerApp>;
+  try {
+    parsed = parseContainerApp(JSON.parse(result.stdout) as unknown);
+  } catch (error) {
+    return {
+      ...base,
+      name,
+      state: "unknown",
+      evidenceSource: "azure-refresh",
+      detail: `Azure returned Container App data for ${name}, but the Workbench could not parse it. ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
+
+  const url = parsed.fqdn ? `https://${parsed.fqdn}` : base.url;
+  const healthUrl = base.healthUrl ?? (base.target === "modernized-openemr" && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
+  const probeUrl = healthUrl ?? url;
+  const http = probeUrl ? { url: probeUrl, ...(await checkHttp(probeUrl)) } : undefined;
+  const azureRunning = parsed.runningStatus === "Running" && parsed.provisioningState === "Succeeded";
+  const actualImages = parsed.containers.map((container) => container.image).filter(Boolean);
+  const expectedImages = expectedImagesForAzureDemoStatus(profile, base);
+  const missingExpectedImages = expectedImages
+    .filter((expected) => !actualImages.some((image) => expected.matches(image)))
+    .map((expected) => expected.label);
+  const hasPlaceholderImage = actualImages.includes("mcr.microsoft.com/azuredocs/containerapps-helloworld:latest");
+  const httpValid = http?.ok === true && !hasPlaceholderImage && missingExpectedImages.length === 0;
+  const state: AzureDemoDeploymentApplicationStatus["state"] = azureRunning && httpValid
+    ? "live"
+    : azureRunning
+      ? "unknown"
+      : "unavailable";
+  const detail = azureRunning
+    ? httpValid
+      ? `${probeUrl} responded with HTTP ${http.statusCode}.`
+      : hasPlaceholderImage
+        ? "Azure is still serving the Container Apps placeholder image instead of the OpenEMR demo containers."
+        : missingExpectedImages.length > 0
+          ? `Azure active template is missing expected image(s): ${missingExpectedImages.join(", ")}.`
+          : `Azure reports Running/Succeeded, but ${probeUrl ?? "the public URL"} did not pass an HTTP check.`
+    : `Azure reports ${parsed.runningStatus || "unknown running status"} / ${parsed.provisioningState || "unknown provisioning state"}.`;
+
+  return {
+    ...base,
+    name,
+    url,
+    healthUrl,
+    state,
+    detail,
+    lastVerifiedAt: new Date().toISOString(),
+    evidenceSource: "azure-refresh",
+    smokePassed: httpValid,
+    smokeDetail: detail,
+    azure: {
+      runningStatus: parsed.runningStatus,
+      provisioningState: parsed.provisioningState,
+      latestRevisionName: parsed.latestRevisionName,
+      latestReadyRevisionName: parsed.latestReadyRevisionName,
+      createdAt: parsed.createdAt,
+      lastModifiedAt: parsed.lastModifiedAt,
+      containers: parsed.containers
+    },
+    http
+  };
+}
+
+async function refreshAzureDemoDeploymentLiveStatus(profile: AzureDemoDeploymentProfile) {
+  const generatedAt = new Date().toISOString();
+  const latestResult = await readJsonIfExists(azureDemoDeploymentLatestResultPath);
+  const base = buildAzureDemoLiveStatusFromLatestResult(profile, latestResult, "azure-refresh");
+
+  try {
+    await setAzureSubscription(profile);
+  } catch (error) {
+    const liveStatus: AzureDemoDeploymentLiveStatus = {
+      ...base,
+      generatedAt,
+      source: "azure-refresh",
+      state: "unknown",
+      label: "Azure status unavailable",
+      detail: error instanceof Error ? error.message : String(error),
+      costs: azureStatusUnavailableCostSummary(generatedAt, error instanceof Error ? error.message : String(error))
+    };
+    await fs.mkdir(azureDemoDeploymentRoot, { recursive: true });
+    await fs.writeFile(azureDemoDeploymentLiveStatusPath, JSON.stringify(liveStatus, null, 2), "utf8");
+    return liveStatus;
+  }
+
+  const applications = await Promise.all(base.applications.map((appStatus) => refreshAzureDemoAppStatus(profile, appStatus)));
+  const liveCount = applications.filter((appStatus) => appStatus.state === "live").length;
+  const unavailableCount = applications.filter((appStatus) => appStatus.state === "unavailable").length;
+  const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
+    ? "live"
+    : unavailableCount === applications.length
+      ? "unavailable"
+      : "unknown";
+  const costs = await queryAzureDemoCosts(profile, generatedAt);
+  const liveStatus: AzureDemoDeploymentLiveStatus = {
+    generatedAt,
+    source: "azure-refresh",
+    state,
+    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment needs attention",
+    detail: `${liveCount} of ${applications.length} Azure demo target${applications.length === 1 ? "" : "s"} passed live HTTP verification.`,
+    lastVerifiedAt: generatedAt,
+    applications,
+    costs
+  };
+
+  await fs.mkdir(azureDemoDeploymentRoot, { recursive: true });
+  await fs.writeFile(azureDemoDeploymentLiveStatusPath, JSON.stringify(liveStatus, null, 2), "utf8");
+  return liveStatus;
 }
 
 function toNumber(value: unknown, fallback = 0) {
@@ -3336,6 +4369,107 @@ app.get("/api/events", async (_request, response, next) => {
   }
 });
 
+app.get("/api/demo-deployment", async (_request, response, next) => {
+  try {
+    const { profile, profileExists } = await readAzureDemoDeploymentProfile();
+    response.json({
+      profile,
+      status: {
+        ...(await readAzureDemoDeploymentStatus()),
+        profileExists
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/demo-deployment/profile", async (request, response, next) => {
+  try {
+    const profile = normalizeAzureDemoDeploymentProfile(request.body);
+    await saveAzureDemoDeploymentProfile(profile);
+    response.json({
+      profile,
+      status: await readAzureDemoDeploymentStatus()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/demo-deployment/actions/:action", async (request, response, next) => {
+  try {
+    const action = request.params.action;
+    if (!["validate", "deploy", "smoke"].includes(action)) {
+      response.status(400).json({ error: `Unsupported demo deployment action: ${action}` });
+      return;
+    }
+
+    const { profile, profileExists } = await readAzureDemoDeploymentProfile();
+    if (!profileExists) {
+      await saveAzureDemoDeploymentProfile(normalizeAzureDemoDeploymentProfile(request.body));
+    } else {
+      await saveAzureDemoDeploymentProfile(profile);
+    }
+
+    const command = action === "validate"
+      ? [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          ".\\scripts\\Test-AzureDemoPrerequisites.ps1",
+          "-ProfilePath",
+          azureDemoDeploymentProfilePath,
+          "-ResultPath",
+          azureDemoDeploymentLatestResultPath
+        ]
+      : [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          ".\\scripts\\Deploy-AzureDemo.ps1",
+          "-ProfilePath",
+          azureDemoDeploymentProfilePath,
+          "-ResultPath",
+          azureDemoDeploymentLatestResultPath,
+          ...(action === "smoke" ? ["-SmokeOnly"] : [])
+        ];
+
+    const timeoutMs = action === "deploy" ? 1800000 : 180000;
+    const result = await runCommandInDirectory(command, repoRoot, timeoutMs);
+    const event = eventFromCommand("azure-demo-deployment", `azure-demo:${action}`, result);
+    await saveEvent(event);
+    response.json({
+      result,
+      event,
+      latestResult: await readJsonIfExists(azureDemoDeploymentLatestResultPath),
+      status: await readAzureDemoDeploymentStatus()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/demo-deployment/status/refresh", async (_request, response, next) => {
+  try {
+    const { profile, profileExists } = await readAzureDemoDeploymentProfile();
+    if (!profileExists) {
+      response.status(400).json({ error: "Save the Azure demo profile before refreshing deployment status." });
+      return;
+    }
+
+    await refreshAzureDemoDeploymentLiveStatus(profile);
+    response.json({
+      profile,
+      status: await readAzureDemoDeploymentStatus()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/seed-datasets", async (_request, response, next) => {
   try {
     response.json(await readSeedDataManifest());
@@ -3442,6 +4576,23 @@ app.get("/api/changelog", async (request, response, next) => {
     const limit = normalizeChangelogLimit(request.query.limit, 100);
     const order = normalizeChangelogOrder(request.query.order ?? "desc");
     response.json(await readProjectChangelog({ offset, limit, order }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/technical-reference", async (_request, response, next) => {
+  try {
+    response.json(await readTechnicalReference());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/technical-reference/markdown", async (_request, response, next) => {
+  try {
+    const reference = await readTechnicalReference();
+    response.type("text/markdown").send(reference.markdown);
   } catch (error) {
     next(error);
   }
@@ -3629,7 +4780,10 @@ app.get("/api/architecture", async (_request, response) => {
 });
 
 app.get("/api/progress", async (_request, response) => {
-  const functionalityProgress = await readFunctionalityProgress();
+  const [functionalityProgress, capabilityRollups] = await Promise.all([
+    readFunctionalityProgress(),
+    readCapabilityRollups()
+  ]);
   const functionalitySummary = calculateFunctionalityProgressSummary(functionalityProgress.areas);
   const changelogEntries = await readChangelogEntriesForForecast();
   const [functionalityHistory, functionalityForecast] = await Promise.all([
@@ -3652,6 +4806,7 @@ app.get("/api/progress", async (_request, response) => {
     functionalityVersion: functionalityProgress.version,
     functionalityLastUpdated: functionalityProgress.lastUpdated,
     functionalityAreas: functionalityProgress.areas,
+    capabilityRollups,
     functionalitySummary,
     functionalityHistory,
     functionalityForecast

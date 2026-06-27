@@ -1,0 +1,378 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7f7;
+  --panel: #ffffff;
+  --ink: #17212b;
+  --muted: #5e6b75;
+  --border: #d8e0e0;
+  --accent: #156f6a;
+  --accent-strong: #0d5552;
+  --blue: #315f9e;
+  --amber: #9a6713;
+  --shadow: 0 18px 45px rgba(22, 38, 53, 0.12);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(21, 111, 106, 0.10), transparent 28rem),
+    var(--bg);
+}
+
+a {
+  color: inherit;
+}
+
+.shell {
+  width: min(1160px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 28px 0 44px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  padding: 26px 0 18px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 4rem;
+  line-height: 0.95;
+}
+
+.subtitle {
+  max-width: 760px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.hero-status {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.notice {
+  border: 1px solid rgba(154, 103, 19, 0.28);
+  border-left: 5px solid var(--amber);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0 22px;
+  color: #6c4610;
+  background: #fff8eb;
+  font-weight: 650;
+}
+
+.application-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.app-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.app-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.app-card h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.version-label {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--blue);
+  background: #edf4ff;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  color: #0b5942;
+  background: #e9f7ee;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.status-pill.unavailable {
+  color: #8a2f1b;
+  background: #fff0ea;
+}
+
+.summary {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: var(--muted);
+  background: #f8faf9;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.tech-stack {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid #e4ebeb;
+  border-bottom: 1px solid #e4ebeb;
+  padding: 14px 0;
+}
+
+.tech-stack-title {
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.tech-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+  gap: 8px;
+}
+
+.tech-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  border: 1px solid #dbe5e5;
+  border-radius: 7px;
+  padding: 9px;
+  background: #ffffff;
+  box-shadow: inset 3px 0 0 var(--tech-color, var(--accent));
+}
+
+.tech-logo {
+  display: inline-flex;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2eaea;
+  border-radius: 7px;
+  background: #f8fbfb;
+  color: var(--tech-color, var(--accent));
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.tech-logo img,
+.tech-logo svg {
+  display: none;
+  max-width: 27px;
+  max-height: 27px;
+}
+
+.tech-logo.has-graphic img,
+.tech-logo.has-graphic svg {
+  display: block;
+}
+
+.tech-logo.has-graphic .tech-logo-fallback {
+  display: none;
+}
+
+.tech-text {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.tech-text small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tech-text strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-list {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.entry {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcfc;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.entry strong {
+  display: block;
+}
+
+.entry small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.entry-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.credential-list {
+  display: grid;
+  gap: 8px;
+}
+
+.credential {
+  display: grid;
+  gap: 3px;
+  border-radius: 7px;
+  padding: 10px;
+  background: #eef7f6;
+}
+
+.credential span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.credential code {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.92rem;
+}
+
+.open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 40px;
+  border-radius: 7px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.open-link:hover {
+  background: var(--accent-strong);
+}
+
+.open-link.disabled {
+  pointer-events: none;
+  color: var(--muted);
+  background: #e5ebeb;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100vw - 22px, 1160px);
+    padding-top: 14px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-status {
+    justify-content: flex-start;
+  }
+
+  h1 {
+    font-size: 2.45rem;
+  }
+
+  .application-grid {
+    grid-template-columns: 1fr;
+  }
+}

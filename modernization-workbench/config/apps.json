@@ -7528,7 +7528,7 @@
       "description": "From-scratch modernized OpenEMR target using React, ASP.NET Core, and PostgreSQL.",
       "kind": "docker-compose",
       "workingDirectory": "../modernized-openemr",
-      "publicUrl": "http://localhost:3000",
+      "publicUrl": "http://localhost:3000/?entry=chooser",
       "healthUrl": "http://localhost:5001/health",
       "documentationPath": "../documents/MODERNIZATION_PLAN.md",
       "sourcePath": "../modernized-openemr",

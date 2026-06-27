@@ -1,0 +1,516 @@
+{
+  "version": "0.1.0",
+  "lastUpdated": "2026-06-25",
+  "sliceTypes": [
+    {
+      "id": "capability",
+      "name": "Capability",
+      "detail": "User-visible workflow or domain behavior that should be planned and discussed as product scope."
+    },
+    {
+      "id": "coverage",
+      "name": "Coverage",
+      "detail": "Additional validation, permissions, edge-case, or alternate-state coverage for an existing capability."
+    },
+    {
+      "id": "evidence",
+      "name": "Evidence",
+      "detail": "Probe payloads, comparison artifacts, screenshots, drill-ins, or other observability work that supports a capability."
+    },
+    {
+      "id": "workbench-platform",
+      "name": "Workbench Platform",
+      "detail": "Workbench runtime, orchestration, lifecycle, reporting, performance, and operator tooling."
+    },
+    {
+      "id": "seed-data",
+      "name": "Seed Data",
+      "detail": "Gold dataset, target seed mapping, fixture anchors, and deterministic test data expansion."
+    },
+    {
+      "id": "hardening",
+      "name": "Hardening",
+      "detail": "Security, audit, authorization, reliability, cleanup, and production-readiness work."
+    }
+  ],
+  "rollups": [
+    {
+      "id": "patient-chart-and-portal",
+      "name": "Patient Chart And Portal",
+      "status": "in-progress",
+      "areaIds": ["patient-chart-registration", "messaging-portal"],
+      "summary": "Patient search, chart summary, demographics/contact/registration, insurance, immunizations, portal account/session/profile, secure messages, appointments, and generated report workflows.",
+      "operatorSignal": "Treat the many portal and patient-chart slices as one patient-facing capability family with focused child coverage.",
+      "children": [
+        {
+          "label": "Chart, registration, and demographic mutation",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Core patient lookup/chart summary plus contact, demographics, registration, duplicate detection, deceased status, guardian, social, employer, provider, and care-team workflows.",
+          "evidence": [
+            "slice-1-readiness",
+            "slice-10-contact-mutation-readiness",
+            "slice-36-patient-demographics-mutation-readiness",
+            "slice-37-patient-registration-readiness",
+            "slice-191-patient-duplicate-detection-readiness",
+            "slice-192-patient-registration-validation-readiness"
+          ]
+        },
+        {
+          "label": "Insurance, immunization, history, and care-team detail",
+          "sliceType": "coverage",
+          "status": "verified",
+          "detail": "Focused patient chart subdomains that enrich the main chart capability without needing separate product-level milestones.",
+          "evidence": [
+            "slice-28-insurance-readiness",
+            "slice-34-insurance-mutation-readiness",
+            "slice-203-insurance-subscriber-readiness",
+            "slice-29-immunizations-readiness",
+            "slice-30-immunization-mutation-readiness",
+            "slice-202-patient-history-readiness"
+          ]
+        },
+        {
+          "label": "Patient portal account, profile, and secure-message workflows",
+          "sliceType": "capability",
+          "status": "in-progress",
+          "detail": "Portal account/reset/access/authentication/session/home/profile review plus secure-message inbox, compose, reply, thread, archive, read, pagination, notifications, and generated-report flows.",
+          "evidence": [
+            "slice-204-patient-portal-account-readiness",
+            "slice-207-patient-portal-authentication-readiness",
+            "slice-208-patient-portal-session-readiness",
+            "slice-210-patient-portal-messages-readiness",
+            "slice-211-patient-portal-compose-readiness",
+            "slice-212-patient-portal-reply-readiness",
+            "slice-255-patient-portal-message-notifications-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Production identity hardening, MFA, and full portal key-management/decryption policy.",
+        "Broader portal attachments, routing queues, delivery integrations, and notification delivery audit."
+      ]
+    },
+    {
+      "id": "scheduling-and-appointments",
+      "name": "Scheduling And Appointments",
+      "status": "in-progress",
+      "areaIds": ["scheduling"],
+      "summary": "Calendar visibility, appointment lifecycle mutations, recurrence handling, overlaps, reminders, and portal appointment request flows.",
+      "operatorSignal": "This is the clearest example where many micro-slices should be read as one Scheduling capability.",
+      "children": [
+        {
+          "label": "Appointment visibility and lifecycle",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Read-only calendar plus create/cancel/delete, reschedule, arrival, checkout, no-show, category, pending, provider, facility, billing-location, and comments.",
+          "evidence": [
+            "slice-2-scheduling-readiness",
+            "slice-11-appointment-mutation-readiness",
+            "slice-93-appointment-reschedule-readiness",
+            "slice-94-appointment-arrival-readiness",
+            "slice-95-appointment-checkout-readiness",
+            "slice-96-appointment-noshow-readiness"
+          ]
+        },
+        {
+          "label": "Recurrence and occurrence behavior",
+          "sliceType": "coverage",
+          "status": "verified",
+          "detail": "Recurring metadata, generated occurrences, exception dates, occurrence cancel/restore/reschedule, root propagation, monthly/daily/workday/yearly/weekday/repeat-on rules, and series recurrence update.",
+          "evidence": [
+            "slice-103-appointment-recurrence-readiness",
+            "slice-104-appointment-series-readiness",
+            "slice-105-appointment-recurrence-exceptions-readiness",
+            "slice-106-appointment-occurrence-cancel-readiness",
+            "slice-112-appointment-monthly-recurrence-readiness",
+            "slice-116-appointment-series-recurrence-update-readiness"
+          ]
+        },
+        {
+          "label": "Overlap, reminders, and portal appointment requests",
+          "sliceType": "coverage",
+          "status": "in-progress",
+          "detail": "Provider/patient/room overlap tolerance, appointment reminder readiness, and portal appointment list/request/options flows.",
+          "evidence": [
+            "slice-117-appointment-provider-overlap-readiness",
+            "slice-118-appointment-patient-overlap-readiness",
+            "slice-119-appointment-room-overlap-readiness",
+            "slice-120-appointment-reminders-readiness",
+            "slice-219-patient-portal-appointments-readiness",
+            "slice-220-patient-portal-appointment-request-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Stricter provider/resource availability validation and waitlist flows.",
+        "Billing/encounter conversion and reminder delivery/audit integration."
+      ]
+    },
+    {
+      "id": "encounters-and-clinical-documentation",
+      "name": "Encounters And Clinical Documentation",
+      "status": "in-progress",
+      "areaIds": ["encounters-clinical-notes", "documents-attachments"],
+      "summary": "Encounter clinical detail, mutation, metadata, sign-off, co-signature, amendment history, encounter-linked documents, fee-sheet, diagnosis, claim, and procedure linkage.",
+      "operatorSignal": "Encounter document and billing/procedure link slices are child coverage for the encounter workspace, not separate product epics.",
+      "children": [
+        {
+          "label": "Encounter clinical detail and lifecycle",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Read-only SOAP/vitals detail plus create/update/delete encounter lifecycle, metadata mutation, sign-off, co-signature, and amendment-history readiness.",
+          "evidence": [
+            "slice-3-encounters-readiness",
+            "slice-12-encounter-mutation-readiness",
+            "slice-35-encounter-metadata-readiness",
+            "slice-77-encounter-signoff-readiness",
+            "slice-121-encounter-cosignature-readiness",
+            "slice-190-encounter-amendment-history-readiness"
+          ]
+        },
+        {
+          "label": "Encounter documents and attachments",
+          "sliceType": "capability",
+          "status": "in-progress",
+          "detail": "Encounter document attachment, upload, binary upload, scanned attachment, replacement revision, sign-off, denial, metadata, move, content replacement, archive/restore, lifecycle timeline, and external-link handling.",
+          "evidence": [
+            "slice-67-encounter-documents-readiness",
+            "slice-78-encounter-document-upload-readiness",
+            "slice-79-encounter-binary-document-upload-readiness",
+            "slice-80-encounter-document-signoff-readiness",
+            "slice-86-encounter-document-lifecycle-readiness",
+            "slice-87-encounter-document-external-link-readiness"
+          ]
+        },
+        {
+          "label": "Encounter-linked revenue and procedure facts",
+          "sliceType": "coverage",
+          "status": "verified",
+          "detail": "Encounter-linked billing, claim, procedure-order, diagnosis coding, fee-sheet entry, procedure-order entry, and procedure-result entry readiness.",
+          "evidence": [
+            "slice-68-encounter-billing-readiness",
+            "slice-69-encounter-claims-readiness",
+            "slice-70-encounter-procedures-readiness",
+            "slice-71-encounter-diagnoses-readiness",
+            "slice-74-encounter-fee-sheet-entry-readiness",
+            "slice-76-encounter-procedure-result-entry-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Templates, amendment policy controls, code search/validation, charge templates, and richer audit export.",
+        "Full historical document version chains and scanner hardware/OCR integration."
+      ]
+    },
+    {
+      "id": "documents-and-attachments",
+      "name": "Documents And Attachments",
+      "status": "in-progress",
+      "areaIds": ["documents-attachments"],
+      "summary": "Patient and encounter documents, content retrieval, binary files, previews, thumbnails, scanned attachments, sign-off/denial, metadata, archive/restore, revisions, and external links.",
+      "operatorSignal": "Document micro-slices should be grouped by document lifecycle and content behavior before discussing product completeness.",
+      "children": [
+        {
+          "label": "Patient document visibility and content access",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Read-only document lists, content retrieval, preview readiness, image/PDF preview, thumbnail, scanned attachment, and lifecycle timeline.",
+          "evidence": [
+            "slice-25-documents-readiness",
+            "slice-27-document-content-readiness",
+            "slice-53-document-preview-readiness",
+            "slice-88-document-image-preview-readiness",
+            "slice-89-document-image-thumbnail-readiness",
+            "slice-90-document-pdf-preview-readiness"
+          ]
+        },
+        {
+          "label": "Patient document mutation lifecycle",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Create/archive/delete text and binary documents, sign-off, denial, metadata refiling, archive/restore, content replacement, replacement revision, and external-link filing.",
+          "evidence": [
+            "slice-26-document-mutation-readiness",
+            "slice-33-binary-document-mutation-readiness",
+            "slice-38-document-signoff-readiness",
+            "slice-40-document-denial-readiness",
+            "slice-42-document-archive-readiness",
+            "slice-43-document-content-replace-readiness"
+          ]
+        },
+        {
+          "label": "Document authorization and protection",
+          "sliceType": "hardening",
+          "status": "in-progress",
+          "detail": "Protected document access and add/write/delete authorization behavior for patient-document APIs and UI.",
+          "evidence": [
+            "slice-169-document-protection-readiness",
+            "slice-179-document-authorization-policy-readiness",
+            "slice-186-document-mutation-authorization-policy-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Scanner-device ingestion, OCR extraction/queueing, external storage adapters, and fax/SMS integrations.",
+        "Full document versioning beyond focused replacement readiness."
+      ]
+    },
+    {
+      "id": "revenue-cycle",
+      "name": "Revenue Cycle",
+      "status": "in-progress",
+      "areaIds": ["billing-revenue-cycle"],
+      "summary": "Fee-sheet billing, diagnosis and modifier handling, claim status, payment posting, patient payments, account balance/aging/ledger/statement, statement generation/export, collections queue, and follow-up tasks.",
+      "operatorSignal": "Revenue-cycle slices should be reviewed as one billing capability because individual charge, claim, payment, and statement slices are tightly coupled.",
+      "children": [
+        {
+          "label": "Fee-sheet and billing-line lifecycle",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Read-only fee-sheet plus billing line create/status/delete, diagnosis coding, charge correction, modifier handling, and billing authorization policy.",
+          "evidence": [
+            "slice-7-billing-readiness",
+            "slice-16-billing-mutation-readiness",
+            "slice-44-billing-diagnosis-readiness",
+            "slice-45-billing-correction-readiness",
+            "slice-46-billing-modifier-readiness",
+            "slice-181-billing-authorization-policy-readiness"
+          ]
+        },
+        {
+          "label": "Claims, payments, and account ledger",
+          "sliceType": "coverage",
+          "status": "in-progress",
+          "detail": "Claim status, claim mutation, payment posting, payment mutation, patient payment capture, account balance, aging, ledger, and statement readiness.",
+          "evidence": [
+            "slice-47-claim-status-readiness",
+            "slice-57-claim-status-mutation-readiness",
+            "slice-48-payment-posting-readiness",
+            "slice-56-payment-posting-mutation-readiness",
+            "slice-49-account-balance-readiness",
+            "slice-51-account-ledger-readiness"
+          ]
+        },
+        {
+          "label": "Statements and collections",
+          "sliceType": "capability",
+          "status": "in-progress",
+          "detail": "Patient statement generation, statement PDF export, statement batch candidates/packages, collections work queue, and follow-up task lifecycle.",
+          "evidence": [
+            "slice-59-statement-generation-readiness",
+            "slice-60-statement-pdf-export-readiness",
+            "slice-61-statement-batch-readiness",
+            "slice-62-statement-batch-package-readiness",
+            "slice-63-collections-work-queue-readiness",
+            "slice-64-collections-follow-up-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Claim generation, payer adjudication, remittance import, void history, and production clearinghouse workflows.",
+        "Deeper denial management, statement delivery, payment reversal policy, and audit history."
+      ]
+    },
+    {
+      "id": "labs-and-procedures",
+      "name": "Labs And Procedures",
+      "status": "in-progress",
+      "areaIds": ["labs-procedures"],
+      "summary": "Procedure results, pending orders, procedure mutation, result/order/report correction, specimen detail, review queues, provider directory/configuration, order catalog, import, queue, and transmit readiness.",
+      "operatorSignal": "Lab/procedure work is a parent capability with several child lanes: ordering, reporting, review queues, providers, and catalogs.",
+      "children": [
+        {
+          "label": "Procedure orders, reports, and results",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Completed results, pending scheduled orders, create/complete/report/result lifecycle, result correction, order correction, report correction, and specimen facts.",
+          "evidence": [
+            "slice-6-procedures-readiness",
+            "slice-17-procedure-mutation-readiness",
+            "slice-23-procedure-pending-orders-readiness",
+            "slice-129-procedure-result-correction-readiness",
+            "slice-132-procedure-order-correction-readiness",
+            "slice-133-procedure-report-correction-readiness"
+          ]
+        },
+        {
+          "label": "Review queues and sign-off workflow",
+          "sliceType": "coverage",
+          "status": "in-progress",
+          "detail": "Report sign-off, bulk sign-off, reopen review, review queue rendering, patient/date/provider/lab filters, and queue transitions.",
+          "evidence": [
+            "slice-134-procedure-report-signoff-readiness",
+            "slice-153-procedure-report-bulk-signoff-readiness",
+            "slice-154-procedure-report-reopen-review-readiness",
+            "slice-135-procedure-report-review-queue-readiness",
+            "slice-136-procedure-report-review-queue-filters-readiness",
+            "slice-138-procedure-report-review-queue-lab-filters-readiness"
+          ]
+        },
+        {
+          "label": "Lab providers, catalogs, import, queue, and transmit",
+          "sliceType": "capability",
+          "status": "in-progress",
+          "detail": "Provider catalog/directory/lifecycle/configuration/address-book, procedure order catalog, catalog lifecycle, vendor compendium import, order queue, and transmit readiness.",
+          "evidence": [
+            "slice-139-procedure-lab-provider-catalog-readiness",
+            "slice-140-procedure-lab-provider-directory-readiness",
+            "slice-141-procedure-lab-provider-lifecycle-readiness",
+            "slice-145-procedure-order-catalog-readiness",
+            "slice-148-procedure-vendor-compendium-import-readiness",
+            "slice-151-procedure-order-transmit-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "HL7 generation, external lab acknowledgements, retry/failure queues, and production lab transport.",
+        "Specimen chain of custody, label printing, accessioning, reviewer assignment, and notification workflow."
+      ]
+    },
+    {
+      "id": "administration-security-audit",
+      "name": "Administration, Security, And Audit",
+      "status": "in-progress",
+      "areaIds": ["admin-security-audit"],
+      "summary": "Administration directory, facility/user mutation, ACL read model, permission and group membership mutation, login/session/audit, protected directories, authorization policies, and role-sensitive API behavior.",
+      "operatorSignal": "Security slices are intentionally granular for risk control, but they should roll up as one hardening capability.",
+      "children": [
+        {
+          "label": "Administration directory and user/facility lifecycle",
+          "sliceType": "capability",
+          "status": "verified",
+          "detail": "Administration directory, facility mutation, user mutation, and default active/inactive rendering behavior.",
+          "evidence": [
+            "slice-8-admin-readiness",
+            "slice-18-admin-facility-mutation-readiness",
+            "slice-19-admin-user-mutation-readiness"
+          ]
+        },
+        {
+          "label": "ACL read model and permission mutation",
+          "sliceType": "hardening",
+          "status": "verified",
+          "detail": "Default ACL groups, visible permission objects, group-permission assignments, access-permission revoke/restore, and user group membership grant/revoke.",
+          "evidence": [
+            "slice-20-access-control-readiness",
+            "slice-21-access-permission-mutation-readiness",
+            "slice-22-user-group-membership-mutation-readiness"
+          ]
+        },
+        {
+          "label": "Login, session, protection, and authorization policies",
+          "sliceType": "hardening",
+          "status": "in-progress",
+          "detail": "Admin login, failed-login audit rows, session lifecycle, protected audit/admin/report/patient/encounter/document/message/billing/procedure surfaces, and mutation authorization policies.",
+          "evidence": [
+            "slice-159-admin-login-readiness",
+            "slice-160-admin-login-audit-readiness",
+            "slice-161-admin-session-readiness",
+            "slice-162-admin-audit-protection-readiness",
+            "slice-173-admin-authorization-policy-readiness",
+            "slice-185-encounter-mutation-authorization-policy-readiness"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Production ASP.NET Core Identity hardening, password management, MFA, and user-facility restriction matrices.",
+        "Comprehensive audit-log export and role-administration workflows."
+      ]
+    },
+    {
+      "id": "workbench-evidence-and-operations",
+      "name": "Workbench Evidence And Operations",
+      "status": "in-progress",
+      "areaIds": ["reports-workbench-evidence"],
+      "summary": "Workbench app lifecycle management, test orchestration, progress ledger, timeline, comparison drill-ins, artifact links, reliability summaries, probe previews, and source/architecture views.",
+      "operatorSignal": "Most high-numbered evidence slices should be understood as Workbench support for interpreting modernization quality, not new OpenEMR product scope.",
+      "children": [
+        {
+          "label": "Workbench runtime and managed applications",
+          "sliceType": "workbench-platform",
+          "status": "verified",
+          "detail": "Managed apps, Docker readiness guidance, start/stop/restart/start-all, route-scoped hydration, summary/detail app snapshots, and modern-ui-claude registration.",
+          "evidence": [
+            "workbench-v1",
+            "modern-ui-claude-managed-app",
+            "runtime-readiness-guidance"
+          ]
+        },
+        {
+          "label": "Timeline, progress, and capability reporting",
+          "sliceType": "workbench-platform",
+          "status": "in-progress",
+          "detail": "Paged changelog hydration, Project Timeline metrics, functionality progress ledger, weighted estimates, history chart, forecast, and capability rollups.",
+          "evidence": [
+            "slice-143-functionality-progress-ledger",
+            "slice-146-completion-estimates",
+            "slice-152-weighted-progress-history",
+            "capability-rollups-v1"
+          ]
+        },
+        {
+          "label": "Comparison evidence and probe previews",
+          "sliceType": "evidence",
+          "status": "in-progress",
+          "detail": "Comparison cards, drill-ins, safe artifact links, direct report links, screenshot thumbnails, normalized probe details, accepted differences, reliability summaries, safe text previews, and workflow JSON probe payload attachments.",
+          "evidence": [
+            "slice-124-comparison-drill-ins",
+            "slice-155-comparison-report-links",
+            "slice-257-normalized-probe-detail",
+            "slice-259-reliability-summaries",
+            "slice-260-safe-attachment-previews",
+            "slice-261-database-probe-payloads"
+          ]
+        }
+      ],
+      "outstanding": [
+        "Long-term evidence retention policy, richer report exports, and deeper historical reliability analysis.",
+        "Additional workflow probe payload attachment backfill until all relevant parity suites carry previewable evidence."
+      ]
+    },
+    {
+      "id": "seed-data-and-production-readiness",
+      "name": "Seed Data, Migration, And Production Readiness",
+      "status": "partial",
+      "areaIds": ["integrations-migration-production"],
+      "summary": "Gold synthetic dataset, canonical workflow anchors, deterministic reset behavior, seed mapping, migration planning, external integrations, deployment, privacy, and production operations.",
+      "operatorSignal": "This rollup separates foundational test data and future production work from user-facing workflow capability slices.",
+      "children": [
+        {
+          "label": "Gold dataset and target seed mapping",
+          "sliceType": "seed-data",
+          "status": "verified",
+          "detail": "Deterministic 1,000-patient gold dataset with canonical IDs, workflow anchors, temporal coverage, and repeatable legacy/modernized seed projections.",
+          "evidence": [
+            "database-gold-seed-contract",
+            "legacy-seed-gold-dataset",
+            "modernized-postgresql-seed"
+          ]
+        },
+        {
+          "label": "Reset, cleanup, and run isolation",
+          "sliceType": "hardening",
+          "status": "in-progress",
+          "detail": "Per-test reset plans, cleanup-backed workflow mutations, and evidence that temporary rows restore or remove target state after parity runs.",
+          "evidence": [
+            "mutation-isolated",
+            "full-parity",
+            "slice-readiness-cleanup-contracts"
+          ]
+        },
+        {
+          "label": "External integrations and production deployment",
+          "sliceType": "hardening",
+          "status": "not-started",
+          "detail": "Scanner/OCR, fax/SMS/email, clearinghouse, HL7/external lab, production identity, deployment, backup/restore, monitoring, migration rehearsals, and PHI/security controls.",
+          "evidence": []
+        }
+      ],
+      "outstanding": [
+        "Formal migration rehearsals, production deployment model, backup/restore, observability, and incident procedures.",
+        "External integrations for lab, clearinghouse, scanner/OCR, fax/SMS/email, and portal notification delivery."
+      ]
+    }
+  ]
+}

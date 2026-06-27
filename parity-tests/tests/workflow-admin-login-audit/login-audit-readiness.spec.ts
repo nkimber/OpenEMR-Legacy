@@ -1,6 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 
 type QueryableDb = {
@@ -135,13 +136,7 @@ test.describe("admin login audit readiness parity @workflow-admin-login-audit @s
       }
     });
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Admin" }).click();
-
-    const loginPanel = page.locator('form[aria-label="Login readiness"]');
-    await loginPanel.getByLabel("Username").fill(target.credentials.username);
-    await loginPanel.getByLabel("Password").fill(target.credentials.password);
-    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
+    await openAuthenticatedModernizedAdmin(page, target);
 
     const auditPanel = page.locator('[aria-label="Login audit events"]');
     await expect(auditPanel).toBeVisible();

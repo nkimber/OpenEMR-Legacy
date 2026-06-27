@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "title": "OpenEMR Modernization Demo",
+  "subtitle": "Choose the reference baseline, the current modernized build, or a future UI experiment from one public landing page.",
+  "notice": "Synthetic demo data only. Do not enter real patient data, PHI, production credentials, or secrets.",
+  "applications": [
+    {
+      "id": "legacy-openemr",
+      "name": "Legacy OpenEMR",
+      "versionLabel": "Reference baseline",
+      "summary": "Pinned OpenEMR 8.1.0 reference environment used as the behavior baseline for modernization comparisons.",
+      "tags": ["Reference", "Legacy", "PHP"],
+      "techStack": [
+        {
+          "id": "angularjs",
+          "label": "UI",
+          "name": "AngularJS",
+          "logoText": "A",
+          "color": "#dd0031",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg"
+        },
+        {
+          "id": "php",
+          "label": "Runtime",
+          "name": "PHP",
+          "logoText": "PHP",
+          "color": "#777bb4",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg"
+        },
+        {
+          "id": "mariadb",
+          "label": "Database",
+          "name": "MariaDB",
+          "logoText": "MDB",
+          "color": "#003545",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mariadb/mariadb-original.svg"
+        }
+      ],
+      "entryPoints": [
+        {
+          "id": "staff",
+          "label": "Staff application",
+          "role": "Physician / admin",
+          "target": "legacy-openemr",
+          "path": "/interface/login/login.php?site=default",
+          "demoPreset": "staff",
+          "note": "Use this for the original OpenEMR staff workflow. The demo preset fills the login fields after the page opens.",
+          "credentials": [
+            {
+              "label": "Demo admin",
+              "username": "admin",
+              "password": "pass"
+            }
+          ]
+        },
+        {
+          "id": "patient-portal",
+          "label": "Patient portal",
+          "role": "Patient",
+          "target": "legacy-openemr",
+          "path": "/portal/index.php?site=default",
+          "demoPreset": "patient",
+          "note": "Use this for the legacy OpenEMR patient portal. The demo preset fills the login fields after the page opens.",
+          "credentials": [
+            {
+              "label": "Nora Kim / MOD-PAT-0004",
+              "username": "mod-pat-0004@example.test",
+              "password": "PortalPass207!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "modernized-openemr",
+      "name": "Modernized OpenEMR",
+      "versionLabel": "Modernized baseline",
+      "summary": "Current React and ASP.NET Core implementation built slice by slice against the legacy behavior contract.",
+      "tags": ["Modernized", "React", "PostgreSQL"],
+      "techStack": [
+        {
+          "id": "react",
+          "label": "UI",
+          "name": "React",
+          "logoText": "R",
+          "color": "#087ea4",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+        },
+        {
+          "id": "dotnet",
+          "label": "Runtime",
+          "name": ".NET",
+          "logoText": ".NET",
+          "color": "#512bd4",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dotnetcore/dotnetcore-original.svg"
+        },
+        {
+          "id": "postgresql",
+          "label": "Database",
+          "name": "PostgreSQL",
+          "logoText": "PG",
+          "color": "#336791",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg"
+        }
+      ],
+      "entryPoints": [
+        {
+          "id": "staff",
+          "label": "Staff application",
+          "role": "Physician / admin",
+          "target": "modernized-openemr",
+          "path": "/?module=admin",
+          "demoPreset": "staff",
+          "note": "Use this for the current modernized staff workflow. The app opens the staff login readiness panel with demo credentials ready.",
+          "credentials": [
+            {
+              "label": "Demo admin",
+              "username": "admin",
+              "password": "pass"
+            }
+          ]
+        },
+        {
+          "id": "patient-portal",
+          "label": "Patient portal module",
+          "role": "Patient",
+          "target": "modernized-openemr",
+          "path": "/?module=portal",
+          "demoPreset": "patient",
+          "note": "Use this for the modernized patient portal module. The app opens the portal login panel with demo credentials ready.",
+          "credentials": [
+            {
+              "label": "Nora Kim / MOD-PAT-0004",
+              "username": "mod-pat-0004@example.test",
+              "password": "PortalPass207!"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

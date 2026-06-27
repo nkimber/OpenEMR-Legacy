@@ -74,6 +74,8 @@ UI tests validate browser-visible workflows.
 
 The legacy UI helper collects rendered text across OpenEMR frames and form field values from inputs, textareas, and selected options. This matters for legacy clinical forms such as procedure results, where visible result names and values are often stored inside editable fields rather than plain body text.
 
+The modernized UI helpers enter through the first-page chooser. Staff workflow coverage verifies the chooser's modernization summary, versioned original/modern stack comparison, and attribution before selecting `Staff`, authenticating through the core staff login form, navigating inside the authenticated staff shell, and verifying logout returns to the chooser where relevant. Patient Portal workflows select `Patient Portal` from the chooser and remain outside the staff navigation shell.
+
 Current legacy coverage:
 
 - Login with configured local demo credentials.

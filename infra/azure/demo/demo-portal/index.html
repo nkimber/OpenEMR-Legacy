@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenEMR Demo Portal</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">OpenEMR Modernization</p>
+          <h1 id="portal-title">OpenEMR Demo Portal</h1>
+          <p id="portal-subtitle" class="subtitle">Loading available demo applications.</p>
+        </div>
+        <div class="hero-status">
+          <span id="generated-at">Starting up</span>
+        </div>
+      </header>
+
+      <section id="notice" class="notice" hidden></section>
+      <section id="applications" class="application-grid" aria-live="polite"></section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

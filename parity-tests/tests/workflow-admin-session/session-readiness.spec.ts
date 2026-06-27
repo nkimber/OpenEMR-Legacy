@@ -1,6 +1,7 @@
 import { test, expect } from "../../src/fixtures/parityTest.js";
 import { attachDatabaseProbeEvidence } from "../../src/core/probeEvidence.js";
 import { requestText } from "../../src/http/httpClient.js";
+import { openAuthenticatedModernizedAdmin } from "../../src/ui/modernizedOpenEmr.js";
 import type { RuntimeTarget } from "../../src/config/targets.js";
 
 type QueryableDb = {
@@ -333,13 +334,7 @@ test.describe("admin session readiness parity @workflow-admin-session @slice161 
       }
     });
 
-    await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Admin" }).click();
-
-    const loginPanel = page.locator('form[aria-label="Login readiness"]');
-    await loginPanel.getByLabel("Username").fill(target.credentials.username);
-    await loginPanel.getByLabel("Password").fill(target.credentials.password);
-    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
+    await openAuthenticatedModernizedAdmin(page, target);
 
     const sessionPanel = page.locator('[aria-label="Session readiness"]');
     await expect(sessionPanel).toBeVisible();
@@ -350,7 +345,8 @@ test.describe("admin session readiness parity @workflow-admin-session @slice161 
     await expect(sessionPanel).toContainText("Active session for Administrator (admin)");
 
     await sessionPanel.getByRole("button", { name: "End Session" }).click();
-    await expect(sessionPanel).toContainText("Session ended for admin");
+    await expect(page.getByRole("button", { name: "Staff" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Patient Portal" })).toBeVisible();
     await attachDatabaseProbeEvidence(testInfo, {
       target: target.type,
       probe: "slice-161-admin-session-rendered",
@@ -359,14 +355,14 @@ test.describe("admin session readiness parity @workflow-admin-session @slice161 
       expected: {
         rendersActiveSession: "Active session for Administrator (admin)",
         rendersSessionSource: "modernized-openemr",
-        rendersEndedSession: "Session ended for admin"
+        returnsToEntryChooserAfterLogout: true
       },
       actual: {
         surfaceFacts: {
           modernizedAdminSessionPanel: {
             renderedActiveSession: "Active session for Administrator (admin)",
             renderedSessionSource: "modernized-openemr",
-            renderedEndedSession: "Session ended for admin",
+            returnedToChooserAfterLogout: true,
             username: target.credentials.username,
             passwordRedacted: true,
             sessionIdRedacted: true

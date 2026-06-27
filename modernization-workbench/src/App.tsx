@@ -1,10 +1,13 @@
 import {
   Activity,
+  BookOpen,
   CheckCircle2,
   CircleAlert,
   ClipboardList,
   ChevronDown,
   ChevronRight,
+  Cloud,
+  Copy,
   Database,
   ExternalLink,
   FileText,
@@ -16,6 +19,7 @@ import {
   Power,
   RefreshCw,
   RotateCw,
+  Save,
   Server,
   Settings,
   Sprout,
@@ -32,6 +36,13 @@ import type {
   ArchitectureModel,
   ArchitectureSystem,
   ArchitectureTechnology,
+  AzureDemoDeploymentActionResponse,
+  AzureDemoDirectoryTechnology,
+  AzureDemoDeploymentProfile,
+  AzureDemoDeploymentState,
+  AzureDemoDeploymentTarget,
+  CapabilityRollup,
+  CapabilityRollupModel,
   ChangelogEntry,
   CustomParityRunRequest,
   FunctionalityProgressArea,
@@ -52,7 +63,8 @@ import type {
   RuntimeState,
   SeedDataset,
   SmokeResult,
-  SourceInventorySystem
+  SourceInventorySystem,
+  TechnicalReference
 } from "./types";
 
 type BusyState = {
@@ -60,10 +72,18 @@ type BusyState = {
   label: string;
 } | null;
 
+type DemoDeploymentAction = "validate" | "deploy" | "smoke";
+
 const allAppsBusyId = "all-apps";
+const demoDeploymentBusyId = "azure-demo-deployment";
+const demoDeploymentActionLabels: Record<DemoDeploymentAction, string> = {
+  validate: "Validate",
+  deploy: "Deploy latest",
+  smoke: "Smoke test"
+};
 const changelogPageSize = 100;
 
-const pageIds = ["dashboard", "applications", "timeline", "progress", "architecture", "tests", "seed-data"] as const;
+const pageIds = ["dashboard", "applications", "demo-deployment", "timeline", "progress", "architecture", "technical-reference", "tests", "seed-data"] as const;
 type PageId = (typeof pageIds)[number];
 
 type NavItem = {
@@ -76,9 +96,11 @@ type NavItem = {
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: Activity },
   { id: "applications", label: "Applications", icon: Server },
+  { id: "demo-deployment", label: "Demo Deployment", icon: Cloud },
   { id: "timeline", label: "Project Timeline", icon: History },
   { id: "progress", label: "Progress", icon: ClipboardList },
   { id: "architecture", label: "Architecture", icon: Layers },
+  { id: "technical-reference", label: "Technical Reference", icon: BookOpen },
   { id: "tests", label: "Test Runs", icon: TestTube2 },
   { id: "seed-data", label: "Seed Data", icon: Database }
 ];
@@ -92,6 +114,10 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
     title: "Applications",
     subtitle: "Managed local applications, lifecycle actions, logs, and database profile."
   },
+  "demo-deployment": {
+    title: "Demo Deployment",
+    subtitle: "Azure Container Apps demo publishing for the public demo directory and OpenEMR targets."
+  },
   timeline: {
     title: "Project Timeline",
     subtitle: "The maintained build history for the modernization effort."
@@ -104,6 +130,10 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
     title: "Architecture",
     subtitle: "Technical comparison between the baseline, Workbench, and modernized target."
   },
+  "technical-reference": {
+    title: "Technical Reference",
+    subtitle: "Generated codebase guide for the modernized OpenEMR target."
+  },
   tests: {
     title: "Test Runs",
     subtitle: "Executable checks and latest evidence from the baseline."
@@ -112,6 +142,22 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
     title: "Seed Data",
     subtitle: "Shared synthetic data contract, seed actions, and verified counts."
   }
+};
+
+const defaultDemoDeploymentProfile: AzureDemoDeploymentProfile = {
+  profileVersion: 2,
+  subscriptionId: "",
+  tenantId: "",
+  location: "eastus",
+  resourceGroup: "openemr-demo-rg",
+  containerAppEnvironment: "openemr-demo-env",
+  containerRegistry: "openemrdemo",
+  appNamePrefix: "openemr-demo",
+  targets: ["legacy-openemr", "modernized-openemr", "demo-portal"],
+  resetOnDeploy: true,
+  legacyAdminUser: "admin",
+  legacyAdminPassword: "pass",
+  databasePassword: "openemr_demo"
 };
 
 function parseHashPage(): PageId {
@@ -283,6 +329,29 @@ function formatElapsedDuration(ms?: number) {
   }
 
   return parts.slice(0, 2).join(" ");
+}
+
+function formatCurrencyAmount(value?: number, currency = "USD") {
+  if (value === undefined || !Number.isFinite(value)) {
+    return "-";
+  }
+
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency
+    }).format(value);
+  } catch {
+    return `${value.toFixed(2)} ${currency}`;
+  }
+}
+
+function formatTimeSince(value?: string) {
+  if (!value) {
+    return "-";
+  }
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? "-" : `${formatElapsedDuration(Date.now() - timestamp)} ago`;
 }
 
 function formatCount(value: number) {
@@ -911,6 +980,140 @@ function ProgressPanel({ slices }: { slices: ProgressSlice[] }) {
   );
 }
 
+function getCapabilityRollupTypeCounts(rollup: CapabilityRollup) {
+  return rollup.children.reduce<Record<string, number>>((counts, child) => {
+    counts[child.sliceType] = (counts[child.sliceType] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function getCapabilityRollupEvidenceCount(rollup: CapabilityRollup) {
+  return new Set(rollup.children.flatMap((child) => child.evidence)).size;
+}
+
+function CapabilityRollupPanel({ model }: { model?: CapabilityRollupModel }) {
+  if (!model?.rollups.length) {
+    return null;
+  }
+
+  const sliceTypeDetails = new Map(model.sliceTypes.map((sliceType) => [sliceType.id, sliceType]));
+  const childCount = model.rollups.reduce((total, rollup) => total + rollup.children.length, 0);
+  const evidenceCount = new Set(model.rollups.flatMap((rollup) => rollup.children.flatMap((child) => child.evidence))).size;
+
+  return (
+    <section className="panel capability-rollup-panel">
+      <div className="panel-header">
+        <div>
+          <h2>
+            <Layers size={20} />
+            Capability Rollups
+          </h2>
+          <p>Parent capability groups keep granular slice evidence readable without turning every micro-slice into a top-level milestone.</p>
+        </div>
+        <div className="panel-status">
+          <span className="quiet-chip">v{model.version}</span>
+          <span className="quiet-chip">Updated {model.lastUpdated}</span>
+        </div>
+      </div>
+
+      <div className="progress-summary-grid">
+        <Metric label="Capabilities" value={model.rollups.length} />
+        <Metric label="Child Groups" value={childCount} />
+        <Metric label="Evidence References" value={evidenceCount} />
+        <Metric label="Slice Types" value={model.sliceTypes.length} />
+      </div>
+
+      <div className="slice-type-legend">
+        {model.sliceTypes.map((sliceType) => (
+          <span key={sliceType.id} title={sliceType.detail}>
+            {sliceType.name}
+          </span>
+        ))}
+      </div>
+
+      <div className="capability-rollup-grid">
+        {model.rollups.map((rollup, index) => {
+          const typeCounts = getCapabilityRollupTypeCounts(rollup);
+          const rollupEvidenceCount = getCapabilityRollupEvidenceCount(rollup);
+
+          return (
+            <details className="capability-rollup-card" key={rollup.id} open={index === 0}>
+              <summary>
+                <div className="capability-rollup-summary-main">
+                  <strong>{rollup.name}</strong>
+                  <p>{rollup.summary}</p>
+                </div>
+                <div className="capability-rollup-summary-meta">
+                  <StatusPill state={rollup.status} label={rollup.status.replaceAll("-", " ")} />
+                  <span>{rollup.children.length} child groups</span>
+                  <span>{rollupEvidenceCount} evidence refs</span>
+                </div>
+              </summary>
+
+              <div className="capability-rollup-body">
+                {rollup.operatorSignal ? <p className="capability-rollup-signal">{rollup.operatorSignal}</p> : null}
+
+                <div className="capability-rollup-tags">
+                  {rollup.areaIds.map((areaId) => (
+                    <code key={areaId}>{areaId}</code>
+                  ))}
+                </div>
+
+                <div className="capability-type-counts">
+                  {Object.entries(typeCounts).map(([typeId, count]) => {
+                    const sliceType = sliceTypeDetails.get(typeId);
+                    return (
+                      <span key={typeId} title={sliceType?.detail}>
+                        {sliceType?.name ?? typeId}: {count}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <div className="capability-child-list">
+                  {rollup.children.map((child) => {
+                    const sliceType = sliceTypeDetails.get(child.sliceType);
+                    return (
+                      <div className="capability-child-row" key={child.label}>
+                        <div>
+                          <div className="capability-child-heading">
+                            <strong>{child.label}</strong>
+                            <span title={sliceType?.detail}>{sliceType?.name ?? child.sliceType}</span>
+                          </div>
+                          <p>{child.detail}</p>
+                          {child.evidence.length ? (
+                            <div className="evidence-chip-list">
+                              {child.evidence.map((evidence) => (
+                                <code key={evidence}>{evidence}</code>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                        <StatusPill state={child.status} label={child.status.replaceAll("-", " ")} />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {rollup.outstanding.length ? (
+                  <div className="capability-outstanding">
+                    <strong>Outstanding</strong>
+                    <ul>
+                      {rollup.outstanding.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+            </details>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function FunctionalityProgressPanel({
   areas,
   version,
@@ -1502,6 +1705,7 @@ function FunctionalityTextList({ title, items, tone }: { title: string; items: s
 
 function ProgressPage({
   slices,
+  capabilityRollupModel,
   functionalityAreas,
   functionalityVersion,
   functionalityLastUpdated,
@@ -1510,6 +1714,7 @@ function ProgressPage({
   functionalityForecast
 }: {
   slices: ProgressSlice[];
+  capabilityRollupModel?: CapabilityRollupModel;
   functionalityAreas: FunctionalityProgressArea[];
   functionalityVersion?: string;
   functionalityLastUpdated?: string;
@@ -1520,6 +1725,7 @@ function ProgressPage({
   return (
     <div className="page-stack">
       <ProgressPanel slices={slices} />
+      <CapabilityRollupPanel model={capabilityRollupModel} />
       <FunctionalityProgressPanel
         areas={functionalityAreas}
         version={functionalityVersion}
@@ -1971,6 +2177,177 @@ function ArchitecturePanel({ architecture }: { architecture: ArchitectureModel |
           <ArchitectureOverview architecture={architecture} />
         )}
       </div>
+    </div>
+  );
+}
+
+function referenceMetric(value: number) {
+  return value.toLocaleString();
+}
+
+function technicalReferenceHeadingId(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function renderReferenceInline(text: string, keyPrefix: string) {
+  return text.split(/(`[^`]+`)/g).filter(Boolean).map((part, index) => {
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={`${keyPrefix}-code-${index}`}>{part.slice(1, -1)}</code>;
+    }
+    return <Fragment key={`${keyPrefix}-text-${index}`}>{part}</Fragment>;
+  });
+}
+
+function TechnicalReferenceMarkdown({ markdown }: { markdown: string }) {
+  const lines = markdown.split(/\r?\n/);
+  const nodes: ReactNode[] = [];
+  let listItems: string[] = [];
+  let codeLines: string[] = [];
+  let inCode = false;
+  let codeLanguage = "";
+
+  function flushList(key: string) {
+    if (!listItems.length) {
+      return;
+    }
+    nodes.push(
+      <ul key={key}>
+        {listItems.map((item, index) => (
+          <li key={`${key}-${index}`}>{renderReferenceInline(item, `${key}-${index}`)}</li>
+        ))}
+      </ul>
+    );
+    listItems = [];
+  }
+
+  function flushCode(key: string) {
+    nodes.push(
+      <pre key={key} className="technical-reference-code">
+        <code>{codeLines.join("\n")}</code>
+      </pre>
+    );
+    codeLines = [];
+    codeLanguage = "";
+  }
+
+  lines.forEach((line, index) => {
+    const codeFence = line.match(/^```(\w+)?/);
+    if (codeFence) {
+      if (inCode) {
+        inCode = false;
+        flushCode(`code-${index}-${codeLanguage || "plain"}`);
+      } else {
+        flushList(`list-before-code-${index}`);
+        inCode = true;
+        codeLanguage = codeFence[1] ?? "";
+      }
+      return;
+    }
+
+    if (inCode) {
+      codeLines.push(line);
+      return;
+    }
+
+    if (!line.trim()) {
+      flushList(`list-${index}`);
+      return;
+    }
+
+    const headingMatch = line.match(/^(#{1,4})\s+(.+)$/);
+    if (headingMatch) {
+      flushList(`list-before-heading-${index}`);
+      const level = headingMatch[1].length;
+      const text = headingMatch[2];
+      const id = technicalReferenceHeadingId(text);
+      if (level <= 1) {
+        nodes.push(<h2 id={id} key={`heading-${index}`}>{renderReferenceInline(text, `heading-${index}`)}</h2>);
+      } else if (level === 2) {
+        nodes.push(<h3 id={id} key={`heading-${index}`}>{renderReferenceInline(text, `heading-${index}`)}</h3>);
+      } else {
+        nodes.push(<h4 id={id} key={`heading-${index}`}>{renderReferenceInline(text, `heading-${index}`)}</h4>);
+      }
+      return;
+    }
+
+    if (line.startsWith("- ")) {
+      listItems.push(line.slice(2));
+      return;
+    }
+
+    flushList(`list-before-p-${index}`);
+    nodes.push(<p key={`p-${index}`}>{renderReferenceInline(line, `p-${index}`)}</p>);
+  });
+
+  flushList("list-final");
+  if (inCode || codeLines.length) {
+    flushCode("code-final");
+  }
+
+  return <div className="technical-reference-markdown">{nodes}</div>;
+}
+
+function TechnicalReferencePage({ reference }: { reference: TechnicalReference | null }) {
+  if (!reference) {
+    return (
+      <section className="panel">
+        <EmptyState text="Technical reference metadata is loading." />
+      </section>
+    );
+  }
+
+  const summary = reference.summary;
+  return (
+    <div className="page-stack technical-reference-page">
+      <section className="panel technical-reference-hero">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Generated guide</div>
+            <h2>
+              <BookOpen size={20} />
+              {reference.title}
+            </h2>
+            <p>DeepWiki-style navigation for the modernized target, generated from the current source tree and linked back to concrete implementation seams.</p>
+          </div>
+          <a className="open-link" href="/api/technical-reference/markdown" target="_blank" rel="noreferrer">
+            <ExternalLink size={16} />
+            Open Markdown
+          </a>
+        </div>
+        <div className="metric-grid technical-reference-metrics">
+          <Metric label="Generated" value={reference.generatedAt ? formatDate(reference.generatedAt) : "Unavailable"} detail={reference.generatedBy} />
+          <Metric label="Source Commit" value={reference.sourceCommit.short || "Unavailable"} detail={reference.sourceCommit.dirty ? "Dirty worktree at generation" : "Clean worktree at generation" } />
+          <Metric label="Backend Endpoints" value={referenceMetric(summary.endpointCount)} detail={`${referenceMetric(summary.repositoryCount)} repository files`} />
+          <Metric label="Parity Plans" value={referenceMetric(summary.parityPlanCount)} detail={`${referenceMetric(summary.databaseTableCount)} schema tables`} />
+          <Metric label="Frontend Modules" value={referenceMetric(summary.frontendModuleCount)} detail={`${referenceMetric(summary.fileCount)} source files scanned`} />
+          <Metric label="Document Path" value={reference.documentPath} detail={reference.sourceRoot} />
+        </div>
+        {reference.warnings.length ? (
+          <div className="technical-reference-warnings">
+            {reference.warnings.map((warning) => (
+              <span key={warning}>{warning}</span>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      <section className="panel technical-reference-outline">
+        <div className="panel-header compact">
+          <h2>
+            <FileText size={20} />
+            Guide Sections
+          </h2>
+        </div>
+        <div className="technical-reference-section-list">
+          {reference.sections.map((section) => (
+            <a href={`#${technicalReferenceHeadingId(section.title)}`} key={section.id}>{section.title}</a>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel technical-reference-document" id="technical-reference-document">
+        <TechnicalReferenceMarkdown markdown={reference.markdown} />
+      </section>
     </div>
   );
 }
@@ -3108,6 +3485,558 @@ function SeedDataPage({ app, busy, seedDatasets, onRunSeed }: { app?: AppSnapsho
   );
 }
 
+function demoTechnologyFallbackText(technology: AzureDemoDirectoryTechnology) {
+  if (technology.logoText?.trim()) {
+    return technology.logoText.trim();
+  }
+
+  const words = technology.name.split(/[^a-z0-9]+/i).filter(Boolean);
+  if (words.length > 1) {
+    return words.map((word) => word.charAt(0)).join("").slice(0, 4).toUpperCase();
+  }
+
+  return technology.name.slice(0, 4).toUpperCase();
+}
+
+function DemoDirectoryTechLogoGraphic({ id }: { id: string }) {
+  switch (id.toLowerCase()) {
+    case "angularjs":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false">
+          <path d="M24 4 7 10l3 25 14 9 14-9 3-25L24 4z" fill="currentColor" />
+          <text x="24" y="29" textAnchor="middle" fill="#fff" fontSize="22" fontWeight="900">A</text>
+        </svg>
+      );
+    case "react":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false" fill="none" stroke="currentColor" strokeWidth="3">
+          <ellipse cx="24" cy="24" rx="18" ry="7" />
+          <ellipse cx="24" cy="24" rx="18" ry="7" transform="rotate(60 24 24)" />
+          <ellipse cx="24" cy="24" rx="18" ry="7" transform="rotate(120 24 24)" />
+          <circle cx="24" cy="24" r="3.5" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case "php":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false">
+          <ellipse cx="24" cy="24" rx="20" ry="13" fill="currentColor" />
+          <text x="24" y="28" textAnchor="middle" fill="#fff" fontSize="13" fontWeight="900">PHP</text>
+        </svg>
+      );
+    case "dotnet":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false">
+          <rect x="7" y="8" width="34" height="32" rx="8" fill="currentColor" />
+          <text x="24" y="28" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="900">.NET</text>
+        </svg>
+      );
+    case "mariadb":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false" fill="none" stroke="currentColor" strokeWidth="3">
+          <ellipse cx="24" cy="13" rx="16" ry="7" />
+          <path d="M8 13v21c0 4 7 8 16 8s16-4 16-8V13" />
+          <path d="M8 24c0 4 7 8 16 8s16-4 16-8" opacity=".45" />
+          <text x="24" y="27" textAnchor="middle" fill="currentColor" stroke="none" fontSize="9" fontWeight="900">MDB</text>
+        </svg>
+      );
+    case "postgresql":
+      return (
+        <svg viewBox="0 0 48 48" focusable="false" fill="none" stroke="currentColor" strokeWidth="3">
+          <ellipse cx="24" cy="13" rx="16" ry="7" />
+          <path d="M8 13v21c0 4 7 8 16 8s16-4 16-8V13" />
+          <path d="M8 24c0 4 7 8 16 8s16-4 16-8" opacity=".45" />
+          <text x="24" y="28" textAnchor="middle" fill="currentColor" stroke="none" fontSize="12" fontWeight="900">PG</text>
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
+function DemoDirectoryTechLogo({ technology }: { technology: AzureDemoDirectoryTechnology }) {
+  const graphic = DemoDirectoryTechLogoGraphic({ id: technology.id });
+
+  return (
+    <span className={graphic ? "demo-directory-tech-logo has-graphic" : "demo-directory-tech-logo"} aria-hidden="true">
+      {graphic ?? (technology.logoUrl ? (
+        <img
+          src={technology.logoUrl}
+          alt=""
+          loading="lazy"
+          onLoad={(event) => {
+            event.currentTarget.parentElement?.classList.add("has-graphic");
+          }}
+          onError={(event) => {
+            event.currentTarget.hidden = true;
+            event.currentTarget.parentElement?.classList.remove("has-graphic");
+          }}
+        />
+      ) : null)}
+      <span>{demoTechnologyFallbackText(technology)}</span>
+    </span>
+  );
+}
+
+function DemoDirectoryTechStack({ technologies = [] }: { technologies?: AzureDemoDirectoryTechnology[] }) {
+  const items = technologies.filter((technology) => technology.name.trim());
+  if (!items.length) {
+    return null;
+  }
+
+  return (
+    <div className="demo-directory-tech-stack" aria-label="Technology stack">
+      <span className="demo-directory-tech-stack-label">Technology stack</span>
+      <div className="demo-directory-tech-grid">
+        {items.map((technology) => (
+          <div
+            className="demo-directory-tech-item"
+            key={`${technology.id}-${technology.name}`}
+            style={{ "--demo-tech-color": technology.color ?? "#315f9e" } as CSSProperties}
+          >
+            <DemoDirectoryTechLogo technology={technology} />
+            <span className="demo-directory-tech-text">
+              <small>{technology.label || "Stack"}</small>
+              <strong>{technology.name}</strong>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DemoDeploymentPage({
+  deployment,
+  actionResponse,
+  busy,
+  onProfileChange,
+  onSaveProfile,
+  onRunAction,
+  onRefreshStatus
+}: {
+  deployment: AzureDemoDeploymentState | null;
+  actionResponse: AzureDemoDeploymentActionResponse | null;
+  busy: BusyState;
+  onProfileChange: (profile: AzureDemoDeploymentProfile) => void;
+  onSaveProfile: () => void;
+  onRunAction: (action: DemoDeploymentAction) => void;
+  onRefreshStatus: () => void;
+}) {
+  const profile = deployment?.profile ?? defaultDemoDeploymentProfile;
+  const status = deployment?.status ?? actionResponse?.status;
+  const latestResult = actionResponse?.latestResult ?? status?.latestResult;
+  const liveStatus = status?.live;
+  const costSummary = liveStatus?.costs;
+  const busyForDeployment = busy?.appId === demoDeploymentBusyId;
+  const [copiedLabel, setCopiedLabel] = useState("");
+  const [runningSince, setRunningSince] = useState<number | null>(null);
+  const [runningElapsedMs, setRunningElapsedMs] = useState(0);
+  const targetOptions: { id: AzureDemoDeploymentTarget; label: string }[] = [
+    { id: "legacy-openemr", label: "Legacy OpenEMR" },
+    { id: "modernized-openemr", label: "Modernized OpenEMR" },
+    { id: "demo-portal", label: "Demo Portal" }
+  ];
+
+  useEffect(() => {
+    if (!busyForDeployment) {
+      setRunningSince(null);
+      setRunningElapsedMs(0);
+      return;
+    }
+
+    const startedAt = Date.now();
+    setRunningSince(startedAt);
+    setRunningElapsedMs(0);
+  }, [busyForDeployment, busy?.label]);
+
+  useEffect(() => {
+    if (runningSince === null) {
+      return;
+    }
+
+    const updateElapsed = () => setRunningElapsedMs(Date.now() - runningSince);
+    updateElapsed();
+    const timer = window.setInterval(updateElapsed, 1000);
+    return () => window.clearInterval(timer);
+  }, [runningSince]);
+
+  function updateProfile(partial: Partial<AzureDemoDeploymentProfile>) {
+    onProfileChange({ ...profile, ...partial });
+  }
+
+  function toggleTarget(target: AzureDemoDeploymentTarget, enabled: boolean) {
+    const targets = enabled
+      ? [...new Set([...profile.targets, target])]
+      : profile.targets.filter((candidate) => candidate !== target);
+    updateProfile({ targets: targets.length ? targets : profile.targets });
+  }
+
+  const output = actionResponse?.result
+    ? [actionResponse.result.stdout, actionResponse.result.stderr].filter(Boolean).join("\n").trim()
+    : "";
+  const latestResultText = latestResult ? JSON.stringify(latestResult, null, 2) : "";
+  const copyAllText = [
+    latestResultText ? `Latest Result:\n${latestResultText}` : "",
+    output ? `Command Output:\n${output}` : ""
+  ].filter(Boolean).join("\n\n");
+
+  async function copyToClipboard(label: string, text: string) {
+    if (!text) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
+    setCopiedLabel(label);
+    window.setTimeout(() => setCopiedLabel(""), 1800);
+  }
+
+  const overallStatusPillState = liveStatus?.state === "live" ? "healthy" : liveStatus?.state === "unavailable" ? "error" : "partial";
+  const statusApplications = liveStatus?.applications ?? [];
+  const liveTargetCount = statusApplications.filter((application) => application.state === "live").length;
+  const directory = status?.directory;
+  const portalApplication = statusApplications.find((application) => application.target === "demo-portal");
+
+  return (
+    <div className="page-stack">
+      <section className="panel demo-deployment-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Azure demo profile</div>
+            <h2>
+              <Cloud size={20} />
+              Demo Deployment
+            </h2>
+            <p>Publish resettable synthetic-data demos to Azure Container Apps without provisioning managed databases.</p>
+          </div>
+          <div className="panel-status">
+            <StatusPill state={status?.profileExists ? "healthy" : "stopped"} label={status?.profileExists ? "Profile saved" : "Profile draft"} />
+            <span className="quiet-chip">{profile.targets.length} target{profile.targets.length === 1 ? "" : "s"}</span>
+          </div>
+        </div>
+
+        <div className="demo-deployment-grid">
+          <label>
+            <span>Subscription ID</span>
+            <input value={profile.subscriptionId} onChange={(event) => updateProfile({ subscriptionId: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Tenant ID</span>
+            <input value={profile.tenantId} onChange={(event) => updateProfile({ tenantId: event.target.value })} disabled={busyForDeployment} placeholder="optional" />
+          </label>
+          <label>
+            <span>Region</span>
+            <input value={profile.location} onChange={(event) => updateProfile({ location: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Resource Group</span>
+            <input value={profile.resourceGroup} onChange={(event) => updateProfile({ resourceGroup: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Container Apps Environment</span>
+            <input value={profile.containerAppEnvironment} onChange={(event) => updateProfile({ containerAppEnvironment: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Container Registry</span>
+            <input value={profile.containerRegistry} onChange={(event) => updateProfile({ containerRegistry: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>App Name Prefix</span>
+            <input value={profile.appNamePrefix} onChange={(event) => updateProfile({ appNamePrefix: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Legacy Admin User</span>
+            <input value={profile.legacyAdminUser} onChange={(event) => updateProfile({ legacyAdminUser: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Legacy Admin Password</span>
+            <input type="password" value={profile.legacyAdminPassword} onChange={(event) => updateProfile({ legacyAdminPassword: event.target.value })} disabled={busyForDeployment} />
+          </label>
+          <label>
+            <span>Demo Database Password</span>
+            <input type="password" value={profile.databasePassword} onChange={(event) => updateProfile({ databasePassword: event.target.value })} disabled={busyForDeployment} />
+          </label>
+        </div>
+
+        <div className="demo-target-row">
+          {targetOptions.map((target) => (
+            <label className="toggle-label" key={target.id}>
+              <input type="checkbox" checked={profile.targets.includes(target.id)} onChange={(event) => toggleTarget(target.id, event.target.checked)} disabled={busyForDeployment} />
+              <span>{target.label}</span>
+            </label>
+          ))}
+          <label className="toggle-label">
+            <input type="checkbox" checked={profile.resetOnDeploy} onChange={(event) => updateProfile({ resetOnDeploy: event.target.checked })} disabled={busyForDeployment} />
+            <span>Reset data on deploy</span>
+          </label>
+        </div>
+
+        <div className="demo-deployment-actions">
+          <button className="text-button runtime-action-button" type="button" onClick={onSaveProfile} disabled={busyForDeployment}>
+            <Save size={14} />
+            Save profile
+          </button>
+          <button className="text-button runtime-action-button" type="button" onClick={() => onRunAction("validate")} disabled={busyForDeployment}>
+            <CheckCircle2 size={14} />
+            Validate
+          </button>
+          <button className="text-button runtime-action-button" type="button" onClick={() => onRunAction("deploy")} disabled={busyForDeployment}>
+            <Cloud size={14} />
+            Deploy latest
+          </button>
+          <button className="text-button runtime-action-button" type="button" onClick={() => onRunAction("smoke")} disabled={busyForDeployment}>
+            <Play size={14} />
+            Smoke test
+          </button>
+          {busyForDeployment ? (
+            <span className="demo-running-chip" role="status" aria-live="polite">
+              <RefreshCw size={14} />
+              {busy?.label} running {formatElapsedDuration(runningElapsedMs)}
+            </span>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="panel demo-deployment-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Public landing page</div>
+            <h2>
+              <KeyRound size={20} />
+              Demo Directory
+            </h2>
+            <p>{directory?.subtitle ?? "The public portal will list each demo app, entry point, and demo credential."}</p>
+          </div>
+          <div className="panel-status">
+            {portalApplication ? <StatusPill state={portalApplication.state === "live" ? "healthy" : portalApplication.state === "unavailable" ? "error" : "partial"} label={portalApplication.state} /> : <StatusPill state="stopped" label="Not deployed" />}
+            {portalApplication?.url ? (
+              <a className="text-button runtime-action-button" href={portalApplication.url} target="_blank" rel="noreferrer">
+                Open portal <ExternalLink size={14} />
+              </a>
+            ) : null}
+          </div>
+        </div>
+
+        {directory ? (
+          <>
+            {directory.notice ? <div className="demo-directory-notice">{directory.notice}</div> : null}
+            <div className="demo-directory-grid">
+              {directory.applications.map((application) => (
+                <article className="demo-directory-card" key={application.id}>
+                  <div className="demo-directory-card-header">
+                    <div>
+                      <span className="quiet-chip">{application.versionLabel}</span>
+                      <h3>{application.name}</h3>
+                    </div>
+                    <span className="quiet-chip">{application.statusLabel}</span>
+                  </div>
+                  <p>{application.summary}</p>
+                  <div className="demo-directory-tags">
+                    {application.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                  </div>
+                  <DemoDirectoryTechStack technologies={application.techStack} />
+                  <div className="demo-directory-entry-list">
+                    {application.entryPoints.map((entry) => (
+                      <div className="demo-directory-entry" key={`${application.id}-${entry.id}`}>
+                        <div className="demo-directory-entry-header">
+                          <div>
+                            <strong>{entry.label}</strong>
+                            <span>{entry.role}</span>
+                          </div>
+                          {entry.url ? (
+                            <a className="text-button runtime-action-button" href={entry.url} target="_blank" rel="noreferrer">
+                              Open <ExternalLink size={14} />
+                            </a>
+                          ) : (
+                            <span className="quiet-chip">URL pending</span>
+                          )}
+                        </div>
+                        {entry.note ? <p>{entry.note}</p> : null}
+                        {entry.demoPreset ? <span className="quiet-chip">Preset: {entry.demoPreset}</span> : null}
+                        <div className="demo-directory-credentials">
+                          {entry.credentials.map((credential) => (
+                            <div key={`${entry.id}-${credential.label}`} className="demo-directory-credential">
+                              <span>{credential.label}</span>
+                              <code>{credential.username}</code>
+                              <code>{credential.password}</code>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyState text="Save the profile or refresh Azure status to load the demo directory preview." />
+        )}
+      </section>
+
+      <section className="panel demo-deployment-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Azure runtime</div>
+            <h2>
+              <Server size={20} />
+              Deployment Status
+            </h2>
+            <p>{liveStatus?.detail ?? "No Azure deployment status has been recorded yet."}</p>
+          </div>
+          <div className="panel-status">
+            {liveStatus ? <StatusPill state={overallStatusPillState} label={liveStatus.label} /> : <StatusPill state="stopped" label="Not verified" />}
+            {liveStatus?.lastVerifiedAt ? <span className="quiet-chip">{formatTimeSince(liveStatus.lastVerifiedAt)}</span> : null}
+            <button className="text-button runtime-action-button" type="button" onClick={onRefreshStatus} disabled={busyForDeployment}>
+              <RefreshCw size={14} />
+              Refresh Azure status
+            </button>
+          </div>
+        </div>
+
+        {liveStatus ? (
+          <div className="demo-status-summary">
+            <Metric label="Targets live" value={`${liveTargetCount} / ${statusApplications.length}`} detail={liveStatus.source === "azure-refresh" ? "Azure refresh" : "Latest smoke evidence"} />
+            <Metric label="Last verified" value={formatDate(liveStatus.lastVerifiedAt)} detail={formatTimeSince(liveStatus.lastVerifiedAt)} />
+            <Metric label="Status generated" value={formatDate(liveStatus.generatedAt)} detail={liveStatus.source.replace("-", " ")} />
+          </div>
+        ) : null}
+
+        {statusApplications.length ? (
+          <div className="demo-status-app-grid">
+            {statusApplications.map((application) => {
+              const appPillState = application.state === "live" ? "healthy" : application.state === "unavailable" ? "error" : "partial";
+              return (
+                <article className="demo-status-card" key={`${application.target}-${application.name}`}>
+                  <div className="demo-status-card-header">
+                    <div>
+                      <strong>{application.label}</strong>
+                      <span>{application.name}</span>
+                    </div>
+                    <StatusPill state={appPillState} label={application.state} />
+                  </div>
+                  <p>{application.detail}</p>
+                  <div className="demo-link-row">
+                    {application.url ? (
+                      <a className="text-button runtime-action-button" href={application.url} target="_blank" rel="noreferrer">
+                        Open site <ExternalLink size={14} />
+                      </a>
+                    ) : null}
+                    {application.healthUrl ? (
+                      <a className="text-button runtime-action-button" href={application.healthUrl} target="_blank" rel="noreferrer">
+                        Health <ExternalLink size={14} />
+                      </a>
+                    ) : null}
+                  </div>
+                  <div className="demo-status-facts">
+                    {application.lastVerifiedAt ? <span>Verified {formatDate(application.lastVerifiedAt)}</span> : null}
+                    {application.http ? <span>HTTP {application.http.statusCode ?? "n/a"} in {formatDuration(application.http.durationMs)}</span> : null}
+                    {application.azure?.runningStatus ? <span>{application.azure.runningStatus} / {application.azure.provisioningState || "unknown"}</span> : null}
+                    {application.azure?.createdAt ? <span>Up since {formatDate(application.azure.createdAt)}</span> : null}
+                    {application.images?.imageTag ? <span>Image {application.images.imageTag}</span> : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <EmptyState text="Deploy or smoke test a target to record public Azure links." />
+        )}
+
+        <div className="demo-cost-panel">
+          <div className="demo-output-header">
+            <h3>
+              <Database size={17} />
+              Cost Tracking
+            </h3>
+            {costSummary?.lastRefreshedAt ? <span className="quiet-chip">Updated {formatDate(costSummary.lastRefreshedAt)}</span> : null}
+          </div>
+          {costSummary ? (
+            <>
+              <div className="demo-cost-grid">
+                <Metric label="Month to date" value={formatCurrencyAmount(costSummary.monthToDateCost, costSummary.currency)} detail={profile.resourceGroup ? `Resource group ${profile.resourceGroup}` : "Selected resource group"} />
+                <Metric label="Average per day" value={formatCurrencyAmount(costSummary.averageDailyCost, costSummary.currency)} detail="Month-to-date average" />
+                <Metric label="Today posted" value={formatCurrencyAmount(costSummary.todayCost, costSummary.currency)} detail="May lag behind live usage" />
+                <Metric label="Latest posted day" value={formatCurrencyAmount(costSummary.latestDailyCost, costSummary.currency)} detail={costSummary.latestDailyCostDate ? formatDateOnly(costSummary.latestDailyCostDate) : "No posted usage yet"} />
+              </div>
+              <p className={`demo-cost-note${costSummary.status === "unavailable" ? " demo-cost-warning" : ""}`}>
+                {costSummary.error ? `${costSummary.note} ${costSummary.error}` : costSummary.note}
+              </p>
+            </>
+          ) : (
+            <EmptyState text="Refresh Azure status to load Cost Management estimates for this resource group." />
+          )}
+        </div>
+      </section>
+
+      <section className="panel demo-deployment-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Deployment evidence</div>
+            <h2>
+              <Terminal size={20} />
+              Latest Result
+            </h2>
+          </div>
+          <div className="panel-status">
+            {actionResponse ? <StatusPill state={actionResponse.event.status === "succeeded" ? "healthy" : "error"} label={actionResponse.event.status} /> : null}
+            {actionResponse ? <span className="quiet-chip">{formatDuration(actionResponse.result.durationMs)}</span> : null}
+            {copiedLabel ? <span className="quiet-chip">Copied {copiedLabel}</span> : null}
+            {copyAllText ? (
+              <button className="text-button runtime-action-button" type="button" onClick={() => void copyToClipboard("all evidence", copyAllText)}>
+                <Copy size={14} />
+                Copy all
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        {latestResult ? (
+          <>
+            <div className="demo-evidence-actions">
+              <button className="text-button runtime-action-button" type="button" onClick={() => void copyToClipboard("result", latestResultText)}>
+                <Copy size={14} />
+                Copy result
+              </button>
+            </div>
+            <pre className="demo-deployment-json">{latestResultText}</pre>
+          </>
+        ) : (
+          <EmptyState text="No Azure demo deployment result has been recorded." />
+        )}
+
+        {output ? (
+          <div className="subsection">
+            <div className="demo-output-header">
+              <h3>
+                <Terminal size={17} />
+                Command Output
+              </h3>
+              <button className="text-button runtime-action-button" type="button" onClick={() => void copyToClipboard("output", output)}>
+                <Copy size={14} />
+                Copy output
+              </button>
+            </div>
+            <pre>{output}</pre>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
 function DashboardPage({
   apps,
   legacyApp,
@@ -3177,6 +4106,7 @@ function PageBody({
   seedDatasets,
   logs,
   progress,
+  capabilityRollupModel,
   functionalityAreas,
   functionalityVersion,
   functionalityLastUpdated,
@@ -3190,6 +4120,13 @@ function PageBody({
   parityManifest,
   parityComparisons,
   parityReliability,
+  technicalReference,
+  demoDeployment,
+  demoDeploymentAction,
+  onDemoDeploymentProfileChange,
+  onSaveDemoDeploymentProfile,
+  onRunDemoDeploymentAction,
+  onRefreshDemoDeploymentStatus,
   onRunCustomParity,
   changelogLoading,
   onLoadMoreChangelog
@@ -3207,6 +4144,7 @@ function PageBody({
   seedDatasets: SeedDataset[];
   logs: Record<string, string>;
   progress: ProgressSlice[];
+  capabilityRollupModel?: CapabilityRollupModel;
   functionalityAreas: FunctionalityProgressArea[];
   functionalityVersion?: string;
   functionalityLastUpdated?: string;
@@ -3220,6 +4158,13 @@ function PageBody({
   parityManifest: ParityManifest | null;
   parityComparisons: ParityComparisonReport[];
   parityReliability: ParityReliabilityReport | null;
+  technicalReference: TechnicalReference | null;
+  demoDeployment: AzureDemoDeploymentState | null;
+  demoDeploymentAction: AzureDemoDeploymentActionResponse | null;
+  onDemoDeploymentProfileChange: (profile: AzureDemoDeploymentProfile) => void;
+  onSaveDemoDeploymentProfile: () => void;
+  onRunDemoDeploymentAction: (action: DemoDeploymentAction) => void;
+  onRefreshDemoDeploymentStatus: () => void;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
   changelogLoading: boolean;
   onLoadMoreChangelog: () => void;
@@ -3231,6 +4176,7 @@ function PageBody({
     return (
       <ProgressPage
         slices={progress}
+        capabilityRollupModel={capabilityRollupModel}
         functionalityAreas={functionalityAreas}
         functionalityVersion={functionalityVersion}
         functionalityLastUpdated={functionalityLastUpdated}
@@ -3242,6 +4188,9 @@ function PageBody({
   }
   if (page === "architecture") {
     return <ArchitecturePanel architecture={architecture} />;
+  }
+  if (page === "technical-reference") {
+    return <TechnicalReferencePage reference={technicalReference} />;
   }
   if (page === "tests") {
     return (
@@ -3258,6 +4207,19 @@ function PageBody({
   }
   if (page === "seed-data") {
     return <SeedDataPage app={legacyApp} busy={busy} seedDatasets={seedDatasets} onRunSeed={(seedId) => legacyApp && onRunSeed(legacyApp.id, seedId)} />;
+  }
+  if (page === "demo-deployment") {
+    return (
+      <DemoDeploymentPage
+        deployment={demoDeployment}
+        actionResponse={demoDeploymentAction}
+        busy={busy}
+        onProfileChange={onDemoDeploymentProfileChange}
+        onSaveProfile={onSaveDemoDeploymentProfile}
+        onRunAction={onRunDemoDeploymentAction}
+        onRefreshStatus={onRefreshDemoDeploymentStatus}
+      />
+    );
   }
   if (page === "applications") {
     return apps.length ? (
@@ -3307,6 +4269,7 @@ export function App() {
   const [apps, setApps] = useState<AppSnapshot[]>([]);
   const [architecture, setArchitecture] = useState<ArchitectureModel | null>(null);
   const [progress, setProgress] = useState<ProgressSlice[]>([]);
+  const [capabilityRollupModel, setCapabilityRollupModel] = useState<CapabilityRollupModel | undefined>();
   const [functionalityAreas, setFunctionalityAreas] = useState<FunctionalityProgressArea[]>([]);
   const [functionalityVersion, setFunctionalityVersion] = useState<string | undefined>();
   const [functionalityLastUpdated, setFunctionalityLastUpdated] = useState<string | undefined>();
@@ -3317,11 +4280,14 @@ export function App() {
   const [parityManifest, setParityManifest] = useState<ParityManifest | null>(null);
   const [parityComparisons, setParityComparisons] = useState<ParityComparisonReport[]>([]);
   const [parityReliability, setParityReliability] = useState<ParityReliabilityReport | null>(null);
+  const [demoDeployment, setDemoDeployment] = useState<AzureDemoDeploymentState | null>(null);
+  const [demoDeploymentAction, setDemoDeploymentAction] = useState<AzureDemoDeploymentActionResponse | null>(null);
   const [changelogSummary, setChangelogSummary] = useState<ProjectChangelogSummary | null>(null);
   const [changelog, setChangelog] = useState<ProjectChangelog | null>(null);
   const [changelogLoading, setChangelogLoading] = useState(false);
   const [events, setEvents] = useState<LifecycleEvent[]>([]);
   const [logs, setLogs] = useState<Record<string, string>>({});
+  const [technicalReference, setTechnicalReference] = useState<TechnicalReference | null>(null);
   const [busy, setBusy] = useState<BusyState>(null);
   const [error, setError] = useState<string | null>(null);
   const [activePage, setActivePage] = useState<PageId>(() => parseHashPage());
@@ -3345,9 +4311,15 @@ export function App() {
     setArchitecture(architectureData);
   }, []);
 
+  const loadTechnicalReference = useCallback(async () => {
+    const reference = await api.getTechnicalReference();
+    setTechnicalReference(reference);
+  }, []);
+
   const loadProgress = useCallback(async () => {
     const progressData = await api.getProgress();
     setProgress(progressData.slices);
+    setCapabilityRollupModel(progressData.capabilityRollups);
     setFunctionalityAreas(progressData.functionalityAreas);
     setFunctionalityVersion(progressData.functionalityVersion);
     setFunctionalityLastUpdated(progressData.functionalityLastUpdated);
@@ -3359,6 +4331,11 @@ export function App() {
   const loadEvents = useCallback(async () => {
     const eventData = await api.getEvents();
     setEvents(eventData.events);
+  }, []);
+
+  const loadDemoDeployment = useCallback(async () => {
+    const deploymentData = await api.getDemoDeployment();
+    setDemoDeployment(deploymentData);
   }, []);
 
   const loadSeedDatasets = useCallback(async () => {
@@ -3468,6 +4445,9 @@ export function App() {
         break;
       case "applications":
         break;
+      case "demo-deployment":
+        await loadWithErrorBanner("Demo deployment", loadDemoDeployment);
+        break;
       case "timeline":
         await loadWithErrorBanner("Timeline", loadChangelog);
         break;
@@ -3477,13 +4457,16 @@ export function App() {
       case "architecture":
         await loadWithErrorBanner("Architecture", loadArchitecture);
         break;
+      case "technical-reference":
+        await loadWithErrorBanner("Technical reference", loadTechnicalReference);
+        break;
       case "tests":
         await loadTestData();
         break;
       case "seed-data":
         break;
     }
-  }, [loadArchitecture, loadChangelog, loadChangelogSummary, loadProgress, loadTestData, loadWithErrorBanner]);
+  }, [loadArchitecture, loadChangelog, loadChangelogSummary, loadDemoDeployment, loadProgress, loadTechnicalReference, loadTestData, loadWithErrorBanner]);
 
   const refreshOperationalData = useCallback(async () => {
     await Promise.allSettled([
@@ -3598,6 +4581,67 @@ export function App() {
     });
   };
 
+  const handleDemoDeploymentProfileChange = (profile: AzureDemoDeploymentProfile) => {
+    setDemoDeployment((current) => ({
+      profile,
+      status: current?.status ?? {
+        profileExists: false,
+        profilePath: "",
+        artifactDirectory: "",
+        latestResult: null
+      }
+    }));
+  };
+
+  const clearDemoDeploymentEvidence = () => {
+    setDemoDeploymentAction(null);
+    setDemoDeployment((current) => current
+      ? {
+          ...current,
+          status: {
+            ...current.status,
+            latestResult: null
+          }
+        }
+      : current);
+  };
+
+  const withoutDemoDeploymentEvidence = (state: AzureDemoDeploymentState): AzureDemoDeploymentState => ({
+    ...state,
+    status: {
+      ...state.status,
+      latestResult: null
+    }
+  });
+
+  const handleSaveDemoDeploymentProfile = () => {
+    clearDemoDeploymentEvidence();
+    void runWithBusy(demoDeploymentBusyId, "Save profile", async () => {
+      const response = await api.saveDemoDeploymentProfile(demoDeployment?.profile ?? defaultDemoDeploymentProfile);
+      setDemoDeployment(withoutDemoDeploymentEvidence(response));
+    });
+  };
+
+  const handleRunDemoDeploymentAction = (action: DemoDeploymentAction) => {
+    clearDemoDeploymentEvidence();
+    void runWithBusy(demoDeploymentBusyId, demoDeploymentActionLabels[action], async () => {
+      const saved = await api.saveDemoDeploymentProfile(demoDeployment?.profile ?? defaultDemoDeploymentProfile);
+      setDemoDeployment(withoutDemoDeploymentEvidence(saved));
+      const response = await api.runDemoDeploymentAction(action);
+      setDemoDeploymentAction(response);
+      setDemoDeployment((current) => current ? { ...current, status: response.status } : { ...saved, status: response.status });
+    });
+  };
+
+  const handleRefreshDemoDeploymentStatus = () => {
+    void runWithBusy(demoDeploymentBusyId, "Refresh Azure status", async () => {
+      const saved = await api.saveDemoDeploymentProfile(demoDeployment?.profile ?? defaultDemoDeploymentProfile);
+      setDemoDeployment(saved);
+      const response = await api.refreshDemoDeploymentStatus();
+      setDemoDeployment(response);
+    });
+  };
+
   const handleLoadLogs = (appId: string) => {
     void runWithBusy(appId, "loading logs", async () => {
       const response = await api.getLogs(appId);
@@ -3643,6 +4687,7 @@ export function App() {
           seedDatasets={seedDatasets}
           logs={logs}
           progress={progress}
+          capabilityRollupModel={capabilityRollupModel}
           functionalityAreas={functionalityAreas}
           functionalityVersion={functionalityVersion}
           functionalityLastUpdated={functionalityLastUpdated}
@@ -3656,6 +4701,13 @@ export function App() {
           parityManifest={parityManifest}
           parityComparisons={parityComparisons}
           parityReliability={parityReliability}
+          technicalReference={technicalReference}
+          demoDeployment={demoDeployment}
+          demoDeploymentAction={demoDeploymentAction}
+          onDemoDeploymentProfileChange={handleDemoDeploymentProfileChange}
+          onSaveDemoDeploymentProfile={handleSaveDemoDeploymentProfile}
+          onRunDemoDeploymentAction={handleRunDemoDeploymentAction}
+          onRefreshDemoDeploymentStatus={handleRefreshDemoDeploymentStatus}
           onRunCustomParity={handleRunCustomParity}
           changelogLoading={changelogLoading}
           onLoadMoreChangelog={handleLoadMoreChangelog}

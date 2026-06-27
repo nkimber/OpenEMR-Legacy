@@ -1,9 +1,30 @@
 import { expect, type Page } from "@playwright/test";
 import type { RuntimeTarget } from "../config/targets.js";
 
-export async function openAuthenticatedModernizedPatient(page: Page, target: RuntimeTarget, patientSearch?: string) {
+export async function openModernizedStaffShell(page: Page, target: RuntimeTarget) {
   await page.goto(target.publicUrl);
+  const alreadyOpen = page.getByRole("heading", { name: "Patient/Client" });
+  if ((await alreadyOpen.count()) > 0 && await alreadyOpen.isVisible()) {
+    return;
+  }
+
+  const staffChoice = page.getByRole("button", { name: "Staff" });
+  if ((await staffChoice.count()) > 0) {
+    await staffChoice.click();
+  }
+
+  const loginPanel = page.locator('form[aria-label="Staff login"]');
+  if ((await loginPanel.count()) > 0) {
+    await loginPanel.getByLabel("Username").fill(target.credentials.username);
+    await loginPanel.getByLabel("Password").fill(target.credentials.password);
+    await loginPanel.getByRole("button", { name: "Sign In" }).click();
+  }
+
   await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
+}
+
+export async function openAuthenticatedModernizedPatient(page: Page, target: RuntimeTarget, patientSearch?: string) {
+  await openModernizedStaffShell(page, target);
 
   const accessPanel = page.locator('form[aria-label="Patient access"]');
   if ((await accessPanel.count()) > 0) {
@@ -26,8 +47,8 @@ export async function openAuthenticatedModernizedPatientPortal(
   password: string
 ) {
   await page.goto(target.publicUrl);
-  await page.getByRole("button", { name: "Portal" }).click();
-  await expect(page.getByRole("heading", { name: "Portal", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Patient Portal" }).click();
+  await expect(page.getByRole("heading", { name: "Patient Portal", exact: true })).toBeVisible();
 
   const accessPanel = page.locator('form[aria-label="Patient portal home access"]');
   await accessPanel.getByLabel("Portal username").fill(username);
@@ -38,20 +59,15 @@ export async function openAuthenticatedModernizedPatientPortal(
 }
 
 export async function openAuthenticatedModernizedAdmin(page: Page, target: RuntimeTarget) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Admin" }).click();
   await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
-
-  const loginPanel = page.locator('form[aria-label="Login readiness"]');
-  await loginPanel.getByLabel("Username").fill(target.credentials.username);
-  await loginPanel.getByLabel("Password").fill(target.credentials.password);
-  await loginPanel.getByRole("button", { name: "Verify Login" }).click();
 
   await expect(page.locator("body")).toContainText("Administration Directory");
 }
 
 export async function openAuthenticatedModernizedReports(page: Page, target: RuntimeTarget) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Reports" }).click();
   await expect(page.getByRole("heading", { name: "Reports", exact: true })).toBeVisible();
 
@@ -64,7 +80,7 @@ export async function openAuthenticatedModernizedReports(page: Page, target: Run
 }
 
 export async function openAuthenticatedModernizedClinicalLists(page: Page, target: RuntimeTarget, patientSearch?: string) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Lists" }).click();
   await expect(page.getByRole("heading", { name: "Lists", exact: true })).toBeVisible();
 
@@ -88,7 +104,7 @@ export async function openAuthenticatedModernizedCalendar(
   patientSearch?: string,
   fromDate?: string
 ) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Calendar" }).click();
   await expect(page.getByRole("heading", { name: "Calendar", exact: true })).toBeVisible();
 
@@ -116,7 +132,7 @@ export async function openAuthenticatedModernizedEncounters(
   patientSearch?: string,
   fromDate?: string
 ) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Encounters" }).click();
   await expect(page.getByRole("heading", { name: "Encounters", exact: true })).toBeVisible();
 
@@ -139,7 +155,7 @@ export async function openAuthenticatedModernizedEncounters(
 }
 
 export async function openAuthenticatedModernizedDocuments(page: Page, target: RuntimeTarget, patientSearch?: string) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Documents" }).click();
   await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
 
@@ -156,7 +172,7 @@ export async function openAuthenticatedModernizedDocuments(page: Page, target: R
 }
 
 export async function openAuthenticatedModernizedMessages(page: Page, target: RuntimeTarget, patientSearch?: string) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Messages" }).click();
   await expect(page.getByRole("heading", { name: "Messages", exact: true })).toBeVisible();
 
@@ -173,7 +189,7 @@ export async function openAuthenticatedModernizedMessages(page: Page, target: Ru
 }
 
 export async function openAuthenticatedModernizedFees(page: Page, target: RuntimeTarget, patientSearch?: string) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Fees" }).click();
   await expect(page.getByRole("heading", { name: "Fees", exact: true })).toBeVisible();
 
@@ -190,7 +206,7 @@ export async function openAuthenticatedModernizedFees(page: Page, target: Runtim
 }
 
 export async function openAuthenticatedModernizedProcedures(page: Page, target: RuntimeTarget, patientSearch?: string) {
-  await page.goto(target.publicUrl);
+  await openModernizedStaffShell(page, target);
   await page.getByRole("button", { name: "Procedures" }).click();
   await expect(page.getByRole("heading", { name: "Procedures", exact: true })).toBeVisible();
 

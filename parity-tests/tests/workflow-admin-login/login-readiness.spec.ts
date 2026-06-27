@@ -141,30 +141,58 @@ test.describe("admin login readiness parity @workflow-admin-login @slice159 @adm
     });
 
     await page.goto(target.publicUrl);
-    await page.getByRole("button", { name: "Admin" }).click();
+    await expect(page.getByRole("button", { name: "Staff" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Patient Portal" })).toBeVisible();
+    await expect(page.locator("body")).toContainText("Automated modernization from OpenEMR to Modern OpenEMR");
+    await expect(page.locator("body")).toContainText("Original OpenEMR Stack");
+    await expect(page.locator("body")).toContainText("Modern OpenEMR Stack");
+    await expect(page.locator("body")).toContainText("OpenEMR 8.1.0-2026-06-18");
+    await expect(page.locator("body")).toContainText("React 19.2.6");
+    await expect(page.locator("body")).toContainText("ASP.NET Core 10.0 / net10.0");
+    await expect(page.locator("body")).toContainText("Created by Neil Kimber using Codex 5.5 in June 2026.");
+    await expect(page.locator("body")).not.toContainText("Administration Directory");
 
-    const loginPanel = page.locator('form[aria-label="Login readiness"]');
+    await page.getByRole("button", { name: "Staff" }).click();
+    const loginPanel = page.locator('form[aria-label="Staff login"]');
     await expect(loginPanel).toBeVisible();
     await loginPanel.getByLabel("Username").fill(target.credentials.username);
     await loginPanel.getByLabel("Password").fill(target.credentials.password);
-    await loginPanel.getByRole("button", { name: "Verify Login" }).click();
+    await loginPanel.getByRole("button", { name: "Sign In" }).click();
 
-    await expect(loginPanel).toContainText("Signed in as Administrator (admin)");
-    await expect(loginPanel).toContainText("administrator");
+    await expect(page.getByRole("heading", { name: "Patient/Client" })).toBeVisible();
+    await page.getByRole("button", { name: "Admin" }).click();
+    await expect(page.locator("body")).toContainText("Administration Directory");
+    await page.getByRole("button", { name: "Log out and return to chooser" }).click();
+    await expect(page.getByRole("button", { name: "Staff" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Patient Portal" })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("Administration Directory");
     await attachDatabaseProbeEvidence(testInfo, {
       target: target.type,
       probe: "slice-159-admin-login-rendered",
       description:
-        "Captures modernized Admin-page login readiness rendering facts after verifying the configured admin credential.",
+        "Captures modernized Staff entry login and logout rendering facts after verifying the configured admin credential.",
       expected: {
-        rendersSignedInMessage: "Signed in as Administrator (admin)",
-        rendersRole: "administrator"
+        rendersEntryChooser: true,
+        rendersModernizationSummary: true,
+        rendersStackComparison: true,
+        hidesAdministrationBeforeLogin: true,
+        rendersStaffShellAfterLogin: true,
+        rendersAdministrationAfterLogin: true,
+        returnsToEntryChooserAfterLogout: true
       },
       actual: {
         surfaceFacts: {
-          modernizedAdminLoginPanel: {
-            renderedSignedInMessage: "Signed in as Administrator (admin)",
-            renderedRole: "administrator",
+          modernizedStaffLoginGate: {
+            renderedStaffChoice: true,
+            renderedPatientPortalChoice: true,
+            renderedModernizationSummary: "Automated modernization from OpenEMR to Modern OpenEMR",
+            renderedLegacyStackVersion: "OpenEMR 8.1.0-2026-06-18",
+            renderedModernStackVersion: "React 19.2.6",
+            renderedAttribution: "Created by Neil Kimber using Codex 5.5 in June 2026.",
+            hiddenBeforeLogin: "Administration Directory",
+            renderedLandingHeading: "Patient/Client",
+            renderedAdministrationDirectory: true,
+            returnedToChooserAfterLogout: true,
             username: target.credentials.username,
             passwordRedacted: true
           }
