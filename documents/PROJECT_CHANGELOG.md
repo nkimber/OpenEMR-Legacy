@@ -27930,6 +27930,36 @@ Verification:
 Code Metrics:
 - Commit `a2a0a653` changed 19 scoped files with 727 insertions and 18 deletions.
 
+## 640. Slice 583 Prescription Controlled-Substance Routing Guard
+
+Started: 2026-06-27T01:10:08.1202991-04:00
+Finished: 2026-06-27T01:14:25.7218319-04:00
+Commit: pending
+
+Implemented controlled-substance pharmacy-routing guard readiness for the modernized clinical-list prescription workflow. Controlled-substance prescriptions now carry schedule/review evidence in the modernized Lists read model, ordinary pharmacy routing returns a blocked route result before pharmacy/eRx transmit fields are stamped, and the shared parity suite verifies the same blocked behavior against the legacy adapter and modernized target.
+
+Changes:
+- Added controlled-substance schedule/review fields to prescription list items and rendered the EPCS-review warning in the modernized Lists prescription card.
+- Changed the prescription pharmacy route API to return a route result, preserving successful pharmacy routing while reporting controlled-substance route blocks without mutating transmit fields.
+- Added parity workflow support for blocked prescription route attempts on both legacy and modernized targets.
+- Added the `workflow-prescription-controlled-substance` parity suite and `slice-583-prescription-controlled-substance-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 583 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so the local controlled-substance routing guard is completed prescribing functionality while broader EPCS/e-prescribing work remains outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 583 legacy parity plan: `2026-06-27T051257-184Z-legacy-openemr-plan-slice-583-prescription-controlled-substance-readiness` passed 1/1 tests.
+- Ran the Slice 583 modernized parity plan: `2026-06-27T051320-782Z-modernized-openemr-plan-slice-583-prescription-controlled-substance-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 583 runs: `2026-06-27T051344-550Z-legacy-openemr-vs-modernized-openemr-plan-slice-583-prescription-controlled-substance-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

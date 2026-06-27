@@ -1406,6 +1406,11 @@ export type PharmacyRecord = NewPharmacy & {
   transmitMethod: number;
 };
 
+export type PrescriptionPharmacyRouteResult = {
+  routed: boolean;
+  failureReason: string | null;
+};
+
 export type ImmunizationRecord = {
   id: number | string;
   patientId: number;
@@ -7088,6 +7093,18 @@ WHERE id = ${integer(id)};
     sentAt: string,
     note: string
   ): Promise<void> {
+    const result = await this.attemptRoutePrescriptionToPharmacy(prescriptionId, pharmacyId, sentAt, note);
+    if (!result.routed) {
+      throw new Error(result.failureReason ?? "Legacy prescription pharmacy route was blocked.");
+    }
+  }
+
+  async attemptRoutePrescriptionToPharmacy(
+    prescriptionId: number | string,
+    pharmacyId: number,
+    sentAt: string,
+    note: string
+  ): Promise<PrescriptionPharmacyRouteResult> {
     const legacyId = legacyInteger(prescriptionId);
     const pharmacy = await this.getPharmacy(pharmacyId);
     if (!pharmacy) {
@@ -7097,6 +7114,14 @@ WHERE id = ${integer(id)};
     const prescription = await this.getPrescription(legacyId);
     if (!prescription) {
       throw new Error(`Legacy prescription ${legacyId} was not found.`);
+    }
+
+    const controlledSubstance = getControlledSubstanceInfo(prescription.drug);
+    if (controlledSubstance.reviewRequired) {
+      return {
+        routed: false,
+        failureReason: controlledSubstance.reason
+      };
     }
 
     const payload = [
@@ -7120,6 +7145,7 @@ SET pharmacy_id = ${integer(pharmacy.id)},
 WHERE id = ${integer(legacyId)}
   AND active = 1;
 `);
+    return { routed: true, failureReason: null };
   }
 
   async getPharmacy(id: number): Promise<PharmacyRecord | null> {
@@ -10618,6 +10644,26 @@ function normalizeNullableText(value: string | null | undefined): string | null 
 
   const normalized = value.trim();
   return normalized.length === 0 ? null : normalized;
+}
+
+function getControlledSubstanceInfo(drug: string): { reviewRequired: boolean; reason: string | null } {
+  const normalizedDrug = drug.toUpperCase();
+  if (
+    normalizedDrug.includes("OXYCODONE") ||
+    normalizedDrug.includes("HYDROCODONE") ||
+    normalizedDrug.includes("MORPHINE") ||
+    normalizedDrug.includes("ALPRAZOLAM") ||
+    normalizedDrug.includes("CLONAZEPAM") ||
+    normalizedDrug.includes("LORAZEPAM") ||
+    normalizedDrug.includes("DIAZEPAM")
+  ) {
+    return {
+      reviewRequired: true,
+      reason: "Controlled substance requires EPCS review before pharmacy routing."
+    };
+  }
+
+  return { reviewRequired: false, reason: null };
 }
 
 function buildDocumentThumbnailDataUri(mimetype: string, contentBase64: string): string | null {

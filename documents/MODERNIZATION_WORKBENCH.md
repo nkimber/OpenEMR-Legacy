@@ -883,3 +883,9 @@ The Progress page also records refill review queue approval as completed clinica
 The Workbench now exposes managed Slice 582 prescription pharmacy routing plan actions for both the legacy and modernized targets. These actions run `slice-582-prescription-pharmacy-routing-readiness`, write the standard latest-run artifacts, and let the comparison view show whether an active prescription can be routed to deterministic Northstar pharmacy evidence with local eRx transmit metadata.
 
 The Progress page also records pharmacy routing transmit evidence as completed clinical-list and prescribing evidence while keeping controlled-substance rules and broader e-prescribing workflow outstanding.
+
+## Slice 583 Workbench Update
+
+The Workbench now exposes managed Slice 583 prescription controlled-substance plan actions for both the legacy and modernized targets. These actions run `slice-583-prescription-controlled-substance-readiness`, write the standard latest-run artifacts, and let the comparison view show whether ordinary pharmacy routing is blocked for a controlled-substance prescription before eRx transmit evidence is stamped.
+
+The Progress page also records the local controlled-substance routing guard as completed clinical-list and prescribing evidence while keeping broader EPCS completion and e-prescribing workflow outstanding.

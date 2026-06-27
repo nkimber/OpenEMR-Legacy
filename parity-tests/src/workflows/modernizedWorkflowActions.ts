@@ -124,6 +124,7 @@ import type {
   ProcedureReportUpdate,
   ProcedureResultRecord,
   ProcedureSpecimenRecord,
+  PrescriptionPharmacyRouteResult,
   PrescriptionRecord,
   SoapNoteRecord,
   UserRecord,
@@ -3967,6 +3968,18 @@ LIMIT 1;
     sentAt: string,
     note: string
   ): Promise<void> {
+    const result = await this.attemptRoutePrescriptionToPharmacy(prescriptionId, pharmacyId, sentAt, note);
+    if (!result.routed) {
+      throw new Error(result.failureReason ?? "Modernized prescription pharmacy route was blocked.");
+    }
+  }
+
+  async attemptRoutePrescriptionToPharmacy(
+    prescriptionId: number | string,
+    pharmacyId: number,
+    sentAt: string,
+    note: string
+  ): Promise<PrescriptionPharmacyRouteResult> {
     const response = await fetch(`${this.target.apiBaseUrl}/api/clinical-lists/prescriptions/${encodeURIComponent(String(prescriptionId))}/route-pharmacy`, {
       method: "PUT",
       headers: await this.getAdminJsonHeaders(),
@@ -3976,6 +3989,12 @@ LIMIT 1;
     if (!response.ok) {
       throw new Error(`Modernized prescription pharmacy route failed with ${response.status}: ${await response.text()}`);
     }
+
+    const routeResult = await response.json() as { routed?: boolean; failureReason?: string | null };
+    return {
+      routed: routeResult.routed === true,
+      failureReason: routeResult.failureReason ?? null
+    };
   }
 
   async getPrescription(id: number | string): Promise<PrescriptionRecord | null> {

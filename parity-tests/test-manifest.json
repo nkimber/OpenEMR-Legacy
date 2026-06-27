@@ -1554,6 +1554,30 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-583-prescription-controlled-substance-readiness",
+      "name": "Slice 583 prescription controlled-substance readiness",
+      "description": "Prescription controlled-substance readiness plan that creates a temporary controlled prescription, blocks ordinary pharmacy routing before transmit evidence is stamped, and checks modernized Lists warning rendering.",
+      "suites": [
+        "workflow-prescription-controlled-substance"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "mutation",
+        "slice-583",
+        "prescriptions",
+        "clinical-lists",
+        "pharmacy",
+        "controlled-substance",
+        "erx",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -4061,6 +4085,27 @@
       "tags": ["slice582", "workflow", "mutation", "clinical-lists", "prescriptions", "pharmacy", "erx", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-prescription-controlled-substance",
+      "name": "Prescription controlled-substance workflow",
+      "description": "Creates a temporary controlled-substance prescription, verifies ordinary pharmacy routing is blocked before eRx transmit evidence is stamped, and checks modernized Lists warning rendering.",
+      "path": "tests/workflow-prescription-controlled-substance",
+      "tags": [
+        "slice583",
+        "workflow",
+        "mutation",
+        "clinical-lists",
+        "prescriptions",
+        "pharmacy",
+        "controlled-substance",
+        "erx",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
     },
     {
       "id": "workflow-messages",
