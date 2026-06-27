@@ -27771,6 +27771,35 @@ Verification:
 Code Metrics:
 - Commit `d0272c1e` changed 16 scoped files with 1016 insertions and 6 deletions.
 
+## 634. Medication Duplicate Detection Readiness
+
+Started: 2026-06-26T23:05:00.0000000-04:00
+Finished: 2026-06-26T23:13:30.0000000-04:00
+Commit: pending
+
+Implemented Slice 578: medication duplicate detection readiness. The modernized clinical-list API now groups active medication-list rows by normalized title and exposes duplicate count, source IDs, date range, and diagnosis evidence. The Lists page renders a medication duplicate summary so safety-relevant duplicate active medications are visible instead of being buried in the list.
+
+Changes:
+- Added medication duplicate summary DTOs and repository grouping logic over active medication-list rows.
+- Added frontend API typing and Lists rendering for duplicate groups.
+- Added the `workflow-medication-duplicate-detection` parity suite and `slice-578-medication-duplicate-detection-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 578 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so medication duplicate detection is completed clinical-list evidence while vocabulary lookup, reconciliation, structured dose/frequency fields, audit history, pharmacy routing, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 578 legacy parity plan: `2026-06-27T031046-385Z-legacy-openemr-plan-slice-578-medication-duplicate-detection-readiness` passed 1/1 tests.
+- Ran the Slice 578 modernized parity plan: `2026-06-27T031245-200Z-modernized-openemr-plan-slice-578-medication-duplicate-detection-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 578 runs: `2026-06-27T031308-588Z-legacy-openemr-vs-modernized-openemr-plan-slice-578-medication-duplicate-detection-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

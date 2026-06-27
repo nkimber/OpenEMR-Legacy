@@ -1509,6 +1509,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-578-medication-duplicate-detection-readiness",
+      "name": "Slice 578 Medication Duplicate Detection Readiness",
+      "description": "Medication safety readiness plan that creates duplicate active medication-list rows, verifies normalized duplicate detection, and checks modernized Lists rendering.",
+      "suites": ["workflow-medication-duplicate-detection"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-578", "medications", "clinical-lists", "duplicates", "safety", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -3964,6 +3973,16 @@
       "layer": "workflow",
       "path": "tests/workflow-medications",
       "tags": ["slice32", "workflow", "mutation", "clinical-lists", "medications", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-medication-duplicate-detection",
+      "name": "Medication Duplicate Detection Readiness",
+      "description": "Creates duplicate active medication-list rows, verifies normalized duplicate safety evidence, and checks modernized Lists duplicate rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-medication-duplicate-detection",
+      "tags": ["slice578", "workflow", "mutation", "clinical-lists", "medications", "duplicates", "safety", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

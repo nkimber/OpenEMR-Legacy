@@ -853,3 +853,9 @@ The Progress page also records staff waitlist projection and promotion as comple
 The Workbench now exposes managed Slice 577 appointment reminder dispatch plan actions for both the legacy and modernized targets. These actions run `slice-577-appointment-reminder-dispatch-readiness`, write the standard latest-run artifacts, and let the comparison view show whether a due appointment reminder is converted into deterministic local queue/audit/template/external-reference evidence and persisted in modernized dispatch history.
 
 The Progress page also records local appointment reminder dispatch and audit history as completed scheduling evidence while keeping external reminder-provider integrations, richer template administration, retry handling, patient delivery preferences, and broader scheduling policy configuration outstanding.
+
+## Slice 578 Workbench Update
+
+The Workbench now exposes managed Slice 578 medication duplicate detection plan actions for both the legacy and modernized targets. These actions run `slice-578-medication-duplicate-detection-readiness`, write the standard latest-run artifacts, and let the comparison view show whether two active medication-list rows with the same normalized title are detected as a safety-relevant duplicate group.
+
+The Progress page also records medication duplicate detection as completed clinical-list evidence while keeping clinical vocabulary lookup, medication reconciliation, structured dose/frequency fields, audit history, pharmacy routing, and broader e-prescribing workflow outstanding.
