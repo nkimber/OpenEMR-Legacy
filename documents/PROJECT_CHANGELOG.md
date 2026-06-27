@@ -27463,6 +27463,37 @@ Verification:
 
 Code Metrics:
 - 15 scoped files changed, with 237 insertions and 13 deletions, net +224 lines and 250 total churn, including the backend insurance-payment operation, React payment handoff, stronger UI-backed parity coverage, and managed server-side payment parity plan.
+## 617. Slice 568 Patient Payment Server-Side Posting Readiness
+
+Started: 2026-06-26T20:04:20.0000000-04:00
+Finished: 2026-06-26T20:12:22.8611590-04:00
+Commit: `8a8c4c96`
+
+Implemented Slice 568: focused patient-payment server-side posting readiness. The modernized Fees `Patient` payment source no longer constructs the OpenEMR-shaped patient payment posting inside the React UI; it calls the new `POST /api/billing/payments/patient-payments` backend operation with the patient, encounter, reference, date, payment method, CPT context, memo, and payment amount. The backend owns patient payer identity, `patient_payment` payment type, positive payment amount, zero adjustment, blank account/reason fields, blank payer claim number, and refreshed billing detail. The shared parity plan now drives the modernized Fees form through that endpoint, verifies the same temporary patient payment posting, rendering, void rollback, account-balance and ledger movement, and cleanup against both targets.
+
+Changes:
+- Added the modernized backend patient-payment request contract, repository adapter, and billing API endpoint.
+- Changed the modernized Fees `Patient` payment path so React submits patient-payment intent to the backend instead of building the final payment posting shape itself.
+- Strengthened the patient-payment parity suite so the modernized target creates the payment through the actual Fees form, waits for payment-form initialization, asserts the intended encounter before submit, captures the created payment activity ID from the database probe, and still voids and cleans up deterministically.
+- Added the `slice-568-patient-payment-server-side-posting-readiness` plan over the patient-payment workflow suite.
+- Added Workbench managed actions and plan cards for running the Slice 568 patient-payment server-side posting plan against both legacy and modernized targets.
+- Updated the Workbench Progress ledger to count patient payment capture as server-side billing business logic.
+- Synchronized the modernization plan, Workbench documentation, project context, test architecture, test-data strategy, document index, functionality progress ledger, and project changelog with the Slice 568 server-side patient payment posting contract.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized `api` and `frontend` containers with `docker compose up -d --build api frontend`.
+- Ran the Slice 568 legacy parity plan: `2026-06-27T001034-594Z-legacy-openemr-plan-slice-568-patient-payment-server-side-posting-readiness` passed 1/1 tests.
+- Ran the Slice 568 modernized parity plan: `2026-06-27T001111-514Z-modernized-openemr-plan-slice-568-patient-payment-server-side-posting-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 568 runs: `2026-06-27T001147-519Z-legacy-openemr-vs-modernized-openemr-plan-slice-568-patient-payment-server-side-posting-readiness` matched with no differences.
+- Ran `git diff --check` on the Slice 568 file set; only existing LF-to-CRLF working-copy warnings were reported.
+
+Code Metrics:
+- 15 scoped files changed, with 218 insertions and 19 deletions, net +199 lines and 237 total churn, including the backend patient-payment operation, React patient-payment handoff, stronger UI-backed parity coverage, and managed server-side patient-payment parity plan.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
