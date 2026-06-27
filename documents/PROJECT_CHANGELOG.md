@@ -28029,7 +28029,7 @@ Code Metrics:
 
 Started: 2026-06-27T02:24:03.1320698-04:00
 Finished: 2026-06-27T02:27:37.1995272-04:00
-Commit: pending
+Commit: 17069bef
 
 Implemented focused medication vocabulary readiness for the modernized clinical-list prescription workflow. The modernized API now exposes a protected RxNorm-style medication catalog lookup, the PostgreSQL seed/runtime schema includes a deterministic catalog, and the Lists prescription form can search/select vocabulary entries to populate prescription fields before save.
 
@@ -28054,7 +28054,7 @@ Verification:
 - Compared the latest successful Slice 586 runs: `2026-06-27T062347-875Z-legacy-openemr-vs-modernized-openemr-plan-slice-586-medication-vocabulary-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `17069bef` changed 19 scoped files with 20599 insertions and 2537 deletions.
 
 ## Next Expected Entries
 
