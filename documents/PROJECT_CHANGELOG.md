@@ -28147,6 +28147,38 @@ Verification:
 
 Code Metrics:
 - Commit `2f8f3c2b` changed 14 scoped files with 440 insertions and 13 deletions.
+
+## 647. Slice 590 Document OCR Queue Readiness
+
+Started: 2026-06-27T03:25:00.0000000-04:00
+Finished: 2026-06-27T03:34:59.2732896-04:00
+Commit: b4c07832
+
+Implemented document OCR queue readiness for the modernized document workflow. The modernized document API now projects active scanned documents with `OCR pending` evidence into a protected staff work queue, and the Documents workspace renders the queue beside existing document summary and viewer panels.
+
+Changes:
+- Added `PatientDocumentOcrQueueResponse` and `PatientDocumentOcrQueueItem` contracts.
+- Added `GET /api/documents/ocr-queue`, protected by the existing Documents view ACL, with optional patient filtering.
+- Derived queue items from scanned active document source facts, including capture source, scan page count, OCR status, queue status, priority, patient, category, and encounter context.
+- Added frontend API typing and loading for the OCR queue.
+- Rendered a Documents workspace OCR Queue panel with queued count, page count, status, priority, and source evidence.
+- Added the `workflow-document-ocr-queue` parity suite and `slice-590-document-ocr-queue-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 590 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so pending-OCR queue projection is completed document functionality while OCR execution, scanner capture, storage, routing, encryption, and retention remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend`.
+- Ran the Slice 590 legacy parity plan: `2026-06-27T073155-643Z-legacy-openemr-plan-slice-590-document-ocr-queue-readiness` passed 1/1 tests.
+- Ran the Slice 590 modernized parity plan: `2026-06-27T073216-842Z-modernized-openemr-plan-slice-590-document-ocr-queue-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 590 runs: `2026-06-27T073236-767Z-legacy-openemr-vs-modernized-openemr-plan-slice-590-document-ocr-queue-readiness` matched with no differences.
+
+Code Metrics:
+- Commit `b4c07832` changed 15 scoped files with 587 insertions and 11 deletions.
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
