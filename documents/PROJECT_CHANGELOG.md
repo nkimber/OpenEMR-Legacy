@@ -28518,6 +28518,38 @@ Verification:
 Code Metrics:
 - 15 files changed, 632 insertions, 16 deletions.
 
+## 654. Slice 602 Patient Portal Reminder Preferences Readiness
+
+Started: 2026-06-27T06:50:00.0000000-04:00
+Finished: 2026-06-27T07:06:37.2963949-04:00
+Commit: bf565f37
+
+Implemented patient-facing appointment reminder delivery preferences for the modernized Portal and Calendar workflow. Signed-in portal patients can submit SMS/email reminder consent changes through the profile change request form, staff profile-review acceptance persists those fields to chart contact data, and reminder derivation updates from `SMS + Email` to `Email` after SMS consent is disabled.
+
+Changes:
+- Added SMS and email reminder permission fields to portal profile demographics and profile-change DTOs.
+- Updated the modernized patient portal profile API and Admin profile-review acceptance path so requested permission values are stored with accepted chart contact data.
+- Rendered current and pending reminder permission state in the Portal profile panel and added SMS/email reminder consent checkboxes to the patient-facing profile-change request form.
+- Extended legacy and modernized parity workflow adapters so profile review table-argument serialization, profile restore, and contact state include HIPAA SMS/email reminder consent.
+- Added the `workflow-patient-portal-reminder-preferences` parity suite and `slice-602-patient-portal-reminder-preferences-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 602 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so patient-facing reminder delivery preferences are completed scheduling evidence and scheduling completion moves to 95%.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 602.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
+- Ran the Slice 602 legacy parity plan: `2026-06-27T105638-012Z-legacy-openemr-plan-slice-602-patient-portal-reminder-preferences-readiness` passed 1/1 tests.
+- Ran the Slice 602 modernized parity plan: `2026-06-27T105925-701Z-modernized-openemr-plan-slice-602-patient-portal-reminder-preferences-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 602 runs: `2026-06-27T105954-509Z-legacy-openemr-vs-modernized-openemr-plan-slice-602-patient-portal-reminder-preferences-readiness` matched with no differences.
+
+Code Metrics:
+- 17 files changed, 796 insertions, 10 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
