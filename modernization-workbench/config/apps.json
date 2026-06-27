@@ -4433,6 +4433,19 @@
           "slice-589-appointment-conflict-enforcement-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentOcrQueuePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-590-document-ocr-queue-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7163,6 +7176,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentConflictEnforcementPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-589-appointment-conflict-enforcement-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-ocr-queue",
+          "name": "Slice 590 document OCR queue plan",
+          "description": "Runs the shared document OCR queue source-fact plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityDocumentOcrQueuePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-590-document-ocr-queue-readiness.json"
         }
       ],
       "testPlans": [
@@ -7170,7 +7191,8 @@
         "slice-586-medication-vocabulary-readiness",
         "slice-587-prescription-diagnosis-interactions-readiness",
         "slice-588-medication-reconciliation-readiness",
-        "slice-589-appointment-conflict-enforcement-readiness"
+        "slice-589-appointment-conflict-enforcement-readiness",
+        "slice-590-document-ocr-queue-readiness"
       ]
     },
     {
@@ -11480,6 +11502,19 @@
           "slice-589-appointment-conflict-enforcement-readiness",
           "-Reset",
           "test"
+        ],
+        "parityDocumentOcrQueuePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-590-document-ocr-queue-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14123,6 +14158,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentConflictEnforcementPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-589-appointment-conflict-enforcement-readiness.json"
+        },
+        {
+          "id": "parity-plan-document-ocr-queue",
+          "name": "Slice 590 document OCR queue plan",
+          "description": "Runs the shared document OCR queue plan against the modernized target, including protected API and Documents workspace queue rendering evidence.",
+          "layer": "plan",
+          "commandName": "parityDocumentOcrQueuePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-590-document-ocr-queue-readiness.json"
         }
       ],
       "testPlans": [
@@ -14130,7 +14173,8 @@
         "slice-586-medication-vocabulary-readiness",
         "slice-587-prescription-diagnosis-interactions-readiness",
         "slice-588-medication-reconciliation-readiness",
-        "slice-589-appointment-conflict-enforcement-readiness"
+        "slice-589-appointment-conflict-enforcement-readiness",
+        "slice-590-document-ocr-queue-readiness"
       ]
     },
     {

@@ -4137,6 +4137,28 @@
       ]
     },
     {
+      "id": "slice-590-document-ocr-queue-readiness",
+      "name": "Slice 590 document OCR queue readiness",
+      "description": "Document OCR queue readiness plan that proves scanned pending-OCR document source facts and verifies the modernized protected OCR queue API and Documents workspace rendering.",
+      "suites": [
+        "workflow-document-ocr-queue"
+      ],
+      "reset": "test",
+      "tags": [
+        "readiness",
+        "slice-590",
+        "documents",
+        "attachments",
+        "ocr",
+        "queue",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10181,6 +10203,26 @@
         "appointments",
         "conflicts",
         "availability",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
+      "id": "workflow-document-ocr-queue",
+      "name": "Document OCR queue workflow",
+      "description": "Creates a temporary scanned pending-OCR document, verifies source facts, and checks the modernized OCR queue API and Documents workspace.",
+      "path": "tests/workflow-document-ocr-queue",
+      "tags": [
+        "slice590",
+        "workflow",
+        "mutation",
+        "documents",
+        "attachments",
+        "ocr",
+        "queue",
         "comparison-ready"
       ],
       "targets": [

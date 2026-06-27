@@ -926,3 +926,9 @@ The Progress page also records medication reconciliation readiness as completed 
 The Workbench now exposes managed Slice 589 appointment conflict enforcement plan actions for both the legacy and modernized targets. These actions run `slice-589-appointment-conflict-enforcement-readiness`, write the standard latest-run artifacts, and let the comparison view show whether provider/room conflict facts are detected and strict modernized appointment creation blocks a conflicting appointment before insert.
 
 The Progress page also records appointment conflict enforcement readiness as completed scheduling evidence while keeping richer waitlist management, external reminder integrations, template administration, retry handling, and patient-facing delivery preferences outstanding.
+
+## Slice 590 Workbench Update
+
+The Workbench now exposes managed Slice 590 document OCR queue plan actions for both the legacy and modernized targets. These actions run `slice-590-document-ocr-queue-readiness`, write the standard latest-run artifacts, and let the comparison view show whether scanned pending-OCR document source facts are detected and the modernized Documents workspace projects the item into an OCR queue.
+
+The Progress page also records pending-OCR queue readiness as completed document evidence while keeping scanner capture, OCR execution, generated PDF thumbnails, document routing queues, storage, encryption/key management, and retention policy outstanding.
