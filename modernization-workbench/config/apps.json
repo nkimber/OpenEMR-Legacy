@@ -4615,6 +4615,19 @@
           "slice-603-appointment-reminder-template-administration-readiness",
           "-Reset",
           "test"
+        ],
+        "parityEncounterSoapTemplatePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-604-encounter-soap-template-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7457,6 +7470,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentReminderTemplateAdministrationPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-603-appointment-reminder-template-administration-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-soap-template",
+          "name": "Slice 604 encounter SOAP template plan",
+          "description": "Runs the shared encounter SOAP-template source and saved-note plan against the legacy target for side-by-side comparison with the modernized target.",
+          "layer": "plan",
+          "commandName": "parityEncounterSoapTemplatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-604-encounter-soap-template-readiness.json"
         }
       ],
       "testPlans": [
@@ -7478,7 +7499,8 @@
         "slice-600-appointment-waitlist-deferral-readiness",
         "slice-601-appointment-reminder-retry-readiness",
         "slice-602-patient-portal-reminder-preferences-readiness",
-        "slice-603-appointment-reminder-template-administration-readiness"
+        "slice-603-appointment-reminder-template-administration-readiness",
+        "slice-604-encounter-soap-template-readiness"
       ]
     },
     {
@@ -11970,6 +11992,19 @@
           "slice-603-appointment-reminder-template-administration-readiness",
           "-Reset",
           "test"
+        ],
+        "parityEncounterSoapTemplatePlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-604-encounter-soap-template-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14725,6 +14760,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentReminderTemplateAdministrationPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-603-appointment-reminder-template-administration-readiness.json"
+        },
+        {
+          "id": "parity-plan-encounter-soap-template",
+          "name": "Slice 604 encounter SOAP template plan",
+          "description": "Runs the shared encounter SOAP-template plan against the modernized target, including protected catalog lookup, template application, saved note evidence, and cleanup.",
+          "layer": "plan",
+          "commandName": "parityEncounterSoapTemplatePlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-604-encounter-soap-template-readiness.json"
         }
       ],
       "testPlans": [
@@ -14746,7 +14789,8 @@
         "slice-600-appointment-waitlist-deferral-readiness",
         "slice-601-appointment-reminder-retry-readiness",
         "slice-602-patient-portal-reminder-preferences-readiness",
-        "slice-603-appointment-reminder-template-administration-readiness"
+        "slice-603-appointment-reminder-template-administration-readiness",
+        "slice-604-encounter-soap-template-readiness"
       ]
     },
     {

@@ -6427,6 +6427,29 @@
       ]
     },
     {
+      "id": "slice-604-encounter-soap-template-readiness",
+      "name": "Slice 604 Encounter SOAP Template Readiness",
+      "description": "Encounter readiness plan that exposes a protected SOAP-note template catalog, applies a selected template to the modernized Encounters SOAP form, saves the note, and verifies cleanup-backed SOAP payload parity.",
+      "suites": [
+        "workflow-encounter-soap-template"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "mutation",
+        "slice-604",
+        "encounters",
+        "clinical-notes",
+        "soap",
+        "templates",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-63-collections-work-queue-readiness",
       "name": "Slice 63 Collections Work Queue Readiness",
       "description": "Read-only revenue-cycle confidence plan that ranks past-due accounts for collections follow-up and validates the modernized Fees collections queue.",
@@ -9174,6 +9197,28 @@
         "results",
         "laboratory",
         "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-encounter-soap-template",
+      "name": "Encounter SOAP Template Readiness",
+      "description": "Verifies server-owned SOAP-note templates can be selected, applied to a temporary encounter note, saved, rendered, and cleaned up across targets.",
+      "layer": "workflow",
+      "path": "tests/workflow-encounter-soap-template",
+      "tags": [
+        "slice604",
+        "workflow",
+        "mutation",
+        "encounters",
+        "clinical-notes",
+        "soap",
+        "templates",
         "comparison-ready"
       ],
       "targets": [

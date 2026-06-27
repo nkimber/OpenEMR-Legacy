@@ -1005,3 +1005,9 @@ The Progress page now records patient-facing reminder delivery preferences as co
 The Workbench now exposes managed Slice 603 appointment reminder template administration plan actions for both the legacy and modernized targets. These actions run `slice-603-appointment-reminder-template-administration-readiness`, write the standard latest-run artifacts, and let the comparison view show reminder-template catalog evidence, selected compatible template dispatch, incompatible template rejection, and modernized Calendar selected-template rendering.
 
 The Progress page now records reminder template administration as completed scheduling evidence, moves Scheduling to 96%, and keeps external reminder-provider integrations outstanding.
+
+## Slice 604 Workbench Update
+
+The Workbench now exposes managed Slice 604 encounter SOAP template plan actions for both the legacy and modernized targets. These actions run `slice-604-encounter-soap-template-readiness`, write the standard latest-run artifacts, and let the comparison view show selected SOAP-template payload evidence, protected modernized catalog lookup, Encounters workspace template application, saved SOAP note facts, and cleanup state.
+
+The Progress page now records encounter SOAP templates as completed encounter/clinical-note evidence, moves Encounters And Clinical Notes to 74%, and keeps multi-form encounter packages, deeper amendment policy, coding validation, charge-capture expansion, and comprehensive audit export outstanding.
