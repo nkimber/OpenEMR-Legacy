@@ -4589,6 +4589,19 @@
           "slice-601-appointment-reminder-retry-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPatientPortalReminderPreferencesPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "legacy-openemr",
+          "-Plan",
+          "slice-602-patient-portal-reminder-preferences-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -7277,6 +7290,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentReminderRetryPlan",
           "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-601-appointment-reminder-retry-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-reminder-preferences",
+          "name": "Slice 602 patient portal reminder preferences plan",
+          "description": "Runs the shared patient-facing reminder preference plan against the legacy target, including review acceptance and reminder-channel evidence.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalReminderPreferencesPlan",
+          "resultPath": "../parity-tests/artifacts/latest-legacy-openemr-plan-slice-602-patient-portal-reminder-preferences-readiness.json"
         }
       ],
       "actions": [
@@ -7434,7 +7455,8 @@
         "slice-598-procedure-result-version-history-readiness",
         "slice-599-procedure-report-review-assignment-readiness",
         "slice-600-appointment-waitlist-deferral-readiness",
-        "slice-601-appointment-reminder-retry-readiness"
+        "slice-601-appointment-reminder-retry-readiness",
+        "slice-602-patient-portal-reminder-preferences-readiness"
       ]
     },
     {
@@ -11900,6 +11922,19 @@
           "slice-601-appointment-reminder-retry-readiness",
           "-Reset",
           "test"
+        ],
+        "parityPatientPortalReminderPreferencesPlan": [
+          "powershell",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "..\\scripts\\Run-OpenEmrParityTests.ps1",
+          "-Target",
+          "modernized-openemr",
+          "-Plan",
+          "slice-602-patient-portal-reminder-preferences-readiness",
+          "-Reset",
+          "test"
         ]
       },
       "services": [
@@ -14501,6 +14536,14 @@
           "layer": "plan",
           "commandName": "parityAppointmentReminderRetryPlan",
           "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-601-appointment-reminder-retry-readiness.json"
+        },
+        {
+          "id": "parity-plan-patient-portal-reminder-preferences",
+          "name": "Slice 602 patient portal reminder preferences plan",
+          "description": "Runs the shared patient-facing reminder preference plan against the modernized target, including Portal profile UI submission, review acceptance, and reminder-channel evidence.",
+          "layer": "plan",
+          "commandName": "parityPatientPortalReminderPreferencesPlan",
+          "resultPath": "../parity-tests/artifacts/latest-modernized-openemr-plan-slice-602-patient-portal-reminder-preferences-readiness.json"
         }
       ],
       "actions": [
@@ -14658,7 +14701,8 @@
         "slice-598-procedure-result-version-history-readiness",
         "slice-599-procedure-report-review-assignment-readiness",
         "slice-600-appointment-waitlist-deferral-readiness",
-        "slice-601-appointment-reminder-retry-readiness"
+        "slice-601-appointment-reminder-retry-readiness",
+        "slice-602-patient-portal-reminder-preferences-readiness"
       ]
     },
     {

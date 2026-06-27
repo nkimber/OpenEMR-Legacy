@@ -4407,6 +4407,31 @@
       ]
     },
     {
+      "id": "slice-602-patient-portal-reminder-preferences-readiness",
+      "name": "Slice 602 Patient Portal Reminder Preferences Readiness",
+      "description": "Mutation-capable scheduling reminder plan that submits patient-facing SMS/email reminder delivery preferences through a portal profile change, accepts the review, verifies contact consent persistence, and proves reminder channel derivation changes from SMS plus Email to Email.",
+      "suites": [
+        "workflow-patient-portal-reminder-preferences"
+      ],
+      "resetMode": "test",
+      "tags": [
+        "readiness",
+        "slice-602",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "preferences",
+        "portal",
+        "profile",
+        "mutation",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -10700,6 +10725,30 @@
         "scheduling",
         "reminders",
         "retry",
+        "comparison-ready"
+      ],
+      "targets": [
+        "legacy-openemr",
+        "modernized-openemr"
+      ],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-patient-portal-reminder-preferences",
+      "name": "Patient Portal Reminder Preferences Readiness",
+      "description": "Submits patient-facing SMS/email reminder delivery preferences through a portal profile change, accepts the review, verifies contact consent persistence, and confirms reminder channel derivation updates.",
+      "layer": "workflow",
+      "path": "tests/workflow-patient-portal-reminder-preferences",
+      "tags": [
+        "slice602",
+        "workflow",
+        "mutation",
+        "appointments",
+        "scheduling",
+        "reminders",
+        "preferences",
+        "portal",
+        "profile",
         "comparison-ready"
       ],
       "targets": [

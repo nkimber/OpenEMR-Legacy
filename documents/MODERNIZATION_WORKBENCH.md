@@ -993,3 +993,9 @@ The Progress page now records appointment waitlist deferral as completed schedul
 The Workbench now exposes managed Slice 601 appointment reminder retry plan actions for both the legacy and modernized targets. These actions run `slice-601-appointment-reminder-retry-readiness`, write the standard latest-run artifacts, and let the comparison view show deterministic retry audit metadata after an initial local appointment reminder dispatch.
 
 The Progress page now records local reminder retry handling as completed scheduling evidence and keeps external reminder-provider integrations, richer template administration, and patient-facing delivery preferences outstanding.
+
+## Slice 602 Workbench Update
+
+The Workbench now exposes managed Slice 602 patient portal reminder preferences plan actions for both the legacy and modernized targets. These actions run `slice-602-patient-portal-reminder-preferences-readiness`, write the standard latest-run artifacts, and let the comparison view show Portal profile SMS/email reminder consent submission, staff review acceptance, contact permission persistence, and reminder channel derivation changing from `SMS + Email` to `Email`.
+
+The Progress page now records patient-facing reminder delivery preferences as completed scheduling evidence, moves Scheduling to 95%, and keeps external reminder-provider integrations plus richer template administration outstanding.

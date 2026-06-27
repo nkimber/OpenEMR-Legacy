@@ -265,6 +265,8 @@ export type PatientPortalProfileDemographics = {
   phoneHome: string | null;
   phoneCell: string | null;
   phoneContact: string | null;
+  hipaaAllowSms: string | null;
+  hipaaAllowEmail: string | null;
   contactRelationship: string | null;
   motherName: string | null;
   guardianName: string | null;
@@ -290,6 +292,8 @@ export type PatientPortalProfileChangeInput = {
   email?: string | null;
   phoneHome?: string | null;
   phoneCell?: string | null;
+  hipaaAllowSms?: string | null;
+  hipaaAllowEmail?: string | null;
   street?: string | null;
   city?: string | null;
   state?: string | null;
@@ -3061,6 +3065,8 @@ SELECT
   COALESCE(phone_home, '') AS phoneHome,
   COALESCE(phone_cell, '') AS phoneCell,
   COALESCE(phone_contact, '') AS phoneContact,
+  COALESCE(hipaa_allowsms, '') AS hipaaAllowSms,
+  COALESCE(hipaa_allowemail, '') AS hipaaAllowEmail,
   COALESCE(contact_relationship, '') AS contactRelationship,
   COALESCE(mothersname, '') AS motherName,
   COALESCE(guardiansname, '') AS guardianName,
@@ -3107,6 +3113,8 @@ ORDER BY FIELD(i.type, 'primary', 'secondary', 'tertiary'), i.date DESC;
       phoneHome: profileRow.phoneHome || null,
       phoneCell: profileRow.phoneCell || null,
       phoneContact: profileRow.phoneContact || null,
+      hipaaAllowSms: profileRow.hipaaAllowSms || null,
+      hipaaAllowEmail: profileRow.hipaaAllowEmail || null,
       contactRelationship: profileRow.contactRelationship || null,
       motherName: profileRow.motherName || null,
       guardianName: profileRow.guardianName || null,
@@ -3325,6 +3333,8 @@ SELECT
   COALESCE(pd.phone_home, '') AS phoneHome,
   COALESCE(pd.phone_cell, '') AS phoneCell,
   COALESCE(pd.phone_contact, '') AS phoneContact,
+  COALESCE(pd.hipaa_allowsms, '') AS hipaaAllowSms,
+  COALESCE(pd.hipaa_allowemail, '') AS hipaaAllowEmail,
   COALESCE(pd.contact_relationship, '') AS contactRelationship,
   COALESCE(pd.mothersname, '') AS motherName,
   COALESCE(pd.guardiansname, '') AS guardianName,
@@ -3368,6 +3378,8 @@ SELECT
   COALESCE(pd.phone_home, '') AS phoneHome,
   COALESCE(pd.phone_cell, '') AS phoneCell,
   COALESCE(pd.phone_contact, '') AS phoneContact,
+  COALESCE(pd.hipaa_allowsms, '') AS hipaaAllowSms,
+  COALESCE(pd.hipaa_allowemail, '') AS hipaaAllowEmail,
   COALESCE(pd.contact_relationship, '') AS contactRelationship,
   COALESCE(pd.mothersname, '') AS motherName,
   COALESCE(pd.guardiansname, '') AS guardianName,
@@ -3402,6 +3414,8 @@ LIMIT 1;
       phoneHome: row.phoneHome || null,
       phoneCell: row.phoneCell || null,
       phoneContact: row.phoneContact || null,
+      hipaaAllowSms: row.hipaaAllowSms || null,
+      hipaaAllowEmail: row.hipaaAllowEmail || null,
       contactRelationship: row.contactRelationship || null,
       motherName: row.motherName || null,
       guardianName: row.guardianName || null,
@@ -3481,6 +3495,8 @@ SELECT
   COALESCE(pd.phone_home, '') AS phoneHome,
   COALESCE(pd.phone_cell, '') AS phoneCell,
   COALESCE(pd.phone_contact, '') AS phoneContact,
+  COALESCE(pd.hipaa_allowsms, '') AS hipaaAllowSms,
+  COALESCE(pd.hipaa_allowemail, '') AS hipaaAllowEmail,
   COALESCE(pd.contact_relationship, '') AS contactRelationship,
   COALESCE(pd.mothersname, '') AS motherName,
   COALESCE(pd.guardiansname, '') AS guardianName,
@@ -3515,6 +3531,8 @@ LIMIT 1;
       phoneHome: row.phoneHome || null,
       phoneCell: row.phoneCell || null,
       phoneContact: row.phoneContact || null,
+      hipaaAllowSms: row.hipaaAllowSms || null,
+      hipaaAllowEmail: row.hipaaAllowEmail || null,
       contactRelationship: row.contactRelationship || null,
       motherName: row.motherName || null,
       guardianName: row.guardianName || null,
@@ -3591,6 +3609,8 @@ SET fname = ${sqlString(demographics.firstName)},
     phone_home = ${sqlStringOrEmpty(demographics.phoneHome)},
     phone_cell = ${sqlStringOrEmpty(demographics.phoneCell)},
     phone_contact = ${sqlStringOrEmpty(demographics.phoneContact)},
+    hipaa_allowsms = ${sqlStringOrEmpty(normalizePortalProfilePermission(demographics.hipaaAllowSms))},
+    hipaa_allowemail = ${sqlStringOrEmpty(normalizePortalProfilePermission(demographics.hipaaAllowEmail))},
     contact_relationship = ${sqlStringOrEmpty(demographics.contactRelationship)},
     mothersname = ${sqlStringOrEmpty(demographics.motherName)},
     guardiansname = ${sqlStringOrEmpty(demographics.guardianName)},
@@ -9563,6 +9583,8 @@ function applyPortalProfileChangeInput(
     email: applyPortalProfileChangeValue(current.email, input.email),
     phoneHome: applyPortalProfileChangeValue(current.phoneHome, input.phoneHome),
     phoneCell: applyPortalProfileChangeValue(current.phoneCell, input.phoneCell),
+    hipaaAllowSms: applyPortalProfilePermissionValue(current.hipaaAllowSms, input.hipaaAllowSms),
+    hipaaAllowEmail: applyPortalProfilePermissionValue(current.hipaaAllowEmail, input.hipaaAllowEmail),
     street: applyPortalProfileChangeValue(current.street, input.street),
     city: applyPortalProfileChangeValue(current.city, input.city),
     state: applyPortalProfileChangeValue(current.state, input.state),
@@ -9577,6 +9599,18 @@ function applyPortalProfileChangeValue(currentValue: string | null, requestedVal
 
   const trimmed = requestedValue === null ? "" : requestedValue.trim();
   return trimmed === "" ? null : trimmed;
+}
+
+function applyPortalProfilePermissionValue(currentValue: string | null, requestedValue: string | null | undefined) {
+  if (requestedValue === undefined) {
+    return currentValue;
+  }
+
+  return normalizePortalProfilePermission(requestedValue);
+}
+
+function normalizePortalProfilePermission(value: string | null | undefined) {
+  return value?.trim().toUpperCase() === "YES" ? "YES" : "NO";
 }
 
 function buildLegacyPortalProfileTableArgs(pid: number, demographics: PatientPortalProfileDemographics) {
@@ -9595,6 +9629,8 @@ function buildLegacyPortalProfileTableArgs(pid: number, demographics: PatientPor
     ["phone_home", demographics.phoneHome],
     ["phone_cell", demographics.phoneCell],
     ["phone_contact", demographics.phoneContact],
+    ["hipaa_allowsms", normalizePortalProfilePermission(demographics.hipaaAllowSms)],
+    ["hipaa_allowemail", normalizePortalProfilePermission(demographics.hipaaAllowEmail)],
     ["contact_relationship", demographics.contactRelationship],
     ["mothersname", demographics.motherName],
     ["guardiansname", demographics.guardianName],
@@ -9651,6 +9687,8 @@ function mapLegacyPortalProfileReviewRequest(row: Record<string, string>): Patie
     phoneHome: row.phoneHome || null,
     phoneCell: row.phoneCell || null,
     phoneContact: row.phoneContact || null,
+    hipaaAllowSms: row.hipaaAllowSms || null,
+    hipaaAllowEmail: row.hipaaAllowEmail || null,
     contactRelationship: row.contactRelationship || null,
     motherName: row.motherName || null,
     guardianName: row.guardianName || null,
@@ -9706,6 +9744,8 @@ function mapLegacyPortalProfileFields(
     phoneHome: fields.phone_home ?? current.phoneHome,
     phoneCell: fields.phone_cell ?? current.phoneCell,
     phoneContact: fields.phone_contact ?? current.phoneContact,
+    hipaaAllowSms: fields.hipaa_allowsms ?? current.hipaaAllowSms,
+    hipaaAllowEmail: fields.hipaa_allowemail ?? current.hipaaAllowEmail,
     contactRelationship: fields.contact_relationship ?? current.contactRelationship,
     motherName: fields.mothersname ?? current.motherName,
     guardianName: fields.guardiansname ?? current.guardianName,
@@ -9823,6 +9863,8 @@ function buildEmptyPortalProfileResult(username: string, failureReason: string):
       phoneHome: null,
       phoneCell: null,
       phoneContact: null,
+      hipaaAllowSms: null,
+      hipaaAllowEmail: null,
       contactRelationship: null,
       motherName: null,
       guardianName: null,

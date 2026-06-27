@@ -32,6 +32,8 @@ Slice 599 index update: procedure report reviewer assignment readiness is now co
 
 Slice 601 index update: appointment reminder retry readiness is now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on Calendar reminder retry handling, appointment reminder dispatch audit history, or Workbench plan execution for `slice-601-appointment-reminder-retry-readiness`.
 
+Slice 602 index update: patient-facing appointment reminder delivery preferences are now covered by `PROJECT_CONTEXT.md`, `MODERNIZATION_PLAN.md`, `TEST_ARCHITECTURE.md`, `TEST_DATA_STRATEGY.md`, and `MODERNIZATION_WORKBENCH.md`; read those entries when working on Portal profile SMS/email reminder consent, staff profile-review acceptance, Calendar reminder channel derivation, or Workbench plan execution for `slice-602-patient-portal-reminder-preferences-readiness`.
+
 ### `AZURE_DEMO_DEPLOYMENT.md`
 
 Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, or both to public Azure demo URLs from the Modernization Workbench.

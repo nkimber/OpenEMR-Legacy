@@ -921,6 +921,8 @@ SET first_name = ${sqlString(demographics.firstName)},
     phone_home = ${sqlNullableString(demographics.phoneHome)},
     phone_cell = ${sqlNullableString(demographics.phoneCell)},
     phone = ${sqlNullableString(demographics.phoneContact)},
+    hipaa_allow_sms = ${sqlNullableString(normalizePortalProfilePermission(demographics.hipaaAllowSms))},
+    hipaa_allow_email = ${sqlNullableString(normalizePortalProfilePermission(demographics.hipaaAllowEmail))},
     guardian_relationship = ${sqlNullableString(demographics.guardianRelationship ?? demographics.contactRelationship)},
     mother_name = ${sqlNullableString(demographics.motherName)},
     guardian_name = ${sqlNullableString(demographics.guardianName)},
@@ -5763,6 +5765,10 @@ function sqlNullableString(value: string | null | undefined) {
   return value === null || value === undefined ? "NULL" : sqlString(value);
 }
 
+function normalizePortalProfilePermission(value: string | null | undefined) {
+  return value?.trim().toUpperCase() === "YES" ? "YES" : "NO";
+}
+
 function buildEmptyModernizedPortalProfileResult(username: string, failureReason: string): PatientPortalProfileResult {
   return {
     authenticated: false,
@@ -5789,6 +5795,8 @@ function buildEmptyModernizedPortalProfileResult(username: string, failureReason
       phoneHome: null,
       phoneCell: null,
       phoneContact: null,
+      hipaaAllowSms: null,
+      hipaaAllowEmail: null,
       contactRelationship: null,
       motherName: null,
       guardianName: null,
@@ -5876,6 +5884,8 @@ function mapPatientPortalProfileResult(result: any): PatientPortalProfileResult 
       phoneHome: result.demographics?.phoneHome ?? null,
       phoneCell: result.demographics?.phoneCell ?? null,
       phoneContact: result.demographics?.phoneContact ?? null,
+      hipaaAllowSms: result.demographics?.hipaaAllowSms ?? null,
+      hipaaAllowEmail: result.demographics?.hipaaAllowEmail ?? null,
       contactRelationship: result.demographics?.contactRelationship ?? null,
       motherName: result.demographics?.motherName ?? null,
       guardianName: result.demographics?.guardianName ?? null,
@@ -5918,6 +5928,8 @@ function mapPatientPortalProfileResult(result: any): PatientPortalProfileResult 
             phoneHome: result.pendingChange.demographics?.phoneHome ?? null,
             phoneCell: result.pendingChange.demographics?.phoneCell ?? null,
             phoneContact: result.pendingChange.demographics?.phoneContact ?? null,
+            hipaaAllowSms: result.pendingChange.demographics?.hipaaAllowSms ?? null,
+            hipaaAllowEmail: result.pendingChange.demographics?.hipaaAllowEmail ?? null,
             contactRelationship: result.pendingChange.demographics?.contactRelationship ?? null,
             motherName: result.pendingChange.demographics?.motherName ?? null,
             guardianName: result.pendingChange.demographics?.guardianName ?? null,
@@ -5993,6 +6005,8 @@ function mapModernizedPortalReviewDemographics(demographics: any) {
     phoneHome: demographics?.phoneHome ?? null,
     phoneCell: demographics?.phoneCell ?? null,
     phoneContact: demographics?.phoneContact ?? null,
+    hipaaAllowSms: demographics?.hipaaAllowSms ?? null,
+    hipaaAllowEmail: demographics?.hipaaAllowEmail ?? null,
     contactRelationship: demographics?.contactRelationship ?? null,
     motherName: demographics?.motherName ?? null,
     guardianName: demographics?.guardianName ?? null,
