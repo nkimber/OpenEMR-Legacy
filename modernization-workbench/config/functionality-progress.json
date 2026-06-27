@@ -523,7 +523,7 @@
       "id": "clinical-lists-medications",
       "name": "Clinical Lists, Medications, And Prescriptions",
       "status": "in-progress",
-      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and prescribing depth remain future scope.",
+      "summary": "Problem, allergy, medication-list, duplicate active-medication safety detection, prescription creation/deactivation/refill authorization, patient-portal clinical summary including problem, allergy, and medication date columns, ended problem/allergy/medication-list rows, prescription modified dates, date-added start timestamps, and active end-date filtering, and immunization basics are parity-covered behind protected and ACL-authorized clinical-list access, while clinical vocabulary and broader prescribing depth remain future scope.",
       "completed": [
         {
           "label": "Clinical list read model",
@@ -554,19 +554,24 @@
           "label": "Medication duplicate detection readiness",
           "detail": "The modernized clinical-list API now groups active medication-list rows by normalized medication title, exposes duplicate-count/date/diagnosis/source-ID evidence, renders the warning evidence in Lists, and parity compares it against a cleanup-backed legacy database projection.",
           "evidence": ["slice-578-medication-duplicate-detection-readiness"]
+        },
+        {
+          "label": "Prescription refill authorization readiness",
+          "detail": "The modernized clinical-list API and Lists page now authorize an additional refill on an active prescription while preserving active status, updating modified date and note evidence, and parity compares the result with the legacy prescription row.",
+          "evidence": ["slice-579-prescription-refill-readiness"]
         }
       ],
       "outstanding": [
         "Vocabulary lookup, diagnosis interactions, medication reconciliation, structured dose/frequency fields, and audit history.",
-        "Pharmacy routing, refill requests, controlled-substance rules, and broader e-prescribing workflow."
+        "Pharmacy routing, patient-originated refill requests, controlled-substance rules, and broader e-prescribing workflow."
       ],
       "deferred": [
         "External formulary, pharmacy, and vaccine inventory integrations."
       ],
-      "completionEstimatePercent": 63,
+      "completionEstimatePercent": 64,
       "estimatedScopeWeight": 7,
       "scopeWeightRationale": "Clinical lists and prescribing are important, but narrower than encounters, labs, billing, documents, and production readiness in this modernization scope.",
-      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, and active duplicate medication-list safety evidence is covered; vocabulary lookup, medication reconciliation, pharmacy routing, and prescribing controls remain."
+      "estimateRationale": "List and focused mutation paths now sit behind protected session access and the first clinical-list ACL gate, patient portal clinical-summary projection now includes problem, allergy, and medication date-column/ended-row fidelity plus active prescription modified-date, date-added/start-date, and end-date filtering fidelity, active duplicate medication-list safety evidence is covered, and staff refill authorization now updates active prescription refill metadata; vocabulary lookup, medication reconciliation, pharmacy routing, patient-originated refill requests, and prescribing controls remain."
     },
     {
       "id": "messaging-portal",

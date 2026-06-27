@@ -1343,6 +1343,7 @@ export type PrescriptionRecord = {
   patientId: number;
   providerId: number;
   startDate: string;
+  modifiedDate: string | null;
   endDate: string | null;
   drug: string;
   dosage: string;
@@ -6766,7 +6767,7 @@ SELECT LAST_INSERT_ID() AS id;
     const legacyId = legacyInteger(id);
     const rows = await this.db.queryRows<Record<string, string>>(`
 SELECT id, patient_id AS patientId, provider_id AS providerId, DATE(start_date) AS startDate,
-  DATE(end_date) AS endDate, drug, dosage, quantity, refills, active, note
+  DATE(date_modified) AS modifiedDate, DATE(end_date) AS endDate, drug, dosage, quantity, refills, active, note
 FROM prescriptions
 WHERE id = ${integer(legacyId)}
 LIMIT 1;
@@ -6780,6 +6781,7 @@ LIMIT 1;
       patientId: Number(row.patientId),
       providerId: Number(row.providerId),
       startDate: row.startDate,
+      modifiedDate: dbNullToNull(row.modifiedDate),
       endDate: dbNullToNull(row.endDate),
       drug: row.drug,
       dosage: row.dosage,
@@ -6796,6 +6798,19 @@ LIMIT 1;
 UPDATE prescriptions
 SET active = 0, end_date = ${sqlString(endDate)}, note = ${sqlString(note)}, date_modified = NOW(), updated_by = 1
 WHERE id = ${integer(legacyId)};
+`);
+  }
+
+  async refillPrescription(id: number | string, refillDate: string, additionalRefills: number, note: string): Promise<void> {
+    const legacyId = legacyInteger(id);
+    await this.db.execute(`
+UPDATE prescriptions
+SET refills = refills + ${integer(additionalRefills)},
+    date_modified = ${sqlString(refillDate)},
+    note = ${sqlString(note)},
+    updated_by = 1
+WHERE id = ${integer(legacyId)}
+  AND active = 1;
 `);
   }
 

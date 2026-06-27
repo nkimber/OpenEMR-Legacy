@@ -1518,6 +1518,15 @@
       "targets": ["legacy-openemr", "modernized-openemr"]
     },
     {
+      "id": "slice-579-prescription-refill-readiness",
+      "name": "Slice 579 Prescription Refill Readiness",
+      "description": "Prescription refill readiness plan that creates a temporary active prescription, authorizes one additional refill, verifies modified date and note evidence, and checks modernized Lists rendering.",
+      "suites": ["workflow-prescription-refill"],
+      "resetMode": "test",
+      "tags": ["readiness", "mutation", "slice-579", "prescriptions", "clinical-lists", "refills", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"]
+    },
+    {
       "id": "slice-33-binary-document-mutation-readiness",
       "name": "Slice 33 Binary Patient Document Mutation Readiness",
       "description": "Mutation-capable binary patient-document confidence plan that creates, renders, downloads, archives, and removes a PDF-style document on both legacy and modernized targets.",
@@ -3983,6 +3992,16 @@
       "layer": "workflow",
       "path": "tests/workflow-medication-duplicate-detection",
       "tags": ["slice578", "workflow", "mutation", "clinical-lists", "medications", "duplicates", "safety", "comparison-ready"],
+      "targets": ["legacy-openemr", "modernized-openemr"],
+      "defaultResetMode": "test"
+    },
+    {
+      "id": "workflow-prescription-refill",
+      "name": "Prescription Refill Readiness",
+      "description": "Creates a temporary active prescription, authorizes one additional refill, verifies refill metadata, and checks modernized Lists rendering.",
+      "layer": "workflow",
+      "path": "tests/workflow-prescription-refill",
+      "tags": ["slice579", "workflow", "mutation", "clinical-lists", "prescriptions", "refills", "comparison-ready"],
       "targets": ["legacy-openemr", "modernized-openemr"],
       "defaultResetMode": "test"
     },

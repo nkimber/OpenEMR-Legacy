@@ -27800,6 +27800,36 @@ Verification:
 Code Metrics:
 - Commit `841551df` changed 15 scoped files with 388 insertions and 7 deletions.
 
+## 635. Prescription Refill Authorization Readiness
+
+Started: 2026-06-26T23:24:00.0000000-04:00
+Finished: 2026-06-26T23:30:00.0000000-04:00
+Commit: pending
+
+Implemented Slice 579: prescription refill authorization readiness. The modernized clinical-list API now authorizes one or more additional refills on active prescriptions, stamps the modified date, preserves note evidence, and returns the refreshed clinical-list detail. The Lists page now exposes a `Refill` action on prescription cards and renders the updated refill count and note.
+
+Changes:
+- Added a focused prescription refill DTO, repository operation, and `PUT /api/clinical-lists/prescriptions/{prescriptionId}/refill` endpoint.
+- Added frontend API typing/helper, Lists refill handler, and prescription-card `Refill` action.
+- Added parity workflow support for refilling prescriptions on both legacy and modernized targets.
+- Added the `workflow-prescription-refill` parity suite and `slice-579-prescription-refill-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 579 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so staff refill authorization is completed prescribing evidence while patient-originated refill requests, pharmacy routing, controlled-substance rules, and broader e-prescribing remain outstanding.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build`.
+- Ran the Slice 579 legacy parity plan: `2026-06-27T032849-775Z-legacy-openemr-plan-slice-579-prescription-refill-readiness` passed 1/1 tests.
+- Ran the Slice 579 modernized parity plan: `2026-06-27T032916-860Z-modernized-openemr-plan-slice-579-prescription-refill-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 579 runs: `2026-06-27T032943-882Z-legacy-openemr-vs-modernized-openemr-plan-slice-579-prescription-refill-readiness` matched with no differences.
+
+Code Metrics:
+- Pending commit-scoped metrics.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
