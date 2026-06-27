@@ -28581,6 +28581,38 @@ Verification:
 
 Code Metrics:
 - 16 files changed, 804 insertions, 32 deletions.
+
+## 656. Slice 604 Encounter SOAP Template Readiness
+
+Started: 2026-06-27T07:26:00.0000000-04:00
+Finished: 2026-06-27T07:41:05.0953904-04:00
+Commit: c0c6ddde
+
+Implemented encounter SOAP note template readiness for the modernized Encounters workflow. The modernized encounter API now exposes a protected SOAP-template catalog owned by the backend, and the Encounters workspace can apply a selected template into the SOAP Subjective, Objective, Assessment, and Plan draft fields before saving the note.
+
+Changes:
+- Added `GET /api/encounters/soap-note-templates` behind Encounter write permission.
+- Added a deterministic SOAP-template catalog for stable follow-up, diabetes follow-up, acute respiratory, and preventive annual note patterns.
+- Added frontend API types/calls plus Encounters workspace template selection and `Apply template` behavior for the SOAP form.
+- Added the `workflow-encounter-soap-template` parity suite and `slice-604-encounter-soap-template-readiness` plan.
+- Added Workbench managed actions/cards for running Slice 604 against legacy and modernized targets.
+- Updated the Workbench Progress ledger so encounter SOAP templates are completed encounter/clinical-note evidence and Encounters And Clinical Notes moves to 74%.
+- Updated project context, modernization plan, test architecture, test-data strategy, Workbench documentation, and the document index for Slice 604.
+
+Verification:
+- Parsed `parity-tests/test-manifest.json`, `modernization-workbench/config/apps.json`, and `modernization-workbench/config/functionality-progress.json` successfully.
+- Ran `dotnet build .\modernized-openemr\backend\src\OpenEmr.Modernized.Api\OpenEmr.Modernized.Api.csproj`.
+- Ran `npm --prefix .\parity-tests run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernized-openemr\frontend run build`; it passed with the existing Vite large-chunk warning.
+- Rebuilt and restarted the modernized target with `docker compose up -d --build api frontend` from `modernized-openemr/`.
+- Ran the Slice 604 legacy parity plan: `2026-06-27T113544-335Z-legacy-openemr-plan-slice-604-encounter-soap-template-readiness` passed 1/1 tests.
+- Ran the Slice 604 modernized parity plan: `2026-06-27T113710-268Z-modernized-openemr-plan-slice-604-encounter-soap-template-readiness` passed 1/1 tests.
+- Compared the latest successful Slice 604 runs: `2026-06-27T113737-201Z-legacy-openemr-vs-modernized-openemr-plan-slice-604-encounter-soap-template-readiness` matched with no differences.
+
+Code Metrics:
+- 16 files changed, 647 insertions, 9 deletions.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:
