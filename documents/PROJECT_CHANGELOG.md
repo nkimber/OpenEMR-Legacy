@@ -27744,8 +27744,8 @@ Code Metrics:
 ## 633. Appointment Reminder Dispatch Readiness
 
 Started: 2026-06-26T22:51:00.0000000-04:00
-Finished: pending
-Commit: pending
+Finished: 2026-06-26T22:58:52.3896283-04:00
+Commit: d0272c1e
 
 Implemented Slice 577: appointment reminder dispatch readiness. The modernized appointment API now dispatches due reminders through a deterministic local queue contract, persists idempotent audit history, and exposes saved dispatch events. The Calendar page now renders a `Dispatch reminder` action on due appointment reminders, shows the queue/audit/template/external-reference evidence, and displays the latest saved dispatch history for the selected appointment.
 
@@ -27769,7 +27769,7 @@ Verification:
 - Compared the latest successful Slice 577 runs: `2026-06-27T025614-993Z-legacy-openemr-vs-modernized-openemr-plan-slice-577-appointment-reminder-dispatch-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `d0272c1e` changed 16 scoped files with 1016 insertions and 6 deletions.
 
 ## Next Expected Entries
 
