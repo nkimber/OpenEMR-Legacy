@@ -27996,7 +27996,7 @@ Code Metrics:
 
 Started: 2026-06-27T01:57:33.8276581-04:00
 Finished: 2026-06-27T02:00:12.4188404-04:00
-Commit: pending
+Commit: ccedb7ec
 
 Implemented prescription structured-dose readiness for the modernized clinical-list prescription workflow. The modernized API now accepts, stores, and projects prescription dose amount, dose unit, frequency, and duration fields while preserving the legacy dosage and quantity text that existing OpenEMR users expect.
 
@@ -28023,7 +28023,7 @@ Verification:
 - Compared the latest successful Slice 585 runs: `2026-06-27T060007-438Z-legacy-openemr-vs-modernized-openemr-plan-slice-585-prescription-structured-dose-readiness` matched with no differences.
 
 Code Metrics:
-- Pending commit-scoped metrics.
+- Commit `ccedb7ec` changed 18 scoped files with 426 insertions and 25 deletions.
 
 ## Next Expected Entries
 
