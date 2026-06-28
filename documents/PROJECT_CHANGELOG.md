@@ -28652,7 +28652,7 @@ Code Metrics:
 
 Started: 2026-06-28T17:18:00.0000000-04:00
 Finished: 2026-06-28T17:31:00.0000000-04:00
-Commit: pending
+Commit: f6cfbad7a
 
 Added a registry-driven website launcher to the Modernization Workbench Dashboard. Operators can now choose from Legacy OpenEMR, Modernized OpenEMR, and Modern UI Claude on the first Workbench screen, with each card showing runtime status plus Open, Start, and Restart controls.
 
@@ -28674,7 +28674,7 @@ Code Metrics:
 
 Started: 2026-06-28T17:31:00.0000000-04:00
 Finished: 2026-06-28T17:52:11.7021441-04:00
-Commit: pending
+Commit: f6cfbad7a
 
 Added a dedicated Public App Links section to the Workbench Demo Deployment page so operators can open the public launcher or jump directly to the public-facing deployed website URLs recorded in the latest Azure status evidence.
 
