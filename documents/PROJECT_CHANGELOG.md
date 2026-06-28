@@ -28733,7 +28733,7 @@ Code Metrics:
 
 Started: 2026-06-28T18:39:00.0000000-04:00
 Finished: 2026-06-28T18:45:09.4124491-04:00
-Commit: pending
+Commit: 79b5922673
 
 Clarified how the Demo Deployment Cost Tracking panel gets data and added a direct refresh action inside the panel. The cost data is still fetched from Azure Cost Management during Azure status refresh, but operators no longer have to infer that from the separate runtime-status controls.
 
@@ -28743,10 +28743,13 @@ Changes:
 - Updated Azure demo deployment and Workbench documentation to record that Cost Tracking is populated by the same resource-group-scoped Cost Management query as **Refresh Azure status**.
 
 Verification:
-- Pending.
+- `npm --prefix .\modernization-workbench run typecheck`
+- `npm --prefix .\modernization-workbench run build`
+- Playwright opened `http://127.0.0.1:5173/#/demo-deployment`, verified the Cost Tracking panel contains an enabled **Refresh costs** button with the title `Refresh Azure status and Cost Management estimates`, and verified the empty state reads `Use Refresh costs to ask Azure Cost Management for month-to-date estimates for this resource group.`
+- Playwright resized the Demo Deployment page to 390x900 and verified the Cost Tracking panel and header actions did not overflow the viewport.
 
 Code Metrics:
-- Pending commit-scoped metrics until the implementation commit exists.
+- 5 files changed, 41 insertions, 5 deletions.
 
 ## Next Expected Entries
 
