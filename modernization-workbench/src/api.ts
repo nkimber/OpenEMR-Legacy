@@ -97,6 +97,11 @@ export const api = {
       method: "POST"
     });
   },
+  async runDemoDeploymentOpsAction(action: "shutdown" | "start") {
+    return requestJson<AzureDemoDeploymentActionResponse>(`/api/demo-deployment/ops/${action}`, {
+      method: "POST"
+    });
+  },
   async getArchitecture() {
     const data = await requestJson<{ systems: ArchitectureSystemSummary[]; sourceInventory: SourceInventory }>("/api/architecture");
     return buildArchitectureModel(data.systems, data.sourceInventory);

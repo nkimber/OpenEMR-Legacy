@@ -28751,6 +28751,35 @@ Verification:
 Code Metrics:
 - 5 files changed, 41 insertions, 5 deletions.
 
+## 662. Demo Deployment Azure NOC Scale Controls
+
+Started: 2026-06-28T18:51:00.0000000-04:00
+Finished: 2026-06-28T19:16:35.7270622-04:00
+Commit: pending
+
+Added a small Azure operations panel to the Demo Deployment page so the public demo environment can be parked when it is not needed and warmed back up for demos without rebuilding or redeploying.
+
+Changes:
+- Added backend Demo Deployment ops endpoints for **Shut down all Azure apps** and **Start all Azure apps**, using Azure CLI Container Apps scale updates for every known demo target.
+- Extended Azure live-status parsing with Container App replica settings and a `stopped` state for apps parked at `minReplicas=0`.
+- Updated Azure refresh behavior so parked apps are not probed over public HTTP, preventing the Workbench from waking them during status checks.
+- Added a Demo NOC panel with warm/scaled-down target counts, per-app replica settings, start/shutdown/refresh controls, and the current-month projected cost.
+- Extended Cost Tracking with a projected current-month metric based on posted month-to-date cost, elapsed month days, and total days in the current month.
+- Updated Azure deployment and Workbench documentation to record the NOC controls, scale-down semantics, and Cost Management projection basis.
+
+Verification:
+- `npm --prefix .\modernization-workbench run typecheck`
+- `npm --prefix .\modernization-workbench run build`
+- `POST http://127.0.0.1:5174/api/demo-deployment/status/refresh` refreshed Azure live status with all four demo targets live at `minReplicas=1` / `maxReplicas=1`.
+- `POST http://127.0.0.1:5174/api/demo-deployment/ops/invalid` returned HTTP 400 with `Unsupported Azure demo ops action: invalid`, verifying the new ops route guard without changing Azure state.
+- Extracted the latest Azure Cost Management snapshot: June 2026 month-to-date cost `3.5429531892 USD`, projected month-end cost `3.7960212741428574 USD`, 28 elapsed days, 30 days in month, latest posted day `2026-06-28`.
+- Playwright opened `http://127.0.0.1:5173/#/demo-deployment` and verified the Demo NOC panel renders **Shut down all Azure apps**, **Start all Azure apps**, **Refresh ops status**, four target replica cards at `1 min / 1 max`, and a `$3.80` current-month estimate.
+- Playwright resized the Demo Deployment page to 390x900 and verified the NOC panel, ops command row, ops summary grid, ops target grid, Cost Tracking panel, and expanded cost grid did not overflow the viewport.
+- Did not execute the shutdown/start buttons during verification to avoid changing the live Azure demo environment state.
+
+Code Metrics:
+- Pending commit-scoped metrics until the implementation commit exists.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

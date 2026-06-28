@@ -73,6 +73,7 @@ type BusyState = {
 } | null;
 
 type DemoDeploymentAction = "validate" | "deploy" | "smoke";
+type DemoDeploymentOpsAction = "shutdown" | "start";
 
 const allAppsBusyId = "all-apps";
 const demoDeploymentBusyId = "azure-demo-deployment";
@@ -80,6 +81,10 @@ const demoDeploymentActionLabels: Record<DemoDeploymentAction, string> = {
   validate: "Validate",
   deploy: "Deploy latest",
   smoke: "Smoke test"
+};
+const demoDeploymentOpsActionLabels: Record<DemoDeploymentOpsAction, string> = {
+  shutdown: "Shut down Azure apps",
+  start: "Start Azure apps"
 };
 const changelogPageSize = 100;
 
@@ -365,6 +370,19 @@ function formatSignedCount(value: number) {
 
 function StatusPill({ state, label }: { state: RuntimeState | string; label: string }) {
   return <span className={`status-pill status-${state}`}>{label}</span>;
+}
+
+function azureDemoPillState(state?: string) {
+  if (state === "live") {
+    return "healthy";
+  }
+  if (state === "unavailable") {
+    return "error";
+  }
+  if (state === "stopped") {
+    return "stopped";
+  }
+  return "partial";
 }
 
 function IconButton({
@@ -3670,6 +3688,7 @@ function DemoDeploymentPage({
   onProfileChange,
   onSaveProfile,
   onRunAction,
+  onRunOpsAction,
   onRefreshStatus
 }: {
   deployment: AzureDemoDeploymentState | null;
@@ -3678,6 +3697,7 @@ function DemoDeploymentPage({
   onProfileChange: (profile: AzureDemoDeploymentProfile) => void;
   onSaveProfile: () => void;
   onRunAction: (action: DemoDeploymentAction) => void;
+  onRunOpsAction: (action: DemoDeploymentOpsAction) => void;
   onRefreshStatus: () => void;
 }) {
   const profile = deployment?.profile ?? defaultDemoDeploymentProfile;
@@ -3762,7 +3782,7 @@ function DemoDeploymentPage({
     window.setTimeout(() => setCopiedLabel(""), 1800);
   }
 
-  const overallStatusPillState = liveStatus?.state === "live" ? "healthy" : liveStatus?.state === "unavailable" ? "error" : "partial";
+  const overallStatusPillState = liveStatus?.state === "live" ? "healthy" : liveStatus?.state === "stopped" ? "stopped" : liveStatus?.state === "unavailable" ? "error" : "partial";
   const statusApplications = liveStatus?.applications ?? [];
   const liveTargetCount = statusApplications.filter((application) => application.state === "live").length;
   const directory = status?.directory;
@@ -3801,6 +3821,25 @@ function DemoDeploymentPage({
       healthUrl: application?.healthUrl
     };
   });
+  const parkedTargetCount = statusApplications.filter((application) => application.state === "stopped" || application.azure?.minReplicas === 0).length;
+  const warmTargetCount = statusApplications.filter((application) => (application.azure?.minReplicas ?? (application.state === "live" ? 1 : 0)) > 0).length;
+  const opsPillState = statusApplications.length > 0 && parkedTargetCount === statusApplications.length
+    ? "stopped"
+    : statusApplications.length > 0 && liveTargetCount === statusApplications.length
+      ? "healthy"
+      : statusApplications.length > 0
+        ? "partial"
+        : "stopped";
+  const opsPillLabel = statusApplications.length > 0 && parkedTargetCount === statusApplications.length
+    ? "Scaled down"
+    : statusApplications.length > 0 && liveTargetCount === statusApplications.length
+      ? "Demo ready"
+      : statusApplications.length > 0
+        ? "Mixed state"
+        : "No targets";
+  const projectedMonthDetail = costSummary?.elapsedMonthDays && costSummary?.daysInMonth
+    ? `${costSummary.elapsedMonthDays} of ${costSummary.daysInMonth} days elapsed`
+    : "Refresh costs for projection";
 
   return (
     <div className="page-stack">
@@ -3902,6 +3941,69 @@ function DemoDeploymentPage({
         </div>
       </section>
 
+      <section className="panel demo-deployment-panel demo-ops-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Azure operations</div>
+            <h2>
+              <Activity size={20} />
+              Demo NOC
+            </h2>
+            <p>Park or warm up the public Azure demo environment without rebuilding or redeploying the websites.</p>
+          </div>
+          <div className="panel-status">
+            <StatusPill state={opsPillState} label={opsPillLabel} />
+            {liveStatus?.lastVerifiedAt ? <span className="quiet-chip">Checked {formatDate(liveStatus.lastVerifiedAt)}</span> : null}
+          </div>
+        </div>
+
+        <div className="demo-ops-command-row">
+          <button className="text-button runtime-action-button demo-danger-action" type="button" onClick={() => onRunOpsAction("shutdown")} disabled={busyForDeployment} title="Scale every Azure demo Container App to zero idle replicas">
+            <Power size={14} />
+            Shut down all Azure apps
+          </button>
+          <button className="text-button runtime-action-button" type="button" onClick={() => onRunOpsAction("start")} disabled={busyForDeployment} title="Restore every Azure demo Container App to one warm replica">
+            <Play size={14} />
+            Start all Azure apps
+          </button>
+          <button className="text-button runtime-action-button" type="button" onClick={onRefreshStatus} disabled={busyForDeployment}>
+            <RefreshCw size={14} />
+            Refresh ops status
+          </button>
+        </div>
+
+        <div className="demo-ops-summary-grid">
+          <Metric label="Warm targets" value={`${warmTargetCount} / ${statusApplications.length}`} detail="Minimum replica above zero" />
+          <Metric label="Scaled down" value={`${parkedTargetCount} / ${statusApplications.length}`} detail="Minimum replica set to zero" />
+          <Metric label="Current-month estimate" value={formatCurrencyAmount(costSummary?.projectedMonthEndCost, costSummary?.currency)} detail={projectedMonthDetail} />
+        </div>
+
+        <p className="demo-ops-note">
+          Shut down sets each demo Container App to zero idle replicas and leaves max replicas at one. Public HTTP traffic can still wake a parked app, so avoid opening public links while the environment is parked.
+        </p>
+
+        {statusApplications.length ? (
+          <div className="demo-ops-target-grid">
+            {statusApplications.map((application) => (
+              <article className="demo-ops-target" key={`ops-${application.target}-${application.name}`}>
+                <div>
+                  <strong>{application.label}</strong>
+                  <span>{application.name}</span>
+                </div>
+                <StatusPill state={azureDemoPillState(application.state)} label={application.state} />
+                <span className="demo-ops-scale">
+                  {application.azure?.minReplicas !== undefined
+                    ? `${application.azure.minReplicas} min / ${application.azure.maxReplicas ?? "-"} max`
+                    : "Scale pending"}
+                </span>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <EmptyState text="Refresh Azure status after deployment to load ops state for the demo apps." />
+        )}
+      </section>
+
       <section className="panel demo-deployment-panel">
         <div className="panel-header">
           <div>
@@ -3913,7 +4015,7 @@ function DemoDeploymentPage({
             <p>{directory?.subtitle ?? "The public portal will list each demo app, entry point, and demo credential."}</p>
           </div>
           <div className="panel-status">
-            {portalApplication ? <StatusPill state={portalApplication.state === "live" ? "healthy" : portalApplication.state === "unavailable" ? "error" : "partial"} label={portalApplication.state} /> : <StatusPill state="stopped" label="Not deployed" />}
+            {portalApplication ? <StatusPill state={azureDemoPillState(portalApplication.state)} label={portalApplication.state} /> : <StatusPill state="stopped" label="Not deployed" />}
             {portalApplication?.url ? (
               <a className="text-button runtime-action-button" href={portalApplication.url} target="_blank" rel="noreferrer">
                 Open portal <ExternalLink size={14} />
@@ -3996,7 +4098,7 @@ function DemoDeploymentPage({
 
         <div className="public-demo-link-grid">
           {publicLinkSlots.map((slot) => {
-            const appPillState = slot.application?.state === "live" ? "healthy" : slot.application?.state === "unavailable" ? "error" : "stopped";
+            const appPillState = slot.application ? azureDemoPillState(slot.application.state) : "stopped";
             const pillLabel = slot.application?.state ?? "URL pending";
             const linkDetail = slot.application?.detail ?? "No public URL has been recorded for this app yet. Deploy or refresh Azure status after the app is available.";
 
@@ -4070,7 +4172,7 @@ function DemoDeploymentPage({
         {statusApplications.length ? (
           <div className="demo-status-app-grid">
             {statusApplications.map((application) => {
-              const appPillState = application.state === "live" ? "healthy" : application.state === "unavailable" ? "error" : "partial";
+              const appPillState = azureDemoPillState(application.state);
               return (
                 <article className="demo-status-card" key={`${application.target}-${application.name}`}>
                   <div className="demo-status-card-header">
@@ -4126,6 +4228,7 @@ function DemoDeploymentPage({
             <>
               <div className="demo-cost-grid">
                 <Metric label="Month to date" value={formatCurrencyAmount(costSummary.monthToDateCost, costSummary.currency)} detail={profile.resourceGroup ? `Resource group ${profile.resourceGroup}` : "Selected resource group"} />
+                <Metric label="Projected month" value={formatCurrencyAmount(costSummary.projectedMonthEndCost, costSummary.currency)} detail={projectedMonthDetail} />
                 <Metric label="Average per day" value={formatCurrencyAmount(costSummary.averageDailyCost, costSummary.currency)} detail="Month-to-date average" />
                 <Metric label="Today posted" value={formatCurrencyAmount(costSummary.todayCost, costSummary.currency)} detail="May lag behind live usage" />
                 <Metric label="Latest posted day" value={formatCurrencyAmount(costSummary.latestDailyCost, costSummary.currency)} detail={costSummary.latestDailyCostDate ? formatDateOnly(costSummary.latestDailyCostDate) : "No posted usage yet"} />
@@ -4286,6 +4389,7 @@ function PageBody({
   onDemoDeploymentProfileChange,
   onSaveDemoDeploymentProfile,
   onRunDemoDeploymentAction,
+  onRunDemoDeploymentOpsAction,
   onRefreshDemoDeploymentStatus,
   onRunCustomParity,
   changelogLoading,
@@ -4324,6 +4428,7 @@ function PageBody({
   onDemoDeploymentProfileChange: (profile: AzureDemoDeploymentProfile) => void;
   onSaveDemoDeploymentProfile: () => void;
   onRunDemoDeploymentAction: (action: DemoDeploymentAction) => void;
+  onRunDemoDeploymentOpsAction: (action: DemoDeploymentOpsAction) => void;
   onRefreshDemoDeploymentStatus: () => void;
   onRunCustomParity: (appId: string, request: CustomParityRunRequest) => void;
   changelogLoading: boolean;
@@ -4377,6 +4482,7 @@ function PageBody({
         onProfileChange={onDemoDeploymentProfileChange}
         onSaveProfile={onSaveDemoDeploymentProfile}
         onRunAction={onRunDemoDeploymentAction}
+        onRunOpsAction={onRunDemoDeploymentOpsAction}
         onRefreshStatus={onRefreshDemoDeploymentStatus}
       />
     );
@@ -4793,6 +4899,17 @@ export function App() {
     });
   };
 
+  const handleRunDemoDeploymentOpsAction = (action: DemoDeploymentOpsAction) => {
+    clearDemoDeploymentEvidence();
+    void runWithBusy(demoDeploymentBusyId, demoDeploymentOpsActionLabels[action], async () => {
+      const saved = await api.saveDemoDeploymentProfile(demoDeployment?.profile ?? defaultDemoDeploymentProfile);
+      setDemoDeployment(withoutDemoDeploymentEvidence(saved));
+      const response = await api.runDemoDeploymentOpsAction(action);
+      setDemoDeploymentAction(response);
+      setDemoDeployment((current) => current ? { ...current, status: response.status } : { ...saved, status: response.status });
+    });
+  };
+
   const handleRefreshDemoDeploymentStatus = () => {
     void runWithBusy(demoDeploymentBusyId, "Refresh Azure status", async () => {
       const saved = await api.saveDemoDeploymentProfile(demoDeployment?.profile ?? defaultDemoDeploymentProfile);
@@ -4867,6 +4984,7 @@ export function App() {
           onDemoDeploymentProfileChange={handleDemoDeploymentProfileChange}
           onSaveDemoDeploymentProfile={handleSaveDemoDeploymentProfile}
           onRunDemoDeploymentAction={handleRunDemoDeploymentAction}
+          onRunDemoDeploymentOpsAction={handleRunDemoDeploymentOpsAction}
           onRefreshDemoDeploymentStatus={handleRefreshDemoDeploymentStatus}
           onRunCustomParity={handleRunCustomParity}
           changelogLoading={changelogLoading}

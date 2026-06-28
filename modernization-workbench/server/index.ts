@@ -137,7 +137,7 @@ type AzureDemoDeploymentApplicationStatus = {
   name: string;
   url?: string;
   healthUrl?: string;
-  state: "live" | "unknown" | "unavailable";
+  state: "live" | "unknown" | "unavailable" | "stopped";
   detail: string;
   lastVerifiedAt?: string;
   evidenceSource: "latest-result" | "azure-refresh";
@@ -158,6 +158,8 @@ type AzureDemoDeploymentApplicationStatus = {
     latestReadyRevisionName?: string;
     createdAt?: string;
     lastModifiedAt?: string;
+    minReplicas?: number;
+    maxReplicas?: number;
     containers?: Array<{ name: string; image: string }>;
   };
   http?: {
@@ -175,6 +177,9 @@ type AzureDemoDeploymentCostSummary = {
   currency: string;
   monthToDateCost?: number;
   averageDailyCost?: number;
+  projectedMonthEndCost?: number;
+  elapsedMonthDays?: number;
+  daysInMonth?: number;
   todayCost?: number;
   latestDailyCost?: number;
   latestDailyCostDate?: string;
@@ -187,7 +192,7 @@ type AzureDemoDeploymentCostSummary = {
 type AzureDemoDeploymentLiveStatus = {
   generatedAt: string;
   source: "latest-result" | "azure-refresh";
-  state: "live" | "unknown" | "unavailable";
+  state: "live" | "unknown" | "unavailable" | "stopped";
   label: string;
   detail: string;
   lastVerifiedAt?: string;
@@ -1108,21 +1113,26 @@ function buildAzureDemoLiveStatusFromLatestResult(
   });
 
   const liveCount = applications.filter((app) => app.state === "live").length;
+  const stoppedCount = applications.filter((app) => app.state === "stopped").length;
   const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
     ? "live"
-    : liveCount > 0
-      ? "unknown"
-      : resultStatus.toLowerCase() === "failed"
-        ? "unavailable"
-        : "unknown";
+    : applications.length > 0 && stoppedCount === applications.length
+      ? "stopped"
+      : liveCount > 0
+        ? "unknown"
+        : resultStatus.toLowerCase() === "failed"
+          ? "unavailable"
+          : "unknown";
 
   return {
     generatedAt: now,
     source,
     state,
-    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
+    label: state === "live" ? "Live deployment verified" : state === "stopped" ? "Azure demo scaled down" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
     detail: state === "live"
       ? `${liveCount} Azure demo target${liveCount === 1 ? "" : "s"} passed the latest smoke evidence.`
+      : state === "stopped"
+        ? `${stoppedCount} Azure demo target${stoppedCount === 1 ? " is" : "s are"} scaled to zero idle replicas.`
       : "Run Deploy latest, Smoke test, or Refresh Azure status to verify the public demo targets.",
     lastVerifiedAt: finishedAt,
     applications
@@ -1158,18 +1168,23 @@ function preferredAzureDemoLiveStatus(
 
   const applications = [...preferred.applications, ...missingProfileApplications];
   const liveCount = applications.filter((application) => application.state === "live").length;
+  const stoppedCount = applications.filter((application) => application.state === "stopped").length;
   const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
     ? "live"
-    : liveCount > 0
-      ? "unknown"
-      : "unavailable";
+    : applications.length > 0 && stoppedCount === applications.length
+      ? "stopped"
+      : liveCount > 0
+        ? "unknown"
+        : "unavailable";
 
   return {
     ...preferred,
     state,
-    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
+    label: state === "live" ? "Live deployment verified" : state === "stopped" ? "Azure demo scaled down" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
     detail: state === "live"
       ? `${liveCount} Azure demo target${liveCount === 1 ? "" : "s"} passed the latest smoke evidence.`
+      : state === "stopped"
+        ? `${stoppedCount} Azure demo target${stoppedCount === 1 ? " is" : "s are"} scaled to zero idle replicas.`
       : "Run Deploy latest, Smoke test, or Refresh Azure status to verify the public demo targets.",
     applications
   };
@@ -2910,6 +2925,10 @@ function parseCostDate(value: unknown) {
   return Number.isNaN(date.getTime()) ? text : date.toISOString().slice(0, 10);
 }
 
+function daysInUtcMonth(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
+}
+
 function columnIndex(columns: unknown[], names: string[]) {
   const normalizedNames = names.map((name) => name.toLowerCase());
   return columns.findIndex((column) => isRecord(column) && normalizedNames.includes(stringValue(column.name).toLowerCase()));
@@ -2952,7 +2971,12 @@ function parseAzureCostSummary(raw: unknown, lastRefreshedAt: string, queryScope
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([date, amount]) => ({ date, amount }));
   const monthToDateCost = sortedDailyCosts.reduce((sum, item) => sum + item.amount, 0);
-  const today = new Date().toISOString().slice(0, 10);
+  const refreshedAt = new Date(lastRefreshedAt);
+  const projectionDate = Number.isNaN(refreshedAt.getTime()) ? new Date() : refreshedAt;
+  const elapsedMonthDays = projectionDate.getUTCDate();
+  const daysInMonth = daysInUtcMonth(projectionDate);
+  const averageDailyCost = monthToDateCost / Math.max(1, elapsedMonthDays);
+  const today = projectionDate.toISOString().slice(0, 10);
   const latestDailyCost = sortedDailyCosts.at(-1);
 
   return {
@@ -2960,7 +2984,10 @@ function parseAzureCostSummary(raw: unknown, lastRefreshedAt: string, queryScope
     lastRefreshedAt,
     currency,
     monthToDateCost,
-    averageDailyCost: monthToDateCost / Math.max(1, new Date().getUTCDate()),
+    averageDailyCost,
+    projectedMonthEndCost: averageDailyCost * daysInMonth,
+    elapsedMonthDays,
+    daysInMonth,
     todayCost: sortedDailyCosts.find((item) => item.date === today)?.amount ?? 0,
     latestDailyCost: latestDailyCost?.amount,
     latestDailyCostDate: latestDailyCost?.date,
@@ -3005,6 +3032,7 @@ function parseContainerApp(value: unknown) {
   const ingress = isRecord(configuration.ingress) ? configuration.ingress : {};
   const systemData = isRecord(root.systemData) ? root.systemData : {};
   const template = isRecord(properties.template) ? properties.template : {};
+  const scale = isRecord(template.scale) ? template.scale : {};
   const containers = Array.isArray(template.containers)
     ? template.containers.flatMap((container) => {
         if (!isRecord(container)) {
@@ -3024,6 +3052,8 @@ function parseContainerApp(value: unknown) {
     latestReadyRevisionName: stringValue(properties.latestReadyRevisionName),
     createdAt: normalizeAzureDate(systemData.createdAt),
     lastModifiedAt: normalizeAzureDate(systemData.lastModifiedAt),
+    minReplicas: typeof scale.minReplicas === "number" ? scale.minReplicas : undefined,
+    maxReplicas: typeof scale.maxReplicas === "number" ? scale.maxReplicas : undefined,
     containers
   };
 }
@@ -3125,7 +3155,8 @@ async function refreshAzureDemoAppStatus(
   const url = parsed.fqdn ? `https://${parsed.fqdn}` : base.url;
   const healthUrl = base.healthUrl ?? ((base.target === "modernized-openemr" || base.target === "modern-ui-claude") && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
   const probeUrl = healthUrl ?? url;
-  const http = probeUrl ? { url: probeUrl, ...(await checkHttp(probeUrl)) } : undefined;
+  const scaledToZero = parsed.minReplicas === 0;
+  const http = !scaledToZero && probeUrl ? { url: probeUrl, ...(await checkHttp(probeUrl)) } : undefined;
   const azureRunning = parsed.runningStatus === "Running" && parsed.provisioningState === "Succeeded";
   const actualImages = parsed.containers.map((container) => container.image).filter(Boolean);
   const expectedImages = expectedImagesForAzureDemoStatus(profile, base);
@@ -3136,18 +3167,22 @@ async function refreshAzureDemoAppStatus(
   const httpValid = http?.ok === true && !hasPlaceholderImage && missingExpectedImages.length === 0;
   const state: AzureDemoDeploymentApplicationStatus["state"] = azureRunning && httpValid
     ? "live"
+    : scaledToZero
+      ? "stopped"
+      : azureRunning
+        ? "unknown"
+        : "unavailable";
+  const detail = scaledToZero
+    ? "Azure Container App is scaled to zero idle replicas. Public HTTP checks are skipped so status refresh does not wake the app."
     : azureRunning
-      ? "unknown"
-      : "unavailable";
-  const detail = azureRunning
-    ? httpValid
-      ? `${probeUrl} responded with HTTP ${http.statusCode}.`
-      : hasPlaceholderImage
-        ? "Azure is still serving the Container Apps placeholder image instead of the OpenEMR demo containers."
-        : missingExpectedImages.length > 0
-          ? `Azure active template is missing expected image(s): ${missingExpectedImages.join(", ")}.`
-          : `Azure reports Running/Succeeded, but ${probeUrl ?? "the public URL"} did not pass an HTTP check.`
-    : `Azure reports ${parsed.runningStatus || "unknown running status"} / ${parsed.provisioningState || "unknown provisioning state"}.`;
+      ? httpValid
+        ? `${probeUrl} responded with HTTP ${http.statusCode}.`
+        : hasPlaceholderImage
+          ? "Azure is still serving the Container Apps placeholder image instead of the OpenEMR demo containers."
+          : missingExpectedImages.length > 0
+            ? `Azure active template is missing expected image(s): ${missingExpectedImages.join(", ")}.`
+            : `Azure reports Running/Succeeded, but ${probeUrl ?? "the public URL"} did not pass an HTTP check.`
+      : `Azure reports ${parsed.runningStatus || "unknown running status"} / ${parsed.provisioningState || "unknown provisioning state"}.`;
 
   return {
     ...base,
@@ -3167,6 +3202,8 @@ async function refreshAzureDemoAppStatus(
       latestReadyRevisionName: parsed.latestReadyRevisionName,
       createdAt: parsed.createdAt,
       lastModifiedAt: parsed.lastModifiedAt,
+      minReplicas: parsed.minReplicas,
+      maxReplicas: parsed.maxReplicas,
       containers: parsed.containers
     },
     http
@@ -3198,8 +3235,11 @@ async function refreshAzureDemoDeploymentLiveStatus(profile: AzureDemoDeployment
   const applications = await Promise.all(base.applications.map((appStatus) => refreshAzureDemoAppStatus(profile, appStatus)));
   const liveCount = applications.filter((appStatus) => appStatus.state === "live").length;
   const unavailableCount = applications.filter((appStatus) => appStatus.state === "unavailable").length;
+  const stoppedCount = applications.filter((appStatus) => appStatus.state === "stopped").length;
   const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
     ? "live"
+    : applications.length > 0 && stoppedCount === applications.length
+      ? "stopped"
     : unavailableCount === applications.length
       ? "unavailable"
       : "unknown";
@@ -3208,8 +3248,10 @@ async function refreshAzureDemoDeploymentLiveStatus(profile: AzureDemoDeployment
     generatedAt,
     source: "azure-refresh",
     state,
-    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment needs attention",
-    detail: `${liveCount} of ${applications.length} Azure demo target${applications.length === 1 ? "" : "s"} passed live HTTP verification.`,
+    label: state === "live" ? "Live deployment verified" : state === "stopped" ? "Azure demo scaled down" : state === "unavailable" ? "Deployment unavailable" : "Deployment needs attention",
+    detail: state === "stopped"
+      ? `${stoppedCount} of ${applications.length} Azure demo target${applications.length === 1 ? " is" : "s are"} scaled to zero idle replicas.`
+      : `${liveCount} of ${applications.length} Azure demo target${applications.length === 1 ? "" : "s"} passed live HTTP verification.`,
     lastVerifiedAt: generatedAt,
     applications,
     costs
@@ -3218,6 +3260,121 @@ async function refreshAzureDemoDeploymentLiveStatus(profile: AzureDemoDeployment
   await fs.mkdir(azureDemoDeploymentRoot, { recursive: true });
   await fs.writeFile(azureDemoDeploymentLiveStatusPath, JSON.stringify(liveStatus, null, 2), "utf8");
   return liveStatus;
+}
+
+type AzureDemoOpsAction = "shutdown" | "start";
+
+async function runAzureDemoOpsAction(profile: AzureDemoDeploymentProfile, action: AzureDemoOpsAction): Promise<CommandResult> {
+  const startedAt = new Date();
+  const latestResult = await readJsonIfExists(azureDemoDeploymentLatestResultPath);
+  const targets = [...new Set<AzureDemoDeploymentTarget>([
+    "legacy-openemr",
+    "modernized-openemr",
+    "modern-ui-claude",
+    "demo-portal",
+    ...profile.targets,
+    ...azureDemoTargetsForStatus(profile, latestResult)
+  ])];
+  const minReplicas = action === "shutdown" ? 0 : 1;
+  const maxReplicas = 1;
+  const command = ["azure-demo-ops", action, "--min-replicas", String(minReplicas), "--max-replicas", String(maxReplicas)];
+  const operations: Array<{
+    target: AzureDemoDeploymentTarget;
+    label: string;
+    name: string;
+    status: "updated" | "failed";
+    exitCode: number | null;
+    detail: string;
+    minReplicas?: number;
+    maxReplicas?: number;
+  }> = [];
+  let stderr = "";
+  let exitCode = 0;
+
+  if (!profile.subscriptionId) {
+    exitCode = 1;
+    stderr = "Azure subscription ID is required before running Azure demo ops actions.";
+  } else {
+    try {
+      await setAzureSubscription(profile);
+      for (const target of targets) {
+        const name = azureDemoAppName(profile, target);
+        const result = await runAzureCli([
+          "containerapp",
+          "update",
+          "--name",
+          name,
+          "--resource-group",
+          profile.resourceGroup,
+          "--min-replicas",
+          String(minReplicas),
+          "--max-replicas",
+          String(maxReplicas),
+          "-o",
+          "json"
+        ], 120000);
+
+        if (result.stderr) {
+          stderr = [stderr, result.stderr.trim()].filter(Boolean).join("\n");
+        }
+        if (result.exitCode !== 0) {
+          exitCode = result.exitCode ?? 1;
+          operations.push({
+            target,
+            label: targetLabel(target),
+            name,
+            status: "failed",
+            exitCode: result.exitCode,
+            detail: commandFailureDetail(result, 520)
+          });
+          continue;
+        }
+
+        let parsed: ReturnType<typeof parseContainerApp> | null = null;
+        try {
+          parsed = parseContainerApp(JSON.parse(result.stdout) as unknown);
+        } catch {
+          parsed = null;
+        }
+
+        operations.push({
+          target,
+          label: targetLabel(target),
+          name,
+          status: "updated",
+          exitCode: result.exitCode,
+          detail: action === "shutdown"
+            ? "Scaled to zero idle replicas."
+            : "Restored one warm replica for demos.",
+          minReplicas: parsed?.minReplicas ?? minReplicas,
+          maxReplicas: parsed?.maxReplicas ?? maxReplicas
+        });
+      }
+    } catch (error) {
+      exitCode = 1;
+      stderr = [stderr, error instanceof Error ? error.message : String(error)].filter(Boolean).join("\n");
+    }
+  }
+
+  const finishedAt = new Date();
+  const stdout = JSON.stringify({
+    action,
+    minReplicas,
+    maxReplicas,
+    targetCount: targets.length,
+    applications: operations
+  }, null, 2);
+
+  return {
+    command,
+    cwd: repoRoot,
+    exitCode,
+    stdout,
+    stderr,
+    startedAt: startedAt.toISOString(),
+    finishedAt: finishedAt.toISOString(),
+    durationMs: finishedAt.getTime() - startedAt.getTime()
+  };
 }
 
 function toNumber(value: unknown, fallback = 0) {
@@ -4510,6 +4667,35 @@ app.post("/api/demo-deployment/status/refresh", async (_request, response, next)
     await refreshAzureDemoDeploymentLiveStatus(profile);
     response.json({
       profile,
+      status: await readAzureDemoDeploymentStatus()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/demo-deployment/ops/:action", async (_request, response, next) => {
+  try {
+    const action = _request.params.action;
+    if (action !== "shutdown" && action !== "start") {
+      response.status(400).json({ error: `Unsupported Azure demo ops action: ${action}` });
+      return;
+    }
+
+    const { profile, profileExists } = await readAzureDemoDeploymentProfile();
+    if (!profileExists) {
+      response.status(400).json({ error: "Save the Azure demo profile before running Azure demo ops actions." });
+      return;
+    }
+
+    const result = await runAzureDemoOpsAction(profile, action);
+    const event = eventFromCommand("azure-demo-deployment", `azure-demo:ops:${action}`, result);
+    await saveEvent(event);
+    await refreshAzureDemoDeploymentLiveStatus(profile);
+    response.json({
+      result,
+      event,
+      latestResult: await readJsonIfExists(azureDemoDeploymentLatestResultPath),
       status: await readAzureDemoDeploymentStatus()
     });
   } catch (error) {

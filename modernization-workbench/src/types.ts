@@ -470,7 +470,7 @@ export type AzureDemoDeploymentApplicationStatus = {
   name: string;
   url?: string;
   healthUrl?: string;
-  state: "live" | "unknown" | "unavailable";
+  state: "live" | "unknown" | "unavailable" | "stopped";
   detail: string;
   lastVerifiedAt?: string;
   evidenceSource: "latest-result" | "azure-refresh";
@@ -491,6 +491,8 @@ export type AzureDemoDeploymentApplicationStatus = {
     latestReadyRevisionName?: string;
     createdAt?: string;
     lastModifiedAt?: string;
+    minReplicas?: number;
+    maxReplicas?: number;
     containers?: Array<{ name: string; image: string }>;
   };
   http?: {
@@ -508,6 +510,9 @@ export type AzureDemoDeploymentCostSummary = {
   currency: string;
   monthToDateCost?: number;
   averageDailyCost?: number;
+  projectedMonthEndCost?: number;
+  elapsedMonthDays?: number;
+  daysInMonth?: number;
   todayCost?: number;
   latestDailyCost?: number;
   latestDailyCostDate?: string;
@@ -520,7 +525,7 @@ export type AzureDemoDeploymentCostSummary = {
 export type AzureDemoDeploymentLiveStatus = {
   generatedAt: string;
   source: "latest-result" | "azure-refresh";
-  state: "live" | "unknown" | "unavailable";
+  state: "live" | "unknown" | "unavailable" | "stopped";
   label: string;
   detail: string;
   lastVerifiedAt?: string;
