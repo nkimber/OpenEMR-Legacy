@@ -28755,7 +28755,7 @@ Code Metrics:
 
 Started: 2026-06-28T18:51:00.0000000-04:00
 Finished: 2026-06-28T19:16:35.7270622-04:00
-Commit: pending
+Commit: a4adc32119
 
 Added a small Azure operations panel to the Demo Deployment page so the public demo environment can be parked when it is not needed and warmed back up for demos without rebuilding or redeploying.
 
@@ -28778,7 +28778,7 @@ Verification:
 - Did not execute the shutdown/start buttons during verification to avoid changing the live Azure demo environment state.
 
 Code Metrics:
-- Pending commit-scoped metrics until the implementation commit exists.
+- 8 files changed, 472 insertions, 40 deletions.
 
 ## Next Expected Entries
 
