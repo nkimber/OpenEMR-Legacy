@@ -28648,6 +28648,53 @@ Verification:
 Code Metrics:
 - Pending commit-scoped metrics because the working tree already contained unrelated pending changes in several files touched by this slice.
 
+## 658. Dashboard Website Launcher Includes Modern UI Claude
+
+Started: 2026-06-28T17:18:00.0000000-04:00
+Finished: 2026-06-28T17:31:00.0000000-04:00
+Commit: pending
+
+Added a registry-driven website launcher to the Modernization Workbench Dashboard. Operators can now choose from Legacy OpenEMR, Modernized OpenEMR, and Modern UI Claude on the first Workbench screen, with each card showing runtime status plus Open, Start, and Restart controls.
+
+Changes:
+- Added a `WebsiteLaunchPanel` that renders every configured managed app from the Workbench app snapshot instead of hard-coding the launch choices.
+- Added responsive launcher card styling so the three websites render as a desktop grid and collapse to a single-column mobile stack.
+- Updated Workbench and Modern UI Claude documentation to record the Dashboard launcher behavior.
+
+Verification:
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run build`.
+- Verified `http://127.0.0.1:5174/api/apps` returns `legacy-openemr`, `modernized-openemr`, and `modern-ui-claude` with the expected local URLs.
+- Verified the Dashboard with Playwright CLI at desktop width and at `390x900`; both snapshots show `Launch websites` with the Legacy OpenEMR, Modernized OpenEMR, and Modern UI Claude cards and their Open links.
+
+Code Metrics:
+- 5 files changed, 154 insertions, 2 deletions.
+
+## 659. Demo Deployment Public App Links
+
+Started: 2026-06-28T17:31:00.0000000-04:00
+Finished: 2026-06-28T17:52:11.7021441-04:00
+Commit: pending
+
+Added a dedicated Public App Links section to the Workbench Demo Deployment page so operators can open the public launcher or jump directly to the public-facing deployed website URLs recorded in the latest Azure status evidence.
+
+Changes:
+- Added cards for the main launcher, Legacy OpenEMR, Modernized OpenEMR, and Modern UI Claude, with status pills, URL display, Open links, health links where present, and copy-link actions for recorded URLs.
+- Added an explicit pending state for any website slot whose public URL has not yet been captured in the Azure live-status artifact.
+- Added responsive styling so the public app links render as a four-card desktop grid and collapse cleanly on mobile.
+- Updated Azure demo deployment and Workbench documentation to record the new Public App Links behavior.
+
+Verification:
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run build`.
+- Verified `http://127.0.0.1:5174/api/demo-deployment` returns HTTP 200.
+- Verified `http://127.0.0.1:5173` returns HTTP 200.
+- Verified the Demo Deployment page with Playwright CLI at desktop width; the Public App Links section rendered the main launcher, Legacy OpenEMR, Modernized OpenEMR, and Modern UI Claude cards with the recorded public URLs and pending Claude URL state from current status evidence.
+- Verified the same section at `390x900`; all four cards fit inside the mobile viewport without horizontal overflow.
+
+Code Metrics:
+- Pending commit-scoped metrics because the working tree already contained related pending launcher changes in several of the same Workbench and document files.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

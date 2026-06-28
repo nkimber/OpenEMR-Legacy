@@ -418,6 +418,76 @@ p {
   margin-bottom: 18px;
 }
 
+.launch-panel {
+  border-color: #cbdde2;
+}
+
+.launch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.launch-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 15px;
+  min-width: 0;
+  min-height: 210px;
+  border: 1px solid #d8e3e8;
+  border-radius: 8px;
+  background: #fbfdfe;
+  padding: 16px;
+}
+
+.launch-card-main {
+  min-width: 0;
+}
+
+.launch-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.launch-card h3 {
+  margin: 0;
+  color: #142332;
+  font-size: 1rem;
+}
+
+.launch-card-header span:not(.status-pill) {
+  display: block;
+  margin-top: 3px;
+  color: #657486;
+  font-size: 0.82rem;
+  font-weight: 720;
+}
+
+.launch-card p {
+  margin: 0;
+  color: #536575;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.launch-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.launch-open-link {
+  min-height: 40px;
+  border: 1px solid #bfd3da;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 12px;
+}
+
 .runtime-banner {
   display: grid;
   gap: 13px;
@@ -1555,6 +1625,66 @@ p {
   border-radius: 8px;
   background: #fbfcfd;
   padding: 14px;
+}
+
+.public-demo-links-panel {
+  border-color: #c9dde4;
+}
+
+.public-demo-link-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.public-demo-link-card {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 10px;
+  min-width: 0;
+  min-height: 230px;
+  border: 1px solid #d9e5eb;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #ffffff 0, #fbfdfe 100%);
+  padding: 14px;
+}
+
+.public-demo-link-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.public-demo-link-card h3 {
+  margin: 7px 0 0;
+  color: #12202f;
+  font-size: 0.98rem;
+}
+
+.public-demo-link-card p {
+  margin: 0;
+  color: #536575;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.public-demo-url {
+  display: block;
+  min-height: 54px;
+  border: 1px solid #d8e4ea;
+  border-radius: 8px;
+  background: #f8fbfc;
+  color: #235e68;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  padding: 8px;
+}
+
+.public-demo-url.pending {
+  color: #697887;
 }
 
 .demo-status-card-header {
@@ -3688,10 +3818,12 @@ dd {
   }
 
   .overview-grid,
+  .launch-grid,
   .metric-grid,
   .demo-deployment-grid,
   .demo-status-summary,
   .demo-status-app-grid,
+  .public-demo-link-grid,
   .demo-directory-grid,
   .demo-cost-grid,
   .progress-summary-grid,

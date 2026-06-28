@@ -700,6 +700,64 @@ function RuntimeReadinessBanner({
   );
 }
 
+function WebsiteLaunchPanel({
+  apps,
+  busy,
+  onAction
+}: {
+  apps: AppSnapshot[];
+  busy: BusyState;
+  onAction: (appId: string, action: "start" | "restart") => void;
+}) {
+  return (
+    <section className="panel launch-panel">
+      <div className="panel-header compact">
+        <div>
+          <div className="section-kicker">Website launcher</div>
+          <h2>Launch websites</h2>
+          <p>Select which local website to open: the legacy baseline, the current modernized UI, or the Claude UI redesign.</p>
+        </div>
+      </div>
+      {apps.length ? (
+        <div className="launch-grid">
+          {apps.map((app) => {
+            const busyForApp = busy?.appId === app.id || busy?.appId === allAppsBusyId;
+            const canRestart = app.runtime.state === "healthy" || app.runtime.state === "partial" || app.runtime.state === "unhealthy";
+
+            return (
+              <article className="launch-card" key={app.id}>
+                <div className="launch-card-main">
+                  <div className="launch-card-header">
+                    <div>
+                      <h3>{app.name}</h3>
+                      <span>{app.stage}</span>
+                    </div>
+                    <StatusPill state={app.runtime.state} label={app.runtime.label} />
+                  </div>
+                  <p>{app.description}</p>
+                </div>
+                <div className="launch-actions" aria-label={`${app.name} launch controls`}>
+                  <a className="open-link launch-open-link" href={app.publicUrl} target="_blank" rel="noreferrer">
+                    Open <ExternalLink size={14} />
+                  </a>
+                  <IconButton title={`Start ${app.name}`} variant="primary" onClick={() => onAction(app.id, "start")} disabled={busyForApp}>
+                    <Power size={18} />
+                  </IconButton>
+                  <IconButton title={`Restart ${app.name}`} onClick={() => onAction(app.id, "restart")} disabled={busyForApp || !canRestart}>
+                    <RotateCw size={18} />
+                  </IconButton>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState text="Loading managed websites." />
+      )}
+    </section>
+  );
+}
+
 function LegacyAppPanel({
   app,
   busy,
@@ -3708,6 +3766,40 @@ function DemoDeploymentPage({
   const liveTargetCount = statusApplications.filter((application) => application.state === "live").length;
   const directory = status?.directory;
   const portalApplication = statusApplications.find((application) => application.target === "demo-portal");
+  const publicLinkSlots = [
+    {
+      target: "demo-portal",
+      label: "Main launcher",
+      title: directory?.title ?? "Demo Portal",
+      detail: "Public landing page for the deployed demo environment."
+    },
+    {
+      target: "legacy-openemr",
+      label: "Website",
+      title: "Legacy OpenEMR",
+      detail: "Pinned OpenEMR reference baseline."
+    },
+    {
+      target: "modernized-openemr",
+      label: "Website",
+      title: "Modernized OpenEMR",
+      detail: "Current modernized React and API implementation."
+    },
+    {
+      target: "modern-ui-claude",
+      label: "Website",
+      title: "Modern UI Claude",
+      detail: "Design-first Claude UI rework of the modernized frontend."
+    }
+  ].map((slot) => {
+    const application = statusApplications.find((candidate) => String(candidate.target) === slot.target);
+    return {
+      ...slot,
+      application,
+      url: application?.url,
+      healthUrl: application?.healthUrl
+    };
+  });
 
   return (
     <div className="page-stack">
@@ -3884,6 +3976,66 @@ function DemoDeploymentPage({
         ) : (
           <EmptyState text="Save the profile or refresh Azure status to load the demo directory preview." />
         )}
+      </section>
+
+      <section className="panel demo-deployment-panel public-demo-links-panel">
+        <div className="panel-header">
+          <div>
+            <div className="section-kicker">Public URLs</div>
+            <h2>
+              <ExternalLink size={20} />
+              Public App Links
+            </h2>
+            <p>Open the public launcher or jump directly to each deployed website from the latest Azure status evidence.</p>
+          </div>
+          <div className="panel-status">
+            <span className="quiet-chip">{publicLinkSlots.filter((slot) => Boolean(slot.url)).length} / {publicLinkSlots.length} links ready</span>
+          </div>
+        </div>
+
+        <div className="public-demo-link-grid">
+          {publicLinkSlots.map((slot) => {
+            const appPillState = slot.application?.state === "live" ? "healthy" : slot.application?.state === "unavailable" ? "error" : "stopped";
+            const pillLabel = slot.application?.state ?? "URL pending";
+            const linkDetail = slot.application?.detail ?? "No public URL has been recorded for this app yet. Deploy or refresh Azure status after the app is available.";
+
+            return (
+              <article className="public-demo-link-card" key={slot.target}>
+                <div className="public-demo-link-card-header">
+                  <div>
+                    <span className="quiet-chip">{slot.label}</span>
+                    <h3>{slot.title}</h3>
+                  </div>
+                  <StatusPill state={appPillState} label={pillLabel} />
+                </div>
+                <p>{slot.detail}</p>
+                <code className={slot.url ? "public-demo-url" : "public-demo-url pending"}>
+                  {slot.url ?? linkDetail}
+                </code>
+                <div className="demo-link-row">
+                  {slot.url ? (
+                    <>
+                      <a className="text-button runtime-action-button" href={slot.url} target="_blank" rel="noreferrer">
+                        Open <ExternalLink size={14} />
+                      </a>
+                      <button className="text-button runtime-action-button" type="button" onClick={() => void copyToClipboard(`${slot.title} link`, slot.url ?? "")}>
+                        <Copy size={14} />
+                        Copy link
+                      </button>
+                    </>
+                  ) : (
+                    <span className="quiet-chip">Refresh Azure status after deployment</span>
+                  )}
+                  {slot.healthUrl ? (
+                    <a className="text-button runtime-action-button" href={slot.healthUrl} target="_blank" rel="noreferrer">
+                      Health <ExternalLink size={14} />
+                    </a>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section className="panel demo-deployment-panel">
@@ -4077,6 +4229,7 @@ function DashboardPage({
         onAction={onAction}
         onStartAll={onStartAll}
       />
+      <WebsiteLaunchPanel apps={apps} busy={busy} onAction={onAction} />
       {legacyApp ? (
         <LegacyAppPanel app={legacyApp} busy={busy} onAction={(action) => onAction(legacyApp.id, action)} onRunTest={onRunTest} onRunSeed={onRunSeed} onLoadLogs={onLoadLogs} seedDatasets={seedDatasets} logs={logs} />
       ) : (
