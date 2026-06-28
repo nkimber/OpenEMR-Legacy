@@ -28699,7 +28699,7 @@ Code Metrics:
 
 Started: 2026-06-28T17:53:00.0000000-04:00
 Finished: 2026-06-28T18:26:11.9112412-04:00
-Commit: pending
+Commit: 3890f838b
 
 Confirmed that the existing Azure Demo Deployment path did not deploy Modern UI Claude. The deploy profile, script, status refresh, public app links, and public Demo Portal registry now treat Modern UI Claude as the third deployed website alongside legacy OpenEMR and Modernized OpenEMR.
 
@@ -28724,7 +28724,7 @@ Verification:
 - Verified the same Demo Deployment page at `390x900`; the target row and four public-link cards fit without horizontal overflow.
 
 Code Metrics:
-- Pending commit-scoped metrics until the implementation commit exists.
+- 13 files changed, 347 insertions, 24 deletions.
 
 ## Next Expected Entries
 
