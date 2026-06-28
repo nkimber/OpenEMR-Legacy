@@ -28695,6 +28695,37 @@ Verification:
 Code Metrics:
 - Pending commit-scoped metrics because the working tree already contained related pending launcher changes in several of the same Workbench and document files.
 
+## 660. Azure Demo Deployment Includes Modern UI Claude
+
+Started: 2026-06-28T17:53:00.0000000-04:00
+Finished: 2026-06-28T18:26:11.9112412-04:00
+Commit: pending
+
+Confirmed that the existing Azure Demo Deployment path did not deploy Modern UI Claude. The deploy profile, script, status refresh, public app links, and public Demo Portal registry now treat Modern UI Claude as the third deployed website alongside legacy OpenEMR and Modernized OpenEMR.
+
+Changes:
+- Added a dedicated Azure static-site image for Modern UI Claude at `infra/azure/demo/modern-ui-claude-demo.Dockerfile` with an Nginx config that serves the SPA, exposes `/health`, and proxies `/api/` to the deployed modernized OpenEMR public URL.
+- Extended `scripts/Deploy-AzureDemo.ps1` so `modern-ui-claude` is a deployable target, builds/pushes the Claude image, creates or updates the `openemr-demo-claude` Container App, smoke-checks the app, health endpoint, and API proxy login, and records `claudeImage` plus the public URL in deployment evidence.
+- Updated the Workbench API and frontend target model to use profile version 3, auto-upgrade older profiles with the Claude target, refresh Azure status for the Claude Container App, and display the Claude public URL in the Demo Deployment Public App Links section once deployment evidence exists.
+- Added Modern UI Claude to `modernization-workbench/config/demo-directory.json` so the public launcher can include the third website and its staff/patient entry links.
+- Fixed the Claude frontend API contract so its production build declares the demographic fields used by the patient summary screen.
+- Updated Azure demo deployment, Workbench, Modern UI Claude, and index documentation.
+
+Verification:
+- Parsed `scripts/Deploy-AzureDemo.ps1` and `scripts/Test-AzureDemoPrerequisites.ps1` with the PowerShell parser.
+- Parsed `modernization-workbench/config/demo-directory.json` and verified it contains `legacy-openemr`, `modernized-openemr`, and `modern-ui-claude`.
+- Ran `npm --prefix .\modernization-workbench run typecheck`.
+- Ran `npm --prefix .\modernization-workbench run build`.
+- Ran `npm --prefix .\modern-ui-claude run build`.
+- Built the new Azure Claude image with `docker build -f .\infra\azure\demo\modern-ui-claude-demo.Dockerfile --build-arg MODERNIZED_BASE_URL=https://example.com -t openemr-modern-ui-claude-demo-check .`.
+- Ran the built image locally and verified `/` returns HTTP 200 with the OpenEMR Modern UI title and `/health` returns `modern-ui-claude-ok`.
+- Verified `http://127.0.0.1:5174/api/demo-deployment` returns profile version 3 with all four targets, live-status applications including `modern-ui-claude`, and directory apps including the three websites.
+- Verified the Demo Deployment page with Playwright CLI; the target checkbox list includes Modern UI Claude, the Demo Directory preview lists Modern UI Claude, and Public App Links shows the existing deployed URLs plus a correct pre-deploy Claude pending state.
+- Verified the same Demo Deployment page at `390x900`; the target row and four public-link cards fit without horizontal overflow.
+
+Code Metrics:
+- Pending commit-scoped metrics until the implementation commit exists.
+
 ## Next Expected Entries
 
 Likely upcoming changelog entries should cover:

@@ -446,7 +446,7 @@ export type CommandResult = {
   durationMs: number;
 };
 
-export type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "demo-portal";
+export type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "modern-ui-claude" | "demo-portal";
 
 export type AzureDemoDeploymentProfile = {
   profileVersion: number;
@@ -481,6 +481,7 @@ export type AzureDemoDeploymentApplicationStatus = {
     legacyImage?: string;
     apiImage?: string;
     webImage?: string;
+    claudeImage?: string;
     portalImage?: string;
   };
   azure?: {

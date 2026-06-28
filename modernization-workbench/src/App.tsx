@@ -116,7 +116,7 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
   },
   "demo-deployment": {
     title: "Demo Deployment",
-    subtitle: "Azure Container Apps demo publishing for the public demo directory and OpenEMR targets."
+    subtitle: "Azure Container Apps demo publishing for the public demo directory and OpenEMR websites."
   },
   timeline: {
     title: "Project Timeline",
@@ -145,7 +145,7 @@ const pageTitles: Record<PageId, { title: string; subtitle: string }> = {
 };
 
 const defaultDemoDeploymentProfile: AzureDemoDeploymentProfile = {
-  profileVersion: 2,
+  profileVersion: 3,
   subscriptionId: "",
   tenantId: "",
   location: "eastus",
@@ -153,7 +153,7 @@ const defaultDemoDeploymentProfile: AzureDemoDeploymentProfile = {
   containerAppEnvironment: "openemr-demo-env",
   containerRegistry: "openemrdemo",
   appNamePrefix: "openemr-demo",
-  targets: ["legacy-openemr", "modernized-openemr", "demo-portal"],
+  targets: ["legacy-openemr", "modernized-openemr", "modern-ui-claude", "demo-portal"],
   resetOnDeploy: true,
   legacyAdminUser: "admin",
   legacyAdminPassword: "pass",
@@ -3692,6 +3692,7 @@ function DemoDeploymentPage({
   const targetOptions: { id: AzureDemoDeploymentTarget; label: string }[] = [
     { id: "legacy-openemr", label: "Legacy OpenEMR" },
     { id: "modernized-openemr", label: "Modernized OpenEMR" },
+    { id: "modern-ui-claude", label: "Modern UI Claude" },
     { id: "demo-portal", label: "Demo Portal" }
   ];
 

@@ -395,7 +395,12 @@ function Invoke-SmokeCheck {
         try {
             $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 30
             if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) {
-                $content = [string]$response.Content
+                $content = if ($response.Content -is [byte[]]) {
+                    [System.Text.Encoding]::UTF8.GetString($response.Content)
+                }
+                else {
+                    [string]$response.Content
+                }
                 if (-not [string]::IsNullOrWhiteSpace($MustContain) -and $content -notlike "*$MustContain*") {
                     $lastError = "$Url returned HTTP $($response.StatusCode), but the response did not contain '$MustContain'."
                 }
@@ -670,6 +675,47 @@ template:
 "@ | Set-Content -LiteralPath $Path -Encoding UTF8
 }
 
+function Write-ModernUiClaudeYaml {
+    param(
+        [string]$Path,
+        [string]$LoginServer,
+        [string]$AcrName,
+        [string]$AcrPassword,
+        [string]$ClaudeImage,
+        [object]$Profile
+    )
+
+    $registryPassword = Escape-YamlSingleQuoted $AcrPassword
+    $environmentId = Get-ContainerAppEnvironmentResourceId $Profile
+
+@"
+environmentId: "$environmentId"
+configuration:
+  activeRevisionsMode: Single
+  secrets:
+    - name: acr-password
+      value: $registryPassword
+  registries:
+    - server: $LoginServer
+      username: $AcrName
+      passwordSecretRef: acr-password
+  ingress:
+    external: true
+    targetPort: 8080
+    transport: auto
+template:
+  containers:
+    - name: web
+      image: $ClaudeImage
+      resources:
+        cpu: 0.25
+        memory: 0.5Gi
+  scale:
+    minReplicas: 1
+    maxReplicas: 1
+"@ | Set-Content -LiteralPath $Path -Encoding UTF8
+}
+
 function Join-DemoPortalUrl {
     param(
         [string]$BaseUrl,
@@ -736,6 +782,13 @@ function Get-DemoPortalTargetUrls {
         $modernizedUrl = Get-ContainerAppUrl -Name "$Prefix-modernized" -Profile $Profile -AllowMissing
         if (-not [string]::IsNullOrWhiteSpace($modernizedUrl)) {
             $urls["modernized-openemr"] = $modernizedUrl
+        }
+    }
+
+    if (-not $urls.ContainsKey("modern-ui-claude")) {
+        $claudeUrl = Get-ContainerAppUrl -Name "$Prefix-claude" -Profile $Profile -AllowMissing
+        if (-not [string]::IsNullOrWhiteSpace($claudeUrl)) {
+            $urls["modern-ui-claude"] = $claudeUrl
         }
     }
 
@@ -882,7 +935,7 @@ try {
         $applicationUrls = @{}
         $loginServer = ""
         $acrPassword = ""
-        if ((($targets -contains "legacy-openemr") -or ($targets -contains "modernized-openemr") -or ($targets -contains "demo-portal")) -and -not $SmokeOnly) {
+        if ((($targets -contains "legacy-openemr") -or ($targets -contains "modernized-openemr") -or ($targets -contains "modern-ui-claude") -or ($targets -contains "demo-portal")) -and -not $SmokeOnly) {
             $acrExists = Test-AzResourceExists @("acr", "show", "--name", $profile.containerRegistry, "--resource-group", $profile.resourceGroup, "-o", "none")
             if (-not $acrExists) {
                 Invoke-AzLogged @("acr", "create", "--name", $profile.containerRegistry, "--resource-group", $profile.resourceGroup, "--sku", "Basic", "--admin-enabled", "true", "-o", "none") | Out-Null
@@ -962,6 +1015,62 @@ try {
             if (-not $SmokeOnly) {
                 $application["apiImage"] = $apiImage
                 $application["webImage"] = $webImage
+            }
+            [void]$Applications.Add($application)
+        }
+
+        if ($targets -contains "modern-ui-claude") {
+            $claudeName = "$prefix-claude"
+            $claudeImageName = "$prefix-modern-ui-claude"
+            $claudeImage = ""
+            $claudeYaml = Join-Path $ArtifactsRoot "modern-ui-claude.containerapp.yaml"
+
+            $modernizedApiBaseUrl = ""
+            if ($applicationUrls.ContainsKey("modernized-openemr")) {
+                $modernizedApiBaseUrl = [string]$applicationUrls["modernized-openemr"]
+            }
+            else {
+                $modernizedApiBaseUrl = Get-ContainerAppUrl -Name "$prefix-modernized" -Profile $profile -AllowMissing
+            }
+
+            if ([string]::IsNullOrWhiteSpace($modernizedApiBaseUrl)) {
+                Add-Check "Modern UI Claude API base" $false "Modern UI Claude needs the modernized OpenEMR public URL so its Nginx /api proxy can reach the backend. Select and deploy Modernized OpenEMR first or include it in this deployment."
+                if (-not $SmokeOnly) {
+                    throw "Modern UI Claude deployment requires a deployed modernized OpenEMR public URL."
+                }
+            }
+            else {
+                Add-Check "Modern UI Claude API base" $true "Modern UI Claude will proxy API calls to $modernizedApiBaseUrl."
+            }
+
+            if (-not $SmokeOnly) {
+                $claudeImage = "$loginServer/$claudeImageName`:$imageTag"
+                Invoke-Logged "docker" @("build", "-f", ".\infra\azure\demo\modern-ui-claude-demo.Dockerfile", "--build-arg", "MODERNIZED_BASE_URL=$modernizedApiBaseUrl", "-t", $claudeImage, ".") | Out-Null
+                Invoke-Logged "docker" @("push", $claudeImage) | Out-Null
+
+                Write-ModernUiClaudeYaml -Path $claudeYaml -LoginServer $loginServer -AcrName $profile.containerRegistry -AcrPassword $acrPassword -ClaudeImage $claudeImage -Profile $profile
+                Apply-ContainerApp -Name $claudeName -YamlPath $claudeYaml -Profile $profile -ExpectedImages @($claudeImage)
+            }
+
+            $claudeUrl = Get-ContainerAppUrl -Name $claudeName -Profile $profile
+            if (-not [string]::IsNullOrWhiteSpace($claudeUrl)) {
+                $applicationUrls["modern-ui-claude"] = $claudeUrl
+            }
+            $claudeHealthUrl = if ([string]::IsNullOrWhiteSpace($claudeUrl)) { "" } else { "$($claudeUrl.TrimEnd("/"))/health" }
+            $claudeApiLoginUrl = if ([string]::IsNullOrWhiteSpace($claudeUrl)) { "" } else { "$($claudeUrl.TrimEnd("/"))/api/auth/login" }
+            Invoke-SmokeCheck -Name "Modern UI Claude" -Url $claudeUrl -MustContain "OpenEMR Modern UI"
+            Invoke-SmokeCheck -Name "Modern UI Claude health" -Url $claudeHealthUrl -MustContain "modern-ui-claude-ok"
+            Invoke-JsonPostSmokeCheck -Name "Modern UI Claude API proxy login" -Url $claudeApiLoginUrl -Body ([ordered]@{ username = "admin"; password = "pass" }) -SuccessProperty "authenticated" -SuccessValue $true
+            $application = [ordered]@{
+                target = "modern-ui-claude"
+                name = $claudeName
+                url = $claudeUrl
+                healthUrl = $claudeHealthUrl
+                yamlPath = $claudeYaml
+                apiProxyBaseUrl = $modernizedApiBaseUrl
+            }
+            if (-not $SmokeOnly) {
+                $application["claudeImage"] = $claudeImage
             }
             [void]$Applications.Add($application)
         }

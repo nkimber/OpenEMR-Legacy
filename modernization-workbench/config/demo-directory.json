@@ -137,6 +137,73 @@
           ]
         }
       ]
+    },
+    {
+      "id": "modern-ui-claude",
+      "name": "Modern UI Claude",
+      "versionLabel": "Claude UI redesign",
+      "summary": "Design-first React client for the modernized OpenEMR backend, with calmer staff and patient portal workflows.",
+      "tags": ["Modern UI", "Claude", "React"],
+      "techStack": [
+        {
+          "id": "react",
+          "label": "UI",
+          "name": "React",
+          "logoText": "R",
+          "color": "#087ea4",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+        },
+        {
+          "id": "typescript",
+          "label": "Language",
+          "name": "TypeScript",
+          "logoText": "TS",
+          "color": "#3178c6",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+        },
+        {
+          "id": "vite",
+          "label": "Build",
+          "name": "Vite",
+          "logoText": "V",
+          "color": "#646cff",
+          "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg"
+        }
+      ],
+      "entryPoints": [
+        {
+          "id": "staff",
+          "label": "Staff application",
+          "role": "Physician / admin",
+          "target": "modern-ui-claude",
+          "path": "/login",
+          "demoPreset": "staff",
+          "note": "Use this for the Claude UI staff workflow. Demo credentials are pre-filled after the page opens.",
+          "credentials": [
+            {
+              "label": "Demo admin",
+              "username": "admin",
+              "password": "pass"
+            }
+          ]
+        },
+        {
+          "id": "patient-portal",
+          "label": "Patient portal",
+          "role": "Patient",
+          "target": "modern-ui-claude",
+          "path": "/portal/login",
+          "demoPreset": "patient",
+          "note": "Use this for the Claude UI patient portal workflow. Demo credentials are pre-filled after the page opens.",
+          "credentials": [
+            {
+              "label": "Nora Kim / MOD-PAT-0004",
+              "username": "mod-pat-0004@example.test",
+              "password": "PortalPass207!"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

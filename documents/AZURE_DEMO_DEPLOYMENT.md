@@ -6,7 +6,7 @@ Created: 2026-06-26
 
 This document describes the simple Azure demo deployment path exposed by the Modernization Workbench.
 
-Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, the public demo portal, or all selected demo targets to public Azure URLs for lightweight demonstrations.
+Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, Modern UI Claude, the public demo portal, or all selected demo targets to public Azure URLs for lightweight demonstrations.
 
 ## Scope
 
@@ -16,6 +16,7 @@ The first implementation uses Azure Container Apps:
 
 - One public Container App for legacy OpenEMR.
 - One public Container App for modernized OpenEMR.
+- One public Container App for Modern UI Claude.
 - One public Container App for the public Demo Portal landing page.
 - A database container inside the same Container App as each OpenEMR target.
 - Single replica scaling for each demo target.
@@ -36,7 +37,7 @@ The page collects:
 - Azure Container Apps environment.
 - Azure Container Registry name for modernized app images.
 - Application name prefix.
-- Target selection for legacy OpenEMR, modernized OpenEMR, and the public Demo Portal.
+- Target selection for legacy OpenEMR, modernized OpenEMR, Modern UI Claude, and the public Demo Portal.
 - Reset-on-deploy setting.
 - Demo admin/database credentials.
 
@@ -52,7 +53,7 @@ The latest JSON result is written to `modernization-workbench/artifacts/azure-de
 
 When a new save, validate, deploy, or smoke action starts, the page clears the prior visible result so stale failures are not mistaken for the active run. While an action is running, the action row shows a temporary elapsed-time counter so operators can see that long Azure operations are still active. The evidence panel includes copy buttons for the latest JSON result, command output, and combined evidence payload so deployment errors can be pasted directly into Codex Desktop for troubleshooting. Copied deployment evidence redacts sensitive command output such as Azure Container Registry passwords.
 
-The page also shows a Demo Directory preview, a Public App Links section, and an Azure runtime status panel above the raw evidence. The Demo Directory preview is driven by `modernization-workbench/config/demo-directory.json` and shows the public landing page cards, role-specific entry points, demo credentials, demo preset names, compact technology-stack logo chips, and currently resolved URLs. Demo preset links append values such as `demo=staff` or `demo=patient`; they do not place passwords in the URL. The Public App Links section surfaces direct public links for the main launcher, legacy OpenEMR, modernized OpenEMR, and Modern UI Claude from the latest Azure status evidence, with copy actions for recorded URLs and a pending state when a public URL has not yet been captured. On load, the runtime panel derives a last-known deployment state from the latest successful deploy or smoke result and exposes the public legacy, modernized, and Demo Portal URLs when those links are present in the result artifact. The **Refresh Azure status** action asks Azure CLI for each selected Container App, checks the active container images plus the public URL or health endpoint, rejects the default Azure Container Apps placeholder image as a live deployment, and stores the latest live-status snapshot under `modernization-workbench/artifacts/azure-demo-deployment/live-status.json`.
+The page also shows a Demo Directory preview, a Public App Links section, and an Azure runtime status panel above the raw evidence. The Demo Directory preview is driven by `modernization-workbench/config/demo-directory.json` and shows the public landing page cards, role-specific entry points, demo credentials, demo preset names, compact technology-stack logo chips, and currently resolved URLs. Demo preset links append values such as `demo=staff` or `demo=patient`; they do not place passwords in the URL. The Public App Links section surfaces direct public links for the main launcher, legacy OpenEMR, modernized OpenEMR, and Modern UI Claude from the latest Azure status evidence, with copy actions for recorded URLs and a pending state when a public URL has not yet been captured. On load, the runtime panel derives a last-known deployment state from the latest successful deploy or smoke result and exposes the public legacy, modernized, Modern UI Claude, and Demo Portal URLs when those links are present in the result artifact. The **Refresh Azure status** action asks Azure CLI for each selected Container App, checks the active container images plus the public URL or health endpoint, rejects the default Azure Container Apps placeholder image as a live deployment, and stores the latest live-status snapshot under `modernization-workbench/artifacts/azure-demo-deployment/live-status.json`.
 
 The same refresh action attempts a resource-group-scoped Azure Cost Management query for month-to-date demo cost, month-to-date average cost per day, today's posted cost, and the latest posted daily cost. Cost data is best-effort operational guidance only. Azure Cost Management data can lag behind live runtime usage and may require the signed-in account to have Cost Management read access for the selected resource group.
 
@@ -77,6 +78,14 @@ Modernized demo deployment uses:
 - Public ingress to the frontend container on port 8080.
 - Nginx proxying `/api/` and `/health` to the API sidecar on port 8081.
 - Startup seeding from the shared gold synthetic dataset.
+
+Modern UI Claude demo deployment uses:
+
+- A Workbench-built static frontend image from `infra/azure/demo/modern-ui-claude-demo.Dockerfile`.
+- Public ingress to the Claude UI container on port 8080.
+- Nginx serving the built SPA with a local `/health` endpoint returning `modern-ui-claude-ok`.
+- Nginx proxying `/api/` to the public modernized OpenEMR URL resolved during deployment, so the browser calls Claude same-origin while the container forwards API traffic to the modernized backend.
+- No separate database or backend container; it depends on the modernized OpenEMR demo target.
 
 Demo Portal deployment uses:
 
@@ -109,7 +118,7 @@ The deployment script creates or updates the resource group, Azure Container App
 
 After each YAML update, the script reads the active Container App template back from Azure and fails the deployment if the expected final images are not present. When the worktree has uncommitted changes, deploy image tags include a `dirty` timestamp suffix so Azure receives a fresh revision instead of reusing an older image for the same Git commit. Smoke checks also poll longer for first startup and reject pages that still contain the generic Azure Container Apps placeholder text, so a public HTTP 200 from the bootstrap image is not treated as a successful OpenEMR deployment. The smoke-only action only checks existing deployed apps and does not report a build image tag.
 
-Legacy smoke checks include the staff login page and the patient portal login page so disabled portal configuration cannot silently ship broken Demo Portal links. Modernized smoke checks include both `/health` and a demo `admin` / `pass` POST to `/api/auth/login`. This verifies that the PostgreSQL seed actually created the authentication tables and seeded the demo administrator account, not just that the API process started. Demo Portal smoke checks verify that the public landing page responds with the expected portal title instead of the Azure Container Apps placeholder.
+Legacy smoke checks include the staff login page and the patient portal login page so disabled portal configuration cannot silently ship broken Demo Portal links. Modernized smoke checks include both `/health` and a demo `admin` / `pass` POST to `/api/auth/login`. This verifies that the PostgreSQL seed actually created the authentication tables and seeded the demo administrator account, not just that the API process started. Modern UI Claude smoke checks verify the static app, the Claude `/health` endpoint, and the `/api/auth/login` proxy back to the modernized target. Demo Portal smoke checks verify that the public landing page responds with the expected portal title instead of the Azure Container Apps placeholder.
 
 ## Relationship To Other Documents
 

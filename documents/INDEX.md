@@ -54,7 +54,7 @@ Slice 605 index update: patient merge-preview readiness is now covered by `PROJE
 
 ### `AZURE_DEMO_DEPLOYMENT.md`
 
-Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, the public Demo Portal, or all selected targets to public Azure demo URLs from the Modernization Workbench.
+Read this when publishing the legacy OpenEMR baseline, the modernized OpenEMR target, Modern UI Claude, the public Demo Portal, or all selected targets to public Azure demo URLs from the Modernization Workbench.
 
 It explains the intentionally simple Azure Container Apps design, the local-only Workbench profile, the database-sidecar tradeoff, and why the path is for disposable synthetic-data demos only.
 
@@ -122,7 +122,7 @@ The document set is expected to grow in these areas:
 
 | Document | Purpose | Read This When |
 | --- | --- | --- |
-| `AZURE_DEMO_DEPLOYMENT.md` | Documents the Workbench-managed Azure Container Apps demo path, including local-only profile storage, database sidecars, public Demo Portal deployment, target selection, validation, deployment, demo login preset links, smoke testing, and demo-only constraints. | Publishing legacy OpenEMR, modernized OpenEMR, or the Demo Portal to public Azure URLs for lightweight demonstrations, changing Azure deployment scripts, or checking why this is not a production hosting model. |
+| `AZURE_DEMO_DEPLOYMENT.md` | Documents the Workbench-managed Azure Container Apps demo path, including local-only profile storage, database sidecars, Modern UI Claude static deployment, public Demo Portal deployment, target selection, validation, deployment, demo login preset links, smoke testing, and demo-only constraints. | Publishing legacy OpenEMR, modernized OpenEMR, Modern UI Claude, or the Demo Portal to public Azure URLs for lightweight demonstrations, changing Azure deployment scripts, or checking why this is not a production hosting model. |
 | `DOCUMENTATION_GOVERNANCE.md` | Defines the rule that project documents must stay synchronized with project state, code, tests, setup, and decisions. | Before making changes that affect implementation, architecture, setup, test strategy, or durable project direction. |
 | `GITHUB_CONNECTION.md` | Tracks local Git and GitHub remote connection state, including what should be pushed, what should remain ignored, and the slice completion Git rule. | Connecting the project to GitHub, checking remotes, pushing the initial branch, troubleshooting repository tracking, or confirming whether a finished slice must be committed and pushed. |
 | `LEGACY_OPENEMR_BASELINE.md` | Documents the installed legacy OpenEMR baseline, pinned source/image versions, Docker runtime, local URLs, smoke test, native PHPUnit/Jest runners, and verified status. | Starting, stopping, testing, resetting, inspecting, or changing the original OpenEMR baseline. |

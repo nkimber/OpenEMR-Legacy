@@ -113,7 +113,7 @@ type LifecycleEvent = {
   stderrPreview: string;
 };
 
-type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "demo-portal";
+type AzureDemoDeploymentTarget = "legacy-openemr" | "modernized-openemr" | "modern-ui-claude" | "demo-portal";
 
 type AzureDemoDeploymentProfile = {
   profileVersion: number;
@@ -148,6 +148,7 @@ type AzureDemoDeploymentApplicationStatus = {
     legacyImage?: string;
     apiImage?: string;
     webImage?: string;
+    claudeImage?: string;
     portalImage?: string;
   };
   azure?: {
@@ -888,7 +889,7 @@ async function readParityManifest(): Promise<ParityManifest> {
 
 function defaultAzureDemoDeploymentProfile(): AzureDemoDeploymentProfile {
   return {
-    profileVersion: 2,
+    profileVersion: 3,
     subscriptionId: "",
     tenantId: "",
     location: "eastus",
@@ -896,7 +897,7 @@ function defaultAzureDemoDeploymentProfile(): AzureDemoDeploymentProfile {
     containerAppEnvironment: "openemr-demo-env",
     containerRegistry: "openemrdemo",
     appNamePrefix: "openemr-demo",
-    targets: ["legacy-openemr", "modernized-openemr", "demo-portal"],
+    targets: ["legacy-openemr", "modernized-openemr", "modern-ui-claude", "demo-portal"],
     resetOnDeploy: true,
     legacyAdminUser: "admin",
     legacyAdminPassword: "pass",
@@ -909,14 +910,17 @@ function normalizeAzureDemoDeploymentProfile(input: unknown): AzureDemoDeploymen
   const defaults = defaultAzureDemoDeploymentProfile();
   const targetValues = Array.isArray(value.targets) ? value.targets : defaults.targets;
   const targets = targetValues
-    .filter((target): target is AzureDemoDeploymentTarget => target === "legacy-openemr" || target === "modernized-openemr" || target === "demo-portal");
+    .filter((target): target is AzureDemoDeploymentTarget => target === "legacy-openemr" || target === "modernized-openemr" || target === "modern-ui-claude" || target === "demo-portal");
   const profileVersion = typeof value.profileVersion === "number" ? value.profileVersion : 1;
   if (profileVersion < 2 && !targets.includes("demo-portal")) {
     targets.push("demo-portal");
   }
+  if (profileVersion < 3 && !targets.includes("modern-ui-claude")) {
+    targets.push("modern-ui-claude");
+  }
 
   return {
-    profileVersion: 2,
+    profileVersion: 3,
     subscriptionId: String(value.subscriptionId ?? defaults.subscriptionId).trim(),
     tenantId: String(value.tenantId ?? defaults.tenantId).trim(),
     location: String(value.location ?? defaults.location).trim(),
@@ -959,11 +963,14 @@ function targetLabel(target: AzureDemoDeploymentTarget) {
   if (target === "modernized-openemr") {
     return "Modernized OpenEMR";
   }
+  if (target === "modern-ui-claude") {
+    return "Modern UI Claude";
+  }
   return "Demo Portal";
 }
 
 function normalizeAzureDemoTarget(value: unknown): AzureDemoDeploymentTarget | null {
-  return value === "legacy-openemr" || value === "modernized-openemr" || value === "demo-portal" ? value : null;
+  return value === "legacy-openemr" || value === "modernized-openemr" || value === "modern-ui-claude" || value === "demo-portal" ? value : null;
 }
 
 function normalizeAzureAppNamePrefix(value: string) {
@@ -979,6 +986,9 @@ function azureDemoAppName(profile: AzureDemoDeploymentProfile, target: AzureDemo
   }
   if (target === "modernized-openemr") {
     return `${prefix}-modernized`;
+  }
+  if (target === "modern-ui-claude") {
+    return `${prefix}-claude`;
   }
   return `${prefix}-portal`;
 }
@@ -1012,6 +1022,7 @@ function latestResultApplications(latestResult: unknown) {
       legacyImage: stringValue(item.legacyImage) || undefined,
       apiImage: stringValue(item.apiImage) || undefined,
       webImage: stringValue(item.webImage) || undefined,
+      claudeImage: stringValue(item.claudeImage) || undefined,
       portalImage: stringValue(item.portalImage) || undefined
     }];
   });
@@ -1064,9 +1075,10 @@ function buildAzureDemoLiveStatusFromLatestResult(
     const app = applicationsByTarget.get(target);
     const smoke = latestResultSmokeCheck(latestResult, target);
     const imageCheck = app?.name ? latestResultCheckByName(latestResult, `${app.name} image update`) : undefined;
-    const imageReady = action === "deploy" ? imageCheck?.passed === true : true;
+    const hasApplicationEvidence = Boolean(app);
+    const imageReady = action === "deploy" && hasApplicationEvidence ? imageCheck?.passed === true : true;
     const url = app?.url;
-    const healthUrl = app?.healthUrl ?? (target === "modernized-openemr" && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
+    const healthUrl = app?.healthUrl ?? ((target === "modernized-openemr" || target === "modern-ui-claude") && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
     const isLive = resultPassed && smoke?.passed === true && imageReady && Boolean(url);
     return {
       target,
@@ -1075,7 +1087,9 @@ function buildAzureDemoLiveStatusFromLatestResult(
       url,
       healthUrl,
       state: isLive ? "live" : resultStatus.toLowerCase() === "failed" ? "unavailable" : "unknown",
-      detail: imageReady
+      detail: !hasApplicationEvidence
+        ? "No deployment evidence has been recorded for this target yet."
+        : imageReady
         ? smoke?.detail || (resultPassed ? "Deployment completed, but no smoke check was recorded for this target." : "No successful deployment evidence has been recorded for this target.")
         : imageCheck?.detail || "Deployment evidence did not verify that Azure applied the final demo container images.",
       lastVerifiedAt: smoke ? finishedAt : undefined,
@@ -1087,6 +1101,7 @@ function buildAzureDemoLiveStatusFromLatestResult(
         legacyImage: app?.legacyImage,
         apiImage: app?.apiImage,
         webImage: app?.webImage,
+        claudeImage: app?.claudeImage,
         portalImage: app?.portalImage
       }
     };
@@ -1134,7 +1149,30 @@ function preferredAzureDemoLiveStatus(
 
   const storedTime = new Date(stored.generatedAt).getTime();
   const latestTime = latest.lastVerifiedAt ? new Date(latest.lastVerifiedAt).getTime() : 0;
-  return storedTime >= latestTime ? stored : latest;
+  const preferred = storedTime >= latestTime ? stored : latest;
+  const existingTargets = new Set(preferred.applications.map((application) => application.target));
+  const missingProfileApplications = latest.applications.filter((application) => profile.targets.includes(application.target) && !existingTargets.has(application.target));
+  if (!missingProfileApplications.length) {
+    return preferred;
+  }
+
+  const applications = [...preferred.applications, ...missingProfileApplications];
+  const liveCount = applications.filter((application) => application.state === "live").length;
+  const state: AzureDemoDeploymentLiveStatus["state"] = applications.length > 0 && liveCount === applications.length
+    ? "live"
+    : liveCount > 0
+      ? "unknown"
+      : "unavailable";
+
+  return {
+    ...preferred,
+    state,
+    label: state === "live" ? "Live deployment verified" : state === "unavailable" ? "Deployment unavailable" : "Deployment status unknown",
+    detail: state === "live"
+      ? `${liveCount} Azure demo target${liveCount === 1 ? "" : "s"} passed the latest smoke evidence.`
+      : "Run Deploy latest, Smoke test, or Refresh Azure status to verify the public demo targets.",
+    applications
+  };
 }
 
 function joinDemoDirectoryUrl(baseUrl: string | undefined, entryPath: string | undefined) {
@@ -3030,6 +3068,15 @@ function expectedImagesForAzureDemoStatus(profile: AzureDemoDeploymentProfile, a
     ].filter((expected) => expected.label !== "*");
   }
 
+  if (appStatus.target === "modern-ui-claude") {
+    const claudeImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-modern-ui-claude:` : "";
+    const claudeImage = appStatus.images?.claudeImage
+      ?? (appStatus.images?.imageTag && registry ? `${claudeImagePrefix}${appStatus.images.imageTag}` : undefined);
+    return [
+      claudeImage ? exactAzureDemoImage(claudeImage) : prefixedAzureDemoImage(`${claudeImagePrefix}*`, claudeImagePrefix)
+    ].filter((expected) => expected.label !== "*");
+  }
+
   const webImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-modernized-web:` : "";
   const apiImagePrefix = registry ? `${registry}.azurecr.io/${prefix}-modernized-api:` : "";
   const webImage = appStatus.images?.webImage
@@ -3076,7 +3123,7 @@ async function refreshAzureDemoAppStatus(
   }
 
   const url = parsed.fqdn ? `https://${parsed.fqdn}` : base.url;
-  const healthUrl = base.healthUrl ?? (base.target === "modernized-openemr" && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
+  const healthUrl = base.healthUrl ?? ((base.target === "modernized-openemr" || base.target === "modern-ui-claude") && url ? `${url.replace(/\/+$/, "")}/health` : undefined);
   const probeUrl = healthUrl ?? url;
   const http = probeUrl ? { url: probeUrl, ...(await checkHttp(probeUrl)) } : undefined;
   const azureRunning = parsed.runningStatus === "Running" && parsed.provisioningState === "Succeeded";
