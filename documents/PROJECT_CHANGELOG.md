@@ -27918,7 +27918,10 @@ Changes:
 - Updated the Workbench Progress ledger so local reminder dispatch/audit is completed scheduling evidence while external provider integrations and richer template administration remain outstanding.
 
 Verification:
-- Pending.
+- `npm --prefix .\modernization-workbench run typecheck`
+- `npm --prefix .\modernization-workbench run build`
+- Playwright opened `http://127.0.0.1:5173/#/demo-deployment`, verified the Cost Tracking panel contains an enabled **Refresh costs** button with the title `Refresh Azure status and Cost Management estimates`, and verified the empty state reads `Use Refresh costs to ask Azure Cost Management for month-to-date estimates for this resource group.`
+- Playwright resized the Demo Deployment page to 390x900 and verified the Cost Tracking panel and header actions did not overflow the viewport.
 
 Code Metrics:
 - Commit `d0272c1e` changed 16 scoped files with 1016 insertions and 6 deletions.
@@ -28725,6 +28728,25 @@ Verification:
 
 Code Metrics:
 - 13 files changed, 347 insertions, 24 deletions.
+
+## 661. Demo Deployment Cost Tracking Refresh Control
+
+Started: 2026-06-28T18:39:00.0000000-04:00
+Finished: 2026-06-28T18:45:09.4124491-04:00
+Commit: pending
+
+Clarified how the Demo Deployment Cost Tracking panel gets data and added a direct refresh action inside the panel. The cost data is still fetched from Azure Cost Management during Azure status refresh, but operators no longer have to infer that from the separate runtime-status controls.
+
+Changes:
+- Added a **Refresh costs** button to the Cost Tracking panel header, wired to the existing Azure status refresh workflow.
+- Updated the empty-state copy so an empty Cost Tracking panel explains that the button asks Azure Cost Management for month-to-date estimates for the selected resource group.
+- Updated Azure demo deployment and Workbench documentation to record that Cost Tracking is populated by the same resource-group-scoped Cost Management query as **Refresh Azure status**.
+
+Verification:
+- Pending.
+
+Code Metrics:
+- Pending commit-scoped metrics until the implementation commit exists.
 
 ## Next Expected Entries
 

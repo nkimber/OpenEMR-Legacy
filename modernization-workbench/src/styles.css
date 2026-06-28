@@ -1742,6 +1742,14 @@ p {
   padding-top: 14px;
 }
 
+.demo-cost-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .demo-cost-note {
   margin-top: 10px;
   color: #566779;

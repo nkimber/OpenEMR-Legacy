@@ -4114,7 +4114,13 @@ function DemoDeploymentPage({
               <Database size={17} />
               Cost Tracking
             </h3>
-            {costSummary?.lastRefreshedAt ? <span className="quiet-chip">Updated {formatDate(costSummary.lastRefreshedAt)}</span> : null}
+            <div className="demo-cost-header-actions">
+              {costSummary?.lastRefreshedAt ? <span className="quiet-chip">Updated {formatDate(costSummary.lastRefreshedAt)}</span> : null}
+              <button className="text-button runtime-action-button" type="button" onClick={onRefreshStatus} disabled={busyForDeployment} title="Refresh Azure status and Cost Management estimates">
+                <RefreshCw size={14} />
+                Refresh costs
+              </button>
+            </div>
           </div>
           {costSummary ? (
             <>
@@ -4129,7 +4135,7 @@ function DemoDeploymentPage({
               </p>
             </>
           ) : (
-            <EmptyState text="Refresh Azure status to load Cost Management estimates for this resource group." />
+            <EmptyState text="Use Refresh costs to ask Azure Cost Management for month-to-date estimates for this resource group." />
           )}
         </div>
       </section>
